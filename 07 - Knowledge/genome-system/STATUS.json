@@ -1,0 +1,53 @@
+{
+  "system": "genome-system",
+  "version": "0.4.3",
+  "ledger_code_version": "0.4.8",
+  "ledger_code_note": "Loop app remains retired at 0.4.3 (2026-07-17). ledger.py itself advanced: v0.4.6 heart-arrow, v0.4.7 scar-aware verify, v0.4.8 tip-commit against tail truncation (2026-08-16 deep-seams). This field is the honest version of the LIVE ledger, not a claim that the retired loop restarted.",
+  "updated": "2026-07-17",
+  "status": "retired",
+  "epistemic_status": "retired",
+  "retired_note": "Retired 2026-07-17 (tri-scan): the self-improving genome-LOOP app (run.py/research_loop.py/agents) is dead — zero _ops importers, no scheduled task, last agent write 2026-07-06. The genome LEDGER at ledger/ledger.jsonl remains LIVE, consumed by _ops/budget/opslib.genome_ledger(); this retirement scopes ONLY the loop app, NOT the directory or the ledger.",
+  "location": "07 - Knowledge/genome-system",
+  "one_line": "Safe self-improving local-first knowledge system. Propose-only. Expensive intelligence at rare decision points; everything routine is cheap and event-driven.",
+  "invariants": [
+    "propose-only: no agent may APPLY; only the owner (ari) approves",
+    "genome/ is READ-ONLY for all agents; changes go through the 72h two-key protocol",
+    "evaluator + metrics live in the genome (frozen) -- anti reward-hacking",
+    "perception indexes only an owner allowlist (privacy)",
+    "budget caps in genome/gates.yaml; guardian halts on breach",
+    "open formats + local-first (markdown, jsonl, sqlite, git) -- no vendor lock-in"
+  ],
+  "agents": {
+    "guardian": {"role": "control / liveness / gates / halt", "writes": "ledger only", "genome": "read-only"},
+    "creativity": {"role": "read-only ideas, madness-or-genius, humility-framed", "writes": "PROPOSAL -> doctor"},
+    "doctor": {"role": "weekly health + adjudication + red-team", "writes": "PROPOSAL -> owner"}
+  },
+  "memory": {
+    "episodic": "ledger/ledger.jsonl (append-only + SHA-256 hash chain, concurrency-safe)",
+    "semantic": "index.db (SQLite FTS5; rebuildable from the vault)",
+    "procedural": "genome/ + agents/*.md role prompts"
+  },
+  "intelligence": {
+    "cheap": "claude-haiku-4-5-20251001 ($1/$5)",
+    "default": "claude-sonnet-5 ($2/$10 intro -> $3/$15)",
+    "premium": "claude-opus-4-8 ($5/$25)",
+    "batch_discount": 0.5,
+    "cache_read_multiplier": 0.1
+  },
+  "entrypoints": {
+    "cycle": "python run.py [loop|full] [vault]",
+    "research_loop": "python research_loop.py \"seed\" --minutes 60 --max-cost 1.0",
+    "backup": "python scripts/backup.py",
+    "tests": "python tests/{smoke,integration,llm,review,leak_guard}_test.py"
+  },
+  "schedule": {"cowork_task": "genome-loop 3x/day (09,15,21 local) plan-gated", "doctor": "weekly (full mode)", "backup": "daily"},
+  "how_other_agents_should_interact": [
+    "READ freely: ledger, reports/, docs/, genome/ (NEVER write genome/)",
+    "To suggest a change: append a PROPOSAL to the ledger addressed to the doctor; never APPLY",
+    "Respect plan.yaml: if complete, the loop idles and spends nothing",
+    "Never override budget caps in genome/gates.yaml"
+  ],
+  "tests_status": "smoke + integration + llm + review + leak_guard (4 checks) ALL green as of 2026-07-07; v0.4.2 fixed the append-lock race (12/12 consecutive runs); v0.4.3 made the key-leak guard two-way (hostname-based); v0.4.8 tip-commit (2026-08-16) — see ledger_code_version",
+  "open_items": ["off-site backup copy #3 (restic/rclone)", "run once with a real ANTHROPIC_API_KEY", "owner_confirmed: true in gates.yaml"],
+  "see_also": ["INDEX.md", "HANDOFF.md", "CHANGELOG.md", "README.md"]
+}

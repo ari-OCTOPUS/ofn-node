@@ -1,0 +1,184 @@
+﻿{
+    "schema":  "ziman-replace-candidates-scan/1",
+    "stamp_local":  "2026-08-24T17:33:53+10:00",
+    "producer":  "Ios",
+    "lane":  "laptop_vault_scan_only",
+    "constraint":  {
+                       "no_shopify_mutate":  true,
+                       "no_invent":  true,
+                       "no_upload":  true
+                   },
+    "roots_scanned":  [
+                          "F:\\backup\\00 - Inbox\\ziman-gallery",
+                          "C:\\Users\\Armin\\Downloads\\Telegram Desktop",
+                          "F:\\backup\\06-EVIDENCE\\BOARD2-ZIMAN-PHOTO-MATCH-2026-08-24\\previews"
+                      ],
+    "method":  "visual ExternalRead of JPG contact-sheet previews generated/copied from gallery HEIC/DNG; cross-check STOREFRONT-QA + REPLACE-PACK",
+    "skus":  [
+                 {
+                     "sku":  "ZM-GALLERY-0007",
+                     "product_id":  "8688854564964",
+                     "want":  "Red balloon box + white roses + cream teddy + LED",
+                     "ideal_stem":  "IMG_4238",
+                     "ideal_status":  "MISSING",
+                     "candidates":  [
+                                        {
+                                            "stem":  "IMG_4447",
+                                            "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_4447.DNG",
+                                            "confidence":  0.78,
+                                            "role":  "featured_near_miss",
+                                            "visual":  "Red cylinder LOVE box + cream teddy + red heart balloons + LED fairy lights in roses + wine; roses RED not white"
+                                        },
+                                        {
+                                            "stem":  "IMG_3740",
+                                            "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3740.HEIC",
+                                            "confidence":  0.55,
+                                            "role":  "extra_weak",
+                                            "visual":  "Cream teddy + red heart balloons + KitKat in black hat box (not red balloon box)"
+                                        }
+                                    ],
+                     "rejected":  [
+                                      {
+                                          "stem":  "IMG_3984",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3984.HEIC",
+                                          "visual":  "Pink quilted MUM hamper — not red balloon"
+                                      },
+                                      {
+                                          "stem":  "IMG_3987",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3987.DNG",
+                                          "visual":  "Same pink MUM hamper angle"
+                                      },
+                                      {
+                                          "stem":  "IMG_3746",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3746.HEIC",
+                                          "visual":  "Lotso strawberry glitter box — other product"
+                                      },
+                                      {
+                                          "stem":  "IMG_3980",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3980.HEIC",
+                                          "visual":  "Green ZIMAN spa/foot-therapy box — other product"
+                                      },
+                                      {
+                                          "stem":  "IMG_3101",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3101.DNG",
+                                          "visual":  "Red wood box + white chrysanthemums — no teddy/balloon/LED"
+                                      }
+                                  ],
+                     "note":  "Exact Mom-set IMG_4238 still absent; 4447 best Inbox near-miss with caveat (red roses)."
+                 },
+                 {
+                     "sku":  "ZM-GALLERY-0008",
+                     "product_id":  "8688854630500",
+                     "want":  "Cream/wicker flower basket brown pearl (same product as IMG_2978)",
+                     "ideal_stem":  "IMG_4339",
+                     "ideal_status":  "MISSING",
+                     "known_good":  [
+                                        {
+                                            "stem":  "IMG_2978",
+                                            "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_2978.DNG",
+                                            "confidence":  0.95,
+                                            "role":  "keep_featured",
+                                            "visual":  "Oval cream wicker basket + white roses + gold clutch + Ferrero + gold/white/clear balloons"
+                                        }
+                                    ],
+                     "candidates":  [
+
+                                    ],
+                     "same_product_extras_found":  false,
+                     "rejected":  [
+                                      {
+                                          "stem":  "IMG_3101",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3101.DNG",
+                                          "visual":  "OTHER — red wood carnation box"
+                                      },
+                                      {
+                                          "stem":  "IMG_3636",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3636.HEIC",
+                                          "visual":  "OTHER — white gold-heart cylinder + cream teddy outdoors"
+                                      },
+                                      {
+                                          "stem":  "IMG_3728",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3728.DNG",
+                                          "visual":  "OTHER — chocolate-heart base + red roses + cream teddy"
+                                      },
+                                      {
+                                          "stem":  "IMG_3352",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3352.DNG",
+                                          "visual":  "NEAR-FORM-ONLY — taco wicker + pink pearls/roses; NOT same product as 2978"
+                                      },
+                                      {
+                                          "stem":  "IMG_9429",
+                                          "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_9429.HEIC",
+                                          "visual":  "REJECT private feet"
+                                      }
+                                  ],
+                     "note":  "No same-product alternate angles of 2978 found in Inbox; need Mom-set 4339 or new shoot for extras."
+                 },
+                 {
+                     "sku":  "ZM-GALLERY-0014",
+                     "product_id":  "8688855056484",
+                     "want":  "Pink teddy + LED bubble balloon + roses/chocolates",
+                     "ideal_stem":  null,
+                     "ideal_status":  "NO_STEM_IN_MAP",
+                     "must_reject_stems":  [
+                                               "IMG_9453",
+                                               "IMG_9458",
+                                               "IMG_9459",
+                                               "IMG_9461"
+                                           ],
+                     "reject_block_expanded":  "IMG_9429..IMG_9471 private feet/legs cluster (confirmed visual on multiple stems)",
+                     "candidates":  [
+
+                                    ],
+                     "near_miss_only":  [
+                                            {
+                                                "stem":  "IMG_3399",
+                                                "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3399.DNG",
+                                                "confidence":  0.45,
+                                                "visual":  "Pink teddy + rose-gold heart balloons + star LEDs in wood crate — NOT clear LED bubble balloon"
+                                            },
+                                            {
+                                                "stem":  "IMG_3875",
+                                                "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_3875.DNG",
+                                                "confidence":  0.4,
+                                                "visual":  "Pink quilted Mum basket + pink teddy + florals/chocolates — no LED bubble balloon"
+                                            },
+                                            {
+                                                "stem":  "IMG_4540",
+                                                "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_4540.HEIC",
+                                                "confidence":  0.35,
+                                                "visual":  "Pink teddy + pink star foil balloon + Kinder — no roses / no bubble LED"
+                                            }
+                                        ],
+                     "rejected_live":  [
+                                           {
+                                               "stem":  "IMG_9453",
+                                               "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_9453.HEIC",
+                                               "visual":  "Private feet/legs — ZERO product"
+                                           },
+                                           {
+                                               "stem":  "IMG_9458",
+                                               "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_9458.HEIC",
+                                               "visual":  "Private feet — ZERO product"
+                                           },
+                                           {
+                                               "stem":  "IMG_9459",
+                                               "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_9459.HEIC",
+                                               "visual":  "Private feet — ZERO product"
+                                           },
+                                           {
+                                               "stem":  "IMG_9461",
+                                               "path":  "F:\\backup\\00 - Inbox\\ziman-gallery\\IMG_9461.HEIC",
+                                               "visual":  "Private feet — ZERO product"
+                                           }
+                                       ],
+                     "note":  "Zero exact pink-teddy+LED-bubble product shot in scanned Inbox; do not invent; phone re-export or new shoot required."
+                 }
+             ],
+    "related_evidence":  [
+                             "F:\\backup\\06-EVIDENCE\\FUGU-BIZ-SPRINT-2026-08-24\\ziman\\STOREFRONT-QA-0007.json",
+                             "F:\\backup\\06-EVIDENCE\\FUGU-BIZ-SPRINT-2026-08-24\\ziman\\STOREFRONT-QA-0008.json",
+                             "F:\\backup\\06-EVIDENCE\\FUGU-BIZ-SPRINT-2026-08-24\\ziman\\STOREFRONT-QA-0014.json",
+                             "F:\\backup\\06-EVIDENCE\\FUGU-BIZ-SPRINT-2026-08-24\\ziman\\REPLACE-PACK-0007-0008-0014.json"
+                         ]
+}

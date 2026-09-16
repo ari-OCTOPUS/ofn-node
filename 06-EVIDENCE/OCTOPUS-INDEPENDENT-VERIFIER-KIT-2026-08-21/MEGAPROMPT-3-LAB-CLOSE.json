@@ -1,0 +1,115 @@
+﻿{
+ "schema": "lab-close-wave1/1",
+ "code_head": "bfbb03f36a6510eafe6d4910625895a127c14e7c",
+ "seeded_ok": 24,
+ "seed_errors": [],
+ "conclusions": [
+  {
+   "experiment_id": "EXP-SEC-001",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-SEC-002",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-SEC-003",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-SEC-004",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-SEC-005",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-TG-001",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-TG-002",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-TG-003",
+   "result": "INCONCLUSIVE"
+  },
+  {
+   "experiment_id": "EXP-TG-004",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-TG-005",
+   "result": "INCONCLUSIVE"
+  },
+  {
+   "experiment_id": "EXP-TG-006",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-MEM-001",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-MEM-002",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-HUB-001",
+   "result": "INCONCLUSIVE"
+  },
+  {
+   "experiment_id": "EXP-HUB-002",
+   "result": "INCONCLUSIVE"
+  },
+  {
+   "experiment_id": "EXP-HUB-003",
+   "result": "INCONCLUSIVE"
+  },
+  {
+   "experiment_id": "EXP-LAB-001",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-LAB-002",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-DOC-001",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-DOCTOR-001",
+   "result": "INCONCLUSIVE"
+  },
+  {
+   "experiment_id": "EXP-C15-001",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-C19-001",
+   "result": "SUPPORTED"
+  },
+  {
+   "experiment_id": "EXP-C21-001",
+   "result": "INCONCLUSIVE"
+  },
+  {
+   "experiment_id": "EXP-C23-001",
+   "result": "INCONCLUSIVE"
+  }
+ ],
+ "errors": [],
+ "latest_count": 24,
+ "result_counts": {
+  "SUPPORTED": 16,
+  "INCONCLUSIVE": 8,
+  "REFUTED": 0,
+  "PENDING": 0
+ },
+ "all_24": true,
+ "live_send": false,
+ "production_lab_untouched": true
+}

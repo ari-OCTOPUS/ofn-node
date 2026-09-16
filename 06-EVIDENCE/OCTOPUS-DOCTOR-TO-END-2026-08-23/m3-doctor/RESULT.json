@@ -1,0 +1,16 @@
+{
+  "ts_utc": "20260823T033751Z",
+  "status": "PASS",
+  "blocking_failed_ids": [],
+  "degrading_failed_ids": [],
+  "unknown_ids": [],
+  "repairs_attempted": 0,
+  "failed_brief": [
+    {
+      "check_id": "metrics_observation_age",
+      "severity": "informational",
+      "reason": null,
+      "observed": "MISSING"
+    }
+  ]
+}

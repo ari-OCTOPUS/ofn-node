@@ -1,0 +1,2 @@
+{"path": "_ops/tests/run_p0_verify.py", "type": "new_file", "purpose": "minimal eval harness wrapping the 6 P0 tests with UTF-8 output fix", "risk": "none — test-only, no production code path, stdlib subprocess of existing test files"}
+{"path": "_ops/OCTOPUS-FIX-START-CODEX-20260804-200015/", "type": "new_directory", "purpose": "this report set", "risk": "none — documentation only"}

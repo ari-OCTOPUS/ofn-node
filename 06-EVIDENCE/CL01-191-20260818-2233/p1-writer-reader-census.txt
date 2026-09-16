@@ -1,0 +1,57 @@
+=== A) callers of store.py write API (writers) ===
+_ops\memory\write_gate_enforcer.py:5:Closes the gap: the 4d brain writes hypotheses through memory.store.save_hypothesis()
+_ops\memory\write_gate_enforcer.py:295:    This is the integration point: called after save_hypothesis() to add
+4d_system\brain\automation.py:455:            from memory.store import save_hypothesis
+4d_system\brain\automation.py:456:            hid = save_hypothesis(
+4d_system\brain\automation.py:461:            logger.error("save_hypothesis failed: %s", e)
+4d_system\brain\auto_experiment.py:72:        from memory.store import save_hypothesis
+4d_system\brain\auto_experiment.py:73:        save_hypothesis(current_source, result["hypothesis"], result["rationale"])
+4d_system\brain\memory_read_patch.py:4:پیش از این، automation.py فقط می‌نوشت (save_hypothesis/save_experiment) و هرگز
+4d_system\brain\hypotheses.py:199:        from memory.store import save_hypothesis
+4d_system\brain\hypotheses.py:200:        save_hypothesis(
+4d_system\brain\reflection.py:121:        from memory.store import save_reflection
+4d_system\brain\reflection.py:124:            save_reflection(exp_id, quality, feedback, score)
+4d_system\brain\tools.py:151:        from memory.store import save_hypothesis
+4d_system\brain\tools.py:152:        save_hypothesis(domain, hypothesis)
+4d_system\brain\research_agenda.py:75:        from memory.store import DB_PATH, save_hypothesis, _ensure_db
+
+=== B) callers of store.py read API (readers) ===
+_ops\tests\test_ease_claim_unwired_20260816.py:1:"""test_ease_claim_unwired_20260816 — قفل NEVER-WIRED برای claim_hypothesis.
+_ops\tests\test_ease_claim_unwired_20260816.py:26:def test_claim_hypothesis_defined_in_store():
+_ops\tests\test_ease_claim_unwired_20260816.py:31:def test_claim_hypothesis_no_production_callers():
+_ops\tests\test_ease_claim_unwired_20260816.py:43:            if "claim_hypothesis" in text:
+_ops\tests\test_g2_trusted_memory_loop.py:516:            # In real system this comes from get_pending_hypotheses()
+4d_system\brain\auto_experiment.py:83:        from memory.store import get_pending_hypotheses
+4d_system\brain\auto_experiment.py:84:        return get_pending_hypotheses(limit)
+4d_system\brain\nodes.py:15:from .tools import compute_shadow_metrics, search_vault, query_experiments, get_anchors
+4d_system\brain\nodes.py:48:        history = query_experiments.invoke({"filter_source": label, "limit": 3})
+4d_system\brain\memory_read_patch.py:68:        from memory.store import query_experiments
+4d_system\brain\memory_read_patch.py:69:        rows = query_experiments(limit=limit) or []
+4d_system\brain\memory_read_patch.py:72:        logger.warning("query_experiments failed: %s", e)
+4d_system\brain\memory_read_patch.py:84:        from memory.store import get_pending_hypotheses
+4d_system\brain\memory_read_patch.py:85:        rows = get_pending_hypotheses(limit=limit) or []
+4d_system\brain\memory_read_patch.py:88:        logger.warning("get_pending_hypotheses failed: %s", e)
+
+=== C) direct sqlite/sql handles to memory stores (bypass candidates) ===
+_ops\c6_trigger.py:221:        _mem = _msx.MemoryStore(path=mdir / "memory.db")
+_ops\memory\owner_recall.py:76:                            "source_path": "memory.db",
+_ops\outcomes\verdict_recorder.py:162:                    _mem = _msx.MemoryStore(path=mdir / "memory.db")
+_ops\tests\test_g2_trusted_memory_loop.py:577:            store = ms.MemoryStore(path=Path(td) / "memory.db")
+_ops\tests\test_g2_trusted_memory_loop.py:608:            store = ms.MemoryStore(path=Path(td) / "memory.db")
+_ops\tests\test_lead_learning_wire.py:52:    store = ms.MemoryStore(path=_STATE / "memory" / "memory.db")
+_ops\tests\test_memory_gate.py:56:    st = ms.MemoryStore(path=Path(td) / "memory.db")
+_ops\tests\test_memory_gate.py:165:        p = Path(td) / "memory.db"
+_ops\tests\test_retrieval_router.py:57:    return Path(os.environ["OCTOPUS_STATE_DIR"]) / "memory" / "memory.db"
+_ops\tests\test_pre0_real_entry.py:59:    st = ms.MemoryStore(path=opslib.STATE_DIR / "pre0-memory.db")
+
+=== D) self-loop-ingest writers AND readers ===
+_ops\cortex\improve.py:687:            "evidence": str(mem.get("mkey") or "self-loop-ingest.jsonl"),
+_ops\memory\owner_recall.py:109:                    "source_path": "state/memory/self-loop-ingest.jsonl",
+_ops\memory\self_loop_ingest.py:10:  · always append state/memory/self-loop-ingest.jsonl
+_ops\memory\self_loop_ingest.py:31:SCHEMA = "self-loop-ingest.v1"
+_ops\memory\self_loop_ingest.py:56:        return _state_root() / "memory" / "self-loop-ingest.jsonl"
+_ops\memory\self_loop_ingest.py:59:        return root / "memory" / "self-loop-ingest.jsonl"
+_ops\memory\self_loop_ingest.py:60:    return root / "state" / "memory" / "self-loop-ingest.jsonl"
+_ops\memory\self_loop_ingest.py:440:            "provenance": "self-loop-ingest.jsonl",
+
+=== E) unconscious.json / other legacy stores touched in code ===

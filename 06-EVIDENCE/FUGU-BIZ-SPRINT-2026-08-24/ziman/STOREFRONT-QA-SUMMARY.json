@@ -1,0 +1,9 @@
+{
+  "stamp": "20260824T073539Z",
+  "0007": "ONE_PRODUCT_PASS paid_HOLD_lifted",
+  "0008": "ONE_PRODUCT_PASS paid_HOLD_lifted",
+  "0014": "HOLD_paid private_photos_still_live",
+  "no_copy_tweak": true,
+  "no_checkout_smoke": true,
+  "no_image_mutate_until_GO": true
+}

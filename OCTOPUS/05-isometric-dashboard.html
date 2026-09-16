@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>fBackup · Isometric Control Center</title>
+<style>
+  html,body{margin:0;height:100%;background:#0c0c0c;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e5e7eb}
+  #head{position:fixed;top:14px;left:0;right:0;text-align:center;font-size:14px;font-weight:600;letter-spacing:.5px;z-index:10;pointer-events:none}
+  #cards{position:fixed;bottom:14px;left:0;right:0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;z-index:10;pointer-events:none;padding:0 12px}
+  .card{background:rgba(17,17,17,.9);border:1px solid #262626;border-radius:9px;padding:8px 12px;min-width:104px;font-size:12px}
+  .card .n{font-weight:600;text-transform:capitalize}
+  .card .v{font-size:18px;font-weight:700;margin-top:2px}
+  .card .s{font-size:10px;color:#8b8b8b}
+  .lbl{background:rgba(15,15,15,.9);border:1px solid #333;border-radius:6px;padding:3px 8px;font-size:11px;color:#fff;white-space:nowrap;text-align:center;transition:transform .15s}
+  .lbl small{display:block;color:#9ca3af;font-size:9px}
+  #css{position:fixed;inset:0;pointer-events:none;z-index:5}
+</style>
+</head>
+<body>
+<div id="head">fBackup · Isometric Control Center · synthetic demo numbers (not organism)</div>
+<div id="cards"></div>
+
+<!-- deps: jsDelivr primary, unpkg auto-fallback -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js">\x3C/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>(window.THREE&&THREE.OrbitControls)||document.write('<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js">\x3C/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+<script>(window.THREE&&THREE.CSS2DRenderer)||document.write('<script src="https://unpkg.com/three@0.128.0/examples/js/renderers/CSS2DRenderer.js">\x3C/script>');</script>
+<script>
+const scene=new THREE.Scene();
+
+const aspect=innerWidth/innerHeight, F=70;
+const camera=new THREE.OrthographicCamera(-F*aspect,F*aspect,F,-F,-500,1000);
+camera.position.set(100,100,100);
+camera.lookAt(0,0,0);
+camera.zoom=0.8; camera.updateProjectionMatrix();
+
+const renderer=new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x0c0c0c,1);
+document.body.appendChild(renderer.domElement);
+
+const labelRenderer=new THREE.CSS2DRenderer();
+labelRenderer.setSize(innerWidth,innerHeight);
+labelRenderer.domElement.id='css';
+document.body.appendChild(labelRenderer.domElement);
+
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.enablePan=false;
+// keep a stable isometric-ish orbit (true iso ≈ 54.7° polar / 45° azimuth)
+controls.minAzimuthAngle=THREE.MathUtils.degToRad(35);
+controls.maxAzimuthAngle=THREE.MathUtils.degToRad(55);
+controls.minPolarAngle=THREE.MathUtils.degToRad(48);
+controls.maxPolarAngle=THREE.MathUtils.degToRad(60);
+
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+const dl=new THREE.DirectionalLight(0xffffff,0.7); dl.position.set(80,120,60); scene.add(dl);
+
+// ---- base ----
+const base=new THREE.Mesh(new THREE.BoxGeometry(120,2,80),
+  new THREE.MeshStandardMaterial({ color:0x1a1a1a, roughness:0.8 }));
+base.position.y=-1; scene.add(base);
+const gl=[]; for(let x=-60;x<=60;x+=10){ gl.push(x,0.1,-40,x,0.1,40); } for(let z=-40;z<=40;z+=10){ gl.push(-60,0.1,z,60,0.1,z); }
+scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(gl,3)),
+  new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:0.05 })));
+
+// ---- status → color ----
+function statusColor(v){ return v>80?0x22c55e : v>=50?0xf59e0b : 0xef4444; }
+
+const AGENTS=[
+  { name:'scanner',    v:85, pos:[-30,-18], last:'2m ago',  q:12 },
+  { name:'compressor', v:60, pos:[  0,-18], last:'5m ago',  q:31 },
+  { name:'encryptor',  v:92, pos:[ 30,-18], last:'1m ago',  q:4  },
+  { name:'uploader',   v:45, pos:[-30, 18], last:'12m ago', q:58 },
+  { name:'scheduler',  v:78, pos:[  0, 18], last:'3m ago',  q:9  },
+  { name:'verifier',   v:33, pos:[ 30, 18], last:'20m ago', q:74 },
+];
+
+const blocks=[];
+AGENTS.forEach(a=>{
+  const h=5+a.v*0.3, col=statusColor(a.v);
+  const block=new THREE.Mesh(new THREE.BoxGeometry(18,h,12),
+    new THREE.MeshStandardMaterial({ color:col, emissive:col, emissiveIntensity:a.v>80?0.3:0.2, roughness:0.5, metalness:0.3 }));
+  block.position.set(a.pos[0], h/2, a.pos[1]);
+
+  const bar=new THREE.Mesh(new THREE.BoxGeometry(14,0.8,0.5),
+    new THREE.MeshBasicMaterial({ color:col }));
+  bar.position.set(a.pos[0], h+1, a.pos[1]);
+
+  const el=document.createElement('div'); el.className='lbl';
+  el.innerHTML=`${a.name} · ${a.v}%<small class="extra"></small>`;
+  const label=new THREE.CSS2DObject(el); label.position.set(0,h/2+4,0); block.add(label);
+
+  block.userData={ a, h, baseY:h/2, bar, el, hoverT:0 };
+  scene.add(block, bar);
+  blocks.push(block);
+});
+
+// ---- connecting pipes ----
+const pipePkts=[];
+function pipe(i,j){
+  const A=blocks[i].userData, B=blocks[j].userData;
+  const a=new THREE.Vector3(blocks[i].position.x,3,blocks[i].position.z);
+  const b=new THREE.Vector3(blocks[j].position.x,3,blocks[j].position.z);
+  const curve=new THREE.CatmullRomCurve3([a,new THREE.Vector3((a.x+b.x)/2,7,(a.z+b.z)/2),b]);
+  scene.add(new THREE.Mesh(new THREE.TubeGeometry(curve,30,0.35,6,false),
+    new THREE.MeshBasicMaterial({ color:0x333333, transparent:true, opacity:0.15 })));
+  const s=new THREE.Mesh(new THREE.SphereGeometry(0.7,10,10), new THREE.MeshBasicMaterial({ color:0x60a5fa }));
+  s.userData={ curve, t:Math.random(), speed:0.2+Math.random()*0.15 }; scene.add(s); pipePkts.push(s);
+}
+// rows
+pipe(0,1); pipe(1,2); pipe(3,4); pipe(4,5);
+// columns
+pipe(0,3); pipe(1,4); pipe(2,5);
+
+// ---- header bar ----
+const header=new THREE.Mesh(new THREE.BoxGeometry(100,8,2),
+  new THREE.MeshStandardMaterial({ color:0x111111, metalness:0.9, roughness:0.3 }));
+header.position.set(0,25,-35); scene.add(header);
+const hEl=document.createElement('div'); hEl.className='lbl'; hEl.textContent='fBackup — system healthy';
+const hLabel=new THREE.CSS2DObject(hEl); hLabel.position.set(0,0,0); header.add(hLabel);
+for(let i=0;i<6;i++){
+  const dot=new THREE.Mesh(new THREE.SphereGeometry(1.1,12,12),
+    new THREE.MeshBasicMaterial({ color:statusColor(AGENTS[i].v) }));
+  dot.position.set(-40+i*3,25,-33.5); scene.add(dot);
+}
+
+// ---- side mini chart (canvas texture) ----
+const cv=document.createElement('canvas'); cv.width=256; cv.height=192;
+const ctx=cv.getContext('2d');
+function drawChart(){
+  ctx.fillStyle='#0e0e0e'; ctx.fillRect(0,0,256,192);
+  ctx.strokeStyle='#222'; for(let y=20;y<192;y+=34){ ctx.beginPath();ctx.moveTo(10,y);ctx.lineTo(246,y);ctx.stroke(); }
+  ctx.strokeStyle='#3b82f6'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<=24;i++){ const x=10+i*9.8, y=150-Math.abs(Math.sin(i*0.5+Date.now()*0.0005))*100-Math.random()*6; i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+  ctx.stroke();
+  ctx.fillStyle='#8b8b8b'; ctx.font='13px sans-serif'; ctx.fillText('backup size / time',12,18);
+}
+drawChart();
+const tex=new THREE.CanvasTexture(cv);
+const chart=new THREE.Mesh(new THREE.PlaneGeometry(20,15),
+  new THREE.MeshBasicMaterial({ map:tex, transparent:true }));
+chart.position.set(58,12,0); chart.rotation.y=-Math.PI/4; scene.add(chart);
+
+// ---- bottom cards + hover ----
+const cards=document.getElementById('cards');
+AGENTS.forEach(a=>{
+  const c=document.createElement('div'); c.className='card';
+  const hex='#'+statusColor(a.v).toString(16).padStart(6,'0');
+  c.innerHTML=`<div class="n" style="color:${hex}">${a.name}</div><div class="v">${a.v}%</div><div class="s">queue ${a.q} · ${a.last}</div>`;
+  cards.appendChild(c);
+});
+
+const ray=new THREE.Raycaster(), mouse=new THREE.Vector2(); let hovered=null;
+addEventListener('pointermove', e=>{ mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1; });
+function hover(){
+  ray.setFromCamera(mouse,camera);
+  const hit=ray.intersectObjects(blocks)[0];
+  const t=hit?hit.object:null;
+  if(t!==hovered){
+    if(hovered){ const u=hovered.userData; u.el.querySelector('.extra').textContent=''; u.el.style.transform='scale(1)'; }
+    hovered=t;
+    if(hovered){ const u=hovered.userData; u.el.querySelector('.extra').innerHTML=`last backup: ${u.a.last} · queue: ${u.a.q} files`; u.el.style.transform='scale(1.25)'; }
+  }
+}
+
+// ---- animate ----
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=clock.getDelta(), et=clock.elapsedTime;
+  blocks.forEach((b,i)=>{
+    const u=b.userData;
+    const sy=1+Math.sin(et*1.5+i)*0.03; b.scale.y=sy; b.position.y=u.baseY*sy;
+    u.bar.material.opacity=0.6+Math.abs(Math.sin(et*3+i))*0.4;
+    u.bar.scale.setScalar(1+Math.sin(et*3+i)*0.05);
+  });
+  pipePkts.forEach(p=>{ p.userData.t=(p.userData.t+dt*p.userData.speed)%1; p.position.copy(p.userData.curve.getPointAt(p.userData.t)); });
+  if(Math.floor(et*2)%2===0){ drawChart(); tex.needsUpdate=true; }
+  hover();
+  controls.update();
+  renderer.render(scene,camera);
+  labelRenderer.render(scene,camera);
+}
+animate();
+
+addEventListener('resize', ()=>{
+  const a=innerWidth/innerHeight;
+  camera.left=-F*a; camera.right=F*a; camera.top=F; camera.bottom=-F; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight); labelRenderer.setSize(innerWidth,innerHeight);
+});
+</script>
+</body>
+</html>

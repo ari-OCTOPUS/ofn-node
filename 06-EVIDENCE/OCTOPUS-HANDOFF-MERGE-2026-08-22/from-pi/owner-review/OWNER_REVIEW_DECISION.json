@@ -1,0 +1,107 @@
+{
+  "schema": "octopus.owner-review-decision.v1",
+  "written_at": "2026-08-17T04:20:17.736300+00:00",
+  "canonical": true,
+  "decision": "KEEP_WAVE0_LOCKED",
+  "control_safety": "PASS",
+  "current_wave": "WAVE0_OBSERVE_ONLY",
+  "target_wave": "WAVE0_OBSERVE_ONLY",
+  "transition_attempted": false,
+  "t0_t6_package": "DELIVERED",
+  "t0_result": "DEGRADED",
+  "t4_result": "NOT_EXECUTED_NO_CANDIDATE",
+  "technical_readiness_key": false,
+  "owner_authority_key": false,
+  "verifier": {
+    "status": "READY",
+    "gates_failed": [],
+    "meaning": "OBSERVE_ONLY"
+  },
+  "doctor": "FAIL",
+  "doctor_detail": {
+    "status": "FAIL",
+    "read_only": true,
+    "repairs_attempted": 0,
+    "auto_repair": false,
+    "blocking_checks": [
+      {
+        "id": "gap_001_open",
+        "severity": "blocking",
+        "observed": "TESTED_FAIL",
+        "required": "PASS_WITH_EVIDENCE",
+        "repair_attempted": false,
+        "note": "Live files OPEN/TESTED_FAIL. Text claims are not evidence. Do not auto-repair."
+      },
+      {
+        "id": "coverage_or_data_critical",
+        "severity": "blocking",
+        "observed": "would_block",
+        "required": "healthy_or_explained",
+        "repair_attempted": false,
+        "would_decide": "block",
+        "note": "Observe-only would_decide=block. Host is not locked down. Do not auto-repair coverage."
+      }
+    ]
+  },
+  "gap_001": "OPEN_TESTED_FAIL",
+  "gap_001_detail": {
+    "status": "OPEN",
+    "result": "TESTED_FAIL",
+    "cryptographic_pass": false,
+    "correction_of": "mega-prompt baseline claim gap_001=PASSED"
+  },
+  "gap_002": "CLOSED_BY_SIGNED_CHECKPOINT",
+  "audit_checkpoint": {
+    "chain_id": "octopus-audit-ledger",
+    "anchored_through_seq": 266,
+    "record_hash_full": "sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2",
+    "phrase": "octopus-audit-ledger checkpoint anchored at seq=266",
+    "represents_latest_state": false,
+    "root_v2_signed": true,
+    "creates_authority": false,
+    "signature_verified_on_board": true
+  },
+  "reflex_ledger": {
+    "chain_id": "octopus-reflex-ledger",
+    "seq": 1,
+    "hash_full": "sha256:018d8bc5bb6e12290e01979aaade8f701deeba306dcce90aa847b0b357f49260",
+    "same_as_audit_ledger": false
+  },
+  "skill": {
+    "evaluated_model": "persistence-v1",
+    "baseline_model": "persistence-v1",
+    "score": 0.0,
+    "meaning": "model_is_the_baseline",
+    "candidate_evaluated": false,
+    "candidate_loss": null,
+    "planning_evidence": false,
+    "decision": "DENY",
+    "is_evidence_of_model_quality": false,
+    "usable_pairs": 95,
+    "baseline_loss": 0.0026419243355263146,
+    "skill_point_estimate": null,
+    "skill_lower_bound": null,
+    "reason": "no_candidate_model_registered",
+    "live_model_mse": 0.0026419243355263146,
+    "live_baseline_mse": 0.0026419243355263146,
+    "analytic_identity": "SS=1-L_persistence/L_persistence=0 when evaluated_model==baseline_model",
+    "t4": "NOT_EXECUTED_NO_CANDIDATE",
+    "not_a_failed_interactive_candidate": true,
+    "written_at": "2026-08-17T04:11:13.482600+00:00"
+  },
+  "candidate_registered": false,
+  "planning_evidence": false,
+  "planner_invocations": 0,
+  "executed_actions": 0,
+  "actuator_authority": "NONE",
+  "locks_total": 24,
+  "locks_unlocked": 0,
+  "locks_safe_to_unlock": 0,
+  "oa_t7_present": false,
+  "ready_for_owner_decision": false,
+  "authority_changed": false,
+  "checkpoint_signing_alone_permits_oa_t7": false,
+  "control_safety_meaning": "WAVE0_OBSERVE_ONLY held: actuator_authority=NONE, executed_actions=0, planner_invocations=0, no OA-T7, no arming",
+  "next_actions_file": "NEXT_ACTIONS_SEQUENTIAL.json",
+  "mutations_this_correction": "owner-review artifacts and inbound pack only"
+}

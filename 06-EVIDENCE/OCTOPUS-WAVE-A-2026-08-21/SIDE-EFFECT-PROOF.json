@@ -1,0 +1,22 @@
+{
+  "schema": "octopus-side-effect-proof/2",
+  "generated_at": "2026-08-22T06:54:59.579879+10:00",
+  "live_telegram_calls": 0,
+  "manual_getUpdates": 0,
+  "sendMessage": 0,
+  "editMessageText": 0,
+  "webhook_operations": 0,
+  "paid_calls": 0,
+  "token_inspection": 0,
+  "production_state_writes": 0,
+  "fixture_state_roots": [
+    "C:/Users/Armin/.zcode/tmp/wave-a-clean-v3-state/*"
+  ],
+  "network": {
+    "external_calls": 0,
+    "localhost_only": [
+      "HTTPServer tests for subprocess success, binary fidelity and HTTP 429 reconstruction"
+    ]
+  },
+  "uncertain_resends": 0
+}

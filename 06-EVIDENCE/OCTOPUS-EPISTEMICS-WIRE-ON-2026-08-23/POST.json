@@ -1,0 +1,64 @@
+﻿{
+    "method":  "RESTART-REQUESTED",
+    "captured_at_utc":  "2026-08-22T22:03:27.9814622Z",
+    "epistemics_dry_advisory":  {
+                                    "flags_loaded_pid":  29020,
+                                    "offloop_metric_names":  [
+                                                                 "identifiability",
+                                                                 "channel",
+                                                                 "levels",
+                                                                 "self_reference",
+                                                                 "method"
+                                                             ],
+                                    "epistemics_beat_return":  {
+                                                                   "metrics_count":  5,
+                                                                   "authoritative_count":  3,
+                                                                   "advisory_only":  true
+                                                               },
+                                    "environ":  "1",
+                                    "wiring_flag":  true,
+                                    "flags_loaded_value":  "1",
+                                    "live_tg_send":  false,
+                                    "emit":  false
+                                },
+    "captured_at_local":  "2026-08-23T08:03:27",
+    "pre":  {
+                "full_env_printed":  false,
+                "organism_pid":  26900,
+                "organism_start_local":  "2026-08-23T03:53:17",
+                "env_mtime_local":  "2026-08-23T07:58:38",
+                "center_pid":  35916,
+                "env_flag_line":  "OCTOPUS_WIRE_EPISTEMICS=1"
+            },
+    "schema":  "octopus-epistemics-wire-on-reload/1",
+    "CENTER_PID":  35916,
+    "evidence_dir":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23",
+    "control_flags_post":  {
+                               "HALT-ALL":  false,
+                               "STOP-TG-CENTER":  false,
+                               "RESTART-REQUESTED":  false,
+                               "STOP-ORGANISM":  false
+                           },
+    "STATUS":  "OK_RELOADED",
+    "ORGANISM_PID_AFTER":  29020,
+    "constraints":  {
+                        "organism_only":  true,
+                        "secrets_printed":  false,
+                        "center_untouched":  true,
+                        "dead_letter":  false,
+                        "live_tg_send":  false
+                    },
+    "timezone_note":  "machine local; user Australia/Sydney UTC+10",
+    "post":  {
+                 "port_8771_listening":  true,
+                 "organism_start_local":  "2026-08-23T08:02:26",
+                 "flags_loaded_pid":  29020,
+                 "center_unchanged":  true,
+                 "port_8771_owner":  29020,
+                 "center_start_local":  "2026-08-22T19:28:37",
+                 "OCTOPUS_WIRE_EPISTEMICS":  "1",
+                 "organism_pid":  29020,
+                 "center_pid":  35916
+             },
+    "ORGANISM_PID_BEFORE":  26900
+}

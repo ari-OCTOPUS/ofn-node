@@ -1,0 +1,579 @@
+{
+  "schema": "octopus.ckpt348-path-hunt.not-found.v1",
+  "written_at_local": "2026-08-22T21:33:03.094348+10:00",
+  "timezone": "Australia/Sydney (UTC+10)",
+  "result": "NOT_FOUND",
+  "target": {
+    "seq": 348,
+    "chain_or_root": "root-v2",
+    "artifact": "unsigned checkpoint payload"
+  },
+  "places_searched": [
+    {
+      "root": "F:\\backup\\_ops",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\01-TRUTH",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\02-DECISIONS",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\07-HANDOFF",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\00-INDEX",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\docs",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\08-PLANS",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\agent-prompts",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\continuity",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\state",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\OCTOPUS",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\OCTOPUS-PRIME",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\OCTOPUS-DOCTOR",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\_octopus",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\nervous-system",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\architecture",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\04-SYSTEMS",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\03-GATES",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CKPT348-SIGN-2026-08-22",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-ORANGEPI-GAP002-CLOSE-2026-08-22",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21-v2",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-PRESERVATION-2026-08-21T2138",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21",
+      "exists": true
+    },
+    {
+      "root": "F:\\backup\\06-EVIDENCE\\sensorium-d14-verify-2026-08-18",
+      "exists": true
+    },
+    {
+      "root": "C:\\Users\\Armin\\.octopus-signing",
+      "exists": true
+    },
+    {
+      "root": "F:\\4d_system",
+      "exists": true
+    },
+    {
+      "root": "F:\\OCTOPUS-SURVIVAL-BACKUP-2026-08-19",
+      "exists": true
+    },
+    {
+      "root": "F:\\TO-LAPTOP",
+      "exists": false
+    },
+    {
+      "root": "C:\\Users\\Armin\\TO-LAPTOP",
+      "exists": false
+    },
+    {
+      "root": "F:\\exchange",
+      "exists": false
+    }
+  ],
+  "near_misses": [
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CKPT348-SIGN-2026-08-22\\NEED_OWNER_HELP.json",
+      "size_bytes": 6033,
+      "mtime_local": "2026-08-22T19:12:29.214475+10:00",
+      "kind": "name_need_owner",
+      "why_matched": [
+        "filename matched /NEED_OWNER_HELP/",
+        "content seq/ckpt 348: ...  \"No artifact, CLI, or runbook found that names checkpoint seq=348 or laptop root-v2 as a signable payload. Refusing to invent crypto or a ..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\02-DECISIONS\\B1-APPLIED-UNSIGNED-2026-08-20.md",
+      "size_bytes": 3543,
+      "mtime_local": "2026-08-20T14:04:44.163352+10:00",
+      "kind": "name_unsigned",
+      "why_matched": [
+        "filename matched /UNSIGNED/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\checkpoint.unsigned.json",
+      "size_bytes": 1949,
+      "mtime_local": "2026-08-22T19:10:58.895041+10:00",
+      "kind": "name_unsigned",
+      "why_matched": [
+        "filename matched /unsigned/",
+        "JSON sequence/seq field=266"
+      ],
+      "observed_sequence": 266
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\evidence\\GAP-002-audit_head_unsigned.json",
+      "size_bytes": 915,
+      "mtime_local": "2026-08-22T19:11:18.126472+10:00",
+      "kind": "name_unsigned",
+      "why_matched": [
+        "filename matched /unsigned/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\owner-review\\checkpoint.unsigned.json",
+      "size_bytes": 1949,
+      "mtime_local": "2026-08-22T19:10:58.895041+10:00",
+      "kind": "name_unsigned",
+      "why_matched": [
+        "filename matched /unsigned/",
+        "JSON sequence/seq field=266"
+      ],
+      "observed_sequence": 266
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\owner-review\\evidence\\GAP-002-audit_head_unsigned.json",
+      "size_bytes": 915,
+      "mtime_local": "2026-08-22T19:11:18.126472+10:00",
+      "kind": "name_unsigned",
+      "why_matched": [
+        "filename matched /unsigned/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\from-pi\\owner-review\\checkpoint.unsigned.json",
+      "size_bytes": 1949,
+      "mtime_local": "2026-08-22T19:10:58.895041+10:00",
+      "kind": "name_unsigned",
+      "why_matched": [
+        "filename matched /unsigned/",
+        "JSON sequence/seq field=266"
+      ],
+      "observed_sequence": 266
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\from-pi\\owner-review\\evidence\\GAP-002-audit_head_unsigned.json",
+      "size_bytes": 915,
+      "mtime_local": "2026-08-22T19:11:18.126472+10:00",
+      "kind": "name_unsigned",
+      "why_matched": [
+        "filename matched /unsigned/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\owner-review-final\\signed_root-v2.ed25519.public",
+      "size_bytes": 32,
+      "mtime_local": "2026-08-22T19:11:20.319577+10:00",
+      "kind": "name_rootv2",
+      "why_matched": [
+        "filename matched /root-v2/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\signed_root-v2.ed25519.public",
+      "size_bytes": 32,
+      "mtime_local": "2026-08-22T19:11:20.319577+10:00",
+      "kind": "name_rootv2",
+      "why_matched": [
+        "filename matched /root-v2/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\from-pi\\owner-review-final\\signed_root-v2.ed25519.public",
+      "size_bytes": 32,
+      "mtime_local": "2026-08-22T19:11:20.319577+10:00",
+      "kind": "name_rootv2",
+      "why_matched": [
+        "filename matched /root-v2/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\gap-002-checkpoint-spec.md",
+      "size_bytes": 2454,
+      "mtime_local": "2026-08-22T19:10:52.464235+10:00",
+      "kind": "name_gap002",
+      "why_matched": [
+        "filename matched /gap-002-checkpoint/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\owner-review\\gap-002-checkpoint-spec.md",
+      "size_bytes": 2454,
+      "mtime_local": "2026-08-22T19:10:52.464235+10:00",
+      "kind": "name_gap002",
+      "why_matched": [
+        "filename matched /gap-002-checkpoint/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\from-pi\\owner-review\\gap-002-checkpoint-spec.md",
+      "size_bytes": 2454,
+      "mtime_local": "2026-08-22T19:10:52.464235+10:00",
+      "kind": "name_gap002",
+      "why_matched": [
+        "filename matched /gap-002-checkpoint/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\LAPTOP-AGENT-HANDOFF.json",
+      "size_bytes": 9046,
+      "mtime_local": "2026-08-22T19:10:08.745346+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /checkpoint.unsigned/ ...ound/TO-LAPTOP/OCTOPUS-AUDIT-CHECKPOINT/checkpoint.unsigned.json\"   },   \"registry\": {     \"live_ver..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\OWNER_REVIEW_DECISION.json",
+      "size_bytes": 1006,
+      "mtime_local": "2026-08-22T19:10:08.978760+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /ROOT_V2/ ...PASS\",   \"checkpoint_unsigned\": \"SIGNED_ROOT_V2\",   \"checkpoint_creates_authority\": false,   \"unknow..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\SESSION-REPORT-20260817.md",
+      "size_bytes": 7771,
+      "mtime_local": "2026-08-22T19:10:32.354123+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /checkpoint.unsigned/ ...\u0644\u06a9** (sign-checkpoint.bat \u0631\u0648\u06cc \u0648\u06cc\u0646\u062f\u0648\u0632) - checkpoint.unsigned \u0632\u0646\u062f\u0647: sequence=284 \u062f\u0631 `OCTOPUS-AUDIT-CHE..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\SESSION-REPORT-20260817T0943Z.md",
+      "size_bytes": 17730,
+      "mtime_local": "2026-08-22T19:10:32.594140+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /checkpoint.unsigned/ ...ound/TO-LAPTOP/OCTOPUS-AUDIT-CHECKPOINT/checkpoint.unsigned.json` \u2014 `sequence=292`, `head_hash=sha25..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\doctor-latest.json",
+      "size_bytes": 23515,
+      "mtime_local": "2026-08-22T19:10:09.699154+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /ROOT_V2/ ...: \"blocking\",       \"observed\": \"SIGNED_ROOT_V2\",       \"expected\": \"SIGNED_ROOT_V2\",       \"evidenc..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\engineering-DOCTOR_REPORT.json",
+      "size_bytes": 23650,
+      "mtime_local": "2026-08-22T19:11:32.472470+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /ROOT_V2/ ...: \"blocking\",       \"observed\": \"SIGNED_ROOT_V2\",       \"expected\": \"SIGNED_ROOT_V2\",       \"evidenc..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\AUDIT_CHECKPOINT_266.signature.json",
+      "size_bytes": 1119,
+      "mtime_local": "2026-08-22T19:11:20.647560+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...   \"algorithm\": \"ed25519\",   \"key_id\": \"root-v2\",   \"public_key_fingerprint\": \"sha256:a20d836d1f4614...",
+        "JSON sequence/seq field=266"
+      ],
+      "observed_sequence": 266
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\LOCK_REGISTER.json",
+      "size_bytes": 18178,
+      "mtime_local": "2026-08-22T19:11:28.693746+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...ner-authorization.v1 signed by existing root-v2\",         \"scope/expiry/digest match\"       ],      ..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\MANIFEST.json",
+      "size_bytes": 6524,
+      "mtime_local": "2026-08-22T19:11:29.777569+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root_v2/ ... \"represents_latest_state\": false,     \"root_v2_signed\": true   },   \"files\": {     \"AUDIT_CHECKPOIN..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\owner-authorization.schema.json",
+      "size_bytes": 2201,
+      "mtime_local": "2026-08-22T19:11:28.671273+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...iption\": \"Ed25519 signature by existing root-v2. Empty => DENY.\"     },     \"root_key_id\": {       \"..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\owner-review-final\\AUDIT_CHECKPOINT_266.signature.json",
+      "size_bytes": 1119,
+      "mtime_local": "2026-08-22T19:11:20.647560+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...   \"algorithm\": \"ed25519\",   \"key_id\": \"root-v2\",   \"public_key_fingerprint\": \"sha256:a20d836d1f4614...",
+        "JSON sequence/seq field=266"
+      ],
+      "observed_sequence": 266
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\owner-review-final\\LOCK_REGISTER.json",
+      "size_bytes": 18178,
+      "mtime_local": "2026-08-22T19:11:28.693746+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...ner-authorization.v1 signed by existing root-v2\",         \"scope/expiry/digest match\"       ],      ..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\owner-review-final\\MANIFEST.json",
+      "size_bytes": 6524,
+      "mtime_local": "2026-08-22T19:11:29.777569+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root_v2/ ... \"represents_latest_state\": false,     \"root_v2_signed\": true   },   \"files\": {     \"AUDIT_CHECKPOIN..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\owner-review-final\\owner-authorization.schema.json",
+      "size_bytes": 2201,
+      "mtime_local": "2026-08-22T19:11:28.671273+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...iption\": \"Ed25519 signature by existing root-v2. Empty => DENY.\"     },     \"root_key_id\": {       \"..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\owner-review-final\\signed_checkpoint.json",
+      "size_bytes": 1949,
+      "mtime_local": "2026-08-22T19:11:21.995152+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /HASH_CHAIN/ ...d88dcfbb24b7fc2\",   \"audit_integrity\": \"HASH_CHAIN_ONLY\",   \"gap\": \"GAP-002\",   \"gap_status\": \"DEFER...",
+        "JSON sequence/seq field=266"
+      ],
+      "observed_sequence": 266
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review-final\\signed_checkpoint.json",
+      "size_bytes": 1949,
+      "mtime_local": "2026-08-22T19:11:21.995152+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /HASH_CHAIN/ ...d88dcfbb24b7fc2\",   \"audit_integrity\": \"HASH_CHAIN_ONLY\",   \"gap\": \"GAP-002\",   \"gap_status\": \"DEFER...",
+        "JSON sequence/seq field=266"
+      ],
+      "observed_sequence": 266
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\DOCTOR_BLOCKING.json",
+      "size_bytes": 1133,
+      "mtime_local": "2026-08-22T19:11:04.092562+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...served\": \"unsigned\",       \"required\": \"root-v2 verified\",       \"repair_attempted\": false,       \"n..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\FINAL_REPORT.fa.md",
+      "size_bytes": 8452,
+      "mtime_local": "2026-08-22T19:10:52.476408+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /HASH_CHAIN/ ...L/DEGRADED (\u067e\u0648\u0634\u0634\u060c skill\u060c GAP) - Ledger: HASH_CHAIN_ACTIVE (WM `seq=111`) - GAP-001: `OPEN` / `TESTED..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\LOCK_REGISTER.json",
+      "size_bytes": 18060,
+      "mtime_local": "2026-08-22T19:11:05.422080+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...ner-authorization.v1 signed by existing root-v2\",         \"scope/expiry/digest match\"       ],      ..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\MANIFEST.json",
+      "size_bytes": 6761,
+      "mtime_local": "2026-08-22T19:11:05.597797+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root_v2/ ... \"represents_latest_state\": false,     \"root_v2_signed\": false,     \"creates_authority\": false,     ..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\NEXT_ACTIONS_SEQUENTIAL.json",
+      "size_bytes": 2507,
+      "mtime_local": "2026-08-22T19:10:56.475033+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ... on the laptop, then sign with existing root-v2 only.\",       \"status\": \"NOT_STARTED\",       \"record..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\OA-T7-TEMPLATE.json",
+      "size_bytes": 1617,
+      "mtime_local": "2026-08-22T19:11:14.072918+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /root-v2/ ...owner_signature\": \"\",   \"root_key_id\": \"root-v2\",   \"_verify_note\": \"Empty signature, empty identity..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\PROPOSED_DIFFS.md",
+      "size_bytes": 2345,
+      "mtime_local": "2026-08-22T19:11:01.971938+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /unsigned checkpoint/ ...\u062c\u0627\u0632 \u0627\u06cc\u0646 \u062c\u0644\u0633\u0647 (\u062a\u0633\u062a\u200c\u0647\u0627\u060c Doctor read-only\u060c unsigned checkpoint export\u060c \u0627\u0634\u0627\u0631\u0647\u0654 handoff \u0628\u0647 owner-review)...."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\checkpoint-266.anchor.json",
+      "size_bytes": 2346,
+      "mtime_local": "2026-08-22T19:10:57.787321+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /checkpoint.unsigned/ ...ound/TO-LAPTOP/OCTOPUS-AUDIT-CHECKPOINT/checkpoint.unsigned.json\",   \"head_identity_file\": \"AUDIT-HE..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\checkpoint-export-meta.json",
+      "size_bytes": 955,
+      "mtime_local": "2026-08-22T19:11:05.386488+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /checkpoint.unsigned/ ...ound/TO-LAPTOP/OCTOPUS-AUDIT-CHECKPOINT/checkpoint.unsigned.json\",     \"/root/OCTOPUS-AUDIT-CHECKPOI...",
+        "JSON sequence/seq field=266"
+      ],
+      "observed_sequence": 266
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\archive\\owner-review\\doctor-report.json",
+      "size_bytes": 23515,
+      "mtime_local": "2026-08-22T19:11:05.407092+10:00",
+      "kind": "related_unsigned_or_gap002",
+      "why_matched": [
+        "related content (not proven 348): /ROOT_V2/ ...: \"blocking\",       \"observed\": \"SIGNED_ROOT_V2\",       \"expected\": \"SIGNED_ROOT_V2\",       \"evidenc..."
+      ]
+    }
+  ],
+  "meta_only_348_mentions": [
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CKPT348-SIGN-2026-08-22\\OWNER-AUTHORIZATION.json",
+      "size_bytes": 1782,
+      "mtime_local": "2026-08-22T18:53:17.736329+10:00",
+      "kind": "content_seq348",
+      "why_matched": [
+        "content seq/ckpt 348: ...6:00+10:00\",     \"owner_choice\":  \"Sign unsigned checkpoint seq=348 on laptop root-v2\",     \"schema\":  \"octopus.owner-authorization.v1\",    ..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CKPT348-SIGN-2026-08-22\\SEARCH-REPORT.json",
+      "size_bytes": 605,
+      "mtime_local": "2026-08-22T19:12:29.218525+10:00",
+      "kind": "content_seq348",
+      "why_matched": [
+        "content seq/ckpt 348: ...\ufeff{     \"authorization_id\":  \"OCTOPUS-LAPTOP-CKPT348-SIGN-20260822\",     \"written_at_local\":  \"2026-08-22T19:12:28+10:00\",   ..."
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CKPT348-SIGN-2026-08-22\\_search_ckpt348.py",
+      "size_bytes": 2302,
+      "mtime_local": "2026-08-22T19:04:42.473905+10:00",
+      "kind": "name_ckpt348ish",
+      "why_matched": [
+        "filename matched /ckpt348/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CKPT348-SIGN-2026-08-22\\_search_ckpt348_b.py",
+      "size_bytes": 2297,
+      "mtime_local": "2026-08-22T19:05:03.316003+10:00",
+      "kind": "name_ckpt348ish",
+      "why_matched": [
+        "filename matched /ckpt348/"
+      ]
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CKPT348-SIGN-2026-08-22\\NEED_OWNER_HELP.json",
+      "size_bytes": 6033,
+      "mtime_local": "2026-08-22T19:12:29.214475+10:00",
+      "kind": "name_need_owner",
+      "why_matched": [
+        "filename matched /NEED_OWNER_HELP/",
+        "content seq/ckpt 348: ...  \"No artifact, CLI, or runbook found that names checkpoint seq=348 or laptop root-v2 as a signable payload. Refusing to invent crypto or a ..."
+      ]
+    }
+  ],
+  "notes": [
+    "No mutate / no sign performed.",
+    "Filename *348* alone excluded when only timestamp/hash digits (content/name patterns require ckpt/checkpoint/seq context).",
+    "Prior evidence OCTOPUS-LAPTOP-CKPT348-SIGN NEED_OWNER_HELP.json already BLOCKED_NEED_OWNER.",
+    "Known unsigned checkpoint on laptop copies is sequence 266 (GAP-002), not 348.",
+    "Zero payload.json path hits under F:\\backup dir /s.",
+    "Zero HASH_CHAIN* filenames.",
+    "Zero files with JSON sequence/seq==348.",
+    "Zero non-meta content hits for CKPT348/seq=348 outside prior hunt/auth folder.",
+    "Closest unsigned payload: checkpoint.unsigned.json sequence=266."
+  ]
+}

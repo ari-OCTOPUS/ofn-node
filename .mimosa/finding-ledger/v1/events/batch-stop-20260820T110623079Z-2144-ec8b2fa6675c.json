@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20260820T110623079Z-2144-ec8b2fa6675c",
+  "runId": "20260820T110623079Z-2144-ec8b2fa6675c",
+  "runStatus": "inconclusive",
+  "coverage": {
+    "status": "partial",
+    "reasons": [
+      {
+        "code": "bash_discovery_incomplete",
+        "stage": "bash-discovery",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_ops/NEXT-STEPS-2026-07-27.md",
+        "detail": "project enumeration exceeded 5000 reviewable files",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_partial",
+        "stage": "baseline",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_ops/NEXT-STEPS-2026-07-27.md",
+        "detail": "baseline exceeded 5000 candidate files",
+        "affectsCompletion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "_ops/organs/knowledge_hook.py",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "bash-discovery",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_ops/NEXT-STEPS-2026-07-27.md",
+        "detail": "bash_discovery_incomplete: project enumeration exceeded 5000 reviewable files",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_ops/NEXT-STEPS-2026-07-27.md",
+        "detail": "baseline_partial: baseline exceeded 5000 candidate files",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "_ops/organs/knowledge_hook.py",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affectsCompletion": true
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "b4fdff72ad0c3b212c1f1ed4c022d4d884dba919",
+  "diffHash": "a84e95ce53720a4fade5bf06171f4f24b3ccb061936603cb0a5e1b5d637ce910",
+  "rulesVersion": "unavailable",
+  "sessionHash": "4f6d075606298f0d771fd69970e7bd6b06f281ab94f18d038ee3268406a0cb15",
+  "reportRef": ".mimosa/reports/task-review-sess_34f05004-7221-4660-903b-ccd762ede35e-20260820T110623079Z-2144-ec8b2fa6675c.json",
+  "events": [],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-08-20T11:06:23.797Z"
+}

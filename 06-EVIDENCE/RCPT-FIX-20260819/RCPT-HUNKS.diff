@@ -1,0 +1,51 @@
++    """مسیرِ پولی — فقط پشتِ گیتِ باز. lazy organ_gate (I2)؛ metering سهمیه‌ای:
++    settle(actual=0.0) چون subscription؛ خودِ reserve/settle مصرف را ثبت می‌کند."""
++    ok, why = paid_gate()
++    if not ok:
++        return None
++    role = _TIER_ROLE.get(tier)
++    if not role:
++        return None
++    # ── RCPT-2 (2026-08-19, CORE-AUTO-DEBUG): COST_UNOBSERVABLE یا نقضِ سقفِ
++    # فراخوانی در رسیدهایِ امروز ⇒ مسیرِ پولی بسته می‌ماند — همان fail-closedِ
++    # وعده‌داده‌شده در کامنتِ COST-OBS-1 که تا امروز خوانده نمی‌شد.
++    try:
++        from cost_receipt import paid_blocked_today  # noqa: E402 — هم‌پوشه
++        if paid_blocked_today():
++            _paid_log(task=task, tier=tier, role=role, ok=False,
++                      error="paid_blocked_cost_unobservable", ms=0,
++                      note="RCPT-2: receipt-visible block; manual/owner reset required")
++            return None
++    except Exception:  # noqa: BLE001 — گارد هرگز مسیر را نمی‌کشد
++        pass
++    # ── circuit breaker (per-provider، auto half-open recovery) ────────────────
++    # 2026-07-25: fugu_quota global بود (موفقیتِ GLM consecutive_failures را ریست
++    # می‌کرد) و recovery دستی بود (فایلِ STOP-FUGU). در زنده، fugu ۳ ساعتِ پشتِ هم
++    # timeout شد چون هیچ fail-fast per-providerای وجود نداشت. این breaker:
++    #   · target = role ("orchestr"/"glm") → per-provider نه global
+--
++            from cost_receipt import CostReceiptAdapter, remaining_budget_aud  # noqa: WPS433 — هم‌پوشه
++            _rp = _P(str(_P(__file__).resolve().parent.parent / "state" / "cortex" / "cost-receipts.jsonl"))
++            _recpt = CostReceiptAdapter().build(
++                trace_id=f"paid-{tier}-{int(_pt.time()*1000)}",
++                provider=str(getattr(cli, "provider", "") or ""),
++                model=str(out.get("model") or ""),
++                ts_req=_dt.datetime.fromtimestamp(_t0, _tz.utc).isoformat(timespec="seconds"),
++                ts_resp=_dt.datetime.now(_tz.utc).isoformat(timespec="seconds"),
++                # RCPT-1 (2026-08-19): مبنای بودجه = باقی‌ماندهٔ روز از رسیدهای خودِ
++                # امروز — نه هزینهٔ خودِ فراخوانی (باگِ budget_afterِ منفی).
++                budget_before_aud=remaining_budget_aud(_rp),
++                usage_payload=({"cost_usd": out.get("cost_usd"),
++                                "prompt_tokens": out.get("tokens_in"),
++                                "completion_tokens": out.get("tokens_out")}
++                               if out.get("cost_usd") is not None else None),
++                tokens_in=out.get("tokens_in"), tokens_out=out.get("tokens_out"),
++                input_sha256=_hl.sha256(str(prompt).encode("utf-8", "replace")).hexdigest())
++            _rp.parent.mkdir(parents=True, exist_ok=True)
++            _rp.open("a", encoding="utf-8").write(_jn.dumps(_recpt, ensure_ascii=False, default=str) + "\n")
++        except Exception:  # noqa: BLE001 — رسید هرگز مغز را نمی‌کشد
++            pass
++        _paid_log(task=task, tier=tier, role=role,
++                  provider=getattr(cli, "provider", ""),
++                  model=out.get("model"),
++                  via_gateway=bool(out.get("via_gateway")),

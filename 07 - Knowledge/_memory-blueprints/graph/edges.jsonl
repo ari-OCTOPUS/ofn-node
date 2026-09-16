@@ -1,0 +1,113 @@
+{"from":"ArchitectOps","to":"Accounting","type":"BOSS_OF","summary":"Architect/_ops governs financial heart via hard gates"}
+{"from":"ArchitectOps","to":"LeadPainting","type":"BOSS_OF","summary":"Architect/_ops governs revenue leg"}
+{"from":"ArchitectOps","to":"Ziman","type":"BOSS_OF","summary":"Architect/_ops governs validation leg"}
+{"from":"ArchitectOps","to":"ProjectF","type":"BOSS_OF","summary":"Architect/_ops governs contained Project-F"}
+{"from":"ArchitectOps","to":"Mining","type":"BOSS_OF","summary":"Architect/_ops governs mining sentinel"}
+{"from":"ArchitectOps","to":"CryptoEtoro","type":"BOSS_OF","summary":"Architect/_ops governs crypto alerts"}
+{"from":"LeadPainting","to":"Accounting","type":"FEEDS","summary":"Painting invoices/payments feed accounting"}
+{"from":"Ziman","to":"Accounting","type":"FEEDS","summary":"Ziman sales feed accounting (income + COGS)"}
+{"from":"Mining","to":"Accounting","type":"INFORMS","summary":"Mining receipts/electricity/hardware inform accounting"}
+{"from":"CryptoEtoro","to":"Accounting","type":"ALERTS","summary":"Crypto positions create CGT/accounting touchpoints"}
+{"from":"ProjectF","to":"Accounting","type":"FEEDS_SAFE_ALIAS","summary":"Only safe alias Project-F may feed accounting"}
+{"from":"RiskLadder","to":"Accounting","type":"GATED_BY","summary":"Accounting is high-risk, read-only/draft-only"}
+{"from":"RiskLadder","to":"CryptoEtoro","type":"GATED_BY","summary":"Crypto is critical, alert-only"}
+{"from":"RiskLadder","to":"ProjectF","type":"GATED_BY","summary":"Project-F is contained propose-only"}
+{"from":"VerdictQueue","to":"Accounting","type":"REQUIRES_VERDICT","summary":"Accountant, structure, GST, software decisions required"}
+{"from":"NBB_CP","to":"ArchitectOps","type":"ROLE_OPEN","summary":"NBB-CP may become sibling/adapter/governor; VQ-ROOT-001=A"}
+{"from":"VaultScanner","to":"RegistryAlignment","type":"SUPPORTS","summary":"Scanner can refresh inventory and graph"}
+{"from":"Accounting","to":"ArchitectOps","type":"REPORTS_TO","summary":"Accounting reports financial health up to boss layer"}
+{"from":"Accounting","to":"Acc_MANIFEST","type":"OWNS","summary":"Accounting owns its contract"}
+{"from":"Accounting","to":"Acc_ADAPTER","type":"OWNS","summary":"Accounting owns its adapter"}
+{"from":"Accounting","to":"Acc_RUNBOOK","type":"OWNS","summary":"Accounting owns its runbook"}
+{"from":"Accounting","to":"Acc_REGISTRY","type":"OWNS","summary":"Accounting owns its registry"}
+{"from":"Accounting","to":"Acc_VERDICT","type":"REQUIRES_VERDICT","summary":"Accounting has its own local verdict queue"}
+{"from":"LeadPainting","to":"Lead_MANIFEST","type":"OWNS","summary":"Lead-Painting owns its contract"}
+{"from":"LeadPainting","to":"Lead_ADAPTER","type":"OWNS","summary":"Lead-Painting owns its adapter"}
+{"from":"NBB_CP","to":"NBB_MANIFEST","type":"OWNS","summary":"NBB-CP owns its manifest"}
+{"from":"RiskLadder","to":"Mining","type":"GATED_BY","summary":"Mining is INFORM-only under risk ladder"}
+{"from":"RiskLadder","to":"LeadPainting","type":"GATED_BY","summary":"Lead-Painting is propose-only under risk ladder"}
+{"from":"RiskLadder","to":"Ziman","type":"GATED_BY","summary":"Ziman is propose-only (R1/low) under risk ladder"}
+{"from":"GraphSchema","to":"RegistryAlignment","type":"SUPPORTS","summary":"Schema governs how graph is written"}
+{"from":"ArchitectOps","to":"FourD","type":"BOSS_OF","summary":"Architect/_ops governs 4D research brain"}
+{"from":"RiskLadder","to":"FourD","type":"GATED_BY","summary":"4D is owner-approved-run-only (self-code, no OS sandbox)"}
+{"from":"FourD","to":"ArchitectOps","type":"SUPPORTS","summary":"4D research findings inform the boss layer"}
+{"from":"ArchitectOps","to":"VaultScanner","type":"BOSS_OF","summary":"Scanner tool operates under boss layer, read-only"}
+{"from":"GraphSearchProtocol","to":"GraphSchema","type":"SUPPORTS","summary":"Protocol operationalizes schema and integrity rules"}
+{"from":"Accounting","to":"Acc_README","type":"OWNS","summary":"Accounting owns README"}
+{"from":"Accounting","to":"Acc_PROJECT","type":"OWNS","summary":"Accounting owns PROJECT context"}
+{"from":"Accounting","to":"Acc_DECISIONS","type":"OWNS","summary":"Accounting owns DecisionLog"}
+{"from":"Accounting","to":"Acc_QUESTIONS","type":"OWNS","summary":"Accounting owns OpenQuestions"}
+{"from":"Accounting","to":"Acc_DATA","type":"CONTAINS","summary":"Accounting data is sensitive local financial material"}
+{"from":"LeadPainting","to":"Lead_RUNBOOK","type":"OWNS","summary":"Lead-Painting owns runbook"}
+{"from":"LeadPainting","to":"Lead_REGISTRY","type":"OWNS","summary":"Lead-Painting owns registry"}
+{"from":"LeadPainting","to":"Lead_VERDICT","type":"REQUIRES_VERDICT","summary":"Lead-Painting local verdict queue controls experiments/outreach"}
+{"from":"LeadPainting","to":"Lead_DATA","type":"CONTAINS","summary":"Lead-Painting portfolio/data supports drafts only"}
+{"from":"Ziman","to":"Zim_MANIFEST","type":"OWNS","summary":"Ziman owns manifest"}
+{"from":"Ziman","to":"Zim_ADAPTER","type":"OWNS","summary":"Ziman owns adapter"}
+{"from":"Ziman","to":"Zim_RUNBOOK","type":"OWNS","summary":"Ziman owns runbook"}
+{"from":"Ziman","to":"Zim_REGISTRY","type":"OWNS","summary":"Ziman owns registry"}
+{"from":"Ziman","to":"Zim_VERDICT","type":"REQUIRES_VERDICT","summary":"Ziman local verdict queue controls capacity/product/channel decisions"}
+{"from":"Mining","to":"Min_MANIFEST","type":"OWNS","summary":"Mining owns manifest"}
+{"from":"Mining","to":"Min_ADAPTER","type":"OWNS","summary":"Mining owns adapter"}
+{"from":"Mining","to":"Min_RUNBOOK","type":"OWNS","summary":"Mining owns runbook"}
+{"from":"Mining","to":"Min_REGISTRY","type":"OWNS","summary":"Mining owns registry"}
+{"from":"Mining","to":"Min_VERDICT","type":"REQUIRES_VERDICT","summary":"Mining local verdict queue controls rigs/electricity/wallet policy"}
+{"from":"Mining","to":"Min_DATA","type":"CONTAINS","summary":"Mining data supports reports only"}
+{"from":"CryptoEtoro","to":"Cry_MANIFEST","type":"OWNS","summary":"Crypto-eToro owns manifest"}
+{"from":"CryptoEtoro","to":"Cry_ADAPTER","type":"OWNS","summary":"Crypto-eToro owns adapter"}
+{"from":"CryptoEtoro","to":"Cry_RUNBOOK","type":"OWNS","summary":"Crypto-eToro owns runbook"}
+{"from":"CryptoEtoro","to":"Cry_REGISTRY","type":"OWNS","summary":"Crypto-eToro owns registry"}
+{"from":"CryptoEtoro","to":"Cry_VERDICT","type":"REQUIRES_VERDICT","summary":"Crypto-eToro local verdict queue controls registry and execution safety"}
+{"from":"CryptoEtoro","to":"Cry_DATA","type":"CONTAINS","summary":"Crypto-eToro data is critical and alert-only"}
+{"from":"ProjectF","to":"PF_MANIFEST","type":"OWNS","summary":"Project-F owns contained control manifest"}
+{"from":"ProjectF","to":"PF_RUNBOOK","type":"OWNS","summary":"Project-F owns contained runbook"}
+{"from":"ProjectF","to":"PF_REGISTRY","type":"OWNS","summary":"Project-F owns contained registry"}
+{"from":"ProjectF","to":"PF_VERDICT","type":"REQUIRES_VERDICT","summary":"Project-F local verdict queue controls GATE 0 and branch decisions"}
+{"from":"NBB_CP","to":"NBB_RUNBOOK","type":"OWNS","summary":"NBB-CP owns runbook"}
+{"from":"NBB_CP","to":"NBB_REGISTRY","type":"OWNS","summary":"NBB-CP owns registry"}
+{"from":"NBB_CP","to":"NBB_VERDICT","type":"REQUIRES_VERDICT","summary":"NBB-CP local verdict queue controls role versus Architect/_ops"}
+{"from":"FourD","to":"FourD_MANIFEST","type":"OWNS","summary":"4D owns manifest"}
+{"from":"FourD","to":"FourD_RUNBOOK","type":"OWNS","summary":"4D owns runbook"}
+{"from":"FourD","to":"FourD_REGISTRY","type":"OWNS","summary":"4D owns registry"}
+{"from":"FourD","to":"FourD_VERDICT","type":"REQUIRES_VERDICT","summary":"4D local verdict queue controls 30-day run and self-code risk"}
+{"from":"VaultScanner","to":"Map_MANIFEST","type":"OWNS","summary":"VaultScanner owns manifest"}
+{"from":"VaultScanner","to":"Map_RUNBOOK","type":"OWNS","summary":"VaultScanner owns runbook"}
+{"from":"VaultScanner","to":"Map_REGISTRY","type":"OWNS","summary":"VaultScanner owns registry"}
+{"from":"VaultScanner","to":"Map_VERDICT","type":"REQUIRES_VERDICT","summary":"VaultScanner local verdict queue controls retargeted scan"}
+{"from":"CryptoEtoro","to":"Mining","type":"SUPPORTS","summary":"Crypto-eToro shares scouting/fleet organs with Mining"}
+{"from":"Mining","to":"CryptoEtoro","type":"SUPPORTS","summary":"Mining shares coin/fleet signals with Crypto-eToro"}
+{"from":"Agent_Orchestrator","to":"GraphSearchProtocol","type":"DEPENDS_ON","summary":"Orchestrator must enforce graph search before tasks"}
+{"from":"Agent_Cartographer","to":"GraphSchema","type":"DEPENDS_ON","summary":"Cartographer writes graph only under schema"}
+{"from":"Agent_RiskGovernor","to":"RiskLadder","type":"DEPENDS_ON","summary":"Risk Governor uses risk ladder"}
+{"from":"Agent_AccountingSteward","to":"Accounting","type":"SUPPORTS","summary":"Accounting Steward completes financial heart docs"}
+{"from":"Agent_RevenueSteward","to":"LeadPainting","type":"SUPPORTS","summary":"Revenue Steward supports Lead-Painting"}
+{"from":"Agent_RevenueSteward","to":"Ziman","type":"SUPPORTS","summary":"Revenue Steward supports Ziman"}
+{"from":"Agent_PrivacySteward","to":"ProjectF","type":"SUPPORTS","summary":"Privacy Steward protects Project-F containment"}
+{"from":"Agent_SensingSentinel","to":"CryptoEtoro","type":"SUPPORTS","summary":"Sensing Sentinel supports Crypto-eToro alerts"}
+{"from":"Agent_SensingSentinel","to":"Mining","type":"SUPPORTS","summary":"Sensing Sentinel supports Mining reports"}
+{"from":"Agent_BrainIntegrator","to":"NBB_CP","type":"SUPPORTS","summary":"Brain Integrator supports NBB-CP role decisions"}
+{"from":"Agent_BrainIntegrator","to":"FourD","type":"SUPPORTS","summary":"Brain Integrator supports 4D run planning"}
+{"from":"Agent_BrainIntegrator","to":"VaultScanner","type":"SUPPORTS","summary":"Brain Integrator supports scanner retarget plan"}
+{"from":"Agent_HandoffWriter","to":"VerdictQueue","type":"DEPENDS_ON","summary":"Handoff Writer reports required owner verdicts"}
+{"from":"Ziman","to":"Zim_PMO_PHASE0","type":"OWNS","summary":"Ziman owns Phase-0 PMO package"}
+{"from":"Ziman","to":"Zim_ORGAN_CB","type":"OWNS","summary":"Ziman has control-brain organ (built, 21 tests green, relocated)"}
+{"from":"Ziman","to":"Zim_ORGAN_ZA","type":"OWNS","summary":"Ziman has ziman-agent organ (D4 capacity guard, worker.py)"}
+{"from":"Ziman","to":"Zim_ORGAN_VE","type":"OWNS","summary":"Ziman has video-engine organ (Higgsfield kit, needs photos)"}
+{"from":"Ziman","to":"Zim_ORGAN_FT","type":"OWNS","summary":"Ziman has funnel-tracker organ (Excel, zero data)"}
+{"from":"Ziman","to":"Zim_CONTENT_FSP","type":"OWNS","summary":"Ziman owns first-sale-pack (10 DMs, 4 captions, sprint)"}
+{"from":"Ziman","to":"Zim_DOC_BUSINESS","type":"OWNS","summary":"Ziman owns Business-Zeiman reference"}
+{"from":"Ziman","to":"Zim_DOC_SYSMAP","type":"OWNS","summary":"Ziman owns SYSTEM-MAP (MOC)"}
+{"from":"Ziman","to":"Zim_DOC_BRAIN","type":"OWNS","summary":"Ziman owns BRAIN-SETUP runbook"}
+{"from":"Ziman","to":"Zim_DOC_CAPACITY","type":"OWNS","summary":"Ziman owns Capacity & Channels doc"}
+{"from":"Ziman","to":"Zim_DECISIONS","type":"OWNS","summary":"Ziman owns DecisionLog"}
+{"from":"Ziman","to":"Zim_STRATEGY","type":"OWNS","summary":"Ziman owns Strategy-DecisionLog"}
+{"from":"Ziman","to":"Zim_QUESTIONS","type":"OWNS","summary":"Ziman owns OpenQuestions"}
+{"from":"Ziman","to":"Zim_TODO","type":"OWNS","summary":"Ziman owns TODO"}
+{"from":"Ziman","to":"Zim_INDEX","type":"OWNS","summary":"Ziman owns INDEX (MOC)"}
+{"from":"Ziman","to":"Zim_README","type":"OWNS","summary":"Ziman owns README (agent map)"}
+{"from":"Ziman","to":"Zim_PROJECT","type":"OWNS","summary":"Ziman owns PROJECT (active context)"}
+{"from":"Zim_ORGAN_CB","to":"Zim_ORGAN_ZA","type":"DEPENDS_ON","summary":"control-brain starts/stops/tests ziman-agent"}
+{"from":"Zim_ORGAN_ZA","to":"Zim_ORGAN_VE","type":"FEEDS","summary":"ziman-agent feeds content to video-engine"}
+{"from":"Zim_ORGAN_ZA","to":"Zim_ORGAN_FT","type":"FEEDS","summary":"ziman-agent feeds metrics to funnel-tracker"}
+{"from":"Zim_VERDICT","to":"Zim_DOC_CAPACITY","type":"BLOCKED_BY","summary":"ZIM-V1 (capacity) blocks campaign planning"}
+{"from":"Zim_VERDICT","to":"Zim_ORGAN_VE","type":"BLOCKED_BY","summary":"ZIM-V3 (photos) blocks video engine activation"}

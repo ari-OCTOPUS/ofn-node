@@ -1,0 +1,11 @@
+auto: 5 consecutive Fugu failures (>= 3) @ 2026-07-25
+
+--- cleared 2026-07-26T17:21:05 ---
+Stale kill-switch. It was auto-written on 2026-07-25 after 5 consecutive Fugu
+failures, but all of those were LOCAL socket timeouts against our own 20s wall,
+not vendor failures — the miscounting fixed in a404e3c (fugu_quota.is_local_timeout).
+Evidence for clearing, measured now: derived timeout is 45.0s for orchestr@600
+tokens, and a real minimal call to sakana/fugu answered in 2.3s with "2 + 2 = 4.".
+The vendor was never the problem.
+Budget guard verified before clearing: cap_monthly AU0, month-to-date AU/usr/bin/bash.032,
+human gate AU0, halted=false. Moved, not deleted (vault rule 1).

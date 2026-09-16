@@ -1,0 +1,41 @@
+{
+ "schema": "acd-subject-identity.v1",
+ "captured_utc": "2026-09-07T06:21:15.4064367Z",
+ "host_id": "DESKTOP-KA9RFN5",
+ "repo_head_sha": "6f3fdda51570ff8b85f6b18b38d10f5645e616ae",
+ "members": {
+  "cortex": {
+   "runtime_pid": 19728,
+   "runtime_boot": "2026-09-07T15:07:04.6738040+10:00",
+   "flag_set_sha256": "6b764fd754356ddd3f071457febad7aa863415c7b1937286cbf3a4d896c2fb79",
+   "flag_count": 343
+  },
+  "center": {
+   "runtime_pid": 4524,
+   "runtime_boot": "2026-09-07T15:16:56.3628610+10:00",
+   "flag_set_sha256": "6b764fd754356ddd3f071457febad7aa863415c7b1937286cbf3a4d896c2fb79",
+   "flag_count": 343
+  },
+  "live": {
+   "runtime_pid": 28592,
+   "runtime_boot": "2026-09-07T15:16:58.4917140+10:00",
+   "flag_set_sha256": "90c3e1cdb199d9059fd9e7e796704c6d0d3a3ff2f3b16d3ea1444963701913d2",
+   "flag_count": 348
+  },
+  "organism": {
+   "runtime_pid": 12852,
+   "runtime_boot": "2026-09-07T16:21:15.6808920+10:00",
+   "flag_set_sha256": "6b764fd754356ddd3f071457febad7aa863415c7b1937286cbf3a4d896c2fb79",
+   "flag_count": 343
+  },
+  "miniapp-gateway": {
+   "flag_set_sha256": "90c3e1cdb199d9059fd9e7e796704c6d0d3a3ff2f3b16d3ea1444963701913d2",
+   "flag_count": 348
+  }
+ },
+ "notes": [
+  "FLAG DRIFT: members booted different flag sets — per RUNBOOK step-0 they are DIFFERENT subjects",
+  "boards 138/180 identity: NOT_CAPTURED (step-0 v1 covers laptop members only)"
+ ],
+ "flag_sets_distinct": 2
+}

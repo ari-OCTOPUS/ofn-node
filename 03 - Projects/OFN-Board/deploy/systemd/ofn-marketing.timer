@@ -1,0 +1,18 @@
+# /etc/systemd/system/ofn-marketing.timer
+# Fire the weekly marketing cycle every Monday at 03:30 local — fifteen
+# minutes after the nightly backup (03:17 + jitter), so the cycle runs
+# against a freshly-backed-up, integrity-checked database. Persistent so a
+# missed Monday (power out) still runs on the next boot.
+[Unit]
+Description=OFN weekly marketing cycle trigger
+Documentation=file:///home/ari/ofn/README.md
+
+[Timer]
+# Monday 03:30, after the backup window. Randomized jitter spreads the
+# wake across a minute so two services do not stampede the disk together.
+OnCalendar=Mon *-*-* 03:30:00
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

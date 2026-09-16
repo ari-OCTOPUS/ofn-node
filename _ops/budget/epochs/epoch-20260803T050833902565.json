@@ -1,0 +1,182 @@
+{
+  "ts": "2026-08-03T05:07:24",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.42,
+        "DEBATE_LOOP": 0.16,
+        "GENOME_SYS": 0.42
+      },
+      "reason": "[EST] All telemetry zero (no events/cost); allocate by floor ratios pending real fitness signal."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "plan-3",
+    "rounds": 2,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی و ارزیابی خلاقیت",
+          "why_genius": "این روش می‌تواند سطح بالاتری از خلاقیت در زمینه‌های مختلف به دست آورد، زیرا الگوریتم‌ها و شبکه‌های عصبی می‌توانند با تحلیل بزرگی داده‌های تاریخچه خلاقیت انسانی، پیشنهادات دقیق‌تر و نوآورانه‌تری ارائه دهند.",
+          "why_insane": "استفاده از هوش مصنوعی ممکن است منجر به عدم آگاهی کامل از روش‌ها و نتایج باشد، زیرا پیش‌بینی دقیق خلاقیت توسط الگوریتم‌ها همچنان یک موضوع پژوهش است و ممکن است نتایج نامناسبی ایجاد کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم‌ها و شبکه‌های عصبی هنوز نمی‌توانند با تضمین کامل پیش‌بینی دقیق خلاقیت انسانی مواجه شوند.",
+          "cheapest_test": "بررسی آزمایشی برای ارزیابی دقت پیش‌بینی‌های الگوریتم در بازه‌های زمانی مختلف و تحت شرایط متفاوت.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از شبکه‌های عصبی تولیدی (GANs) برای تولید محتوای خلاق در زمینه‌های مختلف و مقایسه آن با خلاقیت انسانی",
+          "why_genius": "استفاده از GANs می‌تواند به الگوریتم‌ها کمک کند تا بتوانند پیش‌بینی دقیق‌تر خلاقیت انسانی را انجام دهند. همچنین، مقایسه نتایج با خلاقیت انسانی می‌تواند به بهبود الگوریتم‌ها کمک کند.",
+          "why_insane": "استفاده از GANs ممکن است منجر به پیچیدگی بیشتر در الگوریتم‌ها شود و نیاز به توان محاسباتی زیادتر داشته باشد. همچنین، مقایسه دقیق خلاقیت انسانی با مدل‌های ما پیچیده است و نیاز به زمان و منابع زیادی دارد.",
+          "est_tokens": 150,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "実現可能性の欠如: GANsを使用して人工的な創造性を生成し、それを人間の創造性と比較するためには、大量の計算リソースと時間が必要であり、これは現在の技術水準では達成不可能。",
+          "cheapest_test": "無料で実行可能なテストとして、公開されたGANモデルを使用して生成したコンテンツと、同分野の著名な作家やアーティストの作品を比較し、人間の創造性との類似度を評価する。類似度が著しく低い場合、このアイデアは現実的ではない。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

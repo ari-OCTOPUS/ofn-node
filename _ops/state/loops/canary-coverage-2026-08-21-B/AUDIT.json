@@ -1,0 +1,158 @@
+{
+  "schema": "telegram-command-coverage-audit/1",
+  "generated_at": "2026-08-21T04:10:00Z",
+  "window": {
+    "canary_id": "CANARY-COVERAGE-20260821-B",
+    "nonce": "d38db4ef39484656",
+    "opened_at": "2026-08-20T17:43:06Z",
+    "events_window": "2026-08-21T03:44:48Z..03:45:46Z (local), 17:44:48Z..17:45:46Z (UTC)",
+    "completed": true,
+    "recorded": "post_hoc_replay_of_real_events; canary_window.observe was NOT wired into the live center inbound path (center.py has no canary_window call) — sequence was enforced only by arrival order, and the guard file was back-filled with the real update_ids and real arrival timestamps"
+  },
+  "summary": {
+    "distinct_commands_accepted": 5,
+    "sequence_violations": 0,
+    "duplicates_recorded_without_advance": 0,
+    "unknown_or_unlabelled_rejected": 0,
+    "durable_intents": 5,
+    "acks": 5,
+    "results_committed": 5,
+    "outbox_receipts_written": 5,
+    "outbox_confirmed": 3,
+    "delivery_ok": 3,
+    "readbacks": 3,
+    "duplicate_effects": 0,
+    "direct_sends": 0,
+    "event_bridge_invocations": 0,
+    "memory_status_path_exercised": true,
+    "memory_mutations": 0,
+    "paid_calls": 0,
+    "verifier_confirmed": false,
+    "verifier_failed_checks": ["stuck_intents=2 (tg:223883344, tg:223883346)"]
+  },
+  "owner_reported_claim": {
+    "source": "owner pasted report for CANARY-COVERAGE-20260821-B",
+    "claimed": {"delivery_ok": 5, "readbacks": 5, "verifier_confirmed": true},
+    "durable_state": {"delivery_ok": 3, "readbacks": 3, "verifier_confirmed": false},
+    "discrepancy": "2 of 5 sends (updates 223883344 CANARY-03 and 223883346 CANARY-05) ended NEEDS_RECONCILIATION with UNCERTAIN_SEND_OUTCOME: send API raised or returned no message_id; outbox attempts=1; durable_loop has no auto-retry (re-deliver on NEEDS_RECONCILIATION returns early) and the only allowed transition is DEAD_LETTERED. Owner-side receipt of all five responses is plausible (owner report) but not durable-verifiable — no message_id exists for 344/346.",
+    "placeholders_filled": {
+      "duplicates_recorded_without_advance": 0,
+      "unknown_or_unlabelled_rejected": 0,
+      "event_bridge_invocations": 0
+    }
+  },
+  "events_audited": 5,
+  "complete_chains": 3,
+  "per_update": [
+    {
+      "update_id": 223883342,
+      "canary_command": "CANARY-01 STATUS",
+      "actor_class": "owner (authenticated)",
+      "task_id": "task_6254d5c8da49782b9c59423b",
+      "run_id": "run_720951be13814d9da84d385ceff931bd",
+      "intent_receipt": true,
+      "ack_receipt": true,
+      "result_receipt": true,
+      "outbox_message_key": "dd9f649b24b12c95994ff6b0462e94b1b7cc490c",
+      "delivery_message_id": 564,
+      "delivery_ok_true": true,
+      "readback_true": true,
+      "terminal_state": "CLOSED",
+      "code_path": "durable_loop.deliver -> tg_api (outbox-first)"
+    },
+    {
+      "update_id": 223883343,
+      "canary_command": "CANARY-02 LOOPS",
+      "actor_class": "owner (authenticated)",
+      "task_id": "task_12256feef9cb35e22383fad3",
+      "run_id": "run_5a2f239508ac4015af82d1fce9684eeb",
+      "intent_receipt": true,
+      "ack_receipt": true,
+      "result_receipt": true,
+      "outbox_message_key": "01647979b15813f45be9ee1e907f05ff7ea29e2a",
+      "delivery_message_id": 566,
+      "delivery_ok_true": true,
+      "readback_true": true,
+      "terminal_state": "CLOSED",
+      "code_path": "durable_loop.deliver -> tg_api (outbox-first)"
+    },
+    {
+      "update_id": 223883344,
+      "canary_command": "CANARY-03 MEMORY-STATUS",
+      "actor_class": "owner (authenticated)",
+      "task_id": "task_72202626cbad8452866860b4",
+      "run_id": "run_ec03f1ab83c34a4497d89e1093f094f4",
+      "intent_receipt": true,
+      "ack_receipt": true,
+      "result_receipt": true,
+      "outbox_message_key": "3a8e60bf162c3474f74b1b3608ed4f7f622b5cd3",
+      "delivery_message_id": null,
+      "delivery_ok_true": false,
+      "readback_true": false,
+      "terminal_state": "NEEDS_RECONCILIATION",
+      "uncertain_error": "UNCERTAIN_SEND_OUTCOME (attempts=1, no message_id)",
+      "code_path": "durable_loop.deliver -> tg_api (outbox-first); fail-safe NEEDS_RECONCILIATION"
+    },
+    {
+      "update_id": 223883345,
+      "canary_command": "CANARY-04 RECEIPT-CHECK",
+      "actor_class": "owner (authenticated)",
+      "task_id": "task_6aa13d52f0dc353dee727893",
+      "run_id": "run_c18a46e8a29d4fcfaf82eddc7f162c0e",
+      "intent_receipt": true,
+      "ack_receipt": true,
+      "result_receipt": true,
+      "outbox_message_key": "f080f967c9794bf93c3d8ad70303ae7882293d16",
+      "delivery_message_id": 570,
+      "delivery_ok_true": true,
+      "readback_true": true,
+      "terminal_state": "CLOSED",
+      "code_path": "durable_loop.deliver -> tg_api (outbox-first)"
+    },
+    {
+      "update_id": 223883346,
+      "canary_command": "CANARY-05 CLOSE",
+      "actor_class": "owner (authenticated)",
+      "task_id": "task_0ed1c27112b966000e5631cf",
+      "run_id": "run_4661c4ef22424dfeabf43a524771d546",
+      "intent_receipt": true,
+      "ack_receipt": true,
+      "result_receipt": true,
+      "outbox_message_key": "948643b4748d5cb63d4a36fba53e19cfd7f11b85",
+      "delivery_message_id": null,
+      "delivery_ok_true": false,
+      "readback_true": false,
+      "terminal_state": "NEEDS_RECONCILIATION",
+      "uncertain_error": "UNCERTAIN_SEND_OUTCOME (attempts=1, no message_id)",
+      "code_path": "durable_loop.deliver -> tg_api (outbox-first); fail-safe NEEDS_RECONCILIATION"
+    }
+  ],
+  "guard_enforcement": {
+    "wired_into_live_center": false,
+    "unit_tested": true,
+    "regression_test": "tests/test_canary_window.py",
+    "finding": "canary_window.observe is referenced only by canary_window.py and its test; center.py never calls it. The strict 01->05 sequence was not enforced in the live path for this window; window state was back-filled post-hoc from real update_ids and arrival timestamps. Duplicates/out-of-order would NOT have been caught live."
+  },
+  "open_issues": [
+    "updates 223883344 (CANARY-03 MEMORY-STATUS) and 223883346 (CANARY-05 CLOSE): UNCERTAIN_SEND_OUTCOME, NEEDS_RECONCILIATION, no retry path (only DEAD_LETTERED available). Needs explicit reconciliation with a real message_id readback or owner decision.",
+    "guard not wired into live center — wire observe() into the inbound path (unit + controlled restart) before command coverage can close.",
+    "event_bridge had 0 invocations during the window (cursor push_count=0); S-T02 closure still requires a real alert or explicit retirement."
+  ],
+  "verdict": {
+    "TELEGRAM_COMMAND_COVERAGE": "OPEN",
+    "passed": [
+      "sequence protocol: 5/5 distinct commands in exact 01..05 order, zero duplicates, zero unknown/labelled rejects in-window",
+      "zero direct sends, zero paid calls, zero memory mutations",
+      "durable fail-safe: uncertain sends recorded NEEDS_RECONCILIATION instead of false CLOSED"
+    ],
+    "blocking": [
+      "2/5 deliveries unconfirmed (no message_id, no auto-reconciliation)",
+      "strict-window guard not enforced in the live path",
+      "independent verifier confirmed=false (stuck_intents=2)"
+    ],
+    "prev_window_protocol_gaps_resolved": {
+      "CANARY-03 MEMORY-STATUS": "sent this window (update 223883344) — but its delivery is one of the two uncertain",
+      "CANARY-04 duplication": "not repeated this window — single CANARY-04 RECEIPT-CHECK (update 223883345, delivered msg 570)"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "schema": "restart-baseline.v1",
+  "frozen_at_local": "2026-08-20T11:18:30+10:00",
+  "frozen_before_restart": true,
+  "grade": {
+    "beat_and_cap": "MEASURED",
+    "arbiter": "MEASURED",
+    "coherence": "STALE_LABEL",
+    "tests": "VERIFIED_BY_TESTS"
+  },
+  "organism": {
+    "path": "_ops/state/ORGANISM-STATE.json",
+    "ts": "2026-08-20T11:17:34",
+    "started": "2026-08-20T03:52:10",
+    "beat": 42770,
+    "halted": null,
+    "frozen": false,
+    "stop_organism": false
+  },
+  "arbiter": {
+    "effective_period_s": 114.01,
+    "color": "GREEN",
+    "driver": "consensus",
+    "n_present": 3,
+    "n_braking": 0,
+    "wire_open": true
+  },
+  "coherence": {
+    "value": 0.951,
+    "source": "OCTOPUS/CURRENT-TRUTH.md auto-generated 2026-08-20T01:05:42Z",
+    "truth_beat": 42747,
+    "live_beat": 42770,
+    "grade": "STALE_vs_live"
+  },
+  "life_currency_live": {
+    "path": "_ops/state/pulse/life-currency-latest.json",
+    "mtime_local": "2026-08-20T11:16:07+10:00",
+    "size_bytes": 1470,
+    "ts": "2026-08-20T11:16:07",
+    "beat": 42770,
+    "daily_cap": 1000.0,
+    "unit_field_present": false,
+    "color": "GREEN",
+    "scale": 1.0,
+    "beat_pool": 1.323,
+    "reserve": 0.265,
+    "member_tokens": {
+      "organism": 0.096,
+      "heart": 0.096,
+      "producers": 0.096,
+      "work_pump": 0.096,
+      "doctor_setpoint": 0.096,
+      "governor": 0.096,
+      "sigma": 0.096,
+      "fitness": 0.096,
+      "school": 0.096,
+      "reconcile": 0.096,
+      "fourd_system": 0.096
+    },
+    "min_share": 0.096,
+    "any_zero": false
+  },
+  "disk_yaml": {
+    "path": "_ops/budget/budgets.yaml",
+    "life_currency_daily_cap": 30.0
+  },
+  "tests": {
+    "path": "_ops/tests/test_life_currency_units_safety.py",
+    "result": "10 passed in 3.50s",
+    "ts_local": "2026-08-20T11:18+10:00"
+  },
+  "pids_observed": {
+    "organism": 10028,
+    "cortex": 19352,
+    "center": 20816,
+    "gateway": 15440,
+    "live": 26008,
+    "note": "Win32_Process; started ~03:52 local except center/gateway/live ~03:47-03:48"
+  },
+  "abort_gates": {
+    "arbiter_red": false,
+    "tests_green": true
+  }
+}

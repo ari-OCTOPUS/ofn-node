@@ -1,0 +1,26 @@
+{
+ "schema": "wave1-canary-n1-fixture/1",
+ "mode": "FIXTURE_ONLY",
+ "live_http": false,
+ "message_key": "48e90e8b98ad0e0dfa675bc945060d6fcc2aec167dd19c0722932eb10415744b",
+ "run_once_1": {
+  "sent": 1,
+  "deferred": 0,
+  "dlq": 0,
+  "rate_blocked": 0,
+  "due": 1
+ },
+ "run_once_2": {
+  "sent": 0,
+  "deferred": 0,
+  "dlq": 0,
+  "rate_blocked": 0,
+  "due": 0
+ },
+ "transport_calls": 1,
+ "row_state": "CONFIRMED",
+ "row_message_id": 900001,
+ "confirmed_no_resend": true,
+ "center_imports_sender_bridge": false,
+ "isolated_root": "C:\\Users\\Armin\\AppData\\Local\\Temp\\wave1-canary-n1-xdoz2zfy"
+}

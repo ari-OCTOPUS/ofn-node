@@ -1,0 +1,258 @@
+{
+  "now_utc": "2026-08-27T02:45:45Z",
+  "host": "182",
+  "inbox_count": 264,
+  "inbox_pos_04af67d5": null,
+  "inbox_name_04af67d5": null,
+  "still_in_inbox": false,
+  "processed_hits": [
+    {
+      "path": "/root/octopus-mesh/processed/04af67d5-d6c2-45ca-8826-bc11197021bb.json",
+      "mtime_iso": "2026-08-27T02:32:27Z",
+      "data": {
+        "checksum": "8ec3dce7514693a2cc0c0d549e06558e993c3874690c6740edb5d3889bb6966b",
+        "claim_type": "observation",
+        "correlation_id": "be612088-7154-45ea-a96b-0d777c7689ff",
+        "created_at": "2026-08-27T02:32:28.456270Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T03:32:28.456451Z",
+        "idempotency_key": "auto-verify:be612088-7154-45ea-a96b-0d777c7689ff",
+        "may_authorize": false,
+        "message_id": "04af67d5-d6c2-45ca-8826-bc11197021bb",
+        "message_type": "verification_task",
+        "payload": {
+          "constraints": [
+            "may_authorize=false",
+            "no mutation",
+            "no external action",
+            "structured output"
+          ],
+          "instruction": "Independently verify the 180 result (correlation be612088-7154-45ea-a96b-0d777c7689ff): at least one falsification attempt, scope check, observation/inference separation, and a verdict (confirmed|disputed|unresolved).",
+          "originating_result": "7ae7326a-d875-55ba-9287-300f6626ff69",
+          "run_id": "fresh-e2e-canary-20260827B",
+          "task": "AUTO-VERIFY-DISPATCH"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "verify-be612088-715",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    },
+    {
+      "path": "/root/octopus-mesh/receipts/04af67d5-d6c2-45ca-8826-bc11197021bb.claim.json",
+      "mtime_iso": "2026-08-27T02:45:34Z",
+      "data": {
+        "claimed_at": "2026-08-27T02:45:34.181557Z",
+        "claimed_by_node": "182",
+        "lease_expires_at": "2026-08-27T03:00:34.181494Z",
+        "message_id": "04af67d5-d6c2-45ca-8826-bc11197021bb",
+        "reply_message_id": "577b0e22-0904-4ef7-b98b-72b491cb132f",
+        "source_checksum": "8ec3dce7514693a2",
+        "status": "completed"
+      }
+    },
+    {
+      "path": "/root/octopus-mesh/outbox/witness_response_04af67d5.json",
+      "mtime_iso": "2026-08-27T02:45:34Z",
+      "data": {
+        "source_task_id": "04af67d5-d6c2-45ca-8826-bc11197021bb",
+        "verdict": "unresolved",
+        "claims_verified": [],
+        "falsification_attempts": [
+          {
+            "target_claim_id": "envelope",
+            "test": "attempt to find an envelope validation failure",
+            "expected_if_false": "validation passes clean",
+            "observed": "validated by octopus_verifier.validate_envelope",
+            "result": "survived"
+          }
+        ],
+        "alternative_hypotheses": [],
+        "independent_observations": [
+          "envelope checksum verified with explicit serialization",
+          "expiry checked against UTC clock"
+        ],
+        "inferences": [],
+        "disagreements": [],
+        "may_authorize": false
+      }
+    }
+  ],
+  "audit": [
+    {
+      "checksum": "8ec3dce7514693a2",
+      "file": "2026-08-27T02-32-28.456270Z__04af67d5-d6c2-45ca-8826-bc11197021bb.json",
+      "message_id": "04af67d5-d6c2-45ca-8826-bc11197021bb",
+      "reason": "accepted",
+      "recipient": "182",
+      "run_id": "verify-be612088-715",
+      "sender": "138",
+      "seq": 345,
+      "status": "received",
+      "ts": "2026-08-27T02:32:27.839359Z",
+      "type": "verification_task"
+    },
+    {
+      "checksum": "8ec3dce7514693a2",
+      "message_id": "04af67d5-d6c2-45ca-8826-bc11197021bb",
+      "reason": "reply_acked",
+      "recipient": "182",
+      "run_id": "verify-be612088-715",
+      "sender": "138",
+      "seq": 389,
+      "status": "processed",
+      "ts": "2026-08-27T02:45:34.610066Z",
+      "type": "verification_task"
+    }
+  ],
+  "witness_state": [
+    {
+      "name": "OWNER-DIRECTIVE-BUSINESS-AUTONOMY-TELEGRAM-EXCEPTIONS-V1.md",
+      "size": 12648,
+      "mtime_iso": "2026-08-26T22:38:05Z"
+    },
+    {
+      "name": "adoption_manifest_v4.json",
+      "size": 4179,
+      "mtime_iso": "2026-08-26T21:34:12Z",
+      "txt": "{\n \"schema\": \"octopus.adoption.manifest.v4\",\n \"node\": \"182\",\n \"cycle_id\": \"validate-adopt-witness-runtime-182-v4\",\n \"source_task\": \"2aca97ad-11ea-457c-8fea-571c6927074c\",\n \"supersedes_expired\": [\n  \"91429f7a-022f-462d-a5e4-f78dba3508e1\",\n  \"7b36cf1e-12d7-4e7f-8d21-faecf390fe5d\"\n ],\n \"generated_at\": \"2026-08-26T21:31:31.531996Z\",\n \"canonical\": true,\n \"adoption_decision\": \"validated\",\n \"incident_link\": {\n  \"commander_incident\": \"115b08f7\",\n  \"description\": \"expired_task_payload_used_for_local_build\",\n  \"local_note\": \"deployment build proceeded from expired 7b36cf1e payload under operator mission instruction while claim was correctly refused (EXPIRED_LEASE_BLOCKED); risk accepted and now formally adopted via v4 validation\"\n },\n \"regression_tests\": [\n  \"selftest pause test injects sandbox temp path (never live OWNER_PAUSE)\",\n  \"crash-test uses throwaway soak sandbox\",\n  \"live OWNER_PAUSE stat+hash checked before/after all test runs\"\n ],\n \"spec_comparison\": {\n  \"missing_files\": [],\n  \"extra_files\": [\n   \"outbox/anatomy_evidence_plan_182.json (runtime output)\",\n   \"outbox/anatomy_witness_response_182.json (runtime output)\",\n   \"state/witness/* runtime artifacts\",\n   \"inbox/processing receipts (runtime)\"\n  ],\n  \"semantic_differences\": [],\n  \"unsafe_behavior\": \"none found - worker only moves files inside octopus-mesh tree; sends only via existing bridge transport on completion; stdlib only\",\n  \"privilege\": \"root-owned (node runs as root by design); no setuid/exec bits beyond app needs\",\n  \"filesystem_boundaries\": \"writes restricted to ~/octopus-mesh subtree; sandbox tests write under tests/\",\n  \"network_behavior\": \"no listeners created; outbound only via SSH mesh transport for completes\"\n },\n \"inventory\": [\n  {\n   \"path\": \"/root/octopus-mesh/bin/octopus_witness_worker.py\",\n   \"sha256\": \"da4070e465e86798fe02914a27c87604ce3d349b3ef1cc5223d3fb31b3afd2a6\",\n   \"bytes\": 21660,\n   \"mode\": \"700\",\n   \"owner\": \"0:0\",\n   \"purpose\": \"persistent witness worker loop (pause/gate/filter/safe-hold)\",\n   \"status\": \"CANDIDATE_noncanonical\"\n  },\n  {\n   \"path\": \"/root/octopus-mesh/bin/octopus_verifier.py\",\n   \"sha256\": \"28d3b8f10ddd5d653302423eaaa37c28ba46d5f87520d2c627f099e1f07beaa2\",\n   \"bytes\": 4214,\n   \"mode\": \"700\",\n   \"owner\": \"0:0\",\n   \"purpose\": \"envelope validation and claim-status library\",\n   \"status\": \"CANDIDATE_noncanonical\"\n  },\n  {\n   \"path\": \"/root/octopus-mesh/bin/octopus_heartbeat.py\",\n   \"sha256\": \"520443f15bee6c6f5236e246df18febb6f200748677ad8ef0ff3265c65b875fe\",\n   \"bytes\": 1568,\n   \"mode\": \"700\",\n   \"owner\": \"0:0\",\n   \"purpose\": \"local heartbeat writer\",\n   \"status\": \"CANDIDATE_noncanonical\"\n  },\n  {\n   \"path\": \"/root/octopus-mesh/config/witness_policy.json\",\n   \"sha256\": \"989c982e64bb9a3c16ae00f0870b66a6756733fd8bb1f4302a53f3fde121979c\",\n   \"bytes\": 768,\n   \"mode\": \"600\",\n   \"owner\": \"0:0\",\n   \"purpose\": \"witness role policy\",\n   \"status\": \"CANDIDATE_noncanonical\"\n  },\n  {\n   \"path\": \"/root/octopus-mesh/state/witness/\",\n   \"sha256\": null,\n   \"bytes\": null,\n   \"mode\": \"700\",\n   \"owner\": \"0:0\",\n   \"purpose\": \"runtime state dir\",\n   \"status\": \"runtime\"\n  },\n  {\n   \"path\": \"/root/octopus-mesh/systemd/octopus-witness-worker.service\",\n   \"sha256\": \"a4068e4c6445a3e11a720f64b238768103f5cfd4f7dd787aa63a7da6b46fe208\",\n   \"bytes\": 401,\n   \"mode\": \"644\",\n   \"owner\": \"0:0\",\n   \"purpose\": \"unit file (verify-only, not installed)\",\n   \"status\": \"CANDIDATE_noncanonical\"\n  },\n  {\n   \"path\": \"/root/octopus-mesh/systemd/octopus-heartbeat.timer\",\n   \"sha256\": \"844b22c2ff74a3ad1e3b5310073c1a5a82186493f75c283cca823dee132fe33f\",\n   \"bytes\": 157,\n   \"mode\": \"644\",\n   \"owner\": \"0:0\",\n   \"purpose\": \"timer file (verify-only, not installed)\",\n   \"status\": \"CANDIDATE_noncanonical\"\n  },\n  {\n   \"path\": \"/root/octopus-mesh/systemd/octopus-resource-monitor.timer\",\n   \"sha256\": \"172987b9851bfef3b41740075760e21776ceaec2a197d1e0a7e88d8b00f16612\",\n   \"bytes\": 169,\n   \"mode\": \"644\",\n   \"owner\": \"0:0\",\n   \"purpose\": \"timer file (verify-only, not installed)\",\n   \"status\": \"CANDIDATE_noncanonical\"\n  }\n ],\n \"validated_at\": \"2026-08-26T21:34:12.012128Z\",\n \"policy_sha256_after_sync\": \"97a8bab07dcedc2d40f9324d4f50cc79dd98dab5f039eee445e7b9f9f38eac18\"\n}\n"
+    },
+    {
+      "name": "events.jsonl",
+      "size": 1669565,
+      "mtime_iso": "2026-08-27T02:45:35Z"
+    },
+    {
+      "name": "evidence_plan.json",
+      "size": 195,
+      "mtime_iso": "2026-08-27T02:45:34Z",
+      "txt": "{\n \"pre_registered_at\": \"2026-08-27T02:45:34.202906Z\",\n \"message_id\": \"04af67d5-d6c2-45ca-8826-bc11197021bb\",\n \"note\": \"registered BEFORE any probe (pre-registration)\",\n \"falsification_min\": 1\n}\n"
+    },
+    {
+      "name": "heartbeat.json",
+      "size": 255,
+      "mtime_iso": "2026-08-26T12:57:41Z",
+      "txt": "{\n \"type\": \"heartbeat\",\n \"node\": \"182\",\n \"role_id\": \"lab-witness\",\n \"semantic_role\": \"independent_witness\",\n \"may_authorize\": false,\n \"ts\": \"2026-08-26T12:57:41.939411Z\",\n \"seq\": 1,\n \"paused\": true,\n \"safe_hold\": false,\n \"source\": \"octopus_heartbeat.py\"\n}"
+    },
+    {
+      "name": "heartbeat.seq",
+      "size": 1,
+      "mtime_iso": "2026-08-26T12:57:41Z",
+      "txt": "1"
+    },
+    {
+      "name": "owner_control_receipts.jsonl",
+      "size": 1104,
+      "mtime_iso": "2026-08-26T22:40:06Z",
+      "txt": "{\"schema\": \"octopus.owner_control_receipt.v1\", \"ts\": \"2026-08-26T22:40:06.172846Z\", \"command_message_id\": \"19a8aea9-a2f5-4d97-b996-a19928e181ac\", \"receipt_id\": \"ownercmd-resume-green-canary-15m\", \"action\": \"resume\", \"scope\": \"green_canary_15m\", \"manifest_sha256\": \"72dd1576a7ef74911a511a95ee85d142eed6f6ac5d5e02872e84c3559a2b508a\", \"authority\": \"sender=138/commander-router-ledger-owner relaying owner Armin; single reissue of expired 8a829700\", \"validated\": {\"scope\": true, \"manifest_hash\": true, \"expiry\": true, \"checksum\": true, \"idempotency\": true}, \"external_effects_allowed\": false, \"red_allowed\": false, \"yellow_allowed\": false, \"execution\": {\"method\": \"owner_control\", \"pause_file_before\": {\"size\": 0, \"mtime\": 1787749173.2974207, \"mode\": \"644\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}, \"atomic_removal\": true}, \"replay_guard\": \"idempotency owner-resume-182-r2:72dd1576 recorded; replays rejected\"}\n{\"ts\": \"2026-08-26T22:40:06.175839Z\", \"event\": \"owner_control_resume_executed\", \"removed\": true, \"command_message_id\": \"19a8aea9-a2f5-4d97-b996-a19928e181ac\"}\n"
+    },
+    {
+      "name": "verdicts.jsonl",
+      "size": 9573,
+      "mtime_iso": "2026-08-27T02:45:34Z"
+    }
+  ],
+  "recent_receipts": [
+    {
+      "mtime_iso": "2026-08-27T02:45:34Z",
+      "name": "04af67d5-d6c2-45ca-8826-bc11197021bb.claim.json",
+      "size": 286
+    },
+    {
+      "mtime_iso": "2026-08-27T02:44:47Z",
+      "name": "c3f085a8-0a65-4849-9432-29deeaf1b652.claim.json",
+      "size": 286
+    },
+    {
+      "mtime_iso": "2026-08-27T02:44:02Z",
+      "name": "ecc1f043-a370-46b3-b201-a9c5b3397308.claim.json",
+      "size": 286
+    },
+    {
+      "mtime_iso": "2026-08-27T02:43:14Z",
+      "name": "23efdc65-ca6e-4a44-b9bc-2bb8b8f2d502.claim.json",
+      "size": 286
+    },
+    {
+      "mtime_iso": "2026-08-27T02:42:27Z",
+      "name": "afc0e754-bcb0-4047-b1e4-d4bdbe2aad83.claim.json",
+      "size": 286
+    },
+    {
+      "mtime_iso": "2026-08-27T02:41:41Z",
+      "name": "ebacb424-e295-4664-bfde-66dbf3b89990.claim.json",
+      "size": 286
+    }
+  ],
+  "recent_outbox": [
+    {
+      "mtime_iso": "2026-08-27T02:45:34Z",
+      "name": "witness_response_04af67d5.json",
+      "size": 618
+    },
+    {
+      "mtime_iso": "2026-08-27T02:44:47Z",
+      "name": "witness_response_c3f085a8.json",
+      "size": 618
+    },
+    {
+      "mtime_iso": "2026-08-27T02:44:02Z",
+      "name": "witness_response_ecc1f043.json",
+      "size": 618
+    },
+    {
+      "mtime_iso": "2026-08-27T02:43:13Z",
+      "name": "witness_response_23efdc65.json",
+      "size": 618
+    },
+    {
+      "mtime_iso": "2026-08-27T02:42:27Z",
+      "name": "witness_response_afc0e754.json",
+      "size": 618
+    },
+    {
+      "mtime_iso": "2026-08-27T02:41:41Z",
+      "name": "witness_response_ebacb424.json",
+      "size": 618
+    }
+  ],
+  "recent_processed": [
+    {
+      "mtime_iso": "2026-08-27T02:32:27Z",
+      "name": "04af67d5-d6c2-45ca-8826-bc11197021bb.json",
+      "size": 1084
+    },
+    {
+      "mtime_iso": "2026-08-27T01:52:35Z",
+      "name": "c3f085a8-0a65-4849-9432-29deeaf1b652.json",
+      "size": 1083
+    },
+    {
+      "mtime_iso": "2026-08-27T01:51:34Z",
+      "name": "ecc1f043-a370-46b3-b201-a9c5b3397308.json",
+      "size": 1094
+    },
+    {
+      "mtime_iso": "2026-08-27T01:50:53Z",
+      "name": "23efdc65-ca6e-4a44-b9bc-2bb8b8f2d502.json",
+      "size": 1094
+    },
+    {
+      "mtime_iso": "2026-08-27T01:50:03Z",
+      "name": "afc0e754-bcb0-4047-b1e4-d4bdbe2aad83.json",
+      "size": 1094
+    },
+    {
+      "mtime_iso": "2026-08-27T01:48:22Z",
+      "name": "ebacb424-e295-4664-bfde-66dbf3b89990.json",
+      "size": 1094
+    }
+  ],
+  "timer": "NextElapseUSecRealtime=\nLastTriggerUSec=Thu 2026-08-27 02:45:29 UTC\nActiveState=active\n",
+  "service": "inactive",
+  "service_show": "Result=success\nExecMainStatus=0\nActiveState=inactive\nInactiveExitTimestamp=Thu 2026-08-27 02:45:29 UTC\n",
+  "journal": "Aug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"action\": \"rejected\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"cls\": \"generic_rejected\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"reasons\": [\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:     \"expired\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:     \"generic_type:ping\"\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    ]\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   },\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   {\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"mid\": \"4e1f727f-a102-453d-8c18-88ca63e68c79\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"action\": \"skipped_cap\"\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   },\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   {\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"mid\": \"c56374a6-bc1a-47c2-9198-e687b73e8a36\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"action\": \"rejected\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"cls\": \"generic_rejected\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"reasons\": [\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:     \"expired\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:     \"generic_type:ping\"\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    ]\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   },\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   {\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"mid\": \"88ffa2e6-39ed-4fa4-b245-5e37073e8cb8\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"action\": \"skipped_cap\"\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   },\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   {\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"mid\": \"a16c7d1d-2353-4b2a-bcee-5203d904e2a0\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"action\": \"rejected\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"cls\": \"generic_rejected\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"reasons\": [\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:     \"generic_type:ping\"\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    ]\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   },\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   {\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"mid\": \"9793243f-805e-4230-b38f-500b814aa428\",\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:    \"action\": \"skipped_cap\"\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:   }\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:  ],\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:  \"claimed\": 1,\nAug 27 02:45:35 sensorium-opi5pro python3[490285]:  \"max_n\": 1\nAug 27 02:45:35 sensorium-opi5pro python3[490285]: }\n"
+}

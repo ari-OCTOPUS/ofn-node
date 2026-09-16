@@ -1,0 +1,20 @@
+{
+  "schema": "a12-after/1",
+  "before_pid": 26388,
+  "after_pid": 8828,
+  "organism_pid_unchanged": 9904,
+  "brain_pid_unchanged": 25680,
+  "supervisor_loops": 1,
+  "port_8776": true,
+  "STOP_TG_CENTER": false,
+  "offset_before": 223883327,
+  "offset_after": 223883327,
+  "offset_regressed": false,
+  "identity_matches_a9": true,
+  "git_commit": "3abc16bcbda26b716be58905d5342951a049da9d",
+  "center_py_sha256": "52a70b8bd31ce6da8ec9b3726c2ac9015d04f9ff167d25951b0c263530866e51",
+  "handler_schema_version": "typed-v1",
+  "bot_id": 7992324219,
+  "poller_lease_id": "center-canonical",
+  "availability_incident": false
+}

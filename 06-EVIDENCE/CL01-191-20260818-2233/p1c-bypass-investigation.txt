@@ -1,0 +1,57 @@
+=== I) _msx.MemoryStore identity ===
+180:        import memory_store as _msx
+221:        _mem = _msx.MemoryStore(path=mdir / "memory.db")
+155:                    import memory_store as _msx  # noqa: WPS433
+c6 import line: import memory_store as _msx
+
+=== J) does _ops/memory have its own MemoryStore class? ===
+_ops/memory/__init__.py
+_ops/memory/architecture_explainer.py
+_ops/memory/brain_pulse.py
+_ops/memory/contradiction_radar.py
+_ops/memory/equation_advice.py
+_ops/memory/equation_explainer.py
+_ops/memory/evidence_chain.py
+_ops/memory/gate.py
+_ops/memory/limited_effect.py
+_ops/memory/memory_store.py
+_ops/memory/owner_recall.py
+_ops/memory/research_ingest.py
+_ops/memory/retrieval_router.py
+_ops/memory/self_loop_ingest.py
+_ops/memory/session_memory.py
+_ops/memory/shadow_evaluation.py
+_ops/memory/shadow_influence.py
+_ops/memory/unified_context.py
+_ops/memory/vault_bridge.py
+_ops/memory/write_gate_enforcer.py
+_ops\memory\memory_store.py:51:class MemoryStore:
+
+=== K) what db path do the bypasses use? ===
+    sd = Path(state_dir)
+    # storesِ واقعی (production learning stack — همان مسیرِ verdict).
+    try:
+        mdir = sd / "memory"; mdir.mkdir(parents=True, exist_ok=True)
+        rdir = sd / "receipts"; rdir.mkdir(parents=True, exist_ok=True)
+        odir = sd / "outcomes"; odir.mkdir(parents=True, exist_ok=True)
+        _mem = _msx.MemoryStore(path=mdir / "memory.db")
+        _rcp = _drx.DecisionReceiptStore(rdir / "receipts.db")
+        _outc = _osx.OutcomeStore(path=odir / "outcomes.db")
+        _gate = _gx.MemoryGate(_mem)
+        budget = _rl.Budget(contract["budget"])
+        ledger = _rl.ResearchLedger(LEDGER)
+        result = _rl.run_experiment(
+            contract=contract, experiment_fn=experiment_fn, verifier_fn=verifier_fn,
+                    import gate as _gx           # noqa: WPS433
+                    import decision_receipt as _drx  # noqa: WPS433
+                    mdir = _ops.STATE_DIR / "memory"
+                    mdir.mkdir(parents=True, exist_ok=True)
+                    rdir = _ops.STATE_DIR / "receipts"
+                    rdir.mkdir(parents=True, exist_ok=True)
+                    _mem = _msx.MemoryStore(path=mdir / "memory.db")
+                    # C7-S2 (audit #3): رسیدِ canonical روی مسیرِ زندهٔ رأی — هیچ خاطرهٔ بی‌رسید
+                    _rcp = _drx.DecisionReceiptStore(rdir / "receipts.db")
+                    try:
+                        # GAP-2/GAP-3 (۰۷-۳۱): حکمِ مالک باید به حافظهٔ لید **برگردد** —
+                        # با توکن‌های ماشین‌خوانِ `category=…` + `verdict=…` که تنها
+                        # خوانندهٔ زنده (`lead_outcome_recorder._memory_prior`) پارس

@@ -1,0 +1,28 @@
+{
+  "scan": {
+    "ts": "2026-08-21T08:56:00+00:00",
+    "n_files": 14,
+    "open_loops": 40
+  },
+  "diagnosis": {
+    "weakest": "P0-MEMORY-GATE",
+    "ranked": [
+      [
+        "P0-MEMORY-GATE",
+        716.789
+      ],
+      [
+        "P1-BRAIN-CALIBRATION",
+        437.993
+      ],
+      [
+        "P1-HEART-ORPHAN",
+        240.856
+      ],
+      [
+        "P0-MEMORY-TIMEOUTS",
+        121.27
+      ]
+    ]
+  }
+}

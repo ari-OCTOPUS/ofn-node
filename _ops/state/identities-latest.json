@@ -1,0 +1,134 @@
+{
+  "ts": "2026-09-03T14:06:19Z",
+  "signals": {
+    "delta": -0.00258,
+    "n_delta": 200,
+    "phi_max": 0.25,
+    "phi_saturated": 0,
+    "sigma": null,
+    "money_confirmed": 0,
+    "c6_done": 49,
+    "c6_pending": 0,
+    "probe_count": 14,
+    "romajan_verified": 44,
+    "honest_flags": 6,
+    "alive": 1.0,
+    "missing": [
+      "sigma"
+    ]
+  },
+  "identities": {
+    "learner": {
+      "id": "learner",
+      "label": "یادگیرنده",
+      "emoji": "🧬",
+      "value": 0.6,
+      "equation": "L = clamp01( 0.40·sign+(Δ) + 0.30·Ĉ + 0.30·R̂ )",
+      "plain": "یادگیرنده کسی است که (۱) از وضعیتِ درونی‌اش بهتر از کوری پیش‌بینی می‌کند، (۲) آزمایشِ خودبهبودیِ پذیرفته دارد، و (۳) ادعای ریاضیِ verified از آزمایشگاه.",
+      "kill": "اگر L=0 با n_delta≥48 و C=0 و R=0 برای ≥۳۰ روز → این هویت مرده است.",
+      "parts": {
+        "delta_pos": 0.0,
+        "c6_hat": 1.0,
+        "romajan_hat": 1.0
+      },
+      "better_than": [
+        "stub-seed",
+        "unmeasured self-praise"
+      ],
+      "worse_than": [
+        "human scientist with holdout",
+        "Sakana DGM with archive"
+      ]
+    },
+    "earner": {
+      "id": "earner",
+      "label": "پول‌ساز",
+      "emoji": "💰",
+      "value": 0.075,
+      "equation": "E = clamp01( 0.60·M̂ + 0.25·lead_draft_rate + 0.15·B )",
+      "plain": "پول‌ساز کسی است که ردیفِ MONEY_ATTRIBUTIONِ confirmed دارد، لید را تا draft می‌رساند، و هنوز سوخت دارد.",
+      "kill": "اگر E=0 با ≥۳۰ روز lead_discovery روشن و M=0 → لولهٔ پول قفل است یا کار نمی‌کند.",
+      "parts": {
+        "money_hat": 0.0,
+        "draft_rate": 0.0,
+        "budget_frac": 0.5
+      },
+      "better_than": [
+        "paper-only scout",
+        "fitness shadow with zero rows"
+      ],
+      "worse_than": [
+        "human BD with channel + portfolio",
+        "CRM with real pipeline"
+      ]
+    },
+    "guardian": {
+      "id": "guardian",
+      "label": "نگهبان",
+      "emoji": "🛡️",
+      "value": 0.675,
+      "equation": "G = clamp01( 0.35·Ĥ + 0.35·(1-σ̂) + 0.30·coherence_ok )",
+      "plain": "نگهبان کسی است که گاردهای صداقتش روشن است، σ اشباع/دژنره نیست، و پروبِ انسجام ادعاهای ابطال‌ناپذیر شکار می‌کند.",
+      "kill": "اگر G بالا باشد ولی یک اثرِ double-apply یا approvalِ جعلی ثبت شود → نگهبان تئاتر است.",
+      "parts": {
+        "honest_hat": 1.0,
+        "sigma_health": 0.5,
+        "coherence": 0.5
+      },
+      "better_than": [
+        "ungoverned agent swarm",
+        "prompt-only safety"
+      ],
+      "worse_than": [
+        "formal verification",
+        "OS sandbox + capability tokens"
+      ]
+    },
+    "creator": {
+      "id": "creator",
+      "label": "خالق",
+      "emoji": "🎨",
+      "value": 1.0,
+      "equation": "K = clamp01( 0.50·Ĉ_pending_or_done + 0.30·probe_diversity + 0.20·(1-seed_ratio) )",
+      "plain": "خالق کسی است که فرضیه از نقصِ سنجیده‌شده می‌سازد (نه seedِ جعلی)، پروب‌های متنوع دارد، و صفش خالیِ صادق است نه خالیِ مرده.",
+      "kill": "اگر فقط seedِ تضمینی «accepted» شود و هیچ mechanism_count نسازد → خالق دروغگو است.",
+      "parts": {
+        "c6_activity": 1.0,
+        "probe_div": 1.0,
+        "real_not_seed": 1.0
+      },
+      "better_than": [
+        "one-shot seed C6",
+        "prose RFC spam"
+      ],
+      "worse_than": [
+        "open-ended archive (DGM)",
+        "human research lab"
+      ]
+    },
+    "organism": {
+      "id": "organism",
+      "label": "ارگانیسم",
+      "emoji": "🐙",
+      "value": 0.6038,
+      "equation": "O = clamp01( 0.25·L + 0.25·E + 0.20·G + 0.15·K + 0.15·alive )",
+      "plain": "ارگانیسمِ زنده = یادگیرنده × پول‌ساز × نگهبان × خالق × نبض. هیچ‌کدام به تنهایی کافی نیست؛ صفرِ هر کدام O را پایین می‌کشد.",
+      "kill": "اگر O>0.8 ادعا شود ولی M=0 و Δ≤0 و C=0 → عددِ ترکیبی تئاتر است، نه حیات.",
+      "parts": {
+        "L": 0.6,
+        "E": 0.075,
+        "G": 0.675,
+        "K": 1.0,
+        "alive": 1.0
+      },
+      "better_than": [
+        "chatbot with tools",
+        "cron + LLM wrapper"
+      ],
+      "worse_than": [
+        "biological organism",
+        "company with P&L + R&D + compliance"
+      ]
+    }
+  }
+}

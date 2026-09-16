@@ -1,0 +1,10 @@
+﻿{
+    "schema":  "board2-shopify-2fa-done/1",
+    "stamp_local":  "2026-08-23T11:56:06+10:00",
+    "status":  "2FA_DONE_SMS",
+    "vault_laptop":  "F:\\backup\\_ops\\secrets\\ziman-maliheh\\shopify-2fa-recovery-codes.json",
+    "vault_board2":  "/home/ari/.local/share/ofn/secrets/shopify-2fa-recovery-codes.json",
+    "screenshot":  "F:\\backup\\06-EVIDENCE\\BOARD2-ZIMAN-BIZ-FOOT-LIVE-2026-08-23\\shopify-2fa-setup-screen.png",
+    "codes_in_this_file":  false,
+    "next":  "retry bank + PayPal"
+}

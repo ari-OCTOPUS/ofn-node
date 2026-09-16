@@ -1,0 +1,10 @@
+﻿{
+  "stamp": "2026-08-23T02:21+10",
+  "stand_down": true,
+  "resume": "Monday 2026-08-25 12:00 Australia/Sydney (owner noon)",
+  "PAYMENTS_STATUS": "Shopify Payments accepting (Shop Pay+cards); payouts BLOCKED until bank/ABN. PayPal SETUP_INCOMPLETE. Stripe Link intent = SP wallets. Owner login DEFERRED.",
+  "GST_STATUS": "PASS_PARTIAL — prices exclude tax; AU GST collection ON; ABN Missing ID (vault later).",
+  "SHIPPING_STATUS": "NOT_FULLY_ALIGNED — UI still showed Domestic Express $15 + Standard $11; International Standard $20. Owner wants Domestic flat $20 only + intl OFF. Fix on resume if still wrong.",
+  "FORBIDDEN": ["auto_refunds", "auto_withdrawals", "invent_ABN_bank"],
+  "ETSY": "HELD"
+}

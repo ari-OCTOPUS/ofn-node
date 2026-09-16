@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "capability_id": "talk-discovery",
+  "owner": "octopus-core",
+  "truth_status": "ARMED",
+  "evidence_level": "ARMED",
+  "runtime": {
+    "repo": "F:/backup",
+    "code_path": "_ops/owner_console/collaborator.py",
+    "entrypoint": "collaborator.handle",
+    "feature_flag": "OCTOPUS_WIRE_COLLAB",
+    "enabled": true
+  },
+  "authority": {
+    "allowed_effects": ["respond_draft", "retrieve_context"],
+    "may_write_state": false,
+    "may_affect_routing": false,
+    "may_affect_policy": false,
+    "may_trigger_external_action": false
+  },
+  "evidence": {
+    "adr": "ADR-033",
+    "source_docs": [
+      "06 - Architecture Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT.md"
+    ],
+    "tests": ["test_talk_discovery.py", "test_cognitive_unify.py", "test_adr033_control_plane.py"],
+    "traces": ["_ops/state/adr-033/events/"],
+    "last_verified_at": "2026-08-11"
+  },
+  "promotion": {
+    "next_status": "LOCKED",
+    "required_artifacts": ["seven_day_draft_stability", "owner_vote"],
+    "rollback_flag": "OCTOPUS_WIRE_COLLAB"
+  }
+}

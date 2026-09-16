@@ -1,0 +1,256 @@
+{
+  "ts": "2026-07-12T12:56:34",
+  "schema": "lead-quote.v1",
+  "qt_number": "QT-2026-07-12-002",
+  "version": 2,
+  "attribution_id": "LEAD-REV",
+  "intake": {
+    "scope": "",
+    "size_m2": 200.0,
+    "area_type": "interior",
+    "surface_type": "wall",
+    "surface_condition": "good",
+    "prep_level": "standard",
+    "access_type": "ladder",
+    "segment": "residential",
+    "paint_quality": "standard",
+    "coat_count": 2,
+    "risk_flags": [],
+    "rooms": [],
+    "timeline": "flexible"
+  },
+  "breakdown": {
+    "line_items": [
+      {
+        "description": "Labor: interior wall (prep: standard, 2 coat(s))",
+        "qty": 200.0,
+        "unit": "m2",
+        "rate_aud": [
+          18.0,
+          30.0
+        ],
+        "subtotal_aud": [
+          3600.0,
+          6000.0
+        ]
+      },
+      {
+        "description": "Materials: paint + supplies (standard)",
+        "qty": 200.0,
+        "unit": "m2",
+        "rate_aud": [
+          5.0,
+          12.0
+        ],
+        "subtotal_aud": [
+          1000.0,
+          2400.0
+        ]
+      }
+    ],
+    "labor_aud": [
+      3600.0,
+      6000.0
+    ],
+    "material_aud": [
+      1000.0,
+      2400.0
+    ],
+    "subtotal_excl_gst": [
+      4600.0,
+      8400.0
+    ],
+    "gst": [
+      460.0,
+      840.0
+    ],
+    "total_incl_gst": [
+      5060.0,
+      9240.0
+    ],
+    "max_deposit_nsw": 715.0,
+    "assumptions": [
+      "Standard residential painting conditions assumed",
+      "Client to clear rooms of furniture / cover remaining items",
+      "No structural repairs included",
+      "Surface condition assessed as: good",
+      "Standard prep: sanding, minor filling, spot priming",
+      "Valid for 30 days from issue date",
+      "Maximum deposit: 10% (NSW Home Building Act §8)"
+    ]
+  },
+  "proposal": {
+    "proposal_id": "P-3071344a2fab",
+    "leg_id": "x",
+    "kind": "draft_quote",
+    "payload": {
+      "attribution_id": "LEAD-REV",
+      "scope": "interior painting (200m²)",
+      "price_range_aud": [
+        5060.0,
+        9240.0
+      ],
+      "assumptions": [
+        "Standard residential painting conditions assumed",
+        "Client to clear rooms of furniture / cover remaining items",
+        "No structural repairs included",
+        "Surface condition assessed as: good",
+        "Standard prep: sanding, minor filling, spot priming",
+        "Valid for 30 days from issue date",
+        "Maximum deposit: 10% (NSW Home Building Act §8)"
+      ],
+      "not_included": [
+        "قراردادِ کتبی (الزامی برای کارهای >AU$5,000)",
+        "تأییدِ نهاییِ قیمت (تصمیمِ مالک)",
+        "بازدیدِ سایت (مرحلهٔ بعد)"
+      ],
+      "legal_placeholders": [
+        "شمارهٔ مجوز، ضمانتِ قانونی، Consumer Building Guide",
+        "بیعانهٔ نهایتاً ۱۰٪"
+      ],
+      "next_step": "تماس/بازدید — human-gated (از کانالِ P3)",
+      "draft_only": true,
+      "qt_number": "QT-2026-07-12-002",
+      "intake": {
+        "scope": "",
+        "size_m2": 200.0,
+        "area_type": "interior",
+        "surface_type": "wall",
+        "surface_condition": "good",
+        "prep_level": "standard",
+        "access_type": "ladder",
+        "segment": "residential",
+        "paint_quality": "standard",
+        "coat_count": 2,
+        "risk_flags": [],
+        "rooms": [],
+        "timeline": "flexible"
+      },
+      "line_items": [
+        {
+          "description": "Labor: interior wall (prep: standard, 2 coat(s))",
+          "qty": 200.0,
+          "unit": "m2",
+          "rate_aud": [
+            18.0,
+            30.0
+          ],
+          "subtotal_aud": [
+            3600.0,
+            6000.0
+          ]
+        },
+        {
+          "description": "Materials: paint + supplies (standard)",
+          "qty": 200.0,
+          "unit": "m2",
+          "rate_aud": [
+            5.0,
+            12.0
+          ],
+          "subtotal_aud": [
+            1000.0,
+            2400.0
+          ]
+        }
+      ],
+      "breakdown": {
+        "labor_aud": [
+          3600.0,
+          6000.0
+        ],
+        "material_aud": [
+          1000.0,
+          2400.0
+        ],
+        "subtotal_excl_gst": [
+          4600.0,
+          8400.0
+        ],
+        "gst": [
+          460.0,
+          840.0
+        ],
+        "total_incl_gst": [
+          5060.0,
+          9240.0
+        ],
+        "max_deposit_nsw": 715.0
+      }
+    },
+    "hlc": [
+      0,
+      0
+    ],
+    "hash": "3ec9fd50420033e818a6f7e8"
+  },
+  "draft_only": true,
+  "sent": false,
+  "versions": [
+    {
+      "version": 1,
+      "ts": "2026-07-12T12:56:34",
+      "qt_number": "QT-2026-07-12-001",
+      "breakdown": {
+        "line_items": [
+          {
+            "description": "Labor: interior wall (prep: standard, 2 coat(s))",
+            "qty": 100.0,
+            "unit": "m2",
+            "rate_aud": [
+              18.0,
+              30.0
+            ],
+            "subtotal_aud": [
+              1800.0,
+              3000.0
+            ]
+          },
+          {
+            "description": "Materials: paint + supplies (standard)",
+            "qty": 100.0,
+            "unit": "m2",
+            "rate_aud": [
+              5.0,
+              12.0
+            ],
+            "subtotal_aud": [
+              500.0,
+              1200.0
+            ]
+          }
+        ],
+        "labor_aud": [
+          1800.0,
+          3000.0
+        ],
+        "material_aud": [
+          500.0,
+          1200.0
+        ],
+        "subtotal_excl_gst": [
+          2300.0,
+          4200.0
+        ],
+        "gst": [
+          230.0,
+          420.0
+        ],
+        "total_incl_gst": [
+          2530.0,
+          4620.0
+        ],
+        "max_deposit_nsw": 357.5,
+        "assumptions": [
+          "Standard residential painting conditions assumed",
+          "Client to clear rooms of furniture / cover remaining items",
+          "No structural repairs included",
+          "Surface condition assessed as: good",
+          "Standard prep: sanding, minor filling, spot priming",
+          "Valid for 30 days from issue date",
+          "Maximum deposit: 10% (NSW Home Building Act §8)"
+        ]
+      }
+    }
+  ]
+}

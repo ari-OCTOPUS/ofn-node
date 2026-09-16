@@ -1,0 +1,35 @@
+﻿{
+    "forbidden":  [
+                      "git add -A",
+                      "invent new flags",
+                      "MQTT 1883",
+                      "private keys",
+                      "torch",
+                      "LAN:9101",
+                      "zero-fill",
+                      "hash rewrite",
+                      "money/webhook/work_pump",
+                      "mutate Orange Pi"
+                  ],
+    "token":  "OCTOPUS-DOCTOR-AUTOPATCH-20260822",
+    "preconditions_observed":  {
+                                   "FREEZE_flag_present":  false,
+                                   "doctor_dry_run_source":  "F:\\backup\\OCTOPUS-DOCTOR\\90-_meta\\state\\doctor-vitals.json",
+                                   "doctor_dry_run":  false,
+                                   "clear_flag":  "OCTOPUS_DOCTOR_MAY_MERGE"
+                               },
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "owner_choice":  "Unlock Doctor auto-patch auth on laptop organism",
+    "notes":  "File owner authorization for Doctor auto-patch on laptop. Enable only existing OCTOPUS_DOCTOR_MAY_MERGE gate (daemon.py). dry_run already false from prior unlock. Do not invent. No git add -A.",
+    "timestamp":  "2026-08-22T18:51:19+10:00",
+    "schema":  "octopus.owner-authorization.v1",
+    "scope":  {
+                  "description":  "Doctor auto-patch unlock auth",
+                  "target":  "laptop organism / OCTOPUS-DOCTOR",
+                  "allowed":  [
+                                  "Doctor auto-patch",
+                                  "set OCTOPUS_DOCTOR_MAY_MERGE=1 on laptop flags surface"
+                              ]
+              },
+    "mutate_device":  false
+}

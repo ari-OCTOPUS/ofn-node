@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>موتور پول · money</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#03100b;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Segoe UI",Tahoma,sans-serif;color:#bbf7d0}
+  canvas{position:fixed;inset:0;display:block}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#6ee7b7;display:block;text-shadow:0 0 12px #10b981aa}
+  .top span{font-size:11px;color:#4b7a5f}
+  .act{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);z-index:6;background:rgba(4,24,16,.66);border:1px solid #14532d;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .act b{color:#bbf7d0;font-size:12.5px}.act span{color:#34d399;font-size:11.5px;display:block;margin-top:2px}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#04180f;border:1px solid #14532d;color:#6ee7b7;border-radius:9px;padding:8px 4px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#0a2f1c;border-color:#34d399}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#34d399;text-decoration:none;font-size:12px}
+  .note{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 46px);left:0;right:0;text-align:center;font-size:10px;color:#2f5a42;z-index:6;pointer-events:none}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<canvas id="c"></canvas>
+<div class="top"><b>موتور پول</b><span>جریانِ درآمد → نقد → تخصیص · هولوگرافیک سنکی</span></div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:6;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:#a855f7;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">SHADOW MODE</div>
+<div class="act"><b id="an"></b><span id="ad"></span></div>
+<div class="note">منابع = پروژه‌های واقعی · تخصیص = وزن‌های fitness · درآمدِ تأییدشده ۰ (validation/shadow) · هزینه و پروپوزال‌ها از _ops (read-only)</div>
+<div class="tabs">
+  <button data-m="0" class="on">جریان</button>
+  <button data-m="1">runway</button>
+  <button data-m="2">تخصیص</button>
+</div>
+<!-- real organism blood (read-only extract from F:/backup/4d_system/outputs) -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../../../nervous-system/ops-data.js"></script>
+<script src="../../../nervous-system/crypto-data.js"></script>
+<script src="../../../nervous-system/mining-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,DPR;function fit(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}fit();
+const L=window.LIVE_DATA||null, OPS=window.OPS_DATA||null;
+function mkFlow(){
+ if(OPS&&OPS.money){
+   const m=OPS.money, scol={'🟢':'#34d399','🟡':'#f59e0b','🔴':'#ef4444'};
+   const pr=m.projects||[];
+   const SRC=pr.length?pr.map(p=>({k:(p.name||p.id||'?'),v:Math.max(8,Math.round(100/pr.length)),c:scol[p.status]||'#6b7280'})):[{k:'بدون منبعِ درآمد',v:100,c:'#6b7280'}];
+   const w=m.weights||{}, wl=[['value','ارزش','#34d399'],['urgency','فوریت','#f59e0b'],['efficiency','کارایی','#22d3ee'],['human','انسانی','#f472b6'],['waste','هدررفت','#6b7280']];
+   const ALLOC=wl.filter(x=>w[x[0]]!=null).map(x=>({k:x[1],v:Math.max(2,Math.round(w[x[0]]*100)),c:x[2]}));
+   return {SRC,ALLOC:ALLOC.length?ALLOC:[{k:'—',v:100,c:'#6b7280'}]};
+ }
+ if(L&&L.budget){
+   const bg=L.budget,bp=bg.by_provider||{},cap=bg.cap||1,used=bg.cloud_calls||0,rem=(bg.remaining!=null?bg.remaining:cap-used);
+   const cols={fugu:'#22d3ee',glm:'#a855f7',ollama:'#34d399',fireworks:'#f59e0b',openai:'#10a37f'};
+   const es=Object.entries(bp),tot=es.reduce((a,b)=>a+b[1],0)||1;
+   const SRC=es.length?es.map(([k,v])=>({k:k+' ('+v+')',v:Math.max(5,Math.round(v/tot*100)),c:cols[k]||'#6b7280'})):[{k:'idle',v:100,c:'#6b7280'}];
+   const ALLOC=[{k:'مصرف '+used,v:Math.max(3,Math.round(used/cap*100)),c:'#f59e0b'},{k:'باقی '+rem,v:Math.max(3,Math.round(rem/cap*100)),c:'#34d399'}];
+   return {SRC,ALLOC};
+ }
+ return {SRC:[{k:'Lead-نقاشی',v:52,c:'#34d399'},{k:'Ziman',v:22,c:'#22d3ee'},{k:'Crypto',v:14,c:'#a855f7'},{k:'دیگر',v:12,c:'#6b7280'}],ALLOC:[{k:'ضروری',v:45,c:'#f59e0b'},{k:'پس‌انداز',v:25,c:'#34d399'},{k:'سرمایه',v:20,c:'#22d3ee'},{k:'رشدِ خود',v:10,c:'#f472b6'}]};
+}
+const _F=mkFlow(),SRC=_F.SRC,ALLOC=_F.ALLOC;
+let mode=0,parts=[];
+function initParts(){parts=[];for(let i=0;i<60;i++)parts.push({t:Math.random(),lane:Math.floor(Math.random()*SRC.length),sp:0.1+Math.random()*0.2});}
+initParts();
+function setMode(m){mode=m;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+ if(m===0){var op=(window.OPS_DATA&&window.OPS_DATA.money&&(window.OPS_DATA.money.proposals||[])[0]);an('کارِ بعدی → '+(op&&op.action?op.action:'یک منبعِ درآمد را فعال کن'),(op&&op.title?op.title:'باریک‌ترین منبع را تقویت کن یا رها کن.'));}
+ if(m===1){var mo=(window.OPS_DATA&&window.OPS_DATA.money)||{};an('درآمدِ تأییدشده: '+(mo.confirmed!=null?mo.confirmed:'?')+' · هزینه: '+(mo.spend!=null?mo.spend:'?'),'فاز validation — دادهٔ درآمد تا ~۴ هفته سایه است (fitness هنوز معتبر نیست).');}
+ if(m===2)an('تخصیصِ واقعیِ fitness','ارزش ۳۰٪ · فوریت ۲۵٪ · کارایی ۲۰٪ · انسانی ۲۰٪ · هدررفت ۵٪.');}
+function an(a,b){document.getElementById('an').textContent=a;document.getElementById('ad').textContent=b;}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+
+function ribbon(x1,y1,x2,y2,w,col,al){ctx.strokeStyle=col;ctx.globalAlpha=al;ctx.lineWidth=w;ctx.lineCap='round';
+ ctx.beginPath();ctx.moveTo(x1,y1);ctx.bezierCurveTo((x1+x2)/2,y1,(x1+x2)/2,y2,x2,y2);ctx.stroke();ctx.globalAlpha=1;}
+function draw(now){requestAnimationFrame(draw);const t=now/1000;
+ ctx.clearRect(0,0,W,H);ctx.fillStyle='#03100b';ctx.fillRect(0,0,W,H);
+ const lx=W-40, mx=W/2, rx=40, top=110, bh=H-230;
+ // source y positions
+ let sy=[],acc=top;SRC.forEach(s=>{const h=bh*s.v/100;sy.push(acc+h/2);acc+=h+8;});
+ let ay=[],acc2=top;ALLOC.forEach(a=>{const h=bh*a.v/100;ay.push(acc2+h/2);acc2+=h+8;});
+ const poolY=top+bh/2;
+ if(mode===0||mode===2){
+   SRC.forEach((s,i)=>ribbon(lx,sy[i],mx,poolY,Math.max(3,bh*s.v/100*0.7),s.c,0.5));
+   ALLOC.forEach((a,i)=>ribbon(mx,poolY,rx,ay[i],Math.max(3,bh*a.v/100*0.7),a.c,mode===2?0.7:0.4));
+   // pool
+   ctx.beginPath();ctx.arc(mx,poolY,16,0,6.283);ctx.fillStyle='#ecfdf5';ctx.shadowColor='#34d399';ctx.shadowBlur=24;ctx.fill();ctx.shadowBlur=0;
+   ctx.fillStyle='#065f46';ctx.font='700 11px Tahoma';ctx.textAlign='center';ctx.fillText('نقد',mx,poolY+4);
+   // labels
+   ctx.textAlign='right';SRC.forEach((s,i)=>{ctx.fillStyle=s.c;ctx.font='12px Tahoma';ctx.fillText(s.k+' '+s.v+'٪',lx,sy[i]-12*0);ctx.fillText(s.k+' '+s.v+'٪',lx,sy[i]+4);});
+   ctx.textAlign='left';ALLOC.forEach((a,i)=>{ctx.fillStyle=a.c;ctx.font='12px Tahoma';ctx.fillText(a.v+'٪ '+a.k,rx,ay[i]+4);});
+   // flow particles
+   parts.forEach(p=>{p.t=(p.t+p.sp*0.016)%1;const i=p.lane;const x1=lx,y1=sy[i];
+     const x=Math.pow(1-p.t,2)*x1+2*(1-p.t)*p.t*mx+p.t*p.t*mx, y=Math.pow(1-p.t,2)*y1+2*(1-p.t)*p.t*y1+p.t*p.t*poolY;
+     ctx.beginPath();ctx.arc(x,y,2,0,6.283);ctx.fillStyle='#ecfdf5';ctx.fill();});
+ } else { // runway gauge
+   const cx=W/2,cy=H*0.42,R=Math.min(W,H)*0.28,months=3.2,max=6;
+   ctx.strokeStyle='#0a2f1c';ctx.lineWidth=16;ctx.beginPath();ctx.arc(cx,cy,R,Math.PI*0.75,Math.PI*0.75+Math.PI*1.5);ctx.stroke();
+   ctx.strokeStyle='#34d399';ctx.shadowColor='#34d399';ctx.shadowBlur=18;
+   ctx.beginPath();ctx.arc(cx,cy,R,Math.PI*0.75,Math.PI*0.75+Math.PI*1.5*(months/max));ctx.stroke();ctx.shadowBlur=0;
+   ctx.fillStyle='#bbf7d0';ctx.font='700 34px Tahoma';ctx.textAlign='center';ctx.fillText(months.toFixed(1),cx,cy+6);
+   ctx.font='12px Tahoma';ctx.fillStyle='#6ee7b7';ctx.fillText('ماه runway',cx,cy+30);
+ }
+}
+setMode(0);requestAnimationFrame(draw);addEventListener('resize',fit);
+</script>
+<script>
+(function(){
+ const O=window.OCTO_DATA; if(!O) return;
+ const d=document.createElement('div');
+ d.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px)+40px);left:0;right:0;z-index:6;display:flex;justify-content:center;gap:6px;pointer-events:none;padding:0 8px;flex-wrap:wrap';
+ const chips=[];
+ const cr=O.crypto?O.crypto():null;
+ if(cr){
+  const cc=cr.score>=80?'#34d399':cr.score>=50?'#f59e0b':'#ef4444';
+  chips.push('<span style="background:rgba(4,24,16,.75);border:1px solid #14532d;border-radius:999px;padding:3px 10px;font:11px Tahoma;color:'+cc+'">'+cr.emoji+' crypto '+cr.score+' · '+cr.status+'</span>');
+ }
+ const mn=O.mining?O.mining():null;
+ if(mn){
+  const mc=mn.readiness_score>=70?'#34d399':mn.readiness_score>=40?'#f59e0b':'#ef4444';
+  chips.push('<span style="background:rgba(4,24,16,.75);border:1px solid #14532d;border-radius:999px;padding:3px 10px;font:11px Tahoma;color:'+mc+'">⛏ mining '+mn.readiness_score+'% · '+mn.nodes_running+'/'+mn.nodes_total+' nodes</span>');
+ }
+ if(chips.length) d.innerHTML=chips.join('');
+ document.body.appendChild(d);
+})();
+</script>
+<script>window.MATHVIZ={type:'flow',color:0x34d399,dist:34,formula:'Sum in = Sum out ; runway = cash / burn',value:'~ 3.2 months',gap:'no variance / scenarios'};</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>

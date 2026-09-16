@@ -1,0 +1,69 @@
+# Applied this session (doctor honest checks only). Candidate is new shadow code, not live WM.
+
+--- /var/lib/octopus/state/config-history/octopus_doctor_readonly.py.pre-honest-checks	2026-08-17 04:01:33.557337972 +0000
++++ /opt/octopus/scripts/octopus_doctor_readonly.py	2026-08-17 04:24:50.497944622 +0000
+@@ -118,7 +118,17 @@
+         _check("metrics_bind", "127.0.0.1:9101" in ss_text and not lan_9101, {"ss": [ln for ln in ss_text.splitlines() if ":9101" in ln]}),
+         _check("unexpected_listeners", not unexpected and not lan_9101, {"unexpected": unexpected, "lan_9101": lan_9101}),
+         _check("ledger_integrity", wm_ok and mc_ok and rx_ok, {"world_model": wm_det, "metacontrol": mc_det, "reflex": rx_det, "wm_break": wm_brk}),
+-        _check("checkpoint_signature", False, {"signed_bundle_present": signed_ckpt, "gap002": gap002.get("status")}, status="FAIL"),
++        _check(
++            "checkpoint_signature",
++            bool(signed_ckpt) and gap002.get("status") == "CLOSED_BY_SIGNED_CHECKPOINT" and gap002.get("signed") is True,
++            {
++                "signed_bundle_present": signed_ckpt,
++                "gap002": gap002.get("status"),
++                "gap002_signed": gap002.get("signed"),
++                "creates_authority": False,
++                "phrase": "octopus-audit-ledger checkpoint anchored at seq=266",
++            },
++        ),
+         _check(
+             "registry_signature",
+             Path("/etc/octopus/config/registry.yaml.sig").is_file() and Path("/etc/octopus/trust/root.pub").is_file(),
+@@ -146,9 +156,17 @@
+         _check("actuator_authority", homeo.get("actuator_authority") == "NONE" and not reflex.get("armed"), {"homeostasis": homeo.get("actuator_authority"), "reflex_armed": reflex.get("armed")}),
+         _check(
+             "sensor_coverage",
+-            False,
+-            {"coverage": fusion.get("coverage"), "status": ((homeo.get("variables") or {}).get("sensor_coverage") or {}).get("status"), "active": fusion.get("active_sensors"), "expected": fusion.get("expected_sensors")},
+-            status="DEGRADED",
++            ((homeo.get("variables") or {}).get("sensor_coverage") or {}).get("status") == "healthy",
++            {
++                "coverage": fusion.get("coverage"),
++                "status": ((homeo.get("variables") or {}).get("sensor_coverage") or {}).get("status"),
++                "active": fusion.get("active_sensors"),
++                "expected": fusion.get("expected_sensors"),
++                "degraded": fusion.get("degraded"),
++                "would_decide": homeo.get("would_decide"),
++                "note": "coverage not imputed; 092/095 shadow-stale is reported not filled",
++            },
++            status="FAIL" if ((homeo.get("variables") or {}).get("sensor_coverage") or {}).get("status") == "critical" or homeo.get("would_decide") == "block" else "DEGRADED",
+         ),
+         _check(
+             "missing_data",
+@@ -224,9 +242,15 @@
+         ),
+         _check(
+             "gap002",
+-            False,
+-            {"status": gap002.get("status"), "signed": gap002.get("wave0_signature"), "note": "unsigned export is not closure"},
+-            status="FAIL",
++            gap002.get("status") == "CLOSED_BY_SIGNED_CHECKPOINT" and gap002.get("signed") is True and gap002.get("pass") is True,
++            {
++                "status": gap002.get("status"),
++                "signed": gap002.get("signed"),
++                "pass": gap002.get("pass"),
++                "checkpoint_sequence": gap002.get("checkpoint_sequence"),
++                "creates_authority": False,
++                "note": "Closure is provenance of octopus-audit-ledger through seq 266 only",
++            },
+         ),
+         _check(
+             "verifier",
+
+
+# New files (shadow only):
+# /opt/octopus/cognition/src/octopus_cognition/world_model/interaction_candidate.py
+# /opt/octopus/scripts/evaluate_shadow_candidate.py
+# /opt/octopus/cognition/tests/test_interaction_candidate.py

@@ -1,0 +1,55 @@
+{
+ "artifact_sha256": "b9c504f800fb3807f81483230a31755e402e3a1901ac3c572afacedb4810dd52",
+ "authority_reference": "GOV-AUTONOMY-V3 s4 YELLOW; owner mission 2026-09-13 (sole poller / binder consumes glass spool)",
+ "base_sha256": "00dd4ef36204941aa3c5eeee9e480e668624effc296632fa2a452af7615955a0",
+ "chain_position": 3,
+ "component": "ofn-agents",
+ "dependencies": [
+  "native-A2-G8-PRODUCER-010.json"
+ ],
+ "diagnosis": "W24 wire repair: the binder was a SECOND Telegram getUpdates poller. glass_runner is the sole poller and confirms every update, so the binder received zero updates by construction and its B3 bind chain was inert. Repaired to consume the glass spool through a durable cursor, durable-first, idempotent, fail-closed (wrong sender / malformed / replay / expired).",
+ "diff_scope": [
+  "ofn/agents/go_b3_owner_bind.py"
+ ],
+ "evidence": {
+  "pre_image": "/home/ari/ofn/state/owner_dialogue/preimage/go_b3_owner_bind.py.00dd4ef36204941a.orig",
+  "pre_image_sha256": "00dd4ef36204941aa3c5eeee9e480e668624effc296632fa2a452af7615955a0",
+  "stage_path": "/home/ari/ofn/state/coding-worker/stage/TASK-W24-BINDER-SPOOL-006",
+  "stage_tests": "16 passed (test_go_b3_spool_consumer.py)"
+ },
+ "expected_post_sha256": "b9c504f800fb3807f81483230a31755e402e3a1901ac3c572afacedb4810dd52",
+ "g19_note": "cursor is now per-spool; a shared index would skip lines when the active lane switches",
+ "g20_note": "persistence failure now yields a receipted disposition and never advances the cursor",
+ "g21_note": "REJECT_PERSIST_FAILED excluded from the idempotency set",
+ "owner": "octopus-commander/2026-09-13",
+ "patched": "/home/ari/ofn/state/coding-worker/stage/TASK-W24-BINDER-SPOOL-006/go_b3_owner_bind.py",
+ "priority": 2,
+ "provenance": {
+  "class": "REAL_CODE_DEFECT",
+  "source": "glass-offset.txt frozen 2026-09-10T21:20:01Z; go-b3-bind journal 'spooled 0 offset 0'; go_b3_tg_spool.jsonl absent; LIVE-INGEST-PROVE-20260913.json FAIL_NOT_SEEN",
+  "source_hash": "00dd4ef36204941aa3c5eeee9e480e668624effc296632fa2a452af7615955a0",
+  "source_ts": "2026-09-13T08:23:53Z"
+ },
+ "reason": "G8: the binder now reads the dedicated B3 lane written by the producer router, with the revenue spool as a documented fallback.",
+ "recovery_receipt": {
+  "acceptance": "g28-accept-v2 PASS on 8e1c43e8",
+  "at": "2026-09-14T08:32:29+00:00",
+  "by": "octopus-commander-editor/2026-09-14",
+  "from": "owner-tasks (false G28 transfer)",
+  "to": "canary-requests",
+  "why": "non-duplicate, base matches live bytes, artifact verified; dep on G8 producer preserved (met when glass_runner==69c8ec8f via G29)"
+ },
+ "reorder_receipt": [
+  {
+   "at": "2026-09-13T11:22:44Z",
+   "from": "native-A2-W24-BINDER-SPOOL-006.json",
+   "to": "native-A3-W24-BINDER-006.json",
+   "why": "measured matrix: OLD producer leaks a B3 message to the money lane with ANY binder, so the producer must be deployed BEFORE the binder. Filename order was the only ordering mechanism and it contradicted the tested-safe order."
+  }
+ ],
+ "requested_by": "octopus-commander/2026-09-13",
+ "rollback": "restore pre-image: /home/ari/ofn/state/owner_dialogue/preimage/go_b3_owner_bind.py.00dd4ef36204941a.orig",
+ "target": "/home/ari/ofn/ofn/agents/go_b3_owner_bind.py",
+ "target_sha256": "b9c504f800fb3807f81483230a31755e402e3a1901ac3c572afacedb4810dd52",
+ "task_id": "TASK-W24-BINDER-SPOOL-006"
+}

@@ -1,0 +1,167 @@
+﻿{
+    "ts_utc":  "2026-08-22T11:05:31.3171324Z",
+    "ts_sydney":  "2026-08-22T21:05:31.3206742+10:00",
+    "ram":  {
+                "free_pct":  18.5,
+                "total_mb":  16251.8,
+                "free_mb":  3000.7
+            },
+    "organism":  {
+                     "pid":  33164,
+                     "ws_mb":  368.1,
+                     "up":  true,
+                     "priority_class":  "BelowNormal"
+                 },
+    "self_scan":  {
+                      "note":  "not running at AFTER; prior PRIORITY-RELIEF already BelowNormal when last seen",
+                      "running":  false
+                  },
+    "center":  {
+                   "pid":  35916,
+                   "ws_mb":  39,
+                   "health_8777":  200,
+                   "up":  true,
+                   "priority_class":  "Normal"
+               },
+    "cloudflared_octopus_cp":  {
+                                   "responding":  true,
+                                   "pid":  6560,
+                                   "up":  true
+                               },
+    "germline_hourly_after":  {
+                                  "enabled":  false,
+                                  "last_run":  "2026-08-22T20:49:05.0000000+10:00",
+                                  "script_exists":  true,
+                                  "state":  "Disabled"
+                              },
+    "git_push_germline_running":  false,
+    "metrics_9101":  {
+                         "http://192.168.0.182:9101/metrics":  {
+                                                                   "content_length":  3063,
+                                                                   "ok":  true,
+                                                                   "http_status":  200
+                                                               }
+                     },
+    "top_ws":  [
+                   {
+                       "priority":  "AboveNormal",
+                       "pid":  36092,
+                       "name":  "llama-server",
+                       "ws_mb":  565.5
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  25708,
+                       "name":  "Grok Bot",
+                       "ws_mb":  539.6
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  16524,
+                       "name":  "firefox",
+                       "ws_mb":  481.7
+                   },
+                   {
+                       "priority":  "",
+                       "pid":  6700,
+                       "name":  "MsMpEng",
+                       "ws_mb":  392.8
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  28576,
+                       "name":  "firefox",
+                       "ws_mb":  370.1
+                   },
+                   {
+                       "priority":  "BelowNormal",
+                       "pid":  33164,
+                       "name":  "python",
+                       "ws_mb":  368.1
+                   },
+                   {
+                       "priority":  "AboveNormal",
+                       "pid":  22932,
+                       "name":  "firefox",
+                       "ws_mb":  356.4
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  26208,
+                       "name":  "Grok Bot",
+                       "ws_mb":  319.3
+                   },
+                   {
+                       "priority":  "Idle",
+                       "pid":  22368,
+                       "name":  "msedgewebview2",
+                       "ws_mb":  313
+                   },
+                   {
+                       "priority":  "",
+                       "pid":  3620,
+                       "name":  "svchost",
+                       "ws_mb":  291.6
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  29604,
+                       "name":  "claude",
+                       "ws_mb":  258.4
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  26288,
+                       "name":  "Telegram",
+                       "ws_mb":  223.2
+                   },
+                   {
+                       "priority":  "",
+                       "pid":  3816,
+                       "name":  "Memory Compression",
+                       "ws_mb":  222.8
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  22908,
+                       "name":  "explorer",
+                       "ws_mb":  193.8
+                   },
+                   {
+                       "priority":  "Idle",
+                       "pid":  3140,
+                       "name":  "msedgewebview2",
+                       "ws_mb":  159.8
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  21524,
+                       "name":  "claude",
+                       "ws_mb":  154.4
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  28072,
+                       "name":  "Grok Bot",
+                       "ws_mb":  143.8
+                   },
+                   {
+                       "priority":  "Idle",
+                       "pid":  18528,
+                       "name":  "firefox",
+                       "ws_mb":  138.9
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  35252,
+                       "name":  "claude",
+                       "ws_mb":  137.4
+                   },
+                   {
+                       "priority":  "Normal",
+                       "pid":  8516,
+                       "name":  "Grok Bot",
+                       "ws_mb":  133.7
+                   }
+               ]
+}

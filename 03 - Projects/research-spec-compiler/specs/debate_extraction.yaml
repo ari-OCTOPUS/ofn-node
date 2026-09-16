@@ -1,0 +1,80 @@
+# Demo 1 — the original worked example, fully compiled.
+idea: >
+  استفاده از multi-agent debate برای افزایش دقت extraction در اسناد نیمه‌ساخت‌یافته.
+
+hypothesis: >
+  اگر دو agent با prompt متضاد (optimistic vs critical) روی extraction کار کنند و یک
+  resolver خروجی را داوری کند، دقت نهایی (F1) نسبت به single-agent extraction دست‌کم
+  ۱۲٪ نسبی بهبود می‌یابد.
+
+prediction:
+  statement: multi-agent debate + resolver دقت را از baseline single-agent بالاتر می‌برد.
+  baseline: 0.71
+  expected: 0.83
+
+metric:
+  name: F1
+  dataset: labeled-extraction-500
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: ۵۰۰ سند واقعی از pipeline فعلی، برچسب‌خوردهٔ دستی (gold).
+  n: 500
+  conditions:
+    - name: single_agent
+      description: extraction مستقیم با یک agent (baseline).
+    - name: debate_no_resolver
+      description: Agent A extraction + Agent B critique، بدون داور.
+    - name: debate_resolver
+      description: Agent A + Agent B + Resolver که خروجی را ترکیب/انتخاب می‌کند.
+  protocol: >
+    هر condition روی همان ۵۰۰ سند و همان schema با ۵ seed اجرا می‌شود؛ F1 نسبت به gold
+    محاسبه و میانگین±انحراف گزارش می‌شود. کنترل: هزینهٔ توکن و مدل پایه یکسان.
+
+failure_condition:
+  metric: F1
+  op: "<"
+  threshold: 0.75
+  note: اگر F1 نهاییِ debate_resolver زیر ۰٫۷۵ بماند، فرضیه رد می‌شود.
+
+architecture:
+  pattern: Debate + Arbiter
+  topology: parallel agents -> shared context -> resolver
+  tradeoff: latency ↑ و cost ↑ در ازای accuracy ↑ و کاهش خطای mode-collapse یک agent.
+
+api_contract:
+  endpoint: /extract/debate
+  method: POST
+  request:
+    document: "<متن سند>"
+    schema: "<JSON schema موجودیت‌ها>"
+    mode: debate
+  response:
+    entities: ["<...>"]
+    confidence: 0.83
+    agent_disagreement: 0.21
+
+mvp:
+  stack: Python + async (بدون framework)
+  deps: []
+  effort: "< 1 day"
+  notes: logging کامل disagreement بین agentها؛ بدون vector DB در phase 1.
+
+evaluation:
+  comparisons: [single_agent, debate_no_resolver, debate_resolver]
+  ablation:
+    - حذف resolver (سهم داور)
+    - حذف critic (سهم agent متضاد)
+  seeds: 5
+
+decision_rule:
+  primary_metric: F1
+  rules:
+    - max: 0.75
+      verdict: DISCARD
+    - min: 0.75
+      max: 0.80
+      verdict: OPTIMIZE
+    - min: 0.80
+      verdict: INTEGRATE

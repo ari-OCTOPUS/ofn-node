@@ -1,0 +1,15 @@
+﻿{
+    "stamp_local":  "2026-08-23T10:36:46+10:00",
+    "ABN_STATUS":  "PASS",
+    "PAYOUTS_STATUS":  "BLOCKED — Add account still needed; bank form apply in flight",
+    "EMAIL_STATUS":  "PASS",
+    "no_tfn":  true,
+    "PAYPAL_STATUS":  "Setup incomplete",
+    "BANK_STATUS":  "IN_FLIGHT",
+    "schema":  "board2-ziman-shopify-apply-partial/1",
+    "applied":  [
+                    "ABN 21190030795",
+                    "store email aram@ziman-gift.com"
+                ],
+    "GST_STATUS":  "PASS_NO_COLLECT (Australia Collecting —; ABN 21190030795 set; Missing ID cleared)"
+}

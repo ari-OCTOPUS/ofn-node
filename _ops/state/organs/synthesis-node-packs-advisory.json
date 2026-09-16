@@ -1,0 +1,103 @@
+{
+  "ok": true,
+  "hook": "synthesis_node_packs_hook",
+  "consumer": "organs.synthesis_node_packs.beat",
+  "mode": "advisory",
+  "consumer_fired": true,
+  "flag_drift": false,
+  "live_promote_claimed": false,
+  "pointer_enabled": true,
+  "pointer_ok": true,
+  "pointer_path": "F:\\backup\\_ops\\evidence_plane\\SYNTHESIS-NODE-PACKS.pointer.json",
+  "pointer_error": null,
+  "packs_dir": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs",
+  "packs_dir_exists": true,
+  "order": [
+    "business",
+    "sensorium",
+    "laptop"
+  ],
+  "packs_present": 3,
+  "packs_expected": 3,
+  "packs_missing": [],
+  "hash_mismatches": [],
+  "open_questions_total": 6,
+  "packs": [
+    {
+      "filename": "NODE-PACK-BUSINESS.json",
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-BUSINESS.json",
+      "exists": true,
+      "size_bytes": 16037,
+      "sha256_expected": "53e1184941606d1b2d38c1586750c7eecaede7037dce1a24d16af6837f9cb1e9",
+      "sha256_actual": "53e1184941606d1b2d38c1586750c7eecaede7037dce1a24d16af6837f9cb1e9",
+      "hash_ok": true,
+      "node_id": "business-board2",
+      "node_role": "business",
+      "pack_version": "1.0",
+      "collected_at": "2026-08-23T00:34:00+10:00",
+      "open_questions_count": 2,
+      "live_promote_claimed": false,
+      "synthesis_lock_flags": {
+        "business_pack_received": true,
+        "sensorium_pack_received": true,
+        "laptop_pack_received": true,
+        "can_synthesize": true
+      }
+    },
+    {
+      "filename": "NODE-PACK-SENSORIUM.json",
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-SENSORIUM.json",
+      "exists": true,
+      "size_bytes": 14542,
+      "sha256_expected": "2aa394ab91136bca9531c604f8bf56516b5cf022add8ef6b906bca0ce348c211",
+      "sha256_actual": "2aa394ab91136bca9531c604f8bf56516b5cf022add8ef6b906bca0ce348c211",
+      "hash_ok": true,
+      "node_id": "sensorium-orangepi",
+      "node_role": "sensorium",
+      "pack_version": "1.0",
+      "collected_at": "2026-08-23T00:34:00+10:00",
+      "open_questions_count": 2,
+      "live_promote_claimed": false,
+      "synthesis_lock_flags": {
+        "business_pack_received": true,
+        "sensorium_pack_received": true,
+        "laptop_pack_received": true,
+        "can_synthesize": true
+      }
+    },
+    {
+      "filename": "NODE-PACK-LAPTOP.json",
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-LAPTOP.json",
+      "exists": true,
+      "size_bytes": 16438,
+      "sha256_expected": "3a74acdf6c52e9c732c1ce25260be17162e0cdc5b77652f6c0c19c2fd5792a10",
+      "sha256_actual": "3a74acdf6c52e9c732c1ce25260be17162e0cdc5b77652f6c0c19c2fd5792a10",
+      "hash_ok": true,
+      "node_id": "laptop-center",
+      "node_role": "laptop",
+      "pack_version": "1.0",
+      "collected_at": "2026-08-23T00:34:00+10:00",
+      "open_questions_count": 2,
+      "live_promote_claimed": false,
+      "synthesis_lock_flags": {
+        "business_pack_received": true,
+        "sensorium_pack_received": true,
+        "laptop_pack_received": true,
+        "can_synthesize": true
+      }
+    }
+  ],
+  "do_not": [
+    "invent_pack_contents",
+    "claim_LIVE_promote",
+    "telegram_broadcast",
+    "money_unlock",
+    "pwm",
+    "invent_secrets_or_urls",
+    "organism_restart"
+  ],
+  "stamp_unix": 1787466297.6733174,
+  "enabled_flag": "synthesis_node_packs_hook",
+  "synthesis_json": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\SYNTHESIS.json",
+  "sha256_synthesis": "dc391586638eff11b5c0305899210d384d23f25cb37633e05e6fbf51d2246356"
+}

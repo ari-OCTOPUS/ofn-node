@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research-Spec Compiler</title>
+<style>
+  :root{
+    --bg:#0f1216; --panel:#171b22; --panel2:#1e242d; --line:#2a323d;
+    --txt:#e6edf3; --muted:#93a1b0; --accent:#5eb3ff; --code:#0c0f13;
+    --ok:#3fb950; --warn:#d29922; --bad:#f85149; --chip:#222b36;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:system-ui,"Segoe UI",Tahoma,Arial,sans-serif;font-size:14px;line-height:1.6}
+  header{padding:16px 20px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  h1{font-size:17px;margin:0;font-weight:650}
+  .sub{color:var(--muted);font-size:12px}
+  .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;padding:16px 20px;max-width:1200px;margin:0 auto}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 14px 6px}
+  .card h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:2px 0 10px}
+  label{display:block;margin:8px 0 3px;font-size:12px;color:var(--muted)}
+  input,textarea,select{width:100%;background:var(--panel2);color:var(--txt);
+    border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:13px;font-family:inherit}
+  textarea{resize:vertical;min-height:44px}
+  input[dir=ltr],textarea[dir=ltr]{direction:ltr;text-align:left;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .sticky{position:sticky;top:14px}
+  .gate{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:7px;background:var(--panel2);margin-bottom:6px}
+  .dot{width:9px;height:9px;border-radius:50%;margin-top:6px;flex:0 0 auto}
+  .dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
+  .gate .g-id{font-family:ui-monospace,monospace;font-size:12px}
+  .gate .g-msg{color:var(--muted);font-size:11.5px}
+  .banner{padding:10px 12px;border-radius:8px;font-weight:650;text-align:center;margin-bottom:10px}
+  .banner.pass{background:rgba(63,185,80,.14);color:var(--ok);border:1px solid rgba(63,185,80,.4)}
+  .banner.fail{background:rgba(248,81,73,.12);color:var(--bad);border:1px solid rgba(248,81,73,.4)}
+  .btn{background:var(--chip);color:var(--txt);border:1px solid var(--line);border-radius:7px;
+    padding:7px 12px;font-size:12.5px;cursor:pointer}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);color:#04121f;border-color:var(--accent);font-weight:650}
+  .bar{display:flex;gap:8px;flex-wrap:wrap}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px;
+    overflow:auto;direction:ltr;text-align:left;font-size:12px;max-height:340px}
+  .rule{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:6px;margin-bottom:6px}
+  .rule input{font-size:12px}
+  .mini{font-size:11px;color:var(--muted)}
+  .viz{height:46px;border-radius:8px;position:relative;overflow:hidden;border:1px solid var(--line);margin:8px 0 4px}
+  .viz .band{position:absolute;top:0;bottom:0;opacity:.5}
+  .viz .mark{position:absolute;top:0;bottom:0;width:2px}
+  .viz .lbl{position:absolute;bottom:2px;font-size:10px;color:#fff;transform:translateX(50%)}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-inline-end:4px;vertical-align:middle}
+  details{margin:6px 0}
+  summary{cursor:pointer;color:var(--accent);font-size:12px}
+  .foot{color:var(--muted);font-size:11px;padding:0 20px 24px;max-width:1200px;margin:0 auto}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Research-Spec Compiler <span class="sub">— idea → executable spec</span></h1>
+    <div class="sub">۵ گیت سخت: metric · falsifiability · api_contract · mvp · decision_rule</div>
+  </div>
+  <div class="bar">
+    <button class="btn" id="btnDemo">بارگذاری دموی debate</button>
+    <button class="btn" id="btnClear">خالی‌کردن</button>
+    <button class="btn primary" id="btnJson">Export JSON</button>
+    <button class="btn primary" id="btnYaml">Export YAML</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- LEFT: form -->
+  <div>
+    <div class="card">
+      <h2>۱–۲ · idea + hypothesis</h2>
+      <label>idea</label>
+      <textarea id="idea"></textarea>
+      <label>hypothesis (directional + quantified)</label>
+      <textarea id="hypothesis"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>۳–۴ · prediction + metric</h2>
+      <label>prediction.statement</label>
+      <textarea id="pred_stmt"></textarea>
+      <div class="row3">
+        <div><label>baseline</label><input dir="ltr" id="baseline" type="number" step="any"></div>
+        <div><label>expected</label><input dir="ltr" id="expected" type="number" step="any"></div>
+        <div><label>direction</label>
+          <select id="direction">
+            <option value="higher_is_better">higher_is_better</option>
+            <option value="lower_is_better">lower_is_better</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>metric.name</label><input dir="ltr" id="metric_name"></div>
+        <div><label>metric.dataset</label><input id="metric_dataset"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>۵ · experiment</h2>
+      <div class="row">
+        <div><label>dataset</label><input id="exp_dataset"></div>
+        <div><label>n</label><input dir="ltr" id="exp_n" type="number"></div>
+      </div>
+      <label>conditions — یک خط برای هر شرط: <span class="mini">name | description</span></label>
+      <textarea id="conditions" dir="ltr"></textarea>
+      <label>protocol</label>
+      <textarea id="protocol"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>۶ · failure_condition (کِیل‌لاین)</h2>
+      <div class="row3">
+        <div><label>metric</label><input dir="ltr" id="fc_metric"></div>
+        <div><label>op</label>
+          <select id="fc_op"><option><</option><option><=</option><option>></option><option>>=</option><option>==</option><option>!=</option></select>
+        </div>
+        <div><label>threshold</label><input dir="ltr" id="fc_threshold" type="number" step="any"></div>
+      </div>
+      <label>note</label><input id="fc_note">
+    </div>
+
+    <div class="card">
+      <h2>۷ · architecture</h2>
+      <label>pattern</label><input id="arch_pattern" dir="ltr">
+      <div class="row">
+        <div><label>topology</label><input id="arch_topology" dir="ltr"></div>
+        <div><label>tradeoff</label><input id="arch_tradeoff"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>۸ · api_contract</h2>
+      <div class="row">
+        <div><label>endpoint</label><input id="api_endpoint" dir="ltr"></div>
+        <div><label>method</label>
+          <select id="api_method"><option>POST</option><option>GET</option><option>PUT</option><option>DELETE</option></select>
+        </div>
+      </div>
+      <label>request (JSON)</label><textarea id="api_request" dir="ltr"></textarea>
+      <label>response (JSON)</label><textarea id="api_response" dir="ltr"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>۹ · mvp</h2>
+      <div class="row">
+        <div><label>stack</label><input id="mvp_stack" dir="ltr"></div>
+        <div><label>effort</label><input id="mvp_effort" dir="ltr"></div>
+      </div>
+      <label>deps (کاما جدا)</label><input id="mvp_deps" dir="ltr">
+      <label>notes</label><textarea id="mvp_notes"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>۱۰ · evaluation</h2>
+      <label>comparisons (کاما)</label><input id="eval_comparisons" dir="ltr">
+      <label>ablation (یک خط هرکدام)</label><textarea id="eval_ablation"></textarea>
+      <label>seeds</label><input id="eval_seeds" dir="ltr" type="number">
+    </div>
+
+    <div class="card">
+      <h2>۱۱ · decision_rule</h2>
+      <label>primary_metric</label><input id="dr_primary" dir="ltr">
+      <div id="rules"></div>
+      <button class="btn" id="btnAddRule">+ band</button>
+      <p class="mini">هر band: min و/یا max (خالی = ∞) + verdict. باندها باید متصل باشند.</p>
+    </div>
+  </div>
+
+  <!-- RIGHT: validation + viz + output -->
+  <div>
+    <div class="card sticky">
+      <h2>Validation</h2>
+      <div id="banner" class="banner">—</div>
+      <div id="gates"></div>
+
+      <h2 style="margin-top:14px">Decision-rule map</h2>
+      <div class="viz" id="viz"></div>
+      <div class="legend">
+        <span><span class="swatch" style="background:#f85149"></span>DISCARD</span>
+        <span><span class="swatch" style="background:#d29922"></span>OPTIMIZE</span>
+        <span><span class="swatch" style="background:#3fb950"></span>INTEGRATE</span>
+        <span><span class="swatch" style="background:#5eb3ff"></span>baseline</span>
+        <span><span class="swatch" style="background:#fff"></span>expected</span>
+      </div>
+
+      <details open style="margin-top:12px">
+        <summary>خروجی</summary>
+        <pre id="out">—</pre>
+      </details>
+    </div>
+  </div>
+</div>
+<div class="foot">
+  همه‌چیز client-side و بدون وابستگی. خروجی همان schema است؛ برای اعتبارسنجی برنامه‌ای:
+  <code dir="ltr">python rsc.py validate &lt;file&gt;</code>. نتایج run در CLI است، نه اینجا.
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const F = ["idea","hypothesis","pred_stmt","baseline","expected","direction","metric_name",
+  "metric_dataset","exp_dataset","exp_n","conditions","protocol","fc_metric","fc_op","fc_threshold",
+  "fc_note","arch_pattern","arch_topology","arch_tradeoff","api_endpoint","api_method","api_request",
+  "api_response","mvp_stack","mvp_effort","mvp_deps","notes_dummy","mvp_notes","eval_comparisons",
+  "eval_ablation","eval_seeds","dr_primary"];
+
+const DEMO = {
+  idea:"استفاده از multi-agent debate برای افزایش دقت extraction در اسناد نیمه‌ساخت‌یافته.",
+  hypothesis:"اگر دو agent با prompt متضاد (optimistic vs critical) روی extraction کار کنند و یک resolver خروجی را داوری کند، دقت نهایی (F1) نسبت به single-agent دست‌کم ۱۲٪ نسبی بهبود می‌یابد.",
+  pred_stmt:"multi-agent debate + resolver دقت را از baseline single-agent بالاتر می‌برد.",
+  baseline:"0.71", expected:"0.83", direction:"higher_is_better",
+  metric_name:"F1", metric_dataset:"labeled-extraction-500",
+  exp_dataset:"۵۰۰ سند واقعی برچسب‌خوردهٔ دستی (gold)", exp_n:"500",
+  conditions:"single_agent | extraction مستقیم با یک agent\ndebate_no_resolver | A extraction + B critique بدون داور\ndebate_resolver | A + B + Resolver",
+  protocol:"هر condition روی همان ۵۰۰ سند با ۵ seed؛ F1 نسبت به gold، میانگین±انحراف.",
+  fc_metric:"F1", fc_op:"<", fc_threshold:"0.75",
+  fc_note:"اگر F1 نهاییِ debate_resolver زیر ۰٫۷۵ بماند، فرضیه رد می‌شود.",
+  arch_pattern:"Debate + Arbiter", arch_topology:"parallel agents -> shared context -> resolver",
+  arch_tradeoff:"latency↑ و cost↑ در ازای accuracy↑",
+  api_endpoint:"/extract/debate", api_method:"POST",
+  api_request:'{\n  "document": "<متن سند>",\n  "schema": "<JSON schema>",\n  "mode": "debate"\n}',
+  api_response:'{\n  "entities": ["<...>"],\n  "confidence": 0.83,\n  "agent_disagreement": 0.21\n}',
+  mvp_stack:"Python + async (بدون framework)", mvp_effort:"< 1 day", mvp_deps:"",
+  mvp_notes:"logging کامل disagreement؛ بدون vector DB در phase 1.",
+  eval_comparisons:"single_agent, debate_no_resolver, debate_resolver",
+  eval_ablation:"حذف resolver (سهم داور)\nحذف critic (سهم agent متضاد)",
+  eval_seeds:"5", dr_primary:"F1",
+  rules:[{max:"0.75",verdict:"DISCARD"},{min:"0.75",max:"0.80",verdict:"OPTIMIZE"},{min:"0.80",verdict:"INTEGRATE"}]
+};
+
+let RULES = [];
+
+function renderRules(){
+  const box=$("rules"); box.innerHTML="";
+  RULES.forEach((r,i)=>{
+    const d=document.createElement("div"); d.className="rule";
+    d.innerHTML=`<input dir=ltr placeholder=min value="${r.min??''}" data-k=min data-i=${i}>
+      <input dir=ltr placeholder=max value="${r.max??''}" data-k=max data-i=${i}>
+      <input dir=ltr placeholder=verdict value="${r.verdict??''}" data-k=verdict data-i=${i}>
+      <button class=btn data-del=${i}>✕</button>`;
+    box.appendChild(d);
+  });
+  box.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",e=>{
+    const i=+e.target.dataset.i,k=e.target.dataset.k; RULES[i][k]=e.target.value; run();
+  }));
+  box.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",e=>{
+    RULES.splice(+e.target.dataset.del,1); renderRules(); run();
+  }));
+}
+
+const num = v => { const n=parseFloat(v); return (v!=="" && v!==null && !isNaN(n))?n:null; };
+const numOk = v => num(v)!==null;
+const s = id => ($(id).value||"").trim();
+
+function parseConditions(){
+  return s("conditions").split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{
+    const [name,...rest]=l.split("|"); return {name:(name||"").trim(),description:rest.join("|").trim()};
+  });
+}
+function parseJSON(id){ try{const o=JSON.parse(s(id)); return (o&&typeof o==="object")?o:null;}catch(e){return null;} }
+function list(id){ return s(id).split(",").map(x=>x.trim()).filter(Boolean); }
+function lines(id){ return s(id).split("\n").map(x=>x.trim()).filter(Boolean); }
+
+function buildSpec(){
+  return {
+    idea:s("idea"), hypothesis:s("hypothesis"),
+    prediction:{statement:s("pred_stmt"),baseline:num("baseline"),expected:num("expected")},
+    metric:{name:s("metric_name"),dataset:s("metric_dataset"),direction:s("direction"),primary:true},
+    experiment:{dataset:s("exp_dataset"),n:num("exp_n"),conditions:parseConditions(),protocol:s("protocol")},
+    failure_condition:{metric:s("fc_metric"),op:s("fc_op"),threshold:num("fc_threshold"),note:s("fc_note")},
+    architecture:{pattern:s("arch_pattern"),topology:s("arch_topology"),tradeoff:s("arch_tradeoff")},
+    api_contract:{endpoint:s("api_endpoint"),method:s("api_method"),request:parseJSON("api_request")||{},response:parseJSON("api_response")||{}},
+    mvp:{stack:s("mvp_stack"),deps:list("mvp_deps"),effort:s("mvp_effort"),notes:s("mvp_notes")},
+    evaluation:{comparisons:list("eval_comparisons"),ablation:lines("eval_ablation"),seeds:num("eval_seeds")},
+    decision_rule:{primary_metric:s("dr_primary"),rules:RULES.map(r=>{
+      const o={verdict:(r.verdict||"").trim()}; if(numOk(r.min))o.min=num(r.min); if(numOk(r.max))o.max=num(r.max); return o;})}
+  };
+}
+
+const OPS={"<":(a,b)=>a<b,"<=":(a,b)=>a<=b,">":(a,b)=>a>b,">=":(a,b)=>a>=b,"==":(a,b)=>a===b,"!=":(a,b)=>a!==b};
+
+function validate(spec){
+  const g=[]; const P=spec.prediction,M=spec.metric,FC=spec.failure_condition,API=spec.api_contract,MV=spec.mvp,DR=spec.decision_rule;
+  const need=["idea","hypothesis","architecture"];
+  const structOk = spec.idea&&spec.hypothesis&&spec.architecture.pattern;
+  g.push({id:"structure.complete",ok:!!structOk,killer:false,msg:"فیلدهای اصلی پر است"});
+
+  const metricOk = M.name && (M.direction==="higher_is_better"||M.direction==="lower_is_better") && P.baseline!==null && P.expected!==null;
+  g.push({id:"killer.metric",ok:!!metricOk,killer:true,msg:metricOk?"metric measurable":"NO METRIC → useless: name+direction و baseline/expected عددی لازم است"});
+
+  const falsOk = FC.metric && OPS[FC.op] && FC.threshold!==null;
+  g.push({id:"killer.falsifiability",ok:!!falsOk,killer:true,msg:falsOk?`kill line: ${FC.metric} ${FC.op} ${FC.threshold}`:"NOT FALSIFIABLE → pseudo-research: metric+op+threshold لازم"});
+
+  const apiOk = API.endpoint && API.method && API.request && Object.keys(API.request).length>0 && API.response && Object.keys(API.response).length>0;
+  g.push({id:"killer.api",ok:!!apiOk,killer:true,msg:apiOk?"api connectable":"NO API → not connectable: endpoint/method + request/response غیرخالی (JSON معتبر)"});
+
+  const mvpOk = MV.stack && MV.effort;
+  g.push({id:"killer.mvp",ok:!!mvpOk,killer:true,msg:mvpOk?"mvp runnable":"NO MVP → not runnable: stack + effort لازم"});
+
+  const rules=DR.rules||[];
+  let drOk = rules.length>=2 && rules.every(r=>r.verdict && (r.min!==undefined||r.max!==undefined));
+  g.push({id:"killer.decision_rule",ok:!!drOk,killer:true,msg:drOk?`closure over ${rules.length} bands`:"NO DECISION RULE → no closure: ≥۲ band با verdict و min/max"});
+
+  // consistency (warn)
+  if(P.baseline!==null&&P.expected!==null&&M.direction){
+    const beat = M.direction==="higher_is_better"? P.expected>P.baseline : P.expected<P.baseline;
+    g.push({id:"consistency.expected_beats_baseline",ok:beat,killer:false,warn:true,msg:beat?"expected بهتر از baseline":"expected از baseline بهتر نیست"});
+  }
+  if(P.baseline!==null&&P.expected!==null&&FC.threshold!==null){
+    const lo=Math.min(P.baseline,P.expected),hi=Math.max(P.baseline,P.expected);
+    const inside=FC.threshold>=lo&&FC.threshold<=hi;
+    g.push({id:"consistency.kill_line_placement",ok:inside,killer:false,warn:true,msg:inside?"kill line داخل [baseline,expected]":"threshold بیرون بازه → تست می‌تواند بی‌آنکه فرضیه را نقض کند «شکست بخورد»"});
+  }
+  const blockers=g.filter(x=>!x.warn);
+  const ok=blockers.every(x=>x.ok);
+  return {ok,gates:g,score:`${blockers.filter(x=>x.ok).length}/${blockers.length}`};
+}
+
+function renderViz(spec){
+  const viz=$("viz"); viz.innerHTML="";
+  const rules=(spec.decision_rule.rules||[]).filter(r=>r.verdict);
+  const nums=[]; rules.forEach(r=>{if(r.min!==undefined)nums.push(r.min);if(r.max!==undefined)nums.push(r.max);});
+  if(spec.prediction.baseline!==null)nums.push(spec.prediction.baseline);
+  if(spec.prediction.expected!==null)nums.push(spec.prediction.expected);
+  if(spec.failure_condition.threshold!==null)nums.push(spec.failure_condition.threshold);
+  if(nums.length<2){viz.innerHTML='<div class="lbl" style="left:8px;color:#93a1b0">band کافی نیست</div>';return;}
+  let lo=Math.min(...nums),hi=Math.max(...nums); if(lo===hi){lo-=0.1;hi+=0.1;} const pad=(hi-lo)*0.08; lo-=pad; hi+=pad;
+  const X=v=> (v-lo)/(hi-lo)*100;
+  const col=v=>{v=(v||"").toUpperCase(); if(v.includes("DISCARD")||v.includes("REJECT"))return"#f85149"; if(v.includes("INTEGRATE")||v.includes("SHIP"))return"#3fb950"; if(v.includes("OPTIM"))return"#d29922"; return"#5a6673";};
+  rules.forEach(r=>{
+    const a=r.min!==undefined?r.min:lo, b=r.max!==undefined?r.max:hi;
+    const d=document.createElement("div"); d.className="band";
+    const left=X(Math.min(a,b)), w=Math.abs(X(b)-X(a));
+    d.style.insetInlineStart="0"; d.style.left=left+"%"; d.style.width=w+"%"; d.style.background=col(r.verdict);
+    const t=document.createElement("div"); t.className="lbl"; t.style.left=(left+w/2)+"%"; t.textContent=r.verdict;
+    viz.appendChild(d); viz.appendChild(t);
+  });
+  const mk=(v,c,txt)=>{if(v===null)return;const m=document.createElement("div");m.className="mark";m.style.left=X(v)+"%";m.style.background=c;viz.appendChild(m);
+    const l=document.createElement("div");l.className="lbl";l.style.left=X(v)+"%";l.style.top="1px";l.style.bottom="auto";l.style.color=c;l.textContent=txt;viz.appendChild(l);};
+  mk(spec.prediction.baseline,"#5eb3ff","B");
+  mk(spec.prediction.expected,"#ffffff","E");
+  mk(spec.failure_condition.threshold,"#f85149","✕");
+}
+
+function run(){
+  const spec=buildSpec();
+  const rep=validate(spec);
+  const banner=$("banner");
+  banner.className="banner "+(rep.ok?"pass":"fail");
+  banner.textContent=(rep.ok?"PASS":"FAIL")+" — killer/blocker gates "+rep.score;
+  const gv=$("gates"); gv.innerHTML="";
+  rep.gates.forEach(g=>{
+    const d=document.createElement("div");d.className="gate";
+    const cls=g.ok?"ok":(g.warn?"warn":"bad");
+    d.innerHTML=`<span class="dot ${cls}"></span><div><div class="g-id">${g.killer?"★ ":""}${g.id}</div><div class="g-msg">${g.msg}</div></div>`;
+    gv.appendChild(d);
+  });
+  renderViz(spec);
+  $("out").textContent=JSON.stringify(spec,null,2);
+  try{localStorage.setItem("rsc_state",JSON.stringify(collect()));}catch(e){}
+}
+
+function collect(){const o={};F.forEach(id=>{if($(id))o[id]=$(id).value;});o.rules=RULES;return o;}
+function apply(o){F.forEach(id=>{if($(id)&&o[id]!==undefined)$(id).value=o[id];});RULES=(o.rules||[]).map(r=>({...r}));renderRules();}
+
+function loadDemo(){apply(DEMO);run();}
+function clearAll(){F.forEach(id=>{if($(id))$(id).value="";});$("direction").value="higher_is_better";$("fc_op").value="<";$("api_method").value="POST";RULES=[{min:"",max:"",verdict:"DISCARD"},{min:"",max:"",verdict:"INTEGRATE"}];renderRules();run();}
+
+function download(name,text){const b=new Blob([text],{type:"text/plain"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();}
+
+// minimal YAML emitter for our spec shape
+function yamlDump(o,ind=0){
+  const sp="  ".repeat(ind); let out="";
+  const scalar=v=>{ if(v===null)return "null"; if(typeof v==="number")return String(v);
+    if(typeof v==="string"){ if(v==="")return '""'; if(/[:#\-\n"']/.test(v)||/^\s|\s$/.test(v))return JSON.stringify(v); return v;} return JSON.stringify(v);};
+  if(Array.isArray(o)){ if(o.length===0)return sp+"[]\n";
+    o.forEach(it=>{ if(it&&typeof it==="object"&&!Array.isArray(it)){ const k=Object.keys(it);
+        out+=sp+"- "+k.map((kk,i)=> (i===0?"":sp+"  ")+kk+": "+scalar(it[kk])).join("\n"+"")+"\n";
+        // simpler: inline each key on its own line
+      } else out+=sp+"- "+scalar(it)+"\n"; });
+    return out;
+  }
+  for(const k of Object.keys(o)){ const v=o[k];
+    if(v&&typeof v==="object"&&!Array.isArray(v)){ out+=sp+k+":\n"+yamlDump(v,ind+1); }
+    else if(Array.isArray(v)){
+      if(v.length===0){out+=sp+k+": []\n";continue;}
+      if(typeof v[0]==="object"){ out+=sp+k+":\n"; v.forEach(it=>{ const ks=Object.keys(it);
+        out+=sp+"  - "+ks.map((kk,i)=>(i===0?"":sp+"    ")+kk+": "+scalar(it[kk])).join("\n")+"\n"; }); }
+      else { out+=sp+k+":\n"; v.forEach(it=>out+=sp+"  - "+scalar(it)+"\n"); }
+    }
+    else out+=sp+k+": "+scalar(v)+"\n";
+  }
+  return out;
+}
+
+$("btnDemo").onclick=loadDemo;
+$("btnClear").onclick=clearAll;
+$("btnAddRule").onclick=()=>{RULES.push({min:"",max:"",verdict:""});renderRules();run();};
+$("btnJson").onclick=()=>download("research_spec.json",JSON.stringify(buildSpec(),null,2));
+$("btnYaml").onclick=()=>download("research_spec.yaml",yamlDump(buildSpec()));
+F.forEach(id=>{const el=$(id);if(el)el.addEventListener("input",run);});
+
+// boot
+(function(){
+  let st=null; try{st=JSON.parse(localStorage.getItem("rsc_state"));}catch(e){}
+  if(st){apply(st);} else {apply(DEMO);}
+  run();
+})();
+</script>
+</body>
+</html>

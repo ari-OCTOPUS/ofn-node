@@ -1,0 +1,22 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "RECEIPT-HOMEO-FEEDS-SNAPSHOT",
+  "auth": [
+    "OCTOPUS-HOMEO-FEEDS-SNAPSHOT-20260823",
+    "OCTOPUS-ALL-DOORS-OPEN-20260822"
+  ],
+  "result": "PASS",
+  "ts_utc": "20260822T164321Z",
+  "timer": "octopus-homeo-feeds-snapshot.timer",
+  "script": "/usr/local/lib/octopus/homeo_feeds_snapshot.py",
+  "snapshot": "/var/lib/octopus/state/homeostasis/feeds_snapshot.json",
+  "mutates_host": false,
+  "feeds_timer_untouched": true,
+  "wave0_arm": false,
+  "doctor_repair": false,
+  "snapshot_mode": "normal",
+  "snapshot_severity": "healthy",
+  "ok_count": 7,
+  "doctor_status": "PASS",
+  "ARMED": false
+}

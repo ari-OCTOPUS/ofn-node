@@ -1,0 +1,85 @@
+# H-OWN-04 / EXP-002 — تثبیتِ حافظه: کتابخانهٔ schema در برابر replay خام.
+# مرجع: H-OWN-04 [P L1486]، EXP-002 [P L1811]. دامنه C0/C1. بدون LLM.
+# نکتهٔ متدولوژیک: replay باید پالایشِ کم‌اکتشاف باشد، نه ری‌استارتِ اکتشافِ بالا
+# (این confound در pilot اثرِ کاذبِ +۰٫۰۷۷ می‌ساخت؛ با رفعش به +۰٫۰۱ افتاد).
+idea: >
+  آیا تبدیلِ تجربهٔ تکراری به یک «کتابخانهٔ schema»ی قابل‌بازاستفاده (قاعده‌های
+  bin→کنشِ برنده)، با بودجهٔ آفلاینِ برابر، بهتر از replayِ خامِ اپیزودها منتقل
+  می‌شود؟
+
+hypothesis: >
+  با بودجهٔ آفلاینِ برابر، transferِ heldoutِ عاملِ schema-library دست‌کم +۰٫۰۳
+  بیشتر از عاملِ raw-replay است؛ یعنی فرمتِ تثبیت (انتزاع نه بازپخشِ خام) اهمیت دارد.
+
+prediction:
+  statement: schema_transfer − replay_transfer روی heldout.
+  baseline: 0.0    # [EST] اگر فرمتِ تثبیت بی‌اثر باشد، اختلاف ≈۰
+  expected: 0.03   # [EST] هدفِ متواضع؛ منبع: pilot family 998000 با replayِ منصفانه داد +۰٫۰۱ [FACT: smoke 2026-07-14] — اثر کوچک است
+
+metric:
+  name: schema_minus_replay
+  dataset: gridworld-heldout-tasks
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: ۵ جهانِ grid-world (seedهای 998000+، جدا از همه)؛ در هر جهان سه بازوی هم‌بودجه.
+  n: 200
+  conditions:
+    - name: schema_vs_base
+      description: کنترل — کتابخانه در برابر بدونِ تثبیت (frozen base).
+    - name: schema_vs_replay
+      description: primary — کتابخانه در برابر replayِ خامِ هم‌بودجه.
+  protocol: >
+    عاملِ پایه روی تکالیفِ train با بازنماییِ انتزاعیِ minimal_sufficient آموزش
+    می‌بیند (B_TRAIN). سپس با بودجهٔ آفلاینِ برابر (B_CONS): raw_replay = پالایشِ
+    کم‌اکتشاف روی همان تکالیف؛ schema_library = تثبیتِ تجربه به قاعده‌های
+    bin→کنشِ برنده. هر سه بازو روی همان heldout ارزیابی و transfer گزارش می‌شود.
+
+failure_condition:
+  metric: schema_minus_replay
+  op: "<"
+  threshold: 0.0
+  note: اگر کتابخانه از replayِ خام بهتر نباشد (اختلاف < ۰)، ادعای «تثبیت باید انتزاع باشد نه بازپخش» رد می‌شود.
+
+architecture:
+  pattern: Library-learning consolidation (episodes -> reusable schema) vs raw replay
+  topology: base Q -> {refine-replay | consolidate-to-bin-rules} -> heldout transfer
+  tradeoff: در محیطِ tabularِ تخت با بازنماییِ خوبِ ثابت، replay و schema روی همان binها هم‌گرا می‌شوند؛ مزیتِ library-learning احتمالاً کوچک است مگر با compositionality.
+
+api_contract:
+  endpoint: /kernel/memory/consolidate
+  method: POST
+  request:
+    mode: schema_library
+    budget_episodes: 120000
+  response:
+    # شکل پاسخ ([EST] illustrative — خروجی واقعی از run):
+    schema_transfer: 0.81
+    replay_transfer: 0.80
+    schema_minus_replay: 0.01
+
+mvp:
+  stack: Python (بازاستفادهٔ کامل از experiments/gridworld_wm.py)
+  deps: []
+  effort: "< 1 day"
+  notes: بدون LLM؛ کتابخانه = قاعده‌های bin→کنشِ برنده از rolloutِ سیاستِ پایه.
+
+evaluation:
+  comparisons: [schema_vs_base, schema_vs_replay]
+  ablation:
+    - گزارشِ اندازهٔ حافظه (تعدادِ قاعده) — فشرده‌سازی در برابر اپیزودِ خام
+    - حساسیت به بودجه
+  seeds: 5
+
+decision_rule:
+  primary_metric: schema_minus_replay
+  rules:
+    - max: 0.0
+      verdict: DISCARD
+    - min: 0.0
+      max: 0.03
+      verdict: OPTIMIZE
+    - min: 0.03
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓

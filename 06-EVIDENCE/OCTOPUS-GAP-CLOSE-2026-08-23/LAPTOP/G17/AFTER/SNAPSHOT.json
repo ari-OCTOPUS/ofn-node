@@ -1,0 +1,14 @@
+﻿{
+    "stamp_local":  "2026-08-23T09:11:15+10:00",
+    "gap":  "G17",
+    "phase":  "AFTER",
+    "cortex_paid_flag_present":  false,
+    "cortex_paid_flag_off_present":  true,
+    "cortex_paid_flag_off_text":  "G17 reconcile 2026-08-23T09:11:00+10:00 - PAID FORBIDDEN / paper-advisory OFF.\nSupersedes 2026-07-22 owner-resurrection claim (\"all paid gates ON\").\nAuthoritative: octopus-writer.lock forbidden_actions includes \"paid call\"; organs/WIRING.json paid_calls=0.\nDo NOT re-raise without explicit owner GO + lock exception. No money unlock.",
+    "flags_md_cortex_paid_state":  "CLOSED",
+    "writer_lock_forbids_paid_call":  true,
+    "wiring_paid_calls":  0,
+    "paid_gate_open":  false,
+    "edit":  "renamed/removed live ACTIVATION-CORTEX-PAID.flag; wrote .flag.off; FLAGS.md RAISED-\u003eCLOSED",
+    "do_not":  "do not unlock paid; no money unlock; no live Telegram"
+}

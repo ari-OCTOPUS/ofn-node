@@ -1,0 +1,31 @@
+{
+  "schema": "standing_order.directive.v1",
+  "id": "BUSINESS-CONNECT-ORDER-20260916",
+  "at": "2026-09-16T02:30:00Z",
+  "authority_ref": {
+    "owner_verbatim": "اختاپوسی که الان در ۷ عدد برد در جریانه هم بهش بگو که دقیق اضافه کن چیزیو خراب نکنه",
+    "prior_verbatim": "بیا بیزنس های دیگر هم به این ساختاری که ساختیم وصل کنیم هر اطلاعاتی نیاز داری پیدا کن پرامپت بده بدم رباتای گروک درست کنن تیمی دوتا بیزنس مونده یکی اونلی فنز و پا یکی زیمان",
+    "delivered_by_lane": "BUSINESS-CONNECT-20260916"
+  },
+  "order": "Add two business lanes (Nova Soles fans-funnel + Ziman Gift occasions-funnel) to the proven revenue-engine pattern. Build is outsourced to an external Grok team (megaprompt MEGAPROMPT-GROK-BUSINESS-CONNECT-2026-09-16). The organism's job: PRECISE ADDITIVE INTEGRATION ONLY when the delivery lands.",
+  "businesses": [
+    {"id": "nova", "name": "Nova Soles", "lane": "Studio/Saba", "pattern": "fans funnel (content_calendar + gates + FAN_EVENT alert + nova-meter)", "target_dir": "/home/ari/ofn/state/nova-drive/"},
+    {"id": "ziman", "name": "Ziman Gift", "lane": "ziman", "pattern": "occasions funnel (campaign packets + owner-GO publication queue + ziman-meter from store-watch)", "target_dir": "/home/ari/ofn/state/ziman-drive/"}
+  ],
+  "hard_bounds": {
+    "additive_only": true,
+    "do_not_touch": [
+      "/home/ari/ofn/state/revenue-drive/ (painting funnel — running and revenue-bearing)",
+      "/home/ari/ofn/state/ops-agent/ops_agent.py (TCB)",
+      "any OCTOPUS_WIRE_*/OFN_WIRE_* flag",
+      "budgets, breakers, receipts history"
+    ],
+    "no_external_effect_without_owner_go": true,
+    "no_of_ff_api_or_cookie_ever": true,
+    "verified_cash_only_as_revenue": true,
+    "daily_caps_and_idempotency_mandatory": true,
+    "integration_gate": "on delivery: INTEGRATION-RUNBOOK.md from the external repo is the ONLY install path; any step it requires beyond additive file placement + new systemd timers = owner card first"
+  },
+  "receipts": "ops-agent receipts.jsonl row kind=STANDING_DIRECTIVE_REGISTERED (2026-09-16); laptop drive_loops lock BUSINESS_CONNECT_delivery auto-opens when target dirs exist",
+  "review": "reviewable by owner any time; expires when both lanes integrated + one verified cycle each"
+}

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Octopus Architecture Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root, [data-theme="light"]{
+  --color-bg:#f5f6f5; --color-surface:#fbfbfa; --color-surface-2:#ffffff;
+  --color-surface-offset:#eef0ee; --color-surface-offset-2:#e4e7e4; --color-surface-dynamic:#dde1dd;
+  --color-divider:#d7dad6; --color-border:#cdd1cc;
+  --color-text:#161a18; --color-text-muted:#5c6360; --color-text-faint:#9aa19c; --color-text-inverse:#f7f8f6;
+  --color-primary:#0c8577; --color-primary-hover:#096a5f; --color-primary-active:#075047; --color-primary-highlight:#cfe6e1;
+  --color-warning:#a3610f; --color-warning-hover:#804c0b; --color-warning-highlight:#e6d6bd;
+  --color-error:#9c2c4f; --color-error-hover:#7a2140; --color-error-highlight:#e3cdd7;
+  --color-success:#3c7d2e; --color-success-highlight:#d5e5cd;
+  --color-blue:#1f6fa3; --color-blue-highlight:#cfe0ec;
+  --color-purple:#6a4aa8; --color-purple-highlight:#dcd3ea;
+  --radius-sm:.375rem; --radius-md:.5rem; --radius-lg:.75rem; --radius-xl:1rem; --radius-full:9999px;
+  --transition-interactive:180ms cubic-bezier(.16,1,.3,1);
+  --shadow-sm:0 1px 2px oklch(.2 .01 150/.06); --shadow-md:0 4px 12px oklch(.2 .01 150/.08); --shadow-lg:0 12px 32px oklch(.2 .01 150/.12);
+  --content-wide:1440px;
+  --font-body:'General Sans','Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
+}
+[data-theme="dark"]{
+  --color-bg:#0d1110; --color-surface:#121716; --color-surface-2:#161c1a;
+  --color-surface-offset:#1a2119; --color-surface-offset-2:#212a20; --color-surface-dynamic:#2a352a;
+  --color-divider:#243029; --color-border:#2e3b32;
+  --color-text:#dbe4dd; --color-text-muted:#8c9a92; --color-text-faint:#556059; --color-text-inverse:#101410;
+  --color-primary:#4fc7b3; --color-primary-hover:#3aa896; --color-primary-active:#2c8577; --color-primary-highlight:#1c3833;
+  --color-warning:#e0a238; --color-warning-hover:#c98a25; --color-warning-highlight:#3a301a;
+  --color-error:#e0648c; --color-error-hover:#c94a73; --color-error-highlight:#3a1f28;
+  --color-success:#79c85a; --color-success-highlight:#233a1c;
+  --color-blue:#5aa3d8; --color-blue-highlight:#1c2e3a;
+  --color-purple:#a988e0; --color-purple-highlight:#2b2338;
+  --shadow-sm:0 1px 2px oklch(0 0 0/.4); --shadow-md:0 4px 14px oklch(0 0 0/.5); --shadow-lg:0 16px 40px oklch(0 0 0/.6);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:none;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{min-height:100dvh;font-family:var(--font-body);font-size:15px;line-height:1.55;color:var(--color-text);background:var(--color-bg)}
+img,svg{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:var(--radius-sm)}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+.mono{font-family:var(--font-mono)}
+.tabular{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:100dvh}
+.sidebar{background:var(--color-surface);border-right:1px solid var(--color-divider);padding:1.25rem 1rem;display:flex;flex-direction:column;gap:1.5rem;position:sticky;top:0;height:100dvh;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:.6rem;padding:0 .25rem}
+.brand-mark{width:30px;height:30px;color:var(--color-primary);flex:none}
+.brand-name{font-weight:700;font-size:1rem;letter-spacing:-.01em}
+.brand-sub{font-size:.68rem;color:var(--color-text-faint);text-transform:uppercase;letter-spacing:.06em}
+.navgroup{display:flex;flex-direction:column;gap:.15rem}
+.navgroup-label{font-size:.68rem;color:var(--color-text-faint);text-transform:uppercase;letter-spacing:.07em;padding:.5rem .6rem .25rem}
+.navlink{display:flex;align-items:center;gap:.55rem;padding:.5rem .6rem;border-radius:var(--radius-md);font-size:.85rem;color:var(--color-text-muted);text-decoration:none;transition:background var(--transition-interactive),color var(--transition-interactive)}
+.navlink:hover{background:var(--color-surface-offset);color:var(--color-text)}
+.navlink.active{background:var(--color-primary-highlight);color:var(--color-primary-active);font-weight:600}
+.navlink svg{width:16px;height:16px;flex:none}
+.sidebar-foot{margin-top:auto;padding:.75rem .6rem;border-top:1px solid var(--color-divider);font-size:.72rem;color:var(--color-text-faint)}
+.main{overflow-x:hidden}
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in oklab,var(--color-bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-divider);padding:.85rem 1.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.topbar-title{font-size:1.05rem;font-weight:600}
+.topbar-actions{display:flex;align-items:center;gap:.6rem}
+.theme-toggle{width:36px;height:36px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;background:var(--color-surface-offset);color:var(--color-text-muted);transition:background var(--transition-interactive)}
+.theme-toggle:hover{background:var(--color-surface-offset-2)}
+.theme-toggle svg{width:17px;height:17px}
+.pill{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .65rem;border-radius:var(--radius-full);font-size:.72rem;font-weight:600;font-family:var(--font-mono)}
+.pill-dot{width:6px;height:6px;border-radius:50%}
+.pill.green{background:var(--color-success-highlight);color:var(--color-success)}
+.pill.amber{background:var(--color-warning-highlight);color:var(--color-warning)}
+.pill.red{background:var(--color-error-highlight);color:var(--color-error)}
+.pill.teal{background:var(--color-primary-highlight);color:var(--color-primary)}
+.pill .pill-dot.green{background:var(--color-success)}
+.pill .pill-dot.amber{background:var(--color-warning)}
+.pill .pill-dot.red{background:var(--color-error)}
+.pill .pill-dot.teal{background:var(--color-primary)}
+.content{padding:1.75rem;max-width:var(--content-wide);margin-inline:auto;display:flex;flex-direction:column;gap:3rem}
+section{scroll-margin-top:5rem}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.section-title{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
+.section-desc{font-size:.85rem;color:var(--color-text-muted);max-width:60ch}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.kpi-card{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:1rem 1.15rem;box-shadow:var(--shadow-sm);transition:box-shadow var(--transition-interactive)}
+.kpi-card:hover{box-shadow:var(--shadow-md)}
+.kpi-label{font-size:.72rem;color:var(--color-text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.kpi-value{font-family:var(--font-mono);font-size:1.6rem;font-weight:600;letter-spacing:-.01em}
+.kpi-sub{font-size:.75rem;color:var(--color-text-muted);margin-top:.3rem;display:flex;align-items:center;gap:.3rem}
+.topology{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.node-card{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:1.1rem;display:flex;flex-direction:column;gap:.65rem;position:relative;box-shadow:var(--shadow-sm)}
+.node-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;background:var(--acc,var(--color-primary))}
+.node-card.n138{--acc:var(--color-blue)}
+.node-card.n180{--acc:var(--color-primary)}
+.node-card.n182{--acc:var(--color-purple)}
+.node-card.npc{--acc:var(--color-warning)}
+.node-top{display:flex;align-items:center;justify-content:space-between}
+.node-id{font-family:var(--font-mono);font-size:.7rem;color:var(--color-text-faint);letter-spacing:.03em}
+.node-name{font-weight:700;font-size:.95rem}
+.node-ip{font-family:var(--font-mono);font-size:.72rem;color:var(--color-text-muted)}
+.node-role{font-size:.78rem;color:var(--color-text-muted);line-height:1.45}
+.node-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.25rem}
+.chip{font-size:.68rem;font-family:var(--font-mono);padding:.2rem .5rem;border-radius:var(--radius-full);background:var(--color-surface-offset);color:var(--color-text-muted)}
+.flow-wrap{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:1.5rem;overflow-x:auto;box-shadow:var(--shadow-sm)}
+.flow-row{display:flex;align-items:stretch;gap:.5rem;min-width:900px}
+.flow-node{flex:1;background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.9rem 1rem;display:flex;flex-direction:column;gap:.3rem;min-width:150px}
+.flow-node .ft{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint)}
+.flow-node .fn{font-weight:600;font-size:.88rem}
+.flow-node .fd{font-size:.72rem;color:var(--color-text-muted);line-height:1.4}
+.flow-node.done{border-color:var(--color-success)}
+.flow-node.armed{border-color:var(--color-warning);background:var(--color-warning-highlight)}
+.flow-arrow{display:flex;align-items:center;color:var(--color-text-faint);flex:none}
+.flow-arrow svg{width:22px;height:22px}
+.table-wrap{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+thead th{text-align:left;padding:.7rem 1rem;background:var(--color-surface-offset);color:var(--color-text-faint);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;border-bottom:1px solid var(--color-divider);white-space:nowrap}
+tbody td{padding:.7rem 1rem;border-bottom:1px solid var(--color-divider);color:var(--color-text-muted);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--color-surface-offset)}
+td.strong{color:var(--color-text);font-weight:600}
+td.mono{font-family:var(--font-mono);font-size:.75rem;word-break:break-all}
+.cards-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media (max-width:900px){.cards-3{grid-template-columns:1fr}}
+.info-card{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:1.15rem;box-shadow:var(--shadow-sm)}
+.info-card h4{font-size:.9rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.info-card h4 svg{width:17px;height:17px;color:var(--color-primary)}
+.info-card p{font-size:.8rem;color:var(--color-text-muted);line-height:1.5}
+.loop-diagram{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;align-items:stretch}
+@media (max-width:1000px){.loop-diagram{grid-template-columns:1fr}}
+.loop-step{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:1rem;display:flex;flex-direction:column;gap:.4rem;position:relative;box-shadow:var(--shadow-sm)}
+.loop-step .num{font-family:var(--font-mono);font-size:.7rem;color:var(--color-primary);font-weight:700}
+.loop-step h5{font-size:.85rem;font-weight:700}
+.loop-step p{font-size:.75rem;color:var(--color-text-muted);line-height:1.45}
+.loop-connector{display:none}
+@media (min-width:1001px){.loop-connector{display:flex;align-items:center;justify-content:center;color:var(--color-text-faint);position:absolute;right:-1.05rem;top:50%;transform:translateY(-50%);z-index:2}}
+.loop-connector svg{width:18px;height:18px}
+.seq-log{background:var(--color-surface-offset);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:1rem;font-family:var(--font-mono);font-size:.73rem;line-height:1.8;color:var(--color-text-muted);overflow-x:auto}
+.seq-log .k{color:var(--color-primary)}
+.seq-log .v{color:var(--color-text)}
+.seq-log .c{color:var(--color-text-faint)}
+.seq-log .bad{color:var(--color-error)}
+.seq-log .good{color:var(--color-success)}
+.seq-log .arm{color:var(--color-warning)}
+.foot{padding:2rem 1.75rem 3rem;text-align:center;color:var(--color-text-faint);font-size:.75rem}
+.receipt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+@media (max-width:1100px){.receipt-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.receipt-grid{grid-template-columns:1fr}}
+.receipt-card{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:1.1rem;display:flex;flex-direction:column;gap:.55rem;box-shadow:var(--shadow-sm)}
+.receipt-num{font-family:var(--font-mono);font-size:.7rem;color:var(--color-primary);font-weight:700}
+.receipt-title{font-weight:700;font-size:.92rem}
+.receipt-body{font-size:.78rem;color:var(--color-text-muted);line-height:1.5;flex:1}
+.receipt-tag{align-self:flex-start;font-family:var(--font-mono);font-size:.65rem;padding:.2rem .5rem;border-radius:var(--radius-full)}
+.receipt-tag.git{background:var(--color-blue-highlight);color:var(--color-blue)}
+.receipt-tag.report{background:var(--color-warning-highlight);color:var(--color-warning)}
+.receipt-tag.disk{background:var(--color-success-highlight);color:var(--color-success)}
+.hashchain{display:flex;flex-direction:column;gap:0}
+.hashlayer{display:grid;grid-template-columns:120px 1fr;gap:1rem;padding:1rem 1.15rem;border:1px solid var(--color-divider);background:var(--color-surface);position:relative}
+.hashlayer:first-child{border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+.hashlayer:last-child{border-radius:0 0 var(--radius-lg) var(--radius-lg)}
+.hashlayer + .hashlayer{border-top:none}
+.hashlayer .hl-label{font-weight:700;font-size:.82rem;color:var(--color-primary)}
+.hashlayer .hl-path{font-size:.7rem;color:var(--color-text-faint);font-family:var(--font-mono)}
+.hashlayer .hl-hash{font-family:var(--font-mono);font-size:.75rem;color:var(--color-text);word-break:break-all}
+.hashlayer .hl-match{display:inline-flex;align-items:center;gap:.3rem;margin-top:.25rem;font-size:.72rem;font-weight:600;color:var(--color-success)}
+.hl-connect{display:flex;justify-content:center;padding:.15rem 0;color:var(--color-text-faint)}
+.hl-connect svg{width:16px;height:16px}
+.go-banner{background:var(--color-warning-highlight);border:1px solid var(--color-warning);border-radius:var(--radius-lg);padding:1.25rem 1.4rem;display:flex;gap:1rem;align-items:flex-start}
+.go-banner svg{width:26px;height:26px;color:var(--color-warning);flex:none;margin-top:2px}
+.go-banner h3{font-size:1rem;font-weight:700;color:var(--color-warning-hover);margin-bottom:.3rem}
+.go-banner p{font-size:.83rem;color:var(--color-text-muted);line-height:1.55}
+.go-banner p + p{margin-top:.4rem}
+.mobile-nav-toggle{display:none}
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:80vw;max-width:280px;z-index:50;transform:translateX(-100%);transition:transform var(--transition-interactive);box-shadow:var(--shadow-lg)}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-nav-toggle{display:flex;width:38px;height:38px;align-items:center;justify-content:center;border-radius:var(--radius-md);background:var(--color-surface-offset)}
+  .mobile-nav-toggle svg{width:18px;height:18px}
+  .content{padding:1.25rem}
+  .topology{grid-template-columns:1fr}
+  .cards-3{grid-template-columns:1fr}
+  .hashlayer{grid-template-columns:1fr}
+}
+.scrim{display:none;position:fixed;inset:0;background:oklch(0 0 0/.4);z-index:40}
+.scrim.show{display:block}
+</style>
+</head>
+<body>
+<div class="scrim" id="scrim"></div>
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-label="Octopus logo">
+        <circle cx="24" cy="18" r="11" stroke="currentColor" stroke-width="2.5"/>
+        <path d="M13 22c-3 4-4 9-2 14M16 27c-2 4-2 8 0 12M20 30c-1 4 0 8 2 11M28 30c1 4 0 8-2 11M32 27c2 4 2 8 0 12M35 22c3 4 4 9 2 14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="19" cy="16" r="1.6" fill="currentColor"/>
+        <circle cx="29" cy="16" r="1.6" fill="currentColor"/>
+      </svg>
+      <div>
+        <div class="brand-name">OCTOPUS</div>
+        <div class="brand-sub">Architecture Console</div>
+      </div>
+    </div>
+    <nav class="navgroup">
+      <div class="navgroup-label">Overview</div>
+      <a class="navlink active" href="#overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>System Health</a>
+      <a class="navlink" href="#go-armed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>GO Armed</a>
+      <a class="navlink" href="#receipts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l3 3v15H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Live Receipts</a>
+      <a class="navlink" href="#hashchain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7h6M9 12h6M9 17h6"/><circle cx="5" cy="7" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="5" cy="17" r="1.5"/></svg>Hash Chain</a>
+      <a class="navlink" href="#topology"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v6M9 15l-2.5 2M15 15l2.5 2"/></svg>Node Topology</a>
+    </nav>
+    <nav class="navgroup">
+      <div class="navgroup-label">Blueprint</div>
+      <a class="navlink" href="#routing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h6v6H4zM14 13h6v6h-6z"/><path d="M10 8h4a3 3 0 0 1 3 3v2"/></svg>Task Routing</a>
+      <a class="navlink" href="#cycles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h5M20 20v-5h-5"/><path d="M4.5 15a8 8 0 0 0 14.5 3M19.5 9A8 8 0 0 0 5 6"/></svg>Export Cycles</a>
+      <a class="navlink" href="#recovery"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>Error Recovery</a>
+    </nav>
+    <nav class="navgroup">
+      <div class="navgroup-label">Ops</div>
+      <a class="navlink" href="#hardware"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="12" rx="1"/><path d="M8 21h8M12 17v4"/></svg>Hardware Nodes</a>
+      <a class="navlink" href="#governance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/></svg>Governance Gates</a>
+    </nav>
+    <div class="sidebar-foot mono">L2 ARMED · GO ARMED (scoped)<br>commit d7089ef · pc-spine-20260828</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <button class="mobile-nav-toggle" id="navToggle" aria-label="Toggle navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="topbar-title">Multi-Agent Organism Blueprint</span>
+      </div>
+      <div class="topbar-actions">
+        <span class="pill teal"><span class="pill-dot teal"></span>E2E: 11/11</span>
+        <span class="pill amber"><span class="pill-dot amber"></span>owner_go_armed=true</span>
+        <button class="theme-toggle" data-theme-toggle aria-label="Switch to dark mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <section id="overview">
+        <div class="section-head">
+          <div>
+            <div class="section-title">System Health — Live Chain State</div>
+            <p class="section-desc">Updated from commit <span class="mono">d7089ef</span> on <span class="mono">integration/pc-spine-20260828</span>, pushed to germline. Live verification confirmed: <strong>no real witness_receipt has arrived yet</strong> — only temporary e2e ledgers exist in /tmp on 138. The owner GO was therefore implemented as armed + conditional, exactly per the owner's directive.</p>
+          </div>
+          <span class="pill red"><span class="pill-dot red"></span>owner_roundtrip: false</span>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">E2E Golden Tests</div>
+            <div class="kpi-value tabular" style="color:var(--color-success)">11/11</div>
+            <div class="kpi-sub">11-event chain; golden rebuilt after owner-receipt binding test</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">transport_connected</div>
+            <div class="kpi-value tabular" style="color:var(--color-success)">TRUE</div>
+            <div class="kpi-sub">SHA-256 identical 138↔180 + dual-side audit</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">schema_recognized</div>
+            <div class="kpi-value tabular" style="color:var(--color-success)">TRUE</div>
+            <div class="kpi-sub">180 parsed the payload and echoed the binding</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">cognitive_use_verified</div>
+            <div class="kpi-value tabular" style="color:var(--color-error)">FALSE</div>
+            <div class="kpi-sub">Prediction 58515f8d still verdict=hold; proposal.v1 count = 0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">witness_verified</div>
+            <div class="kpi-value tabular" style="color:var(--color-error)">FALSE</div>
+            <div class="kpi-sub">No production witness_request minted; /tmp e2e ledgers don't count</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">owner_go_armed</div>
+            <div class="kpi-value tabular" style="color:var(--color-warning)">TRUE</div>
+            <div class="kpi-sub">Self-completing on witness_receipt arrival — scoped to one task only</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="go-armed">
+        <div class="section-head">
+          <div>
+            <div class="section-title">GO Armed — Conditional, Self-Completing</div>
+            <p class="section-desc">The owner directive was conditional ("after witness_receipt arrives"), so the package was built now and completes itself the moment the witness receipt lands.</p>
+          </div>
+        </div>
+        <div class="go-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+          <div>
+            <h3>ARMED — pending witness_receipt</h3>
+            <p>Artifact <span class="mono">AUTH/run-spine-…005835Z.owner-go.json</span> · owner signature = sha256 of the exact directive text = <span class="mono">8592c7da…ff50db</span> · <span class="mono">witness_receipt_sha256 = PENDING</span>.</p>
+            <p>Completion rule is explicit: as soon as a witness receipt bound to canonical <span class="mono">950f8d0e</span> arrives, the package finalizes with both hashes and <span class="mono">APPROVED</span>. The GO artifact is fetchable by 138/182 via germline.</p>
+          </div>
+        </div>
+        <div class="table-wrap" style="margin-top:1rem">
+          <table>
+            <thead><tr><th>Component</th><th>Content</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="strong mono">owner_receipt.v1</td><td>Requires owner signature (GO) + both hash refs — canonical_business_source_hash <span class="mono">950f8d0e…ba9af1</span> and witness_receipt_sha256 — + status=APPROVED + hold_lift</td><td><span class="pill teal"><span class="pill-dot teal"></span>contract locked</span></td></tr>
+              <tr><td class="strong mono">owner-go.json</td><td>Owner GO armed; signature from exact directive text; witness hash PENDING until receipt arrives</td><td><span class="pill amber"><span class="pill-dot amber"></span>armed</span></td></tr>
+              <tr><td class="strong mono">HOLD lift</td><td>Scoped to task <span class="mono">run-spine-138-snap-20260828T005835Z</span> only; effect = <span class="mono">internal_cycle_may_complete</span>; external customer contact still forbidden; all other tasks remain under HOLD</td><td><span class="pill amber"><span class="pill-dot amber"></span>scoped lift</span></td></tr>
+              <tr><td class="strong mono">t_owner_receipt_binds_both_hashes_and_gates</td><td>New test enforcing owner receipt binds both hashes and gates the lift; legacy <span class="mono">len(t1)==10</span> assert updated to 11-event chain</td><td><span class="pill green"><span class="pill-dot green"></span>11/11 green</span></td></tr>
+              <tr><td class="strong mono">CURRENT-TRUTH</td><td><span class="mono">owner_go_armed=true</span> recorded; <span class="mono">owner_roundtrip_verified</span> honestly stays false until the real receipt arrives</td><td><span class="pill teal"><span class="pill-dot teal"></span>registered</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="info-card" style="margin-top:1rem">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>What blocks completion — board-side, not PC</h4>
+          <p>The owner gate for this task is lifted. The loop now closes when: <strong>180</strong> issues proposal.v1 from its own verdict → <strong>138</strong> mints the witness request → <strong>182</strong> returns the receipt. The moment that happens, PC finalizes the package with both hashes and APPROVED.</p>
+        </div>
+      </section>
+
+      <section id="receipts">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Four Live Receipts</div>
+            <p class="section-desc">Registered in <span class="mono">CURRENT-TRUTH.json → live_spine_run</span>. Each tagged by evidence type — never a claim without a source.</p>
+          </div>
+        </div>
+        <div class="receipt-grid">
+          <div class="receipt-card">
+            <span class="receipt-num">RECEIPT 01</span>
+            <span class="receipt-title">Restore Drill</span>
+            <p class="receipt-body">Full restore rehearsal on a temp path on 138: all 11 SQLite files pass <span class="mono">integrity_check=ok</span>, plus mesh state/ and config copies. Originals untouched. Gap logged: no mesh backup manifest yet.</p>
+            <span class="receipt-tag git">GIT · spine-138@6881337</span>
+          </div>
+          <div class="receipt-card">
+            <span class="receipt-num">RECEIPT 02</span>
+            <span class="receipt-title">Telegram 1522 Provenance</span>
+            <p class="receipt-body">Owner-stated origin. Honestly reported NOT_FOUND: id 1522 absent from every PC repository (digest-buffer, pep-shadow, approvals); 138's Telegram finding confirms no automated sender exists.</p>
+            <span class="receipt-tag report">REPORT · honest gap</span>
+          </div>
+          <div class="receipt-card">
+            <span class="receipt-num">RECEIPT 03</span>
+            <span class="receipt-title">138 Send</span>
+            <p class="receipt-body">8 real masked painting rows. Snapshot <span class="mono">e9c0ea67</span> and wake <span class="mono">cb15f189</span> — both ACKed by 180.</p>
+            <span class="receipt-tag disk">LIVE_DISK · sha256 both files</span>
+          </div>
+          <div class="receipt-card">
+            <span class="receipt-num">RECEIPT 04</span>
+            <span class="receipt-title">180 Consume</span>
+            <p class="receipt-body">Inbox byte-identical; cognition worker produced <span class="mono">prediction-{e9c0ea67,cb15f189}.json</span> echoing snapshot_id/row_count/run_id. Verdict frozen: "insufficient evidence; hold."</p>
+            <span class="receipt-tag disk">LIVE_DISK · sha256</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="hashchain">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Three Hash Layers + Canonical Contract</div>
+            <p class="section-desc">"Three hashes of one business source across three stages — canonical-hash equality across layers is itself the proof of continuity."</p>
+          </div>
+        </div>
+        <div class="hashchain">
+          <div class="hashlayer">
+            <div><span class="hl-label">Layer 1 — Source</span><div class="hl-path">138 · processed/</div></div>
+            <div>
+              <div class="hl-hash">snapshot: 9c90242f…2833fe</div>
+              <div class="hl-hash">wake: ec45de36…fe13c9e</div>
+            </div>
+          </div>
+          <div class="hl-connect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="hashlayer">
+            <div><span class="hl-label">Layer 2 — Transport</span><div class="hl-path">180 · inbox/</div></div>
+            <div>
+              <div class="hl-hash">snapshot: 9c90242f…</div>
+              <span class="hl-match"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>byte-identical to Layer 1</span>
+            </div>
+          </div>
+          <div class="hl-connect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="hashlayer">
+            <div><span class="hl-label">Layer 3 — Cognitive Use</span><div class="hl-path">180 · cognition/</div></div>
+            <div>
+              <div class="hl-hash">prediction: 87ae8acf… / bdb6e420… (run 005835Z)</div>
+              <div class="hl-hash">prediction: 58515f8d… (new cycle 07:15Z — verdict hold)</div>
+            </div>
+          </div>
+        </div>
+        <div class="info-card" style="margin-top:1rem">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7h6M9 12h6M9 17h6"/><circle cx="5" cy="7" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="5" cy="17" r="1.5"/></svg>Canonical Hash — Enforced</h4>
+          <p class="mono" style="word-break:break-all;font-size:.75rem;margin-bottom:.5rem">canonical_business_source_hash = 950f8d0e02e6dc89d6e8107bf2501083975d8918ed2f5f1263a3fe2c52ba9af1</p>
+          <p>Required in <span class="mono">business_source.v1</span>, echoed by <span class="mono">cognitive_wake.v1</span>, <span class="mono">proposal.v1</span>, and now bound into <span class="mono">owner_receipt.v1</span>. Two tests enforce the chain: <span class="mono">t_canonical_business_source_hash_shared</span> and <span class="mono">t_owner_receipt_binds_both_hashes_and_gates</span>.</p>
+        </div>
+      </section>
+
+      <section id="topology">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Node Topology</div>
+            <p class="section-desc">Four persistent nodes, each with a fixed role. The next action is board-side: 180 → proposal, 138 → witness request, 182 → receipt.</p>
+          </div>
+        </div>
+        <div class="topology">
+          <div class="node-card n138">
+            <div class="node-top"><span class="node-id">NODE · 138</span><span class="pill green"><span class="pill-dot green"></span>online</span></div>
+            <div class="node-name">Business Spine</div>
+            <div class="node-ip">192.168.0.138 · Orange Pi 5 · user: ari</div>
+            <p class="node-role">Restore drill passed (11/11). Two export cycles shipped. Next owed action: mint the witness request when 180's proposal arrives.</p>
+            <div class="node-meta"><span class="chip">SOURCE</span><span class="chip">COURIER</span><span class="chip">GO fetchable</span></div>
+          </div>
+          <div class="node-card n180">
+            <div class="node-top"><span class="node-id">NODE · 180</span><span class="pill amber"><span class="pill-dot amber"></span>hold verdict</span></div>
+            <div class="node-name">Cognitive Brain</div>
+            <div class="node-ip">192.168.0.180 · root · laptop_required=false</div>
+            <p class="node-role">Latest prediction 58515f8d still verdict=hold. Owed action: issue proposal.v1 from its own verdict to start the close-out chain.</p>
+            <div class="node-meta"><span class="chip">BRAIN</span><span class="chip">owes: proposal.v1</span></div>
+          </div>
+          <div class="node-card n182">
+            <div class="node-top"><span class="node-id">NODE · 182</span><span class="pill red"><span class="pill-dot red"></span>receipt pending</span></div>
+            <div class="node-name">Witness / Exploratory Lab</div>
+            <div class="node-ip">192.168.0.182 · Orange Pi 5 Pro · root</div>
+            <p class="node-role">No production witness receipt minted yet — only temporary e2e ledgers in /tmp on 138, which don't count. Owed action: verify artifact content and return the receipt.</p>
+            <div class="node-meta"><span class="chip">WITNESS</span><span class="chip">owes: receipt</span></div>
+          </div>
+          <div class="node-card npc">
+            <div class="node-top"><span class="node-id">NODE · PC</span><span class="pill teal"><span class="pill-dot teal"></span>armed</span></div>
+            <div class="node-name">PC Worker</div>
+            <div class="node-ip">192.168.0.191 · Armin</div>
+            <p class="node-role">Transport hub (germline SMB + board-cp :8801 + Telegram + cloud choke point). Built the GO package and contracts; auto-finalises with both hashes + APPROVED the moment the witness receipt lands.</p>
+            <div class="node-meta"><span class="chip">FORGE</span><span class="chip">GO artifact owner</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="routing">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Task Routing — Close-Out Chain</div>
+            <p class="section-desc">The remaining sequence to close the loop, now that the owner gate is armed.</p>
+          </div>
+        </div>
+        <div class="flow-wrap">
+          <div class="flow-row">
+            <div class="flow-node done"><span class="ft">01 · Done</span><span class="fn">Export + Consume</span><span class="fd">8 masked rows 138 → 180; byte-identical transport; prediction produced with full echo</span></div>
+            <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+            <div class="flow-node armed"><span class="ft">02 · Armed</span><span class="fn">Owner GO</span><span class="fd">GO armed + scoped HOLD lift for run-spine-138-snap-20260828T005835Z</span></div>
+            <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+            <div class="flow-node"><span class="ft">03 · Next</span><span class="fn">180 → proposal.v1</span><span class="fd">Brain issues a proposal from its own verdict — first board-side step</span></div>
+            <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+            <div class="flow-node"><span class="ft">04 · Next</span><span class="fn">138 → witness</span><span class="fd">Spine mints the witness request for the proposal</span></div>
+            <div class="flow-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+            <div class="flow-node"><span class="ft">05 · Final</span><span class="fn">182 → receipt</span><span class="fd">Witness returns receipt → PC finalizes owner_receipt.v1 APPROVED with both hashes</span></div>
+          </div>
+        </div>
+        <div class="seq-log" style="margin-top:1rem">
+<span class="c">// state trace — commit d7089ef</span><br>
+<span class="k">PC</span> probe.witness_receipt  <span class="bad">not found — /tmp e2e ledgers only, no production mint</span><br>
+<span class="k">PC</span> owner_go.build       <span class="v">AUTH/run-spine-…005835Z.owner-go.json</span>  sig=<span class="v">8592c7da…ff50db</span>  witness_sha=<span class="arm">PENDING</span><br>
+<span class="k">PC</span> contract.owner_receipt.v1  <span class="v">required: owner_sig + canonical_hash + witness_sha + APPROVED + hold_lift</span><br>
+<span class="k">PC</span> hold.lift            scope=<span class="v">run-spine-138-snap-20260828T005835Z</span>  effect=<span class="v">internal_cycle_may_complete</span>  <span class="arm">external contact still forbidden</span><br>
+<span class="k">TEST</span> legacy assert       <span class="bad">len(t1)==10 failed</span> → updated for 11-event chain<br>
+<span class="k">TEST</span> golden.rebuilt      <span class="good">11/11 green</span>  commit=<span class="v">d7089ef</span> → germline<br>
+<span class="k">TRUTH</span> owner_go_armed=<span class="v">true</span>  owner_roundtrip_verified=<span class="bad">false</span> <span class="c">// honest until real receipt</span>
+        </div>
+      </section>
+
+      <section id="cycles">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Export Cycles — Two Runs, One Armed GO</div>
+            <p class="section-desc">Honest note from the run: a new export cycle started today at 07:15Z. The armed GO binds only to the first run.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cycle</th><th>Snapshot / Wake</th><th>Prediction</th><th>Verdict</th><th>GO binding</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="strong mono">run-…005835Z</td>
+                <td class="mono">e9c0ea67 / cb15f189</td>
+                <td class="mono">87ae8acf / bdb6e420</td>
+                <td><span class="pill amber"><span class="pill-dot amber"></span>hold</span></td>
+                <td><span class="pill amber"><span class="pill-dot amber"></span>GO armed (canonical 950f8d0e)</span></td>
+              </tr>
+              <tr>
+                <td class="strong mono">07:15Z cycle</td>
+                <td class="mono">cc08a4ec / 65444d79</td>
+                <td class="mono">58515f8d</td>
+                <td><span class="pill amber"><span class="pill-dot amber"></span>hold</span></td>
+                <td><span class="pill red"><span class="pill-dot red"></span>not covered — needs own decision</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="recovery">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Error-Recovery Loop</div>
+            <p class="section-desc">Today's runs exercised the loop twice: stale board-action file, and the legacy assert breaking on the 11-event chain.</p>
+          </div>
+        </div>
+        <div class="loop-diagram">
+          <div class="loop-step"><span class="num">01</span><h5>Detect</h5><p>Stale <span class="mono">FOR-BOARD-ACTION-NEEDED.md</span> caught despite a recent mtime; later, <span class="mono">len(t1)==10</span> failed before golden write on the new 11-event chain.</p><div class="loop-connector"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+          <div class="loop-step"><span class="num">02</span><h5>Isolate</h5><p>Stale file distrusted; fresh fetch from 138 triggered. Failing assert traced to pre-golden ordering, not to the new test itself.</p><div class="loop-connector"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+          <div class="loop-step"><span class="num">03</span><h5>Diagnose</h5><p>Telegram 1522 provenance honestly resolved to owner-stated NOT_FOUND across all PC repositories.</p><div class="loop-connector"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+          <div class="loop-step"><span class="num">04</span><h5>Repair</h5><p>Contracts hardened (canonical hash + owner receipt binding), assert updated, golden rebuilt — never a repeated verbal "rule is locked."</p><div class="loop-connector"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+          <div class="loop-step"><span class="num">05</span><h5>Re-verify</h5><p>Suite rerun end-to-end: 11/11 green, committed d7089ef, pushed to germline — a genuinely new receipt each time.</p></div>
+        </div>
+      </section>
+
+      <section id="hardware">
+        <div class="section-head">
+          <div>
+            <div class="section-title">24/7 Hardware Layer — Orange Pi & ESP32</div>
+            <p class="section-desc">Persistent boards keep the organism's body alive independent of any laptop or cloud session.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Device</th><th>Role in body</th><th>Uptime model</th><th>Latest evidence</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Orange Pi 5 (138)</td><td>Business spine — sensors, SQLite store, courier</td><td class="mono">24/7, static IP</td><td>Restore drill 11/11; two export cycles shipped; GO fetchable via germline</td></tr>
+              <tr><td class="strong">Orange Pi 5 Pro (182)</td><td>Exploratory lab + witness sandbox</td><td class="mono">24/7, static IP</td><td>Production witness receipt still pending</td></tr>
+              <tr><td class="strong">ESP32 sensor nodes</td><td>Edge telemetry into homeostatic core</td><td class="mono">Always-on</td><td>Not part of today's spine-run evidence</td></tr>
+              <tr><td class="strong">Local LLM tier (180)</td><td>Cognitive scoring, cross-business reasoning — qwen3-0.6b offline</td><td class="mono">24/7 local</td><td>Prediction 58515f8d generated; verdict frozen at hold; owes proposal.v1</td></tr>
+              <tr><td class="strong">Cloud API Brain (191)</td><td>deepseek-v4-flash via model_router — the only cloud choke point</td><td class="mono">On-demand, paid flag OFF</td><td>Gated; zero calls to date</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="governance">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Governance Gates</div>
+            <p class="section-desc">The chain is proven to recognition; the owner gate is armed but honestly not yet verified.</p>
+          </div>
+        </div>
+        <div class="cards-3">
+          <div class="info-card">
+            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>L2 Armed + Scoped GO</h4>
+            <p>HOLD lifted for exactly one task (<span class="mono">internal_cycle_may_complete</span>). External customer contact remains forbidden; all other tasks stay under HOLD.</p>
+          </div>
+          <div class="info-card">
+            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M4 6h16M4 18h16"/></svg>owner_receipt.v1</h4>
+            <p>New contract: owner signature + canonical hash + witness_receipt_sha256 + APPROVED + hold_lift — all required, enforced by the 11/11 golden suite.</p>
+          </div>
+          <div class="info-card">
+            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7 12 3 4 7v10l8 4 8-4V7Z"/><path d="M4 7l8 4 8-4M12 11v10"/></svg>Owner Roundtrip</h4>
+            <p>Armed but open: <span class="mono">owner_roundtrip_verified=false</span> until the real witness receipt arrives and PC finalizes the package. Telegram 1522 remains owner-stated.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+    <div class="foot">OCTOPUS Architecture Console · commit d7089ef on integration/pc-spine-20260828 · generated from live node state</div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const t=document.querySelector('[data-theme-toggle]'), r=document.documentElement;
+  let d = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  r.setAttribute('data-theme', d);
+  t && t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    t.setAttribute('aria-label', 'Switch to ' + (d === 'dark' ? 'light' : 'dark') + ' mode');
+    t.innerHTML = d === 'dark'
+      ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  });
+  const navToggle = document.getElementById('navToggle');
+  const sidebar = document.getElementById('sidebar');
+  const scrim = document.getElementById('scrim');
+  function closeNav(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+  navToggle && navToggle.addEventListener('click', () => { sidebar.classList.toggle('open'); scrim.classList.toggle('show'); });
+  scrim.addEventListener('click', closeNav);
+  const links = document.querySelectorAll('.navlink');
+  links.forEach(l => l.addEventListener('click', () => { links.forEach(x=>x.classList.remove('active')); l.classList.add('active'); closeNav(); }));
+  const sections = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  sections.forEach(s => obs.observe(s));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+﻿{
+    "blocker":  {
+                    "summary":  "No artifact, CLI, or runbook found that names checkpoint seq=348 or laptop root-v2 as a signable payload. Refusing to invent crypto or a sign command.",
+                    "code":  "NO_DOCUMENTED_CKPT348_ROOTV2_SIGN_PATH",
+                    "details":  [
+                                    "Filename search (depth-limited) across F:\\backup\\_ops, 01-TRUTH, 02-DECISIONS, 07-HANDOFF, 00-INDEX, docs, 08-PLANS, agent-prompts, continuity, F:\\4d_system, F:\\OCTOPUS-SURVIVAL-BACKUP-2026-08-19: ZERO matches for *root-v2*, *make-root*, *ckpt*348*",
+                                    "Content search in owner-runbook, owner-signing, truth/handoff/plans/docs + recent handoff evidence: no seq=348 / CKPT348 / root-v2 sign procedure",
+                                    "root-v2 only observed as a FORBIDDEN item on Orange Pi CHG packages (private keys / make-root-v2) — not as a laptop checkpoint store path",
+                                    "Existing owner-runbook sign scripts are payload-specific (B1, shadow, K9, pending cards, OWNER_SIGNATURE_BUNDLE_V1) and marked Owner-only / do not run from agent session"
+                                ]
+                },
+    "written_at_local":  "2026-08-22T19:12:28+10:00",
+    "existing_sign_tooling_observed":  {
+                                           "trust_anchor_fingerprint_sha256":  "2413e9746f13afc900b31ad4d966a6783d73662f661fa0d6dc578e9b244ab6b2",
+                                           "agent_policy_on_scripts":  "Scripts say Owner-only. Do not run from an agent session.",
+                                           "private_key_header_observed":  "BEGIN PRIVATE KEY (PKCS#8; not ENCRYPTED header)",
+                                           "scripts":  [
+                                                           "B1-SIGN-2026-08-20.ps1",
+                                                           "SIGN-ALL-PENDING-2026-08-20.ps1",
+                                                           "SIGN-BUNDLE-V1-2026-08-21.ps1",
+                                                           "SIGN-PENDING-CARDS-2026-08-20.ps1",
+                                                           "SIGN-PRE-REG-K9-THREE-SEED-2026-08-20.ps1",
+                                                           "SIGN-SHADOW-VERTICAL-SLICE-2026-08-20.ps1"
+                                                       ],
+                                           "private_key_path_expected":  "%USERPROFILE%\\.octopus-signing\\octopus-owner-ed25519-private.pem",
+                                           "private_key_present":  true,
+                                           "runbook_dir":  "F:\\backup\\_ops\\owner-runbook",
+                                           "note":  "Key presence alone is insufficient without a documented payload path + expected SHA256 for seq=348."
+                                       },
+    "owner_action_required":  [
+                                  "Identify the exact unsigned payload file for checkpoint seq=348 on laptop root-v2 (full path)",
+                                  "Provide or point to the documented sign runbook/CLI for that artifact (preferred: add under _ops/owner-runbook)",
+                                  "If using the standard Ed25519 ceremony: confirm expected SHA256 of the payload BEFORE any sign",
+                                  "If passphrase/HSM/interactive owner session is required, run the ceremony yourself in an interactive PowerShell"
+                              ],
+    "sign_result":  "NOT_ATTEMPTED",
+    "reason_not_attempted":  "No safe documented sign command exists for checkpoint seq=348 / root-v2; inventing one is forbidden.",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "target":  {
+                   "chain_or_root":  "root-v2",
+                   "description":  "Sign unsigned checkpoint seq=348 on laptop root-v2",
+                   "seq":  348
+               },
+    "status":  "BLOCKED_NEED_OWNER",
+    "schema":  "octopus.need-owner-help.v1",
+    "authorization_id":  "OCTOPUS-LAPTOP-CKPT348-SIGN-20260822",
+    "exact_command_template_ONLY_AFTER_OWNER_SUPPLIES_PATH":  {
+                                                                  "commands":  [
+                                                                                   "Set-Location F:\\backup",
+                                                                                   "if (-not (Get-Command openssl -ErrorAction SilentlyContinue)) { $env:Path += \";C:\\Program Files\\Git\\usr\\bin\" }",
+                                                                                   "$Pay = \"\u003cOWNER_SUPPLIED_UNSIGNED_CKPT348_PAYLOAD_PATH\u003e\"",
+                                                                                   "$Sig = \"$Pay.sig\"",
+                                                                                   "$Expect = \"\u003cOWNER_SUPPLIED_SHA256\u003e\"",
+                                                                                   "$h = (Get-FileHash $Pay -Algorithm SHA256).Hash; if ($h -ne $Expect) { throw \"HASH MISMATCH - abort before sign\" }",
+                                                                                   "openssl pkeyutl -sign -inkey \"$HOME\\.octopus-signing\\octopus-owner-ed25519-private.pem\" -rawin -in $Pay -out $Sig",
+                                                                                   "openssl pkeyutl -verify -pubin -inkey \"_ops\\owner-signing\\octopus-owner-ed25519-public.pem\" -rawin -in $Pay -sigfile $Sig"
+                                                                               ],
+                                                                  "warning":  "DO NOT RUN until owner supplies $Pay path and $ExpectSha256. This is the documented pattern from existing owner-runbook scripts — not a CKPT348 procedure."
+                                                              }
+}

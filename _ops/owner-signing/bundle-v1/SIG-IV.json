@@ -1,0 +1,13 @@
+{
+  "exact_verified_head": "cc267048075b0f64bd56c8ac59074d8a43233ae2",
+  "failed_checks": null,
+  "independence_declaration": null,
+  "manifest_verification": null,
+  "note": "Owner bundle must not satisfy SIG-IV. Implementation agent must not satisfy SIG-IV. Do not promote SECURITY_SHADOW_PASS until SIG-IV is valid.",
+  "run_local_side_effect_hashes": null,
+  "sig_id": "SIG-IV",
+  "status": "AWAITING_INDEPENDENT_VERIFIER",
+  "suite_results": null,
+  "verifier_identity": null,
+  "verifier_signature": null
+}

@@ -1,0 +1,247 @@
+{
+  "rfc": {
+    "rfc_id": "RFC-CE-EVO-20260822",
+    "bottleneck": "continuous-exec needs one fixture evolutionary cycle end-to-end",
+    "fix": "run isolated worktree coding then durable outbox [merge]/[reject] card",
+    "organ": "doctor",
+    "expected_lift": "fixture evo cycle with live_send=false"
+  },
+  "out": {
+    "experiment_id": "EXP-20260822T033353-RFC-fbc872e6",
+    "cycle_id": "CYC-20260822T033353-RFC-fbc872e6",
+    "rfc_id": "RFC-CE-EVO-20260822",
+    "worktree": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree",
+    "worktree_meta": {
+      "path": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree",
+      "injected": true,
+      "reused": false,
+      "isolated": true
+    },
+    "test_outcome": "pass",
+    "tests": {
+      "before": {
+        "n": 1,
+        "passed": 0,
+        "failed": 1,
+        "timeouts": 0,
+        "all_pass": false,
+        "reason": "missing-test"
+      },
+      "after": {
+        "n": 1,
+        "passed": 1,
+        "failed": 0,
+        "timeouts": 0,
+        "all_pass": true,
+        "exit": 0,
+        "stdout": "OK RFC-CE-EVO-20260822\n",
+        "stderr": ""
+      }
+    },
+    "verify": {
+      "confirmed": true,
+      "promotion_ceiling": "LAB_PASS",
+      "reasons": [],
+      "secret_scan_hits": 0,
+      "running_hash": "940119a9d6cd729d",
+      "before_had_failing_test": true,
+      "tests_pass": true,
+      "rollback_ok": true,
+      "memory_write": false,
+      "label": "LAB_PASS",
+      "note": "LAB_PASS is not production."
+    },
+    "proposed_promote": true,
+    "promotion_level": "NONE",
+    "live_promote": false,
+    "commit": {
+      "ok": true,
+      "commit": "df5afdb5ad4ec7761d9c5dd083a60d8e762dc64b",
+      "stderr": ""
+    },
+    "patch": {
+      "ok": true,
+      "patch_hash": "079f6f3cc791f21a",
+      "files": [
+        "_ops/self_upgrade_lab/rfc_artifacts/RFC-CE-EVO-20260822.py",
+        "_ops/tests/test_rfc_RFC-CE-EVO-20260822.py"
+      ],
+      "reason": null
+    },
+    "telegram_card": {
+      "kind": "evo-lab-rfc-card",
+      "rfc_id": "RFC-CE-EVO-20260822",
+      "bottleneck": "continuous-exec needs one fixture evolutionary cycle end-to-end",
+      "organ": "doctor",
+      "experiment_id": "EXP-20260822T033353-RFC-fbc872e6",
+      "worktree": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree",
+      "test_ok": true,
+      "verify": true,
+      "verify_reasons": [],
+      "proposed_promote": true,
+      "live_send": false,
+      "actions": [
+        "[merge]",
+        "[reject]"
+      ]
+    },
+    "outbox_path": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\state\\telegram\\loop\\outbox\\evo-93f34401870f6690.json",
+    "outbox": {
+      "card_text": "RFC RFC-CE-EVO-20260822\nbottleneck: continuous-exec needs one fixture evolutionary cycle end-to-end\norgan: doctor\nlab test: pass\nverify: ok\nworktree: F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree\nexperiment: EXP-20260822T033353-RFC-fbc872e6\nproposed_promote: yes\n\n[merge]  [reject]",
+      "outbox_path": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\state\\telegram\\loop\\outbox\\evo-93f34401870f6690.json",
+      "deliver": {
+        "deliver": {
+          "managed": true,
+          "ok": true,
+          "state": "CONFIRMED",
+          "message_id": 88001,
+          "message_key": "b87a642a556822b9a903f94d5bd6bca7e39e66bf"
+        },
+        "commit": {
+          "actor_id_hash": "eaf89db7108470dc3f6b23ea90618264b3e8f8b6145371667c4055e9c5ce9f52",
+          "chat_id_hash": "eaf89db7108470dc3f6b23ea90618264b3e8f8b6145371667c4055e9c5ce9f52",
+          "correlation_id": "corr_b2d54f50a304e1adcea52c4a",
+          "delivery_message_id": 88001,
+          "error_code": null,
+          "event_id": "tg:92001",
+          "event_type": "message",
+          "handler_result_hash": "b586277b8371d8b6f812ec4bc044d6207b336981d8b9ba9f25659b90310c9ecb",
+          "idempotency_key": "telegram:92001",
+          "intent_written_at": "2026-08-22T03:33:52.309+00:00",
+          "payload_hash": "a334e5dac69b9f843536ce51283a2d22f3a172bd7f64cc9b95f14f63b74ffaa9",
+          "readback_at": "2026-08-22T03:33:55.719+00:00",
+          "readback_verified": true,
+          "received_at": "2026-08-22T03:33:52.308+00:00",
+          "reply_receipt_id": "b87a642a556822b9a903f94d5bd6bca7e39e66bf",
+          "reply_receipt_ids": [
+            "b87a642a556822b9a903f94d5bd6bca7e39e66bf"
+          ],
+          "result_hash": "676363de782bd70b21759e04fe89b63d0d31f642b781b1677c77f63a126795c1",
+          "run_id": "run_aeb8de7758ab4a098fe0ca6254e8faec",
+          "schema": "telegram-durable-loop/1",
+          "schema_version": 2,
+          "source": "telegram",
+          "state": "CLOSED",
+          "task_id": "task_35ae841c33ed89a899d9fe9f",
+          "transitions": [
+            {
+              "error_code": null,
+              "outcome": "ok",
+              "process": "telegram-center",
+              "timestamp": "2026-08-22T03:33:52.308+00:00",
+              "transition": "NONE->RECEIVED"
+            },
+            {
+              "error_code": null,
+              "outcome": "ok",
+              "process": "telegram-center",
+              "timestamp": "2026-08-22T03:33:52.309+00:00",
+              "transition": "RECEIVED->AUTHENTICATED"
+            },
+            {
+              "error_code": null,
+              "outcome": "ok",
+              "process": "telegram-center",
+              "timestamp": "2026-08-22T03:33:52.309+00:00",
+              "transition": "AUTHENTICATED->INTENT_COMMITTED"
+            },
+            {
+              "error_code": null,
+              "outcome": "ok",
+              "process": "telegram-center",
+              "timestamp": "2026-08-22T03:33:55.654+00:00",
+              "transition": "INTENT_COMMITTED->RESULT_COMMITTED"
+            },
+            {
+              "error_code": null,
+              "outcome": "ok",
+              "process": "telegram-center",
+              "timestamp": "2026-08-22T03:33:55.665+00:00",
+              "transition": "RESULT_COMMITTED->RESPONSE_QUEUED"
+            },
+            {
+              "error_code": null,
+              "outcome": "ok",
+              "process": "telegram-center",
+              "timestamp": "2026-08-22T03:33:55.686+00:00",
+              "transition": "RESPONSE_QUEUED->RESPONSE_SENT"
+            },
+            {
+              "error_code": null,
+              "outcome": "ok",
+              "process": "telegram-center",
+              "timestamp": "2026-08-22T03:33:55.700+00:00",
+              "transition": "RESPONSE_SENT->RESPONSE_CONFIRMED"
+            },
+            {
+              "transition": "RESPONSE_CONFIRMED->CLOSED",
+              "process": "telegram-center",
+              "outcome": "ok",
+              "error_code": null,
+              "timestamp": "2026-08-22T03:33:55.748+00:00"
+            }
+          ],
+          "update_id": 92001,
+          "closed_at": "2026-08-22T03:33:55.748+00:00"
+        },
+        "text": "RFC RFC-CE-EVO-20260822\nbottleneck: continuous-exec needs one fixture evolutionary cycle end-to-end\norgan: doctor\nlab test: pass\nverify: ok\nworktree: F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree\nexperiment: EXP-20260822T033353-RFC-fbc872e6\nproposed_promote: yes\n\n[merge]  [reject]"
+      },
+      "live_send": false
+    },
+    "elapsed_s": 3.315,
+    "paid": "FORBIDDEN"
+  },
+  "fake_send_calls": [
+    {
+      "n": 1,
+      "ok": true
+    }
+  ],
+  "gate_with_proofs": {
+    "ok": true,
+    "allowed": true,
+    "reasons": [],
+    "required": [
+      "test_ok",
+      "evidence_path",
+      "rollback_plan"
+    ]
+  },
+  "promote_with_proofs": {
+    "ts": "2026-08-22T03:33:55+00:00",
+    "experiment_id": "EXP-20260822T033353-RFC-fbc872e6",
+    "level": "LAB_PASS",
+    "production": false,
+    "wave1_unlocked": true,
+    "memory_writes": true,
+    "refused": false,
+    "gate": {
+      "ok": true,
+      "allowed": true,
+      "reasons": [],
+      "required": [
+        "test_ok",
+        "evidence_path",
+        "rollback_plan"
+      ]
+    },
+    "evidence_path": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\state\\sul\\cycle-proof.json",
+    "note": "PRODUCTION_VERIFIED requires owner lock + verifier + canary."
+  },
+  "gate_refuse_demo": {
+    "ok": false,
+    "allowed": false,
+    "reasons": [
+      "test-not-pass",
+      "missing-evidence-path",
+      "missing-rollback-plan"
+    ],
+    "required": [
+      "test_ok",
+      "evidence_path",
+      "rollback_plan"
+    ]
+  },
+  "state_root": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352",
+  "live_send": false
+}

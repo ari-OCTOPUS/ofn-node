@@ -1,0 +1,27 @@
+# MiniApp URL truth (G10)
+
+stamp: 2026-08-23T16:05:00+10:00 (U05 PASS close)
+
+## Live processes
+- `miniapp_gateway` PID 12220 → bind **127.0.0.1:8774** (localhost only)
+- `cloudflared` may be alive (named tunnel) — see `miniapp-url.json`
+
+## Config / state
+- `.env` `OCTOPUS_MINIAPP_URL` / `OCTOPUS_TG_MINIAPP`: typically **unset** → Telegram `/ui` stays CONFIG_NEEDED
+- State file `_ops/state/telegram/miniapp-url.json`: records tunnel URL when tunnel started (candidate public URL, not proof Telegram menu is wired)
+
+## Speaking rule
+| Claim | Allowed when |
+|---|---|
+| Gateway process LIVE | PID listening 127.0.0.1:8774 |
+| Tunnel candidate URL | `miniapp-url.json` present with url+kind |
+| Telegram MiniApp menu LIVE | `OCTOPUS_TG_MINIAPP=1` + real public URL configured in center — **do not invent** |
+
+Do not equate tunnel JSON with menu wiring.
+
+## U05 close (2026-08-23)
+- Public menu path: **PASS** (env+gateway+named tunnel+registration match)
+- Durable: `OCTOPUS_TG_MINIAPP=1` + `OCTOPUS_MINIAPP_URL=https://app.master-painting.com` in `OCTOPUS.env` and User env
+- Evidence: `06-EVIDENCE/OCTOPUS-U05-MINIAPP-PUBLIC-MENU-2026-08-23/`
+- Tunnel JSON is still only a candidate until measured; this close measured HTTPS 200 shell + registration `menu_matches_live_url=true`
+

@@ -1,0 +1,14 @@
+﻿
+  PID Name       CommandLine                                                                                        Sta
+                                                                                                                    rte
+                                                                                                                    d  
+  --- ----       -----------                                                                                        ---
+ 6024 python.exe python  -X utf8 live\server.py                                                                     202
+12220 python.exe "C:\Program Files\Python313\python.exe" -X utf8 F:\backup\_ops\telegram_center\miniapp_gateway.py  202
+29312 python.exe python -X utf8 F:\backup\_ops\octopus_mcp\server.py                                                202
+33164 python.exe python  -X utf8 organism.py                                                                        202
+14856 python.exe python  -X utf8 telegram_center\center.py                                                          202
+12664 python.exe "C:\Program Files\Python313\python.exe" -X utf8 F:\backup\_ops\board_cp\server.py                  202
+
+
+

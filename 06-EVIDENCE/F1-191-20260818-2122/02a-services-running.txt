@@ -1,0 +1,142 @@
+
+Name                           DisplayName                                                           StartType
+----                           -----------                                                           ---------
+agent_ovpnconnect              OpenVPN Agent agent_ovpnconnect                                       Automatic
+Appinfo                        Application Information                                                  Manual
+AudioEndpointBuilder           Windows Audio Endpoint Builder                                        Automatic
+Audiosrv                       Windows Audio                                                         Automatic
+BFE                            Base Filtering Engine                                                 Automatic
+BITS                           Background Intelligent Transfer Service                               Automatic
+BluetoothUserService_ba856     BluetoothUserService_ba856                                               Manual
+BrokerInfrastructure           Background Tasks Infrastructure Service                               Automatic
+BTAGService                    Bluetooth Audio Gateway Service                                          Manual
+BthAvctpSvc                    AVCTP service                                                            Manual
+bthserv                        Bluetooth Support Service                                                Manual
+camsvc                         Capability Access Manager Service                                     Automatic
+cbdhsvc_ba856                  cbdhsvc_ba856                                                         Automatic
+CDPSvc                         Connected Devices Platform Service                                    Automatic
+CDPUserSvc_ba856               CDPUserSvc_ba856                                                      Automatic
+chromoting                     Chrome Remote Desktop Service                                         Automatic
+CmService                      Container Manager Service                                             Automatic
+CoreMessagingRegistrar         CoreMessaging                                                         Automatic
+cphs                           Intel(R) Content Protection HECI Service                                 Manual
+cplspcon                       Intel(R) Content Protection HDCP Service                              Automatic
+CryptSvc                       Cryptographic Services                                                Automatic
+DcomLaunch                     DCOM Server Process Launcher                                          Automatic
+DeviceAssociationService       Device Association Service                                            Automatic
+DevicesFlowUserSvc_ba856       DevicesFlowUserSvc_ba856                                                 Manual
+Dhcp                           DHCP Client                                                           Automatic
+DiagTrack                      Connected User Experiences and Telemetry                              Automatic
+DispBrokerDesktopSvc           Display Policy Service                                                Automatic
+DisplayEnhancementService      Display Enhancement Service                                              Manual
+Dnscache                       DNS Client                                                            Automatic
+DolbyDAXAPI                    Dolby DAX API Service                                                 Automatic
+DoSvc                          Delivery Optimization                                                 Automatic
+DPS                            Diagnostic Policy Service                                             Automatic
+DusmSvc                        Data Usage                                                            Automatic
+esifsvc                        Intel(R) Dynamic Tuning service                                       Automatic
+EventLog                       Windows Event Log                                                     Automatic
+EventSystem                    COM+ Event System                                                     Automatic
+ExpressVPN App Service         ExpressVPN App Service                                                Automatic
+ExpressVPN System Service      ExpressVPN System Service                                             Automatic
+ExpressVPN VPN Service         ExpressVPN VPN Service                                                Automatic
+Fing.Agent                     Fing.Agent                                                            Automatic
+FMAPOService                   Fortemedia APO Control Service                                        Automatic
+FontCache                      Windows Font Cache Service                                            Automatic
+FontCache3.0.0.0               Windows Presentation Foundation Font Cache 3.0.0.0                       Manual
+hidserv                        Human Interface Device Service                                           Manual
+hns                            Host Network Service                                                     Manual
+HvHost                         HV Host Service                                                          Manual
+igccservice                    Intel(R) Graphics Command Center Service                              Automatic
+igfxCUIService2.0.0.0          Intel(R) HD Graphics Control Panel Service                            Automatic
+IKEEXT                         IKE and AuthIP IPsec Keying Modules                                   Automatic
+InstallService                 Microsoft Store Install Service                                          Manual
+InventorySvc                   Inventory and Compatibility Appraisal service                         Automatic
+iphlpsvc                       IP Helper                                                             Automatic
+jhi_service                    Intel(R) Dynamic Application Loader Host Interface Service            Automatic
+KeyIso                         CNG Key Isolation                                                        Manual
+LanmanServer                   Server                                                                Automatic
+LanmanWorkstation              Workstation                                                           Automatic
+LenovoFnAndFunctionKeys        Lenovo Fn and function keys service                                   Automatic
+LenovoVantageService           Critical Service for Lenovo Vantage                                   Automatic
+lfsvc                          Geolocation Service                                                      Manual
+LicenseManager                 Windows License Manager Service                                          Manual
+lmhosts                        TCP/IP NetBIOS Helper                                                    Manual
+LMS                            Intel(R) Management and Security Application Local Management Service Automatic
+LSM                            Local Session Manager                                                 Automatic
+MDCoreSvc                      Microsoft Defender Core Service                                       Automatic
+mpssvc                         Windows Defender Firewall                                             Automatic
+NcbService                     Network Connection Broker                                                Manual
+netprofm                       Network List Service                                                     Manual
+NPSMSvc_ba856                  NPSMSvc_ba856                                                            Manual
+nsi                            Network Store Interface Service                                       Automatic
+nvagent                        Network Virtualization Service                                           Manual
+NVDisplay.ContainerLocalSystem NVIDIA Display Container LS                                           Automatic
+ovpnhelper_service             OpenVPN Connect Helper Service                                        Automatic
+PcaSvc                         Program Compatibility Assistant Service                               Automatic
+PhoneSvc                       Phone Service                                                            Manual
+PimIndexMaintenanceSvc_ba856   PimIndexMaintenanceSvc_ba856                                             Manual
+PlugPlay                       Plug and Play                                                            Manual
+PolicyAgent                    IPsec Policy Agent                                                       Manual
+Power                          Power                                                                 Automatic
+ProfSvc                        User Profile Service                                                  Automatic
+QWAVE                          Quality Windows Audio Video Experience                                   Manual
+RasMan                         Remote Access Connection Manager                                         Manual
+RmSvc                          Radio Management Service                                                 Manual
+RpcEptMapper                   RPC Endpoint Mapper                                                   Automatic
+RpcLocator                     Remote Procedure Call (RPC) Locator                                      Manual
+RpcSs                          Remote Procedure Call (RPC)                                           Automatic
+RstMwService                   Intel(R) Storage Middleware Service                                   Automatic
+RtkAudioUniversalService       Realtek Audio Universal Service                                       Automatic
+SamSs                          Security Accounts Manager                                             Automatic
+Schedule                       Task Scheduler                                                        Automatic
+SecurityHealthService          Windows Security Service                                                 Manual
+SENS                           System Event Notification Service                                     Automatic
+SharedAccess                   Internet Connection Sharing (ICS)                                        Manual
+ShellHWDetection               Shell Hardware Detection                                              Automatic
+Spooler                        Print Spooler                                                         Automatic
+SSDPSRV                        SSDP Discovery                                                           Manual
+SstpSvc                        Secure Socket Tunneling Protocol Service                                 Manual
+StateRepository                State Repository Service                                              Automatic
+StiSvc                         Windows Image Acquisition (WIA)                                       Automatic
+StorSvc                        Storage Service                                                       Automatic
+SysMain                        SysMain                                                               Automatic
+SystemEventsBroker             System Events Broker                                                  Automatic
+TapiSrv                        Telephony                                                                Manual
+TextInputManagementService     Text Input Management Service                                         Automatic
+Themes                         Themes                                                                Automatic
+TimeBrokerSvc                  Time Broker                                                              Manual
+TokenBroker                    Web Account Manager                                                      Manual
+TrkWks                         Distributed Link Tracking Client                                      Automatic
+UDCService                     Universal Device Client Service                                       Automatic
+UdkUserSvc_ba856               UdkUserSvc_ba856                                                         Manual
+UnistoreSvc_ba856              UnistoreSvc_ba856                                                        Manual
+UserDataSvc_ba856              UserDataSvc_ba856                                                        Manual
+UserManager                    User Manager                                                          Automatic
+UsoSvc                         Update Orchestrator Service                                           Automatic
+VaultSvc                       Credential Manager                                                       Manual
+vmcompute                      Hyper-V Host Compute Service                                             Manual
+W32Time                        Windows Time                                                          Automatic
+Wcmsvc                         Windows Connection Manager                                            Automatic
+WDDriveService                 WD Drive Manager                                                      Automatic
+WdiServiceHost                 Diagnostic Service Host                                                  Manual
+WdiSystemHost                  Diagnostic System Host                                                   Manual
+WdNisSvc                       Microsoft Defender Antivirus Network Inspection Service                  Manual
+webthreatdefsvc                Web Threat Defense Service                                               Manual
+webthreatdefusersvc_ba856      webthreatdefusersvc_ba856                                             Automatic
+whesvc                         Windows Health and Optimized Experiences                              Automatic
+WinDefend                      Microsoft Defender Antivirus Service                                  Automatic
+WinHttpAutoProxySvc            WinHTTP Web Proxy Auto-Discovery Service                                 Manual
+Winmgmt                        Windows Management Instrumentation                                    Automatic
+WlanSvc                        WLAN AutoConfig                                                       Automatic
+wmiApSrv                       WMI Performance Adapter                                                  Manual
+WpnService                     Windows Push Notifications System Service                             Automatic
+WpnUserService_ba856           WpnUserService_ba856                                                  Automatic
+WSAIFabricSvc                  WSAIFabricSvc                                                         Automatic
+wscsvc                         Security Center                                                       Automatic
+WSearch                        Windows Search                                                        Automatic
+WSLService                     WSL Service                                                           Automatic
+wuqisvc                        Microsoft Usage and Quality Insights                                     Manual
+
+
+

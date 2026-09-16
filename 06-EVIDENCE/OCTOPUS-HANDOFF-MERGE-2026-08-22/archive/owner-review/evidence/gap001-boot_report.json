@@ -1,0 +1,22 @@
+{
+  "gap": "GAP-001",
+  "probe_started": "2026-08-17T01:16:02.075017+00:00",
+  "pre_boot_id": "d7452b88-4b06-4eb9-b37b-e5757c63cabc",
+  "post_boot_id": "063fef44-cd54-4a68-81b5-7ac5fd2c39f0",
+  "cold_boot_observed": true,
+  "agent_ready": false,
+  "status_text": "StatusText=\nActiveState=inactive",
+  "systemd_analyze": "",
+  "blame_head": "7.623s ifup@eth0.service\n 546ms ufw.service\n 415ms dev-mmcblk0p1.device\n 312ms ifupdown-pre.service\n 247ms systemd-udev-trigger.service\n 235ms dietpi-preboot.service\n 182ms systemd-journald.service\n 161ms networking.service\n 102ms keyboard-setup.service\n  83ms lm-sensors.service\n  75ms systemd-binfmt.service\n  74ms systemd-udevd.service\n  66ms dietpi-ramlog.service\n  63ms systemd-timesyncd.service\n  56ms systemd-tmpfiles-setup-dev-early.service",
+  "readiness_state": "DEGRADED",
+  "gates_failed": [
+    "G8"
+  ],
+  "clock_trust": "SYNCED_NTP",
+  "timesyncd": "active",
+  "jetstream_ok": true,
+  "status": "TESTED_FAIL",
+  "not_a_power_loss_test": true,
+  "gap_status": "OPEN",
+  "pass": false
+}

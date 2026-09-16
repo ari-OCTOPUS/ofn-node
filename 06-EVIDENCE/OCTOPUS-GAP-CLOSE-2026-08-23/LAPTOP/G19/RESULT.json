@@ -1,0 +1,34 @@
+{
+  "gap": "G19",
+  "stamp_local": "2026-08-23T09:11:30+10:00",
+  "slice": "LAPTOP",
+  "status": "PASS",
+  "verdict": "Uniqueness heartbeat receipt present; monitor evidence dir exists",
+  "latest_receipt_path": "F:\\backup\\_ops\\state\\doctor\\poller-uniqueness-latest.json",
+  "latest_receipt_sample": {
+    "schema": "poller-uniqueness-receipt/1",
+    "source": "doctor_uniqueness_beat",
+    "beat": 46200,
+    "checked_at_unix": 1787438262.0676064,
+    "checked_at_local": "2026-08-23T08:37:42+10:00",
+    "dry_run": true,
+    "live_send": false,
+    "ok": true,
+    "fail_closed": true,
+    "checks": {
+      "one_center_pid": true,
+      "one_active_lease": true,
+      "one_tg_poller_lock": true,
+      "pids_agree": true
+    },
+    "reasons": [],
+    "center_pid_count": 1,
+    "active_lease_count": 1,
+    "tg_poller_lock_count": 1,
+    "center_pids": [
+      35916
+    ]
+  },
+  "evidence_dir_exists": true,
+  "monitor_alive_heuristic": true
+}

@@ -1,0 +1,10 @@
+{
+  "transition": "T1",
+  "usable_pairs": 127,
+  "required": 50,
+  "orphan_outcomes": 0,
+  "duplicate_predictions": 0,
+  "outcome_before_prediction": 0,
+  "synthetic_live_leaks": 0,
+  "result": "ACCUMULATION_PASS"
+}

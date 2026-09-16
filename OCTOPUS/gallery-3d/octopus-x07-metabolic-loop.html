@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCTOPUS — حلقهٔ متابولیسم</title>
+<style>
+  html,body{margin:0;height:100%;background:#02030e;overflow:hidden;font-family:"Segoe UI",Tahoma,sans-serif}
+  #app{position:fixed;inset:0}
+  #vig{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(120% 90% at 50% 45%,transparent 54%,rgba(0,0,4,.9) 100%)}
+  .top{position:fixed;top:14px;left:0;right:0;text-align:center;z-index:5;pointer-events:none}
+  .top b{font-size:15px;font-weight:800;letter-spacing:3px;background:linear-gradient(90deg,#22d3ee,#34d399,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 22px #22d3ee44}
+  .top span{display:block;font-size:11px;color:#5b6b85;margin-top:3px;letter-spacing:1px}
+  #st{position:fixed;top:16px;left:16px;z-index:6;direction:ltr;text-align:left;font:12px/1.7 ui-monospace,Menlo,monospace;color:#67e8f9;pointer-events:none}
+  #st b{color:#34d399}#st .live{color:#34d399}
+  .info{position:fixed;bottom:14px;right:14px;z-index:6;max-width:330px;background:rgba(6,10,24,.82);border:1px solid #1c2c44;border-radius:12px;padding:13px 15px;backdrop-filter:blur(6px);direction:rtl;text-align:right;font-size:12px;line-height:1.85;color:#9fb3cc}
+  .info h3{margin:0 0 6px;font-size:13px;color:#e5e7eb}.info .k{color:#fcd34d}.info .b{color:#34d399}.info .src{margin-top:7px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#5b6b85;direction:ltr;text-align:left}
+  #hint{position:fixed;bottom:14px;left:14px;z-index:5;pointer-events:none;font-size:11.5px;color:#5b6b85;max-width:40%}#hint b{color:#34d399}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app"></div><div id="vig"></div>
+<div class="top"><b>METABOLIC LOOP · حلقهٔ متابولیسم</b><span>حلقهٔ همیشه‌روشنِ run_cycle · تپشِ سیستمی که همه‌چیز را می‌چرخاند · پورت ۸۷۷۱</span></div>
+<div id="st"></div>
+<div class="info">
+  <h3>♾️ حلقهٔ متابولیسم</h3>
+  <div class="row">پالس بی‌وقفه دورِ حلقه می‌دود و از ۶ دروازه عبور می‌کند؛ کلِ صحنه با هر دور <span class="b">نفس می‌کشد</span> — این «زنده‌بودنِ» ماشین است.</div>
+  <div class="row"><span class="k">💾 F:\backup:</span> ‏<code>organism.py</code> حلقهٔ متابولیسمِ همیشه‌روشن (run_cycle، پورت ۸۷۷۱)؛ اگر بایستد، همه‌چیز خاموش می‌شود.</div>
+  <div class="src">src: _ops/organism.py · run_cycle · HTTP :8771/:8773</div>
+</div>
+<div id="hint">بکش تا بچرخانی · اسکرول = زوم · ۶ مرحله: sense → decide → gate → act → ledger → rest</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+const ADD=THREE.AdditiveBlending;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+document.getElementById('app').appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x02030e);scene.fog=new THREE.FogExp2(0x02030e,0.012);
+const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,0.1,400);camera.position.set(0,16,20);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.05;
+controls.autoRotate=true;controls.autoRotateSpeed=0.4;controls.target.set(0,0,0);controls.minDistance=12;controls.maxDistance=60;
+scene.add(new THREE.AmbientLight(0x22344f,0.5));
+const coreL=new THREE.PointLight(0x34d399,16,60);scene.add(coreL);
+(function(){const n=600,p=new Float32Array(n*3);for(let i=0;i<n;i++){const r=90+Math.random()*90,t=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x6688bb,size:0.15,transparent:true,opacity:0.5})));})();
+const loop=new THREE.Group();scene.add(loop);
+const RT=7;
+const track=new THREE.Mesh(new THREE.TorusGeometry(RT,0.22,12,120),new THREE.MeshStandardMaterial({color:0x0a1a24,emissive:0x22d3ee,emissiveIntensity:0.6,roughness:0.4,metalness:0.4,transparent:true,opacity:0.7}));track.rotation.x=Math.PI/2;loop.add(track);
+const trackGlow=new THREE.Mesh(new THREE.TorusGeometry(RT,0.5,12,120),new THREE.MeshBasicMaterial({color:0x22d3ee,transparent:true,opacity:0.06,blending:ADD}));trackGlow.rotation.x=Math.PI/2;loop.add(trackGlow);
+// 6 stage gates
+const STAGES=['sense','decide','gate','act','ledger','rest'];
+const gates=[];STAGES.forEach((s,i)=>{const a=(i/6)*Math.PI*2;const pos=new THREE.Vector3(Math.cos(a)*RT,0,Math.sin(a)*RT);
+  const g=new THREE.Mesh(new THREE.TorusGeometry(1,0.12,8,24),new THREE.MeshStandardMaterial({color:0x0a1a24,emissive:0x67e8f9,emissiveIntensity:0.4,roughness:0.4,metalness:0.4}));g.position.copy(pos);g.lookAt(0,0,0);loop.add(g);gates.push({g,a,pos,flash:0,name:s});});
+// central core
+const core=new THREE.Mesh(new THREE.IcosahedronGeometry(1.5,1),new THREE.MeshStandardMaterial({color:0x081826,emissive:0x34d399,emissiveIntensity:0.8,roughness:0.35,metalness:0.45,transparent:true,opacity:0.7,flatShading:true}));loop.add(core);
+// racing pulse
+const pulse=new THREE.Mesh(new THREE.SphereGeometry(0.5,16,16),new THREE.MeshBasicMaterial({color:0xffffff,blending:ADD}));loop.add(pulse);
+const pulseGlow=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16),new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.3,blending:ADD,depthWrite:false}));pulse.add(pulseGlow);
+const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.05,0.8,0.13));
+const stEl=document.getElementById('st');const clock=new THREE.Clock();let laps=0,lastStage=0;
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),0.05),t=clock.getElapsedTime();
+  const a=(t*0.7)%(Math.PI*2);pulse.position.set(Math.cos(a)*RT,0,Math.sin(a)*RT);
+  const lap=Math.floor(t*0.7/(Math.PI*2));if(lap!==laps)laps=lap;
+  const stage=Math.floor(a/(Math.PI*2)*6)%6;if(stage!==lastStage){lastStage=stage;gates[stage].flash=1;}
+  gates.forEach(g=>{g.flash=Math.max(0,g.flash-dt*2.5);g.g.material.emissiveIntensity=0.4+g.flash*1.6;g.g.scale.setScalar(1+g.flash*0.2);});
+  const breathe=1+Math.sin(t*0.7)*0.02;loop.scale.setScalar(breathe);
+  core.rotation.y+=0.01;core.material.emissiveIntensity=0.7+Math.sin(t*0.7)*0.3;coreL.intensity=12+Math.sin(t*0.7)*6;
+  const blink=Math.sin(t*4)>0?'●':'○';
+  stEl.innerHTML=`<b>♾️ run_cycle</b><br>stage: <span style="color:#67e8f9">${STAGES[stage]}</span> · lap ${laps}<br><span class="live">${blink} live</span> · :8771`;
+  controls.update();composer.render();}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

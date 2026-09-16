@@ -1,0 +1,149 @@
+# ═══════════════════════════════════════════════════════════════════════
+# pack: ziman — gift gallery, handmade, capacity-bound
+# partner-facing app: warm, one question per screen
+# ═══════════════════════════════════════════════════════════════════════
+tenant: ziman
+
+# کد محصول: ZM-0001. اینجاست چون چیزی است که مالک پای تلفن بلند می‌خواند،
+# نه چیزی که کد از نام tenant بسازد.
+sku_prefix: ZM
+
+# ── locale ─────────────────────────────────────────────────────────────
+# The market this business sells into. One object, because currency alone is
+# a display parameter and a display parameter is not a market: a price is only
+# meaningful together with the tax treatment behind it, the timezone the week
+# was counted in, and the law the claim has to survive.
+#
+# en-AU is the only implemented locale. Any other id is refused at load time
+# (`unsupported_locale`) rather than falling back — see packloader.
+#
+# Ziman is in AUD because its paying customer is Australian. That is the whole
+# reason; it is not inherited from any other project on this node.
+locale:
+  id: en-AU
+  timezone: Australia/Sydney
+  # نرخ و آستانه خاصیت *بازار*اند و اینجا می‌مانند. ولی اینکه *این کسب‌وکار*
+  # ثبت‌نام کرده یا نه، خاصیت خودِ کسب‌وکار است و حالا یک fact است
+  # (`business.gst_registered`) که فصلی پرسیده می‌شود.
+  #
+  # چرا fact و نه یک مقدار ثابت: ثبت‌نام دیرهنگام یعنی بدهکار GST همهٔ فروش‌ها
+  # از تاریخی که باید ثبت می‌کردی — حتی اگر از مشتری نگرفته باشی. جوابی که
+  # یک بار داده شود و دیگر پرسیده نشود، جوابی است که بی‌صدا کهنه می‌شود.
+  tax:
+    status: unresolved
+    pricing: inclusive
+  payment_rails: []         # کانال فروش هنوز انتخاب نشده — خالی یعنی «تصمیم نگرفته»
+  platforms: []             # هنوز هیچ‌جا نمی‌فروشد. تازه شروع می‌کند.
+
+# Owner-confirmed 2026-08-03 as a range of 6-10. The operational ceiling is
+# the FLOOR of that range, not the middle and certainly not the top: a system
+# that promises 10 and delivers 6 has manufactured a broken promise out of an
+# optimistic reading of its own config.
+capacity_units_per_week: 6
+
+# Definition of Ready. Until each of these exists at the stated confidence,
+# any action that leaves the node is forced to RED.
+#
+# `offer.cogs_per_family` used to be asked directly, with wording that told
+# her not to count her own time. COGS is derived from the inputs below
+# instead of asked for.
+#
+# ⚠️ ۲۰۲۶-۰۸-۰۴، تصمیم آری بعد از اولین جلسهٔ واقعی ملیحه: دو سؤال «چند ساعت
+# وقت برد» و «ساعتی چند» حذف شدند. یعنی هزینهٔ هر قطعه فقط مواد و بسته‌بندی
+# است و **وقت او در هیچ عددی شمرده نمی‌شود**.
+#
+# این دقیقاً همان چیزی است که کامنت قبلی اینجا هشدارش را می‌داد: «قطعه‌ای که
+# فقط در برابر مواد قیمت‌گذاری شود، دقیقاً سر همان قیمتی سودآور به نظر
+# می‌رسد که ضرر می‌دهد.» آن جمله هنوز درست است. این پک دیگر جلویش را
+# نمی‌گیرد، چون مالک تصمیم گرفت پرسیدنش هزینهٔ بیشتری از نگفتنش دارد.
+# نوشته می‌شود تا اگر روزی «چرا هشدار ضرر هیچ‌وقت روشن نمی‌شود؟» پرسیده شد،
+# جواب اینجا باشد و دوباره کشف نشود.
+#
+# فهرست زیر عمداً تخت است: fact → confidence. قبلاً همین کلیدها دو بار
+# می‌آمدند، یک بار با label/hint و یک بار خالی — و YAML بی‌صدا دومی را
+# برنده می‌کرد، پس آن label‌ها هرگز خوانده نمی‌شدند. متن هر سؤال فقط در
+# بخش `questions` پایین زندگی می‌کند.
+required_facts:
+  business.gst_registered: owner_confirmed
+  sales.days_before_worry: owner_confirmed
+  ops.delivery_model: owner_confirmed
+  ops.capacity_by_family: measured
+
+# فرمول هزینهٔ یک قطعه، به‌صورت داده نه کد. شکل ثابت است — جمعِ اجزای هزینه
+# — و *نام‌ها* از همین‌جا می‌آیند. هیچ تقسیمی نیست: هر قطعه یکتاست.
+# جملهٔ ساعت×نرخ حذف شد؛ بالا را بخوانید.
+costing:
+  cost_fields: [materials_cost_aud, packaging_cost_aud]
+  quick_sale_days: 7
+
+# کارمزد هر کانال. در *حاشیه* اعمال می‌شود، نه در COGS — هزینه خاصیت قطعه
+# است و کارمزد خاصیت جایی که فروخته شد.
+# کانال‌های بدون واسطه (کارمزد صفر صادقانه). Instagram/Etsy عمداً غایب‌اند
+# تا آری درصد واقعی را وارد کند — نبودن کانال = حاشیه حدس زده نمی‌شود.
+channels:
+  direct:
+    percent: 0
+    fixed: 0
+  cash:
+    percent: 0
+    fixed: 0
+  payid:
+    percent: 0
+    fixed: 0
+
+# How each fact is asked, in Maliheh's words. The kernel decides *which* of
+# these to ask and when; it has no business inventing the sentence. A fact
+# with no wording here still gets asked — the shell shows the bare key, which
+# is deliberately ugly so that a missing sentence gets noticed and written.
+questions:
+  ops.capacity_by_family:
+    label: این هفته چند تا می‌توانید بسازید؟
+    hint: هر چه بگویید، همان می‌شود. بیشتر از آن سفارش گرفته نمی‌شود.
+    unit: باکس در هفته
+    min: 1
+    max: 60
+    default: 6
+  business.gst_registered:
+    label: این کسب‌وکار برای GST ثبت‌نام کرده است؟
+    hint: اگر مطمئن نیستید، حسابدارتان می‌داند. تا جواب ندهید هیچ عدد نهاییِ سود نشان نمی‌دهیم.
+    # فصلی پرسیده می‌شود، نه یک بار. ثبت‌نام دیرهنگام یعنی بدهکار GST همهٔ
+    # فروش‌ها از تاریخی که باید ثبت می‌کردی — حتی اگر از مشتری نگرفته باشی.
+    # جوابی که یک بار داده شود و دیگر پرسیده نشود، بی‌صدا کهنه می‌شود.
+    ask_every: quarter
+    options:
+      - بله
+      - خیر
+  sales.days_before_worry:
+    label: یک قطعه بعد از چند روز که نفروشد، نگرانتان می‌کند؟
+    hint: هر عددی که به ذهنتان می‌آید — بعداً می‌شود عوضش کرد.
+    unit: روز
+    min: 7
+    max: 730
+  ops.delivery_model:
+    label: تحویل را چطور انجام می‌دهید؟
+    hint: این تعیین می‌کند چه چیزی به مشتری قول داده شود.
+    options:
+      - پست
+      - تحویل حضوری
+      - هر دو
+
+gates:
+  - capacity
+  - budget
+  - claim
+  - consent
+  - asset
+  - publish
+  - secret_rotation
+
+# Overrides may only raise a tier, never lower it. Listed here for the
+# actions where the generic rules would land too low.
+risk_overrides:
+  publish_price: red
+  confirm_order: red
+  send_dm_reply: yellow
+  ask_partner_question: yellow
+  classify_inbound: green
+  draft_caption: green
+
+quota_share: 0.35

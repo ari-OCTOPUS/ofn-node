@@ -1,0 +1,2 @@
+settings: REFERENCE_DIR='./' به ریشهٔ پروژه resolve شد — مرزِ نامعتبر (C-013)؛ fallback به SYSTEM_ROOT/'4D' (ناموجود)
+{"anchors_ok": true, "enforcement": true, "tampered": false, "mismatches": [], "signature": "valid"}

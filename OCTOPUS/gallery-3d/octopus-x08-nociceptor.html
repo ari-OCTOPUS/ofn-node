@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCTOPUS — نوسیسپتور / شبکهٔ درد</title>
+<style>
+  html,body{margin:0;height:100%;background:#0a0206;overflow:hidden;font-family:"Segoe UI",Tahoma,sans-serif}
+  #app{position:fixed;inset:0}
+  #vig{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(120% 90% at 50% 45%,transparent 54%,rgba(6,0,2,.9) 100%)}
+  .top{position:fixed;top:14px;left:0;right:0;text-align:center;z-index:5;pointer-events:none}
+  .top b{font-size:15px;font-weight:800;letter-spacing:3px;background:linear-gradient(90deg,#ef4444,#fb923c,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 22px #ef444444}
+  .top span{display:block;font-size:11px;color:#6b5b5b;margin-top:3px;letter-spacing:1px}
+  #st{position:fixed;top:16px;left:16px;z-index:6;direction:ltr;text-align:left;font:12px/1.7 ui-monospace,Menlo,monospace;color:#fb923c;pointer-events:none}
+  #st b{color:#ef4444}
+  .info{position:fixed;bottom:14px;right:14px;z-index:6;max-width:330px;background:rgba(16,6,8,.82);border:1px solid #3a1c1c;border-radius:12px;padding:13px 15px;backdrop-filter:blur(6px);direction:rtl;text-align:right;font-size:12px;line-height:1.85;color:#c9a99f}
+  .info h3{margin:0 0 6px;font-size:13px;color:#fecaca}.info .k{color:#fca5a5}.info .b{color:#67e8f9}.info .src{margin-top:7px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#6b5b5b;direction:ltr;text-align:left}
+  #hint{position:fixed;bottom:14px;left:14px;z-index:5;pointer-events:none;font-size:11.5px;color:#6b5b5b;max-width:40%}#hint b{color:#ef4444}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app"></div><div id="vig"></div>
+<div class="top"><b>NOCICEPTOR · شبکهٔ درد</b><span>لایهٔ حسِ رخداد · ارگانیسم درد را حس می‌کند و می‌گوید کجا · ۴۷ خطای گاورنر</span></div>
+<div id="st"></div>
+<div class="info">
+  <h3>🩹 نوسیسپتور (حسِ درد)</h3>
+  <div class="row">یک زخم روی سطح شعله می‌کشد و سیگنالِ درد در امتدادِ الیاف به گرهِ زنگِ مرکزی می‌دود؛ رخدادِ حل‌شده به <span class="b">اسکارِ آبیِ سرد</span> محو می‌شود.</div>
+  <div class="row"><span class="k">💾 F:\backup:</span> ‏<code>nociceptor.py</code> + Incidentها + <code>governor-alerts.md</code> (۴۷ خطا). ارگانیسمی که واقعاً <b>درد</b> می‌کشد و گزارش می‌دهد.</div>
+  <div class="src">src: neural/nociceptor.py · governor/governor-alerts.md (342 alerts logged · snapshot 2026-07-24)</div>
+</div>
+<div id="hint">بکش تا بچرخانی · اسکرول = زوم · شعله‌های <b>قرمز</b> = رخدادِ حل‌نشده · آبی = ترمیم‌شده</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+const ADD=THREE.AdditiveBlending;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+document.getElementById('app').appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0a0206);scene.fog=new THREE.FogExp2(0x0a0206,0.012);
+const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,0.1,400);camera.position.set(3,3,22);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.05;
+controls.autoRotate=true;controls.autoRotateSpeed=0.4;controls.target.set(0,0,0);controls.minDistance=11;controls.maxDistance=55;
+scene.add(new THREE.AmbientLight(0x2a1a1a,0.5));
+const alarmL=new THREE.PointLight(0xef4444,10,50);scene.add(alarmL);
+(function(){const n=500,p=new Float32Array(n*3);for(let i=0;i<n;i++){const r=90+Math.random()*90,t=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x996666,size:0.15,transparent:true,opacity:0.4})));})();
+// body mass
+const body=new THREE.Mesh(new THREE.IcosahedronGeometry(6,2),new THREE.MeshStandardMaterial({color:0x140a0e,emissive:0x2a1015,emissiveIntensity:0.4,roughness:0.5,metalness:0.3,transparent:true,opacity:0.5,flatShading:true}));scene.add(body);
+// central alarm node
+const alarm=new THREE.Mesh(new THREE.IcosahedronGeometry(1.2,1),new THREE.MeshStandardMaterial({color:0x1a0808,emissive:0xef4444,emissiveIntensity:0.6,roughness:0.4,metalness:0.4}));scene.add(alarm);
+// nerve filaments from surface points to alarm
+const SITES=14,sites=[];
+for(let i=0;i<SITES;i++){const phi=Math.acos(1-2*((i+0.5)/SITES)),th=Math.PI*(1+Math.sqrt(5))*i;const pos=new THREE.Vector3(Math.sin(phi)*Math.cos(th),Math.cos(phi),Math.sin(phi)*Math.sin(th)).multiplyScalar(6);
+  const c=new THREE.CatmullRomCurve3([pos,pos.clone().multiplyScalar(0.6).add(new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2)),new THREE.Vector3(0,0,0)]);
+  const fil=new THREE.Mesh(new THREE.TubeGeometry(c,20,0.03,6,false),new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.2,blending:ADD}));scene.add(fil);
+  const flare=new THREE.Mesh(new THREE.SphereGeometry(0.5,12,12),new THREE.MeshBasicMaterial({color:0xef4444,transparent:true,opacity:0,blending:ADD,depthWrite:false}));flare.position.copy(pos);scene.add(flare);
+  sites.push({pos,curve:c,fil,flare,state:'idle',t:0,healed:false});}
+// pain signals
+const sigMax=30;const signals=[];
+const sigGeo=new THREE.BufferGeometry();const sigPos=new Float32Array(sigMax*3);sigGeo.setAttribute('position',new THREE.BufferAttribute(sigPos,3));
+const sigPts=new THREE.Points(sigGeo,new THREE.PointsMaterial({color:0xffffff,size:0.5,transparent:true,opacity:0.95,blending:ADD,depthWrite:false}));scene.add(sigPts);
+const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.1,0.85,0.1));
+const stEl=document.getElementById('st');const clock=new THREE.Clock();let backlog=0,fireT=0,lastErr='budget/KeyError';
+const LOGGED=342;   // real governor-alerts.md line count at scan (2026-07-24) — the organism's recorded pain history
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),0.05),t=clock.getElapsedTime();
+  body.rotation.y+=0.002;alarm.rotation.y+=0.02;
+  fireT+=dt;if(fireT>0.9&&backlog<14){fireT=0;const s=sites[Math.floor(Math.random()*SITES)];if(s.state==='idle'){s.state='hurt';s.t=0;s.healed=false;backlog++;signals.push({s,p:0});}}
+  let alarmHeat=0;
+  sites.forEach(s=>{if(s.state==='hurt'){s.t+=dt;const heat=Math.max(0,1-s.t/3);s.flare.material.opacity=heat*0.9;s.flare.material.color.setHex(heat>0.5?0xef4444:0xfb923c);s.flare.scale.setScalar(1+Math.sin(t*10)*0.2);s.fil.material.opacity=0.2+heat*0.4;alarmHeat+=heat;
+    if(s.t>3){s.state='scar';s.t=0;}}
+   else if(s.state==='scar'){s.t+=dt;s.flare.material.color.setHex(0x3b82f6);s.flare.material.opacity=Math.max(0,0.4-s.t*0.1);s.fil.material.opacity=0.1;if(s.t>4)s.state='idle';}});
+  // move signals inward
+  let idx=0;for(let i=signals.length-1;i>=0;i--){const sg=signals[i];sg.p+=dt*0.6;if(sg.p>=1){signals.splice(i,1);continue;}const pos=sg.s.curve.getPoint(sg.p);if(idx<sigMax){sigPos[idx*3]=pos.x;sigPos[idx*3+1]=pos.y;sigPos[idx*3+2]=pos.z;idx++;}}
+  for(let i=idx;i<sigMax;i++){sigPos[i*3]=9999;}sigGeo.attributes.position.needsUpdate=true;
+  alarm.material.emissiveIntensity=0.6+Math.min(2,alarmHeat)*0.6;alarmL.intensity=8+Math.min(2,alarmHeat)*10;alarm.scale.setScalar(1+Math.min(1,alarmHeat)*0.15);
+  stEl.innerHTML=`<b>🩹 PAIN WEB</b><br>logged: <span style="color:#fcd34d">${LOGGED}</span> alerts · active: <span style="color:${backlog>10?'#ef4444':'#fb923c'}">${backlog}</span><br>last: <span style="color:#fca5a5">${lastErr}</span>`;
+  controls.update();composer.render();}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

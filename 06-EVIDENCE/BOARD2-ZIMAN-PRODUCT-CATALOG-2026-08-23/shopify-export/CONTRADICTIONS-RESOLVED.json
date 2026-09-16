@@ -1,0 +1,23 @@
+{
+    "decisions":  [
+                      {
+                          "id":  "duplicates",
+                          "decision":  "delete one keep single listing"
+                      },
+                      {
+                          "id":  "shop_vs_db",
+                          "decision":  "sync all Shopify products into Board2 products.sqlite"
+                      },
+                      {
+                          "note":  "they are gift-box contents",
+                          "id":  "english_four",
+                          "decision":  "delete candle/bottle/tote/mug; mention only in gift-box descriptions"
+                      },
+                      {
+                          "id":  "empty_descriptions",
+                          "decision":  "build Sydney EN from title specs"
+                      }
+                  ],
+    "schema":  "board2-ziman-contradictions-resolved/1",
+    "stamp_local":  "2026-08-23T13:00:41+10:00"
+}

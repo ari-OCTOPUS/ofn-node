@@ -1,0 +1,42 @@
+{
+  "schema": "octopus-arch-evolution-center-bridge-attach-default-off/1",
+  "stamp_local": "2026-08-23T08:48:45+10:00",
+  "timezone": "Australia/Sydney",
+  "status": "PASS",
+  "constraints": {
+    "no_live_send": true,
+    "no_broad_unlock": true,
+    "attach_default": "OFF",
+    "no_secrets": true
+  },
+  "enable": {
+    "env": "OCTOPUS_TG_CENTER_SENDER_BRIDGE_ATTACH=1",
+    "flag_file": "_ops/TG-CENTER-SENDER-BRIDGE-ATTACH.flag",
+    "still_needs": "active writer-lock send_exceptions for send_allowed"
+  },
+  "changes": [
+    {
+      "path": "F:\\backup\\_ops\\telegram_center\\poll_sender_bridge_attach.py",
+      "action": "create"
+    },
+    {
+      "path": "F:\\backup\\_ops\\telegram_center\\center.py",
+      "action": "patch_run_forever_after_run_once",
+      "bak": "F:\\backup\\_ops\\telegram_center\\center.py.bak-bridge-attach-20260823"
+    },
+    {
+      "path": "F:\\backup\\_ops\\tests\\test_poll_sender_bridge_attach_default_off.py",
+      "action": "create"
+    }
+  ],
+  "pytest": {
+    "rc": 0,
+    "stdout_tail": ".....                                                                    [100%]\n5 passed in 1.21s\n",
+    "stderr_tail": ""
+  },
+  "compact": {
+    "STATUS": "PASS",
+    "EVIDENCE": "F:\\backup\\06-EVIDENCE\\OCTOPUS-ARCH-EVOLUTION-LOOP-2026-08-23\\CENTER-BRIDGE-ATTACH-DEFAULT-OFF\\RESULT.json",
+    "NEXT": "owner may set queue/send_fn on center + env only under GO; keep attach OFF"
+  }
+}

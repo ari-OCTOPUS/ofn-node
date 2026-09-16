@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "capability_id": "spectral-metrics-sensor",
+  "owner": "octopus-core",
+  "truth_status": "SHADOW",
+  "evidence_level": "SHADOW",
+  "runtime": {
+    "repo": "F:/backup",
+    "code_path": "_ops/doctor/spectral_metrics.py",
+    "entrypoint": "calculate_spectral_metrics",
+    "feature_flag": null,
+    "enabled": true
+  },
+  "authority": {
+    "allowed_effects": [],
+    "may_write_state": false,
+    "may_affect_routing": false,
+    "may_affect_policy": false,
+    "may_trigger_external_action": false
+  },
+  "evidence": {
+    "adr": "ADR-033",
+    "source_docs": [],
+    "tests": ["test_approval_state.py", "test_adr033_control_plane.py"],
+    "traces": ["_ops/state/criticality/criticality-v2.jsonl"],
+    "last_verified_at": "2026-08-11"
+  },
+  "promotion": {
+    "next_status": "ARMED",
+    "required_artifacts": ["shadow_trace_7_days", "owner_vote"],
+    "rollback_flag": null
+  }
+}

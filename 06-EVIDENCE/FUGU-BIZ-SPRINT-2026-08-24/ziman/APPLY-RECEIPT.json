@@ -1,0 +1,190 @@
+{
+  "stamp": "20260824T071628Z",
+  "result": "PASS",
+  "mode": "APPLY",
+  "gate": "OFN_ZIMAN_COPY_APPLY=1",
+  "pass_count": 11,
+  "fail_count": 0,
+  "planned_count": 11,
+  "fields_touched": [
+    "title",
+    "body_html",
+    "tags",
+    "seo_title(global.title_tag)",
+    "meta_desc(global.description_tag)"
+  ],
+  "fields_forbidden": [
+    "price",
+    "images",
+    "inventory"
+  ],
+  "no_of": true,
+  "no_tg": true,
+  "uploads": [
+    {
+      "sku": "ZM-GALLERY-0007",
+      "product_id": "8688854564964",
+      "result": "PASS",
+      "title_applied": "Red Balloon Box with White Roses, Cream Teddy & LED",
+      "tags_applied": "anniversary gift, Australia-wide delivery, birthday gift, cream teddy bear, handmade Sydney gift, LED gift box, red balloon box, romantic gift, white roses, Ziman",
+      "seo": {
+        "title_tag": "created:67954154864740",
+        "description_tag": "created:67954158141540"
+      },
+      "prices_unchanged": [
+        "75.00"
+      ],
+      "image_count_unchanged": 4
+    },
+    {
+      "sku": "ZM-GALLERY-0008",
+      "product_id": "8688854630500",
+      "result": "PASS",
+      "title_applied": "Cream Flower Basket with Brown Pearl Detailing",
+      "tags_applied": "birthday gift, brown pearl detail, cream flower basket, flower basket Australia, hand-arranged flowers, handmade Sydney gift, housewarming gift, Ziman handmade, سبد گل کرمی, هدیه دست‌ساز سیدنی",
+      "seo": {
+        "title_tag": "created:67954161582180",
+        "description_tag": "created:67954161614948"
+      },
+      "prices_unchanged": [
+        "50.00"
+      ],
+      "image_count_unchanged": 4
+    },
+    {
+      "sku": "ZM-GALLERY-0009",
+      "product_id": "8688854728804",
+      "result": "PASS",
+      "title_applied": "White & Blue Flower Basket",
+      "tags_applied": "Australian gifts, birthday gift, blue flowers, congratulations gift, flower basket, hand-arranged, Sydney handmade, thank you gift, white flowers, Ziman",
+      "seo": {
+        "title_tag": "created:67954163122276",
+        "description_tag": "created:67954166104164"
+      },
+      "prices_unchanged": [
+        "50.00"
+      ],
+      "image_count_unchanged": 2
+    },
+    {
+      "sku": "ZM-GALLERY-0010",
+      "product_id": "8688854794340",
+      "result": "PASS",
+      "title_applied": "Valentine Teddy Bear, Chocolate, Roses & Heart Balloons",
+      "tags_applied": "Australia-wide delivery, chocolate gift, handmade in Sydney, heart balloons, romantic gift, roses, teddy bear, Valentine gift, Valentine’s Day, Ziman gifts",
+      "seo": {
+        "title_tag": "created:67954180980836",
+        "description_tag": "created:67954182193252"
+      },
+      "prices_unchanged": [
+        "55.00"
+      ],
+      "image_count_unchanged": 1
+    },
+    {
+      "sku": "ZM-GALLERY-0011",
+      "product_id": "8688854827108",
+      "result": "PASS",
+      "title_applied": "Black & Gold Gift Box with Flowers, Balloons & Spirits Glass",
+      "tags_applied": "anniversary gift, Australia-wide shipping, birthday gift, black and gold gift, celebration gift box, flowers, gold balloons, handmade in Sydney, spirits glass",
+      "seo": {
+        "title_tag": "created:67954182553700",
+        "description_tag": "created:67954182619236"
+      },
+      "prices_unchanged": [
+        "80.00"
+      ],
+      "image_count_unchanged": 4
+    },
+    {
+      "sku": "ZM-GALLERY-0012",
+      "product_id": "8688854892644",
+      "result": "PASS",
+      "title_applied": "Cream Rose Wooden Gift Box with LED Bubble, Soft Toy & Vanilla Candle",
+      "tags_applied": "anniversary gift, Australia-wide delivery, birthday gift, cream roses, handmade Sydney, LED bubble balloon, soft toy, Sydney gifts, vanilla candle, wooden gift box, باکس هدیه, رز کرمی, شمع وانیلی",
+      "seo": {
+        "title_tag": "created:67954187075684",
+        "description_tag": "created:67954190352484"
+      },
+      "prices_unchanged": [
+        "60.00"
+      ],
+      "image_count_unchanged": 4
+    },
+    {
+      "sku": "ZM-GALLERY-0013",
+      "product_id": "8688854990948",
+      "result": "PASS",
+      "title_applied": "Kitty Bubble Balloon Gift Box with Pink Roses & Chocolates",
+      "tags_applied": "Australia-wide delivery, birthday gift, bubble balloon, chocolate gift box, handmade Sydney, Kitty gift, pink roses, Ziman gifts",
+      "seo": {
+        "title_tag": "created:67954197495908",
+        "description_tag": "created:67954197528676"
+      },
+      "prices_unchanged": [
+        "45.00"
+      ],
+      "image_count_unchanged": 3
+    },
+    {
+      "sku": "ZM-GALLERY-0014",
+      "product_id": "8688855056484",
+      "result": "PASS",
+      "title_applied": "Pink Teddy Bear LED Bubble Balloon Gift with Roses & Chocolates",
+      "tags_applied": "anniversary gift, Australia-wide delivery, birthday gift, bubble balloon, chocolate gift, LED gift, pink roses, pink teddy bear, romantic gift, Sydney handmade gifts",
+      "seo": {
+        "title_tag": "created:67954197561444",
+        "description_tag": "created:67954197594212"
+      },
+      "prices_unchanged": [
+        "110.00"
+      ],
+      "image_count_unchanged": 4
+    },
+    {
+      "sku": "ZM-GALLERY-0015",
+      "product_id": "8688855089252",
+      "result": "PASS",
+      "title_applied": "Hand-Arranged Gift Set for Her",
+      "tags_applied": "anniversary gift, Australia-wide delivery, birthday gift, gift for her, handmade Sydney, Mother’s Day gift, Women’s Day gift, روز زن, روز مادر, هدیه تولد, هدیه همسر",
+      "seo": {
+        "title_tag": "created:67954210668644",
+        "description_tag": "created:67954212765796"
+      },
+      "prices_unchanged": [
+        "100.00"
+      ],
+      "image_count_unchanged": 2
+    },
+    {
+      "sku": "ZM-GALLERY-0016",
+      "product_id": "8688855154788",
+      "result": "PASS",
+      "title_applied": "Blue Teddy Bear & Heart Gift Box",
+      "tags_applied": "Australia-wide delivery, birthday gift, blue gift box, handmade in Sydney, heart gift, love gift, Sydney gifts, teddy bear gift, باکس هدیه آبی, خرس عروسکی, هدیه دست‌ساز",
+      "seo": {
+        "title_tag": "created:67954213748836",
+        "description_tag": "created:67954213781604"
+      },
+      "prices_unchanged": [
+        "65.00"
+      ],
+      "image_count_unchanged": 3
+    },
+    {
+      "sku": "ZM-GALLERY-0017",
+      "product_id": "8688855253092",
+      "result": "PASS",
+      "title_applied": "Blue Roses in a Blue Basket",
+      "tags_applied": "Australia-wide delivery, blue basket, blue roses, flower arrangement, hand-arranged, handmade gift, Sydney gifts, رز آبی, سبد آبی, هدیه دست‌ساز",
+      "seo": {
+        "title_tag": "created:67954213912676",
+        "description_tag": "created:67954215420004"
+      },
+      "prices_unchanged": [
+        "50.00"
+      ],
+      "image_count_unchanged": 1
+    }
+  ]
+}

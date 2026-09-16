@@ -1,0 +1,111 @@
+{
+  "schema": "octopus-wave-a-source/2",
+  "base_head": "c7ec5f527243aa50b80bbdc5c790cebe4cb08854",
+  "files": [
+    {
+      "path": "_ops/RESTART-PROCESS.ps1",
+      "sha256": "424fb8cc7d8940f291e43c141af8a2d1b9d6792e0e7169e4429fdcffe7c953fc",
+      "size": 15272
+    },
+    {
+      "path": "_ops/RUN-ORGANISM.bat",
+      "sha256": "eeef99c2e1dcbb824d14f451715e3e26929860b8ce441d92afd98302df8d83b8",
+      "size": 3738
+    },
+    {
+      "path": "_ops/telegram_center/RUN-TG-CENTER.bat",
+      "sha256": "13d447e91aeeb6633565a3ffaaa6077f0e6a51fcfc9a4065d12fc5e9312ca6d9",
+      "size": 1332
+    },
+    {
+      "path": "_ops/telegram_center/bounded_io.py",
+      "sha256": "e2b0e081335a6b02f96058b8a8231b55ef98262eec4fa228eab4b1758c37fb93",
+      "size": 2490
+    },
+    {
+      "path": "_ops/telegram_center/center.py",
+      "sha256": "9209db2b64c85414e24e9a994e85337da1d3ca0f298ca7242f2b19a1b4f73ced",
+      "size": 397216
+    },
+    {
+      "path": "_ops/telegram_center/health_metrics.py",
+      "sha256": "9f8ddc730984bda75acac4ecc440eadf3c2c7452c929cac80a8a44c9820f853b",
+      "size": 10658
+    },
+    {
+      "path": "_ops/telegram_center/tg_api.py",
+      "sha256": "7b015c05ee55da47c7800e7b3383fcec8b47454ec219b186daa1b097661b4af0",
+      "size": 58221
+    },
+    {
+      "path": "_ops/telegram_center/transport_pool.py",
+      "sha256": "a3a05370ced2b3b1cb94d553c8b88342ae098f08e6099560e7a5c0eb9ab6dc89",
+      "size": 10084
+    },
+    {
+      "path": "_ops/telegram_center/poll_lease.py",
+      "sha256": "f1931e1fc7f5dd64de8f14c0282b9b6dfd3f768fe6be13783b6b691103b4e578",
+      "size": 21442
+    },
+    {
+      "path": "_ops/telegram_center/transport_subprocess.py",
+      "sha256": "a9438ccfe0e464e4d04c3c3cac56aacb229831f8d0226ab3a53c933933ca377b",
+      "size": 783
+    },
+    {
+      "path": "_ops/tests/run_all.py",
+      "sha256": "c89c480bf51453dfc0c4bb7a1016cb7b30c5c557877e77d72a2039917f89f3ee",
+      "size": 179681
+    },
+    {
+      "path": "_ops/tests/generate_test_node_map.py",
+      "sha256": "666252d2d3328e36033ac4562e9e4dab5cc97a05ab0783d117dcadff03fe3c30",
+      "size": 5438
+    },
+    {
+      "path": "_ops/tests/test_bounded_read.py",
+      "sha256": "285414486780964e4b6d2fbd298f49b8f0b8222473f76411eff4bce40bcd25ec",
+      "size": 9346
+    },
+    {
+      "path": "_ops/tests/test_launcher_state_dir_scrub.py",
+      "sha256": "afb8da282e79808ea7acb49657178f4f423b08fec2b3647a9ad5052c0ad74786",
+      "size": 1727
+    },
+    {
+      "path": "_ops/tests/test_poll_lease.py",
+      "sha256": "7c8faa030834a6ce140c7e47b5d31f2e444b9e4b7077c16c1796d4a3a92cece4",
+      "size": 8428
+    },
+    {
+      "path": "_ops/tests/test_poller_lease_20260821.py",
+      "sha256": "82c9074b9edbb11b76fa41234dadbc01378a4070e7bf53c407c47c9d03898911",
+      "size": 5697
+    },
+    {
+      "path": "_ops/tests/test_test_node_map.py",
+      "sha256": "304e2858bf3b86af5f2da908aeabedb1f4549752515b4f66d03a0fd9243c31b5",
+      "size": 1843
+    },
+    {
+      "path": "_ops/tests/test_tg_api.py",
+      "sha256": "ab34a2b7b02c884c875035902c2cd92c05b0f2202fc4e314016ae98cbd9229d9",
+      "size": 33670
+    },
+    {
+      "path": "_ops/tests/test_transport_pool_20260821.py",
+      "sha256": "73f5d874eb810eb1e8c5c6c0c96b529d8caa25f5168ac19249906a462d4ef7ca",
+      "size": 6328
+    },
+    {
+      "path": "_ops/tests/test_transport_subprocess.py",
+      "sha256": "a868438ecc32258e7c7b063f546c901d97a9ed19feb8cf966d08fd193c986ed9",
+      "size": 4435
+    },
+    {
+      "path": "_ops/tests/test_wave_f_battery_20260821.py",
+      "sha256": "7e5736b2a257fb7bda6c16e166469f9220297d843fa14db9cdc4c084236594a5",
+      "size": 11079
+    }
+  ]
+}

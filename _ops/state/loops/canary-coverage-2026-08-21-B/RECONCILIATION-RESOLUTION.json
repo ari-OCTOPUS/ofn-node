@@ -1,0 +1,29 @@
+{
+  "schema": "telegram-delivery-truth-resolution/1",
+  "generated_at": "2026-08-21T06:05:00Z",
+  "window": "CANARY-COVERAGE-20260821-B (independent debt, not part of window C closure)",
+  "rule_applied": "bounded reconciliation: transport evidence searched (none — no message_id exists); owner-side visibility recorded as immutable OWNER_OBSERVED_UNCONFIRMED_API; no message_id invented; never auto-resent",
+  "resolved_items": [
+    {
+      "update_id": 223883344,
+      "event_id": "tg:223883344",
+      "message_key": "3a8e60bf162c3474f74b1b3608ed4f7f622b5cd3",
+      "canary_command": "CANARY-03 MEMORY-STATUS",
+      "final_truth": "OWNER_OBSERVED_UNCONFIRMED_API",
+      "evidence": "owner pasted report for CANARY-COVERAGE-20260821-B claimed delivery_ok=5/readbacks=5 (owner-side visibility); API message_id absent",
+      "never_resent": true
+    },
+    {
+      "update_id": 223883346,
+      "event_id": "tg:223883346",
+      "message_key": "948643b4748d5cb63d4a36fba53e19cfd7f11b85",
+      "canary_command": "CANARY-05 CLOSE",
+      "final_truth": "OWNER_OBSERVED_UNCONFIRMED_API",
+      "evidence": "owner pasted report for CANARY-COVERAGE-20260821-B claimed delivery_ok=5/readbacks=5 (owner-side visibility); API message_id absent",
+      "never_resent": true
+    }
+  ],
+  "queue_state": "reconciliation-queue.jsonl: 2 items resolved (owner_observed=2), 0 pending, 0 dead_lettered",
+  "original_artifacts_immutable": "DELIVERY-TRUTH-RECONCILIATION.json unchanged; this file is the resolution record",
+  "distinction": "OWNER_OBSERVED_UNCONFIRMED_API is NOT DELIVERY_CONFIRMED — transport confirmation requires a message_id + successful readback, which does not exist for 344/346"
+}

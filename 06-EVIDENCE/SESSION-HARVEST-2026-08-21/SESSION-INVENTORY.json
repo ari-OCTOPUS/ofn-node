@@ -1,0 +1,137 @@
+{
+ "session_id": "SESSION-20260820-21",
+ "baseline": "9bc506f",
+ "accepted_checkpoint": "0ad6f53",
+ "current_head": "e8b74150df792e06d1c58f90c2d14e964ff5b87c",
+ "baseline_is_ancestor": true,
+ "commits": [
+  {
+   "hash": "e8b7415",
+   "message": "agent-checkpoint: post-closure continue order — owner acceptance in decision ledger; S-T02 event_bridge canary"
+  },
+  {
+   "hash": "0ad6f53",
+   "message": "agent-checkpoint: TELEGRAM-COMMAND-COVERAGE PRODUCTION_CLOSED — window C 5/5 strict sequence via runtime-wired"
+  },
+  {
+   "hash": "b30fd04",
+   "message": "agent-checkpoint: final coverage canary window armed — CANARY-COVERAGE-20260821-C nonce a2a4a01832484d6d, guar"
+  },
+  {
+   "hash": "2acff7b",
+   "message": "agent-checkpoint: post-restart closure — RUNNING-CODE-DRIFT PRODUCTION_CLOSED (manifest hashes match HEAD, 3 h"
+  },
+  {
+   "hash": "710cb45",
+   "message": "agent-checkpoint: stage canary_window observe extensions (update_id idempotency, payload binding) and verifier"
+  },
+  {
+   "hash": "f37eb98",
+   "message": "agent-checkpoint: strict canary guard wired into center (observe after auth, before intent), delivery truth st"
+  },
+  {
+   "hash": "8fd7c72",
+   "message": "agent-checkpoint: dark_capabilities sig-keyed TTL cache (5.5s->0s, write-invalidating) + slow-suite budgets + "
+  },
+  {
+   "hash": "0603fff",
+   "message": "agent-checkpoint: lanes status — center restarted again (PID 23568) with event_bridge outbox-first on; full-su"
+  },
+  {
+   "hash": "ef2ff2f",
+   "message": "agent-checkpoint: telegram cockpit commands (loops/task/receipts/dlq/memory_status/brain_status/pause/resume+n"
+  },
+  {
+   "hash": "84a8a96",
+   "message": "agent-checkpoint: root cause of run_all timeout fixed — self_insight.card() journal-based (was 130s scan per r"
+  },
+  {
+   "hash": "ca4465c",
+   "message": "agent-checkpoint: open-loops reflects lane C/D/E in-progress status"
+  },
+  {
+   "hash": "6dcbfe2",
+   "message": "agent-checkpoint: lane H capability inventory (10 capabilities, 0 falsely verified); lanes F/G remain lease-wa"
+  },
+  {
+   "hash": "65d9697",
+   "message": "agent-checkpoint: verifier regenerated against final hashes; lanes F/G remain WAITING_LEASE (concurrent writer"
+  },
+  {
+   "hash": "e3040f3",
+   "message": "agent-checkpoint: continuous lanes B/C/D/E — wave1 authority, event_bridge outbox-first (3/3), receipt truth l"
+  },
+  {
+   "hash": "73c495d",
+   "message": "agent-checkpoint: canary baseline reconciled to af12d5e + manifest (READY_TO_ARM=false, token/allowlist pendin"
+  },
+  {
+   "hash": "af12d5e",
+   "message": "agent-checkpoint: fear CONTAINED_VERIFIED + owner verification run (instant 15/15, shadow 10/10, direct_sends="
+  },
+  {
+   "hash": "913cbcf",
+   "message": "agent-checkpoint: telegram-e2e-shadow-closed"
+  },
+  {
+   "hash": "99eea71",
+   "message": "agent-checkpoint: contain unowned fear alert (outbox-only) + TEST_ONLY telegram shadow roundtrip; live event-t"
+  },
+  {
+   "hash": "7836627",
+   "message": "agent-checkpoint: LOOP-TELEGRAM-PROBE-INVALID — stop heartbeat spam; beat excluded from push identity; STOP-TG"
+  }
+ ],
+ "commit_count": 19,
+ "changed_files_count": 158,
+ "changed_files_top_level": {
+  "00 - Inbox": 1,
+  "01 - Dashboard": 1,
+  "06-EVIDENCE": 11,
+  "_ops": 145
+ },
+ "evidence_sources": [
+  "_ops/state/loops/LOOP-REGISTRY.json(.jsonl)",
+  "_ops/state/loops/TELEGRAM-CANARY-AUTHORITATIVE-VERDICT.json",
+  "_ops/state/loops/canary-audit-2026-08-21/",
+  "_ops/state/loops/canary-coverage-2026-08-21-B/",
+  "_ops/state/loops/canary-coverage-2026-08-21-C/",
+  "_ops/state/loops/TELEGRAM-WINDOW-C-VERDICT.json",
+  "_ops/state/loops/RUNNING-CODE-MANIFEST-2026-08-21.json",
+  "_ops/state/loops/EVENT-BRIDGE-CANARY-2026-08-21.json",
+  "_ops/state/telegram/loop/events/",
+  "_ops/state/telegram/loop/outbox/",
+  "_ops/state/telegram/loop/reconciliation-queue.jsonl",
+  "_ops/state/waves/WAVE1-PREFLIGHT-2026-08-21.json",
+  "_ops/state/decisions/decision-record.jsonl",
+  "_ops/state/coordination/BLOCKER-QUEUE.jsonl",
+  "_ops/state/coordination/LANES.json",
+  "_ops/state/loops/TRIAGE-51-FAILURES-2026-08-21.md",
+  "_ops/state/loops/execution-manifest.jsonl",
+  "_ops/tests/run_all.py",
+  "_ops/telegram_center/verify_production_canary.py"
+ ],
+ "loop_registry_sources": [
+  "_ops/state/loops/LOOP-REGISTRY.json",
+  "_ops/state/loops/LOOP-REGISTRY.jsonl"
+ ],
+ "wave_sources": [
+  "_ops/state/waves/WAVE0-APPEND-ONLY-MANIFEST.json",
+  "_ops/state/waves/WAVE1-AUTHORITY.json",
+  "_ops/state/waves/WAVE1-PREFLIGHT-2026-08-21.json",
+  "_ops/state/loops/WAVE1-ENTRY-PREFLIGHT.md"
+ ],
+ "test_sources": [
+  "_ops/tests/test_canary_window.py",
+  "_ops/tests/test_telegram_verdict_conflict.py",
+  "_ops/tests/test_telegram_durable_loop.py",
+  "_ops/tests/test_delivery_reconciliation.py",
+  "_ops/tests/test_telegram_closed_loop_20260820.py",
+  "_ops/tests/test_wave0_append_only_gate.py"
+ ],
+ "limitations": [
+  "no raw chat payloads stored",
+  "no tokens stored",
+  "verdict scopes are authoritative"
+ ]
+}

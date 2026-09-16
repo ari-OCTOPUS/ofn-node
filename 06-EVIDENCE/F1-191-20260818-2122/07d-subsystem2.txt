@@ -1,0 +1,38 @@
+=== /sh raw shell refs ===
+_ops\telegram_center\center.py:3213:            "/sh": lambda: self._shell_cmd(text),
+_ops\tests\test_raw_shell_capability.py:151:    assert '"/sh"' in src, "فرمانِ /sh در جدولِ handlerها ثبت نشده"
+_ops\_bak\talk-discovery-arm-20260811-202354\telegram_center\center.py:3161:            "/sh": lambda: self._shell_cmd(text),
+
+=== executor A0/A1/A2 refs ===
+_ops\control_contracts.py
+_ops\context_bundle.py
+_ops\chrono.py
+_ops\decision_gate.py
+_ops\goal_action_bridge.py
+_ops\owner_verdicts.py
+_ops\receipt_critic.py
+_ops\action_bridge\planner.py
+_ops\goal_action_bridge.py:452:    #   A0 (مشاهده) از هر دو گیت معاف است. A2 اجرای خودکار **همچنان BLOCK** است
+_ops\action_bridge\executor.py:9:هر چیز دیگری — A2 تا A6 — بدونِ استثنا به رسیدِ `BLOCKED`/`REJECTED` می‌رسد و
+_ops\action_bridge\tests\test_classifier.py:49:    assert classifier.decide("A2") == "BLOCK"
+_ops\action_bridge\integration.py:42:        "A2 همچنان BLOCK (VQ-SELFGOAL-002) · A4/A5 ساختاراً بی‌مسیر · A6 هرگز"
+_ops\action_bridge\classifier.py:173:# این جدول **سیاستِ این دور** است، نه قانونِ ابدی: A2 عمداً BLOCK است چون
+_ops\action_bridge\classifier.py:179:    "A2": "BLOCK",       # BLOCKED_BY_SAFETY تا رأیِ حاکمیتی
+
+=== key dirs mtime ===
+2026-08-18T03:20|11 files-today|octopus-bridge
+2026-08-03T17:41|21 files-today|nervous-system
+2026-08-16T14:07|1 files-today|_memory
+2026-08-12T21:40|0 files-today|_ops/live
+2026-08-16T22:49|0 files-today|_ops/cortex
+2026-08-16T16:42|0 files-today|_ops/board_cp
+2026-08-15T20:41|0 files-today|_ops/telegram_center
+2026-08-16T15:39|2 files-today|4d_system/brain
+
+=== daemon.py exists ===
+-rw-r--r-- 1 Armin 197121 45070 Aug 15 22:37 4d_system/brain/automation.py
+-rw-r--r-- 1 Armin 197121 14303 Jul 15 14:28 4d_system/brain/daemon.py
+
+=== phantom docs formal recheck ===
+NOT_FOUND|OCTOPUS-200-CHECKLIST-2026-08-15.md
+NOT_FOUND|OBSIDIAN-REBUILD-MEGAPROMPT-2026-08-15.md

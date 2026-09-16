@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "octopus:world_discovery:now-input-manifest:v1",
+  "title": "docs/NOW.md Input Manifest (frozen)",
+  "description": "Closes the provenance leak: docs/NOW.md may be generated ONLY from inputs listed in a manifest conforming to this schema. Runbook prose, model chat output, and merged-model text are NEVER valid NOW inputs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "generated_for", "generated_at_utc", "inputs"],
+  "properties": {
+    "schema": { "const": "octopus:world_discovery:now-input-manifest:v1" },
+    "generated_for": {
+      "type": "string",
+      "description": "Target doc generation label, e.g. NOW-2026-08-18T2100Z."
+    },
+    "generated_at_utc": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
+    "generator": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["input_id", "source_kind", "path", "sha256", "collected_at_utc"],
+        "properties": {
+          "input_id": {
+            "type": "string",
+            "description": "Referenced by NOW.md field rows via verification_command_id / source_artifact."
+          },
+          "source_kind": {
+            "enum": [
+              "RUNTIME_ARTIFACT",
+              "CODE_TEST_OUTPUT",
+              "GIT_HASH",
+              "CONFIG_HASH",
+              "OWNER_DECISION",
+              "CONTRADICTION_REGISTER",
+              "UNKNOWN_REGISTER",
+              "EVIDENCE_ENVELOPE"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "Repo-relative or absolute path. For OWNER_DECISION: the binding record file (e.g. 06-EVIDENCE/sensorium-d14-verify-2026-08-18/OWNER-DECISIONS.md D5)."
+          },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "collected_at_utc": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
+          "covers_field_ids": {
+            "type": "array",
+            "items": { "$ref": "octopus:world_discovery:discovery-evidence:v1#/definitions/field_id" }
+          }
+        }
+      }
+    },
+    "excluded_by_policy": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Record of inputs considered and rejected (e.g. 'RUNBOOK-BOARD-138.merged.md — runbook prose forbidden as NOW input')."
+    }
+  }
+}

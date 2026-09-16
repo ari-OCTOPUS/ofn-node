@@ -1,0 +1,131 @@
+{
+  "schema": "octopus.homeo-mirror-align.receipt.v1",
+  "id": "OCTOPUS-HOMEO-MIRROR-ALIGN-2026-08-23",
+  "written_at_utc": "20260823T044325Z",
+  "overall": "PASS_WITH_HOLDS",
+  "align_pass": true,
+  "before": {
+    "homeo_actuator_authority": "NONE",
+    "snap_actuator_authority": "PERMITTED_SOFTWARE_A0",
+    "board_lines": [
+      "  safety_state: SOFTWARE_ONLY",
+      "  actuator_authority: PERMITTED_SOFTWARE_A0",
+      "  estop_channel: SOFTWARE_LATCH"
+    ]
+  },
+  "after": {
+    "homeo_actuator_authority": "PERMITTED_SOFTWARE_A0",
+    "homeo_estop_channel": "SOFTWARE_LATCH",
+    "metacontrol_actuator_authority": "PERMITTED_SOFTWARE_A0",
+    "authority_mirror": {
+      "source": "/var/lib/octopus/state/snapshots/snapshot-20260823T043732Z.json",
+      "soft_unlock_ok": true,
+      "ARMED": false,
+      "note": "mirrored_soft_unlock"
+    },
+    "ARMED": false
+  },
+  "soak": {
+    "schema": "octopus.soak.homeo-mirror-align.v1",
+    "id": "HOMEO-MIRROR-ALIGN-SOAK-20260823",
+    "duration_sec": 300,
+    "samples": 11,
+    "status": "DEGRADED",
+    "holds": [
+      "homeo_ok_not_fully_true_in_second_half"
+    ],
+    "first": {
+      "t": "2026-08-23T04:37:54Z",
+      "homeo_auth": "PERMITTED_SOFTWARE_A0",
+      "homeo_estop": "SOFTWARE_LATCH",
+      "homeo_ok": true,
+      "in_envelope": true,
+      "meta_auth": "PERMITTED_SOFTWARE_A0",
+      "snap_auth": "PERMITTED_SOFTWARE_A0",
+      "snap_bus": "CONNECTED",
+      "armed": false
+    },
+    "last": {
+      "t": "2026-08-23T04:42:56Z",
+      "homeo_auth": "PERMITTED_SOFTWARE_A0",
+      "homeo_estop": "SOFTWARE_LATCH",
+      "homeo_ok": false,
+      "in_envelope": true,
+      "meta_auth": "PERMITTED_SOFTWARE_A0",
+      "snap_auth": "PERMITTED_SOFTWARE_A0",
+      "snap_bus": "CONNECTED",
+      "armed": false
+    },
+    "homeo_ok_true_ratio": 0.8181818181818182,
+    "ARMED": false
+  },
+  "doctor": {
+    "doctor_status": "PASS",
+    "blocking_failed_ids": [],
+    "authority_checks": [
+      {
+        "schema": "octopus.doctor-check.v1",
+        "check_id": "policy_mode",
+        "category": "authority",
+        "severity": "blocking",
+        "observed": {
+          "profile": "WAVE0_OBSERVE_ONLY",
+          "actuator_authority": "PERMITTED_SOFTWARE_A0"
+        },
+        "expected": {
+          "profile": "WAVE0_OBSERVE_ONLY",
+          "actuator_authority": "NONE|PERMITTED_SOFTWARE_A0"
+        },
+        "evidence_path": "/var/lib/octopus/state/homeostasis/latest.json",
+        "read_only": true,
+        "passed": true,
+        "remediation_owner": "owner",
+        "remediation_type": "none",
+        "source_command": null,
+        "source_digest": null,
+        "reason": null
+      },
+      {
+        "schema": "octopus.doctor-check.v1",
+        "check_id": "actuator_authority",
+        "category": "authority",
+        "severity": "blocking",
+        "observed": {
+          "homeostasis": "PERMITTED_SOFTWARE_A0",
+          "reflex_armed": false,
+          "estop_channel": "SOFTWARE_LATCH"
+        },
+        "expected": {
+          "homeostasis": "NONE|PERMITTED_SOFTWARE_A0",
+          "reflex_armed": false
+        },
+        "evidence_path": "/var/lib/octopus/state/homeostasis/latest.json",
+        "read_only": true,
+        "passed": true,
+        "remediation_owner": "owner",
+        "remediation_type": "none",
+        "source_command": null,
+        "source_digest": null,
+        "reason": null
+      }
+    ]
+  },
+  "HARD_LOCKS": {
+    "ARMED": false,
+    "PWM": false,
+    "physical_estop_buy": false
+  },
+  "CHANGED": [
+    "homeo/metacontrol actuator_authority mirror now reads board/snapshot soft unlock (PERMITTED_SOFTWARE_A0 + SOFTWARE_LATCH)",
+    "CON-R005 / policy_safety / doctor accept Wave0 soft unlock SoT",
+    "ARMED remains false; may_actuate still false"
+  ],
+  "HOLDS": [
+    "homeo_ok still intermittently false (evidence freshness envelope; unrelated to authority mismatch)",
+    "physical estop still ABSENT"
+  ],
+  "paths": {
+    "laptop": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HOMEO-MIRROR-ALIGN-2026-08-23\\\\",
+    "pi": "/var/lib/octopus/evidence/session-homeo-mirror-align-20260823/"
+  }
+}

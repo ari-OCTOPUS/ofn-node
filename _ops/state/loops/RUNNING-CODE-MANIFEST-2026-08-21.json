@@ -1,0 +1,45 @@
+{
+ "schema": "running-code-manifest/1",
+ "generated_at": "2026-08-21T05:30:00Z",
+ "commit": "710cb45",
+ "center_pid_before": 23568,
+ "center_pid_after": 29492,
+ "port_8776_owner": 29492,
+ "last_offset": 223883347,
+ "healthy_cycles": 3,
+ "consecutive_failures": 0,
+ "guard_wired_at_runtime": true,
+ "reason": "center 29492 started after commit f37eb98; canary_window/verifier finalized at 710cb45 with no code change after restart (working tree == HEAD); canary_window.observe is called in center.run_once before durable intent",
+ "files": [
+  {
+   "path": "_ops/telegram_center/center.py",
+   "sha256": "a43e54d2d59c93065550d2ee9ad33e0f04f8d2bf992711cca76d8a2f35374670",
+   "matches_committed_head": true
+  },
+  {
+   "path": "_ops/telegram_center/canary_window.py",
+   "sha256": "eefeda01a30c5b41f9bea380bc4278b52ce2e832dc7df27895b842a581764924",
+   "matches_committed_head": true
+  },
+  {
+   "path": "_ops/telegram_center/durable_loop.py",
+   "sha256": "dee5abe03954b7b75e409792b7783ba7cadefcae955b4deeeb2424ba1c559945",
+   "matches_committed_head": true
+  },
+  {
+   "path": "_ops/telegram_center/delivery_reconciliation.py",
+   "sha256": "fa67d8c367561814853d52da91a1639606ee110bce11877f33186d858cbb7f61",
+   "matches_committed_head": true
+  },
+  {
+   "path": "_ops/owner_console/telegram_adapter.py",
+   "sha256": "6fecbf3ac2f5c041c39d9df1ba294410813e3a8b1983e9179f90da4e85ab7b66",
+   "matches_committed_head": true
+  },
+  {
+   "path": "_ops/organs/paths.py",
+   "sha256": "bb5c8bb9fb99208077872975a522bf2c4e074f8be08d62b612f03798ea240f11",
+   "matches_committed_head": true
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+{
+  "durable_reply.py": {
+    "sha256": "c280fd1f6e988c924a87cc576e5674a1361d3c28d11ad8db25e68cda92bc4236",
+    "bytes": 10458
+  },
+  "test_failure_injection.py": {
+    "sha256": "27af50ce0ac50868627aa17331615e850b19320401793c2948cee091fab10952",
+    "bytes": 10362
+  },
+  "BASE_COMMIT": "441af7632dd6e248ccdb4b95f08aebf4f0cca2d6",
+  "PATCH_COMMIT": "8fe57d68dc595c19df953d09744166ba8b15f97a",
+  "PARENT_PATCH": "557b6b485a8dfbf671800970a94e6b4a452c5fac"
+}

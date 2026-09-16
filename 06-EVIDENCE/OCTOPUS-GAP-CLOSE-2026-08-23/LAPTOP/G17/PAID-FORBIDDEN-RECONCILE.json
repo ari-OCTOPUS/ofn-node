@@ -1,0 +1,9 @@
+﻿{
+    "stamp_local":  "2026-08-23T09:11:15+10:00",
+    "policy":  "paid remains FORBIDDEN; CORTEX-PAID live flag removed",
+    "writer_lock_forbidden_actions_includes_paid_call":  true,
+    "wiring_paid_calls":  0,
+    "cortex_paid":  "CLOSED/OFF",
+    "supersede":  "SUPERSEDE-PAID-FORBIDDEN-2026-08-23.json",
+    "do_not":  "do not unlock paid"
+}

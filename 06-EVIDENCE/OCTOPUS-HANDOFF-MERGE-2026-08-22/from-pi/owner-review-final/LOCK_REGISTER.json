@@ -1,0 +1,579 @@
+{
+  "schema": "octopus.lock-register.v1",
+  "written_at": "2026-08-17T03:49:18.866833+00:00",
+  "default_decision": "KEEP_LOCKED",
+  "lock_count": 24,
+  "any_safe_to_unlock": false,
+  "locks": [
+    {
+      "lock_id": "LOCK-ACTUATOR-AUTHORITY",
+      "purpose": "Keep actuator_authority=NONE",
+      "required_evidence": [
+        "homeostasis.actuator_authority=NONE",
+        "reflex.armed=false",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "homeostasis.actuator_authority=NONE",
+        "reflex.armed=false"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-EXECUTABLE",
+      "purpose": "Keep executable=false on every Wave 0 decision",
+      "required_evidence": [
+        "metacontrol.executable=false",
+        "policy NO_ACTION_OBSERVE_ONLY",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "metacontrol.executable=false",
+        "policy NO_ACTION_OBSERVE_ONLY"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-REFLEX-ARMING",
+      "purpose": "Reflex A0 must not arm",
+      "required_evidence": [
+        "ARMED.json armed=false",
+        "execute_enabled=false",
+        "criteria owner_approval=required",
+        "14 observation days",
+        "GAP-001 PASS",
+        "GAP-002 CLOSED",
+        "registry v6 live",
+        "rollback drill",
+        "OA for A0"
+      ],
+      "evidence_found": [
+        "ARMED.json armed=false",
+        "execute_enabled=false",
+        "criteria owner_approval=required"
+      ],
+      "evidence_missing": [
+        "14 observation days",
+        "GAP-001 PASS",
+        "GAP-002 CLOSED",
+        "registry v6 live",
+        "rollback drill",
+        "OA for A0"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-PLANNER-LIVE",
+      "purpose": "No live planner import or invocation",
+      "required_evidence": [
+        "AST: live scripts do not import planner",
+        "planner_invocations=0",
+        "candidate WM",
+        "OA for planning"
+      ],
+      "evidence_found": [
+        "AST: live scripts do not import planner",
+        "planner_invocations=0"
+      ],
+      "evidence_missing": [
+        "candidate WM",
+        "OA for planning"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-POLICY-NO-ACTION",
+      "purpose": "Policy must return only NO_ACTION_OBSERVE_ONLY",
+      "required_evidence": [
+        "world_model/policy.py choose_action hard-coded",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "world_model/policy.py choose_action hard-coded"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-GPIO-PWM",
+      "purpose": "No GPIO/PWM actuation",
+      "required_evidence": [
+        "boot G9 octopus pwm export not writable",
+        "leg_authority=DENIED",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match",
+        "hardware actuator contract"
+      ],
+      "evidence_found": [
+        "boot G9 octopus pwm export not writable",
+        "leg_authority=DENIED"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match",
+        "hardware actuator contract"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-MQTT",
+      "purpose": "MQTT stays DISABLED",
+      "required_evidence": [
+        "boot mqtt_state=DISABLED",
+        "mqtt_1883_open=false",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "boot mqtt_state=DISABLED",
+        "mqtt_1883_open=false"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-LEG",
+      "purpose": "No leg commands / NATS user leg01",
+      "required_evidence": [
+        "leg_authority=DENIED",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "leg_authority=DENIED"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-REBOOT",
+      "purpose": "No experimental reboot",
+      "required_evidence": [
+        "this session mutations=0",
+        "no shutdown issued",
+        "GAP-001 cryptographic PASS still missing; reboot not authorized here"
+      ],
+      "evidence_found": [
+        "this session mutations=0",
+        "no shutdown issued"
+      ],
+      "evidence_missing": [
+        "GAP-001 cryptographic PASS still missing; reboot not authorized here"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-SERVICE-RESTART",
+      "purpose": "No service restart this session",
+      "required_evidence": [
+        "executed_actions=0",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "executed_actions=0"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-REGISTRY-WRITE",
+      "purpose": "No unsigned registry write",
+      "required_evidence": [
+        "apply_signed_inbound requires Ed25519",
+        "live registry v5 signed",
+        "Windows-signed Registry v6 bundle"
+      ],
+      "evidence_found": [
+        "apply_signed_inbound requires Ed25519",
+        "live registry v5 signed"
+      ],
+      "evidence_missing": [
+        "Windows-signed Registry v6 bundle"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-HOST-MUTATION",
+      "purpose": "No drop_caches/cpufreq/kill/network manipulation",
+      "required_evidence": [
+        "reflex execute_enabled=false",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "reflex execute_enabled=false"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-LAN-NEW-ENDPOINTS",
+      "purpose": "No new LAN listeners",
+      "required_evidence": [
+        "ss: no :8080/:9464",
+        "9101 loopback-only",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "ss: no :8080/:9464",
+        "9101 loopback-only"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-METRICS-LOOPBACK",
+      "purpose": "Metrics remain 127.0.0.1:9101",
+      "required_evidence": [
+        "ss tcp 127.0.0.1:9101",
+        "bind.conf",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "ss tcp 127.0.0.1:9101",
+        "bind.conf"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-FASTAPI-DOCKER-LAB",
+      "purpose": "Do not deploy FastAPI/docker lab on board",
+      "required_evidence": [
+        "docker not running",
+        "shadow-validation disabled",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "docker not running",
+        "shadow-validation disabled"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-SYNTHETIC-LIVE-INJECTION",
+      "purpose": "No synthetic samples in live skill",
+      "required_evidence": [
+        "synthetic_live_leaks=0"
+      ],
+      "evidence_found": [
+        "synthetic_live_leaks=0"
+      ],
+      "evidence_missing": [],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-MISSING-DATA-IMPUTATION",
+      "purpose": "Missing skill/calibration stay UNKNOWN",
+      "required_evidence": [
+        "homeostasis unknown=[model_skill,prediction_calibration]"
+      ],
+      "evidence_found": [
+        "prediction_calibration UNKNOWN / not zero-filled",
+        "sensor_coverage critical not imputed to 1.0",
+        "skill 0.0 is persistence identity, not a missing-data fill"
+      ],
+      "evidence_missing": [],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-GAP-002-CLOSE-ON-BOARD",
+      "purpose": "Do not close GAP-002 on board",
+      "required_evidence": [
+        "status=DEFERRED_TO_WAVE1",
+        "unsigned export only",
+        "laptop root-v2 signature matching live head"
+      ],
+      "evidence_found": [
+        "GAP-002 CLOSED_BY_SIGNED_CHECKPOINT",
+        "signature verified with live root.pub",
+        "creates_authority=false"
+      ],
+      "evidence_missing": [
+        "laptop root-v2 signature matching live head"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-ROOT-V2-ON-BOARD",
+      "purpose": "Board never signs; never invents signatures",
+      "required_evidence": [
+        "sign_checkpoint.py is Windows-only",
+        "no private key on board"
+      ],
+      "evidence_found": [
+        "sign_checkpoint.py is Windows-only",
+        "no private key on board"
+      ],
+      "evidence_missing": [],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-AUTHORITY-TRANSITION",
+      "purpose": "Two-key transition T7+ forbidden this session",
+      "required_evidence": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match",
+        "Doctor PASS",
+        "GAP-001 PASS_WITH_EVIDENCE",
+        "GAP-002 CLOSED",
+        "usable_pairs>=50",
+        "candidate skill_lower_bound>0",
+        "rollback drill"
+      ],
+      "evidence_found": [
+        "no OA artifact (OA-T7 not issued)",
+        "usable_pairs>=50 (accumulation only)",
+        "Doctor FAIL",
+        "GAP-001 OPEN/TESTED_FAIL",
+        "GAP-002 unsigned",
+        "T4 NOT_EXECUTED_NO_CANDIDATE"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match",
+        "Doctor PASS",
+        "GAP-001 PASS_WITH_EVIDENCE",
+        "GAP-002 CLOSED",
+        "candidate skill_lower_bound>0",
+        "rollback drill"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-DOCTOR-AUTO-REPAIR",
+      "purpose": "Doctor must not repair",
+      "required_evidence": [
+        "octopus_doctor_readonly.py repairs_attempted=0"
+      ],
+      "evidence_found": [
+        "octopus_doctor_readonly.py repairs_attempted=0"
+      ],
+      "evidence_missing": [],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-CANDIDATE-WM-LIVE",
+      "purpose": "No live candidate world model",
+      "required_evidence": [
+        "live model persistence-v1 predictor_shadow",
+        "octopus-shadow-validation disabled",
+        "T4 candidate eval off-path",
+        "50 pairs vs persistence"
+      ],
+      "evidence_found": [
+        "live model persistence-v1 predictor_shadow",
+        "octopus-shadow-validation disabled",
+        "usable_pairs>=50 vs persistence (score=0.0 model_is_the_baseline)"
+      ],
+      "evidence_missing": [
+        "T4 candidate eval off-path with action x state; baseline held fixed"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-A0-ADVISORY-ARMING",
+      "purpose": "T7 A0 advisory arming not executed",
+      "required_evidence": [
+        "T7 not in scope",
+        "reflex armed=false",
+        "signed OA-T7",
+        "T1 PASS",
+        "Doctor PASS"
+      ],
+      "evidence_found": [
+        "T7 not in scope",
+        "reflex armed=false",
+        "OA-T7 not issued"
+      ],
+      "evidence_missing": [
+        "signed OA-T7",
+        "Doctor PASS",
+        "GAP-001 PASS_WITH_EVIDENCE",
+        "candidate skill_lower_bound>0"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    },
+    {
+      "lock_id": "LOCK-SHADOW-VALIDATION-ENABLE",
+      "purpose": "Do not enable torch/:9464/shadow unit",
+      "required_evidence": [
+        "unit enabled=false active=inactive",
+        "torch_enabled=false",
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "evidence_found": [
+        "unit enabled=false active=inactive",
+        "torch_enabled=false"
+      ],
+      "evidence_missing": [
+        "octopus.owner-authorization.v1 signed by existing root-v2",
+        "scope/expiry/digest match"
+      ],
+      "current_state": "LOCKED",
+      "owner_authorization_required": true,
+      "safe_to_unlock": false,
+      "unlock_scope": null,
+      "rollback_available": false,
+      "decision": "KEEP_LOCKED"
+    }
+  ],
+  "corrected_at": "2026-08-17T04:04:29.083447+00:00",
+  "final_pack_at": "2026-08-17T04:28:15.589793+00:00"
+}

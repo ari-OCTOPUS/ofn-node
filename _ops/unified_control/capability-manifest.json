@@ -1,0 +1,22 @@
+{
+  "schema": "octopus.capability-manifest.v1",
+  "capability_id": "unified_control",
+  "title": "🧭 هستهٔ کنترلِ یکپارچه",
+  "version": "0.1.0",
+  "owner_phrases": ["قطب‌نما", "وضعیت یکپارچه", "زنجیرهٔ کنترل", "چه چیزی وصل نیست"],
+  "read_handler": "unified_control.snapshot:build",
+  "action_contract": "snapshot → compass → method_translator → action-request.v1",
+  "risk_class": "read",
+  "owner_gate": "فقط‌خواندنی؛ هیچ اقدامی از این پکیج بیرون نمی‌رود",
+  "surface": "owner_outer_dm",
+  "runtime_status_probe": "INTEGRATED_FLAG_GATED — pipeline.prepare_records از goal_action_bridge (runtime seam) صدا می‌خورد؛ prepare() فقط نمای operator/آفلاین است (روی checkout ِ بدونِ state، تستِ pipeline محیطی قرمز می‌شود)",
+  "tests": [
+    "_ops/unified_control/tests/test_authority_policies.py",
+    "_ops/unified_control/tests/test_pipeline.py",
+    "_ops/unified_control/tests/test_runtime_seam.py",
+    "_ops/unified_control/tests/test_snapshot_compass.py",
+    "_ops/unified_control/tests/test_translator_graph.py",
+    "_ops/unified_control/tests/test_snapshot_staleness.py"
+  ],
+  "registration_is_authorization": false
+}

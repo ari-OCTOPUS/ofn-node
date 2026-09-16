@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCTOPUS — گیتِ پول / گاورنرِ بودجه</title>
+<style>
+  html,body{margin:0;height:100%;background:#0a0602;overflow:hidden;font-family:"Segoe UI",Tahoma,sans-serif}
+  #app{position:fixed;inset:0}
+  #vig{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(120% 90% at 50% 45%,transparent 54%,rgba(6,3,0,.9) 100%)}
+  .top{position:fixed;top:14px;left:0;right:0;text-align:center;z-index:5;pointer-events:none}
+  .top b{font-size:15px;font-weight:800;letter-spacing:3px;background:linear-gradient(90deg,#f59e0b,#fcd34d,#34d399);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 22px #f59e0b44}
+  .top span{display:block;font-size:11px;color:#6b5b3b;margin-top:3px;letter-spacing:1px}
+  #st{position:fixed;top:16px;left:16px;z-index:6;direction:ltr;text-align:left;font:12px/1.7 ui-monospace,Menlo,monospace;color:#f59e0b;pointer-events:none}
+  #st b{color:#fcd34d}
+  .info{position:fixed;bottom:14px;right:14px;z-index:6;max-width:330px;background:rgba(18,12,4,.82);border:1px solid #3a2c14;border-radius:12px;padding:13px 15px;backdrop-filter:blur(6px);direction:rtl;text-align:right;font-size:12px;line-height:1.85;color:#c9b89f}
+  .info h3{margin:0 0 6px;font-size:13px;color:#fde68a}.info .k{color:#fcd34d}.info .b{color:#34d399}.info .src{margin-top:7px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#6b5b3b;direction:ltr;text-align:left}
+  #hint{position:fixed;bottom:14px;left:14px;z-index:5;pointer-events:none;font-size:11.5px;color:#6b5b3b;max-width:40%}#hint b{color:#fcd34d}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app"></div><div id="vig"></div>
+<div class="top"><b>MONEY GATE · گیتِ پول</b><span>گاورنرِ بودجه · دریچهٔ عنبیه‌ای · سقفِ ماهانه · هر خرج باید عبور کند</span></div>
+<div id="st"></div>
+<div class="info">
+  <h3>💰 گیتِ پول (organ_gate)</h3>
+  <div class="row">هر ذرهٔ هزینه به دریچه می‌رسد؛ تا زیرِ سقفِ ماه هستیم باز است، وقتی اپکِ بودجه تمام شود <span class="k">بسته می‌شود</span> و ذرات پشتش جمع می‌شوند.</div>
+  <div class="row"><span class="k">💾 F:\backup:</span> سقفِ <span class="b">AU$۳۰/ماه</span>؛ کلیدهای <code>price_in/price_out</code> باید با verdict قفل شوند (باگِ واقعیِ ۴۷خطا: قفل‌نشده = قرمز).</div>
+  <div class="src">src: budget/organ_gate.py · budgets.yaml · governor_epoch</div>
+</div>
+<div id="hint">بکش تا بچرخانی · اسکرول = زوم · دریچه با اتمامِ اپک <b>کلمپ</b> می‌شود؛ رینگِ بودجه ماهانه ری‌ست</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+const ADD=THREE.AdditiveBlending;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+document.getElementById('app').appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0a0602);scene.fog=new THREE.FogExp2(0x0a0602,0.013);
+const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.1,400);camera.position.set(2,3,22);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.05;
+controls.autoRotate=true;controls.autoRotateSpeed=0.4;controls.target.set(0,0,0);controls.minDistance=11;controls.maxDistance=55;
+scene.add(new THREE.AmbientLight(0x332a1a,0.5));
+const goldL=new THREE.PointLight(0xf59e0b,20,70);goldL.position.set(0,2,6);scene.add(goldL);
+(function(){const n=600,p=new Float32Array(n*3);for(let i=0;i<n;i++){const r=85+Math.random()*85,t=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xbb9966,size:0.15,transparent:true,opacity:0.45})));})();
+// iris diaphragm — 8 blades rotating
+const iris=new THREE.Group();scene.add(iris);
+const blades=[];for(let i=0;i<8;i++){const ang=(i/8)*Math.PI*2;const b=new THREE.Mesh(new THREE.CircleGeometry(3.2,3,ang,Math.PI/4),new THREE.MeshStandardMaterial({color:0x2a1e08,emissive:0xf59e0b,emissiveIntensity:0.6,roughness:0.4,metalness:0.6,transparent:true,opacity:0.85,side:THREE.DoubleSide}));iris.add(b);blades.push(b);}
+const irisRing=new THREE.Mesh(new THREE.TorusGeometry(3.3,0.18,12,64),new THREE.MeshStandardMaterial({color:0x3a2c14,emissive:0xfcd34d,emissiveIntensity:0.7,roughness:0.4,metalness:0.7}));scene.add(irisRing);
+// budget epoch ring gauge (drains over month)
+const gaugeBg=new THREE.Mesh(new THREE.TorusGeometry(5,0.1,10,80),new THREE.MeshBasicMaterial({color:0x3a2c14,transparent:true,opacity:0.5}));scene.add(gaugeBg);
+const gaugeGeo=new THREE.TorusGeometry(5,0.16,10,80,Math.PI*2);const gauge=new THREE.Mesh(gaugeGeo,new THREE.MeshBasicMaterial({color:0xfcd34d,transparent:true,opacity:0.9,blending:ADD}));scene.add(gauge);
+// price toggles
+function toggle(x,label){const g=new THREE.Group();g.position.set(x,-6,0);const box=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.8,0.3),new THREE.MeshStandardMaterial({color:0x1a1408,emissive:0xef4444,emissiveIntensity:0.8,roughness:0.4,metalness:0.5}));g.add(box);scene.add(g);return box;}
+const tIn=toggle(-3,'price_in'),tOut=toggle(3,'price_out');
+// cost particles approaching valve
+const CP=120,cpPos=new Float32Array(CP*3),cp=[];for(let i=0;i<CP;i++)cp.push({a:Math.random()*6.28,r:8+Math.random()*4,z:(Math.random()-0.5)*3,sp:1.5+Math.random()*2,pooled:false});
+const cpGeo=new THREE.BufferGeometry();cpGeo.setAttribute('position',new THREE.BufferAttribute(cpPos,3));
+scene.add(new THREE.Points(cpGeo,new THREE.PointsMaterial({color:0xf59e0b,size:0.32,transparent:true,opacity:0.9,blending:ADD,depthWrite:false})));
+const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.0,0.8,0.15));
+const stEl=document.getElementById('st');const clock=new THREE.Clock();let spend=0;
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),0.05),t=clock.getElapsedTime();
+  const epoch=(t%12)/12;spend=epoch*30;const open=1-epoch;const clamped=epoch>0.85;
+  iris.rotation.z+=0.006;const bl=clamped?0.05:0.5+open*0.5;blades.forEach((b,i)=>{b.scale.setScalar(1);b.rotation.z=(clamped?0.6:0.1)+Math.sin(t)*0.02;b.position.set(Math.cos(i/8*6.28)*(clamped?0.2:1.4*(1-open*0.3)),Math.sin(i/8*6.28)*(clamped?0.2:1.4*(1-open*0.3)),0);b.material.emissiveIntensity=clamped?0.3:0.7;});
+  irisRing.rotation.z-=0.004;irisRing.material.emissiveIntensity=clamped?0.4:0.8;
+  // gauge drain
+  gauge.geometry.dispose();gauge.geometry=new THREE.TorusGeometry(5,0.16,10,80,Math.max(0.01,Math.PI*2*(1-epoch)));
+  gauge.material.color.setHex(epoch>0.85?0xef4444:epoch>0.6?0xf59e0b:0xfcd34d);
+  // toggles: pretend locked (green) most of time, flicker red
+  const locked=Math.sin(t*0.7)>-0.3;tIn.material.emissive.setHex(locked?0x34d399:0xef4444);tOut.material.emissive.setHex(locked?0x34d399:0xef4444);
+  goldL.intensity=clamped?6:18;
+  // cost particles
+  for(let i=0;i<CP;i++){const c=cp[i];if(!clamped&&c.r>0.6){c.r-=c.sp*dt;}else if(clamped&&c.r<3.6){/*pool at gate*/}else if(!clamped){c.r=8+Math.random()*4;c.a=Math.random()*6.28;}
+    if(clamped&&c.r<3.8){c.r=3.6+Math.random()*0.6;c.a+=dt*0.5;}
+    cpPos[i*3]=Math.cos(c.a)*c.r;cpPos[i*3+1]=Math.sin(c.a)*c.r;cpPos[i*3+2]=c.z;}
+  cpGeo.attributes.position.needsUpdate=true;
+  stEl.innerHTML=`<b>💰 GOVERNOR</b><br>epoch spend: <span style="color:${epoch>0.85?'#ef4444':'#fcd34d'}">AU$${spend.toFixed(1)}</span> / 30<br>gate: <span style="color:${clamped?'#ef4444':'#34d399'}">${clamped?'CLAMPED':'open'}</span> · price locks: ${Math.sin(t*0.7)>-0.3?'🟢':'🔴'}`;
+  controls.update();composer.render();}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

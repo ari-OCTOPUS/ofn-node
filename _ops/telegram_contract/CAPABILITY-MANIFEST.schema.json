@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "octopus.capability-manifest.v1",
+  "title": "Octopus Telegram Capability Manifest",
+  "type": "object",
+  "required": [
+    "schema",
+    "capability_id",
+    "title",
+    "version",
+    "owner_phrases",
+    "read_handler",
+    "action_contract",
+    "risk_class",
+    "owner_gate",
+    "surface",
+    "runtime_status_probe",
+    "tests"
+  ],
+  "properties": {
+    "schema": {"const": "octopus.capability-manifest.v1"},
+    "capability_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]{2,79}$"},
+    "title": {"type": "string", "minLength": 2, "maxLength": 100},
+    "version": {"type": "string", "minLength": 1, "maxLength": 40},
+    "owner_phrases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 2, "maxLength": 120}
+    },
+    "read_handler": {"type": ["string", "null"]},
+    "action_contract": {
+      "type": "object",
+      "required": ["schema", "default_decision"],
+      "properties": {
+        "schema": {"type": ["string", "null"]},
+        "default_decision": {"enum": ["READ_ONLY", "OWNER_GATE", "BLOCK", "REJECT"]}
+      },
+      "additionalProperties": true
+    },
+    "risk_class": {"enum": ["read", "low", "medium", "high", "forbidden"]},
+    "owner_gate": {"type": "boolean"},
+    "surface": {"enum": ["owner_outer_dm", "owner_inner_dm", "legs_forum_group"]},
+    "leg_key": {"type": ["string", "null"]},
+    "runtime_status_probe": {"type": ["string", "null"]},
+    "tests": {"type": "array", "items": {"type": "string"}},
+    "registration_is_authorization": {"const": false}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"surface": {"const": "legs_forum_group"}}},
+      "then": {"required": ["leg_key"]}
+    },
+    {
+      "if": {"properties": {"risk_class": {"enum": ["medium", "high", "forbidden"]}}},
+      "then": {"properties": {"owner_gate": {"const": true}}}
+    }
+  ],
+  "additionalProperties": true
+}

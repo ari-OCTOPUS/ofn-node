@@ -1,0 +1,54 @@
+{
+  "schema": "octopus-u03-measure.v1",
+  "ts_local": "2026-08-23T16:25:39+10:00",
+  "ts_utc": "2026-08-23T06:25:39Z",
+  "id": "U03",
+  "before": {
+    "synthesis_node_packs_hook": true,
+    "pointer_enabled": true,
+    "pointer_path": "F:\\backup\\_ops\\evidence_plane\\SYNTHESIS-NODE-PACKS.pointer.json",
+    "packs_dir": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs",
+    "packs_on_disk": [
+      "HASHES.sha256",
+      "NODE-PACK-BUSINESS.json",
+      "NODE-PACK-LAPTOP.json",
+      "NODE-PACK-SENSORIUM.json"
+    ],
+    "organism_beat_consumer": false,
+    "organs_enabled_callers_for_hook": [],
+    "flag_drift_or_unwired": true,
+    "status_undiscovered": "UNWIRED",
+    "who_sets_true": "WIRING.json flags.synthesis_node_packs_hook + SYNTHESIS-NODE-PACKS.pointer.json enabled=true"
+  },
+  "after": {
+    "synthesis_node_packs_hook": true,
+    "consumer": "organs.synthesis_node_packs.beat",
+    "consumer_path": "F:\\backup\\_ops\\organs\\synthesis_node_packs.py",
+    "consumer_fired": true,
+    "flag_drift": false,
+    "live_promote_claimed": false,
+    "packs_present": 3,
+    "packs_missing": [],
+    "hash_mismatches": [],
+    "open_questions_total": 6,
+    "advisory_path": null,
+    "run_session_wired": true,
+    "pointer_ok": true
+  },
+  "decision": {
+    "path": "A/C hybrid",
+    "rationale": "Hook intentionally armed with pointer enabled + packs_dir present (business/sensorium/laptop). UNWIRED was missing beat/session consumer. Safer durable close matching U02 architecture: keep hook true, wire minimal advisory consumer (registry metadata + state only; no LIVE promote; no invented pack contents). Path B (set false) would disarm designed pointer without reconciling armed hook intent."
+  },
+  "searches": {
+    "synthesis_node_packs_hook_defs": [
+      "_ops/organs/WIRING.json (+ bak-2026-08-23-synthesis-node-packs + bak-u03)",
+      "_ops/evidence_plane/SYNTHESIS-NODE-PACKS.pointer.json"
+    ],
+    "readers_pre_close": "none in organs/*.py beat path (pointer + WIRING metadata only)",
+    "packs": [
+      "NODE-PACK-BUSINESS.json (business-board2)",
+      "NODE-PACK-SENSORIUM.json (sensorium-orangepi)",
+      "NODE-PACK-LAPTOP.json (laptop-center)"
+    ]
+  }
+}

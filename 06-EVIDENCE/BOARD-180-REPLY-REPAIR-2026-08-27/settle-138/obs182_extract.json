@@ -1,0 +1,879 @@
+{
+  "host": "sensorium-opi5pro",
+  "now_utc": "2026-08-27T02:30:47Z",
+  "tree": {
+    "root": [
+      "--root",
+      "README_FA.md",
+      "RISK_REGISTER.md",
+      "SESSION_AGENT_PROTOCOL_FA.md",
+      "SESSION_BRIDGE_VERSION",
+      "SHARED_SYSTEM_MODEL_FA.md",
+      "VERSION",
+      "audit",
+      "backups",
+      "bin",
+      "config",
+      "inbox",
+      "outbox",
+      "processed",
+      "processing",
+      "receipts",
+      "rejected",
+      "rollback.sh",
+      "state",
+      "systemd",
+      "tests"
+    ],
+    "inbox": {
+      "exists": true,
+      "count": 254,
+      "recent": [
+        {
+          "name": "2026-08-27T02-30-11.580225Z__16c87b53-3314-4a49-b164-4a471af55c1f.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:30:11Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-29-11.475726Z__ef92e55f-a2d8-46b8-8ed7-d473149de56b.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:29:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-28-11.420907Z__8ac7b89c-1072-463b-bb24-fd80a34ce733.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:28:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-27-11.443420Z__fa55c4f8-dd07-4cda-9ce9-31118efeba3f.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:27:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-26-09.897818Z__39a4d041-89fc-4a68-9108-3dd4b1d7bdb3.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:26:09Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-25-09.496289Z__bae4a93e-42f3-4f4d-b53b-ed31d54ee690.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:25:08Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-24-07.601044Z__bb64c43b-c6e2-443b-9011-e1921bf7e0ba.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:24:06Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-23-05.489133Z__caebdbb0-22bb-4228-ab76-7afab44fe0b0.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:23:04Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-22-03.941132Z__13c328e4-de82-412c-bbee-1bae7b7ab908.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:22:03Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-21-01.860518Z__56b822df-0df6-4847-a60f-def6662ee2c4.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:21:01Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-20-11.394904Z__183c7577-30ef-4a1f-8c5a-09a0d5d60099.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:20:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-19-11.380076Z__6362b8d8-8070-40ad-98c2-fae9b26e5511.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:19:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-18-11.325788Z__8b5af2fd-6d73-408b-9a74-eac55b5b9909.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:18:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-17-09.800036Z__df13be2b-4c9f-4c3c-a04d-a342445c132b.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:17:09Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-16-11.376499Z__bf03ec10-aaf2-4d1a-8dbb-f1b72f341680.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:16:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-15-11.340326Z__f26a4923-104d-404c-a0f8-704966c54411.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:15:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-14-09.544510Z__04d106ee-a509-4240-834b-c831f5f90bb8.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:14:08Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-13-11.345741Z__e51c2448-5d89-438a-be96-72c94600c00f.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:13:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-12-09.893250Z__bc43e9d7-d42d-45ea-9bc7-aa11a7d30452.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:12:09Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-11-08.394410Z__fb1c9307-9777-4bd2-8367-345dcaa396ed.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:11:07Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-10-06.314029Z__8d8aa71e-44f8-41cb-8f41-345433e611bf.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:10:05Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-09-04.662308Z__df52c79d-9537-4d25-9fe5-3aab81acea2a.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:09:04Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-08-02.603851Z__4282701d-3eb5-4d75-8eaa-a256aea3a073.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:08:01Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-07-01.048363Z__b4b1214c-7d4b-41b4-8041-89037c7faad8.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:07:00Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-06-11.251668Z__4790cc7a-a840-462e-8597-6a3e51aceb9d.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:06:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-05-09.384802Z__2e67d6e7-251f-4b66-97c2-647b8442c697.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:05:08Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-04-11.231201Z__788566c2-c4d5-4cf5-b9b9-839d6a86f074.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:04:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-03-11.227585Z__f21c01f1-5ba6-4863-9983-a1b56883de8b.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:03:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-02-11.202439Z__da13e489-9916-42ac-8666-025c07b5836e.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:02:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-27T02-01-11.268269Z__b2fe82a2-df0e-4258-b865-cf61e7ab2733.json",
+          "size": 608,
+          "mtime_iso": "2026-08-27T02:01:10Z",
+          "is_dir": false
+        }
+      ]
+    },
+    "processed": {
+      "exists": true,
+      "count": 36,
+      "recent": [
+        {
+          "name": "b7302aab-a487-4f5d-8acd-f6cb97570d13.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:34:32Z",
+          "is_dir": false
+        },
+        {
+          "name": "724b897f-e436-486a-acd7-6252289e3af7.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:33:41Z",
+          "is_dir": false
+        },
+        {
+          "name": "db419b34-0d8b-482b-837f-59428c3eb10a.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:32:51Z",
+          "is_dir": false
+        },
+        {
+          "name": "e6e635a6-7526-4411-981a-095879a7ed92.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:31:10Z",
+          "is_dir": false
+        },
+        {
+          "name": "9deab622-ff58-41a3-afdc-baf8d248b703.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:30:29Z",
+          "is_dir": false
+        },
+        {
+          "name": "a1294b98-8f96-46d3-a1d5-b7000afbc47b.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:29:39Z",
+          "is_dir": false
+        },
+        {
+          "name": "fa78fc1d-331f-4f48-b3f3-8d5c0fda14f8.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:28:48Z",
+          "is_dir": false
+        },
+        {
+          "name": "f42e7472-638d-445f-84cd-039885aa05e3.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:27:47Z",
+          "is_dir": false
+        },
+        {
+          "name": "2eba3bab-b10a-4803-ab33-93170068d89f.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:26:17Z",
+          "is_dir": false
+        },
+        {
+          "name": "a675c188-46c1-4cdf-ad04-4d3c5dcddfe9.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:25:26Z",
+          "is_dir": false
+        },
+        {
+          "name": "abbc5e0f-0773-44d9-af53-13d02e1d54ba.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:24:35Z",
+          "is_dir": false
+        },
+        {
+          "name": "c9b6eb9d-0080-45d5-b428-4c85fdb76dc9.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:23:55Z",
+          "is_dir": false
+        },
+        {
+          "name": "f9aed5ab-bcb4-4568-8037-64c046304ee8.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:22:14Z",
+          "is_dir": false
+        },
+        {
+          "name": "1f0e0052-3f5b-48da-a45f-5844240cb9b2.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:21:24Z",
+          "is_dir": false
+        },
+        {
+          "name": "8a92475b-9d04-4769-8a48-bbf733f38f1d.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:20:33Z",
+          "is_dir": false
+        },
+        {
+          "name": "e575fca5-59bd-4a8b-ad29-0032a053eb55.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:19:42Z",
+          "is_dir": false
+        },
+        {
+          "name": "0a6e2b92-b16c-4c7f-9efe-1033218ff298.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:18:52Z",
+          "is_dir": false
+        },
+        {
+          "name": "d1fd2230-788b-4da6-b9fb-3d781c126be7.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:17:11Z",
+          "is_dir": false
+        },
+        {
+          "name": "936a3053-536b-46a9-9b29-914550c94111.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:16:31Z",
+          "is_dir": false
+        },
+        {
+          "name": "6a4d4966-6d18-4b29-8a8e-ce797eb77cba.json",
+          "size": 1094,
+          "mtime_iso": "2026-08-27T01:15:40Z",
+          "is_dir": false
+        },
+        {
+          "name": "d2aea76b-b466-4f54-8085-d59339ee25d0.json",
+          "size": 1523,
+          "mtime_iso": "2026-08-26T23:39:39Z",
+          "is_dir": false
+        },
+        {
+          "name": "74063daa-6937-4548-a5a0-5f77d5ac627f.json",
+          "size": 1827,
+          "mtime_iso": "2026-08-26T22:33:09Z",
+          "is_dir": false
+        },
+        {
+          "name": "573b83a3-3481-49b8-a96b-c8a49beb4e64.json",
+          "size": 1409,
+          "mtime_iso": "2026-08-26T22:33:08Z",
+          "is_dir": false
+        },
+        {
+          "name": "7fcc3cad-4d2d-4db3-b1b0-9019050b845b.json",
+          "size": 1327,
+          "mtime_iso": "2026-08-26T22:32:54Z",
+          "is_dir": false
+        },
+        {
+          "name": "19a8aea9-a2f5-4d97-b996-a19928e181ac.json",
+          "size": 1399,
+          "mtime_iso": "2026-08-26T22:31:27Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-26T21-47-43.491716Z__caf87944-cbd9-4199-9a5a-296e2b701700.json",
+          "size": 1565,
+          "mtime_iso": "2026-08-26T21:47:43Z",
+          "is_dir": false
+        },
+        {
+          "name": "2aca97ad-11ea-457c-8fea-571c6927074c.json",
+          "size": 6228,
+          "mtime_iso": "2026-08-26T21:28:29Z",
+          "is_dir": false
+        },
+        {
+          "name": "2026-08-26T21-26-35.276987Z__7b4ed3a2-f5ea-40dd-8b3e-e8070f510b35.json",
+          "size": 798,
+          "mtime_iso": "2026-08-26T21:26:35Z",
+          "is_dir": false
+        },
+        {
+          "name": "16dc715f-98e4-4193-bf30-63fa89d60f08.json",
+          "size": 4441,
+          "mtime_iso": "2026-08-26T12:10:21Z",
+          "is_dir": false
+        },
+        {
+          "name": "6c8c95b2-4227-4feb-9d21-4e3ba347b6dd.json",
+          "size": 13133,
+          "mtime_iso": "2026-08-26T10:52:18Z",
+          "is_dir": false
+        }
+      ]
+    },
+    "outbox": {
+      "exists": true,
+      "count": 29,
+      "recent": [
+        {
+          "name": "witness_response_b7302aab.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:30:03Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_724b897f.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:29:17Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_db419b34.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:28:27Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_e6e635a6.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:27:42Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_9deab622.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:26:53Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_a1294b98.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:26:08Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_fa78fc1d.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:25:23Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_f42e7472.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:24:35Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_2eba3bab.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:23:50Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_a675c188.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:23:05Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_abbc5e0f.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:22:19Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_c9b6eb9d.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:21:30Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_f9aed5ab.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:20:42Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_1f0e0052.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:19:53Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_8a92475b.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:19:08Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_e575fca5.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:18:21Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_0a6e2b92.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:17:36Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_d1fd2230.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:16:50Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_936a3053.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:16:01Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_6a4d4966.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:15:15Z",
+          "is_dir": false
+        },
+        {
+          "name": "witness_response_d2aea76b.json",
+          "size": 618,
+          "mtime_iso": "2026-08-27T02:14:29Z",
+          "is_dir": false
+        },
+        {
+          "name": "canary_cycle_c_response_182.json",
+          "size": 3238,
+          "mtime_iso": "2026-08-26T22:42:59Z",
+          "is_dir": false
+        },
+        {
+          "name": "canary_cycle_b_response_182.json",
+          "size": 2075,
+          "mtime_iso": "2026-08-26T22:42:45Z",
+          "is_dir": false
+        },
+        {
+          "name": "canary_cycle_a_response_182.json",
+          "size": 3055,
+          "mtime_iso": "2026-08-26T22:41:50Z",
+          "is_dir": false
+        },
+        {
+          "name": "adoption_response_182.json",
+          "size": 1943,
+          "mtime_iso": "2026-08-26T21:34:12Z",
+          "is_dir": false
+        },
+        {
+          "name": "anatomy_witness_response_182.json",
+          "size": 7586,
+          "mtime_iso": "2026-08-26T12:43:06Z",
+          "is_dir": false
+        },
+        {
+          "name": "anatomy_evidence_plan_182.json",
+          "size": 3490,
+          "mtime_iso": "2026-08-26T12:39:36Z",
+          "is_dir": false
+        },
+        {
+          "name": "dev_cycle_1_182.json",
+          "size": 4885,
+          "mtime_iso": "2026-08-26T11:01:41Z",
+          "is_dir": false
+        },
+        {
+          "name": "role_sync_response_182.json",
+          "size": 3136,
+          "mtime_iso": "2026-08-26T09:42:22Z",
+          "is_dir": false
+        }
+      ]
+    },
+    "pending": {
+      "exists": false
+    },
+    "replies": {
+      "exists": false
+    },
+    "logs": {
+      "exists": false
+    },
+    "receipts": {
+      "exists": true,
+      "count": 32,
+      "recent": [
+        {
+          "name": "b7302aab-a487-4f5d-8acd-f6cb97570d13.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:30:04Z",
+          "is_dir": false
+        },
+        {
+          "name": "724b897f-e436-486a-acd7-6252289e3af7.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:29:18Z",
+          "is_dir": false
+        },
+        {
+          "name": "db419b34-0d8b-482b-837f-59428c3eb10a.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:28:28Z",
+          "is_dir": false
+        },
+        {
+          "name": "e6e635a6-7526-4411-981a-095879a7ed92.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:27:43Z",
+          "is_dir": false
+        },
+        {
+          "name": "9deab622-ff58-41a3-afdc-baf8d248b703.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:26:53Z",
+          "is_dir": false
+        },
+        {
+          "name": "a1294b98-8f96-46d3-a1d5-b7000afbc47b.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:26:08Z",
+          "is_dir": false
+        },
+        {
+          "name": "fa78fc1d-331f-4f48-b3f3-8d5c0fda14f8.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:25:24Z",
+          "is_dir": false
+        },
+        {
+          "name": "f42e7472-638d-445f-84cd-039885aa05e3.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:24:36Z",
+          "is_dir": false
+        },
+        {
+          "name": "2eba3bab-b10a-4803-ab33-93170068d89f.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:23:51Z",
+          "is_dir": false
+        },
+        {
+          "name": "a675c188-46c1-4cdf-ad04-4d3c5dcddfe9.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:23:06Z",
+          "is_dir": false
+        },
+        {
+          "name": "abbc5e0f-0773-44d9-af53-13d02e1d54ba.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:22:19Z",
+          "is_dir": false
+        },
+        {
+          "name": "c9b6eb9d-0080-45d5-b428-4c85fdb76dc9.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:21:31Z",
+          "is_dir": false
+        },
+        {
+          "name": "f9aed5ab-bcb4-4568-8037-64c046304ee8.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:20:42Z",
+          "is_dir": false
+        },
+        {
+          "name": "1f0e0052-3f5b-48da-a45f-5844240cb9b2.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:19:53Z",
+          "is_dir": false
+        },
+        {
+          "name": "8a92475b-9d04-4769-8a48-bbf733f38f1d.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:19:09Z",
+          "is_dir": false
+        },
+        {
+          "name": "e575fca5-59bd-4a8b-ad29-0032a053eb55.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:18:22Z",
+          "is_dir": false
+        },
+        {
+          "name": "0a6e2b92-b16c-4c7f-9efe-1033218ff298.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:17:37Z",
+          "is_dir": false
+        },
+        {
+          "name": "d1fd2230-788b-4da6-b9fb-3d781c126be7.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:16:51Z",
+          "is_dir": false
+        },
+        {
+          "name": "936a3053-536b-46a9-9b29-914550c94111.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:16:01Z",
+          "is_dir": false
+        },
+        {
+          "name": "6a4d4966-6d18-4b29-8a8e-ce797eb77cba.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:15:16Z",
+          "is_dir": false
+        },
+        {
+          "name": "d2aea76b-b466-4f54-8085-d59339ee25d0.claim.json",
+          "size": 286,
+          "mtime_iso": "2026-08-27T02:14:29Z",
+          "is_dir": false
+        },
+        {
+          "name": "74063daa-6937-4548-a5a0-5f77d5ac627f.claim.json",
+          "size": 334,
+          "mtime_iso": "2026-08-26T22:42:59Z",
+          "is_dir": false
+        },
+        {
+          "name": "573b83a3-3481-49b8-a96b-c8a49beb4e64.claim.json",
+          "size": 334,
+          "mtime_iso": "2026-08-26T22:42:45Z",
+          "is_dir": false
+        },
+        {
+          "name": "7fcc3cad-4d2d-4db3-b1b0-9019050b845b.claim.json",
+          "size": 334,
+          "mtime_iso": "2026-08-26T22:41:51Z",
+          "is_dir": false
+        },
+        {
+          "name": "19a8aea9-a2f5-4d97-b996-a19928e181ac.claim.json",
+          "size": 334,
+          "mtime_iso": "2026-08-26T22:40:06Z",
+          "is_dir": false
+        },
+        {
+          "name": "2aca97ad-11ea-457c-8fea-571c6927074c.claim.json",
+          "size": 334,
+          "mtime_iso": "2026-08-26T21:34:17Z",
+          "is_dir": false
+        },
+        {
+          "name": "16dc715f-98e4-4193-bf30-63fa89d60f08.claim.json",
+          "size": 334,
+          "mtime_iso": "2026-08-26T12:43:06Z",
+          "is_dir": false
+        },
+        {
+          "name": "6c8c95b2-4227-4feb-9d21-4e3ba347b6dd.claim.json",
+          "size": 334,
+          "mtime_iso": "2026-08-26T11:01:46Z",
+          "is_dir": false
+        },
+        {
+          "name": "d80e8266-a209-463d-aff0-5aba0617f3eb.claim.json",
+          "size": 303,
+          "mtime_iso": "2026-08-26T11:01:06Z",
+          "is_dir": false
+        },
+        {
+          "name": "07f12b8a-0574-452b-8e2f-91e192526fde.claim.json",
+          "size": 302,
+          "mtime_iso": "2026-08-26T09:50:03Z",
+          "is_dir": false
+        }
+      ]
+    },
+    "audit": {
+      "exists": true,
+      "count": 1,
+      "recent": [
+        {
+          "name": "audit.jsonl",
+          "size": 112261,
+          "mtime_iso": "2026-08-27T02:30:11Z",
+          "is_dir": false
+        }
+      ]
+    },
+    "state": {
+      "exists": true,
+      "count": 1,
+      "recent": [
+        {
+          "name": "witness",
+          "size": 4096,
+          "mtime_iso": "2026-08-27T02:30:47Z",
+          "is_dir": true
+        }
+      ]
+    },
+    "runtime": {
+      "exists": false
+    }
+  },
+  "hits": [
+    {
+      "path": "/root/octopus-mesh/audit/audit.jsonl",
+      "size": 112261,
+      "mtime_iso": "2026-08-27T02:30:11Z",
+      "name_hit": false,
+      "snippet": "\",\"seq\":279,\"status\":\"received\",\"ts\":\"2026-08-27T01:52:10.523961Z\",\"type\":\"ping\"}\n{\"checksum\":\"3f102ba8d158147a\",\"file\":\"2026-08-27T01-52-35.817302Z__c3f085a8-0a65-4849-9432-29deeaf1b652.json\",\"message_id\":\"c3f085a8-0a65-4849-9432-29deeaf1b652\",\"reason\":\"accepted\",\"recipient\":\"182\",\"run_id\":\"verify-2884079c-3b8\",\"sender\":\"138\",\"seq\":280,\"status\":\"received\",\"ts\":\"2026-08-27T01:52:35.264893Z\",\"type\":\"verification_task\"}\n{\"checksum\":\"240c628141874cda\",\"file\":\"2026-08-27T01-53-11.103465Z__bb903745-d717-414c-9345-b3fcdad2614a.json\",\"message_id\":\"bb9"
+    },
+    {
+      "path": "/root/octopus-mesh/inbox/2026-08-27T01-52-35.817302Z__c3f085a8-0a65-4849-9432-29deeaf1b652.json",
+      "size": 1083,
+      "mtime_iso": "2026-08-27T01:52:35Z",
+      "name_hit": true,
+      "data": {
+        "checksum": "3f102ba8d158147af85453051b224e9205236fde04ff416828ec621f8468789f",
+        "claim_type": "observation",
+        "correlation_id": "2884079c-3b87-4648-b063-e1e4ee60622f",
+        "created_at": "2026-08-27T01:52:35.817302Z",
+        "envelope_version": 1,
+        "evidence": [],
+        "expires_at": "2026-08-27T02:52:35.817483Z",
+        "idempotency_key": "auto-verify:2884079c-3b87-4648-b063-e1e4ee60622f",
+        "may_authorize": false,
+        "message_id": "c3f085a8-0a65-4849-9432-29deeaf1b652",
+        "message_type": "verification_task",
+        "payload": {
+          "constraints": [
+            "may_authorize=false",
+            "no mutation",
+            "no external action",
+            "structured output"
+          ],
+          "instruction": "Independently verify the 180 result (correlation 2884079c-3b87-4648-b063-e1e4ee60622f): at least one falsification attempt, scope check, observation/inference separation, and a verdict (confirmed|disputed|unresolved).",
+          "originating_result": "c4b807a9-2454-5c4d-8783-8543336e587e",
+          "run_id": "fresh-e2e-canary-20260827",
+          "task": "AUTO-VERIFY-DISPATCH"
+        },
+        "recipient_node": "182",
+        "requires_ack": true,
+        "run_id": "verify-2884079c-3b8",
+        "scope": "mesh",
+        "sender_node": "138",
+        "sender_role": "commander-router-ledger-owner"
+      }
+    }
+  ],
+  "timer": {
+    "timer_show": {
+      "rc": 0,
+      "out": "Unit=octopus-witness-worker.service\nNextElapseUSecRealtime=\nLastTriggerUSec=Thu 2026-08-27 02:30:47 UTC\nId=octopus-witness-worker.timer\nTriggers=octopus-witness-worker.service\nActiveState=active\nFragmentPath=/etc/systemd/system/octopus-witness-worker.timer\n",
+      "err": ""
+    },
+    "timer_cat": {
+      "rc": 0,
+      "out": "# /etc/systemd/system/octopus-witness-worker.timer\n[Unit]\nDescription=OCTOPUS witness worker autowake timer (182)\nRequires=octopus-witness-worker.service\n\n[Timer]\nOnBootSec=45s\nOnUnitActiveSec=45s\nAccuracySec=5s\nPersistent=true\n\n[Install]\nWantedBy=timers.target\n",
+      "err": ""
+    },
+    "timer_active": {
+      "rc": 0,
+      "out": "active\n",
+      "err": ""
+    },
+    "service_active": {
+      "rc": 3,
+      "out": "activating\n",
+      "err": ""
+    },
+    "service_show": {
+      "rc": 0,
+      "out": "ExecStart={ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 /root/octopus-mesh/bin/octopus_witness_worker.py --root /root/octopus-mesh --once ; ignore_errors=no ; start_time=[Thu 2026-08-27 02:30:47 UTC] ; stop_time=[n/a] ; pid=489854 ; code=(null) ; status=0/0 }\nId=octopus-witness-worker.service\nActiveState=activating\nFragmentPath=/etc/systemd/system/octopus-witness-worker.service\n",
+      "err": ""
+    },
+    "/etc/systemd/system/octopus-witness-worker.timer": "[Unit]\nDescription=OCTOPUS witness worker autowake timer (182)\nRequires=octopus-witness-worker.service\n\n[Timer]\nOnBootSec=45s\nOnUnitActiveSec=45s\nAccuracySec=5s\nPersistent=true\n\n[Install]\nWantedBy=timers.target\n",
+    "/etc/systemd/system/octopus-witness-worker.service": "[Unit]\nDescription=Octopus witness worker (node 182, lab-witness, may_authorize=false)\nAfter=network-online.target\nConditionPathExists=/root/octopus-mesh\n\n[Service]\nType=oneshot\nUser=root\nExecStart=/usr/bin/python3 /root/octopus-mesh/bin/octopus_witness_worker.py --root /root/octopus-mesh --once\nWorkingDirectory=/root/octopus-mesh\nTimeoutStartSec=90\nRestart=no\n\n[Install]\nWantedBy=multi-user.target\n"
+  },
+  "mesh": "/root/octopus-mesh"
+}

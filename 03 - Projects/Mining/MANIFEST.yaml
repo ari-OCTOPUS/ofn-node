@@ -1,0 +1,103 @@
+# ===================================================================
+# MANIFEST — Mining (Research Leg + Fleet Execution)
+# جعبهٔ سیاه: شکار کوین CPU/ARM با ناوگان Orange Pi + ESP32
+# ===================================================================
+manifest_version: "1.0"
+generated: 2026-07-11
+generated_by: "role-extraction-agent (ZCode)"
+
+identity:
+  code: "Mining"
+  domain: "CPU/ARM cryptocurrency mining — emerging coins, survival-based"
+  role_in_ecosystem: "RESEARCH BRAIN + future execution fleet"
+  tenant_order: "#3 (D-26: Accounting → Lead → Mining)"
+  hardware: "Orange Pi 5 Pro (RK3588) + ESP32 — 6 nodes [Assumption from old Hcash config]"
+  phase: "research-complete, execution-zero, fleet-status-unknown"
+
+status_snapshot:
+  execution_state: "ZERO mining active. Wallet seed in rotation. No hashrate/profitability measured."
+  primary_blocker: "Monero wallet seed rotation (shared with Security Gate) + fleet physical status unknown"
+  security_gate: "closed (Monero seed CRITICAL)"
+  pending_human_verdicts: 0
+  last_updated_source_of_truth: "PROJECT.md (Active Context)"
+
+hard_rules_locked:
+  - "D2: survival-based death-watch is the ONLY kill criterion — NOT payback or liquidity"
+  - "D-10: financial execution HARD_STOP — architect may only INFORM; every buy/sell/withdraw = human"
+  - "D-20: NO direct SSH to nodes — changes only via repo + deploy gate"
+  - "D-11: NO wallet access by any agent"
+  - "electricity constraint: mining HALTS if >$0.05/kWh and not solar"
+  - "one active experiment per node-group; all profit numbers [To measure] until real data"
+  - "coin selection ONLY via Coin Scouting Framework"
+hard_rules_mutability: "immutable without human verdict"
+
+blackbox_potential:
+  - id: "coin_scouting_pipeline"
+    desc: "discover→classify algorithm→survival/rug screen→liquidity/exit assessment"
+    runtime: "04-Research/SCOUT-B.md (25 patterns, first-party sources)"
+    readiness: "RESEARCH COMPLETE — pipeline designed, not built"
+    feeds: ["bitcointalk ANN boards", "MiningPoolStats/newcoins", "minerstat API", "CryptoMiso", "GeckoTerminal rug-checker"]
+
+  - id: "coin_hunter_bot"
+    desc: "multi-layer agent: GemHunter→Forensics→Veto→LLM→Kelly (shared with Crypto)"
+    runtime: "01-Docs/Bot System/README.pdf + code in _code/ (Ai bots/)"
+    readiness: "DESIGNED (PDF README + Cowork Operator prompt) — code relocated"
+
+  - id: "fleet_manager"
+    desc: "REST :7700 on OPi5+ → worker_agent per node + watchdog + hashrate_oracle"
+    runtime: "Ai bots/fleet/ (relocated to _code/)"
+    readiness: "code built + coherent, 3 gaps: worker count 9 vs 16, kill-switch unwired, SPOF"
+    note: "L7 also serves Crypto (hashrate_oracle bridges to L3 ENERGY edge)"
+
+  - id: "octopus_mining_leg"
+    desc: "Mining as an Octopus limb (two brains): HardwareControlBrain + CoinDiscoveryBrain"
+    runtime: "_ops/legs/mining_leg.py (wired via _ops/wiring.make_mining_leg + mining_beat)"
+    readiness: "ACTIVE (propose-only, read-only floor) — OCTOPUS_WIRE_MINING=1 since 2026-07-12"
+    telegram: "telegram_center key 'mining' ⛏ (digest maps from ORGANISM-STATE.mining)"
+    activation: "ON (owner verdict 2026-07-12). Flag in OCTOPUS-flags.cmd + F:/backup/.env. NOT in PAPER_FULL_FLAGS."
+    design_doc: "02 - Code/mining_preexec_mvp/docs/OCTOPUS_LEG_DESIGN.md"
+    hard_rules: "no SSH/deploy/wallet/miner-control/trade (D-10/D-11/D-20); secrets=(); spawn=0"
+
+  - id: "orange_pi_hub"
+    desc: "ESP32 mesh → OPi5 Hub → VPS (Podman/Nomad/Redis/Postgres)"
+    runtime: "01-Docs/Orange Pi Automation System/ARCHITECTURE_v2_Hybrid_Final.md"
+    readiness: "DESIGNED (v2 final) — not deployed"
+
+  - id: "quantum_research_corpus"
+    desc: "7 scientific papers (CSIRO roadmap, QAOA, Quantum-safe, WEF governance)"
+    runtime: "04-Research/Quantum Physics Dataset/"
+    readiness: "ARCHIVE — contextual, not directly actionable"
+
+control_surface:
+  read_state_files:
+    load_order: ["PROJECT.md", "INDEX.md", "Coin Scouting Framework.md"]
+    navigation: "INDEX.md"
+    live_status: "PROJECT.md#Active-Context"
+    decisions: "DecisionLog.md"
+    open_questions: "OpenQuestions.md"
+  adapter: "contracts/adapter.yaml"
+
+kill_switches:
+  - scope: "fleet"
+    trigger: "STOP file / DB flag (D-06)"
+    effect: "all miners down"
+  - scope: "electricity"
+    trigger: "cost > $0.05/kWh and not solar"
+    effect: "structural HALT"
+
+budget_caps:
+  electricity: "<$0.05/kWh or solar (structural constraint)"
+  api_tools: "$0 (bitcointalk + MiningPoolStats + CryptoMiso + GeckoTerminal all free)"
+
+dependencies:
+  self_contained: ["01-Docs/", "03-Rigs/", "04-Research/", "data/"]
+  external_relocated: ["Ai bots/ (sentinel, QuantumAlphaBot, deploy, fleet) → _code/", "Robo-data/ → _code/"]
+  connectors_needing_auth:
+    - "Tailscale mesh (fleet access)"
+    - "XMRigCC server (fleet C2)"
+    - "Monero wallet (D-11: OFF-BOX, zero agent access)"
+
+ecosystem_connections:
+  accounting: "mined coin → business income at AUD value at moment of receipt + hardware depreciation + electricity"
+  crypto_etoro: "shares Coin Hunter Bot + fleet (L7↔L3 hashrate_oracle bridge)"
+  shared_blackbox: "fleet_manager + coin_hunter_bot are SHARED with Crypto-eToro tenant"

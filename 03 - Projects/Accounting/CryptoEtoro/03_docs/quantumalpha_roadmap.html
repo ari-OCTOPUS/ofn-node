@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+body { background: var(--background, #0f0f14); color: var(--text-primary, #e8e8f0); padding: 20px; min-height: 100vh; }
+
+h1 { font-size: 15px; font-weight: 700; letter-spacing: 2px; color: #6ee7f7; margin-bottom: 4px; }
+.subtitle { font-size: 11px; color: #666; margin-bottom: 20px; }
+
+.phase { margin-bottom: 16px; border-radius: 10px; overflow: hidden; }
+.phase-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer;
+  font-size: 12px; font-weight: 700; letter-spacing: 1px;
+  user-select: none;
+}
+.phase-header .badge {
+  font-size: 9px; padding: 2px 7px; border-radius: 99px;
+  font-weight: 700; letter-spacing: 0.5px;
+}
+.badge.done    { background: #1a3d1a; color: #4ade80; }
+.badge.now     { background: #2d1f00; color: #f59e0b; }
+.badge.next    { background: #1a1a2e; color: #818cf8; }
+.badge.later   { background: #1a1a1a; color: #555; }
+
+.phase-0  { background: #0a1f0a; border: 1px solid #1a4d1a; }
+.phase-1  { background: #1f1500; border: 1px solid #4d3500; }
+.phase-2  { background: #0d0d22; border: 1px solid #2d2d5a; }
+.phase-3  { background: #1a0a0a; border: 1px solid #4d1a1a; }
+.phase-4  { background: #0a0a1a; border: 1px solid #1a1a3a; }
+.phase-5  { background: #0a1a1a; border: 1px solid #1a4a4a; }
+
+.phase-body { padding: 0 14px 12px; display: none; }
+.phase-body.open { display: block; }
+
+.item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 7px 10px; margin-top: 6px; border-radius: 7px;
+  font-size: 11.5px; line-height: 1.5;
+  background: rgba(255,255,255,0.03);
+}
+.item .check {
+  width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+  margin-top: 1px; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; cursor: pointer;
+}
+.check.done-c  { background: #1a4d1a; color: #4ade80; }
+.check.todo    { background: #1a1a2e; border: 1px solid #3a3a6a; color: transparent; }
+.check.active  { background: #2d1f00; border: 1px solid #7c5200; color: #f59e0b; }
+
+.item .text  { flex: 1; }
+.item .cmd   { font-family: monospace; font-size: 10px; color: #6ee7f7; background: rgba(110,231,247,0.08); padding: 1px 5px; border-radius: 3px; margin-top: 3px; display: block; }
+.item .warn  { font-size: 10px; color: #f87171; margin-top: 2px; display: block; }
+.item .note  { font-size: 10px; color: #888; margin-top: 2px; display: block; }
+.item .tag   { font-size: 9px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+.tag.green  { background: #1a3d1a; color: #4ade80; }
+.tag.amber  { background: #2d1f00; color: #f59e0b; }
+.tag.blue   { background: #1a1a2e; color: #818cf8; }
+.tag.red    { background: #2d0a0a; color: #f87171; }
+
+.progress-bar { height: 3px; background: #1a1a2e; border-radius: 2px; margin: 6px 0; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+.phase-label { font-size: 13px; font-weight: 700; flex: 1; }
+.arrow { font-size: 10px; color: #555; transition: transform 0.2s; }
+.arrow.open { transform: rotate(90deg); }
+
+.key-status { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding: 10px 14px; background: #0d1117; border-radius: 8px; border: 1px solid #1a2a1a; }
+.key-item { display: flex; align-items: center; gap: 5px; font-size: 10px; }
+.key-dot { width: 7px; height: 7px; border-radius: 50%; }
+.key-dot.ok  { background: #4ade80; }
+.key-dot.miss { background: #f87171; }
+
+.total-bar { background: #1a1a2e; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 11px; color: #888; }
+.total-bar strong { color: #e8e8f0; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>⚡ QUANTUMALPHA — LIVE ROADMAP</h1>
+<p class="subtitle">دست راستت اینجاست | هر گام رو تیک بزن وقتی تموم شد</p>
+
+<div class="key-status">
+  <span style="font-size:10px;color:#888;margin-right:4px;">API Keys:</span>
+  <div class="key-item"><div class="key-dot ok"></div><span>Anthropic ✓</span></div>
+  <div class="key-item"><div class="key-dot ok"></div><span>CryptoQuant ✓</span></div>
+  <div class="key-item"><div class="key-dot ok"></div><span>Coinalyze ✓</span></div>
+  <div class="key-item"><div class="key-dot ok"></div><span>LunarCrush ✓</span></div>
+  <div class="key-item"><div class="key-dot ok"></div><span>Telegram ✓</span></div>
+  <div class="key-item"><div class="key-dot miss"></div><span>GoPlus ✗ (free tier OK)</span></div>
+</div>
+
+<!-- PHASE 0 -->
+<div class="phase phase-0" id="p0">
+  <div class="phase-header" onclick="toggle('p0')">
+    <span class="badge done">DONE ✓</span>
+    <span class="phase-label">PHASE 0 — Architecture & Forensics</span>
+    <span class="arrow" id="p0-arr">▶</span>
+  </div>
+  <div class="phase-body" id="p0-body">
+    <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#4ade80"></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">Field value tri-state (MEASURED/MISSING/UNRELIABLE)<span class="note">modules/field_value.py</span></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">ScoutForensics — LP lock, hooks, cluster, blacklist<span class="note">modules/scout_forensics.py</span></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">On-chain LP lock via burn+locker contracts<span class="note">modules/onchain_lp_lock.py</span></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">Launch cluster (first-N-block Etherscan)<span class="note">modules/launch_cluster.py</span></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">VetoEngine: SOCIAL_ZERO P-A fix, anomaly guard, flat holder thresholds<span class="note">modules/veto_engine.py</span></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">OPG در forensic blacklist<span class="note">config.py → FORENSIC_BLACKLIST</span></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">LLM: advisory mode، killer fields، no manufactured conviction<span class="note">modules/llm_evaluator.py</span></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">Edge framework: ENERGY/DISLOCATION/YIELD/PATIENCE<span class="note">edges.yaml + modules/edge_classifier.py</span></div></div>
+    <div class="item"><div class="check done-c">✓</div><div class="text">ENERGY funnel (CPU/ARM-mineable coins)<span class="note">modules/energy_funnel.py</span></div></div>
+  </div>
+</div>
+
+<!-- PHASE 1 -->
+<div class="phase phase-1" id="p1">
+  <div class="phase-header" onclick="toggle('p1')">
+    <span class="badge now">NOW ←</span>
+    <span class="phase-label">PHASE 1 — Wire & First Live Run</span>
+    <span class="arrow" id="p1-arr">▶</span>
+  </div>
+  <div class="phase-body" id="p1-body">
+    <div class="progress-bar"><div class="progress-fill" style="width:0%;background:#f59e0b"></div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>1.1</strong> وصل کردن EdgeClassifier به main.py
+      <span class="note">بعد از VetoEngine، قبل از Allocator — هر coin بدون edge_present رد میشه</span>
+      <span class="cmd">بگو: "EdgeClassifier را به pipeline وصل کن"</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>1.2</strong> تست اول با keys واقعی — یک‌بار اجرا، PAPER_MODE=True
+      <span class="cmd">cd QuantumAlphaBot && python main.py --once</span>
+      <span class="warn">اگه error داد، output رو بیار اینجا — درستش میکنیم</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>1.3</strong> تلگرام report میاد؟ چک کن پیام رسید
+      <span class="note">باید یه گزارش با سیکل واقعی تو تلگرامت بیاد</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>1.4</strong> نتیجه سیکل اول رو اینجا بیار — با هم آنالیز میکنیم
+      <span class="note">کدوم کوین‌ها پیدا شدن؟ چرا همه رد شدن؟ edge_present برای کدوم؟</span>
+    </div></div>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="phase phase-2" id="p2">
+  <div class="phase-header" onclick="toggle('p2')">
+    <span class="badge next">NEXT</span>
+    <span class="phase-label">PHASE 2 — ENERGY Funnel Live</span>
+    <span class="arrow" id="p2-arr">▶</span>
+  </div>
+  <div class="phase-body" id="p2-body">
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>2.1</strong> اضافه کردن algo + network_hashrate به GemHunter از CoinGecko
+      <span class="note">الان این دو فیلد کشیده نمیشن — بدون اینا ENERGY edge هیچوقت active نمیشه</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>2.2</strong> EnergyFunnel رو موازی با GemHunter اجرا کن
+      <span class="note">یه sourcing جداگانه برای PoW/CPU-mineable کوین‌ها</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>2.3</strong> اولین ENERGY candidate واقعی پیدا بشه
+      <span class="note">هدف: یه کوین RandomX/Yespower با fleet share قابل قبول</span>
+      <span class="tag amber">MILESTONE</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>2.4</strong> hashrate + cost model واقعی — چک کن ماین کردنش سوده؟
+      <span class="note">با برق ۵ سنت و fleet hashrate فعلی‌ات</span>
+    </div></div>
+  </div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="phase phase-3" id="p3">
+  <div class="phase-header" onclick="toggle('p3')">
+    <span class="badge next">NEXT</span>
+    <span class="phase-label">PHASE 3 — Forensics Live (DexScreener + Etherscan)</span>
+    <span class="arrow" id="p3-arr">▶</span>
+  </div>
+  <div class="phase-body" id="p3-body">
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>3.1</strong> DexScreener calls واقعی — lp_locked_pct از MISSING به MEASURED
+      <span class="note">الان sandbox مسدوده — روی ماشین خودت کار میکنه</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>3.2</strong> On-chain LP lock — public RPC روی ethereum/base
+      <span class="note">modules/onchain_lp_lock.py آماده‌ست، فقط باید روی ماشین تست بشه</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>3.3</strong> Etherscan/Basescan launch cluster — اولین سیکل با cluster data واقعی
+      <span class="note">modules/launch_cluster.py — نیاز به تست روی ماشین داره</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>3.4</strong> GoPlus contract mutability — is_proxy + is_mintable وصل کن
+      <span class="note">HolderChecker رو آپدیت کن که این دو فیلد رو هم بکشه</span>
+    </div></div>
+  </div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="phase phase-4" id="p4">
+  <div class="phase-header" onclick="toggle('p4')">
+    <span class="badge next">NEXT</span>
+    <span class="phase-label">PHASE 4 — DISLOCATION Edge Live</span>
+    <span class="arrow" id="p4-arr">▶</span>
+  </div>
+  <div class="phase-body" id="p4-body">
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>4.1</strong> fear_type classifier — PANIC_SELL vs INSIDER_DUMP از on-chain data
+      <span class="note">holder_count_delta طی دوره drawdown — GoPlus historical</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>4.2</strong> اولین DISLOCATION candidate واقعی — کوینی که panic sell خورده ولی forensics تمیزه
+      <span class="tag amber">MILESTONE</span>
+    </div></div>
+
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>4.3</strong> SPECULATIVE sleeve allocation — اولین خرید واقعی با edge_present
+      <span class="warn">⚠️ فقط بعد از اینکه paper mode چند سیکل درست کار کرد</span>
+    </div></div>
+  </div>
+</div>
+
+<!-- PHASE 5 -->
+<div class="phase phase-5" id="p5">
+  <div class="phase-header" onclick="toggle('p5')">
+    <span class="badge later">LATER</span>
+    <span class="phase-label">PHASE 5 — Production & Monitoring</span>
+    <span class="arrow" id="p5-arr">▶</span>
+  </div>
+  <div class="phase-body" id="p5-body">
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>5.1</strong> Schedule هر ۶ ساعت — Windows Task Scheduler یا Linux cron
+      <span class="cmd">python main.py  (بدون --once)</span>
+    </div></div>
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>5.2</strong> Telegram alert برای هر edge_present=True
+      <span class="note">فعلاً همه سیکل‌ها NO_EDGE هستن — اولین alert مهمه</span>
+    </div></div>
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>5.3</strong> paper_ledger review هر ۱۰ سیکل — threshold کالیبراسیون
+      <span class="note">بیا اینجا — با هم data رو نگاه میکنیم و تنظیم میکنیم</span>
+    </div></div>
+    <div class="item"><div class="check todo" onclick="tick(this)">✓</div><div class="text">
+      <strong>5.4</strong> اولین allocation واقعی — CORE sleeve با ENERGY edge
+      <span class="tag red">REAL MONEY</span>
+      <span class="warn">⚠️ فقط بعد از ۳۰+ سیکل paper mode و کالیبراسیون</span>
+    </div></div>
+  </div>
+</div>
+
+<script>
+function toggle(id) {
+  const body = document.getElementById(id + '-body');
+  const arr  = document.getElementById(id + '-arr');
+  body.classList.toggle('open');
+  arr.classList.toggle('open');
+}
+function tick(el) {
+  if (el.classList.contains('done-c')) {
+    el.classList.remove('done-c');
+    el.classList.add('todo');
+    el.style.color = 'transparent';
+  } else {
+    el.classList.remove('todo', 'active');
+    el.classList.add('done-c');
+    el.style.color = '#4ade80';
+    el.textContent = '✓';
+  }
+}
+// Open phase 1 by default
+toggle('p1');
+</script>
+</body>
+</html>

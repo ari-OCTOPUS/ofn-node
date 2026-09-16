@@ -1,0 +1,13 @@
+{
+  "logical_id": "urn:octopus:organ:doctor",
+  "entity_type": "Organ",
+  "display_name": "Doctor (ممیزی/تکاملِ governed)",
+  "physical_path": "_ops/doctor",
+  "owner": "ari",
+  "risk_tier": "R2",
+  "autonomy_level": "L1",
+  "live_state": "live",
+  "approval_state": "approved",
+  "capabilities": ["C0_observe", "C1_read_project", "C2_write_staging"],
+  "notes": "auditor/proposer — RFC ِ propose-only؛ جهش فقط sandbox→RFC→merge با مالک (منطبق با DoctorGovernance ِ URCP)."
+}

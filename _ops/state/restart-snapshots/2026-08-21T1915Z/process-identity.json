@@ -1,0 +1,12 @@
+{
+  "event": "TELEGRAM_PROCESS_STARTED",
+  "process_id": 27884,
+  "started_at": "2026-08-21T07:54:04Z",
+  "started_at_unix": 1787298844.6232817,
+  "git_commit": "",
+  "center_py_sha256": "34366c305ff6693ab2d1cd81b22a3f44d1cd12f5b32e3b044c21c5e24c01c200",
+  "handler_schema_version": "typed-v1",
+  "bot_id": 7992324219,
+  "poller_lease_id": "center-canonical",
+  "short_build_id": "?/typed-v1"
+}

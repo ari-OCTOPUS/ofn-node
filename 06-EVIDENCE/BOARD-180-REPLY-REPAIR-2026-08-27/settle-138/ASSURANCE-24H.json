@@ -1,0 +1,19 @@
+﻿{
+    "runtime_mode":  "PERSISTENT_GREEN",
+    "window_start_aest":  "2026-08-27T12:50:00+10:00",
+    "telegram_production":  "BLOCKED",
+    "scheduler_hold_new_cycles":  false,
+    "node":  "138",
+    "result":  "PASS",
+    "ofn_service":  "active",
+    "external_effects_business":  0,
+    "window_end_aest":  "2026-08-28T12:50:00+10:00",
+    "status":  "GREEN",
+    "at_utc":  "2026-08-27T14:55:09Z",
+    "notes":  [
+                  "owner-dialogue TG only (allowed exception)",
+                  "no TG prod / OF / Shopify mutate / second canary"
+              ],
+    "scheduler_timer":  "active",
+    "event":  "ASSURANCE-24H"
+}

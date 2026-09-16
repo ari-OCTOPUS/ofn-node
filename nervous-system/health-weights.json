@@ -1,0 +1,6 @@
+{
+  "_comment": "وزن‌های health score CH-07. مجموع باید 1.0 باشد (اختیاری).",
+  "system": 0.40,
+  "fitness": 0.35,
+  "telemetry": 0.25
+}

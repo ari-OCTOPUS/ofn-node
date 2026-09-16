@@ -1,0 +1,265 @@
+{
+  "schema": "octopus-epistemics-topology/1",
+  "task": "OCTOPUS-EPISTEMICS-TOPOLOGY-2026-08-23",
+  "STATUS": "PASS",
+  "checked_at_local": "2026-08-23T04:35:14+10:00",
+  "checked_at_utc": "2026-08-22T18:35:14Z",
+  "constraints_honored": {
+    "no_live_send": true,
+    "no_center_restart": true,
+    "no_enable_wire": true,
+    "OCTOPUS_WIRE_EPISTEMICS": "OFF",
+    "no_mass_commit": true,
+    "no_secrets": true,
+    "fail_closed": true,
+    "no_self_awareness_claim": true,
+    "no_invented_edges": true
+  },
+  "gap_closed": "levels topology enriched beyond 3-node uniqueness graph via on-disk hardware/boards/doctor/wave sources",
+  "topology_meta": {
+    "n_nodes": 27,
+    "n_edges": 27,
+    "nodes": [
+      "uniq:center",
+      "uniq:lease",
+      "uniq:lock",
+      "hw:laptop",
+      "hw:orangepi",
+      "hw:board2",
+      "board2_leg:lead",
+      "board2_leg:studio",
+      "board2_leg:hypno_fugu_mini",
+      "board2_leg:panel",
+      "board2_leg:ziman",
+      "doctor:Warden",
+      "doctor:Archivist",
+      "doctor:Dreamer",
+      "doctor:Skeptic",
+      "doctor:Integrator",
+      "doctor:null-dreamer",
+      "wave:wave0_soft",
+      "wave:mqtt_local",
+      "wave:esp32_feeds",
+      "wave:torch",
+      "wave:ckpt348",
+      "wave:board2_status",
+      "wave:board2_canonical",
+      "organ:cortex",
+      "organ:doctor",
+      "organ:money"
+    ],
+    "has_adjacency": true,
+    "sources_probed": {
+      "uniqueness": true,
+      "hardware_pointer": true,
+      "boards_legs_map": true,
+      "doctor_box_latest": true,
+      "registry_latest": true
+    }
+  },
+  "levels_metric": {
+    "value": {
+      "eigenvalues": [
+        -0.0,
+        -0.0,
+        -0.0,
+        0.1288,
+        0.4168,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        3.0,
+        3.0,
+        4.0,
+        5.0626,
+        6.0,
+        7.2385,
+        9.1534
+      ],
+      "algebraic_connectivity": -0.0,
+      "spectral_gap": 0.0
+    },
+    "sample_size": 27,
+    "authoritative": true,
+    "confidence": 1.0,
+    "notes": "Laplacian spectrum of the internal graph",
+    "MIN_SAMPLES": 8
+  },
+  "live_samples": {
+    "n_state_labels": 127,
+    "n_channel_pairs": 84,
+    "topology_nodes": 27,
+    "topology_edges": 27,
+    "n_self_vs_twin": 484,
+    "outbox_counts": {
+      "CONFIRMED": 18,
+      "NEEDS_RECONCILIATION": 2,
+      "DRY_RUN_NO_SEND": 1
+    }
+  },
+  "metrics_preview": [
+    {
+      "metric": "identifiability",
+      "value": 8.6817,
+      "sample_size": 127,
+      "notes": "perplexity (N_eff) over 14 distinct states",
+      "epistemic_label": "",
+      "ts": 1787423714.5385165,
+      "schema": 1,
+      "type": "EPI_METRIC",
+      "confidence": 0.635,
+      "authoritative": false
+    },
+    {
+      "metric": "channel",
+      "value": 0.6886,
+      "sample_size": 84,
+      "notes": "I(X;Y) in nats; plug-in estimator, positively biased on small n",
+      "epistemic_label": "",
+      "ts": 1787423714.5386076,
+      "schema": 1,
+      "type": "EPI_METRIC",
+      "confidence": 0.168,
+      "authoritative": false
+    },
+    {
+      "metric": "levels",
+      "value": {
+        "eigenvalues": [
+          -0.0,
+          -0.0,
+          -0.0,
+          0.1288,
+          0.4168,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          2.0,
+          3.0,
+          3.0,
+          4.0,
+          5.0626,
+          6.0,
+          7.2385,
+          9.1534
+        ],
+        "algebraic_connectivity": -0.0,
+        "spectral_gap": 0.0
+      },
+      "sample_size": 27,
+      "notes": "Laplacian spectrum of the internal graph",
+      "epistemic_label": "",
+      "ts": 1787423714.5389717,
+      "schema": 1,
+      "type": "EPI_METRIC",
+      "confidence": 1.0,
+      "authoritative": true
+    },
+    {
+      "metric": "self_reference",
+      "value": 0.49972,
+      "sample_size": 484,
+      "notes": "FUNCTIONAL self-modeling verdict only (>0 = better-than-twin). NOT a consciousness/transcendence claim.",
+      "epistemic_label": "",
+      "ts": 1787423714.5390646,
+      "schema": 1,
+      "type": "EPI_METRIC",
+      "confidence": 1.0,
+      "authoritative": true
+    },
+    {
+      "metric": "method",
+      "value": {
+        "antecedent_S": "identifiability, channel, levels, self_reference all hold above calibrated thresholds",
+        "consequent_L": "the system MAY be labeled as exhibiting FUNCTIONAL relative self-modeling",
+        "conditional": true,
+        "unconditional_claim": false,
+        "phenomenal_claim": false
+      },
+      "sample_size": 1,
+      "notes": "conditional S=>L only; asserts nothing unconditional or phenomenal",
+      "epistemic_label": "",
+      "ts": 1787423714.5390806,
+      "schema": 1,
+      "type": "EPI_METRIC",
+      "confidence": 1.0,
+      "authoritative": true
+    }
+  ],
+  "authoritative_metrics": [
+    "levels",
+    "self_reference",
+    "method"
+  ],
+  "honesty": [
+    "No claim that OCTOPUS is self-aware or conscious.",
+    "Topology edges only from evidenced sources (uniqueness checks, CURRENT-HARDWARE LAN, Board2 legs map, doctor box role tree, present wave evidence dirs, registry live organs to SoT hub).",
+    "levels authoritative only means sample_size>=MIN_SAMPLES=8 for Laplacian spectrum; not a phenomenal claim.",
+    "OCTOPUS_WIRE_EPISTEMICS left OFF; no emit; no live send; no restart."
+  ],
+  "tests": {
+    "test_epistemics_readers": "8/8 PASS",
+    "test_phase4_epistemics": "13/13 PASS",
+    "live_send": false,
+    "wire_enabled": false
+  },
+  "files_changed": [
+    "_ops/epistemics/readers.py",
+    "_ops/epistemics/run_offloop.py",
+    "_ops/tests/test_epistemics_readers.py"
+  ],
+  "reversible": {
+    "bak_readers": "_ops/epistemics/readers.py.bak-2026-08-23-topology",
+    "bak_run_offloop": "_ops/epistemics/run_offloop.py.bak-2026-08-23-topology",
+    "bak_tests": "_ops/tests/test_epistemics_readers.py.bak-2026-08-23-topology"
+  },
+  "files_sha256": {
+    "readers.py": "f328449c9859f7d0a99ec24d6433f3ef229ab2f80441dc1ba4495889300449cc",
+    "run_offloop.py": "5998a10b4d1849f621e3218d604a3bbc51c621e7eca120e3ba801360b185687e",
+    "test_epistemics_readers.py": "304db6aca2ffe08464442c053be9efb7b80909268914e6b3738741502c801a60"
+  },
+  "commit": {
+    "made": false,
+    "reason": "no mass commit"
+  },
+  "NEXT": [
+    {
+      "rank": 1,
+      "gap": "identifiability/channel still non-authoritative (need 200/500 samples)",
+      "action": "Accumulate natural uniqueness/outbox/audit cadence; do not lower MIN_SAMPLES casually"
+    },
+    {
+      "rank": 2,
+      "gap": "OCTOPUS_WIRE_EPISTEMICS remains OFF (Phase 5)",
+      "action": "Keep off until owner GO; advisory-only if ever enabled"
+    },
+    {
+      "rank": 3,
+      "gap": "A18 live owner-chat canary still BLOCKED",
+      "action": "No live TG send this wave; wait owner GO"
+    }
+  ]
+}

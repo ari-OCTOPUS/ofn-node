@@ -1,0 +1,13 @@
+{
+  "ts_utc": "20260824T062450Z",
+  "last_run_ts": "20260824T061944Z",
+  "freshness_ts": "20260824T062450Z",
+  "written_ts": "20260824T062450Z",
+  "ts_utc_age_sec": 1.362314,
+  "last_run_ts_age_sec": 307.362314,
+  "freshness_ts_age_sec": 1.362314,
+  "written_ts_age_sec": 1.362314,
+  "mtime_age_sec": 1.027141809463501,
+  "ok_count": 7,
+  "expected_feeds": 7
+}

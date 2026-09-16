@@ -1,0 +1,26 @@
+﻿{
+    "producer":  "Ios",
+    "schema":  "octopus-heart-deep-audit/1",
+    "on_table":  [
+                     "shadow_vs_live_sot",
+                     "producers_gate0",
+                     "doctor_setpoint_adr001",
+                     "work_pump_wires",
+                     "money_life_fuel",
+                     "sog_sim_lock",
+                     "state_jsonl_rot",
+                     "doc_drift"
+                 ],
+    "stamp_local":  "2026-08-25T07:09:05+10:00",
+    "owner_keep":  [
+                       "three_hearts",
+                       "pulse_arbiter"
+                   ],
+    "live":  {
+                 "production_wire_open":  false,
+                 "arbiter_period_s":  98.34,
+                 "advisory_only":  true,
+                 "arbiter_color":  "GREEN",
+                 "shadow_period_s":  266.81
+             }
+}

@@ -1,0 +1,191 @@
+{
+  "VERDICT": "PASS_WITH_FINDINGS",
+  "findings": [
+    "knowledge-dead-feedback-until-owner-vote"
+  ],
+  "organs_total": 14,
+  "LIVE": 8,
+  "SKELETON": 4,
+  "ORPHAN": 0,
+  "DEAD": 0,
+  "DUPLICATE": 0,
+  "UNSAFE": 2,
+  "afferent_starvation_root_cause": "MIXED",
+  "organs_wired": [
+    "knowledge"
+  ],
+  "new_real_afferent_events": 655,
+  "knowledge_metrics": {
+    "notes_total": 655,
+    "notes_changed_last_hour": 7,
+    "frontmatter_valid_ratio": 0.4397,
+    "broken_links_count": null,
+    "untagged_ratio": 0.4931,
+    "stale_notes_ratio": 0.6107,
+    "knowledge_afferent_events": 655,
+    "duplicates_suppressed": 0,
+    "malformed": 0,
+    "ineligible_temporal": 0,
+    "future_use": 0,
+    "fabricated_occurred_at": 0,
+    "knowledge_afferent_events_per_min": 39300.0
+  },
+  "mapper_actionable_drift": 1257,
+  "lead_failure_class": "ACK_TIMEOUT",
+  "loop_breakers_implemented": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R5"
+  ],
+  "dead_feedback_loops": [
+    "knowledge"
+  ],
+  "cognition_inbox_status": {
+    "schema": "cognition-inbox-receipts/1",
+    "ts": 1787217673.2900984,
+    "receipts": [
+      {
+        "brain": "cortex",
+        "heard": true,
+        "input_ids": [
+          "knowledge-burst",
+          "982ad8357f2566a0",
+          "e13bfa0199ce4838",
+          "892db9d83af7b524",
+          "4b6132e348f3a410",
+          "e02c9430c73c3d68",
+          "48c9c39368ce9c03",
+          "accb4eae6fdbf1cd",
+          "8112db7a07138ea7"
+        ],
+        "output_kind": "advisory",
+        "evidence_ids": [
+          "knowledge-burst",
+          "982ad8357f2566a0",
+          "e13bfa0199ce4838",
+          "892db9d83af7b524",
+          "4b6132e348f3a410",
+          "e02c9430c73c3d68",
+          "48c9c39368ce9c03",
+          "accb4eae6fdbf1cd",
+          "8112db7a07138ea7"
+        ],
+        "executable": false,
+        "status": "ok"
+      },
+      {
+        "brain": "business_brain",
+        "heard": true,
+        "input_ids": [
+          "knowledge-burst",
+          "982ad8357f2566a0",
+          "e13bfa0199ce4838",
+          "892db9d83af7b524",
+          "4b6132e348f3a410",
+          "e02c9430c73c3d68",
+          "48c9c39368ce9c03",
+          "accb4eae6fdbf1cd",
+          "8112db7a07138ea7"
+        ],
+        "output_kind": "advisory",
+        "evidence_ids": [
+          "knowledge-burst",
+          "982ad8357f2566a0",
+          "e13bfa0199ce4838",
+          "892db9d83af7b524",
+          "4b6132e348f3a410",
+          "e02c9430c73c3d68",
+          "48c9c39368ce9c03",
+          "accb4eae6fdbf1cd",
+          "8112db7a07138ea7"
+        ],
+        "executable": false,
+        "status": "ok"
+      },
+      {
+        "brain": "metacontrol",
+        "heard": true,
+        "input_ids": [
+          "knowledge-burst",
+          "982ad8357f2566a0",
+          "e13bfa0199ce4838",
+          "892db9d83af7b524",
+          "4b6132e348f3a410",
+          "e02c9430c73c3d68",
+          "48c9c39368ce9c03",
+          "accb4eae6fdbf1cd",
+          "8112db7a07138ea7"
+        ],
+        "output_kind": "advisory",
+        "evidence_ids": [
+          "knowledge-burst",
+          "982ad8357f2566a0",
+          "e13bfa0199ce4838",
+          "892db9d83af7b524",
+          "4b6132e348f3a410",
+          "e02c9430c73c3d68",
+          "48c9c39368ce9c03",
+          "accb4eae6fdbf1cd",
+          "8112db7a07138ea7"
+        ],
+        "executable": false,
+        "status": "ok"
+      }
+    ],
+    "advisories": {
+      "cortex": {
+        "kind": "advisory",
+        "text": "heard 9 organ events; executable=false",
+        "n_events": 9
+      },
+      "business_brain": {
+        "kind": "advisory",
+        "text": "projects=2 proposals=2",
+        "n_events": 9
+      },
+      "cortex_keys": [
+        "ts",
+        "cycle",
+        "coherence",
+        "stale_members",
+        "members",
+        "alignment",
+        "rhythm",
+        "brains"
+      ]
+    },
+    "brains_receive_cognition_inbox": 3,
+    "executable": false
+  },
+  "paid_calls": 0,
+  "AUD": 0,
+  "executable_unexpected": 0,
+  "telegram_lane_conflicts": 0,
+  "wiring": {
+    "schema": "organ-cartographer-wiring/1",
+    "agent": "agent_C",
+    "lane": "organs_and_afferent_wiring",
+    "executable": false,
+    "paid_calls": 0,
+    "flags": {
+      "knowledge_afferent": true,
+      "mapper_drift_lists": true,
+      "lead_activation": false,
+      "mining_wire": false,
+      "crypto_wire": false,
+      "accounting_amounts": false,
+      "studio_wire": false,
+      "cognition_inbox": true,
+      "loop_breakers": true,
+      "live_organism_hook": false
+    },
+    "rollback": "set any flag false; sidecar stops emitting; no organism restart required"
+  },
+  "elapsed_s": 264.798,
+  "lease_id": "d7cb5aa609e840d3b5378878581f4818",
+  "lease_scope": "evidence,organs,git,loop_breakers",
+  "commit": "b936a0f4cb6ac2c70e84c2a1bbe1e9326ccf438c",
+  "branch": "agent_C"
+}

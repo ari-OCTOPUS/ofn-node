@@ -1,0 +1,65 @@
+{
+  "engine_version": "v1",
+  "risk_posture": "maximum-within-charter",
+  "risk_posture_verdict": "آری 2026-07-06 — بیشترین autonomy مجاز؛ ارتقای خودکار به مد بعدی به‌محض سبز شدن پیش‌شرط‌های human-only؛ لیست سیاه (secret/پول/پیام خارجی/charter/git) و §Security Gate ساختاراً human-only",
+  "autonomy_level": "L0-shadow",
+  "autonomy_target": "L3",
+  "security_gate_status": "LIFTED",
+  "git_ready": false,
+  "external_calls_allowed": true,
+  "external_calls_unlock_conditions": [
+    "کلید Fugu در ROTATION_CHECKLIST ثبت و rotated",
+    "budget_ceiling_daily عددی شود",
+    "§Security Gate بسته + git init (برای L2+)"
+  ],
+  "budget_ceiling_daily": 2.0,
+  "current_cycle": {
+    "observed_at": null,
+    "hypothesis": null,
+    "fugu_call_pending": false,
+    "cost_accumulated_today": 0.0,
+    "next_action_proposal": null
+  },
+  "mutation_ledger_ref": "EXPERIENCE-LEDGER::pending-first-row",
+  "safety_memory": {
+    "reverted_mutations": []
+  },
+  "fallback_mode": false,
+  "fallback_order": [
+    "claude",
+    "local-model-phase2"
+  ],
+  "shadow_mode": false,
+  "last_sync_truth": null,
+  "created": "2026-07-06",
+  "spec": "00 - Inbox/2026-07-06 0222 LEARNING-ENGINE-DEPENDENCY-CONTRACT-v1.1-verdicts.md",
+  "budget_per_call_ceiling": 0.5,
+  "fugu_key_registered": "ROTATED (ردیف ۲۴، توسط مالک 2026-07-06)",
+  "security_gate_status_note": "synced 2026-07-06 با ARCHITECT_CHARTER §۲ (LIFTED؛ هر ۴ CRITICAL ROTATED؛ verdict «جمعش کن»). رفعِ دریفتِ D2 تحتِ verdict «اعمال کن» — برگشت‌پذیر (git/backup).",
+  "git_verdict": "آری 2026-07-06 boot#4: «تو بزن — verdict صریح» (تغییر از «نه» جلسه ۱۳)",
+  "last_boot": "2026-07-06",
+  "boot_answers": {
+    "rotation_status": "all-rotated (per owner)",
+    "fugu_key": "draft-by-agent",
+    "budget_daily_usd": 2.0,
+    "git_init": "agent-executes"
+  },
+  "git_note": "verdict «تو بزن» ثبت شد ولی mount سندباکس متادیتای git را خراب می‌کند (config با null-byte، lock بدون unlink) → اجرا Windows-side توسط مالک؛ اول حذف .git ناقص، بعد runbook build-proposals/04",
+  "external_calls_scope": "L1-propose-only — کلید ROTATED (ردیف ۲۴ توسط مالک) + budget $2/day عددی؛ فقط محتوای manifest-سبز؛ L2/L3 همچنان قفل (ردیف‌های ۱–۴ هنوز OPEN + charter + تأیید git)",
+  "runtime": "interactive-sessions-only (هنوز پروسه مستقل ندارد)",
+  "prompt_version": "v2",
+  "last_mutation_date": "2026-07-06",
+  "ledger_cursor": 47,
+  "ledger_cursor_note": "عدد صحیح = شمارهٔ ردیف آخرِ دیده‌شده در EXPERIENCE-LEDGER (طبق PROMPT-v2؛ جایگزینِ cursor تاریخی قدیم که هرگز > نمی‌شد)",
+  "mutation_count": 1,
+  "loop_task": "learning-engine-loop @ 35 * * * *",
+  "pilot": {
+    "name": "LAPTOP-PILOT-30D",
+    "day_zero": "2026-07-06",
+    "design": "00 - Inbox/2026-07-06 0350 LAPTOP-PILOT-30D-DESIGN.md",
+    "verdict": "آری: «زنده کن کل ساختارو»",
+    "week": 1,
+    "scope_live": "6 ratified + 19 scouts + survival-heartbeat + learning-engine-loop = 26 تسک",
+    "scope_dark": "لاین‌های پرفرکانس selfimprove (*/3، */15، */5) — تنها استثنا، محافظ سهمیه تعاملی؛ روشن‌کردن = یک کلمه verdict"
+  }
+}

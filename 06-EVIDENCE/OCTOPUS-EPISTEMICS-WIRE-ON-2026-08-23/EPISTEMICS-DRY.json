@@ -1,0 +1,21 @@
+{
+  "OCTOPUS_WIRE_EPISTEMICS_environ": "1",
+  "wiring_flag": true,
+  "flags_loaded_pid": 29020,
+  "flags_loaded_value": "1",
+  "epistemics_beat_return": {
+    "metrics_count": 5,
+    "authoritative_count": 3,
+    "advisory_only": true
+  },
+  "offloop_metric_names": [
+    "identifiability",
+    "channel",
+    "levels",
+    "self_reference",
+    "method"
+  ],
+  "live_tg_send": false,
+  "emit": false,
+  "note": "dry/advisory; live_loop=None; no emit; no TG"
+}

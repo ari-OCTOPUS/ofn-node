@@ -1,0 +1,180 @@
+{
+  "ts": "2026-09-04T11:19:33",
+  "cycle": 139,
+  "coherence": 0.95,
+  "stale_members": [],
+  "members": [
+    {
+      "id": "organism",
+      "present": true,
+      "awareness": 0.996,
+      "age_s": 12,
+      "sla_s": 1800,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "ORGANISM-STATE.json"
+    },
+    {
+      "id": "heart",
+      "present": true,
+      "awareness": 0.97,
+      "age_s": 218,
+      "sla_s": 3600,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-shadow-latest.json"
+    },
+    {
+      "id": "producers",
+      "present": true,
+      "awareness": 0.97,
+      "age_s": 218,
+      "sla_s": 3600,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-signals-latest.json"
+    },
+    {
+      "id": "work_pump",
+      "present": true,
+      "awareness": 0.985,
+      "age_s": 218,
+      "sla_s": 7200,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/work-state.json"
+    },
+    {
+      "id": "doctor_setpoint",
+      "present": true,
+      "awareness": 0.816,
+      "age_s": 63503,
+      "sla_s": 172800,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-setpoint-latest.json"
+    },
+    {
+      "id": "governor",
+      "present": true,
+      "awareness": 0.999,
+      "age_s": 17,
+      "sla_s": 7200,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "telemetry-latest.json"
+    },
+    {
+      "id": "sigma",
+      "present": true,
+      "awareness": 0.883,
+      "age_s": 40510,
+      "sla_s": 172800,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "replication-latest.json"
+    },
+    {
+      "id": "fitness",
+      "present": true,
+      "awareness": 0.883,
+      "age_s": 40511,
+      "sla_s": 172800,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "fitness-latest.json"
+    },
+    {
+      "id": "school",
+      "present": true,
+      "awareness": 0.923,
+      "age_s": 39946,
+      "sla_s": 259200,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "school-awareness.json"
+    },
+    {
+      "id": "reconcile",
+      "present": true,
+      "awareness": 0.922,
+      "age_s": 40507,
+      "sla_s": 259200,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "reconcile-latest.json"
+    },
+    {
+      "id": "fourd_system",
+      "present": true,
+      "awareness": 0.958,
+      "age_s": 605,
+      "sla_s": 7200,
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/fourd-health-latest.json"
+    }
+  ],
+  "alignment": {
+    "changed": false,
+    "aligned": true,
+    "reason": "هم‌راستا بود"
+  },
+  "rhythm": {
+    "period_s": 600.0,
+    "source": "×۲ قلبِ سایه (489.97s)"
+  },
+  "brains": {
+    "keys": {
+      "fugu": true,
+      "glm": true,
+      "deepseek": true
+    },
+    "paid_gate": "research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست",
+    "local_model": "qwen2.5:1.5b"
+  },
+  "thought": "[local] می‌بینیم که مجموعه‌ای که به شکل‌های مختلفی می‌تواند تعریف شود، دارای تعدادی از اعضا بیش از 10 است. این مجموعه‌ای در میانه از وضعیت‌ها که دارای تغییرات کم",
+  "stress": {
+    "level": "🔴 ترس",
+    "organism_stress": 0.79,
+    "in_fear": [
+      "legs",
+      "alerts"
+    ]
+  },
+  "innervation": {
+    "coverage_pct": 100.0,
+    "dead_spots": [],
+    "heart_period_s": 489.97
+  },
+  "fourd_health": {
+    "status": "stale",
+    "age_s": 1221117
+  },
+  "ignition": {
+    "ignited": true,
+    "winner": "alerts",
+    "broadcast_width": 3,
+    "n_candidates": 9
+  },
+  "calibration": {
+    "n": 1373,
+    "brier": 0.062119,
+    "aurc": 0.10531,
+    "ungraded": 629
+  },
+  "consolidate": {
+    "n_in": 6,
+    "n_semantic": 0,
+    "archived": 6
+  },
+  "truth_sync": {
+    "skipped": "cooldown",
+    "next_in_s": 578.7
+  },
+  "owner_guidance": {
+    "focus": "موانع چیست",
+    "_ts": "2026-08-13T07:08:34"
+  },
+  "schema": "cortex-state.v1"
+}

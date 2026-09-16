@@ -1,0 +1,19 @@
+{
+  "schema": "shopify-2fa-recovery/1",
+  "stamp_local": "2026-08-23T11:55:24+10:00",
+  "account_hint": "Ziman Shopify (aram@ziman-gift.com / Maliheh session)",
+  "method": "SMS delivery",
+  "codes": [
+    "3559-7AC9-D8A6",
+    "4868-542B-0988",
+    "0C84-357E-50AD",
+    "62AE-5A20-02FB",
+    "9CE5-11E3-63E3",
+    "F93C-BA7A-669A",
+    "9A0D-3EA8-1380",
+    "24FE-DC1F-A716",
+    "E320-37FA-618A",
+    "FEE3-8720-8AA5"
+  ],
+  "warning": "SECRET recovery codes. Board2 vault only. Never chat/Telegram/Shopify UI paste unless account recovery."
+}

@@ -1,0 +1,112 @@
+{
+  "stamp": "20260824T073318Z",
+  "jobs": [
+    {
+      "sku": "ZM-GALLERY-0007",
+      "product_id": "8688854564964",
+      "title": "Red Balloon Box with White Roses, Cream Teddy & LED",
+      "deleted": [
+        {
+          "id": 43902515773540,
+          "position": 1,
+          "filename": "IMG_3984.HEIC",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3984.HEIC?v=1787550879"
+        },
+        {
+          "id": 43902545854564,
+          "position": 2,
+          "filename": "IMG_3987.jpg",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3987.jpg?v=1787551821"
+        },
+        {
+          "id": 43902546215012,
+          "position": 3,
+          "filename": "IMG_3746.HEIC",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3746.HEIC?v=1787551825"
+        },
+        {
+          "id": 43902546280548,
+          "position": 4,
+          "filename": "IMG_3980.HEIC",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3980.HEIC?v=1787551829"
+        }
+      ],
+      "uploaded": [
+        {
+          "shopify_image_id": 43903065129060,
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_4447.jpg?v=1787556802",
+          "position": 1,
+          "uploaded_as": "IMG_4447.jpg"
+        },
+        {
+          "shopify_image_id": 43903065325668,
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3740.HEIC?v=1787556807",
+          "position": 2,
+          "uploaded_as": "IMG_3740.HEIC"
+        }
+      ],
+      "images_after": [
+        {
+          "id": 43903065129060,
+          "position": 1,
+          "filename": "IMG_4447.jpg",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_4447.jpg?v=1787556802"
+        },
+        {
+          "id": 43903065325668,
+          "position": 2,
+          "filename": "IMG_3740.HEIC",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3740.HEIC?v=1787556807"
+        }
+      ],
+      "result": "PASS"
+    },
+    {
+      "sku": "ZM-GALLERY-0008",
+      "product_id": "8688854630500",
+      "title": "Cream Flower Basket with Brown Pearl Detailing",
+      "kept": [
+        {
+          "id": 43902522490980,
+          "position": 1,
+          "filename": "IMG_2978.jpg",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_2978.jpg?v=1787551035"
+        }
+      ],
+      "deleted": [
+        {
+          "id": 43902546313316,
+          "position": 2,
+          "filename": "IMG_3101.jpg",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3101.jpg?v=1787551833"
+        },
+        {
+          "id": 43902546739300,
+          "position": 3,
+          "filename": "IMG_3636.HEIC",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3636.HEIC?v=1787551837"
+        },
+        {
+          "id": 43902546772068,
+          "position": 4,
+          "filename": "IMG_3728.jpg",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_3728.jpg?v=1787551842"
+        }
+      ],
+      "images_after": [
+        {
+          "id": 43902522490980,
+          "position": 1,
+          "filename": "IMG_2978.jpg",
+          "src": "https://cdn.shopify.com/s/files/1/0799/8973/5524/files/IMG_2978.jpg?v=1787551035"
+        }
+      ],
+      "result": "PASS"
+    }
+  ],
+  "0014": {
+    "status": "HOLD_NO_MUTATE",
+    "note": "0014 HOLD — no mutate"
+  },
+  "result": "PASS"
+}

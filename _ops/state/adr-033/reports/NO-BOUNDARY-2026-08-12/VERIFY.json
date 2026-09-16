@@ -1,0 +1,67 @@
+{
+  "limbs": {},
+  "live_enabled": true,
+  "flags-loaded-organism.json": {
+    "OCTOPUS_COLLAB_MODEL_DAILY_CAP": "200",
+    "OCTOPUS_IMPROVE_REFRACTORY_H": "0",
+    "OCTOPUS_WIRE_HARVEST": "1",
+    "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE_LLM": "1",
+    "OCTOPUS_WIRE_VALUE_LEDGER": "1",
+    "OCTOPUS_ENFORCE_MONEY_FSM": "1",
+    "OCTOPUS_INITIATIVE_UNCAPPED": "1",
+    "OCTOPUS_LEAD_DAILY_SEND_CAP": "100",
+    "OCTOPUS_WIRE_PULSE_ARBITER_SHADOW": "1",
+    "OCTOPUS_WIRE_CRITICALITY_OTLP": "1",
+    "OCTOPUS_KILL_SWITCH": null,
+    "OCTOPUS_OTLP_ALLOW_REMOTE": null,
+    "pid": 19072
+  },
+  "flags-loaded-cortex.json": {
+    "OCTOPUS_COLLAB_MODEL_DAILY_CAP": "200",
+    "OCTOPUS_IMPROVE_REFRACTORY_H": "0",
+    "OCTOPUS_WIRE_HARVEST": "1",
+    "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE_LLM": "1",
+    "OCTOPUS_WIRE_VALUE_LEDGER": "1",
+    "OCTOPUS_ENFORCE_MONEY_FSM": "1",
+    "OCTOPUS_INITIATIVE_UNCAPPED": "1",
+    "OCTOPUS_LEAD_DAILY_SEND_CAP": "100",
+    "OCTOPUS_WIRE_PULSE_ARBITER_SHADOW": "1",
+    "OCTOPUS_WIRE_CRITICALITY_OTLP": "1",
+    "OCTOPUS_KILL_SWITCH": null,
+    "OCTOPUS_OTLP_ALLOW_REMOTE": null,
+    "pid": 12004
+  },
+  "flags-loaded-center.json": {
+    "OCTOPUS_COLLAB_MODEL_DAILY_CAP": "200",
+    "OCTOPUS_IMPROVE_REFRACTORY_H": "0",
+    "OCTOPUS_WIRE_HARVEST": "1",
+    "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE_LLM": "1",
+    "OCTOPUS_WIRE_VALUE_LEDGER": "1",
+    "OCTOPUS_ENFORCE_MONEY_FSM": "1",
+    "OCTOPUS_INITIATIVE_UNCAPPED": "1",
+    "OCTOPUS_LEAD_DAILY_SEND_CAP": "100",
+    "OCTOPUS_WIRE_PULSE_ARBITER_SHADOW": "1",
+    "OCTOPUS_WIRE_CRITICALITY_OTLP": "1",
+    "OCTOPUS_KILL_SWITCH": null,
+    "OCTOPUS_OTLP_ALLOW_REMOTE": null,
+    "pid": 17924
+  },
+  "organism": {
+    "beat": 32291,
+    "stop_organism": true,
+    "started": "2026-08-12T08:01:52"
+  },
+  "under_flags": "{\"cap\": 100, \"live\": true}",
+  "pass": {
+    "llm": true,
+    "value": true,
+    "money_fsm": true,
+    "uncapped": true,
+    "send_cap100": true,
+    "refractory0": true,
+    "collab200": true,
+    "live_flag": true,
+    "kill_off": true
+  },
+  "all_ok": true
+}

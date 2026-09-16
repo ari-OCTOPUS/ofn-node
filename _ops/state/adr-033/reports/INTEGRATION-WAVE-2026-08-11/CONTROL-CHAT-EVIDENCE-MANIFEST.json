@@ -1,0 +1,131 @@
+{
+  "schema": "octopus.integration-wave.evidence.v1",
+  "status": "passed_with_issues",
+  "created_at": "2026-08-11T13:29:01.585609+00:00",
+  "git_sha": "f7c1a5f2a2de0de9df2a1ecbf249c25dbc848b60",
+  "registry_digest": "sha256:fcc153f20f03bbe4b8f93060ea03667326efcd8e9c4234634cf8864afaaf3ee0",
+  "policy_version": "ADR-033-v1",
+  "graph_version": "unknown-not-fabricated",
+  "flags_snapshot": {
+    "OCTOPUS_NEURAL_LEARNED_APPLY": "0",
+    "OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL": "1",
+    "OCTOPUS_WIRE_COLLAB": "1",
+    "OCTOPUS_COLLAB_USE_MODEL": "1",
+    "OCTOPUS_COLLAB_MODEL_DAILY_CAP": "20"
+  },
+  "tests": [
+    {
+      "name": "required-eight-suite-gate",
+      "status": "PASS",
+      "log": "minimum-suites-final.log",
+      "sha256": "317ecf27aa9fc1d9d45a711f389c2b5d61e3c58e04d0a053669c2cb1f1d96740"
+    },
+    {
+      "name": "signals-registry-validator-final",
+      "status": "PASS",
+      "report": "registry-validate-final.json",
+      "sha256": "b41e04bfc638e301167906e31085e182ad9c27b16457f2c4b29dc43344845504"
+    },
+    {
+      "name": "cognitive-unify-miniapp-policy",
+      "status": "PASS",
+      "checks": "11/11",
+      "log": "test-cognitive-unify-final.log",
+      "sha256": "61b9ac7363e75bb7a2f47e04ebf464dd03dd2a1f70ce07d518f03c20554d2865"
+    },
+    {
+      "name": "owner-console-conversation",
+      "status": "PASS",
+      "checks": "9/9"
+    },
+    {
+      "name": "collab-model-cap",
+      "status": "PASS",
+      "checks": "3/3"
+    },
+    {
+      "name": "talk-discovery-collab-redteam",
+      "status": "PASS"
+    },
+    {
+      "name": "optional-full-run-all",
+      "status": "FAIL_PRE_EXISTING_DEBT",
+      "log": "full-run-all-after-fix.log",
+      "sha256": "688b5c1e88baae793f9beb7dd3c5c3dff59e21f4173a0d37cc51e04b4ac7a163"
+    }
+  ],
+  "live_ui": {
+    "wire_collab": true,
+    "collab_use_model": true,
+    "default_mode": "collab",
+    "authority": "draft_no_effect",
+    "asset_version": "d19165c898"
+  },
+  "failures": [
+    "legacy test_pain_calibration expects pre-ADR-034 direct halt",
+    "10 WORKLOCK-registered suites are untracked by git",
+    "callback producing-bot scanner falsely attributes owner_console oc:* to approval bot"
+  ],
+  "external_effects": 0,
+  "worklock_touched": false,
+  "apply_rearmed": false,
+  "reports": {
+    "00-PREFLIGHT.md": {
+      "sha256": "998498499c5fea893ff0f6b58e144b823392eb6cee8bd4a906b47bc32ddd7b91"
+    },
+    "01-REGISTRY.md": {
+      "sha256": "5c3365f4b604cc6ce92da02477902e8f3c59220b5dd212106878c30b8f82b614"
+    },
+    "02-SUITES.md": {
+      "sha256": "03a9f1e62c3d52c7bb63e568cdf0bdff7bec4b09f1e97a4e970480ba28d0c679"
+    },
+    "03-LIMBS-RESTART.md": {
+      "sha256": "61cc152ac50677cc1515abe243be76dd1ddc7df9943c449aae86bd74b929aebd"
+    },
+    "04-CONTROL-PANEL.md": {
+      "sha256": "5f4365b740ce635fce082b167cfa93f62ff626a7d739f1e1250f34236b7d6d7f"
+    },
+    "05-CHAT-COLLAB.md": {
+      "sha256": "eb250f2470782624a3ac571bc9a7618139c464e8fad780ed81e343de807cf0f6"
+    },
+    "06-INVARIANTS-LIVE.md": {
+      "sha256": "bf4043a5088c112818176bf905061a8eddf64d31d54d76b032b20f11077380a3"
+    },
+    "07-FINAL-VERDICT.md": {
+      "sha256": "0ac5914df1d06502f04c36f073e0ba461cd29e78fbbd3ca10241f2e2e45da65d"
+    },
+    "CONTROL-CHAT-ROLLBACK.md": {
+      "sha256": "0d91d86f0cc6fe87e447528695f3f27c84fa71dbb8f6f80ae2a44a3e10d110ad"
+    },
+    "discrepancies.jsonl": {
+      "sha256": "f2c15fd38c61174d5c04db57e683bf1cda5541549b2d4d7f5a6617236d43b28b"
+    },
+    "full-run-all-after-fix.log": {
+      "sha256": "688b5c1e88baae793f9beb7dd3c5c3dff59e21f4173a0d37cc51e04b4ac7a163"
+    },
+    "full-run-all.log": {
+      "sha256": "0bd409f754a690d71ec546f93c759ece42b3ff697c11e34b90cb8c6ecc18afff"
+    },
+    "minimum-suites-final.log": {
+      "sha256": "317ecf27aa9fc1d9d45a711f389c2b5d61e3c58e04d0a053669c2cb1f1d96740"
+    },
+    "minimum-suites.log": {
+      "sha256": "317ecf27aa9fc1d9d45a711f389c2b5d61e3c58e04d0a053669c2cb1f1d96740"
+    },
+    "registry-validate-final.json": {
+      "sha256": "b41e04bfc638e301167906e31085e182ad9c27b16457f2c4b29dc43344845504"
+    },
+    "registry-validate.json": {
+      "sha256": "4315ffebb71c59081aa42463010340762e47a41441d7278ed90d197fa724cdc6"
+    },
+    "restart-after-fixes.log": {
+      "sha256": "96ddc78a7aa1e6d700b8c6d941f9a9b7fe147e70b6226cbb80aad1ab8da445a5"
+    },
+    "restart-gateway-final.log": {
+      "sha256": "87f090368f8f586f290a788024f6cc58032a03b40a98534948743814c90f4eea"
+    },
+    "test-cognitive-unify-final.log": {
+      "sha256": "61b9ac7363e75bb7a2f47e04ebf464dd03dd2a1f70ce07d518f03c20554d2865"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "items": [],
+  "counts": {
+    "pending": 0,
+    "approved": 0,
+    "rejected": 0,
+    "high_priority": 0,
+    "money_at_risk": 0.0
+  }
+}

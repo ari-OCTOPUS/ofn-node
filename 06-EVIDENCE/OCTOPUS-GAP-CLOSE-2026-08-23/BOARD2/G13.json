@@ -1,0 +1,13 @@
+﻿{
+    "gap_id":  "G13",
+    "duplicate":  {
+                      "known_duplicate_left":  "batch-shot-0002 → telegram id=10",
+                      "evidence":  "BOARD2-STUDIO-DUP-0002-NOTE-2026-08-23",
+                      "choice":  "LEAVE id=10 (no safe deleteMessage path in ofn)",
+                      "canonical":  "unlock-shot-0002 → telegram id=9"
+                  },
+    "etsy":  "HELD — pending-review / no live adapter; do not go-live",
+    "stamp":  "2026-08-23T09:04+10",
+    "title":  "Dup shot-0002 cleanup note + Etsy HELD",
+    "result":  "PASS"
+}

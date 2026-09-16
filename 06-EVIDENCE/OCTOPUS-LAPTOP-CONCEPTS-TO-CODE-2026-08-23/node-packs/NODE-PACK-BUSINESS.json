@@ -1,0 +1,446 @@
+{
+  "pack_version": "1.0",
+  "node_role": "business",
+  "collected_at": "2026-08-23T00:34:00+10:00",
+  "collector": "laptop-agent-concepts-to-code",
+  "collection_method": "mixed",
+  "node": {
+    "node_id": "business-board2",
+    "hardware": "Board2 remote lanes (not local laptop listen)",
+    "os": "remote-board2",
+    "hostname": "board2",
+    "ip_or_discovery_method": "canonical map + owner-brief live state",
+    "repo_paths": [
+      "F:\\backup"
+    ],
+    "canonical_repo_candidates": [
+      {
+        "path": "F:\\backup",
+        "rationale": "Owner SoT single-home",
+        "status": "canonical",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md#SoT"
+        }
+      }
+    ],
+    "current_branch_and_commit": [],
+    "agent_runtime": "Cursor ExternalShell laptop-agent",
+    "services_and_ports": [
+      {
+        "service": "ziman/GiftMesh",
+        "port": 8791,
+        "protocol": "https",
+        "status": "unknown",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Ziman LIVE"
+        },
+        "bind_address": "ziman.master-painting.com"
+      },
+      {
+        "service": "lead/master-painting",
+        "port": 8792,
+        "protocol": "https",
+        "status": "unknown",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Lead LIVE"
+        },
+        "bind_address": "lead.master-painting.com"
+      },
+      {
+        "service": "studio",
+        "port": 8793,
+        "protocol": "https",
+        "status": "unknown",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Studio LIVE"
+        },
+        "bind_address": "studio.master-painting.com"
+      },
+      {
+        "service": "panel",
+        "port": 8794,
+        "protocol": "https",
+        "status": "unknown",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\07 - Knowledge\\octopus\\01-BUSINESS-MAP-CANONICAL.md#:8794"
+        },
+        "bind_address": "panel"
+      }
+    ],
+    "message_transport": [],
+    "event_schemas": [],
+    "data_stores": [],
+    "memory_stores": [],
+    "secrets_file_names_only": [
+      ".env"
+    ],
+    "feature_flags": [],
+    "kill_switches": [],
+    "test_commands": [
+      {
+        "command": "Get-NetTCPConnection -State Listen | ? LocalPort -in 8791,8792,8793",
+        "purpose": "local listen probe (Board2 may be remote)"
+      }
+    ],
+    "last_test_results": [
+      {
+        "command": "Get-NetTCPConnection ... 8791,8792,8793",
+        "executed_at": "2026-08-23T00:34:00+10:00",
+        "status": "pass",
+        "summary": "No local listen on laptop for 8791/8792/8793; Board2 LIVE remains owner-brief claim (remote).",
+        "evidence_ref": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\RESULT.json",
+        "source_locator": {
+          "kind": "command_output",
+          "value": "ExternalShell listen probe 2026-08-23"
+        }
+      }
+    ],
+    "active_projects": [
+      {
+        "name": "Master Painting lead campaign",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Lead"
+        },
+        "detail": "existing 8 CRM leads running; no money invent"
+      },
+      {
+        "name": "Ziman public catalog",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Ziman"
+        },
+        "detail": "activated=true"
+      },
+      {
+        "name": "Studio library-only posts",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Studio"
+        },
+        "detail": "consent + shot-0001 publish PASS"
+      },
+      {
+        "name": "Mining",
+        "status": "missing",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Mining"
+        },
+        "detail": "SEPARATE DEFERRED \u2014 do not work"
+      }
+    ],
+    "owner_decisions": [
+      {
+        "name": "GA4/GSC/Ads CONNECTOR-GAP",
+        "status": "verified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\CONNECTOR-GAP-REGISTRY.json"
+        },
+        "detail": "WAITING_OWNER_OAUTH"
+      },
+      {
+        "name": "Similarweb Premium ADOPT estimate-only",
+        "status": "verified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md"
+        },
+        "detail": "estimate+evidence_id+confidence+valid_for"
+      },
+      {
+        "name": "Mining deferred",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:non-actions"
+        },
+        "detail": "no mining work"
+      }
+    ],
+    "known_failures": [
+      {
+        "name": "Money metrics invent forbidden",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "BOARD2-MONEY-NA-2026-08-22"
+        },
+        "detail": "no invent money"
+      }
+    ],
+    "open_gates": [
+      {
+        "name": "D1/D7 owner gates",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md"
+        },
+        "detail": "binding for irreversible"
+      },
+      {
+        "name": "OAuth GA4/GSC/Ads",
+        "status": "unverified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\CONNECTOR-GAP-REGISTRY.json"
+        },
+        "detail": "gap until OAuth"
+      }
+    ],
+    "telegram_components": [
+      {
+        "name": "Studio shot-0001 Telegram publish",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "BOARD2-STUDIO-PUBLISH-DRAIN-2026-08-22"
+        },
+        "detail": "PASS"
+      }
+    ],
+    "webapp_components": [
+      {
+        "name": "lead.master-painting.com",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md"
+        },
+        "detail": "LIVE"
+      },
+      {
+        "name": "ziman.master-painting.com",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md"
+        },
+        "detail": "LIVE"
+      },
+      {
+        "name": "studio.master-painting.com",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md"
+        },
+        "detail": "LIVE library-only"
+      }
+    ],
+    "internet_access_path": [],
+    "handoff_files": [
+      {
+        "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md",
+        "size_bytes": 6734,
+        "modified_at": "2026-08-22T23:07:33+10:00",
+        "sha256": "a6b857016336189c1790ac4b91df718a23422c8f050f1e8e87b49999d9492e70",
+        "status": "verified"
+      },
+      {
+        "path": "F:\\backup\\07 - Knowledge\\octopus\\01-BUSINESS-MAP-CANONICAL.md",
+        "size_bytes": 1501,
+        "modified_at": "2026-08-22T22:27:58+10:00",
+        "sha256": "89c5ee5df0c5a75622a16d84b880aafb7bdfdf3774d74212bdb28278458c8207",
+        "status": "verified"
+      }
+    ]
+  },
+  "inventory": [
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md",
+      "size_bytes": 6734,
+      "modified_at": "2026-08-22T23:07:33+10:00",
+      "sha256": "a6b857016336189c1790ac4b91df718a23422c8f050f1e8e87b49999d9492e70",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md",
+      "size_bytes": 3014,
+      "modified_at": "2026-08-22T23:09:28+10:00",
+      "sha256": "9f898e6612b6dd44f0d2f76f1d1e6cfc93b2c09496c72cc92e13cbedb3d59ada",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\CONNECTOR-GAP-REGISTRY.json",
+      "size_bytes": 4353,
+      "modified_at": "2026-08-22T23:11:18+10:00",
+      "sha256": "be030013eac43ac8ab72ce049eb185f1470068fb32effcd295f3443a20847905",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-BUSINESS.schema.json",
+      "size_bytes": 16312,
+      "modified_at": "2026-08-22T23:10:01+10:00",
+      "sha256": "d6cc48960b533d029b038598a28b6fea4bbd8472ffea1050060ae611fe1772e5",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-SENSORIUM.schema.json",
+      "size_bytes": 16354,
+      "modified_at": "2026-08-22T23:10:30+10:00",
+      "sha256": "330db20d8f0cf44146d72245138a3bd5b6801f45ef9707b8e0efa17b3b0233fa",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-LAPTOP.schema.json",
+      "size_bytes": 16343,
+      "modified_at": "2026-08-22T23:10:57+10:00",
+      "sha256": "0506c74a2d0b4f6614497a954ff00690eebc2e1c31e91df9e2435c34b3d6e909",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\07 - Knowledge\\octopus\\01-BUSINESS-MAP-CANONICAL.md",
+      "size_bytes": 1501,
+      "modified_at": "2026-08-22T22:27:58+10:00",
+      "sha256": "89c5ee5df0c5a75622a16d84b880aafb7bdfdf3774d74212bdb28278458c8207",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md",
+      "size_bytes": 6517,
+      "modified_at": "2026-08-22T19:35:13+10:00",
+      "sha256": "7354caf879f88a5906be5e5f87fc0b7b6387037d36c594341c7b0df711407cef",
+      "classification": "internal"
+    }
+  ],
+  "inventory_digest": {
+    "algorithm": "sha256",
+    "ordered_by": "path",
+    "digest_sha256": "477333a789801f59483dd8f58d4995182397d4468c0fcc7dda9c2952ac5cc130"
+  },
+  "claims": [
+    {
+      "claim_id": "B-001",
+      "statement": "Three live brands only: Master Painting, Ziman, Studio; Mining deferred",
+      "value": [
+        "master-painting",
+        "ziman",
+        "studio"
+      ],
+      "status": "verified",
+      "source_id": "OWNER-BRIEF",
+      "source_locator": {
+        "kind": "owner_statement",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:canonical businesses"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "business",
+      "hash_sha256": "3502220a517a95e398e51cb440024b81d4e09be49eef848cb29fd3dee4b4e90b",
+      "confidence": 0.99,
+      "limitations": []
+    },
+    {
+      "claim_id": "B-002",
+      "statement": "Ziman public catalog activated=true",
+      "value": null,
+      "status": "verified",
+      "source_id": "OWNER-BRIEF",
+      "source_locator": {
+        "kind": "owner_statement",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Ziman"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "ziman",
+      "hash_sha256": "5e0582ae175ef7d344d7cd470008e09b1b53f712d457be2097ee7ff945b95474",
+      "confidence": 0.9,
+      "limitations": []
+    },
+    {
+      "claim_id": "B-003",
+      "statement": "Studio consent + shot-0001 Telegram publish PASS (library-only)",
+      "value": null,
+      "status": "verified",
+      "source_id": "OWNER-BRIEF",
+      "source_locator": {
+        "kind": "owner_statement",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Studio"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "studio",
+      "hash_sha256": "7df374e1ce075fb5b65de4592a90024ec6c848824aa733596f5e83ab8ae279e7",
+      "confidence": 0.9,
+      "limitations": []
+    },
+    {
+      "claim_id": "B-004",
+      "statement": "Lead/Painting campaign running on existing 8 CRM leads",
+      "value": null,
+      "status": "verified",
+      "source_id": "OWNER-BRIEF",
+      "source_locator": {
+        "kind": "owner_statement",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Lead"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "master-painting",
+      "hash_sha256": "8425c0c056a1b8785193a2e634513151f5ebc2662d0cbf51be38518fa4bf6db1",
+      "confidence": 0.9,
+      "limitations": []
+    },
+    {
+      "claim_id": "B-005",
+      "statement": "No money figures invented in this pack",
+      "value": null,
+      "status": "verified",
+      "source_id": "ADR",
+      "source_locator": {
+        "kind": "owner_statement",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md:connector-first"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "business",
+      "hash_sha256": "a52d4f593bb2b31f535cbc5336297d3364b22cca58d986ace54b24e917979143",
+      "confidence": 1.0,
+      "limitations": [
+        "BOARD2-MONEY-NA"
+      ]
+    },
+    {
+      "claim_id": "B-006",
+      "statement": "GA4/GSC/Ads are CONNECTOR-GAP until OAuth",
+      "value": null,
+      "status": "verified",
+      "source_id": "CONNECTOR-GAP",
+      "source_locator": {
+        "kind": "file_line",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\CONNECTOR-GAP-REGISTRY.json"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "connectors",
+      "hash_sha256": "c414ccd170eb4e2d059639833927b9d82c72845b5a2575a63987d95d18c576f5",
+      "confidence": 1.0,
+      "limitations": []
+    }
+  ],
+  "contradictions": [],
+  "open_questions": [
+    "Board2 ports 8791/8792/8793 not listening on laptop; remote liveness beyond owner-brief not re-probed this pass",
+    "OAuth timing for GA4/GSC/Ads unknown"
+  ],
+  "synthesis_lock": {
+    "business_pack_received": true,
+    "sensorium_pack_received": true,
+    "laptop_pack_received": true,
+    "can_synthesize": true,
+    "pending_reasons": [
+      "PACKS_READY_SYNTHESIS_PENDING"
+    ]
+  },
+  "business_scope": [
+    "master-painting",
+    "ziman",
+    "studio",
+    "mining"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "self-awareness-wire/1",
+  "written_at": "2026-08-22T11:52:12+10:00",
+  "written_at_zone": "Australia/Sydney (UTC+10)",
+  "HEAD": "036329b5996124004b33c8e9c788395d910e8ff9",
+  "parent_HEAD": "67e4ecc897b7d9067770b79e624fb2a505b2253e",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+  "agent_id": "grok-ari-single-writer",
+  "commit_subject": "fix(self): apply EMA confidence and persist owner-correction staleness",
+  "live_send": false,
+  "paid": false,
+  "wave1_closeout.run": false,
+  "center_restart": false,
+  "bible": "access-consciousness only",
+  "files": [
+    "_ops/doctor/self_knowledge.py",
+    "_ops/cortex/self_audit.py",
+    "_ops/tests/test_doctor_selfknowledge.py",
+    "_ops/tests/test_self_audit_probes.py"
+  ],
+  "implemented": {
+    "1_ema_confidence": {
+      "ok": true,
+      "what": "OCTOPUS_SELFKNOW_HEURISTIC_V2 no longer forces confidence=None ahead of measured EMA. If _accuracy_ema() returns a number, it lands on the persisted snapshot as confidence_basis=accuracy-ema-forward-only. No history -> honest None. No invented 0.4."
+    },
+    "2_owner_correction_staleness": {
+      "ok": true,
+      "what": "run() copies owner_correction_age_days and owner_correction_stale from snapshot() onto the persisted record (changed + cached paths). File/state only. No Telegram memory-gate."
+    },
+    "3_always_true_probes": {
+      "ok": true,
+      "what": "Deleted or True from _probe_named_owner and _probe_trace_independent. Trace status now follows ALERTS_MD existence. Named-owner is Partial if مالك is found else Missing. No new always-true probes."
+    }
+  },
+  "skipped": {
+    "4_self_claims_emit": "Existing self_accuracy._emit_calibration_pair already writes selfknow.<field> claims to cortex/self-claims.jsonl (schema self-claim.v1) when CORTEX_SELF_MONITOR is on and prior confidence exists. EMA landing unblocks _prior_confidence() on the next cycle. New emit/schema would be a redesign; skipped.",
+    "self_insight_weekly_journal": "Existing hook is loops/closeout.self_insight_shadow() with journal=false; registry S-A02 says weekly later. Full self_insight.run() is a ~46s self_scan. Wiring unclear without new flags; skipped.",
+    "flag_comment_vs_value_probe": "No small existing helper that compares a rem/comment to a live @set without pulling in flag_drift.probe_all(). Stopped lying instead of adding a new probe that could poison calibration.",
+    "not_in_scope": [
+      "unified man-kiam aggregator",
+      "architectural 5-field self-model",
+      "detect-unknown protocol",
+      "SOG-on-ledger",
+      "Hebbian actuator canary",
+      "local-LLM triage",
+      "phenomenal consciousness",
+      "self_model.py AST walker rebuild",
+      "REJECTED ADR-013 causal-selfmodel"
+    ]
+  },
+  "tests": {
+    "test_doctor_selfknowledge.py": {
+      "result": "pass",
+      "n": 43,
+      "new": [
+        "t_heuristic_v2_applies_measured_ema",
+        "t_heuristic_v2_keeps_none_without_measured_ema",
+        "t_run_v2_heuristic_persists_measured_ema",
+        "t_run_persists_owner_correction_staleness"
+      ]
+    },
+    "test_self_audit_probes.py": {
+      "result": "pass",
+      "n": 3,
+      "new_file": true
+    }
+  },
+  "collisions_left_alone": [
+    "research/full_loop/*",
+    "owner_console/*",
+    "telegram_adapter.py",
+    "durable_loop.py"
+  ],
+  "lock": {
+    "released": false,
+    "committed": false,
+    "heartbeat": true,
+    "expires_at_local": "2026-08-22T15:54:07+10:00"
+  }
+}

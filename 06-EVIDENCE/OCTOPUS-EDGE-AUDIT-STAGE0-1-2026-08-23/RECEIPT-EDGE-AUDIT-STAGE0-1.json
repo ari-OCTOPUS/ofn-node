@@ -1,0 +1,9 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "RECEIPT-EDGE-AUDIT-STAGE0-1",
+  "result": "DEGRADED",
+  "session": "/var/lib/octopus/evidence/session-edge-audit-20260823",
+  "report": "/var/lib/octopus/evidence/session-edge-audit-20260823/AUDIT_REPORT.json",
+  "ts_utc": "20260823T031344Z",
+  "read_only": true
+}

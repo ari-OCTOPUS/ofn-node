@@ -1,0 +1,421 @@
+{
+  "schema": "wave0-artifact-merge/1",
+  "ledger": "F:\\backup\\06-EVIDENCE\\NERVOUS-RECOVERY-2026-08-20\\reality-ledger.jsonl",
+  "appended_or_deduped": [
+    {
+      "finding_id": "REALITY_SNAPSHOT",
+      "appended": true,
+      "dedupe_key": "754f5dacb9ff8e1e004466a2556f4dcd4e7090d88456ead4256bf99ae4069cf6",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "REALITY_SNAPSHOT",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/WAVE0-GATES.json",
+            "hash": "2716c789539e25cb6b2eac31a92f8392a1bf5db0d2416bcb378c84ab6fcb96a2"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "754f5dacb9ff8e1e004466a2556f4dcd4e7090d88456ead4256bf99ae4069cf6",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Governor snapshot of four Wave 0 gates."
+      }
+    },
+    {
+      "finding_id": "TEST_REGISTRY",
+      "appended": true,
+      "dedupe_key": "71182b3731561a78fcc4b789f9cfc37dfeafffe303ec454f25cb27d6e7d22937",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "TEST_REGISTRY",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/TEST-CLASSIFY-FULL.json",
+            "hash": "ff5f953b8e35eaf48743b2776fff2b45623c69cedd006121384fbfcb3711b09e"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "71182b3731561a78fcc4b789f9cfc37dfeafffe303ec454f25cb27d6e7d22937",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Classification of previously unregistered tests."
+      }
+    },
+    {
+      "finding_id": "RECEIPT_ATTRIBUTION_AUDIT",
+      "appended": true,
+      "dedupe_key": "2ea0dac622f10f8658d0ba2ba391ecf93ecc77221dd51cda7b37f908c77b113e",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "RECEIPT_ATTRIBUTION_AUDIT",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/SHADOW-WINDOW.json",
+            "hash": "9fb3e71f99ef638cbb736fd3b07f1507007611978fccc388af8bc29c112866c3"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "2ea0dac622f10f8658d0ba2ba391ecf93ecc77221dd51cda7b37f908c77b113e",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Shadow hygiene of today's cost-receipts window."
+      }
+    },
+    {
+      "finding_id": "CAPABILITY_INVENTORY",
+      "appended": true,
+      "dedupe_key": "693165dd2665d0b862a693a5f5b910d18dad7063160a53184703354960c131e7",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "CAPABILITY_INVENTORY",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/CAPABILITY-INVENTORY.json",
+            "hash": "25ed9f95eda8cd2c691d5f669028f4e4e9f8776c62e27ebac782d0abd425c7ec"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "693165dd2665d0b862a693a5f5b910d18dad7063160a53184703354960c131e7",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "AST parse + immune cards for 10 EFFECTORS."
+      }
+    },
+    {
+      "finding_id": "MEMORY_READ_GATE",
+      "appended": true,
+      "dedupe_key": "ed9accfaa971fdda421a7ce8da5e58c69995e711c67e138f3b0f878d31cc3120",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "MEMORY_READ_GATE",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/memory-continuity.jsonl",
+            "hash": "a9e1065dc97dff865d269b6370becd443a8835905b01fde63416ba61ad25c514"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "ed9accfaa971fdda421a7ce8da5e58c69995e711c67e138f3b0f878d31cc3120",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Observed memory-read ticks; streak not a sum."
+      }
+    },
+    {
+      "finding_id": "NERVOUS_RECOVERY",
+      "appended": true,
+      "dedupe_key": "7b2f3ed367aa9f41156bd4bdc74ab3ebc68048d30b699c36cf23ce77afd82477",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "NERVOUS_RECOVERY",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/README.md",
+            "hash": "a70813c8b69250694cb78e20271fc1b36d1cfc18cf8c6acf99cae56c4d47bc0f"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "7b2f3ed367aa9f41156bd4bdc74ab3ebc68048d30b699c36cf23ce77afd82477",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Nervous-recovery evidence pack index."
+      }
+    },
+    {
+      "finding_id": "DEEP_SCAN",
+      "appended": true,
+      "dedupe_key": "c78f6f22a3aad1daba90f8bed1b6e35c4a2ce0c0101556208c8a07d5843d1a6e",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "DEEP_SCAN",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/DEEP-SCAN-DOCTOR-SELFAWARENESS-BRAINS-2026-08-20.md",
+            "hash": "a73af1fa0dfc66e9e8022bcf1366ec5f7045fdb2a1e58eaf61b68cca7d03ebf8"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "c78f6f22a3aad1daba90f8bed1b6e35c4a2ce0c0101556208c8a07d5843d1a6e",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Deep-scan report 2026-08-20 — candidate seams only."
+      }
+    },
+    {
+      "finding_id": "SEAM_HUNT",
+      "appended": true,
+      "dedupe_key": "8d8d6a8265fdfa5621e062183992dd357a421ff9e0ab67fae1510bd89fb87095",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "SEAM_HUNT",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/SEAM-HUNT-MINUTELY/DISCOVERIES-2026-08-20.md",
+            "hash": "d97fe4d1370474373ba99b94d6f4b1529bbbb8a064651975873703d2d45d9c60"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "8d8d6a8265fdfa5621e062183992dd357a421ff9e0ab67fae1510bd89fb87095",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Seam-hunt discoveries 2026-08-20 — not CONTRADICTIONS truth."
+      }
+    },
+    {
+      "finding_id": "CANARY_CORTEX",
+      "appended": true,
+      "dedupe_key": "868e5e886ca2e74fe2e1dc833283ae7c876c6909a2b216fb84e985798bca2ed2",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "CANARY_CORTEX",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/CANARY-POST-CORTEX.json",
+            "hash": "59d7366609e696e40590149ad86ca9fd9032d131765746c8bfd972d3658a6a49"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "868e5e886ca2e74fe2e1dc833283ae7c876c6909a2b216fb84e985798bca2ed2",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Cortex canary post-check; daemon/live unchanged."
+      }
+    },
+    {
+      "finding_id": "STAGE_A",
+      "appended": true,
+      "dedupe_key": "2300903ad51b7d693d1140a2e2024450ef83e8e766b1a865769b15fef6e52c6a",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "STAGE_A",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-A.md",
+            "hash": "00c65f7cd762743935ffd03c033620cac370f04130b2aa40de39dd3e2285b077"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "2300903ad51b7d693d1140a2e2024450ef83e8e766b1a865769b15fef6e52c6a",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Stage A baseline vs owner table."
+      }
+    },
+    {
+      "finding_id": "STAGE_B",
+      "appended": true,
+      "dedupe_key": "6096dc0c9282198a2d150168d1cf4463646641a17da27fd9b239e54f9228a68b",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "STAGE_B",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-B.md",
+            "hash": "0a1e17a9d90cb6e58e17add1de46400d53afbc742a52e5dc26759a8d3ed75400"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "6096dc0c9282198a2d150168d1cf4463646641a17da27fd9b239e54f9228a68b",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Stage B attribution plumbing."
+      }
+    },
+    {
+      "finding_id": "STAGE_C",
+      "appended": true,
+      "dedupe_key": "063b6d1860f00ca7dbcdfdb930f585f9d550dbde2ef8e1e1b9059f01920334ef",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "verification",
+        "finding_id": "STAGE_C",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "INFO",
+        "status": "confirmed",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/STAGE-C.md",
+            "hash": "a8cf539513b99c5038396cc5a25a97630656a69af635c2f71a17a42b17b90748"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "063b6d1860f00ca7dbcdfdb930f585f9d550dbde2ef8e1e1b9059f01920334ef",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "Stage C cortex canary."
+      }
+    },
+    {
+      "finding_id": "CONFLICT-ATTR-DENOMINATOR",
+      "appended": true,
+      "dedupe_key": "840b36a8fc1fec8d67237f8dd5e4f52c5065e2bb320d295146fbecf1a9c9b429",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "finding",
+        "finding_id": "CONFLICT-ATTR-DENOMINATOR",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "MEDIUM",
+        "status": "candidate",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/WAVE0-GATES.json",
+            "hash": "2716c789539e25cb6b2eac31a92f8392a1bf5db0d2416bcb378c84ab6fcb96a2"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 1.0,
+        "dedupe_key": "840b36a8fc1fec8d67237f8dd5e4f52c5065e2bb320d295146fbecf1a9c9b429",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "today-full attribution 0.3423 (51/149, 98 pre-schema) vs schema-present 1.0 (51/51). Pre-schema rows not rewritten. C-053 remains candidate (WAVE0-ATTR)."
+      }
+    },
+    {
+      "finding_id": "CONFLICT-C048-NUMBER",
+      "appended": true,
+      "dedupe_key": "1a5aeb298c49aa8c4964541034c2d28f53e4f3ce1ea663688d84bfb0a2d244aa",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "finding",
+        "finding_id": "CONFLICT-C048-NUMBER",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "MEDIUM",
+        "status": "candidate",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "06-EVIDENCE/SEAM-HUNT-MINUTELY/DISCOVERIES-2026-08-20.md",
+            "hash": "d97fe4d1370474373ba99b94d6f4b1529bbbb8a064651975873703d2d45d9c60"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.9,
+        "dedupe_key": "1a5aeb298c49aa8c4964541034c2d28f53e4f3ce1ea663688d84bfb0a2d244aa",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "C-048 number collision: S-B01 fugu quota vs S-A14 duplicate cognition-note numbers. Neither entered CONTRADICTIONS.md."
+      }
+    },
+    {
+      "finding_id": "CONFLICT-BCM-CONSUMER",
+      "appended": true,
+      "dedupe_key": "6499e6d12b24fa9a0b2e813fa05c03e54ae38f874623779cffbc319f978e0025",
+      "record": {
+        "schema": "reality-ledger/1",
+        "kind": "finding",
+        "finding_id": "CONFLICT-BCM-CONSUMER",
+        "source_agent": "nervous-recovery",
+        "observed_at": "2026-08-20T12:51:53+00:00",
+        "severity": "LOW",
+        "status": "candidate",
+        "evidence": [
+          {
+            "type": "file",
+            "ref": "_ops/effector_registry.py",
+            "hash": "6045546734461d692ef6b879877c1e4d38212b6b1cc5caf5e1d173e6325bc914"
+          }
+        ],
+        "supersedes": [],
+        "confidence": 0.7,
+        "dedupe_key": "6499e6d12b24fa9a0b2e813fa05c03e54ae38f874623779cffbc319f978e0025",
+        "recorded_at": "2026-08-20T12:51:53+00:00",
+        "ttl_hours": null,
+        "notes": "EFFECTORS marks bcm.weights_bidirectional display-only; DEEP-SEAMS-2026-08-16 claims production readers. Both kept."
+      }
+    }
+  ],
+  "candidates_untouched": [
+    "S-B01",
+    "S-B02",
+    "S-B06",
+    "S-D01",
+    "S-B05",
+    "WAVE0-ATTR"
+  ],
+  "contradictions_md_writes": 0,
+  "wave1_unlocked": false
+}

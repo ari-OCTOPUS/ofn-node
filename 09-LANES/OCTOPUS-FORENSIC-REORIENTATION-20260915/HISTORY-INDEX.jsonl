@@ -1,0 +1,21 @@
+{"item": "lane/OCTOPUS-FORENSIC-REORIENTATION-20260915", "why": "this atlas + the G8-021 unblock; supersedes the unexecuted megaprompt lane", "status": "current", "kind": "CURRENT_NAVIGATION"}
+{"item": "worktree/F:/octopus-forensic-reorientation-20260915", "why": "documentation-only lane by a separate agent (usage-limited); produced the discovery megaprompt this lane executed", "status": "completed-historical", "kind": "HISTORICAL_RECEIPT"}
+{"item": "lane/OCTOPUS-BODY-ADAPTATION-NEXT-20260915", "why": "closed learning loop across 7 nodes; PB-4 IMPROVED 0.75v0.0; facts 367->371", "status": "current (PB-1 window active)", "kind": "CURRENT_RUNTIME_RECEIPT"}
+{"item": "lane/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915", "why": "fleet scheduler/capaware routing/PB1-PB3 receipts; 100/160/193/114 role binding", "status": "current", "kind": "CURRENT_RUNTIME_RECEIPT"}
+{"item": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-AGENT-FULL-HISTORY-MEGAPROMPT.md", "why": "10-day history megaprompt for future agents", "status": "current-navigation", "kind": "CURRENT_NAVIGATION"}
+{"item": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md", "why": "canonical owner-facing truth; tail carries FULL-CYCLE-R2 block", "status": "current (needs G8-021 outcome append)", "kind": "CURRENT_NAVIGATION"}
+{"item": "ops-receipts.jsonl@138:/home/ari/ofn/state/ops-agent/state/", "why": "append-only executor receipt chain; hash-linked", "status": "live", "kind": "CURRENT_RUNTIME_RECEIPT"}
+{"item": "canary-request/native-A1-G8-PRODUCER-021@138", "why": "rebase+regex-repaired G8 routing; queued by this forensic lane 2026-09-15T05:33Z; base 02fb704d post fc993720", "status": "current", "kind": "CURRENT_DECISION"}
+{"item": "canary-request/native-A3-W24-BINDER-006@138", "why": "owner-reply binder; base matches live 00dd4ef3; dep on executed G8-010", "status": "queued", "kind": "CURRENT_DECISION"}
+{"item": "canary-request/native-Z-SUCCESSOR-TRIO-001@138", "why": "TRIO successor; STALE base 109e68c0 vs live c2e290fd — will need its own rebase", "status": "queued-but-stale", "kind": "CONFLICTING"}
+{"item": "canary-request/native-W3G30-COMBINED-001@138", "why": "coding-worker W3G30+W24 combined; base a8fb195c matches live; behind TRIO in DAG", "status": "queued", "kind": "CURRENT_DECISION"}
+{"item": "lane/AUTONOMOUS-OPS-BUNDLE-20260913", "why": "ops-agent v1.3 + witness v2.1 + manifest v5.1 standing autonomy", "status": "current", "kind": "CURRENT_RUNTIME_RECEIPT"}
+{"item": "lane/OCTOPUS-REMOTE-WITNESS-182-20260913", "why": "Class B enforcement: no deploy without 182 verdict", "status": "current", "kind": "CURRENT_RUNTIME_RECEIPT"}
+{"item": "GOV-V8-REVENUE-IGNITION-2026-09-05", "why": "authority ladder L0-L4; current L2", "status": "current", "kind": "CURRENT_DECISION"}
+{"item": "GOV-FREEDOM-V2-2026-09-13", "why": "default PROCEED for internal reversible work", "status": "current", "kind": "CURRENT_DECISION"}
+{"item": "AUTONOMY-V3 standing authorization 2026-09-13", "why": "DEFAULT=EXECUTE; RED-1..4 owner-only; GREEN/YELLOW/ORANGE self-gates", "status": "current", "kind": "CURRENT_DECISION"}
+{"item": "revenue lane (SEASON-REVENUE-LOOP-AUTONOMOUS)", "why": "6h cycle; SENT=3 CHANNEL_AUTHORIZED=17 verified_cash=0.00", "status": "current", "kind": "CURRENT_RUNTIME_RECEIPT"}
+{"item": "lane/OCTOPUS-HARDWARE-ENROLLMENT-20260915", "why": "6 Pro + 1 Plus census; .100/.160 de-mined; 182 swapfile fix; 193 eMMC boot truth", "status": "completed-historical", "kind": "HISTORICAL_RECEIPT"}
+{"item": "lane/OCTOPUS-COMMANDER-G28-20260914 (memory)", "why": "G8->W24->TRIO->G30 DAG edges; ROUND31 incident closure", "status": "completed-historical", "kind": "HISTORICAL_RECEIPT"}
+{"item": "archive roots: 99-ARCHIVE/ + S: SSD archives", "why": "266k files moved during disk crisis; S: went offline once — do not delete until external target returns", "status": "historical", "kind": "ARCHIVE"}
+{"item": "worktrees (11+ registered)", "why": "multi-lane isolation; several stale; cleaning requires separate archival decision", "status": "historical", "kind": "ARCHIVE"}

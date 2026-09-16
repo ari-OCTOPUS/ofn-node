@@ -1,0 +1,54 @@
+{
+  "schema": "organ-map-manifest/1",
+  "kind": "session-json-baseline",
+  "note": "JSON artifacts from run_session before markdown pack completion",
+  "files": [
+    {
+      "path": "BASELINE.json",
+      "bytes": 68,
+      "sha256": "a6236949272eceba5bf678d989778fccb6fb4cc16bf873f1e0db376d70dfda0a"
+    },
+    {
+      "path": "ORGANS.json",
+      "bytes": 12525,
+      "sha256": "c0ecb5674e26a026e59b29af9442023ef38d7aebb6ca7e176310272a047c9a30"
+    },
+    {
+      "path": "AFFERENT-STARVATION.json",
+      "bytes": 1427,
+      "sha256": "d5d8503e3d544348b53ded5cc4f5fc932a825e1ad283ccfb8a8a4d73efacfd3f"
+    },
+    {
+      "path": "MAPPER-DRIFT.json",
+      "bytes": 20420,
+      "sha256": "1dd032566ddebafae2d4add850c2ea179ae5aba101dec45f888bf5f87311f0fc"
+    },
+    {
+      "path": "LEAD-FAILURE-ANALYSIS.json",
+      "bytes": 1215,
+      "sha256": "4d950ab467a4b433c3c52e67a8b0f012fe2964aacd8cf9549b917d5c30b54835"
+    },
+    {
+      "path": "TELEMETRY-DELTAS.json",
+      "bytes": 555,
+      "sha256": "068f6ef16a88342c2827c978e7fc91818618d948e8c43a5318f7915d8e464922"
+    },
+    {
+      "path": "COGNITION-INBOX-CONTRACT.json",
+      "bytes": 2820,
+      "sha256": "d72502b796c165d64ff50214e44e830fa9b2ceead2503843eeb9d7aa2e5204d2"
+    },
+    {
+      "path": "LOOP-BREAKERS.json",
+      "bytes": 1957,
+      "sha256": "360c1bb9e52919c2a8aff082343378c022d52e7f59e7957eb7ee2f6449aba4bd"
+    },
+    {
+      "path": "REPORT.json",
+      "bytes": 4919,
+      "sha256": "a0f31c81547c551acdf93edb5a247ffda0bcc3d6dbf772595b6d81c2afafd205"
+    }
+  ],
+  "n": 9,
+  "ts": 1787218193.30267
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "event-bridge-canary-evidence/1",
+  "generated_at": "2026-08-21T06:00:00Z",
+  "canary": "CANARY-EVENT-BRIDGE-01 — bounded owner-only alert canary (no fake incident)",
+  "owner_chain_required": "source event -> event_bridge -> durable outbox -> delivery receipt -> readback",
+  "reachability": {
+    "flag": "OCTOPUS_WIRE_EVENT_BRIDGE=1 (flags-loaded-cortex.json + OCTOPUS-flags.cmd)",
+    "wired": "event_bridge.beat(self) inside Center.beat() (center.py:1321, fail-soft)",
+    "historical_production_evidence": "cursor pushed_signatures: 10 signatures (2026-08-18..20 era); day_push_count reached 6 (the daily cap) on a prior day"
+  },
+  "canary_execution": {
+    "source_event": "governor-alerts.md line 'CANARY-EVENT-BRIDGE-01 critical-path transport probe ...' (written via opslib.alert, real producer path)",
+    "consumed": true,
+    "cursor": "alerts_pos 415702 -> 415892 (byte-accurate, no truncation)",
+    "dedup": "signature 40a293c4b0377dd2 stored, 24h window",
+    "rate_limit": "fresh day window (0/6) -> 1/6; hour window 1/10",
+    "bridge_outbox": "event-bridge-outbox.jsonl key 40a293c4b0377dd2: QUEUED -> CONFIRMED (ts 1787251174.363 -> 1787251174.469)",
+    "pending_retry": "none (no DELIVERY_FAILED)"
+  },
+  "terminal_delivery": {
+    "observed": "NOTIFICATION INBOX, not Telegram",
+    "evidence": "notif-inbox.json item notif_tech_alert_20260821T043934_97a2eae8 (category tech_alert, created_ts 1787251174.446, unread)",
+    "mechanism": "governor-alert lines are pushed with low_urgency=True -> notif_inbox.route('tech_alert', ...) -> with OCTOPUS_NOTIF_INBOX active, push() stores the item and send_fn is NEVER called (notif_inbox.py:188 route contract)",
+    "telegram_send": "no tg-send-log row for this alert (stream 'center-alert' has zero rows in the log ever)",
+    "durable_loop_event": "none created (metrics telegram_responses_confirmed_total unchanged at 13)",
+    "message_id": "none",
+    "readback": "none"
+  },
+  "critical_branch": {
+    "design": "events.jsonl incident.opened/incident.contained push with low_urgency=False -> center.push_alert -> direct Telegram route (center-alert)",
+    "canary_constraint": "cannot be exercised without a real incident; owner explicitly forbade creating a fake incident to trigger it"
+  },
+  "verdict": {
+    "S-T02": "IN_PROGRESS — NOT closed, NOT retired",
+    "why_not_closed": "the required chain 'durable outbox -> delivery receipt -> readback' has no current production Telegram evidence for bridge pushes; the low-urgency branch terminates in the notification inbox by design; the critical branch needs a real incident (forbidden to fabricate)",
+    "why_not_retired": "path is live (flag on, wired, consuming, dedup/rate-limit/outbox all operational) and has historical production pushes",
+    "closure_options": [
+      "A) a real incident.opened/contained event occurs naturally -> observe the critical branch chain end-to-end (Telegram delivery + receipt + readback)",
+      "B) owner decision: notification-inbox termination satisfies the closure contract for low-urgency alerts (then S-T02 closes with inbox as the verified terminal)",
+      "C) code change: route critical bridge pushes through the durable outbox (message_id + readback) and verify with the next real alert"
+    ],
+    "recommended": "C + A — keep IN_PROGRESS until a real critical alert produces a Telegram delivery receipt and readback"
+  },
+  "registry_note": "LOOP-EVENT-BRIDGE-PRE-SEND-DEDUPE stays IN_PROGRESS; S-T02 stays IN_PROGRESS with this evidence appended"
+}

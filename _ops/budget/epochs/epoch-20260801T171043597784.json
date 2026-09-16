@@ -1,0 +1,202 @@
+{
+  "ts": "2026-08-01T17:08:44",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.44,
+        "DEBATE_LOOP": 0.11,
+        "GENOME_SYS": 0.45
+      },
+      "reason": "[EST] All telemetry zero (cold start, no fitness signal); allocating by floor ratio 2:0.5:2 pending real burn data."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "survived",
+    "topic_id": "plan-0",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های یادگیری عمیق برای بهبود phase0_genome",
+          "why_genius": "الگوریتم‌های یادگیری عمیق می‌توانند پیچیدگی و ساختار پیچیده phase0_genome را با توانایی خوشه‌بندی و تشخیص الگو بهبود بخشند.",
+          "why_insane": "استفاده از الگوریتم‌های پیچیده ممکن است منجر به عدم شفافیت و نیاز به تلاش زیاد برای بهینه‌سازی شود، که ممکن است باعث عدم قطعیت در عملکرد سامانه شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم‌های یادگیری عمیق نیاز به داده‌های زیاد و توان کامپیوتری قوی برای آموزش دارند، که ممکن است منجر به عدم شفافیت و پیچیدگی در پیاده‌سازی شود.",
+          "cheapest_test": "بررسی سرعت آموزش الگوریتم‌های مختلف بر روی داده‌های کوچک، تا مشخص شود که آیا این الگوریتم‌ها قابل استفاده برای phase0_genome هستند یا نه.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از مدل‌های یادگیری سطح بالا (Few-Shot Learning)",
+          "why_genius": "این رویکرد با استفاده از نمونه‌های کمی داده برای آموزش می‌تواند الگوریتم‌های پیچیده را بدون نیاز به داده‌های زیاد آموخت. این یک راه حل شفاف و قابل فهم است که می‌تواند بخش بزرگی از phase0_genome را با کمترین پیچیدگی پوشش دهد.",
+          "why_insane": "استفاده از الگوریتم‌های یادگیری سطح بالا ممکن است نیاز به توان محاسباتی بسیار بالا داشته باشد که ممکن است منجر به هزینه‌های زیاد شود. علاوه بر این، بدون داشتن داده‌های کافی، نتایج ممکن است نامطمئن و نادرست باشند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم‌های یادگیری سطح بالا نیاز به داده‌های کمی برای آموزش دارند و بدون داشتن داده‌های کافی، نتایج ممکن است نامطمئن باشند.",
+          "cheapest_test": "بررسی اینکه آیا در دسترس داده‌های کافی برای آموزش الگوریتم‌های یادگیری سطح بالا وجود دارد.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از داده‌های شباهتی برای آموزش الگوریتم‌ها",
+          "why_genius": "با استفاده از داده‌های شباهتی، می‌توانیم الگوریتم‌های یادگیری سطح بالا را بهبود بخشیم و نتایج دقیق‌تری دریافت کنیم. این رویکرد می‌تواند باعث افزایش قابلیت پیش‌بینی و کاهش عدم قطعیت شود.",
+          "why_insane": "استفاده از داده‌های شباهتی ممکن است نتایج نامطمئن را ایجاد کند، زیرا این داده‌ها ممکن است ناقص یا نادر باشند. همچنین، این رویکرد ممکن است منجر به عدم قطعیت در نتایج شود و بتواند الگوریتم‌ها را پرت کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "pass",
+          "kill_condition": "اگر ۱۴ روز بگذرد و هیچ APPROVAL ثبت نشود",
+          "cheapest_test": "شمارش رویدادهای sent هفتهٔ جاری از logs/outbox.jsonl",
+          "epistemic_tag": "SPEC"
+        },
+        "cost_usd": 0.0,
+        "stub": true,
+        "tier": "mixed"
+      }
+    ]
+  }
+}

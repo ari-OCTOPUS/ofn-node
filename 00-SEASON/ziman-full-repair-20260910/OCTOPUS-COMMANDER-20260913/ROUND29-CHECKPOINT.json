@@ -1,0 +1,89 @@
+{
+  "schema": "octopus.commander-checkpoint.v29",
+  "at_utc": "2026-09-14T10:15:45Z",
+  "at_utc_method": "date -u",
+  "gov_version": "V8",
+  "ladder": "L2",
+  "customer_send": false,
+  "go_b4": false,
+  "hold_external": true,
+  "PRE_EFFECT_INTEGRITY": {
+    "status": "IMPLEMENTED_AND_TESTED",
+    "executor": "8e1c43e8 -> 109e68c0 (preimage ops_agent.py.pre-preeffect-20260914)",
+    "contract": "the B8 action record freezes CONTENT at proposal time: source bytes (deploy_sha256), target bytes (pre_target_sha256), and the verified dependency state; _execute_pending re-checks all three BEFORE any invocation; drift -> OPS_B_PRE_EFFECT_BLOCKED (SOURCE_DRIFT/TARGET_DRIFT/DEPENDENCY_DRIFT), outcome BLOCKED_NO_EFFECT, pending->failed/, verdict not consumed",
+    "matrix": "31/31 PASS incl J4a source-mutation, J4b rename-swap, J4c symlink-swap (all: target stays byte-identical to pre-image, NO OPS_B_EXECUTED, traceable disposition), J4d target-drift (drift not clobbered), J4e dependency-drift, J4f enforced preconditions (unmet queues; satisfied releases through the SAME path)",
+    "claim_correction": "the historical J4 proved POST_EFFECT_MISMATCH_DETECTED (mutated bytes WERE written, then verification failed). That counterexample is preserved; the contract now blocks PRE-effect. The chain approval->reviewed-content->executed-content is closed because the frozen argv (paths) is now bound to frozen content hashes re-verified at execution"
+  },
+  "PRODUCER_DURABILITY": {
+    "status": "PROVEN (unchanged from ROUND28)",
+    "artifact": "8da9471c (G8+G27v2+G30+G31), g27b battery 14/14 with stateful offset-honest transport and real subprocess crashes",
+    "shared_server": "g27server v2 now fcntl-locked with (offset, tag) call logging - lost-update protection for concurrent consumers"
+  },
+  "TRANSITION_CONTAINMENT": {
+    "status": "TESTED (was written-only at ROUND28)",
+    "drill": "drill-transition.py 8/8 PASS with REAL bytes of the new producer (8da9471c), the OLD live binder (00dd4ef3) and the W24 candidate (b9c504f8) against one shared locked server; barriers deterministic (sequential subprocess invocations; S7's overlap controlled by a 5s in-process hold with the parent proceeding at 1.5s)",
+    "scenarios": "S1 glass-first (binder sees nothing after confirm); S2 binder-first (one bind, no inbox row); S3 both-receive (exactly ONE bind; W24 consumer skip/rejects the replay - idempotent by text-hash AND one-use registry); S4 old binder dies after receive before persistence (no row/bind/confirm); S5 standby takeover (glass makes the message durable in the gap and W24 binds it exactly once); S6 long-B soak (exactly-once durability each); S7 old process alive at cutover (one bind total, laggard rejects, both spools durable); S8 restarts never resurrect the retired poller (server log tags prove ONLY glass polls; candidate binder never calls getUpdates - any attempt would have been tagged)",
+    "honest_gaps": "the old binder's spool write is buffered (no fsync) and its offset file write is neither atomic nor fsynced - a power loss in state A/B could drop a received-but-unsynced row or tear the offset (int() -> 0 -> full re-poll; rejects only, one-use registry prevents double effects). These belong to the OLD component that W24 retires; recorded, not fixed"
+  },
+  "ROLLBACK_ENFORCEMENT": {
+    "status": "ENFORCED (was prose at ROUND28)",
+    "consumer": "handle_spool_category reads request['preconditions'] = [{path, sha256}] at admission; unmet -> OPS_B_PRECONDITION_UNMET, request stays queued (fail-closed, retried each tick). Verified by J4f negative+positive",
+    "negative_test": "J4f: invalid pin -> no proposal, target untouched; satisfying the pin releases the SAME request through the SAME path",
+    "rollback_field_fixed": "the G8 rollback pre-image is now ddee3da4 (current live bytes, staged at owner_dialogue/preimage/glass_runner.py.ddee3da4-20260914.pre) - the old ad34b138 reference would ALSO have removed the G13 fix and is marked forbidden",
+    "money_gate_scope": "f8187600 gates are one containment layer (named valid cards DO pass by regression); they are the rollback precondition, not a zero-effect proof. No new tests were run against the real bot or real money path (holds intact)"
+  },
+  "IDENTITY_SEPARATION": {
+    "status": "PROVEN (mission section d)",
+    "battery": "identity-g29-battery.py ALL PASS on REAL bytes of both binders: valid 64-hash binds; hash+1hex and 1hex+hash -> REJECT confirm_without_hash (an invalid token is NEVER truncated into a valid identity); non-hex suffix binds (punctuation); 8-hex TRUE prefix binds; glued prefixes resolve to nothing; consumed replay -> REJECT no second effect; expired -> REJECT_EXPIRED (candidate only - the old binder lacks expiry: recorded gap)",
+    "separation": "producer routing (suspicious -> non-money lane, fail-closed) and binder identity validation are separate decisions; routing never consumes a card",
+    "open_contract_question": "a text carrying TWO distinct valid hashes binds ONE (longest token first) in both binders - recorded as-is per the existing contract, flagged for an owner decision if two-card texts are meaningful"
+  },
+  "G29_VERDICTS": {
+    "out_of_root_absolute_dep": "ACCEPTED when its pin holds (organism-trust scope: requests reach the spool only through the witness-gated pipeline; only target/expected_post_sha256 are read; no logging of dep-file contents -> no exfiltration channel)",
+    "symlink_to_invalid_evidence": "fail-closed UNMET",
+    "same_name_multi_state": "spool copy wins the lookup order; CONTENT decides the outcome",
+    "failed_rolled_back_predecessor": "UNMET when bytes moved on (J2 semantics)",
+    "note": "readable-JSON is necessary but the DECIDING factor is the byte pin on the dep's target; a forged pin file inside organism state is equivalent to spool write access (already trust boundary)"
+  },
+  "STAGE_GUARD_WIRING": {
+    "status": "BUILT_AND_PATH-TESTED, QUEUED (not deployed)",
+    "artifact": "396e0a11 staged at stage/G30-STAGE-GUARD-WIRING-001/coding_worker.py (live worker a8fb195c untouched)",
+    "wiring": "byte-scan inside the worker's REAL staging loop right after the staged write: control bytes (JSON-backspace class) or mixed EOLs raise ValueError -> the existing PATCH_REJECTED disposition - before any test run or proposal",
+    "full_path_test": "test-stageguard-wiring.py PASS: a replacement carrying real backspace bytes (exactly the G30 input class) is rejected at staging with STAGE_BYTES_DIRTY before any proposal; the correct backslash+b text stages clean (literal \\b verified in final staged bytes) and reaches the canary phase through the same path",
+    "queued_request": "native-G30-STAGE-GUARD-WIRING-001.json (dep = executor pin 109e68c0; ordering by dependency edge, after the G8/W24 pair)",
+    "g30_historical_cause": "kept as hypothesis-with-strong-evidence: coding_worker.py:406 reads files[].replacement from the octopus.patch.v1 JSON where \\b is the standard backspace escape; the original patch document is not preserved, so the exact authoring step stays UNKNOWN while the boundary regression is closed independent of it"
+  },
+  "SUCCESSOR_READINESS": {
+    "status": "REBUILT_AND_QUEUED (same session, after the owner card fired with no answer -> best-judgment proceed): SUCCESSOR-TRIO d0b86a35 = B5 measured-recovery (REPAIRED: the old artifact set cache-bytes-freed only on action_spec while the executed action-record still verified paths-absent - both connected now) + CATSCOPE (_cat_key scoping, 3 sites) + G3 (_spool_order priority over filename); g28 matrix 32/32 PASS on d0b86a35 incl new case K (priority 1 beats filename); live baseline 109e68c0 honestly fails exactly K = the counterexample of what this adds; queued native-Z-SUCCESSOR-TRIO-001.json (name order = dependency order, dep pin 109e68c0, priority 9); post-deploy: G30-wiring pin must be re-proven (executor bytes move) - fail-closed by design",
+    "deltas": "B5 measured-recovery, CATSCOPE budget scoping, G3/A-B priority - preserved in superseded-tasks with reasons; rebuild targets executor baseline 109e68c0",
+    "circuit_breaker_storage_cache": "still OPEN, deliberately not root-caused this session (independent work remains)"
+  },
+  "DEPLOY_READINESS": {
+    "queue": ["native-A2-G8-PRODUCER-010.json (artifact 8da9471c, base ddee3da4, dep pin 109e68c0)",
+              "native-A3-W24-BINDER-006.json (b9c504f8, dep on G8 by name, met when glass==8da9471c)",
+              "native-G30-STAGE-GUARD-WIRING-001.json (396e0a11, dep pin)"],
+    "quota": "2/2 used; slots free 2026-09-15T01:56:08Z and 02:34:47Z (computed from the live ledger this session); G8 takes slot 1, W24 slot 2, the wiring follows later - ONE request per slot",
+    "note": "the dep pin binds the queue to executor 109e68c0: any further executor byte change re-blocks the queue automatically until the pin is re-proven (fail-closed by design)"
+  },
+  "DEPLOYED_EFFECT": {
+    "this_session_live_changes": "ops_agent.py 8e1c43e8 -> 109e68c0 (pre-effect integrity; matrix 31/31 on the exact bytes; ticks 09:56+ healthy: requests evaluated, deps MET via repinned evidence, budget-blocked, queue intact)",
+    "nothing_else_deployed": true
+  },
+  "REMAINING_WIRINGS": {
+    "status": "NOT_ADVANCED_THIS_SESSION (owner mission section و items unchanged: ziman_cycle/P2, owner_notify consumption, W25/W27 SoTs, 8795 tunnel, witness-182 official path, learning ledger/Doctor/watchdog, research->draft->tender with holds, PC/HQ independence)",
+    "missing_evidence": "each needs its signal->consumer trace per the mission template; independent work continues next session"
+  },
+  "OPEN_BLOCKERS": [
+    {"item": "G8/W24/G30w deployments", "missing": "quota slots + post-deploy byte/journal/trace read-backs",
+     "released_by": "the clock via the live executor", "independent_work": "successor rebuilds + breaker root-cause + mission wirings"},
+    {"item": "single-poller trace proof", "missing": "post-W24 process-level observation (secret-free trace)",
+     "released_by": "W24 deployment"},
+    {"item": "two-hash text contract", "missing": "owner decision if binding ONE of two valid hashes is intended",
+     "released_by": "owner", "independent_work": "none blocked - recorded behavior"}
+  ],
+  "NEXT_ACTION": "observe slot 1 (2026-09-15T01:56:08Z): verify glass_runner==8da9471c + new invocation + state-B; slot 2 (02:34:47Z): W24 + single-poller trace; then the fresh inert card test; rebuild successors on 109e68c0; root-cause the storage-cache breaker",
+  "HANDOFF": {
+    "no_background_claim": true,
+    "resume": "read ROUND26-29 + lane CONTAINMENT-PLAN.md (now drill-backed); nothing scheduled by this file - the quota clock is the trigger"
+  }
+}

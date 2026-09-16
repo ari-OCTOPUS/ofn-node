@@ -1,0 +1,9 @@
+{
+  "cmd": [
+    "/opt/octopus/venv/bin/python",
+    "/opt/octopus/current/tools/verify_sensorium.py",
+    "--json",
+    "/var/lib/octopus/state/owner-review-final/GAP_001_CURRENT_VERIFIER.json"
+  ],
+  "returncode": 0
+}

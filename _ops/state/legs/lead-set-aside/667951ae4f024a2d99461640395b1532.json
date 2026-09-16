@@ -1,0 +1,53 @@
+{
+  "schema": "lead-set-aside.v1",
+  "lead_id": "667951ae4f024a2d99461640395b1532",
+  "set_aside_at": "2026-08-12T08:36:50Z",
+  "by": "owner-chat",
+  "vote": "لید رو کامل بزار کنار تموم چیزای دیگه",
+  "synthetic": true,
+  "source": "synthetic_test",
+  "former_stuck": {
+    "task_id": "TASK-1",
+    "lead": {
+      "schema_version": "1.1",
+      "lead_id": "667951ae4f024a2d99461640395b1532",
+      "description": "Remedial render and paint of common property walls, strata units repaint needed, owners corporation asking for quote",
+      "address": null,
+      "suburb": null,
+      "source": "synthetic_test",
+      "applicant": "Proof NoAddress",
+      "day": "2026-07-31",
+      "candidate": {
+        "candidate_type": "consented_inbound",
+        "consent": {
+          "basis": "explicit",
+          "outreach_allowed": true,
+          "retention_class": "consented_customer",
+          "compliance_reason": "unspecified"
+        },
+        "request": {
+          "scope_text": "Remedial render and paint of common property walls, strata units repaint needed, owners corporation asking for quote"
+        },
+        "contact": {
+          "name": "Proof NoAddress",
+          "email": "proof-noaddress@example.invalid"
+        },
+        "workflow": {
+          "status": "received",
+          "owner_action_required": true,
+          "external_send_allowed": false,
+          "next_action": "qualify"
+        },
+        "synthetic": true
+      }
+    },
+    "question": "آدرس یا حداقل محله/suburb پروژه کجاست؟",
+    "since": 1785478507.6571922
+  },
+  "effects": {
+    "claim": false,
+    "send": false,
+    "suburb_questions": false,
+    "task": "SET_ASIDE"
+  }
+}

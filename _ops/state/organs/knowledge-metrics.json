@@ -1,0 +1,15 @@
+{
+  "notes_total": 659,
+  "notes_changed_last_hour": 9,
+  "frontmatter_valid_ratio": 0.4416,
+  "broken_links_count": null,
+  "untagged_ratio": 0.4917,
+  "stale_notes_ratio": 0.607,
+  "knowledge_afferent_events": 659,
+  "duplicates_suppressed": 0,
+  "malformed": 0,
+  "ineligible_temporal": 0,
+  "future_use": 0,
+  "fabricated_occurred_at": 0,
+  "knowledge_afferent_events_per_min": 39540.0
+}

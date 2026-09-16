@@ -1,0 +1,43 @@
+{
+  "action": "none",
+  "agent_id": "agent://octopus/lab-180/a2-001",
+  "board_id": "octopus-continuity-180",
+  "canonical": false,
+  "effect_authority": "none",
+  "event_time": "2026-08-17T17:54:58Z",
+  "outcome": "BINDING_ACKED",
+  "payload": {
+    "a2_001_implemented": false,
+    "allowed_paths": [
+      "schemas/",
+      "octopus_bridge/",
+      "tests/",
+      "docs/"
+    ],
+    "base_commit": "d10887cbb5c80ec2c3e347f070556ba8276d8a79",
+    "binding_path": "/opt/octopus/a2-lab/inbox/TO-180-A2-001-binding.json",
+    "branch": "equip/g10-cognition-20260816",
+    "cloned": false,
+    "confidence": "high",
+    "deepseek_invoked": false,
+    "expected_sha256": "95527b069a15af1cd45d35894d7e42861fc9b30fffa8b2c269a43392216f7d68",
+    "fetched": false,
+    "fugu_invoked": false,
+    "hash_match": true,
+    "input_manifest_hash": "a002cf6d012d409508acf6e6f113eaf62266b4ca3b379ae9850f06c3dda8a807",
+    "node_id": ".180",
+    "observed_sha256": "95527b069a15af1cd45d35894d7e42861fc9b30fffa8b2c269a43392216f7d68",
+    "outcome": "BINDING_ACKED",
+    "repo_locator": "F:\\backup\\octopus-bridge",
+    "report_hash": "1b99be6b1af27561a26a28be5ccac9177ce2d40dbf3f847854f29c9be3123351",
+    "task_id": "A2-001",
+    "timestamp_utc": "2026-08-17T17:54:58Z",
+    "timestamp_utc_plus_11": "2026-08-18T04:54:58+1100",
+    "worktree_created": false
+  },
+  "recorded_at": "2026-08-17T17:54:58Z",
+  "schema": "octopus.evidence.envelope.lab-180.v1",
+  "source_hash": "c8f0f442412c8fa63e463e9d63454321075ef22f0e35bed5264c999da18481bb",
+  "timestamp_utc": "2026-08-17T17:54:58Z",
+  "timestamp_utc_plus_11": "2026-08-18T04:54:58+1100"
+}

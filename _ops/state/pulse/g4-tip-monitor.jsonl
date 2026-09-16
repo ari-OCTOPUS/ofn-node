@@ -1,0 +1,3 @@
+{"schema": "g4-tip-monitor/1", "ts_utc": "2026-08-25T01:33:31.170509+00:00", "file_rows": 14657, "tip_n": 14295, "delta": 362, "tip_ts": "2026-08-25T01:11:58.761446+00:00", "tip_hash": "3a050848d75481eea5fa1cc33093e6489ef37632b2ff51e3f0bf26c9f4c60450"}
+{"schema": "g4-tip-monitor/1", "ts_utc": "2026-08-25T01:35:38.777297+00:00", "file_rows": 14660, "tip_n": 14298, "delta": 362, "tip_ts": "2026-08-25T01:35:24.514274+00:00"}
+{"schema": "g4-tip-monitor/1", "ts_utc": "2026-08-25T01:49:22.779142+00:00", "file_rows": 14666, "tip_n": 14666, "delta": 0}

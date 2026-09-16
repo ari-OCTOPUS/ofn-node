@@ -1,0 +1,124 @@
+﻿{
+    "schema":  "CLOUDFLARE-530",
+    "generated_at_utc":  "2026-08-22T09:10:12.6411944Z",
+    "generated_at_sydney":  "2026-08-22 19:10:12 AEST",
+    "verdict":  "STARTED",
+    "summary":  "octopus-cp cloudflared tunnel already running with octopus-cp-config.yml; public GET /api/board-cp/pull returns 401 (not Cloudflare 530).",
+    "findings":  {
+                     "cloudflared_exe":  [
+                                             "C:\\Program Files (x86)\\cloudflared\\cloudflared.exe"
+                                         ],
+                     "cloudflared_install_dir_contents":  [
+                                                              "cloudflared.exe only (no config.yml in install dir)"
+                                                          ],
+                     "dot_cloudflared_dir":  "C:\\Users\\Armin\\.cloudflared",
+                     "config_files":  [
+                                          {
+                                              "path":  "C:\\Users\\Armin\\.cloudflared\\octopus-cp-config.yml",
+                                              "tunnel_name_or_id":  "c438ba8e-6522-4bbe-a1e3-316eb7fc4158",
+                                              "hostname":  "cp.master-painting.com",
+                                              "origin":  "https://localhost:8801",
+                                              "originRequest_noTLSVerify":  true,
+                                              "credentials_file_present":  true,
+                                              "credentials_file_basename":  "c438ba8e-6522-4bbe-a1e3-316eb7fc4158.json",
+                                              "note":  "credential JSON contents not inlined"
+                                          }
+                                      ],
+                     "other_credential_json_basenames":  [
+                                                             "c438ba8e-6522-4bbe-a1e3-316eb7fc4158.json",
+                                                             "f62ab442-7292-4f42-beb5-b4af4c88c3ae.json"
+                                                         ],
+                     "cert_pem_present":  true,
+                     "run_logs":  [
+                                      "C:\\Users\\Armin\\.cloudflared\\octopus-cp-run.log",
+                                      "C:\\Users\\Armin\\.cloudflared\\octopus-cp-run.log.err"
+                                  ],
+                     "windows_services_named_cloudflare_cloudflared_board_cp_tunnel":  [
+                                                                                           {
+                                                                                               "name":  "SstpSvc",
+                                                                                               "display":  "Secure Socket Tunneling Protocol Service",
+                                                                                               "note":  "false-positive match on tunnel keyword; not cloudflared"
+                                                                                           }
+                                                                                       ],
+                     "nssm_cloudflared_services":  [
+
+                                                   ],
+                     "note_no_dedicated_service":  "No Windows service named cloudflare/cloudflared/board-cp-tunnel found. Tunnel runs as user process."
+                 },
+    "processes":  [
+                      {
+                          "pid":  6560,
+                          "start_time_local":  "2026-08-22 18:55:37 AEST",
+                          "cmdline":  "\"C:\\Program Files (x86)\\cloudflared\\cloudflared.exe\" tunnel --config C:\\Users\\Armin\\.cloudflared\\octopus-cp-config.yml run octopus-cp",
+                          "role":  "octopus-cp -\u003e cp.master-painting.com -\u003e https://localhost:8801"
+                      },
+                      {
+                          "pid":  7816,
+                          "start_time_local":  "2026-08-22 09:58:04 AEST",
+                          "cmdline":  "\"C:\\Program Files (x86)\\cloudflared\\cloudflared.exe\" tunnel --no-autoupdate run --url http://127.0.0.1:8774 octopus-miniapp",
+                          "role":  "unrelated miniapp tunnel"
+                      }
+                  ],
+    "start_action":  {
+                         "preferred_documented_restart":  "Not required: octopus-cp already running. DietPi TUNNEL.md documents systemctl restart cloudflared (Linux panel hosts); Windows uses octopus-cp-config.yml process.",
+                         "action_taken":  "Verified existing process PID 6560; did not spawn duplicate. Recent octopus-cp-run.log.err shows Registered tunnel connection (syd05/syd07/syd08) at 2026-08-22T08:56:38Z.",
+                         "would_start_with":  "\"C:\\Program Files (x86)\\cloudflared\\cloudflared.exe\" tunnel --config C:\\Users\\Armin\\.cloudflared\\octopus-cp-config.yml run octopus-cp"
+                     },
+    "docs_scripts":  {
+                         "tunnel_md":  "F:\\backup\\.claude\\worktrees\\core-live-cl01\\03 - Projects\\OFN-Board\\docs\\runbooks\\TUNNEL.md",
+                         "tunnel_md_scope":  "DietPi/Linux cloudflared for panel/ziman/lead/studio/app — not Windows cp.master-painting.com",
+                         "restart_related_under_F_backup":  [
+                                                                "F:\\backup\\.claude\\worktrees\\core-live-cl01\\_ops\\RESTART-ALL.bat",
+                                                                "F:\\backup\\.claude\\worktrees\\core-live-cl01\\_ops\\RESTART-ALL.ps1",
+                                                                "F:\\backup\\.claude\\worktrees\\core-live-cl01\\_ops\\RESTART-BOARDCP.ps1",
+                                                                "F:\\backup\\.claude\\worktrees\\core-live-cl01\\_ops\\telegram_center\\run-miniapp-tunnel-named.ps1",
+                                                                "F:\\backup\\.claude\\worktrees\\core-live-cl01\\_ops\\telegram_center\\run-miniapp-tunnel.ps1"
+                                                            ],
+                         "RESTART_star_tunnel_star":  "No dedicated RESTART*tunnel* for octopus-cp found under F:\\backup / F:\\octopus-wire in partial scan; miniapp tunnel scripts exist."
+                     },
+    "probes":  {
+                   "criteria":  "success = not Cloudflare 530; 401 without bearer is PASS",
+                   "public_HEAD_healthz":  {
+                                               "url":  "https://cp.master-painting.com/healthz",
+                                               "method":  "HEAD",
+                                               "status":  501,
+                                               "server":  "cloudflare",
+                                               "note":  "origin board-cp rejects HEAD; not 530"
+                                           },
+                   "public_HEAD_pull":  {
+                                            "url":  "https://cp.master-painting.com/api/board-cp/pull",
+                                            "method":  "HEAD",
+                                            "status":  501,
+                                            "server":  "cloudflare",
+                                            "note":  "origin board-cp rejects HEAD; not 530"
+                                        },
+                   "public_GET_healthz":  {
+                                              "url":  "https://cp.master-painting.com/healthz",
+                                              "method":  "GET",
+                                              "status":  404,
+                                              "content_type":  "application/json",
+                                              "note":  "routed to origin; no /healthz route"
+                                          },
+                   "public_GET_pull":  {
+                                           "url":  "https://cp.master-painting.com/api/board-cp/pull",
+                                           "method":  "GET",
+                                           "status":  401,
+                                           "content_type":  "application/json",
+                                           "result":  "PASS"
+                                       },
+                   "local_HEAD_healthz":  {
+                                              "url":  "https://127.0.0.1:8801/healthz",
+                                              "status":  501,
+                                              "server":  "board-cp/1",
+                                              "note":  "Unsupported method HEAD"
+                                          },
+                   "local_HEAD_pull":  {
+                                           "url":  "https://127.0.0.1:8801/api/board-cp/pull",
+                                           "status":  501,
+                                           "server":  "board-cp/1"
+                                       },
+                   "overall_probe_result":  "PASS"
+               },
+    "need_owner":  false,
+    "secrets_policy":  "credential JSON and cert.pem not pasted; only basenames and paths recorded"
+}

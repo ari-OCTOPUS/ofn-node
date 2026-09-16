@@ -1,0 +1,38 @@
+{
+    "holds":  [
+                  "Historical G10/DOC-RECONCILE RESULT.json bodies kept as read-only measure (clearly SUPERSEDED by SUPERSEDED-BY-U07.md + truth card)",
+                  "PLAN-T4 body still describes quick-tunnel as a historical design option; banner marks SUPERSEDED primary",
+                  "Long-lived processes started before flags/User apply may still hold stale Process env until recycle (User+OCTOPUS.env+flags durable for new starts)"
+              ],
+    "checks":  {
+                   "OCTOPUS_env_named_url":  true,
+                   "flags_durable_named_url":  true,
+                   "Process_env_cleared_of_trycloudflare":  true,
+                   "public_https_200":  true,
+                   "truth_single_public_primary":  true,
+                   "telegram_menu_mutate":  "NONE (already matching per U05)",
+                   "trycloudflare_not_active_primary":  true,
+                   "User_env_named_url":  true,
+                   "docs_not_claiming_CONFIG_NEEDED_missing_public":  true,
+                   "state_named_url":  true
+               },
+    "id":  "OCTOPUS-U07-MINIAPP-URL-RESIDUAL",
+    "ts_local":  "2026-08-23T16:15:00+10:00",
+    "evidence_dir":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-U07-MINIAPP-URL-RESIDUAL-2026-08-23",
+    "verified_public_url":  "https://app.master-painting.com",
+    "ts_utc":  "2026-08-23T06:15:00Z",
+    "next_owner_action":  "Optional: recycle long-lived telegram_center/control-plane shells started before U05/U07 env apply so they inherit flags/User named URL without relying on this session Process clear alone.",
+    "date":  "2026-08-23",
+    "changed":  [
+                    "backup OCTOPUS.env.bak-u07-20260823 (content already correct; audit backup)",
+                    "backup OCTOPUS-flags.cmd.bak-u07-20260823",
+                    "backup MINIAPP-URL-TRUTH.md.bak-u07-20260823",
+                    "set Process OCTOPUS_MINIAPP_URL + OCTOPUS_TG_MINIAPP to named URL (cleared trycloudflare residual)",
+                    "OCTOPUS-flags.cmd: add set OCTOPUS_MINIAPP_URL=https://app.master-painting.com after OCTOPUS_TG_MINIAPP=1",
+                    "rewrite telegram_center/docs/MINIAPP-URL-TRUTH.md single-source",
+                    "SUPERSEDED-BY-U07.md on DOC-RECONCILE + LAPTOP/G10 + IOS/G10",
+                    "PLAN-T4-miniapp.md top banner: named URL primary; trycloudflare SUPERSEDED"
+                ],
+    "schema":  "octopus-u07-result.v1",
+    "status":  "PASS_WITH_HOLDS"
+}

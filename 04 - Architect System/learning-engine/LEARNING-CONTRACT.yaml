@@ -1,0 +1,65 @@
+# LEARNING-CONTRACT.yaml — تک‌منبع قراردادهای وابستگی Engine (verdict #۵، 2026-07-06)
+# قاعده: هیچ وابستگی پنهان؛ هر تغییر این فایل = verdict مالک. spec کامل: LEARNING-ENGINE-DEPENDENCY-CONTRACT v1.1
+# ⟳ رفعِ دریفتِ D1 (2026-07-06، verdict «اعمال کن»): منبعِ وضعیتِ عملیاتی = LEARNING-STATE.json (autonomy_level/external_calls_scope).
+#   فیلدهای mode/status این‌جا «هدفِ قراردادی»‌اند؛ در هر تعارض، STATE مقدم است. برگشت‌پذیر. مرجع: 2026-07-06 RESEARCH-GENOME-RECONCILIATION.
+
+
+engine:
+  id: learning-engine
+  version: v1
+  state_file: LEARNING-STATE.json
+  mode: propose-only        # عملیاتی = L1 (منبع: STATE.autonomy_level=L0-shadow، external_calls_scope=L1-propose-only). رفعِ D1 2026-07-06.
+  mode_target: active-L3    # هدف، نه وضعیتِ فعلی؛ ارتقا فقط با: ردیف‌های ۱–۴ سبز + git_ready + verdict صریح
+  risk_posture: maximum-within-charter
+
+
+hard_rules:
+  - هیچ call خارجی (Fugu/partner) بدون کلید در ROTATION + budget_ceiling_daily عددی       # verdict #۱
+  - هیچ فایلی خارج از ingest-manifest سبز به هیچ API خارجی نمی‌رود — صفر استثناء            # verdict #۶ (F4)
+  - لیست سیاه human-only: charter، secret، پول، پیام خارجی، تغییر git
+  - active بعد از Gate+git؛ verdict = انسان                                                # ← تغییر از propose-only
+
+
+contracts:
+  L1_governance:
+    consumes: [PROJECT_INSTRUCTIONS (read-only), Property Schema, invariantها, لیست سیاه]
+    emits: [پیشنهاد تغییر قانون فقط در AGENT_QUESTIONS]
+    on_failure: snapshot-degraded
+  L2_control:
+    consumes: [نردبان L0–L3, وضعیت §Gate, kill-switch flag]
+    emits: [گزارش سطح/جهش/هزینه برای dashboard]
+    on_failure: shadow
+  L2b_fugu:
+    consumes: [خروجی Fugu API]
+    emits: [prompt bundle با فیلتر secret/PII — فقط محتوای manifest-سبز]
+    fallback: [claude, local-model-phase2]                                                                               # verdict #۳
+    status: active                                                                                                       # ← تغییر از locked-until-key-and-budget
+  L2c_capabilities:
+    consumes: [خروجی ابزار partner = data، هرگز دستور]
+    emits: [typed call با input/output schema]
+    rules: [کلید هر partner = secret→ROTATION, دیتای Project-F هرگز, هزینه در budget, schema validation]
+    status: active                                                                                                       # ← تغییر از locked-until-key-and-budget
+  L3_ingest:
+    consumes: [ingest-manifest.json, quarantine-manifest.json]
+    emits: []                                              # eligibility هرگز دوباره محاسبه نمی‌شود
+    on_failure: halt                                       # بدون manifest یادگیری ممنوع
+  L4_memory:
+    consumes: [EXPERIENCE-LEDGER (append-only), نوت‌های created_by agent]
+    emits: [جهش تثبیت‌شده فقط با verdict؛ خروجی خارجی با origin+external_data]
+  L5_projects:
+    consumes: [Active Context/Progress, گیت‌های G0–G4, متریک برازندگی]
+    emits: [پیشنهاد next action (propose-only)]
+    sensitive: Project-F فقط مسیر opt-out؛ Ultra ممنوع (C17)
+  L6_people:
+    consumes: [فقط metadata نقش]
+    emits: []                                              # هرگز
+  L7_telemetry:
+    consumes: [HEARTBEAT, زمان‌بند زنده]
+    emits: [سطر HEARTBEAT خودش + ورودی ledger با هزینه/نتیجه]
+  L8_handoff:
+    consumes: [HANDOFF]
+    emits: [فقط wikilink به سطر HEARTBEAT — نه بخش خودکار]                                    # verdict #۸
+  L9_registry:
+    consumes: [AGENT_REGISTRY, وراثت §Gate]
+    emits: [ردیف خودش: trigger loop, autonomy_level L0-shadow→L3]                             # verdict #۵
+    

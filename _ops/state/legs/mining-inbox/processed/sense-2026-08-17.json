@@ -1,0 +1,11 @@
+{
+  "schema": "leg-feed.v1",
+  "kind": "sense-pulse",
+  "label": "mining sense 2026-08-17",
+  "leg": "mining",
+  "day": "2026-08-17",
+  "live": false,
+  "signal": "skeleton",
+  "note": "skeleton — اسنادِ پروژه هست ولی afferent/scorer سیم‌کشی نشده. منبعِ دادهٔ واقعیِ بعدی: «02 - Code/Ai bots/coordinator/da",
+  "fed_by": "leg_feed.ensure_food"
+}

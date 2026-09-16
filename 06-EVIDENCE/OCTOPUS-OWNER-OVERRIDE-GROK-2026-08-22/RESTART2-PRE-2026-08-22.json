@@ -1,0 +1,7 @@
+{
+  "schema": "controlled-restart-pre/2",
+  "ts": "2026-08-22T14:46:22.837474+10:00",
+  "old_pid": 26484,
+  "old_commit": "9f8df61d6c9d30e4beb7237d42f95a9b0b7bbdac",
+  "target_head": "2ab0eb8725653b02c19b316dc136347af26465c2"
+}

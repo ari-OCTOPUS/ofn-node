@@ -1,0 +1,389 @@
+# ============================================================
+# control_plane/registry.yaml — source of truth ثبتِ subsystemها و کانال‌ها
+# (v1 observe-only · تولید از discovery خواندنیِ 2026-07-11 · کد مرجع است، نه این سند)
+#
+# قواعد:
+#   • status ∈ CONNECTED | PARTIAL | MISSING | UNKNOWN  (هرگز UNKNOWN→PASS نشود)
+#   • authority ∈ observe-only | approve | pause-resume | kill-switch
+#   • tcb: true یعنی control plane فقط می‌بیند؛ هرگز نمی‌نویسد/تغییر نمی‌دهد.
+# ============================================================
+version: 1
+project:
+  id: 4d_system
+  name: "ایده‌یاب / 4D System"
+  root: "."
+  owner: Armin
+  goals:
+    - "SOG: امضای بُعد پنهان — اتحاد 0.135073 (immutable)"
+    - "Brain-OS: testbed شناخت — بدون ادعای consciousness/qualia/sentience"
+
+subsystems:
+  - {id: core,            name: "SOG math core",            path: "core/",              type: library,  owner: Armin, tcb: true,  risk_tier: high,   live: passive, authority: observe-only,  health_source: "check_invariants (anchors err<1e-4)"}
+  - {id: config,          name: "settings / LLMConfig",     path: "config/",            type: config,   owner: Armin, tcb: true,  risk_tier: high,   live: passive, authority: observe-only,  health_source: "import-time"}
+  - {id: automation,      name: "AutomationController",     path: "brain/automation.py",type: engine,   owner: Armin, tcb: true,  risk_tier: medium, live: tick,    authority: pause-resume,  health_source: "event bus"}
+  - {id: autoloop,        name: "Research autoloop",        path: "brain/autoloop.py",  type: engine,   owner: Armin, tcb: false, risk_tier: medium, live: tick,    authority: observe-only,  health_source: "via automation events"}
+  - {id: frontier,        name: "Quality-Diversity frontier",path: "brain/frontier.py", type: store,    owner: Armin, tcb: false, risk_tier: low,    live: tick,    authority: observe-only,  health_source: "outputs/self_evolved/frontier.json"}
+  - {id: conclusions,     name: "SOG conclusions",          path: "brain/conclusions.py",type: engine,  owner: Armin, tcb: false, risk_tier: low,    live: tick,    authority: observe-only,  health_source: "outputs/self_evolved/conclusions.json"}
+  - {id: self_evolve,     name: "Strategy self-evolution",  path: "brain/self_evolve.py",type: evolver, owner: Armin, tcb: true,  risk_tier: high,   live: tick,    authority: approve,       health_source: "strategy.json (_generation)"}
+  - {id: self_code,       name: "Code self-modification",   path: "brain/self_code.py", type: evolver,  owner: Armin, tcb: true,  risk_tier: high,   live: gated,   authority: approve,       health_source: "outputs/self_code_proposals/*/meta.json"}
+  - {id: self_growth,     name: "Self-model + growth",      path: "brain/self_growth.py",type: engine,  owner: Armin, tcb: false, risk_tier: medium, live: tick,    authority: observe-only,  health_source: "self_portrait.md"}
+  - {id: guardrails,      name: "Safety layer + TCB gate",  path: "brain/guardrails.py",type: guard,    owner: Armin, tcb: true,  risk_tier: high,   live: passive, authority: observe-only,  health_source: "guard events / halt"}
+  - {id: budget,          name: "Cloud-call budget cap",    path: "brain/budget.py",    type: guard,    owner: Armin, tcb: true,  risk_tier: high,   live: passive, authority: observe-only,  health_source: "outputs/llm_budget.json"}
+  - {id: daemon,          name: "Headless month-runner",    path: "brain/daemon.py",    type: runner,   owner: Armin, tcb: true,  risk_tier: high,   live: daemon,  authority: kill-switch,   health_source: "outputs/daemon_state.json"}
+  - {id: telegram,        name: "Owner Telegram bot",       path: "brain/telegram_bot.py",type: channel,owner: Armin, tcb: true,  risk_tier: medium, live: external,authority: approve,       health_source: "decision_packets delivered field"}
+  - {id: notify,          name: "Decision packets + digest",path: "brain/notify.py",    type: channel,  owner: Armin, tcb: false, risk_tier: medium, live: tick,    authority: observe-only,  health_source: "outputs/decision_packets.jsonl"}
+  - {id: events,          name: "Structured event bus",     path: "brain/events.py",    type: bus,      owner: Armin, tcb: true,  risk_tier: high,   live: passive, authority: observe-only,  health_source: "dashboard_events table"}
+  - {id: workspace,       name: "GWT workspace metrics",    path: "brain/workspace.py", type: metric,   owner: Armin, tcb: false, risk_tier: low,    live: passive, authority: observe-only,  health_source: "derived from bus"}
+  - {id: housekeeping,    name: "Housekeeping + backup",    path: "brain/housekeeping.py",type: maint,  owner: Armin, tcb: false, risk_tier: medium, live: tick,    authority: observe-only,  health_source: "outputs/backups/"}
+  - {id: vault_sync,      name: "Obsidian vault sync",      path: "brain/vault_sync.py",type: channel,  owner: Armin, tcb: false, risk_tier: low,    live: tick,    authority: observe-only,  health_source: "UNKNOWN"}
+  - {id: web_research,    name: "External web research",    path: "brain/web_research.py",type: channel,owner: Armin, tcb: false, risk_tier: medium, live: external,authority: observe-only,  health_source: "UNKNOWN"}
+  - {id: evaluation,      name: "Monthly evaluation",       path: "brain/evaluation.py",type: report,   owner: Armin, tcb: false, risk_tier: low,    live: manual,  authority: observe-only,  health_source: "outputs/self_evolved/monthly_report.md"}
+  - {id: memory_sql,      name: "SQLite experiment store",  path: "memory/store.py",    type: store,    owner: Armin, tcb: false, risk_tier: medium, live: passive, authority: observe-only,  health_source: "outputs/4d_experiments.db"}
+  - {id: memory_vec,      name: "Chroma vectorstore / RAG", path: "memory/vectorstore.py",type: store,  owner: Armin, tcb: false, risk_tier: medium, live: passive, authority: observe-only,  health_source: "outputs/chroma_db/"}
+  - {id: llm_router,      name: "LLM router (Fugu/GLM/Ollama)",path: "llm/router.py",   type: router,   owner: Armin, tcb: true,  risk_tier: high,   live: passive, authority: observe-only,  health_source: "llm_budget by_provider"}
+  - {id: agents,          name: "Multi-agent orchestration",path: "agents/",            type: engine,   owner: Armin, tcb: false, risk_tier: medium, live: manual,  authority: observe-only,  health_source: "UNKNOWN"}
+  - {id: data_feeds,      name: "Data sources (synthetic/physical/real)",path: "data/", type: source,   owner: Armin, tcb: false, risk_tier: low,    live: tick,    authority: observe-only,  health_source: "outputs/real_cache/"}
+  - {id: ui,              name: "Streamlit UI (6 tabs + این تب)",path: "ui/",           type: ui,       owner: Armin, tcb: false, risk_tier: low,    live: ui,      authority: observe-only,  health_source: "AppTest/manual"}
+  - {id: control_plane,   name: "این پکیج (observe-only)",  path: "control_plane/",     type: governor, owner: Armin, tcb: false, risk_tier: low,    live: passive, authority: observe-only,  health_source: "tests"}
+
+channels:
+  - id: events_bus
+    name: "Event bus (SQLite dashboard_events)"
+    source: "brain/events.py"
+    sink: "outputs/4d_experiments.db::dashboard_events"
+    event_names: [task.started, task.completed, task.failed, task.blocked, handoff.created, system.heartbeat, approval.required]
+    agent_ids: []          # همه — بررسیِ کلی
+    state_files: ["outputs/4d_experiments.db"]
+    logs: ["outputs/system.log"]
+    tests: []
+    replay: "SELECT by trace_id"
+    risk_tier: high
+    authority: observe-only
+    status: CONNECTED
+    notes: "verified: ~5031 رویداد تا 2026-07-11"
+  - id: daemon_tick
+    name: "Daemon tick / heartbeat"
+    source: "brain/daemon.py"
+    sink: "outputs/daemon_state.json"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/daemon_state.json"]
+    logs: ["outputs/system.log"]
+    tests: []
+    replay: "UNKNOWN"
+    risk_tier: high
+    authority: kill-switch
+    status: CONNECTED
+    notes: "pause=outputs/daemon.pause · stop=outputs/daemon.stop (قراردادِ موجود)؛ v4: همین قرارداد از تبِ Control Plane هم عمل می‌شود (flag-gated + تأییدِ سخت STOP)"
+  - id: automation_cycle
+    name: "run_one state cycle (13 حالت)"
+    source: "brain/automation.py"
+    sink: "events_bus"
+    event_names: [task.started, task.completed, task.failed, task.blocked, handoff.created, approval.required]
+    agent_ids: [explore, real, synthesize, introspect, create, mutate, evolve, conclude, guard]
+    state_files: []
+    logs: ["outputs/system.log"]
+    tests: ["tests/test_orchestrator_gate.py"]
+    replay: "UNKNOWN"
+    risk_tier: medium
+    authority: pause-resume
+    status: CONNECTED
+    notes: "verified: ~41 emit callsite"
+  - id: autoloop_research
+    name: "Research pipeline (داده→SOG→بینش→ذخیره)"
+    source: "brain/autoloop.py"
+    sink: "memory_sql + frontier"
+    event_names: []
+    agent_ids: [autoloop]
+    state_files: []
+    logs: ["outputs/system.log"]
+    tests: ["tests/test_autoloop_dedup.py"]
+    replay: "UNKNOWN"
+    risk_tier: medium
+    authority: observe-only
+    status: PARTIAL
+    notes: "emit مستقیم ندیدم — visibility از طریق automation"
+  - id: sog_analysis
+    name: "SOG analysis (core anchors + metrics)"
+    source: "core/"
+    sink: "experiments table + conclusions.json"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/self_evolved/conclusions.json"]
+    logs: []
+    tests: ["tests/test_nonlinear_mi.py", "tests/test_scores_guards.py"]
+    replay: "run_self_test() deterministic"
+    risk_tier: high
+    authority: observe-only
+    status: CONNECTED
+    notes: "anchors_ok=true در conclusions.json (verified)"
+  - id: frontier_novelty
+    name: "Frontier / novelty"
+    source: "brain/frontier.py"
+    sink: "outputs/self_evolved/frontier.json"
+    event_names: [handoff.created]
+    agent_ids: [frontier]
+    state_files: ["outputs/self_evolved/frontier.json"]
+    logs: []
+    tests: ["tests/test_frontier.py"]
+    replay: "UNKNOWN"
+    risk_tier: low
+    authority: observe-only
+    status: CONNECTED
+    notes: "27 سلول (verified)"
+  - id: conclusions_channel
+    name: "Conclusions synthesis"
+    source: "brain/conclusions.py"
+    sink: "outputs/self_evolved/conclusions.json"
+    event_names: [task.completed]
+    agent_ids: [conclude]
+    state_files: ["outputs/self_evolved/conclusions.json"]
+    logs: []
+    tests: []
+    replay: "synthesize_conclusions() از DB بازتولیدپذیر"
+    risk_tier: low
+    authority: observe-only
+    status: CONNECTED
+  - id: self_evolve_strategy
+    name: "Strategy evolution (JSON، نه کد)"
+    source: "brain/self_evolve.py"
+    sink: "outputs/self_evolved/strategy.json"
+    event_names: [task.completed, task.failed, handoff.created]
+    agent_ids: [evolve]
+    state_files: ["outputs/self_evolved/strategy.json"]
+    logs: []
+    tests: []
+    replay: "strategy.backup.json + rollback()"
+    risk_tier: high
+    authority: approve
+    status: CONNECTED
+    notes: "generation=9 (verified) · گیتِ تست داخلی"
+  - id: self_code_pipeline
+    name: "self_code propose→approve→apply"
+    source: "brain/self_code.py"
+    sink: "outputs/self_code_proposals/<pid>/{original.py,new.py,meta.json}"
+    event_names: [approval.required]
+    agent_ids: [evolve, system]
+    state_files: []
+    logs: ["outputs/system.log"]
+    tests: ["tests/test_self_code_gate.py"]
+    replay: "meta.json + original/new diff"
+    risk_tier: high
+    authority: approve
+    status: CONNECTED
+    notes: "apply همیشه از مسیرِ امنِ خودِ self_code؛ v3: تصمیمِ approve/reject از تبِ Control Plane هم ممکن است (flag-gated، double-confirm، audit-logged)"
+  - id: guardrails_invariants
+    name: "Invariant check (گامِ guard)"
+    source: "brain/guardrails.py"
+    sink: "events_bus + halt path"
+    event_names: [task.completed, task.failed]
+    agent_ids: [guard]
+    state_files: []
+    logs: ["outputs/system.log"]
+    tests: ["tests/test_scores_guards.py"]
+    replay: "check_invariants() deterministic"
+    risk_tier: high
+    authority: observe-only
+    status: CONNECTED
+  - id: budget_cloud
+    name: "Cloud-call budget"
+    source: "brain/budget.py"
+    sink: "outputs/llm_budget.json"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/llm_budget.json"]
+    logs: []
+    tests: ["tests/test_budget.py"]
+    replay: "روزانه بازتولیدپذیر"
+    risk_tier: high
+    authority: observe-only
+    status: CONNECTED
+  - id: llm_router_channel
+    name: "LLM routing (Fugu/GLM/Ollama)"
+    source: "llm/router.py"
+    sink: "budget + shadow jsonl"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/llm_shadow.jsonl"]
+    logs: ["outputs/system.log"]
+    tests: ["tests/test_shadow_compare.py", "tests/test_shadow_analyze.py"]
+    replay: "llm_shadow.jsonl (B11)"
+    risk_tier: high
+    authority: observe-only
+    status: PARTIAL
+    notes: "per-call event روی bus نیست؛ فقط شمارنده‌ی budget"
+  - id: memory_sqlite
+    name: "SQLite store"
+    source: "memory/store.py"
+    sink: "outputs/4d_experiments.db"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/4d_experiments.db"]
+    logs: []
+    tests: ["tests/test_store_pragmas.py"]
+    replay: "append-only tables"
+    risk_tier: medium
+    authority: observe-only
+    status: CONNECTED
+  - id: chroma_rag
+    name: "Chroma / RAG"
+    source: "memory/vectorstore.py"
+    sink: "outputs/chroma_db/"
+    event_names: []
+    agent_ids: []
+    state_files: []
+    logs: []
+    tests: ["tests/test_chunk_ids.py"]
+    replay: "index_vault() بازسازی‌پذیر"
+    risk_tier: medium
+    authority: observe-only
+    status: PARTIAL
+    notes: "health signal ندارد — فقط وجودِ دایرکتوری"
+  - id: telegram_owner
+    name: "Telegram owner channel"
+    source: "brain/telegram_bot.py"
+    sink: "Telegram API (owner-only)"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/decision_packets.jsonl"]
+    logs: []
+    tests: ["tests/test_telegram_bot.py"]
+    replay: "decision_packets.jsonl"
+    risk_tier: medium
+    authority: approve
+    status: PARTIAL
+    notes: "verified: delivered='queued (not-configured)' → token هنوز تنظیم نشده"
+  - id: notify_packets
+    name: "Decision packets + digest"
+    source: "brain/notify.py"
+    sink: "outputs/decision_packets.jsonl"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/decision_packets.jsonl"]
+    logs: []
+    tests: ["tests/test_notify_digest.py", "tests/test_notify_no_leak.py"]
+    replay: "append-only jsonl"
+    risk_tier: medium
+    authority: observe-only
+    status: CONNECTED
+  - id: ui_dashboard
+    name: "Streamlit dashboard (Command Center)"
+    source: "ui/tab_dashboard.py"
+    sink: "نمایش (خواندن از bus)"
+    event_names: []
+    agent_ids: []
+    state_files: []
+    logs: []
+    tests: []
+    replay: "n/a"
+    risk_tier: low
+    authority: observe-only
+    status: CONNECTED
+  - id: backup_housekeeping
+    name: "Backup + housekeeping"
+    source: "brain/backup.py"
+    sink: "outputs/backups/<date>/"
+    event_names: []
+    agent_ids: []
+    state_files: []
+    logs: []
+    tests: ["tests/test_backup.py", "tests/test_housekeeping_trim.py"]
+    replay: "restore از backup (approval لازم)"
+    risk_tier: medium
+    authority: approve
+    status: CONNECTED
+    notes: "backups/2026-07-11 موجود (verified)"
+  - id: vault_obsidian
+    name: "Obsidian vault sync"
+    source: "brain/vault_sync.py"
+    sink: "4D-Vault (مسیر UNKNOWN)"
+    event_names: [handoff.created]
+    agent_ids: [vault]
+    state_files: []
+    logs: []
+    tests: []
+    replay: "UNKNOWN"
+    risk_tier: low
+    authority: observe-only
+    status: UNKNOWN
+  - id: evaluation_monthly
+    name: "گزارشِ ارزیابی"
+    source: "brain/evaluation.py"
+    sink: "outputs/self_evolved/monthly_report.md"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/self_evolved/monthly_report.md"]
+    logs: []
+    tests: []
+    replay: "gather() بازتولیدپذیر"
+    risk_tier: low
+    authority: observe-only
+    status: CONNECTED
+  - id: agents_orchestration
+    name: "W0–W3 multi-agent"
+    source: "agents/orchestrator.py"
+    sink: "UNKNOWN"
+    event_names: []
+    agent_ids: []
+    state_files: []
+    logs: []
+    tests: ["tests/test_orchestrator_gate.py"]
+    replay: "UNKNOWN"
+    risk_tier: medium
+    authority: observe-only
+    status: UNKNOWN
+    notes: "نقشِ زنده در چرخه‌ی خودمختار هنوز verify نشده"
+  - id: data_real_feeds
+    name: "Real/synthetic/physical data"
+    source: "data/"
+    sink: "outputs/real_cache/ + experiments"
+    event_names: []
+    agent_ids: [real, explore, synthesize]
+    state_files: []
+    logs: []
+    tests: ["tests/test_real_api_fallback.py", "tests/test_synthetic_independence.py"]
+    replay: "real_cache + seeds"
+    risk_tier: low
+    authority: observe-only
+    status: CONNECTED
+  - id: web_research_external
+    name: "Web research (GET-only)"
+    source: "brain/web_research.py"
+    sink: "knowledge synthesis"
+    event_names: []
+    agent_ids: []
+    state_files: []
+    logs: []
+    tests: []
+    replay: "UNKNOWN"
+    risk_tier: medium
+    authority: observe-only
+    status: UNKNOWN
+  - id: self_heal_supervisor
+    name: "Self-heal supervisor (v5)"
+    source: "control_plane/supervisor.py"
+    sink: "spawn brain.daemon/brain.telegram_bot + outputs/control_plane/supervisor_state.json"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/control_plane/supervisor_state.json"]
+    logs: ["outputs/control_plane/supervisor_log.jsonl"]
+    tests: ["tests/test_control_plane_supervisor.py"]
+    replay: "supervisor_log.jsonl (هر اقدام + rollback)"
+    risk_tier: high
+    authority: kill-switch
+    status: PARTIAL
+    notes: "crash→restart خودکار؛ HALT/توقفِ مالک/خروجِ تمیز هرگز restart نمی‌شود؛ flag: CONTROL_PLANE_SELF_HEAL"
+  - id: financial_nervous
+    name: "Financial nervous layer"
+    source: "پیدا نشد"
+    sink: "پیدا نشد"
+    event_names: []
+    agent_ids: []
+    state_files: []
+    logs: []
+    tests: []
+    replay: "n/a"
+    risk_tier: low
+    authority: observe-only
+    status: MISSING
+    notes: "جز data feeds بازار، لایه‌ی مالیِ جدا در repo وجود ندارد"

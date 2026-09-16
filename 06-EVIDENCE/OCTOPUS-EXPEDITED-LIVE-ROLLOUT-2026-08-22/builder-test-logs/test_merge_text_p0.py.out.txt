@@ -1,0 +1,8 @@
+PASS t_freetext_merge_lab_without_proofs_refuses
+PASS t_freetext_reject_never_calls_apply_merge
+PASS t_handle_command_freetext_persists_and_doctor_applies_merge
+PASS t_parser_extracts_rfc_and_verbs_including_fa
+PASS t_parser_feeds_apply_owner_verdict_directly
+RESULT failed=0 passed=5
+
+---STDERR---

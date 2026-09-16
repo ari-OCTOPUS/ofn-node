@@ -1,0 +1,147 @@
+{
+  "independent_work_without_A18": {
+    "items": [
+      {
+        "quote": "Parallel tracks (do not divert): Board2 marketing + Orange Pi (sensoriom).",
+        "source": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\\\OWNER-BRIEF.md"
+      },
+      {
+        "quote": "Do not divert into: physical e-stop purchases, mining, WAVE0 actuator unlock.",
+        "source": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\\\OWNER-BRIEF.md"
+      },
+      {
+        "quote": "Required outputs: ADR · Three NODE-PACK schemas · CONNECTOR-GAP registry (GA4/GSC/Ads as GAP).",
+        "source": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\\\OWNER-BRIEF.md"
+      },
+      {
+        "quote": "knowledge_hook_activation_allowed: true · organism_reload: FORBIDDEN_BY_THIS_HANDOFF · brain_daemon_reload: FORBIDDEN_BY_THIS_HANDOFF",
+        "source": "F:\\\\backup\\\\06-EVIDENCE\\\\TELEGRAM-CLOSED-LOOP-2026-08-20\\\\A19-HANDOFF.json"
+      },
+      {
+        "quote": "Wave0_recent: 06-EVIDENCE/OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-2026-08-23 (mtime 2026-08-23 01:09+10)",
+        "source": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-CONTINUOUS-DISCOVER-2026-08-23\\\\DISCOVER.json"
+      },
+      {
+        "quote": "Dirty worktree heavy (692 porcelain lines) — commit hygiene risk",
+        "source": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-CONTINUOUS-DISCOVER-2026-08-23\\\\DISCOVER.json"
+      }
+    ],
+    "note": "Quoted from OWNER brief + A19 handoff + DISCOVER — proceeds while A18 stays BLOCKED."
+  },
+  "process_restart": false,
+  "created_at": "2026-08-23T02:33:00+10:00",
+  "destructive": false,
+  "slice": "A18-BLOCKER",
+  "suggested_independent_next": {
+    "source": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\\\OWNER-BRIEF.md §Parallel tracks + Required outputs",
+    "one_liner": "Continue OWNER-BRIEF parallel track: Board2 marketing and/or Orange Pi sensoriom (CONNECTOR-GAP / NODE-PACK follow-through) — leave A18 BLOCKED until live /remember ACK + /correct invalid-id receipts prove PASS.",
+    "not_A18": true
+  },
+  "subject": "A18 Full Loop / LIVE-B",
+  "schema": "octopus-a18-blocker/1",
+  "invented_root_cause": false,
+  "status": "BLOCKED",
+  "blocker_reason_quotes": [
+    {
+      "source": "F:\\\\backup\\\\OCTOPUS\\\\CURRENT-TRUTH.md",
+      "findings_quote": "یافته‌ها: MISSING_ACK_FOR_/remember · CORRECT_ACCEPTED_INVALID_TURN_ID · STALE_GATE_LABEL_IN_REPLY.",
+      "quote": "A18 / Full Loop BLOCKED. A19 صادر · lease آزاد · hook دانش برای C مجاز."
+    },
+    {
+      "findings_line": "findings:              CORRECT_ACCEPTED_INVALID_TURN_ID · STALE_GATE_LABEL_IN_REPLY · MISSING_ACK_FOR_/remember",
+      "source": "F:\\\\backup\\\\06-EVIDENCE\\\\TELEGRAM-CLOSED-LOOP-2026-08-20\\\\REPORT.md",
+      "quote": "A18 LIVE-B/Full Loop:  BLOCKED"
+    },
+    {
+      "quotes": [
+        "full_loop: BLOCKED",
+        "live_b: BLOCKED",
+        "matrix.A18: BLOCKED"
+      ],
+      "source": "F:\\\\backup\\\\06-EVIDENCE\\\\TELEGRAM-CLOSED-LOOP-2026-08-20\\\\A19-HANDOFF.json",
+      "findings": [
+        "CORRECT_ACCEPTED_INVALID_TURN_ID",
+        "STALE_GATE_LABEL_IN_REPLY",
+        "MISSING_ACK_FOR_/remember"
+      ]
+    },
+    {
+      "quotes": [
+        "MISSING_ACK_FOR_/remember — ارسال پاسخ /remember برای update_id=223883328 در tg-send-log با ok=false ثبت شد … ACK روی سیم تأیید نشد.",
+        "CORRECT_ACCEPTED_INVALID_TURN_ID — /correct توکن اول را turn_id می‌گیرد و هرگز آن را با memory_id یا update_id زنده نمی‌سنجد.",
+        "STALE_GATE_LABEL_IN_REPLY — پاسخ local-degraded هنوز می‌گوید «مدل پولی تا گیت A13 خاموش است»."
+      ],
+      "source": "F:\\\\backup\\\\06-EVIDENCE\\\\TELEGRAM-CLOSED-LOOP-2026-08-20\\\\FINDINGS.md"
+    },
+    {
+      "quotes": [
+        "telegram canary: A13–A17 PASS · A18 BLOCKED · A19 handoff issued",
+        "LIVE-B / Full Loop: BLOCKED",
+        "یافته‌ها: MISSING_ACK_FOR_/remember · CORRECT_ACCEPTED_INVALID_TURN_ID · STALE_GATE_LABEL_IN_REPLY"
+      ],
+      "source": "F:\\\\backup\\\\00-INDEX\\\\OCTOPUS-CURRENT-STATE.md"
+    },
+    {
+      "quote": "A13–A17 PASS · A18 BLOCKED · A19 handoff · lease released",
+      "source": "F:\\\\backup\\\\01 - Dashboard\\\\HANDOFF.md"
+    },
+    {
+      "documented_blockers": [
+        "MISSING_ACK_FOR_/remember",
+        "CORRECT_ACCEPTED_INVALID_TURN_ID",
+        "STALE_GATE_LABEL_IN_REPLY"
+      ],
+      "quotes": [
+        "A18_status: BLOCKED",
+        "A18_meaning: Full Loop / LIVE-B blocked per CURRENT-TRUTH + TELEGRAM-CLOSED-LOOP REPORT",
+        "A18 Full Loop / LIVE-B still documented BLOCKED",
+        "code_note: local_commands.py now validates /correct turn_id against disk and returns receipt local-remember/local-correct; A18 still labeled BLOCKED in truth docs pending live re-verify"
+      ],
+      "source": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-CONTINUOUS-DISCOVER-2026-08-23\\\\DISCOVER.json"
+    }
+  ],
+  "timezone": "Australia/Sydney",
+  "evidence_links": {
+    "owner_briefs": [
+      "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\\\OWNER-BRIEF.md",
+      "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\\\"
+    ],
+    "truth_docs": [
+      "F:\\\\backup\\\\OCTOPUS\\\\CURRENT-TRUTH.md",
+      "F:\\\\backup\\\\01-TRUTH\\\\CURRENT-TRUTH.md",
+      "F:\\\\backup\\\\00-INDEX\\\\OCTOPUS-CURRENT-STATE.md",
+      "F:\\\\backup\\\\01 - Dashboard\\\\HANDOFF.md"
+    ],
+    "this_pack": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-A18-BLOCKER-2026-08-23\\\\BLOCKER.json",
+    "wave_a18_evidence": [
+      "F:\\\\backup\\\\06-EVIDENCE\\\\TELEGRAM-CLOSED-LOOP-2026-08-20\\\\REPORT.md",
+      "F:\\\\backup\\\\06-EVIDENCE\\\\TELEGRAM-CLOSED-LOOP-2026-08-20\\\\FINDINGS.md",
+      "F:\\\\backup\\\\06-EVIDENCE\\\\TELEGRAM-CLOSED-LOOP-2026-08-20\\\\A19-HANDOFF.json",
+      "F:\\\\backup\\\\06-EVIDENCE\\\\WAVE1-ENTRY-PREFLIGHT-2026-08-20\\\\",
+      "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-WAVE-B-HANDOFF-2026-08-21\\\\",
+      "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-2026-08-23\\\\",
+      "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-CONTINUOUS-DISCOVER-2026-08-23\\\\DISCOVER.json"
+    ]
+  },
+  "compact": {
+    "STATUS": "A18 Full Loop / LIVE-B = BLOCKED (documented; code path improved but live re-verify pending)",
+    "EVIDENCE": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-A18-BLOCKER-2026-08-23\\\\BLOCKER.json",
+    "NEXT": "Board2 marketing / Orange Pi sensoriom per OWNER-BRIEF — not A18",
+    "BLOCKER": "MISSING_ACK_FOR_/remember + CORRECT_ACCEPTED_INVALID_TURN_ID + STALE_GATE_LABEL_IN_REPLY (truth still BLOCKED pending live receipts)"
+  },
+  "what_would_unblock": {
+    "quotes": [
+      {
+        "executable_step": "Inspect latest F:\\\\backup\\\\_ops\\\\state\\\\telegram\\\\loop\\\\events and outbox for a fresh owner /remember receipt (local-remember) and one /correct invalid-id rejection (local-correct-invalid); no process restart; no deletes",
+        "recommendation": "Read-only re-verify A18 unlock criteria: confirm /remember ACK + /correct invalid-turn rejection on LIVE center (PID 35916) against durable outbox/events without restart; then update CURRENT-TRUTH only if receipts prove PASS",
+        "source": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-CONTINUOUS-DISCOVER-2026-08-23\\\\DISCOVER.json",
+        "code_note": "local_commands.py now validates /correct turn_id against disk and returns receipt local-remember/local-correct; A18 still labeled BLOCKED in truth docs pending live re-verify"
+      },
+      {
+        "quote": "T51: کارت PRE-REG-FULL-LOOP-FLASH-2026-08-20 آماده، اجرا=۰ تا LIVE-B و امضای Ed25519 جداگانه.",
+        "source": "F:\\\\backup\\\\OCTOPUS\\\\CURRENT-TRUTH.md (T51 / LIVE path)"
+      }
+    ],
+    "note": "Quoted only from DISCOVER next_action_p0 / a18_wave.code_note — no invented root cause."
+  }
+}

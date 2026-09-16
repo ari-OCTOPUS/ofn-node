@@ -1,0 +1,84 @@
+﻿{
+    "inbox_scan":  {
+                       "path":  "F:\\\\backup\\\\00 - Inbox\\\\ziman-gallery",
+                       "mom_set_found":  [
+                                             "IMG_4109.HEIC"
+                                         ],
+                       "mom_set_missing":  [
+                                               "IMG_4238",
+                                               "IMG_4339",
+                                               "IMG_4323",
+                                               "IMG_4464",
+                                               "IMG_4404",
+                                               "IMG_4700",
+                                               "IMG_4698",
+                                               "IMG_4206",
+                                               "IMG_4560",
+                                               "IMG_4057"
+                                           ],
+                       "action":  "No new binaries to attach. No fake images."
+                   },
+    "note":  "ZM-0003/0006 also for_sale historically NOTE_NO_PHOTOS — unchanged this close.",
+    "sku_hold":  [
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4238.DNG",
+                         "sku":  "ZM-GALLERY-0007"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4339.HEIC",
+                         "sku":  "ZM-GALLERY-0008"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4323.DNG",
+                         "sku":  "ZM-GALLERY-0009"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4464.HEIC",
+                         "sku":  "ZM-GALLERY-0010"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4404.HEIC",
+                         "sku":  "ZM-GALLERY-0011"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4700.DNG,IMG_4698.HEIC",
+                         "sku":  "ZM-GALLERY-0012"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4206.HEIC",
+                         "sku":  "ZM-GALLERY-0013"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "photo_pending_id",
+                         "sku":  "ZM-GALLERY-0014"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4560.HEIC",
+                         "sku":  "ZM-GALLERY-0015"
+                     },
+                     {
+                         "shopify_image_id":  43881836707940,
+                         "photo":  "PASS_UPLOADED",
+                         "filename":  "IMG_4109.HEIC",
+                         "sku":  "ZM-GALLERY-0016"
+                     },
+                     {
+                         "photo":  "HOLD_NO_BINARY",
+                         "filename":  "IMG_4057.DNG",
+                         "sku":  "ZM-GALLERY-0017"
+                     }
+                 ],
+    "gap_id":  "G02",
+    "stamp":  "2026-08-23T09:04+10",
+    "title":  "Gallery for_sale without photos",
+    "result":  "HOLD"
+}

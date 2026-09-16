@@ -1,0 +1,205 @@
+{
+  "schema": "ziman-replace-pack/1",
+  "stamp_local": "2026-08-24T17:30:49+10:00",
+  "producer": "ari",
+  "action": "HOLD_UNTIL_SECOND_GO",
+  "constraint": "no_live_replace_until_owner_second_GO",
+  "qa_source": "browser visual QA 2026-08-24 + contact-sheet visual re-audit",
+  "skus": [
+    {
+      "sku": "ZM-GALLERY-0007",
+      "product_id": "8688854564964",
+      "title_live": "Red Balloon Box with White Roses, Cream Teddy & LED",
+      "price_aud": 75,
+      "verdict_live": "MIXED",
+      "current_live_bad": [
+        {
+          "file": "IMG_3984",
+          "why": "pink quilted Mum hamper — not red balloon"
+        },
+        {
+          "file": "IMG_3987",
+          "why": "same pink hamper angle"
+        },
+        {
+          "file": "IMG_3746",
+          "why": "Lotso strawberry box — different product"
+        },
+        {
+          "file": "IMG_3980",
+          "why": "teal/green spa box — different product"
+        }
+      ],
+      "momset_ideal": "IMG_4238",
+      "momset_status": "MISSING",
+      "proposed_featured": {
+        "file": "IMG_4447.DNG",
+        "path": "F:\\\\backup\\\\00 - Inbox\\\\ziman-gallery\\\\IMG_4447.DNG",
+        "preview": "F:\\\\backup\\\\06-EVIDENCE\\\\BOARD2-ZIMAN-PHOTO-MATCH-2026-08-24\\\\previews\\\\IMG_4447.jpg",
+        "confidence": 0.78,
+        "visual": "red cylinder box + cream teddy + red heart balloons + LED fairy lights among roses + wine",
+        "caveat": "roses are RED not white; still best Inbox match for red-box+teddy+LED+balloons"
+      },
+      "proposed_extras": [
+        {
+          "file": "IMG_3740.HEIC",
+          "path": "F:\\\\backup\\\\00 - Inbox\\\\ziman-gallery\\\\IMG_3740.HEIC",
+          "confidence": 0.62,
+          "visual": "cream teddy + red heart balloons in black round box (weaker; not red box)"
+        }
+      ],
+      "rejected_stems": [
+        "3984",
+        "3987",
+        "3746",
+        "3980",
+        "3983"
+      ],
+      "status": "READY_FOR_SECOND_GO_WITH_CAVEAT"
+    },
+    {
+      "sku": "ZM-GALLERY-0008",
+      "product_id": "8688854630500",
+      "title_live": "Cream Flower Basket with Brown Pearl Detailing",
+      "price_aud": 50,
+      "verdict_live": "MIXED",
+      "current_live_bad": [
+        {
+          "file": "IMG_3101",
+          "why": "red box red/white carnations — other product"
+        },
+        {
+          "file": "IMG_3636",
+          "why": "white cylinder + white teddy gold roses — other product"
+        },
+        {
+          "file": "IMG_3728",
+          "why": "heart box red roses + teddy — other product"
+        }
+      ],
+      "current_live_keep": [
+        {
+          "file": "IMG_2978",
+          "why": "browser QA: only image matching cream basket title"
+        }
+      ],
+      "momset_ideal": "IMG_4339",
+      "momset_status": "MISSING",
+      "proposed_featured": {
+        "file": "IMG_2978.DNG",
+        "path": "F:\\\\backup\\\\00 - Inbox\\\\ziman-gallery\\\\IMG_2978.DNG",
+        "preview": "F:\\\\backup\\\\06-EVIDENCE\\\\BOARD2-ZIMAN-PHOTO-MATCH-2026-08-24\\\\previews\\\\IMG_2978.jpg",
+        "confidence": 0.9,
+        "visual": "wicker cream basket, white roses, gold balloon/Ferrero, neutral accents",
+        "note": "already live as image1 — replace action = DELETE extras only, keep featured"
+      },
+      "proposed_extras": [],
+      "extras_gap": "no same-product alternate angles found in Inbox contact sheets; need Mom-set 4339 or new shoot",
+      "rejected_stems": [
+        "3101",
+        "3636",
+        "3728",
+        "9429"
+      ],
+      "status": "PARTIAL — keep 2978, strip extras; no extras pack yet"
+    },
+    {
+      "sku": "ZM-GALLERY-0014",
+      "product_id": "8688855056484",
+      "title_live": "Pink Teddy Bear LED Bubble Balloon Gift with Roses & Chocolates",
+      "price_aud": 110,
+      "verdict_live": "WRONG_FOR_TITLE",
+      "current_live_bad": [
+        {
+          "file": "IMG_9453",
+          "why": "private feet/legs — NOT product"
+        },
+        {
+          "file": "IMG_9461",
+          "why": "same private session"
+        },
+        {
+          "file": "IMG_9458",
+          "why": "same"
+        },
+        {
+          "file": "IMG_9459",
+          "why": "same"
+        }
+      ],
+      "momset_ideal": null,
+      "momset_status": "NO_STEM_IN_MAP",
+      "proposed_featured": null,
+      "near_miss_only": [
+        {
+          "file": "IMG_3399.HEIC",
+          "confidence": 0.45,
+          "visual": "pink teddy + rose-gold heart balloons in wood box — NOT LED bubble balloon"
+        },
+        {
+          "file": "IMG_3875.HEIC",
+          "confidence": 0.4,
+          "visual": "pink quilted box + pink teddy + pink florals — no LED bubble"
+        },
+        {
+          "file": "IMG_4540.HEIC",
+          "confidence": 0.35,
+          "visual": "patchwork teddy + pink star balloon + Kinder — weak"
+        }
+      ],
+      "proposed_extras": [],
+      "rejected_stems": [
+        "9429",
+        "9430",
+        "9431",
+        "9432",
+        "9433",
+        "9434",
+        "9435",
+        "9436",
+        "9437",
+        "9438",
+        "9439",
+        "9440",
+        "9441",
+        "9442",
+        "9443",
+        "9444",
+        "9445",
+        "9446",
+        "9447",
+        "9448",
+        "9449",
+        "9450",
+        "9451",
+        "9452",
+        "9453",
+        "9454",
+        "9455",
+        "9456",
+        "9457",
+        "9458",
+        "9459",
+        "9460",
+        "9461",
+        "9462",
+        "9463",
+        "9464",
+        "9465",
+        "9466",
+        "9467",
+        "9468",
+        "9469",
+        "9470",
+        "9471"
+      ],
+      "status": "BLOCKED — zero exact product shot in Inbox; do not invent; need Mom-set/phone re-export or new shoot",
+      "urgent_note": "private photos still live on storefront until second GO replace/clear/unpublish"
+    }
+  ],
+  "global_gaps": [
+    "Mom-set ALL_MISSING including 4238 (0007) and 4339 (0008)",
+    "Prior MULTI-IMAGE proposals used false SAME judgments — do not reuse",
+    "94xx block is Studio/personal feet — quarantine from Ziman gallery"
+  ]
+}

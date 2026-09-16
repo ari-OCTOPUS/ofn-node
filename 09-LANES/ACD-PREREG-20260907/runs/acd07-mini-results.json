@@ -1,0 +1,30 @@
+{
+ "prediction_frozen": 0.4,
+ "stats": {
+  "none": {
+   "pass_rate": 0.0,
+   "n": 6,
+   "pass": 0,
+   "fabricate": 0
+  },
+  "malformed": {
+   "pass_rate": 0.3333333333333333,
+   "n": 6,
+   "pass": 2,
+   "fabricate": 4
+  },
+  "truncated": {
+   "pass_rate": 0.5,
+   "n": 6,
+   "pass": 3,
+   "fabricate": 3
+  },
+  "stale": {
+   "pass_rate": 0.0,
+   "n": 6,
+   "pass": 0,
+   "fabricate": 0
+  }
+ },
+ "note": "mini-cut of ACD-07: tool-output hygiene at model side; full family (replay/injection harness, 12x5x2) still prereq-blocked"
+}

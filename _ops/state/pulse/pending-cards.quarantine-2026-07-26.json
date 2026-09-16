@@ -1,0 +1,29 @@
+{
+ "rfc:c6-redeliver-seed-state-read-cache-bench": {
+  "kind": "rfc",
+  "rfc_id": "c6-redeliver-seed-state-read-cache-bench",
+  "summary": "نتیجهٔ آزمایشی که در 2026-07-25 تمام شد و کارتش آن روز به دستت نرسید.\nپرسش: Does a stat-validated cache of the parsed ORGANISM-STATE do strictly less work per tick than re-parsing it?\nحکم: accepted",
+  "owner": 6150431610,
+  "nonce": "9b594b7cd468b0e205d463618a30367d",
+  "expires_at": 1785286766,
+  "token_sha256": "78cdcc9e6325030a0e395ea0a1863cb39bbdb90dae0bc7cb35a6f32d4c591ef0",
+  "delivery": "PENDING",
+  "decision": "SUBMITTED",
+  "created_ts": 1785027566,
+  "updated_ts": 1785027568
+ },
+ "rfc:c6-redeliver-probe": {
+  "kind": "rfc",
+  "rfc_id": "c6-redeliver-probe",
+  "summary": "probe",
+  "owner": 6150431610,
+  "nonce": "8a9fe6988408be40553b1d5b7ca74d11",
+  "expires_at": 1785286787,
+  "token_sha256": "01b3d7fa09d3c337053379e11181f563876acca59e6b6614647e5c681748b488",
+  "delivery": "PENDING",
+  "decision": "SUBMITTED",
+  "created_ts": 1785027587,
+  "updated_ts": 1785027587
+ },
+ "_note": "debug debris from the 2026-07-26 card-redelivery investigation; moved, not deleted"
+}

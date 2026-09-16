@@ -1,0 +1,39 @@
+{
+  "schema": "octopus.owner-review-decision.v2",
+  "written_at": "2026-08-22T09:13:56.809043+00:00",
+  "current_wave": "WAVE0_OBSERVE_ONLY",
+  "decision": "KEEP_WAVE0_LOCKED",
+  "doctor": "FAIL",
+  "repairs_attempted": 0,
+  "checks_total": 18,
+  "blocking_failed": [
+    "gap002_registry",
+    "gap_001_open"
+  ],
+  "coverage_or_data_critical": "PASS",
+  "checkpoint_unsigned": "SIGNED_ROOT_V2",
+  "checkpoint_creates_authority": false,
+  "unknown_checks": 0,
+  "executed_actions": 0,
+  "planner_invocations": 0,
+  "actuator_authority": "NONE",
+  "candidate_wired_to_live": false,
+  "hardware_touched": false,
+  "oa_t7_created": false,
+  "oa_a0_created": true,
+  "authority_changed": false,
+  "ready_for_bounded_transition": false,
+  "next_action": "owner maintenance-window GAP-001 test; GAP-002 registry close is not seq-266 credit",
+  "findings_chain_id": "octopus-doctor-findings",
+  "change_chain_id": "octopus-audit-change",
+  "do_not_call_audit_head_seq_266": "octopus-audit-ledger checkpoint anchored at seq=266",
+  "software_only_a0": {
+    "enabled": true,
+    "resolved_scope": "SOFTWARE_ONLY_A0",
+    "hardware": "BLOCKED_NEED_ESTOP",
+    "auth": "OCTOPUS-ORANGEPI-WAVE0-ACTUATORS-20260822",
+    "allowlist": "/var/lib/octopus/state/wave0/SOFTWARE_ONLY_A0_ALLOWLIST.json",
+    "lock_resolution": "/var/lib/octopus/state/wave0/LOCK_RESOLUTION.json"
+  },
+  "wave0_execute_note": "SOFTWARE_ONLY_A0 allowlist enabled; hardware remains KEEP_WAVE0_LOCKED / BLOCKED_NEED_ESTOP"
+}

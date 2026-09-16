@@ -1,0 +1,31 @@
+# Deliberately BROKEN spec — used to demonstrate the linter catching the 5 killers.
+# `python rsc.py validate specs/_broken_example.yaml` should FAIL with clear reasons.
+idea: بهتر کردن extraction با یک ایدهٔ باحال.
+
+hypothesis: به نظر می‌رسد کیفیت بهتر می‌شود.
+
+prediction:
+  statement: نتیجه بهتر خواهد بود.
+  # baseline & expected missing on purpose -> metric gate fails
+
+metric:
+  name: ""            # empty -> not measurable
+  direction: ""       # invalid
+
+experiment:
+  dataset: یه‌سری داده
+  conditions: []      # no conditions
+
+failure_condition: {}  # no kill line -> not falsifiable
+
+architecture:
+  pattern: ""
+
+api_contract: {}       # not connectable
+
+mvp:
+  notes: بعداً می‌نویسیم.   # no stack, no effort -> not runnable
+
+evaluation: {}
+
+decision_rule: {}      # no closure

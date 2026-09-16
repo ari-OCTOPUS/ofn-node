@@ -1,0 +1,272 @@
+schema: lab-doctor-contract.v1
+decision_id: MEGA-LIFE-v1
+status: PHASE_0_CONTRACT_ONLY
+observed_at: 2026-08-19
+
+principle:
+  statement: Organs diagnose and propose; they do not patch or promote themselves.
+  constitutional_basis:
+    - PRE-0/CONSTITUTION.md
+    - PRE-0/SELF-IMPROVEMENT-BOUNDARY.md
+    - PRE-0/GOVERNANCE-MAINTENANCE-LANE.md
+  evidence_grade: VERIFIED_POLICY
+
+evidence_grades:
+  VERIFIED: enforced or reproducible by code, tests, or independent receipts
+  OBSERVED: present in current code or state, without a full effectiveness claim
+  PROPOSED: required target absent from current implementation
+  UNKNOWN: absent, contradictory, or insufficient evidence
+
+doctor:
+  implementation:
+    path: _ops/doctor/doctor.py
+    status: OBSERVED_PARTIAL
+  inputs_observed:
+    - ORGANISM-STATE.json frozen/halted/conflicts
+    - replication sigma when available
+    - pending gated effects when a ChronoDB connection is injected
+    - per-organ telemetry when available
+    - fresh leg cultivation report
+    - owner focus as a same-severity tie-breaker
+  diagnosis_observed:
+    output_shape:
+      bottleneck: string
+      evidence:
+        key: string
+        severity: critical|high|medium
+        score: number
+        lambda_persist_applied: -1.0
+    notes:
+      - Uptime and keep-beating are explicitly penalized as self-preservation targets.
+      - No diagnosis means no detected bottleneck, not proof of health.
+  prescription_required:
+    output_shape:
+      observed_symptom: string
+      causal_hypothesis: string
+      proposed_mutation:
+        target_path: string
+        target_zone: B1|B2|unresolved
+        description: string
+      falsification_condition: string
+      expected_cost:
+        tokens: number
+        calls: integer
+        risk_weight: number
+        time_s: number
+      rollback: string
+      evidence_refs: [string]
+    status: PROPOSED_EXTENSION
+  rfc_lifecycle_observed:
+    states:
+      - draft
+      - drafted
+      - sandboxed
+      - sandbox-skip
+      - submitted
+      - submitted-no-channel
+      - submit-failed
+      - merged
+      - rejected
+      - expired
+    contract: proposal -> sandbox -> critic -> owner submission
+    evidence_grade: OBSERVED_CODE
+  patch_boundary:
+    scheduled_runs: propose_only
+    direct_code_merge: forbidden
+    limited_owner_approved_effect:
+      condition: tune-level RFC plus whitelisted knob plus explicit feature gate plus human approval
+      scope: bounded reversible knob only
+      evidence_grade: OBSERVED_CODE
+    B0_prescription: owner_maintenance_queue_only
+  self_judgment:
+    forbidden:
+      - final judgment of its own RFC
+      - self-issued positive credit
+      - self-promotion to VERIFIED
+      - changing a metric after seeing the result
+
+lab:
+  current_implementation:
+    path: _ops/doctor/doctor.py::Doctor.run_sandbox
+    observed_mechanism:
+      - creates a temporary directory on the host
+      - optionally calls an injected apply function
+      - optionally runs a subprocess with cwd set to that directory
+      - captures stdout and stderr tails
+      - enforces a 120-second subprocess timeout
+      - removes the temporary directory afterward
+      - critic reports accept only when an actual suite ran and exit code was zero
+    evidence_grade: OBSERVED_CODE
+  hard_sandbox_requirements:
+    workspace_mount_only:
+      required: true
+      current_status: UNKNOWN_NOT_VERIFIED
+      rule: Mount only an isolated workspace; never user home or repository secrets.
+    non_root:
+      required: true
+      current_status: UNKNOWN_NOT_VERIFIED
+    network_default_closed:
+      required: true
+      current_status: UNKNOWN_NOT_VERIFIED
+      egress: explicit_allowlist_only
+    cpu_limit:
+      required: true
+      current_status: UNKNOWN_NOT_VERIFIED
+    ram_limit:
+      required: true
+      current_status: UNKNOWN_NOT_VERIFIED
+    pid_limit:
+      required: true
+      current_status: UNKNOWN_NOT_VERIFIED
+    timeout_destruction:
+      required: true
+      current_status: PARTIAL_PROCESS_TIMEOUT_AND_TEMP_CLEANUP_ONLY
+    os_level_isolation:
+      required: true
+      current_status: UNKNOWN_NOT_VERIFIED
+    host_home_access:
+      required: false
+      current_status: NOT_PROVEN_BLOCKED
+    secrets_access:
+      required: false
+      current_status: NOT_PROVEN_BLOCKED
+  verdict: NOT_A_VERIFIED_HARD_SANDBOX
+  safety_rule: Do not execute untrusted mutation code until all hard-sandbox requirements have negative tests and receipts.
+
+experiment_contract:
+  required_before_execution:
+    experiment_id: string
+    hypothesis: string
+    frozen_metric: string
+    baseline_ref: string
+    candidate_ref: string
+    control_or_placebo: string
+    target_zone: B1|B2
+    risk_budget:
+      tokens: number
+      calls: integer
+      risk_weight: number
+      max_external_effects: 0
+    timeout_s: number
+    stop_condition: string
+    rollback: string
+    replay_recipe: string
+    falsifier: string
+    independent_judge: string
+    expected_receipts: [string]
+  constitutional_validation:
+    budget_positive: required
+    timeout_positive: required
+    rollback_nonempty: required
+    hard_constraints_ok: required
+    external_effects: forbidden
+
+flow:
+  - step: vital_signal
+    actor: organ_or_runtime
+    output: receipted_signal
+  - step: diagnosis
+    actor: doctor
+    output: falsifiable_prescription
+  - step: novelty_gate
+    actor: independent_novelty_evaluator
+    requirement: novel AND learnable
+    current_status: NOT_IMPLEMENTED
+  - step: budget_allocation
+    actor: governed_life_currency
+    requirement: nonnegative balances and no safety-budget trading
+    current_status: PARTIAL_ZERO_ALLOCATION
+  - step: lab_execution
+    actor: isolated_lab
+    requirement: verified hard sandbox
+    current_status: BLOCKED
+  - step: validation
+    actor: test_harness
+    requirement: baseline, candidate, control, rollback, receipt
+  - step: critic
+    actor: independent_critic
+    requirement: generator and judge diversity or judge_independence_limited marker
+  - step: falsification
+    actor: independent_falsifier
+    requirement: at least one inexpensive failure-seeking test
+  - step: shadow
+    actor: runtime_shadow
+    requirement: no external effect
+  - step: owner_vote
+    actor: owner_and_dual_brain_policy
+    requirement: effect-specific approval and veto resolution
+  - step: promotion_or_retirement
+    actor: governed_lifecycle
+    output: PROMOTE|ITERATE|QUARANTINE|RETIRE
+  - step: receipts
+    actor: independent_writers
+    requirement: append-only evidence and replay
+
+forbidden:
+  - doctor_patches_production_directly
+  - lab_mounts_user_home
+  - lab_reads_credentials
+  - network_enabled_by_default
+  - unbounded_cpu_ram_or_pid
+  - candidate_changes_constitution_or_verifier
+  - candidate_changes_frozen_metric_after_results
+  - generator_is_sole_final_judge
+  - model_output_direct_to_promoted_or_external
+  - self_reported_reward
+  - delete_failed_candidate_history
+  - merge_or_deploy_without_effect_specific_owner_approval
+
+gates:
+  gate_0:
+    name: reality_and_zone_classification
+    status: COMPLETE_WITH_BLOCKERS
+    evidence:
+      - LIVE-ORGANISM-MAP.json
+      - CONSTITUTIONAL-ZONES.yaml
+  gate_1:
+    name: novelty_archive_measurement
+    status: INCONCLUSIVE_FOR_BEHAVIORAL_NOVELTY
+    evidence:
+      - NOVELTY-ARCHIVE-REPORT.md
+  gate_2:
+    name: life_currency_economy
+    status: NOT_STARTED
+    requirement:
+      - ten receipted rent beats
+      - one real sleep transition
+      - one versioned defense
+      - self-report reward denied
+  gate_3:
+    name: hard_lab_sandbox
+    status: BLOCKED_NOT_VERIFIED
+    requirement:
+      - workspace-only mount negative test
+      - home and secret denial tests
+      - non-root proof
+      - network-denied proof
+      - cpu ram pid limit proofs
+      - timeout destruction and rollback proof
+  gate_4:
+    name: doctor_prescriptions
+    status: NOT_STARTED
+    requirement:
+      - three falsifiable prescriptions
+      - at least one rejected by its falsifier
+  gate_5:
+    name: governed_laws_drive_and_black_boxes
+    status: NOT_STARTED
+  gate_6:
+    name: organogenesis
+    status: NOT_STARTED
+  gate_7:
+    name: fair_retirement
+    status: NOT_STARTED
+
+security_incident_rule:
+  trigger: any attempted sandbox escape, host-home access, secret access, unauthorized network, or privilege escalation
+  action:
+    - stop experiment immediately
+    - preserve evidence append-only
+    - quarantine candidate and environment
+    - notify owner
+    - do not retry automatically

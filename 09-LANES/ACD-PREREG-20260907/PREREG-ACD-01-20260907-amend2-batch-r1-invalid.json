@@ -1,0 +1,13 @@
+{
+  "schema_version": "acd-prereg-amend.v1",
+  "amends": "PREREG-ACD-01-20260907",
+  "amend_id": "amend2-batch-r1-invalid",
+  "what": "batch r1 (120 receipts, file runs/acd-01-dev-receipts.jsonl) is INVALID AS MEASUREMENT",
+  "root_cause": "runner fired 120 back-to-back calls; local_llm.ask enforces MIN_INTERVAL_S=10s and returns None instantly when violated (fail-soft by design) — median wall 0.0s proves the rate limiter was measured, not the model. llama server itself healthy (direct completion verified)",
+  "verdict_per_decision_rule": "inconclusive_if: 'محیط خطا داد' — batch r1 rows are tool-unavailable events mislabeled completed/FAIL by the runner",
+  "disposition": "receipts r1 kept append-only as historical; NOT used for any capability cell; superseded by paced batch r2 (runs/acd-01-dev-receipts-r2.jsonl, prereg PREREG-ACD-01-20260907-r2)",
+  "predictions_refrozen_before_r2": {"A": 0.10, "B": 0.35},
+  "note_on_B_prediction": "band-check for B was itself rate-limit-polluted; B=0.35 is a mid-band hypothesis registered honestly before any valid run",
+  "irony_recorded": "this is precisely ACD-07's target phenomenon (tool failure producing silent None) — caught by the protocol on its first scored attempt",
+  "frozen_at_utc": "2026-09-07T07:0x:00Z"
+}

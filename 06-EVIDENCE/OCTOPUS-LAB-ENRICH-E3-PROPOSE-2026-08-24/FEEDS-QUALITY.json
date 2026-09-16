@@ -1,0 +1,84 @@
+{
+  "schema": "octopus.feeds.quality.v1",
+  "id": "FEEDS-QUALITY-E3-20260824",
+  "captured_at_utc": "20260824T062144Z",
+  "samples": 15,
+  "duration_sec_observed": 842.0,
+  "first": {
+    "t": "2026-08-24T06:07:18Z",
+    "ok_count": 7,
+    "expected_feeds": 7,
+    "fail": [],
+    "snapshot_ts": "20260824T054940Z",
+    "snapshot_age_sec": 1058.462228,
+    "taxonomy": {
+      "OK": 2,
+      "STALE": 0,
+      "FAIL": 0,
+      "MISSING": 0,
+      "UNKNOWN": 0
+    },
+    "readings_n": 2,
+    "readings_head": [
+      {
+        "id": "evidence_age_s",
+        "class": "OK"
+      },
+      {
+        "id": "sensor_coverage",
+        "class": "OK"
+      }
+    ],
+    "homeo_ok": true,
+    "bus": "CONNECTED",
+    "obs_age_max": 4.246,
+    "ARMED": false,
+    "timers": "active\nactive"
+  },
+  "last": {
+    "t": "2026-08-24T06:21:20Z",
+    "ok_count": 7,
+    "expected_feeds": 7,
+    "fail": [],
+    "snapshot_ts": "20260824T060444Z",
+    "snapshot_age_sec": 996.774408,
+    "taxonomy": {
+      "OK": 2,
+      "STALE": 0,
+      "FAIL": 0,
+      "MISSING": 0,
+      "UNKNOWN": 0
+    },
+    "readings_n": 2,
+    "readings_head": [
+      {
+        "id": "evidence_age_s",
+        "class": "OK"
+      },
+      {
+        "id": "sensor_coverage",
+        "class": "OK"
+      }
+    ],
+    "homeo_ok": true,
+    "bus": "CONNECTED",
+    "obs_age_max": 8.71,
+    "ARMED": false,
+    "timers": "active\nactive"
+  },
+  "taxonomy_sum_over_samples": {
+    "OK": 30,
+    "STALE": 0,
+    "FAIL": 0,
+    "MISSING": 0,
+    "UNKNOWN": 0
+  },
+  "ok_count_stable": true,
+  "expected_feeds": 7,
+  "fail_seen": false,
+  "snapshot_age_sec_min": 936.615955,
+  "snapshot_age_sec_max": 1780.399974,
+  "obs_age_max_last": 8.71,
+  "ARMED": false,
+  "note": "finalized from samples.jsonl; feeds_snapshot last_run/ts often stale vs ok_count"
+}

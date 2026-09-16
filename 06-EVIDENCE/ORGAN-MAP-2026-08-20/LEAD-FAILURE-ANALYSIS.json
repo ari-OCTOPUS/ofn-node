@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "failure_class": "ACK_TIMEOUT",
+  "phi_calibration": "NOT_COMPARABLE",
+  "restart_hides_cause": false,
+  "live_state": "alive",
+  "rfc": {
+    "rfc_id": "RFC-lead-phi-ack-20260820",
+    "status": "draft",
+    "bottleneck": "lead-naghshi phi-timeout:no-ack with incomparable phi across samples",
+    "fix": "Keep activation off. Log ack age and silence_ms with a single unit. Treat phi as diagnostic only until scale is documented. Do not auto-restart.",
+    "expected_lift": "distinguish real silence from poisoned ack history",
+    "rollback": "no code change this session — diagnosis only",
+    "evidence": {
+      "last_failure_reason": "phi-timeout:no-ack",
+      "phi_at_failure": 16.531,
+      "phi_live": 4.22,
+      "phi_dead_threshold": 16.0,
+      "silence_ms_at_failure": 1017725,
+      "phi_values_comparable": false
+    },
+    "executable": false,
+    "activation_forbidden": true
+  },
+  "note": "لِگ در پنجرهٔ phi پاسخ نداد؛ restart علت را برطرف نمی‌کند — اگر silence_ms کوچک است ولی phi بالا، تاریخچهٔ ack مسموم است.",
+  "activation": "FORBIDDEN",
+  "activation_flag_off": true
+}

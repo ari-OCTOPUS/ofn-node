@@ -1,0 +1,24 @@
+{
+  "sample_id": "armin_mohebiafzal",
+  "test_date": "2026-05-21",
+  "method": "Low-pass Whole Genome Sequencing",
+  "reference_build": "GRCh37",
+  "statistics": {
+    "total_snps": 584898,
+    "call_rate": "100.0%",
+    "homozygous_calls": 483176,
+    "heterozygous_calls": 101722,
+    "chromosomes_covered": 23
+  },
+  "ancestry_results": {
+    "Persian_Kurdish": 82.6,
+    "Turkish_Azeri": 15.1,
+    "European_Mediterranean": 2.3
+  },
+  "demographics": {
+    "origin": "Hamedan, Iran",
+    "primary_language": "Turkish/Azeri",
+    "ethnic_group": "Azeri (Iranian)"
+  },
+  "interpretation": "High Plateau Iranian ancestry with Turkish/Azeri language adoption and minimal Mediterranean admixture"
+}

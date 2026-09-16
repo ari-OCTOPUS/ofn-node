@@ -1,0 +1,7 @@
+/home/ari/ofn/tests/test_witness_mint.py:89: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/tmp2udg2hez/witness_requests.jsonl'>
+  raw = open(self.state_file, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+----------------------------------------------------------------------
+Ran 37 tests in 0.083s
+
+OK

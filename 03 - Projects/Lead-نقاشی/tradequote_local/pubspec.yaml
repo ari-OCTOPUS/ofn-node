@@ -1,0 +1,76 @@
+name: tradequote_local
+description: >-
+  Local-first quotes, invoices and payments for an Australian painting
+  business. Offline, no accounts, no cloud, no subscriptions.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  # Dart bundled with recent Flutter stable (3.44.x at time of writing).
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management (researched 2026-07-19: riverpod 3.3.1, MIT)
+  flutter_riverpod: ^3.3.1
+
+  # Routing (go_router 17.2.3, flutter.dev verified)
+  go_router: ^17.2.3
+
+  # Database: SQLite via Drift (drift 2.32.1, MIT).
+  # drift/native + bundled sqlite3 gives us full control of the DB file path,
+  # which the backup/restore atomic-swap needs (docs/architecture/BACKUP_FORMAT.md).
+  drift: ^2.32.1
+  sqlite3: ^2.4.0
+  sqlite3_flutter_libs: ^0.5.24
+
+  # PDF generation + in-app preview (pdf 3.12.0, printing 5.14.3, Apache-2.0)
+  pdf: ^3.12.0
+  printing: ^5.14.3
+
+  # Sharing through the Android share sheet (share_plus 13.1.0)
+  share_plus: ^13.1.0
+
+  # Email compose with attachment (flutter_email_sender 9.0.0).
+  # NOTE: 9.0.0 was released very recently at research time. If
+  # `flutter pub get` reports an incompatibility, fall back to ^8.0.0 —
+  # the Email(...) API used in lib/services/sharing/ is stable across 8/9.
+  flutter_email_sender: ^9.0.0
+
+  # Backup save/restore through the system document picker (SAF)
+  file_picker: ^11.0.2
+
+  # Filesystem locations
+  path_provider: ^2.1.6
+  path: ^1.9.0
+
+  # Formatting (dates, currency) — Australian defaults
+  intl: ^0.20.2
+
+  # IDs, checksums, archives.
+  # archive pinned to the mature 3.x API (4.x redesigned the API surface;
+  # migration is a documented follow-up in docs/DEPENDENCIES.md).
+  uuid: ^4.5.3
+  crypto: ^3.0.7
+  archive: ^3.6.1
+
+  # Non-critical preferences only (text size, last share channel)
+  shared_preferences: ^2.5.5
+
+  # Optional AI assistance (OFF by default; core app never needs network)
+  flutter_secure_storage: ^10.2.0
+  http: ^1.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  drift_dev: ^2.32.0
+  build_runner: ">=2.4.0 <3.0.0"
+  flutter_lints: ">=5.0.0 <7.0.0"
+
+flutter:
+  uses-material-design: true

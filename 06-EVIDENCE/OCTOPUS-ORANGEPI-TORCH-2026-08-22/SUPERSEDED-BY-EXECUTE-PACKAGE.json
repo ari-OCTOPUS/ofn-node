@@ -1,0 +1,11 @@
+{
+    "token":  "OCTOPUS-ORANGEPI-TORCH-20260822",
+    "this_mutate_device":  false,
+    "successor_mutate_device":  true,
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "successor_gate":  "BLOCKED_NEED_WHEEL_URL",
+    "timestamp":  "2026-08-22T19:08:30+10:00",
+    "this_folder":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-TORCH-2026-08-22",
+    "superseded_by":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-TORCH-EXECUTE-2026-08-22",
+    "schema":  "octopus.auth-supersede.v1"
+}

@@ -1,0 +1,364 @@
+[
+  {
+    "file": "last_OCT-SENSE-051.json",
+    "mtime_age_s": 13921.2,
+    "size": 2563,
+    "times": [
+      [
+        "result.value.[0].mtime_ns",
+        1787411361083844754
+      ],
+      [
+        "result.value.[1].mtime_ns",
+        1786942373705828603
+      ],
+      [
+        "time",
+        {
+          "phenomenon_time": "2026-08-22T23:36:07.623153+00:00",
+          "ingestion_time": "2026-08-22T23:36:07.623153+00:00",
+          "processing_time": "2026-08-22T23:36:07.623153+00:00",
+          "valid_until": "2026-08-22T23:36:37.623153+00:00",
+          "time_unverified": false
+        }
+      ],
+      [
+        "time.phenomenon_time",
+        "2026-08-22T23:36:07.623153+00:00"
+      ],
+      [
+        "time.ingestion_time",
+        "2026-08-22T23:36:07.623153+00:00"
+      ],
+      [
+        "time.processing_time",
+        "2026-08-22T23:36:07.623153+00:00"
+      ],
+      [
+        "time.time_unverified",
+        false
+      ],
+      [
+        "quality.time_unverified",
+        false
+      ]
+    ],
+    "keys": [
+      "event_id",
+      "schema_version",
+      "sequence_number",
+      "sensorium_board_id",
+      "sensor_id",
+      "subsensor_id",
+      "sensor_agent_id",
+      "observation_type",
+      "observed_property",
+      "subject",
+      "result",
+      "time",
+      "location",
+      "quality",
+      "uncertainty",
+      "provenance",
+      "evidence",
+      "security",
+      "routing",
+      "policy"
+    ]
+  },
+  {
+    "file": "last_OCT-SENSE-052.json",
+    "mtime_age_s": 13921.1,
+    "size": 2257,
+    "times": [
+      [
+        "time",
+        {
+          "phenomenon_time": "2026-08-22T23:36:07.753446+00:00",
+          "ingestion_time": "2026-08-22T23:36:07.753446+00:00",
+          "processing_time": "2026-08-22T23:36:07.753446+00:00",
+          "valid_until": "2026-08-22T23:37:37.753446+00:00",
+          "time_unverified": false
+        }
+      ],
+      [
+        "time.phenomenon_time",
+        "2026-08-22T23:36:07.753446+00:00"
+      ],
+      [
+        "time.ingestion_time",
+        "2026-08-22T23:36:07.753446+00:00"
+      ],
+      [
+        "time.processing_time",
+        "2026-08-22T23:36:07.753446+00:00"
+      ],
+      [
+        "time.time_unverified",
+        false
+      ],
+      [
+        "quality.time_unverified",
+        false
+      ]
+    ],
+    "keys": [
+      "event_id",
+      "schema_version",
+      "sequence_number",
+      "sensorium_board_id",
+      "sensor_id",
+      "subsensor_id",
+      "sensor_agent_id",
+      "observation_type",
+      "observed_property",
+      "subject",
+      "result",
+      "time",
+      "location",
+      "quality",
+      "uncertainty",
+      "provenance",
+      "evidence",
+      "security",
+      "routing",
+      "policy"
+    ]
+  },
+  {
+    "file": "last_OCT-SENSE-053_CPU.json",
+    "mtime_age_s": 13926.4,
+    "size": 2151,
+    "times": [
+      [
+        "time",
+        {
+          "phenomenon_time": "2026-08-22T23:36:02.388131+00:00",
+          "ingestion_time": "2026-08-22T23:36:02.388131+00:00",
+          "processing_time": "2026-08-22T23:36:02.388131+00:00",
+          "valid_until": "2026-08-22T23:36:17.388131+00:00",
+          "time_unverified": false
+        }
+      ],
+      [
+        "time.phenomenon_time",
+        "2026-08-22T23:36:02.388131+00:00"
+      ],
+      [
+        "time.ingestion_time",
+        "2026-08-22T23:36:02.388131+00:00"
+      ],
+      [
+        "time.processing_time",
+        "2026-08-22T23:36:02.388131+00:00"
+      ],
+      [
+        "time.time_unverified",
+        false
+      ],
+      [
+        "quality.time_unverified",
+        false
+      ]
+    ],
+    "keys": [
+      "event_id",
+      "schema_version",
+      "sequence_number",
+      "sensorium_board_id",
+      "sensor_id",
+      "subsensor_id",
+      "sensor_agent_id",
+      "observation_type",
+      "observed_property",
+      "subject",
+      "result",
+      "time",
+      "location",
+      "quality",
+      "uncertainty",
+      "provenance",
+      "evidence",
+      "security",
+      "routing",
+      "policy"
+    ]
+  },
+  {
+    "file": "last_OCT-SENSE-053_MEMORY.json",
+    "mtime_age_s": 13926.4,
+    "size": 2172,
+    "times": [
+      [
+        "time",
+        {
+          "phenomenon_time": "2026-08-22T23:36:02.397928+00:00",
+          "ingestion_time": "2026-08-22T23:36:02.397928+00:00",
+          "processing_time": "2026-08-22T23:36:02.397928+00:00",
+          "valid_until": "2026-08-22T23:36:17.397928+00:00",
+          "time_unverified": false
+        }
+      ],
+      [
+        "time.phenomenon_time",
+        "2026-08-22T23:36:02.397928+00:00"
+      ],
+      [
+        "time.ingestion_time",
+        "2026-08-22T23:36:02.397928+00:00"
+      ],
+      [
+        "time.processing_time",
+        "2026-08-22T23:36:02.397928+00:00"
+      ],
+      [
+        "time.time_unverified",
+        false
+      ],
+      [
+        "quality.time_unverified",
+        false
+      ]
+    ],
+    "keys": [
+      "event_id",
+      "schema_version",
+      "sequence_number",
+      "sensorium_board_id",
+      "sensor_id",
+      "subsensor_id",
+      "sensor_agent_id",
+      "observation_type",
+      "observed_property",
+      "subject",
+      "result",
+      "time",
+      "location",
+      "quality",
+      "uncertainty",
+      "provenance",
+      "evidence",
+      "security",
+      "routing",
+      "policy"
+    ]
+  },
+  {
+    "file": "last_OCT-SENSE-053_STORAGE.json",
+    "mtime_age_s": 13926.4,
+    "size": 2176,
+    "times": [
+      [
+        "time",
+        {
+          "phenomenon_time": "2026-08-22T23:36:02.404812+00:00",
+          "ingestion_time": "2026-08-22T23:36:02.404812+00:00",
+          "processing_time": "2026-08-22T23:36:02.404812+00:00",
+          "valid_until": "2026-08-22T23:36:17.404812+00:00",
+          "time_unverified": false
+        }
+      ],
+      [
+        "time.phenomenon_time",
+        "2026-08-22T23:36:02.404812+00:00"
+      ],
+      [
+        "time.ingestion_time",
+        "2026-08-22T23:36:02.404812+00:00"
+      ],
+      [
+        "time.processing_time",
+        "2026-08-22T23:36:02.404812+00:00"
+      ],
+      [
+        "time.time_unverified",
+        false
+      ],
+      [
+        "quality.time_unverified",
+        false
+      ]
+    ],
+    "keys": [
+      "event_id",
+      "schema_version",
+      "sequence_number",
+      "sensorium_board_id",
+      "sensor_id",
+      "subsensor_id",
+      "sensor_agent_id",
+      "observation_type",
+      "observed_property",
+      "subject",
+      "result",
+      "time",
+      "location",
+      "quality",
+      "uncertainty",
+      "provenance",
+      "evidence",
+      "security",
+      "routing",
+      "policy"
+    ]
+  },
+  {
+    "file": "last_OCT-SENSE-053_THERMAL.json",
+    "mtime_age_s": 13926.3,
+    "size": 2174,
+    "times": [
+      [
+        "time",
+        {
+          "phenomenon_time": "2026-08-22T23:36:02.570151+00:00",
+          "ingestion_time": "2026-08-22T23:36:02.570151+00:00",
+          "processing_time": "2026-08-22T23:36:02.570151+00:00",
+          "valid_until": "2026-08-22T23:36:17.570151+00:00",
+          "time_unverified": false
+        }
+      ],
+      [
+        "time.phenomenon_time",
+        "2026-08-22T23:36:02.570151+00:00"
+      ],
+      [
+        "time.ingestion_time",
+        "2026-08-22T23:36:02.570151+00:00"
+      ],
+      [
+        "time.processing_time",
+        "2026-08-22T23:36:02.570151+00:00"
+      ],
+      [
+        "time.time_unverified",
+        false
+      ],
+      [
+        "quality.time_unverified",
+        false
+      ]
+    ],
+    "keys": [
+      "event_id",
+      "schema_version",
+      "sequence_number",
+      "sensorium_board_id",
+      "sensor_id",
+      "subsensor_id",
+      "sensor_agent_id",
+      "observation_type",
+      "observed_property",
+      "subject",
+      "result",
+      "time",
+      "location",
+      "quality",
+      "uncertainty",
+      "provenance",
+      "evidence",
+      "security",
+      "routing",
+      "policy"
+    ]
+  }
+]

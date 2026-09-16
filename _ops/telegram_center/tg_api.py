@@ -1,0 +1,1310 @@
+#!/usr/bin/env python3
+"""tg_api.py — کلاینتِ نازکِ Bot API تلگرام برای «مرکزِ تلگرام» (telegram_center).
+
+نقش: فقط لولهٔ HTTP (stdlib/urllib) — صفر منطقِ business. الگوی approval_channel
+(لایهٔ budget) بازمصرف شده: token فقط از env، هرگز hardcode/لاگ/echo؛ long-poll =
+$0-idle؛ تنها میزبانِ مجاز api.telegram.org؛ هر متد دقیقاً یک تلاشِ HTTP (بدونِ
+retry-storm) و fail-soft (هر خطا → پیش‌فرضِ امن: None/False/[]، هرگز crashِ صداکننده).
+
+flag-off = no-op: بدونِ TELEGRAM_BOT_TOKEN (یا بدونِ هیچ chat id) همهٔ متدهای عمومی
+no-opِ تمیزند و **صفر** تماسِ شبکه رخ می‌دهد. import-time خالص است: نه شبکه، نه
+نوشتنِ دیسک، نه importِ هستهٔ ارگانیسم (opslib فقط lazy برای هشدارِ fail-soft).
+
+تزریق‌پذیر برای تست: post_fn(url, body) / get_fn(url, timeout_s) — هم‌سان با
+http_get/http_post ِ TelegramApprovalChannel، تا تست بدونِ شبکه/کلید برود.
+
+containment: هر متنِ خروجی از scrubِ _BANNED_ECHO می‌گذرد (هیچ رشتهٔ هویتِ ممنوع
+echo نمی‌شود — parity با events._scrub_str / registry_scan.scrub). نام‌های نمایشی
+در زمانِ اجرا از configِ مالک می‌آیند؛ کد فقط legهای کلیدیِ بی‌محتوا می‌شناسد.
+
+secret-guard (I9): token فقط در URL است و URL هرگز لاگ/alert نمی‌شود؛ repr و
+خطاها فقط نسخهٔ mask‌شده را نشان می‌دهند.
+"""
+from __future__ import annotations
+
+import hashlib
+import html
+import json
+import os
+import re
+import socket
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+try:
+    import bounded_io  # noqa: F401 — sibling module (same package dir)
+except ImportError:
+    import sys as _sys
+    from pathlib import Path as _P
+    _tc_dir = str(_P(__file__).resolve().parent)
+    if _tc_dir not in _sys.path:
+        _sys.path.insert(0, _tc_dir)
+    import bounded_io  # noqa: F401
+
+TELEGRAM_API_BASE = "https://api.telegram.org"   # تنها میزبانِ مجازِ این ماژول
+DEFAULT_LONGPOLL_S = 25                          # $0-idle: getUpdates روی سرور بلوکه می‌ماند
+_ALERT_THROTTLE_S = 3600                         # هشدارِ شکست: حداکثر ۱/ساعت به‌ازای هر متد
+_TEXT_CAP = 4096                                 # سقفِ متنِ پیامِ تلگرام
+_TOAST_CAP = 200                                 # سقفِ متنِ answerCallbackQuery
+_429_MAX_SYNC_SLEEP_S = 30                        # سقفِ فقط برای sleep همگام؛ زمانِ ممنوعیتِ تلگرام cap نمی‌شود
+_429_MAX_RETRIES = 1                             # فقط یک تلاشِ مجدد (هرگز retry-storm)
+_FILE_MAX_BYTES = 25 * 1024 * 1024               # سقفِ دانلودِ فایلِ ورودی (۲۵MB)
+_FILE_TIMEOUT_S = 30.0                           # مهلتِ دانلود (ویسِ چنددقیقه‌ای هم جا می‌شود)
+
+# containment — تنها جای مجاز برای این رشته‌ها (parity با events/_scrub، registry_scan)
+_BANNED_ECHO = ("اونلی", "onlyfans", "صبا")
+
+
+# ─── env / کمکی‌های کوچک (الگوی approval_channel) ────────────────────────────
+def _env_str(name: str, default: str = "") -> str:
+    v = os.environ.get(name, default)
+    return v.strip() if isinstance(v, str) else default
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.environ.get(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_id(v) -> int | None:
+    """chat id → int (سوپرگروه‌ها منفی‌اند). خرابی → None (fail-soft)."""
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _mask_token(tok: str) -> str:
+    """برای repr/خطا: فقط ۴ نویسهٔ نخست + … (هرگز کلِ token)."""
+    if not tok:
+        return "∅"
+    return (tok[:4] + "…") if len(tok) > 4 else "…"
+
+
+def _scrub(text: str) -> str:
+    """containment: هر رخدادِ رشتهٔ ممنوع در متنِ خروجی → ▮ (لاتین case-insensitive).
+    برخلافِ events._scrub_str (که کلِ رشته را redact می‌کند)، این‌جا فقط رخدادها
+    جایگزین می‌شوند تا بقیهٔ دایجستِ بی‌گناه از بین نرود."""
+    v = str(text or "")
+    for b in _BANNED_ECHO:
+        if b.isascii():
+            v = re.sub(re.escape(b), "▮", v, flags=re.IGNORECASE)
+        else:
+            v = v.replace(b, "▮")
+    return v
+
+
+def _scrub_keyboard(keyboard) -> list:
+    """کیبوردِ inline را کپی + متنِ دکمه‌ها را scrub می‌کند (callback_data = legهای
+    کلیدیِ بی‌محتوا، دست‌نخورده). فرمِ خراب → [] (fail-soft).
+
+    هر دو شکل پذیرفته می‌شود: rowsِ خام (list[list[dict]]) و markupِ کاملِ
+    {"inline_keyboard": rows}. پلِ دو-باتی (center._bridge_to_organism) دومی را
+    مستقیم می‌دهد؛ بدونِ این باز کردن، dict به dict(char) می‌رسید، ValueError
+    می‌داد و کلِ کیبورد بی‌صدا [] می‌شد (دکمه‌های رأیِ /queue،/doctor،/money حذف)."""
+    if isinstance(keyboard, dict):
+        keyboard = keyboard.get("inline_keyboard")
+    try:
+        return [[{**dict(b), "text": _scrub(str(dict(b).get("text", "")))}
+                 for b in row] for row in (keyboard or [])]
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def _toast_plain(text: str) -> str:
+    """answerCallbackQuery متنِ ساده است (HTML render نمی‌شود) — تگ‌ها را بردار و
+    entityها را باز کن (همان الگوی TelegramApprovalChannel._toast_plain)."""
+    return html.unescape(re.sub(r"<[^>]+>", "", str(text or ""))).strip()
+
+
+def _send_log_record(**kw) -> None:
+    """رسید در tg-send-log — lazy و fail-soft؛ خطای لاگ هرگز مسیرِ ارسال را عوض
+    نمی‌کند. یک‌جا تا send و edit یک قلم بنویسند (edit تا ۰۷-۳۱ اصلاً رسید
+    نداشت — ~۲۸۸ ویرایشِ بی‌رد در روز)."""
+    try:
+        import sys as _sys
+        from pathlib import Path as _P
+        _ops = str(_P(__file__).resolve().parent.parent)
+        if _ops not in _sys.path:
+            _sys.path.insert(0, _ops)
+        import tg_send_log as _tsl  # noqa: WPS433
+        _tsl.record(**kw)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _alert_soft(msg: str) -> None:
+    """هشدارِ fail-soft و lazy به opslib.alert — importِ opslib فقط هنگامِ نیاز تا
+    import-time این ماژول خالص/stdlib-only بماند. msg هرگز token/URL ندارد. شکست = سکوت."""
+    try:
+        import sys as _s
+        from pathlib import Path as _P
+        _budget = _P(__file__).resolve().parents[1] / "budget"
+        if str(_budget) not in _s.path:
+            _s.path.insert(0, str(_budget))
+        import opslib  # lazy — هشدار هرگز مسیرِ caller را نمی‌کشد
+        opslib.alert([msg])
+    except Exception:  # noqa: BLE001
+        pass
+
+
+# ─── transportهای پیش‌فرض (stdlib-only، فقط api.telegram.org) ─────────────────
+def _url_json_get(url: str, timeout_s: float) -> dict:
+    """getterِ پیش‌فرض. timeout کمی بیشتر از longpoll تا پاسخِ دیررس هم خوانده شود.
+    هرگز URL را لاگ نمی‌کند (token داخلش است)."""
+    if not url.startswith(TELEGRAM_API_BASE + "/"):
+        raise ValueError("blocked host (only api.telegram.org)")
+    blob = _bounded_http(url, timeout_s + 5,
+                         headers={"User-Agent": "octopus-tg-center/0.1"})
+    if blob is None:
+        raise TimeoutError("telegram transport stalled (DNS/socket)")
+    return json.loads(blob.decode("utf-8"))
+
+
+def _http_err_desc(exc) -> str:
+    """descriptionِ Bot API از بدنهٔ HTTPError (مثلاً «Bad Request: message is not
+    modified») — generic و بدونِ token/URL. هر شکست → '' (fail-soft)."""
+    return str(_http_err_json(exc).get("description") or "")[:200]
+
+
+def _http_err_json(exc) -> dict:
+    """بدنهٔ JSONِ یک HTTPError (مثلاً ۴۲۹ با retry_after) — برایِ تشخیصِ rate-limit.
+    هر شکست/غیر-HTTPError → {} (fail-soft). یک‌جا خوانده می‌شود تا دوبار read نشود."""
+    try:
+        import urllib.error
+        if isinstance(exc, urllib.error.HTTPError):
+            raw = exc.read(2048).decode("utf-8", "replace")
+            data = json.loads(raw)
+            return data if isinstance(data, dict) else {}
+    except Exception:  # noqa: BLE001
+        return {}
+    return {}
+
+
+def _retry_after_from_429(data: dict) -> float | None:
+    """Extract Telegram's full ``parameters.retry_after`` prohibition.
+
+    This value is never capped. ``_429_MAX_SYNC_SLEEP_S`` limits only how long
+    this process may block synchronously; a longer prohibition must be stored
+    as ``retry_not_before`` by the durable scheduler instead of retrying early.
+    Invalid/missing values return None.
+    """
+    try:
+        params = (data or {}).get("parameters") or {}
+        ra = float(params.get("retry_after"))
+    except (TypeError, ValueError):
+        return None
+    if ra <= 0:
+        return None
+    return ra
+
+
+def _sync_retry_delay(retry_after: float | None) -> float | None:
+    """Return a safe synchronous wait, or None when durable deferral is needed."""
+    if retry_after is None or retry_after > _429_MAX_SYNC_SLEEP_S:
+        return None
+    return retry_after
+
+
+def _defer_long_retry(client, method: str, retry_after: float | None,
+                      message_key: str | None = None) -> None:
+    """Offer a long prohibition to an injected durable scheduler, fail-soft.
+
+    Only delivery calls (sendMessage) carry a durable message key; polling and
+    file-download 429s have no pending message to resend and are classified as
+    fail-soft/no-defer.
+    """
+    if retry_after is None or retry_after <= _429_MAX_SYNC_SLEEP_S:
+        return
+    if method != "sendMessage":
+        return
+    try:
+        client._defer(str(method), float(retry_after), message_key=message_key)
+    except Exception:  # noqa: BLE001 — deferral instrumentation never breaks caller
+        pass
+
+
+def _defer_message_key(method: str, body: dict) -> str | None:
+    """Deterministic key for a delivery call; None for non-delivery methods."""
+    if method != "sendMessage":
+        return None
+    cid = (body or {}).get("chat_id")
+    text = (body or {}).get("text")
+    if cid is None or not text:
+        return None
+    blob = "\x1f".join((str(method), str(cid), str(text)))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+_TRANSPORT_POOL = None
+
+
+def _transport_pool():
+    """Lazy singleton TransportPool (Wave C). Subprocess (terminable) mode when
+    the owner-gated env flag is on; thread-bounded mode otherwise."""
+    global _TRANSPORT_POOL
+    if _TRANSPORT_POOL is None:
+        import transport_pool as _tp  # noqa: WPS433
+        subprocess_fn = None
+        try:
+            if _tp.subprocess_transport and str(
+                    os.environ.get("OCTOPUS_TG_TRANSPORT_SUBPROCESS", "0")
+            ).strip().lower() in {"1", "true", "yes", "on"}:
+                subprocess_fn = _tp.subprocess_transport
+        except Exception:  # noqa: BLE001 — default to thread mode
+            subprocess_fn = None
+        _TRANSPORT_POOL = _tp.TransportPool(subprocess_fn=subprocess_fn)
+    return _TRANSPORT_POOL
+
+
+def _bot_key_from_url(url: str) -> str:
+    """One-way bot key from the token embedded in the URL (never logged)."""
+    head = TELEGRAM_API_BASE + "/bot"
+    if url.startswith(head):
+        rest = url[len(head):]
+        token = rest.split("/", 1)[0]
+        return hashlib.sha256(("tg-bot:" + token).encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()[:16]
+
+
+def _bounded_http(url: str, timeout_s: float, *, data: bytes | None = None,
+                  headers: dict | None = None) -> bytes | None:
+    """Transport call through the bounded, circuit-protected pool (Wave C).
+
+    2026-08-21 live hang: DNS getaddrinfo with no timeout can block forever.
+    The pool guarantees the caller regains control within timeout_s + margin
+    (None = stall, fail-soft), caps concurrent workers, refuses calls while the
+    per-bot circuit is open (no retry storm), and uses a terminable subprocess
+    worker when the owner-gated flag is on.
+    """
+    try:
+        pool = _transport_pool()
+        bot = _bot_key_from_url(url)
+        blob = pool.call(bot, url, float(timeout_s), data=data, headers=headers)
+        pool.record_result(bot, ok=blob is not None)
+        return blob
+    except Exception as exc:  # noqa: BLE001 — fail-soft: stall semantics
+        from transport_pool import CircuitOpenError as _coe  # noqa: WPS433
+        if isinstance(exc, _coe):
+            return None                     # circuit open / saturated: no network
+        try:
+            _transport_pool().record_result(_bot_key_from_url(url), ok=False)
+        except Exception:  # noqa: BLE001
+            pass
+        raise
+
+
+def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
+    """posterِ پیش‌فرض (JSON body). body هرگز token ندارد (token در URL است)."""
+    if not url.startswith(TELEGRAM_API_BASE + "/"):
+        raise ValueError("blocked host (only api.telegram.org)")
+    data = json.dumps(body, ensure_ascii=False).encode("utf-8")
+    blob = _bounded_http(url, timeout_s, data=data,
+                         headers={"User-Agent": "octopus-tg-center/0.1",
+                                  "Content-Type": "application/json"})
+    if blob is None:
+        raise TimeoutError("telegram transport stalled (DNS/socket)")
+    return json.loads(blob.decode("utf-8"))
+
+
+def _url_bytes_get(url: str, timeout_s: float, max_bytes: int) -> bytes:
+    """دانلودِ باینریِ فایلِ ورودی از endpointِ فایلِ تلگرام.
+
+    ⚠️ این URL شکلِ دیگری دارد: ``/file/bot<token>/<file_path>`` — پس گاردِ
+    میزبان جدا نوشته شده. هرگز URL لاگ نمی‌شود (token داخلش است).
+
+    سقف در **لحظهٔ خواندن** اعمال می‌شود، نه فقط روی Content-Length: سروری که
+    طولِ دروغ اعلام کند نباید بتواند حافظه را پر کند. یک بایت بیشتر ⇒ رد."""
+    if not url.startswith(TELEGRAM_API_BASE + "/file/"):
+        raise ValueError("blocked host (only api.telegram.org file endpoint)")
+    cap = int(max_bytes)
+    blob = _bounded_http(url, timeout_s,
+                         headers={"User-Agent": "octopus-tg-center/0.1"})
+    if blob is None:
+        raise TimeoutError("telegram transport stalled (DNS/socket)")
+    if len(blob) > cap:
+        raise ValueError("file too large")
+    return blob
+
+
+# ── سلامتِ گوش: هر دورِ getUpdates ثبت می‌شود، نه فقط دورهای موفق ─────────────
+# چرا (۲۰۲۶-۰۸-۰۱، صبحی که منتظرِ «سلام» مالک بودیم): مسیرِ **دریافت** تنها
+# چیزی است که هیچ ردی از خودش نمی‌گذارد. ارسال رسید دارد، ۴۰۹ از ۰۷-۳۱ هشدار
+# دارد — ولی هر خطای دیگری (URLError، DNS، تایم‌اوت) بی‌صدا [] می‌دهد و از
+# بیرون دقیقاً شبیهِ «کسی پیام نداده» است. آن صبح دو ساعت نمی‌شد این دو را از
+# هم جدا کرد، و همان لاگ نشان داد ۰۶:۴۴ یک URLError واقعاً خورده بود.
+#
+# فایل هرگز توکن/URL/متنِ پیام ندارد — فقط زمانِ آخرین دورِ **موفق** و شمارِ
+# شکست‌های پشتِ‌سرِ هم. نوشتن بی‌قید است (درسِ «ثبت را گیت نکن، تحویل را»)؛
+# فقط هشدار throttle دارد، هم‌شکلِ هشدارِ ۴۰۹ ِ پایین‌تر.
+POLL_HEALTH_NAME = "poll-health.json"
+POLL_DEAF_AFTER_S = 300.0        # پنجِ دقیقه شکستِ پیاپی = گوش مرده، نه نوسان
+
+
+def _poll_health_path():
+    """مسیرِ فایلِ سلامت، بدونِ importِ سنگین. env اول (تست‌ها ایزوله می‌شوند)."""
+    from pathlib import Path as _P
+    base = str(os.environ.get("OCTOPUS_STATE_DIR", "") or "").strip()
+    root = _P(base) if base else (_P(__file__).resolve().parents[1] / "state")
+    return root / "telegram" / POLL_HEALTH_NAME
+
+
+def _record_poll(ok: bool, reason: str = "", **kw) -> dict:
+    """یک دورِ poll را با health_metrics ثبت کن (counters + timestamps)."""
+    try:
+        import health_metrics as _hm  # noqa: WPS433
+        return _hm.record_poll(ok=ok, reason=reason, **kw)
+    except Exception:  # noqa: BLE001 — observability never kills the loop
+        return {"last_round_ts": time.time(), "consecutive_failures": 0,
+                "last_reason": ""}
+
+
+def poll_deaf_for_s(now: "float | None" = None) -> "float | None":
+    """چند ثانیه است که هیچ دورِ موفقی نداشته‌ایم؟ None = نمی‌دانیم (هنوز فایلی
+    نیست) — «نمی‌دانم» هرگز «سالم» گزارش نمی‌شود."""
+    try:
+        state = json.loads(_poll_health_path().read_text("utf-8"))
+        last = float(state.get("last_ok_ts") or 0.0)
+    except (OSError, ValueError, TypeError):
+        return None
+    if last <= 0:
+        return None
+    return max(0.0, float(now if now is not None else time.time()) - last)
+
+
+class TgClient:
+    """کلاینتِ نازک و بی‌حالتِ Bot API. همهٔ متدهای عمومی fail-soft و flag-off-امن‌اند:
+    not wired → پیش‌فرضِ امن، صفر شبکه. keyboard = list[list[{'text','callback_data'}]].
+    parse_mode همیشه HTML."""
+
+    def __init__(self, token: str | None = None, owner_chat_id=None,
+                 center_chat_id=None, post_fn=None, get_fn=None,
+                 download_fn=None, poll_preflight_fn=None):
+        # TG_CENTER_BOT_TOKEN = باتِ اختصاصیِ مرکزِ گروه (توصیه: باتِ دوم تا با pollerِ
+        # approval_channel داخلِ organism روی یک توکن جنگِ 409 نشود)؛ fallback = باتِ اصلی.
+        tg_center_tok = _env_str("TG_CENTER_BOT_TOKEN")
+        main_tok = _env_str("TELEGRAM_BOT_TOKEN")
+        if token is not None:
+            self._token = token
+            self._token_source = "explicit"
+        elif tg_center_tok:
+            self._token = tg_center_tok
+            self._token_source = "TG_CENTER_BOT_TOKEN"
+        else:
+            # fallback خطرناک: اگر approval_channel هم با همین توکن poll کند → 409.
+            self._token = main_tok
+            self._token_source = "FALLBACK_TELEGRAM_BOT_TOKEN"
+            # یک بار در هر پروسه هشدار بده (نه throttle ۱/ساعت؛ چون این حالت پایدار است
+            # و اپراتور باید بداند مرکز روی باتِ اصلی سوار شده). فقط وقتی واقعاً وصل است.
+            if main_tok and (owner_chat_id is not None or center_chat_id is not None
+                             or _env_int("TELEGRAM_OWNER_CHAT_ID", 0)
+                             or _env_int("TG_CENTER_CHAT_ID", 0)):
+                _alert_soft("tg-center: TG_CENTER_BOT_TOKEN غایب — fallback به "
+                            "TELEGRAM_BOT_TOKEN؛ ریسکِ 409 Conflict با approval_channel.")
+        self._owner = (_coerce_id(owner_chat_id) if owner_chat_id is not None
+                       else (_env_int("TELEGRAM_OWNER_CHAT_ID", 0) or None))
+        self._center = (_coerce_id(center_chat_id) if center_chat_id is not None
+                        else (_env_int("TG_CENTER_CHAT_ID", 0) or None))
+        self._post = post_fn or _url_json_post
+        self._get = get_fn or _url_json_get
+        # transportِ سومِ تزریق‌پذیر: (url, timeout_s, max_bytes) → bytes.
+        # تست هرگز شبکه نمی‌زند؛ همین امضا در تست جعل می‌شود.
+        self._download = download_fn or _url_bytes_get
+        self._poll_preflight = poll_preflight_fn
+        self._sleep = time.sleep                   # تزریقی برایِ تستِ ۴۲۹ بدونِ انتظارِ واقعی
+        self._defer = self._default_defer          # key-aware durable scheduler hook
+        self._defer_queue = None                   # attach_defer_queue مسلحش میکند (default-off)
+        self._last_alert: dict[str, float] = {}   # ضدِ اسپم: هشدارِ شکست ۱/ساعت/متد
+
+    def _default_defer(self, method, retry_after, message_key=None):
+        """Default no-op unless a durable queue is attached via attach_defer_queue."""
+        if self._defer_queue is not None and message_key:
+            try:
+                return self._defer_queue.defer_or_enqueue(
+                    message_key=message_key,
+                    chat_hash=hashlib.sha256(("defer:" + str(method)).encode("utf-8")).hexdigest(),
+                    payload_hash=hashlib.sha256(
+                        (str(method) + ":" + str(retry_after)).encode("utf-8")).hexdigest(),
+                    retry_after=float(retry_after))
+            except Exception:  # noqa: BLE001 — deferral never breaks caller
+                return None
+        return None
+
+    def attach_defer_queue(self, queue) -> None:
+        """Default-off durable scheduler adapter. The live Center does not call
+        this; an owner-approved canary wiring would do so explicitly."""
+        self._defer_queue = queue
+
+    # ── وضعیت ────────────────────────────────────────────────────────────────
+    def wired(self) -> bool:
+        """لوله وصل است؟ token + دست‌کم یک chat id لازم. نبودِ هر = no-opِ امن."""
+        return bool(self._token) and (self._owner is not None or self._center is not None)
+
+    def __repr__(self) -> str:
+        return (f"<TgClient wired={self.wired()} token={_mask_token(self._token)} "
+                f"owner={self._owner} center={self._center}>")
+
+    def diagnostics(self) -> dict:
+        """خلاصهٔ content-free از وضعیتِ سیم‌کشی برای گزارشِ دیباگ (فاز G).
+
+        هیچ token/URL/chat-id حساس برگردانده نمی‌شود — فقط presence/mask/source.
+        مصرف‌کننده: TG-LIVE-DEBUG-REPORT.md generator."""
+        return {
+            "wired": self.wired(),
+            "token_present": bool(self._token),
+            "token_mask": _mask_token(self._token),
+            "token_source": getattr(self, "_token_source", "unknown"),
+            "owner_configured": self._owner is not None,
+            "center_configured": self._center is not None,
+            "is_forum_center": isinstance(self._center, int) and self._center < -1000,
+        }
+
+    # ── allowlist (قانونِ P3 §5: فقط مالک فرمان/کلیک می‌دهد) ──────────────────
+    # ── دو خواندنیِ عمومی (۲۰۲۶-۰۷-۳۰) ──────────────────────────────────
+    # `surface_router._chat_for` از روزِ اول `getattr(client, "owner_chat_id")`
+    # و `center_chat_id` را می‌خواند، ولی این کلاس فقط `_owner`/`_center` ِ
+    # خصوصی داشت — یعنی `getattr` همیشه `None` برمی‌گرداند و مسیرِ `dm`
+    # **بی‌صدا** بی‌مقصد می‌شد. تستِ آن ماژول این را نگرفت چون کلاینتِ ساختگیِ
+    # تست این دو صفت را دارد: فیکی که تابعِ واقعی را دور می‌زند.
+    #
+    # ⚠️ این باگ از قبل بود، ولی تغییرِ امروزِ من (ابهام → DM به‌جای گروه)
+    # دامنه‌اش را از «فقط dm» به «هر جریانِ مبهم» گسترش می‌داد. پس قرارداد
+    # واقعی می‌شود، نه اینکه صداکننده به مسیرِ خصوصی دست ببرد.
+    @property
+    def owner_chat_id(self):
+        return self._owner
+
+    @property
+    def center_chat_id(self):
+        return self._center
+
+    def is_owner(self, update) -> bool:
+        """آیا این update از خودِ مالک است؟ منبعِ حقیقت = from.id (نه chat.id، چون در
+        سوپرگروهِ مرکز chat.id ≠ مالک). مالکِ پیکربندی‌نشده → False (fail-closed)."""
+        if self._owner is None:
+            return False
+        try:
+            u = update or {}
+            frm = ((u.get("message") or {}).get("from")
+                   or (u.get("callback_query") or {}).get("from")
+                   or (u.get("edited_message") or {}).get("from") or {})
+            return int(frm.get("id")) == int(self._owner)
+        except (TypeError, ValueError, AttributeError):
+            return False
+
+    # ── هستهٔ HTTP (یک تلاش، fail-soft، بدونِ leakِ URL/token) ────────────────
+    def _build_url(self, method: str, params: dict | None = None) -> str:
+        """ساختِ URLِ Bot API. هرگز کلِ URL را لاگ نکن (token داخلش است)."""
+        url = f"{TELEGRAM_API_BASE}/bot{self._token}/{method}"
+        if params:
+            url += "?" + urllib.parse.urlencode(params)
+        return url
+
+    def _call_post(self, method: str, body: dict) -> dict | None:
+        """یک POST؛ خطا/پاسخِ نامعتبر → None. هشدارِ شکست throttled و بدونِ token.
+
+        استثنا: «message is not modified» = وضعِ مطلوب از قبل برقرار → موفق، بی‌هشدار
+        (وگرنه هر بوت یک ⚠️ کاذب در /alerts می‌نشیند و کانال بی‌اعتبار می‌شود).
+
+        ۴۲۹ Too Many Requests: تلگرام ``parameters.retry_after`` می‌گوید. ما تا سقفِ
+        امن صبر می‌کنیم و **یک‌بار** دوباره تلاش می‌کنیم (آیتم ۵ِ TG-P2). هیچ‌گاه
+        retry-storm درست نمی‌شود؛ شکستِ دوم = fail-soft مثلِ بقیه."""
+        # DA-4: shadow by default. If the owner explicitly enables enforcement,
+        # every send needs a bound, single-use real lease in the current context.
+        try:
+            import budget.telegram_pep_shadow as _pep  # noqa: WPS433
+            _pep_decision = _pep.hook(
+                sender="tg_api._call_post", action=method, params=body)
+            if (_pep_decision.get("enforced")
+                    and _pep_decision.get("verdict") != "allow"):
+                return None
+        except Exception:  # noqa: BLE001
+            # An enforcement-path import/evaluation failure must never authorize
+            # network I/O. Shadow mode preserves the historical fail-soft behavior.
+            if str(os.environ.get("OCTOPUS_TG_PEP_ENFORCE", "")).strip().lower() in (
+                    "1", "true", "yes", "on"):
+                return None
+        for _attempt in range(_429_MAX_RETRIES + 1):   # ۱ تلاشِ اولیه + ۱ retry
+            try:
+                data = self._post(self._build_url(method), body)
+            except Exception as e:  # noqa: BLE001 — fail-soft، بدونِ leakِ URL/token
+                # بدنهٔ HTTPError یک stream است و فقط یک‌بار خوانده می‌شود؛ پس JSON را
+                # یک‌بار بیرون بکش و هر دو (retry_after + description) را از آن بگیر.
+                err_json = _http_err_json(e)
+                ra = _retry_after_from_429(err_json)
+                desc = str(err_json.get("description") or "")[:200]
+                if "message is not modified" in desc:
+                    return {"ok": True, "result": True, "not_modified": True}
+                _sync = _sync_retry_delay(ra)
+                if _sync is not None and _attempt < _429_MAX_RETRIES:
+                    try:
+                        self._sleep(_sync)
+                    except Exception:  # noqa: BLE001
+                        pass
+                    continue
+                # long prohibition (or none): do not retry early — fail-soft so
+                # the durable scheduler owns retry_not_before.
+                _defer_long_retry(self, method, ra, _defer_message_key(method, body))
+                self._note_fail(method, e, desc)
+                return None
+            if not isinstance(data, dict):
+                return None
+            if data.get("ok"):
+                return data
+            # پاسخِ ok=False: اگر ۴۲۹ است و retry_after ِ کوتاه دارد، یک‌بار دوباره.
+            ra = _retry_after_from_429(data) if int(data.get("error_code") or 0) == 429 else None
+            _sync = _sync_retry_delay(ra)
+            if _sync is not None and _attempt < _429_MAX_RETRIES:
+                try:
+                    self._sleep(_sync)
+                except Exception:  # noqa: BLE001
+                    pass
+                continue
+            _defer_long_retry(self, method, ra, _defer_message_key(method, body))
+            return None
+        return None
+
+    def _note_fail(self, method: str, exc: Exception, desc: str = "") -> None:
+        """هشدارِ fail-softِ throttled (۱/ساعت/متد) — نامِ متد + نوعِ خطا + descriptionِ
+        کوتاهِ Bot API (generic و بدونِ token/URL/پیام — عیب‌یابیِ آینده)."""
+        now = time.time()
+        if now - self._last_alert.get(method, 0.0) < _ALERT_THROTTLE_S:
+            return
+        self._last_alert[method] = now
+        extra = f" ({desc[:80]})" if desc else ""
+        _alert_soft(f"tg_api {method} failed: {type(exc).__name__}{extra}")
+
+    def _resolve_chat(self, chat_id) -> int | None:
+        """chatِ مقصد: صریح > مرکز > مالک. نامعتبر → None (fail-soft)."""
+        if chat_id is not None:
+            return _coerce_id(chat_id)
+        return self._center if self._center is not None else self._owner
+
+    def _bot_role(self) -> str | None:
+        """outer|inner|None برای رسیدِ ارسال (منشور UX-8) — از منبعِ token.
+
+        توکنِ صریح (مرکز کلاینتِ inner را با توکنِ صریح می‌سازد) با env مقایسه
+        می‌شود؛ خودِ token هرگز لاگ/برگردانده نمی‌شود — فقط نقش."""
+        src = getattr(self, "_token_source", "")
+        if src == "TG_CENTER_BOT_TOKEN":
+            return "outer"
+        if src == "FALLBACK_TELEGRAM_BOT_TOKEN":
+            return "inner"
+        tok = self._token or ""
+        if tok:
+            if tok == _env_str("TG_CENTER_BOT_TOKEN"):
+                return "outer"
+            if tok == _env_str("TELEGRAM_BOT_TOKEN"):
+                return "inner"
+        return None
+
+    def _surface_of(self, cid) -> str | None:
+        """dm|group|None برای رسید: DM ِ مالک وقتی chat همان مالک است؛
+        group وقتی chat یک گروه/سوپرگروه است (id منفی)."""
+        if self._owner is not None and cid == self._owner:
+            return "dm"
+        if isinstance(cid, int) and cid < 0:
+            return "group"
+        return None
+
+    # ── متدهای عمومی (قراردادِ telegram_center) ───────────────────────────────
+    def send(self, text: str, *, topic_id=None, keyboard=None,
+             chat_id=None, pin: bool = False, stream: str = "center") -> int | None:
+        """sendMessage (HTML). خروجی = message_id یا None. topic_id → message_thread_id
+        (تاپیکِ سوپرگروه). pin=True → بعد از ارسالِ موفق، pin هم می‌شود (شکستِ pin
+        ارسال را باطل نمی‌کند). not wired / متنِ خالی / chatِ نامعتبر → None، صفر شبکه.
+
+        `stream` (۰۷-۳۰): برچسبِ رسید در tg-send-log. پیش‌فرض همان «center» ِ
+        همیشگی — صداکنندهٔ قدیمی هیچ تغییری نمی‌بیند؛ ولی مسیرِ `_route_send`
+        نامِ دقیق (center-digest/…) می‌دهد تا رسیدها قابلِ‌پروب باشند."""
+        # ADR-042 Phase 0: record call site (not outcome). Fail-soft; no return change.
+        try:
+            import sys as _sys_fire
+            from pathlib import Path as _P_fire
+            _ops_fire = str(_P_fire(__file__).resolve().parent.parent)
+            if _ops_fire not in _sys_fire.path:
+                _sys_fire.path.insert(0, _ops_fire)
+            import tg_site_fire_log as _fire  # noqa: WPS433
+            _fire.record_call(sender="tg_api.send")
+        except Exception:  # noqa: BLE001
+            pass
+        if not self.wired():
+            return None
+        cid = self._resolve_chat(chat_id)
+        body_text = _scrub(text)[:_TEXT_CAP]
+        if cid is None or not body_text.strip():
+            return None
+        body: dict = {"chat_id": cid, "text": body_text, "parse_mode": "HTML"}
+        # message_thread_id فقط روی سوپرگروهِ forum معنا دارد (cid < -1000). فرستادنش
+        # به یک چتِ خصوصی (DM، cid ≥ ۰) = ۴۰۰ Bad Request از تلگرام (آیتم ۳ِ TG-P2).
+        # حتی اگر صداکننده اشتباهاً topic_id بدهد، اینجا بی‌اثر می‌شود.
+        if topic_id is not None and isinstance(cid, int) and cid < -1000:
+            tid = _coerce_id(topic_id)
+            if tid is not None:
+                body["message_thread_id"] = tid
+        if keyboard:
+            body["reply_markup"] = {"inline_keyboard": _scrub_keyboard(keyboard)}
+        delivery = None
+        _durable = None
+        try:
+            import durable_loop as _durable  # noqa: WPS433
+        except Exception:  # noqa: BLE001 — boundary absent → legacy direct send
+            _durable = None
+        if _durable is not None:
+            try:
+                if _durable.enabled() and _durable.current_context() is not None:
+                    delivery = _durable.deliver(
+                        text=body_text, chat_id=cid,
+                        topic_id=body.get("message_thread_id"),
+                        stream=str(stream or "center"),
+                        send_fn=lambda: self._call_post("sendMessage", body),
+                    )
+            except Exception:  # noqa: BLE001 — mid-delivery error fails closed
+                delivery = {"managed": True, "ok": False, "message_id": None,
+                            "state": "DURABILITY_ERROR"}
+        if isinstance(delivery, dict) and delivery.get("managed"):
+            data = ({"ok": True, "result": {"message_id": delivery.get("message_id")}}
+                    if delivery.get("ok") else None)
+        else:
+            data = self._call_post("sendMessage", body)
+        # سنجشِ حجم/تکرار — همان لاگی که approval_channel می‌نویسد. بدونِ این خط،
+        # کلِ ارسال‌های باتِ مرکز (پاسخِ دستورها، دایجستِ تاپیک‌ها، کارتِ تصمیم)
+        # از شمارش بیرون می‌ماند و «تکرار صفر است» یک ادعای نیم‌بند می‌شود.
+        # فقط hashِ متن ثبت می‌شود، نه متن. خطای لاگ هرگز ارسال را عوض نمی‌کند.
+        # bot_role از token_source می‌آید نه هاردکدِ "outer" — کلاینتِ inner ِ
+        # داخلِ مرکز هم از همین کلاس است؛ هاردکد یعنی رسیدِ دروغ برای آن نمونه.
+        # شکستِ شبکه state="sent" + ok=False است، نه "blocked" (blocked = ردِ سیاست).
+        _send_log_record(chat_id=cid, topic_id=body.get("message_thread_id"),
+                         text=body_text, stream=str(stream or "center"),
+                         ok=data is not None, disposition="attempted",
+                         bot_role=self._bot_role(), surface=self._surface_of(cid))
+        if data is None:
+            return None
+        mid = _coerce_id((data.get("result") or {}).get("message_id"))
+        if mid is not None and pin:
+            self.pin_message(mid, chat_id=cid)   # fail-soft: pin نشد → پیام سرِ جایش است
+        return mid
+
+    def edit(self, message_id, text: str, keyboard=None, chat_id=None) -> bool:
+        """editMessageText (HTML). خروجی = موفق شد؟ not wired/نامعتبر → False، صفر شبکه."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        mid = _coerce_id(message_id)
+        body_text = _scrub(text)[:_TEXT_CAP]
+        if cid is None or mid is None or not body_text.strip():
+            return False
+        body: dict = {"chat_id": cid, "message_id": mid,
+                      "text": body_text, "parse_mode": "HTML"}
+        if keyboard:
+            body["reply_markup"] = {"inline_keyboard": _scrub_keyboard(keyboard)}
+        ok = self._call_post("editMessageText", body) is not None
+        # رسیدِ edit (اسکن A T-8، ۰۷-۳۱): کارتِ pin شده و کارتِ پاها با edit تازه
+        # می‌شوند — ~۲۸۸ ویرایش/روز که تا امروز در هیچ لاگی نبود؛ حالا هر edit
+        # یک ردیفِ attempted با stream="edit" می‌گذارد.
+        _send_log_record(chat_id=cid, topic_id=None, text=body_text,
+                         stream="edit", ok=ok, disposition="attempted",
+                         bot_role=self._bot_role(), surface=self._surface_of(cid))
+        return ok
+
+    def delete(self, message_id, chat_id=None) -> bool:
+        """deleteMessage. خروجی = موفق شد؟ not wired/نامعتبر → False، صفر شبکه.
+
+        تلگرام حذفِ پیام‌های >۴۸ساعته را رد می‌کند (fail-soft، نه استثنا) —
+        صداکننده باید این را «حذف نشد، مهم نیست» بخواند، نه خطا."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        mid = _coerce_id(message_id)
+        if cid is None or mid is None:
+            return False
+        return self._call_post("deleteMessage", {"chat_id": cid, "message_id": mid}) is not None
+
+    def pin_message(self, message_id, chat_id=None) -> bool:
+        """pinChatMessage (بی‌صدا — بدونِ نوتیفِ اضافه). not wired/نامعتبر → False."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        mid = _coerce_id(message_id)
+        if cid is None or mid is None:
+            return False
+        return self._call_post("pinChatMessage",
+                               {"chat_id": cid, "message_id": mid,
+                                "disable_notification": True}) is not None
+
+    def delete_message(self, message_id, chat_id=None) -> bool:
+        """deleteMessage. پیامِ خودِ ربات (یا reply-to-own) را حذف می‌کند.
+        Bot API تلگرام فقط پیام‌های اخیر (<48h برای دیگران، نامحدود برای رباتِ خود)
+        را حذف می‌کند. not wired/نامعتبر → False."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        mid = _coerce_id(message_id)
+        if cid is None or mid is None:
+            return False
+        return self._call_post("deleteMessage",
+                               {"chat_id": cid, "message_id": mid}) is not None
+
+    def create_topic(self, name: str, chat_id=None) -> int | None:
+        """createForumTopic در سوپرگروهِ مرکز. خروجی = message_thread_id یا None."""
+        if not self.wired():
+            return None
+        cid = self._resolve_chat(chat_id)
+        topic_name = _scrub(name)[:128].strip()
+        if cid is None or not topic_name:
+            return None
+        data = self._call_post("createForumTopic",
+                               {"chat_id": cid, "name": topic_name})
+        if data is None:
+            return None
+        return _coerce_id((data.get("result") or {}).get("message_thread_id"))
+
+    def edit_topic(self, topic_id, name: str, chat_id=None) -> bool:
+        """editForumTopic — نامِ یک تاپیکِ موجود را عوض می‌کند (رأیِ مالک، ۲۰۲۶-۰۷-۲۶).
+
+        `create_topic` فقط تاپیکِ نبوده را می‌سازد، پس بدونِ این متد تغییرِ
+        `display_names` در config هرگز روی تاپیک‌های ساخته‌شده دیده نمی‌شد —
+        یعنی config یک‌چیز می‌گفت و سایدبارِ تلگرام چیزِ دیگر: باز هم دو حقیقت.
+        not wired / نامِ خالی / id نامعتبر → False، صفر شبکه."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        tid = _coerce_id(topic_id)
+        nm = _scrub(name)[:128].strip()
+        if cid is None or tid is None or not nm:
+            return False
+        data = self._call_post("editForumTopic",
+                               {"chat_id": cid, "message_thread_id": tid, "name": nm})
+        return bool(data)
+
+    def set_commands(self, commands, *, scope: dict | None = None) -> bool:
+        """setMyCommands از list[tuple[str, str]] = (command, description).
+        فرمِ خراب/لیستِ خالی → False، صفر شبکه.
+
+        `scope` (منشور UX-5، ۰۷-۳۱): dict ِ BotCommandScope تلگرام (مثلاً
+        {"type": "all_private_chats"}) — منوی گروه ≠ منوی DM. None = رفتارِ
+        قبلی بایت‌به‌بایت (scope ِ پیش‌فرضِ تلگرام)."""
+        if not self.wired():
+            return False
+        cmds: list[dict] = []
+        try:
+            for c, d in list(commands or []):
+                cmd = str(c).strip().lstrip("/")[:32]
+                if cmd:
+                    cmds.append({"command": cmd, "description": _scrub(d)[:256]})
+        except (TypeError, ValueError):
+            return False
+        if not cmds:
+            return False
+        body: dict = {"commands": cmds}
+        if scope is not None:
+            body["scope"] = scope
+        return self._call_post("setMyCommands", body) is not None
+
+    def delete_commands(self, *, scope: dict | None = None) -> bool:
+        """deleteMyCommands — پاک‌کردنِ منوی یک scope (یا پیش‌فرض).
+
+        لازمهٔ منوی scope-دار: بدونِ حذفِ scope ِ قدیمی، منوی کهنه در کشِ
+        تلگرام می‌ماند و دو حقیقت ساخته می‌شود. not wired → False، صفر شبکه."""
+        if not self.wired():
+            return False
+        body: dict = {}
+        if scope is not None:
+            body["scope"] = scope
+        return self._call_post("deleteMyCommands", body) is not None
+
+    @staticmethod
+    def _poll_exception_outcome(exc, *, started_at: float,
+                                lease_generation: int | None = None):
+        from poll_outcome import PollOutcome
+
+        completed = time.time()
+        payload = _http_err_json(exc)
+        try:
+            code = int(payload.get("error_code") or getattr(exc, "code", 0) or 0)
+        except (TypeError, ValueError):
+            code = 0
+        retry_after = _retry_after_from_429(payload)
+        if code == 409:
+            return PollOutcome(
+                "CONFLICT", error_code=409, reason="duplicate-consumer",
+                lease_generation=lease_generation, started_at=started_at,
+                completed_at=completed)
+        if code == 429:
+            return PollOutcome(
+                "RATE_LIMITED", error_code=429, retry_after_s=retry_after,
+                reason="rate-limited", lease_generation=lease_generation,
+                started_at=started_at, completed_at=completed)
+        if code:
+            return PollOutcome(
+                "HTTP_5XX" if code >= 500 else "HTTP_4XX",
+                error_code=code, reason="api:%s" % code,
+                lease_generation=lease_generation, started_at=started_at,
+                completed_at=completed)
+        reason = getattr(exc, "reason", None)
+        dns = isinstance(reason, socket.gaierror) or isinstance(exc, socket.gaierror)
+        timeout = isinstance(exc, (TimeoutError, socket.timeout))
+        if isinstance(exc, urllib.error.URLError):
+            timeout = timeout or isinstance(reason, (TimeoutError, socket.timeout))
+        if not dns and "DNS" in str(exc).upper():
+            dns = True
+        return PollOutcome(
+            "DNS_ERROR" if dns else ("TIMEOUT" if timeout else "HTTP_5XX"),
+            reason=type(exc).__name__, lease_generation=lease_generation,
+            started_at=started_at, completed_at=completed)
+
+    def poll_updates_typed(self, offset: int = 0,
+                           timeout_s: int = DEFAULT_LONGPOLL_S):
+        """Run one canonical poll and return a typed ``PollOutcome``.
+
+        This path never sleeps and never advances an offset.  Retry timing is
+        returned to the Center scheduler.  Ownership, transport and response
+        ambiguity fail closed before updates can reach business dispatch.
+        """
+        from poll_outcome import PollOutcome
+
+        started_at = time.time()
+        if not self.wired():
+            return PollOutcome(
+                "STOPPED", reason="not-wired", started_at=started_at,
+                completed_at=started_at)
+        if getattr(self, "_token_source", "") == "FALLBACK_TELEGRAM_BOT_TOKEN":
+            _record_poll(False, "dedicated-token-required", started_at=started_at)
+            return PollOutcome(
+                "LEASE_DENIED", reason="dedicated-token-required",
+                started_at=started_at, completed_at=time.time())
+        try:
+            import poll_schedule as schedule_module  # noqa: WPS433
+            scheduled = schedule_module.check(self._token)
+        except Exception as exc:  # noqa: BLE001
+            scheduled = {
+                "allowed": False, "kind": "LEASE_DENIED",
+                "reason": "schedule-error:%s" % type(exc).__name__,
+                "retry_after_s": 1.0,
+            }
+        if not scheduled.get("allowed"):
+            kind = str(scheduled.get("kind") or "LEASE_DENIED")
+            if kind not in {
+                "CONFLICT", "RATE_LIMITED", "TIMEOUT", "DNS_ERROR",
+                "HTTP_5XX", "HTTP_4XX", "WEBHOOK_PRESENT",
+            }:
+                kind = "LEASE_DENIED"
+            reason = str(scheduled.get("reason") or "scheduled")
+            state = _record_poll(False, "schedule:%s" % reason,
+                                 started_at=started_at)
+            # یک بلاکِ ماندگار (۴۲۹/۴۰۹/وب‌هوک) همان «گوشِ مرده» است — بلاکِ
+            # schedule نباید هشدارِ deaf را خفه کند.
+            self._maybe_alert_deaf(state)
+            return PollOutcome(
+                kind, reason=reason,
+                retry_after_s=(float(scheduled["retry_after_s"])
+                               if float(scheduled.get("retry_after_s") or 0) > 0 else None),
+                started_at=started_at, completed_at=time.time())
+        if self._poll_preflight is not None:
+            try:
+                preflight = self._poll_preflight()
+            except Exception as exc:  # noqa: BLE001 — unknown webhook state blocks polling
+                reason = "preflight-error:%s" % type(exc).__name__
+                state = _record_poll(False, reason, started_at=started_at)
+                self._maybe_alert_deaf(state)
+                stored = schedule_module.record_failure(
+                    self._token, kind="HTTP_5XX", reason=reason)
+                if not stored.get("ok"):
+                    return PollOutcome(
+                        "LEASE_DENIED", reason="schedule-error",
+                        retry_after_s=1.0, started_at=started_at,
+                        completed_at=time.time())
+                return PollOutcome(
+                    "HTTP_5XX", reason=reason,
+                    retry_after_s=float(stored["retry_after_s"]),
+                    started_at=started_at, completed_at=time.time())
+            if not isinstance(preflight, dict):
+                _record_poll(False, "preflight-malformed", started_at=started_at)
+                stored = schedule_module.record_failure(
+                    self._token, kind="MALFORMED", reason="preflight-malformed")
+                if not stored.get("ok"):
+                    return PollOutcome(
+                        "LEASE_DENIED", reason="schedule-error",
+                        retry_after_s=1.0, started_at=started_at,
+                        completed_at=time.time())
+                return PollOutcome(
+                    "MALFORMED", reason="preflight-malformed",
+                    retry_after_s=float(stored["retry_after_s"]),
+                    started_at=started_at, completed_at=time.time())
+            webhook_present = bool(
+                preflight.get("webhook") is True
+                or preflight.get("url_set") is True
+                or str(preflight.get("url") or "").strip()
+            )
+            if webhook_present:
+                state = _record_poll(False, "webhook-present",
+                                     started_at=started_at)
+                self._maybe_alert_deaf(state)
+                stored = schedule_module.record_failure(
+                    self._token, kind="WEBHOOK_PRESENT",
+                    reason="webhook-present")
+                if not stored.get("ok"):
+                    return PollOutcome(
+                        "LEASE_DENIED", reason="schedule-error",
+                        retry_after_s=1.0, started_at=started_at,
+                        completed_at=time.time())
+                return PollOutcome(
+                    "WEBHOOK_PRESENT", reason="webhook-present",
+                    retry_after_s=float(stored["retry_after_s"]),
+                    started_at=started_at, completed_at=time.time())
+
+        try:
+            import poll_lease as lease_module  # noqa: WPS433
+            lease = lease_module.assert_poll_lease(
+                self._token,
+                request_deadline=started_at + max(1.0, float(timeout_s)) + 10.0,
+            )
+        except Exception as exc:  # noqa: BLE001
+            reason = "lease-error:%s" % type(exc).__name__
+            _record_poll(False, reason, started_at=started_at)
+            return PollOutcome(
+                "LEASE_DENIED", reason=reason, started_at=started_at,
+                completed_at=time.time())
+        generation = lease.get("generation")
+        if not lease.get("ok"):
+            reason = str(lease.get("reason") or "denied")
+            _record_poll(False, "lease:%s" % reason, started_at=started_at)
+            return PollOutcome(
+                "LEASE_DENIED", reason=reason,
+                retry_after_s=(float(lease["cooldown_s"])
+                               if float(lease.get("cooldown_s") or 0) > 0 else None),
+                lease_generation=generation, started_at=started_at,
+                completed_at=time.time())
+
+        def scheduled_failure(outcome):
+            try:
+                stored = schedule_module.record_failure(
+                    self._token, kind=outcome.kind, reason=outcome.reason,
+                    retry_after_s=outcome.retry_after_s)
+            except Exception:  # noqa: BLE001
+                stored = {"ok": False, "reason": "schedule-error"}
+            from poll_outcome import PollOutcome as _PollOutcome
+            if not stored.get("ok"):
+                return _PollOutcome(
+                    "LEASE_DENIED", retry_after_s=1.0,
+                    reason=str(stored.get("reason") or "schedule-error"),
+                    lease_generation=outcome.lease_generation,
+                    started_at=outcome.started_at,
+                    completed_at=outcome.completed_at)
+            delay = float(stored.get("retry_after_s") or 0)
+            return _PollOutcome(
+                outcome.kind, retry_after_s=(delay if delay > 0 else None),
+                error_code=outcome.error_code, reason=outcome.reason,
+                lease_generation=outcome.lease_generation,
+                started_at=outcome.started_at, completed_at=outcome.completed_at)
+
+        def finish_failed(reason: str) -> None:
+            try:
+                lease_module.finish_poll_request(
+                    self._token, generation=generation, reason=reason)
+            except Exception:  # noqa: BLE001
+                pass
+
+        try:
+            params = {
+                "offset": int(offset),
+                "timeout": int(timeout_s),
+                "allowed_updates": json.dumps(["message", "callback_query"]),
+            }
+            data = self._get(
+                self._build_url("getUpdates", params), float(timeout_s))
+        except Exception as exc:  # noqa: BLE001
+            outcome = self._poll_exception_outcome(
+                exc, started_at=started_at, lease_generation=generation)
+            is_timeout = outcome.kind == "TIMEOUT"
+            is_dns = outcome.kind == "DNS_ERROR"
+            is_409 = outcome.kind == "CONFLICT"
+            state = _record_poll(
+                False, outcome.reason or outcome.kind, started_at=started_at,
+                timeout=is_timeout, dns_stall=is_dns, is_409=is_409)
+            if is_409:
+                cooldown = None
+                try:
+                    marked = lease_module.mark_duplicate_consumer(self._token)
+                    value = float(marked.get("cooldown_s") or 0)
+                    cooldown = value if value > 0 else None
+                    _transport_pool().record_result(
+                        _bot_key_from_url(self._build_url("getUpdates", {})),
+                        ok=False, is_409=True)
+                except Exception:  # noqa: BLE001
+                    pass
+                from poll_outcome import PollOutcome
+                outcome = PollOutcome(
+                    "CONFLICT", error_code=409, reason="duplicate-consumer",
+                    retry_after_s=cooldown, lease_generation=generation,
+                    started_at=started_at, completed_at=outcome.completed_at)
+            finish_failed(outcome.reason or outcome.kind)
+            self._maybe_alert_deaf(state)
+            return scheduled_failure(outcome)
+
+        completed = time.time()
+        if not isinstance(data, dict):
+            _record_poll(
+                False, "malformed:no-dict", started_at=started_at)
+            finish_failed("malformed:no-dict")
+            return PollOutcome(
+                "MALFORMED", reason="no-dict", lease_generation=generation,
+                started_at=started_at, completed_at=completed)
+        if not data.get("ok"):
+            try:
+                code = int(data.get("error_code") or 0)
+            except (TypeError, ValueError):
+                code = 0
+            retry_after = _retry_after_from_429(data)
+            is_409 = code == 409
+            state = _record_poll(
+                False, "api:%s" % (code or "unknown"),
+                started_at=started_at, is_409=is_409)
+            self._maybe_alert_deaf(state)
+            if is_409:
+                cooldown = None
+                try:
+                    marked = lease_module.mark_duplicate_consumer(self._token)
+                    value = float(marked.get("cooldown_s") or 0)
+                    cooldown = value if value > 0 else None
+                except Exception:  # noqa: BLE001
+                    pass
+                try:
+                    _transport_pool().record_result(
+                        _bot_key_from_url(self._build_url("getUpdates", {})),
+                        ok=False, is_409=True)
+                except Exception:  # noqa: BLE001
+                    pass
+                if time.time() - getattr(self, "_last_409_alert", 0.0) > 3600:
+                    self._last_409_alert = time.time()
+                    _alert_soft(
+                        "tg-center getUpdates 409 Conflict — another poller owns "
+                        "this bot; polling is stopped until cooldown.")
+                finish_failed("api:409")
+                return scheduled_failure(PollOutcome(
+                    "CONFLICT", error_code=409, reason="duplicate-consumer",
+                    retry_after_s=cooldown, lease_generation=generation,
+                    started_at=started_at, completed_at=completed))
+            finish_failed("api:%s" % (code or "unknown"))
+            if code == 429:
+                return scheduled_failure(PollOutcome(
+                    "RATE_LIMITED", retry_after_s=retry_after,
+                    error_code=429, reason="rate-limited",
+                    lease_generation=generation, started_at=started_at,
+                    completed_at=completed))
+            kind = "HTTP_5XX" if code >= 500 else "HTTP_4XX"
+            if not code:
+                kind = "MALFORMED"
+            return scheduled_failure(PollOutcome(
+                kind, error_code=(code or None),
+                reason="api:%s" % (code or "unknown"),
+                lease_generation=generation, started_at=started_at,
+                completed_at=completed))
+
+        raw_updates = data.get("result")
+        if not isinstance(raw_updates, list):
+            reason = "malformed:result-not-list"
+            _record_poll(False, reason, started_at=started_at)
+            finish_failed(reason)
+            return scheduled_failure(PollOutcome(
+                "MALFORMED", reason="result-not-list",
+                lease_generation=generation, started_at=started_at,
+                completed_at=time.time()))
+        updates = tuple(item for item in raw_updates if isinstance(item, dict))
+        try:
+            confirmed = lease_module.mark_poll_success(
+                self._token, generation=generation)
+        except Exception as exc:  # noqa: BLE001
+            reason = "lease-confirm:%s" % type(exc).__name__
+            _record_poll(False, reason, started_at=started_at)
+            finish_failed(reason)
+            return scheduled_failure(PollOutcome(
+                "LEASE_DENIED", reason=reason, lease_generation=generation,
+                started_at=started_at, completed_at=time.time()))
+        if not confirmed.get("ok"):
+            reason = str(confirmed.get("reason") or "denied")
+            _record_poll(False, "lease-confirm:%s" % reason, started_at=started_at)
+            return scheduled_failure(PollOutcome(
+                "LEASE_DENIED", reason=reason, lease_generation=generation,
+                started_at=started_at, completed_at=time.time()))
+        cleared = schedule_module.record_success(self._token)
+        if not cleared.get("ok"):
+            reason = str(cleared.get("reason") or "schedule-clear-failed")
+            _record_poll(False, reason, started_at=started_at)
+            return PollOutcome(
+                "LEASE_DENIED", reason=reason, lease_generation=generation,
+                started_at=started_at, completed_at=time.time())
+        _record_poll(
+            True, started_at=started_at, completed_at=completed,
+            updates_n=len(updates), empty=not updates)
+        return PollOutcome(
+            "OK", updates=updates, lease_generation=generation,
+            started_at=started_at, completed_at=completed)
+
+    def poll_updates(self, offset: int = 0,
+                     timeout_s: int = DEFAULT_LONGPOLL_S) -> list[dict]:
+        """Backward-compatible list adapter over ``poll_updates_typed``.
+
+        The canonical Center consumes the typed outcome directly.  Legacy
+        callers keep the historic short 429 sleep and list/empty-list API.
+        """
+        outcome = self.poll_updates_typed(offset=offset, timeout_s=timeout_s)
+        if outcome.kind == "RATE_LIMITED" and outcome.retry_after_s is not None:
+            delay = _sync_retry_delay(outcome.retry_after_s)
+            if delay is not None:
+                try:
+                    self._sleep(delay)
+                except Exception:  # noqa: BLE001
+                    pass
+        return outcome.legacy_updates()
+
+    def _maybe_alert_deaf(self, state: dict) -> None:
+        """گوشِ مرده را یک‌بار در ساعت فریاد بزن. «مرده» = هیچ دورِ موفقی در
+        POLL_DEAF_AFTER_S، نه یک شکستِ تکی (شبکه تک‌وتوک می‌لرزد و هشدارِ
+        گرگ‌گرگ بدتر از سکوت است)."""
+        try:
+            last_ok = float((state or {}).get("last_ok_ts") or 0.0)
+            fails = int((state or {}).get("consecutive_failures") or 0)
+        except (TypeError, ValueError):
+            return
+        if fails < 2 or last_ok <= 0:
+            return
+        quiet_s = time.time() - last_ok
+        if quiet_s < POLL_DEAF_AFTER_S:
+            return
+        if time.time() - getattr(self, "_last_deaf_alert", 0.0) <= 3600:
+            return
+        self._last_deaf_alert = time.time()
+        _alert_soft("tg-center getUpdates: %.0f دقیقه هیچ دورِ موفقی نبوده "
+                    "(%d شکستِ پیاپی، آخرین دلیل: %s). ارسال ممکن است سالم "
+                    "به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**."
+                    % (quiet_s / 60.0, fails,
+                       str((state or {}).get("last_reason") or "?")))
+
+    @staticmethod
+    def next_offset(updates, current: int = 0) -> int:
+        """ریاضیِ offsetِ getUpdates: بیشینهٔ update_id + 1 (وگرنه همان current).
+        همان قاعدهٔ TelegramApprovalChannel.poll_once — caller بینِ pollها نگه می‌دارد."""
+        try:
+            off = int(current or 0)
+        except (TypeError, ValueError):
+            off = 0
+        for u in updates or []:
+            try:
+                uid = int((u or {}).get("update_id"))
+            except (TypeError, ValueError, AttributeError):
+                continue
+            if uid + 1 > off:
+                off = uid + 1
+        return off
+
+    # ── فایلِ ورودی (getFile + دانلود) — لِینِ ویس، منشور رأی ۹ ────────────────
+    # این دو متد **ورودی**اند: هیچ رسیدِ ارسال نمی‌نویسند (tg-send-log فقط
+    # خروجی را می‌شمارد؛ یک ردیفِ attempted برایِ یک دانلود = آلوده‌کردنِ سنجهٔ
+    # «چقدر حرف زدیم»). همان discipline بقیه: fail-soft، ۴۲۹-aware، بی‌leakِ URL.
+    def _build_file_url(self, file_path: str) -> str:
+        """URLِ endpointِ فایل: ``/file/bot<token>/<file_path>``. هرگز لاگ نشود."""
+        safe = urllib.parse.quote(str(file_path or ""), safe="/")
+        return f"{TELEGRAM_API_BASE}/file/bot{self._token}/{safe}"
+
+    def get_file(self, file_id) -> dict | None:
+        """getFile → dictِ resultِ تلگرام ({file_path, file_size, …}) یا None.
+
+        سقفِ ۲۵MB همین‌جا هم سنجیده می‌شود: وقتی تلگرام `file_size` می‌دهد،
+        دانلودِ فایلِ بزرگ اصلاً شروع نمی‌شود (رد کردن **قبل از** مصرفِ پهنای
+        باند). نبودِ file_size ⇒ سقف در خودِ دانلود اعمال می‌شود."""
+        if not self.wired():
+            return None
+        fid = str(file_id or "").strip()
+        if not fid:
+            return None
+        data = self._call_post("getFile", {"file_id": fid})
+        if data is None:
+            return None
+        res = data.get("result")
+        if not isinstance(res, dict) or not str(res.get("file_path") or "").strip():
+            return None
+        try:
+            size = int(res.get("file_size"))
+        except (TypeError, ValueError):
+            size = None
+        if size is not None and size > _FILE_MAX_BYTES:
+            self._note_fail("getFile", ValueError("file too large"),
+                            f"{size} > {_FILE_MAX_BYTES} bytes")
+            return None
+        return res
+
+    def download_file(self, file_path: str, dest: str) -> bool:
+        """فایلِ تلگرام → مسیرِ محلیِ `dest`. موفق؟ not wired/نامعتبر → False.
+
+        نوشتن atomic است (tmp + os.replace) تا مصرف‌کننده هرگز فایلِ نیم‌کاره
+        نبیند. `file_path` از خودِ تلگرام می‌آید ولی باز هم سنجیده می‌شود:
+        مسیرِ مطلق یا `..` رد می‌شود (اعتماد به ورودیِ بیرونی = رد شدنِ گارد)."""
+        if not self.wired():
+            return False
+        fp = str(file_path or "").strip().replace("\\", "/")
+        dst = str(dest or "").strip()
+        if not fp or not dst:
+            return False
+        if fp.startswith("/") or ".." in fp.split("/") or ":" in fp.split("/")[0]:
+            return False
+        url = self._build_file_url(fp)
+        blob = None
+        for _attempt in range(_429_MAX_RETRIES + 1):
+            try:
+                blob = self._download(url, _FILE_TIMEOUT_S, _FILE_MAX_BYTES)
+            except Exception as e:  # noqa: BLE001 — fail-soft، بدونِ leakِ URL/token
+                err_json = _http_err_json(e)
+                ra = _retry_after_from_429(err_json)
+                _sync = _sync_retry_delay(ra)
+                if _sync is not None and _attempt < _429_MAX_RETRIES:
+                    try:
+                        self._sleep(_sync)
+                    except Exception:  # noqa: BLE001
+                        pass
+                    continue
+                self._note_fail("getFileDownload", e,
+                                str(err_json.get("description") or "")[:200])
+                return False
+            break
+        if not isinstance(blob, (bytes, bytearray)) or not blob:
+            return False
+        if len(blob) > _FILE_MAX_BYTES:      # transportِ تزریقی هم باید سقف بخورد
+            self._note_fail("getFileDownload", ValueError("file too large"),
+                            f"{len(blob)} > {_FILE_MAX_BYTES} bytes")
+            return False
+        try:
+            parent = os.path.dirname(os.path.abspath(dst))
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            tmp = dst + ".part"
+            with open(tmp, "wb") as fh:
+                fh.write(blob)
+            os.replace(tmp, dst)
+        except OSError as e:
+            self._note_fail("getFileDownload", e, "write failed")
+            return False
+        return True
+
+    def fetch_file(self, file_id, dest: str) -> bool:
+        """getFile + دانلود در یک قدم — تا سیم‌کشیِ صداکننده یک خط بماند.
+        هر شکستِ میانی → False (بدونِ استثنا، بدونِ فایلِ نیم‌کاره)."""
+        info = self.get_file(file_id)
+        if not info:
+            return False
+        return self.download_file(str(info.get("file_path") or ""), dest)
+
+    def answer_callback(self, callback_id, text: str = "") -> bool:
+        """answerCallbackQuery — بستنِ spinnerِ دکمه. متنِ toast ساده است (HTML render
+        نمی‌شود) → strip تگ + unescape (باگِ toastِ جلسه ۴۶ تکرار نشود)."""
+        if not self.wired() or not callback_id:
+            return False
+        return self._call_post(
+            "answerCallbackQuery",
+            {"callback_query_id": str(callback_id),
+             "text": _toast_plain(_scrub(text))[:_TOAST_CAP],
+             "cache_time": 0}) is not None

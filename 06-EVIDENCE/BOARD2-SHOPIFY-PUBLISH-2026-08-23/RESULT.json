@@ -1,0 +1,60 @@
+{
+  "stamp": "20260822T151743Z",
+  "result": "PASS",
+  "wire": "OFN_SHOPIFY_WIRE=1",
+  "bak": "/home/ari/.local/share/ofn/bak-shopify-publish-20260822T151743Z",
+  "photos_in_ofn": 0,
+  "photo_policy": "published without images — Shopify Admin allows; NOTE_NO_PHOTOS",
+  "etsy_externals": "HELD pending-review",
+  "shop_domain": "ziman-gift.myshopify.com",
+  "skus": [
+    {
+      "sku": "ZM-0003",
+      "photos": 0,
+      "note": "no photos in ofn — Shopify allows product without images",
+      "result": "PASS",
+      "shopify_product_id": "8688841752676",
+      "shopify_handle": "ظرف-آزمایشی",
+      "shopify_status": "active",
+      "shopify_variant_sku": "ZM-0003",
+      "shopify_price": "22.00",
+      "external_ref_digest": "f6cadf387b32b3d9b06a302cfb3abbdf60ee7285796b429dc4591a8c7fcfb15d",
+      "listing_id": "list-shopify-zm-0003-20260822t151743z",
+      "listing": {
+        "ok": true,
+        "listing_id": "list-shopify-zm-0003-20260822t151743z",
+        "tenant_id": "ziman",
+        "sku": "ZM-0003",
+        "environment": "production"
+      },
+      "adapter_rule": "adapter:ok",
+      "name": "ظرف آزمایشی",
+      "price_aud": 22.0
+    },
+    {
+      "sku": "ZM-0006",
+      "photos": 0,
+      "note": "no photos in ofn — Shopify allows product without images",
+      "result": "PASS",
+      "shopify_product_id": "8688841785444",
+      "shopify_handle": "ظرف-آزمایشی-1",
+      "shopify_status": "active",
+      "shopify_variant_sku": "ZM-0006",
+      "shopify_price": "22.00",
+      "external_ref_digest": "3e1b697a950d9deb169533086eb95bfd2175d5dc3e1274c8ffb28286077a98f4",
+      "listing_id": "list-shopify-zm-0006-20260822t151743z",
+      "listing": {
+        "ok": true,
+        "listing_id": "list-shopify-zm-0006-20260822t151743z",
+        "tenant_id": "ziman",
+        "sku": "ZM-0006",
+        "environment": "production"
+      },
+      "adapter_rule": "adapter:ok",
+      "name": "ظرف آزمایشی",
+      "price_aud": 22.0
+    }
+  ],
+  "rollback_wire": "set OFN_SHOPIFY_WIRE=0 in node.env && systemctl restart ofn",
+  "rollback_adapter": "cp /home/ari/.local/share/ofn/bak-shopify-publish-20260822T151743Z/shopify.py /home/ari/ofn/ofn/adapters/platforms/shopify.py"
+}

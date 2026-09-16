@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.1",
+  "lead_id": "63ad89d80e2241a484802ca94b2018fd",
+  "description": "رنگ‌آمیزی — جزئیات نامشخص، مشتری فقط گفت خانه",
+  "address": null,
+  "suburb": null,
+  "source": "synthetic_test",
+  "applicant": "Proof Incomplete",
+  "day": "2026-07-31",
+  "candidate": {
+    "candidate_type": "consented_inbound",
+    "consent": {
+      "basis": "explicit",
+      "outreach_allowed": true,
+      "retention_class": "consented_customer",
+      "compliance_reason": "unspecified"
+    },
+    "request": {
+      "scope_text": "رنگ‌آمیزی — جزئیات نامشخص، مشتری فقط گفت خانه"
+    },
+    "contact": {
+      "name": "Proof Incomplete",
+      "email": "proof-incomplete@example.invalid"
+    },
+    "workflow": {
+      "status": "received",
+      "owner_action_required": true,
+      "external_send_allowed": false,
+      "next_action": "qualify"
+    },
+    "synthetic": true
+  }
+}

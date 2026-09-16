@@ -1,0 +1,36 @@
+{
+  "MILESTONE": "SELF_UPGRADE_LAB_CYCLE",
+  "ts": "2026-08-21T08:56:02+00:00",
+  "note": "LAB_PASS is not production and is not AGI.",
+  "worktree_factory": "git worktree add --no-checkout + sparse-checkout cone _ops + checkout --force HEAD + .sul-ready",
+  "lanes": [
+    {
+      "layer": "memory",
+      "decision": "ALREADY_FIXED",
+      "target": "P0-MEMORY-GATE",
+      "tests": "test_memory_gate 12/12 on HEAD"
+    },
+    {
+      "layer": "heart",
+      "decision": "LAB_PASS",
+      "target": "P1-HEART-ORPHAN",
+      "branch": "sul/heart-c1",
+      "commit": "0dabb2885ae30aa8e06c0e58a3c7ebfd50a8550b",
+      "tests": "test_orphan_watchdog 6/8 -> 8/8"
+    },
+    {
+      "layer": "brain",
+      "decision": "LAB_PASS",
+      "target": "P1-BRAIN-CALIBRATION",
+      "branch": "sul/brain-c1",
+      "commit": "1a6b433ba38fa31db7ff8ec15aac9bbd2ad828a8",
+      "tests": "test_improve_reads_calibration 0/2 -> 2/2"
+    }
+  ],
+  "live_merge": {
+    "observe_only": true,
+    "organism_hook": true,
+    "brain_test_file": "_ops/tests/test_improve_reads_calibration.py",
+    "run_all_registered": false
+  }
+}

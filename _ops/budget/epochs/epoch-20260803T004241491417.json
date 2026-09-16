@@ -1,0 +1,182 @@
+{
+  "ts": "2026-08-03T00:41:16",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.445,
+        "DEBATE_LOOP": 0.11,
+        "GENOME_SYS": 0.445
+      },
+      "reason": "[EST] All telemetry zero/suspect_zero (no signal); defaulting to floor-proportional split, no fitness-driven moves."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "seed-0",
+    "rounds": 2,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از UNMAPPED به عنوان نماد روحی برای حفظ حریم خصوصی مالکین",
+          "why_genius": "این استراتژی می‌تواند باعث افزایش احترام و امنیت مالکین شود، زیرا نماد UNMAPPED را به عنوان یک سیستم پیچیده و ناشناخته مطرح کرده است که دسترسی مستقیم به آن بدون اجازه غیرممکن است.",
+          "why_insane": "این رویکرد می‌تواند منجر به سوءفهم و عدم درک مناسب از عملکرد نظام رسمی شود، زیرا نماد UNMAPPED پیچیده است و ممکن است باعث توهین به ارزش‌های شفافیت و شفافیت شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "نمایش UNMAPPED به عنوان نماد روحی برای حفظ حریم خصوصی مالکین منجر به سوءفهم و عدم درک مناسب از عملکرد نظام رسمی می‌شود.",
+          "cheapest_test": "استفاده از پرسشنامه یا نظرسنجی با کاربران تلفنی برای بررسی آنچه آنچه آمده است و شناسایی آیا این رویکرد منجر به سوءفهم می‌شود.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از UNMAPPED در تلفن همراه با پیام خبری برای اطلاع رسانی به صاحب ارگان",
+          "why_genius": "این رویکرد می‌تواند ساده و سریع باشد، همچنین با استفاده از پیام خبری می‌توان اطلاعات حساس را در حضور دیگران پنهان کرد.",
+          "why_insane": "این روش ممکن است سبب سوءفهم شود زیرا صاحب ارگان ممکن است نتواند تفسیر صحیح پیام خبری را بسازد، همچنین ممکن است باعث عدم اطمینان و ضبط نادرست اطلاعات شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "استفاده از پیام خبری برای اطلاع رسانی به صاحب ارگان ممکن است سبب سوءفهم شود و ناتوانی در تفسیر صحیح پیام خبری می‌تواند منجر به ضبط نادرست اطلاعات شود.",
+          "cheapest_test": "درخواست صاحب ارگان برای استفاده از روش دیگری مانند پیام سیستمی یا تماس هاتلی برای تأیید قابلیت درک و فهم پیام خبری.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

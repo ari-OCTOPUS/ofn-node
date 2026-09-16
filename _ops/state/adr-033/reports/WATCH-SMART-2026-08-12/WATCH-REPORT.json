@@ -1,0 +1,163 @@
+{
+  "ts_start": "2026-08-12T07:42:51",
+  "trail_before": {
+    "self_loop": 273,
+    "research": 15
+  },
+  "self_knowledge": {
+    "elapsed_s": 38.9,
+    "source": "llm:local",
+    "focus": "(خواستهٔ مالک) شرطِ من روی «واقعی‌کردن ارزیابی سایه پیش از promote»: قبول ولی فقط اگر بدونِ ری‌استارتِ ارگانیسم باشد و امروز تمام شود",
+    "deep_dive_ran": true,
+    "keys": [
+      "ts",
+      "beat",
+      "version",
+      "source",
+      "snapshot_hash",
+      "stable_cycles",
+      "llm_calls",
+      "deep_dive_ran",
+      "focus",
+      "understanding",
+      "deep_dive",
+      "trajectory"
+    ],
+    "u_keys": [
+      "anatomy",
+      "physiology",
+      "pathology",
+      "trajectory",
+      "prescription",
+      "open_questions",
+      "focus",
+      "confidence",
+      "focus_source",
+      "owner_steer"
+    ],
+    "failed": null
+  },
+  "synthesis": {
+    "elapsed_s": 11.1,
+    "ts": null,
+    "tier": "secondary",
+    "n_proposals": 0,
+    "memory": {
+      "ok": true,
+      "schema": "self-loop-ingest.v1",
+      "channel": "synthesis",
+      "n_items": 3,
+      "committed": 3,
+      "proposed": 0,
+      "skipped": 0,
+      "rejected": 0,
+      "trail": "F:\\backup\\_ops\\state\\memory\\self-loop-ingest.jsonl",
+      "may_authorize": false
+    }
+  },
+  "research": {
+    "elapsed_s": 21.6,
+    "ok": true,
+    "n_findings": 0,
+    "memory": {
+      "ok": true,
+      "schema": "research-ingest.v1",
+      "n_hits": 8,
+      "committed": 8,
+      "proposed": 0,
+      "skipped": 0,
+      "rejected": 0,
+      "trail": "F:\\backup\\_ops\\state\\memory\\research-ingest.jsonl",
+      "may_authorize": false
+    },
+    "keys": [
+      "ok",
+      "n_topics",
+      "n_hits",
+      "memory_ingest"
+    ]
+  },
+  "improve": {
+    "elapsed_s": 4.3,
+    "n_proposals": 38,
+    "auto_enabled": true,
+    "auto_eligible": [],
+    "memory_ingest": {
+      "ok": true,
+      "schema": "self-loop-ingest.v1",
+      "channel": "improve",
+      "n_items": 9,
+      "committed": 4,
+      "proposed": 0,
+      "skipped": 5,
+      "rejected": 0,
+      "trail": "F:\\backup\\_ops\\state\\memory\\self-loop-ingest.jsonl",
+      "may_authorize": false
+    }
+  },
+  "part_loops": {
+    "elapsed_s": 0.5,
+    "n_proposals": 2,
+    "parts": [
+      [
+        "heart",
+        "🟢"
+      ],
+      [
+        "cortex",
+        "🟢"
+      ],
+      [
+        "doctor",
+        "🟡"
+      ],
+      [
+        "money",
+        "🟢"
+      ],
+      [
+        "learning",
+        "🟢"
+      ],
+      [
+        "legs",
+        "🟢"
+      ],
+      [
+        "self",
+        "🟢"
+      ]
+    ],
+    "memory_ingest": {
+      "ok": true,
+      "schema": "self-loop-ingest.v1",
+      "channel": "part_loops",
+      "n_items": 3,
+      "committed": 1,
+      "proposed": 0,
+      "skipped": 2,
+      "rejected": 0,
+      "trail": "F:\\backup\\_ops\\state\\memory\\self-loop-ingest.jsonl",
+      "may_authorize": false
+    }
+  },
+  "self_model": {
+    "elapsed_s": 10.8,
+    "api": "run_and_persist",
+    "n_modules": 603,
+    "self_awareness_pct": 96.7
+  },
+  "trail_after": {
+    "self_loop": 292,
+    "research": 23
+  },
+  "organism": {
+    "started": "2026-08-12T07:26:00",
+    "beat": 32264,
+    "protective_skip": false
+  },
+  "stress": {
+    "organism_stress": 0.66,
+    "in_fear": []
+  }
+}

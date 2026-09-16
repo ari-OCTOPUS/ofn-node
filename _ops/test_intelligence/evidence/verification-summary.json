@@ -1,0 +1,53 @@
+{
+  "schema": "octopus.test-intelligence.verification.v1",
+  "date": "2026-08-11",
+  "mode": "offline-mocked-shadow",
+  "activation": false,
+  "network_attempts": 0,
+  "paid_calls": 0,
+  "telegram_sends": 0,
+  "external_effects": 0,
+  "test_intelligence": {
+    "trace_contract": "8/8",
+    "context_control_contract": "13/13",
+    "router_snapshot": "8/8",
+    "breaker_chaos": "10/10",
+    "collab_security": "12/12",
+    "discovery_evaluation": "9/9",
+    "policy_oracle": "9/9",
+    "dark_inventory": "4/4",
+    "redteam_checks": "3/3",
+    "redteam_cases": "25/25"
+  },
+  "target_suites": {
+    "passed": 18,
+    "total": 18,
+    "skip": 0,
+    "env_blocked": 0,
+    "timeout": 0,
+    "failed": 0
+  },
+  "full_suite": {
+    "runner_entries_passed": 588,
+    "runner_entries_total": 588,
+    "exit_code": 0,
+    "result_level_skip": 0,
+    "env_blocked": 0,
+    "timeout": 0,
+    "output_digest": "sha256:b4997eda32aa148acc2eee0eaa3cb6ddb21a4d5074af29152a90e8729a070b74"
+  },
+  "validators": {
+    "python_compile": "PASS",
+    "diff_check": "PASS",
+    "telegram_contract": "PASS",
+    "vault_hygiene_ratchet": "7/7 PASS",
+    "obsidian_index_budget": "6/6 PASS",
+    "manifest_truth": "4/4 PASS",
+    "capability_manifest_registry": "10/10 PASS",
+    "module_self_manifest": "4/4 PASS",
+    "frontmatter": "PRE_EXISTING_DEBT:4",
+    "broken_links_curated": "PRE_EXISTING_DEBT:1",
+    "broken_links_operational": "PRE_EXISTING_DEBT:25"
+  },
+  "scope_note": "No merge, push, deploy, restart, arm, real provider call or external send was performed."
+}

@@ -1,0 +1,10 @@
+{
+    "created_utc":  "2026-08-22T10:01:02Z",
+    "token_id":  "OCTOPUS-BOARD2-GITHUB-READONLY-20260822",
+    "replaces":  "NEED_STAGE.json",
+    "staging_path":  "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus-github-readonly.pat",
+    "status":  "STAGED",
+    "size_bytes":  94,
+    "created_sydney":  "2026-08-22 20:01:02 AEST",
+    "note":  "Path + size only; contents not recorded"
+}

@@ -1,0 +1,11 @@
+{
+  "transition": "T5",
+  "metacontrol_recommendation": "DENY",
+  "executable": false,
+  "executed": "none",
+  "action": "NONE",
+  "planner_invoked": false,
+  "policy": "NO_ACTION_OBSERVE_ONLY",
+  "world_model_live": "persistence-v1",
+  "candidate_not_in_live_wm": true
+}

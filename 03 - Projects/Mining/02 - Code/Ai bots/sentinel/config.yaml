@@ -1,0 +1,351 @@
+# ============================================================
+# SENTINEL — config.yaml
+# نسخه ۲.۰ · مه ۲۰۲۶
+# BTC/ETH با CORE/XEL/TAO/DIL/MEMECOIN جایگزین شدند
+# ============================================================
+
+# -------- تخصیص سرمایه --------
+capital:
+  total_aud: 3500
+  currency: AUD
+
+assets:
+  CORE:
+    name: CoreDAO
+    allocation_pct: 30
+    pole: hedge
+    signals: [price, social]        # CryptoQuant فقط BTC/ETH — onchain ندارد
+    dca_tranches: 4
+    coingecko_id: "coredao"
+    hypothesis: >
+      BTC-correlated L1 با native BTC staking.
+      سه موتور: ۱) BTC بره ۲۰۰K → CORE خودبخود بالا.
+      ۲) staking yield از روز اول. ۳) نقدینگی بالا.
+    expected_6m: "2x-4x خوشبینانه | 30-40% ضرر بدبینانه"
+
+  XEL:
+    name: Xelis
+    allocation_pct: 15
+    pole: privacy
+    signals: [price, social]
+    dca_tranches: 3
+    coingecko_id: "xelis"
+    purchase_path: "undecided"
+    hypothesis: >
+      DAG-based privacy chain با RandomX PoW.
+      Catalyst-dependent: listing بزرگ → 5x-8x.
+      بدون catalyst → 0-20% نوسان.
+    expected_6m: "3x-8x اگه catalyst | 0-20% اگه نیاد"
+
+  XMR:
+    name: Monero
+    allocation_pct: 12
+    pole: privacy
+    signals: [price, social]
+    dca_tranches: 3
+    purchase_path: "undecided"
+
+  ZEC:
+    name: Zcash
+    allocation_pct: 8
+    pole: privacy
+    signals: [price, social]
+    dca_tranches: 3
+    purchase_path: "undecided"
+
+  TAO:
+    name: Bittensor
+    allocation_pct: 10
+    pole: ai
+    signals: [price, social]
+    dca_tranches: 3
+    coingecko_id: "bittensor"
+    hypothesis: >
+      Decentralized AI network با subnet ecosystem.
+      AI narrative + رشد subnet tokens.
+    expected_6m: "1.5x-3x محتاطانه"
+
+  DIL:
+    name: Dilithion
+    allocation_pct: 5
+    pole: quantum
+    signals: [price]                  # داده بسیار محدود
+    dca_tranches: 2
+    coingecko_id: "dilithion"
+    hypothesis: >
+      Quantum-resistant narrative play برای افق ۲۰۳۰.
+      در ۶ ماه احتمالاً sideways. ورود زودرس.
+    expected_6m: "80% احتمال بین 30%- و 30%+"
+    long_term: true
+
+  MEMECOIN:
+    name: Memecoin Rotation
+    allocation_pct: 5
+    pole: speculative
+    signals: [price, social]
+    dca_tranches: 1
+    monthly_rotation: true
+    current_pick: "undecided"         # ← هر ماه اینجا آپدیت کن
+    hypothesis: >
+      High-variance speculation slot. ماهانه تعویض.
+      یا 10x-50x یا تقریباً صفر — وسط نداره.
+    expected_6m: "10x-50x یا صفر"
+
+  USDC:
+    name: USD Coin
+    allocation_pct: 10
+    pole: stable
+    signals: []
+    watch_regulatory: true
+
+  USDT:
+    name: Tether
+    allocation_pct: 5
+    pole: stable
+    signals: []
+    watch_regulatory: true
+
+# -------- وزن‌دهی امتیازدهی --------
+scoring_weights:
+  # legacy keys — backward compatible
+  BTC_ETH:
+    drawdown:    0.30
+    ma_position: 0.20
+    fear_greed:  0.15
+    onchain:     0.20
+    social:      0.15
+
+  XMR_ZEC:
+    drawdown:    0.40
+    ma_position: 0.25
+    fear_greed:  0.15
+    social:      0.20
+
+  # وزن‌های اختصاصی هر pole
+  HEDGE:                              # CORE — BTC-correlated، بدون onchain
+    drawdown:    0.35
+    ma_position: 0.25
+    fear_greed:  0.20
+    social:      0.20
+
+  PRIVACY:                            # XEL، XMR، ZEC
+    drawdown:    0.40
+    ma_position: 0.25
+    fear_greed:  0.15
+    social:      0.20
+
+  AI:                                 # TAO — narrative-driven
+    drawdown:    0.25
+    ma_position: 0.15
+    fear_greed:  0.10
+    social:      0.50
+
+  QUANTUM:                            # DIL — sideways expected
+    drawdown:    0.50
+    ma_position: 0.30
+    fear_greed:  0.20
+
+  SPECULATIVE:                        # MEMECOIN — social-heavy
+    drawdown:    0.20
+    ma_position: 0.10
+    fear_greed:  0.10
+    social:      0.60
+
+  # وزن‌های Sector Scanner
+  sectors:
+    Privacy:
+      drawdown:    0.35
+      ma_position: 0.20
+      fear_greed:  0.10
+      social:      0.35
+
+    DePIN:
+      drawdown:    0.25
+      ma_position: 0.20
+      fear_greed:  0.10
+      social:      0.25
+      usage:       0.20
+
+    RWA:
+      drawdown:    0.30
+      ma_position: 0.20
+      fear_greed:  0.10
+      social:      0.20
+      tvl:         0.20
+
+    Oracle:
+      drawdown:    0.30
+      ma_position: 0.20
+      fear_greed:  0.15
+      social:      0.15
+      onchain:     0.20
+
+    AI:
+      drawdown:    0.25
+      ma_position: 0.15
+      fear_greed:  0.10
+      social:      0.50
+
+    Mining:                           # RandomX miners
+      drawdown:    0.35
+      ma_position: 0.20
+      fear_greed:  0.15
+      social:      0.30
+
+# -------- آستانه‌های تصمیم --------
+thresholds:
+  strong_entry: 70
+  moderate_entry: 45
+  weak_entry: 25
+
+# -------- فازبندی زمانی --------
+phases:
+  phase_0:
+    name: calibration
+    min_days: 10
+    max_days: 18
+    min_volatility_samples: 10
+
+  phase_1:
+    name: deployment
+    duration_months: 6
+
+  phase_2:
+    name: rebalancing
+    rebalance_alert_pct: 15
+
+# -------- مدیریت ریسک --------
+risk:
+  max_drawdown_tolerance: 0.60
+  price_alert_pct: 5
+  leverage_allowed: false
+
+# -------- Big Scenarios --------
+scenarios:
+  quantum_threat:
+    status: emerging
+    score_modifier:
+      XMR:  +8
+      ZEC:  +5
+      XEL:  +6                       # DAG privacy — مقاوم‌تر از ZEC
+      DIL:  +12                      # quantum-resistant narrative مستقیم
+      CORE: -3                       # public chain — در معرض خطر
+      TAO:  -1
+    alert_message: "⚛️ سناریوی کوانتومی فعال: DIL/XMR/XEL/ZEC امتیاز بیشتر دارند"
+
+  fiat_erosion:
+    status: active
+    score_modifier:
+      CORE: +7                       # BTC-correlated — بهترین hedge
+      XMR:  +4                       # hard money + privacy
+      XEL:  +3
+      TAO:  +2
+      DIL:  0
+      USDC: 0
+    alert_message: "📉 سناریوی فرسایش فیات: CORE لنگر اصلی — BTC-correlated"
+
+  regulatory_crackdown:
+    status: emerging
+    score_modifier:
+      XMR:  -10
+      ZEC:  -7
+      XEL:  -5                       # privacy = ریسک delisting
+      CORE: +2
+      TAO:  +1
+      USDC: +2
+    alert_message: "⚖️ سناریوی سرکوب رگولاتوری: XMR/ZEC/XEL ریسک delisting دارند"
+
+# -------- تلگرام --------
+telegram:
+  chat_id_env_key: SENTINEL_CHAT_ID
+  bot_token_env_key: SENTINEL_BOT_TOKEN
+  daily_report_hour: 8
+  signal_cooldown_minutes: 30
+
+# -------- API --------
+api:
+  coingecko_base: "https://api.coingecko.com/api/v3"
+  cryptoquant_base: "https://api.cryptoquant.com/v1"
+  lunarcrush_base: "https://lunarcrush.com/api4/public"
+  fear_greed_url: "https://api.alternative.me/fng/"
+  request_timeout: 15
+  retry_count: 3
+  retry_delay: 5
+
+# -------- SQLite --------
+database:
+  path: "state.db"
+
+# -------- رصد حوزه‌های رشدی --------
+sectors:
+  Privacy:
+    - symbol: XEL
+      name: "Xelis"
+      algo: "RandomX-DAG"
+      age_days: 400
+      market_cap: 15_000_000
+      volume_24h: 500_000
+      premine_pct: 5.0
+      hypothesis: "DAG privacy chain با RandomX. Catalyst = CEX listing بزرگ."
+
+    - symbol: COINCYNC
+      name: "CoinCync Testnet"
+      algo: "RandomX"
+      age_days: 90
+      market_cap: 500_000
+      volume_24h: 50_000
+      premine_pct: 0.0
+      hypothesis: "RandomX testnet — رصد تا mainnet launch."
+      watch_only: true
+
+    - symbol: FERROUS
+      name: "Ferrous (ChronoCoders)"
+      algo: "RandomX"
+      age_days: 120
+      market_cap: 1_000_000
+      volume_24h: 100_000
+      premine_pct: 2.0
+      hypothesis: "RandomX miner با GitHub فعال. Privacy mining narrative."
+
+  DePIN:    []
+  RWA:      []
+  Oracle:   []
+
+  AI:
+    - symbol: TAO
+      name: "Bittensor"
+      algo: "Unknown"
+      age_days: 800
+      market_cap: 4_000_000_000
+      volume_24h: 80_000_000
+      premine_pct: 0.0
+      hypothesis: "Decentralized AI — subnet ecosystem رو داره می‌سازه."
+
+  Mining:                             # حوزه‌ی جدید — RandomX miners
+    - symbol: COINCYNC
+      name: "CoinCync Testnet"
+      algo: "RandomX"
+      age_days: 90
+      market_cap: 500_000
+      volume_24h: 50_000
+      premine_pct: 0.0
+      hypothesis: "RandomX testnet — رصد تا mainnet."
+      watch_only: true
+
+    - symbol: FERROUS
+      name: "Ferrous (ChronoCoders)"
+      algo: "RandomX"
+      age_days: 120
+      market_cap: 1_000_000
+      volume_24h: 100_000
+      premine_pct: 2.0
+      hypothesis: "RandomX miner با GitHub فعال."
+
+max_active_sector_coins: 20
+
+# -------- لاگ --------
+logging:
+  level: INFO
+  file: "sentinel.log"
+  max_bytes: 5242880
+  backup_count: 3

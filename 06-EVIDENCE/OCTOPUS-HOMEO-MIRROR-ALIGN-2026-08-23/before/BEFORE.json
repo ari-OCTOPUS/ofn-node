@@ -1,0 +1,51 @@
+{
+  "captured_at_utc": "20260823T043504Z",
+  "board_yaml_sha256": "sha256:d3d56bdc29b8513a0a4746a1e70977dd35a494534ab8b77f2654e0c35c2c5f26",
+  "board_sig_sha256": "sha256:c2eed04c3a94ee21af1dbfb7f1c9d0758d859f689849894123d6a32985c3e9b7",
+  "board_authority_lines": [
+    "  safety_state: SOFTWARE_ONLY",
+    "  actuator_authority: PERMITTED_SOFTWARE_A0",
+    "  estop_channel: SOFTWARE_LATCH"
+  ],
+  "homeo_actuator_authority": "NONE",
+  "homeo_keys_authority_related": {
+    "actuator_authority": "NONE"
+  },
+  "homeo_metacontrol": {
+    "schema": "octopus.metacontrol.advisory.v1",
+    "timestamp": "2026-08-23T04:34:57.964367+00:00",
+    "would_decide": "reflex",
+    "would_reason": "not_better_than_baseline",
+    "would_rollout_depth": 0,
+    "executed": "none",
+    "executable": false,
+    "action": "NONE",
+    "kind": "reflex",
+    "enforced_reason": "shadow_would_reflex:not_better_than_baseline",
+    "recommendation": "DENY",
+    "depth": 0,
+    "reason": "not_better_than_baseline",
+    "planner_invoked": false,
+    "skill_samples": 200,
+    "skill_eligible": false,
+    "energy_ratio": 0.6492,
+    "evidence_age_s": 5.343673,
+    "mode": "normal",
+    "readiness_profile": "WAVE0_OBSERVE_ONLY",
+    "actuator_authority": "NONE"
+  },
+  "snap_path": "/var/lib/octopus/state/snapshots/snapshot-20260823T043449Z.json",
+  "snap_actuator_authority": "PERMITTED_SOFTWARE_A0",
+  "snap_bus": "CONNECTED",
+  "snap_safety": {
+    "safety_state": "SOFTWARE_ONLY",
+    "safety_mcu": "ABSENT",
+    "hardware_watchdog_owner": "systemd",
+    "agent_watchdog": "sd_notify",
+    "actuator_authority": "PERMITTED_SOFTWARE_A0",
+    "estop_channel": "SOFTWARE_LATCH",
+    "max_autonomy_level": "OBSERVE_ONLY"
+  },
+  "homeo_ok": true,
+  "in_envelope": true
+}

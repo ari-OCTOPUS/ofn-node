@@ -1,0 +1,81 @@
+{
+  "schema": "octopus.forensic.live-runtime-matrix.v1",
+  "captured_at_utc": "2026-09-15T05:20:38Z..05:31:46Z",
+  "probe_method": "ssh from laptop (board138 alias) + mesh key hops from 138; read-only",
+  "nodes": {
+    "138": {
+      "hostname": "DietPi",
+      "role": "coordinator/commander",
+      "uptime_at_probe": "4h41m (reboot ~2026-09-15T00:39Z)",
+      "octopus_units_running": ["octopus-bridge", "octopus-control-router", "octopus-cycle-settler", "octopus-router", "octopus-supervisor", "octopus-verify-dispatcher"],
+      "octopus_timers_count": 32,
+      "key_timers": ["octopus-ops-agent (~5min)", "octopus-glass (~5min)", "octopus-go-b3-bind (~5min)", "octopus-coding-worker (~5min)", "octopus-fleet-scheduler (30min)", "octopus-scheduler (15min)", "octopus-mesh-drain (30min)", "octopus-witness (60min)", "octopus-soak-witness (60min)", "octopus-owner-reply (5min)", "octopus-learningfeeder (60min)", "octopus-budget-monitor (5min)"],
+      "listening_ports": "none matched probe filter (control via queues/files)",
+      "loaded_code": "ops_agent.py c2e290fd96d42685 (1.3.0); glass_runner.py 02fb704da2d4190a; coding_worker.py a8fb195c73b1300c",
+      "queue_state": "fleet_jobs.jsonl 67 rows last=CLOSED; canary-requests=4 (G8-021, W24-006, W3G30-001, Z-TRIO-001); executed=2; failed=5; superseded-tasks=5 (incl. G8-020)",
+      "memory": "fleet_facts.jsonl 371 rows",
+      "hold_markers": "none (no STOP-AUTONOMY, no HALT)",
+      "last_ops_cycle": "2026-09-15T05:31:46Z (B5+ B8 budget-blocked; goal_engine=healthy)"
+    },
+    "180": {
+      "hostname": "octopus-continuity-180",
+      "role": "quality/restore + local cognition",
+      "uptime_at_probe": "4h44m",
+      "octopus_units_running": ["octopus-afferent-lab", "octopus-gateway (L0 read-only)", "octopus-llama-lab (local 0.6B)"],
+      "listening_ports": "none matched",
+      "loaded_code": "UNKNOWN (not probed this pass)",
+      "queue_state": "UNKNOWN",
+      "hold_markers": "none seen",
+      "notes": "restore copies verified 09-15 earlier (p3 9/9 MATCH); never auto-promote"
+    },
+    "182": {
+      "hostname": "sensorium-opi5pro",
+      "role": "witness + sensorium",
+      "uptime_at_probe": "4h02m",
+      "octopus_units_running": ["nats-server (JetStream)", "octopus-fusiond (S1)", "octopus-metacontrol (shadow, advisory)"],
+      "listening_ports": "none matched probe filter (NATS default 4222 not in filter)",
+      "loaded_code": "witness v2.1 (from memory, UNVERIFIED this pass)",
+      "queue_state": "witness inbox /var/lib/octopus-remote-witness/inbox",
+      "notes": "182 verdict+outcome required for every Class B deploy on 138; swapfile fix stable (NRestarts 0)"
+    },
+    "100": {
+      "hostname": "octopus-compute-100",
+      "role": "knowledge_retrieve (on-demand job executor)",
+      "uptime_at_probe": "4h44m",
+      "octopus_units_running": [],
+      "listening_ports": "none",
+      "loaded_code": "job-executor scripts (executed via mesh SSH per job)",
+      "queue_state": "served by jsonl_138 bus jobs (echo probes, crash tests PASS)",
+      "notes": "no daemon by design; .100 was a former mining node — NEVER reflash"
+    },
+    "160": {
+      "hostname": "octopus-compute-160",
+      "role": "knowledge_prep/ingestion",
+      "uptime_at_probe": "4h08m",
+      "octopus_units_running": [],
+      "processes": "python3 /opt/octopus-worker/ingestion.py (nohup, etime ~15min)",
+      "listening_ports": [8160],
+      "health": "{\"status\": \"ok\", \"service\": \"ingestion\", \"known_hashes\": 2}",
+      "notes": "REBOOT-FRAGILE: no systemd unit; relaunch needed after reboot"
+    },
+    "193": {
+      "hostname": "octopus-model-plus-193",
+      "role": "model_infer (T3)",
+      "uptime_at_probe": "2h58m",
+      "octopus_units_running": ["octopus-t3-model.service (systemd)"],
+      "listening_ports": [8193],
+      "health": "{\"status\": \"ok\", \"model\": \"extractive-v1\"} at 2026-09-15T05:24:22Z",
+      "notes": "Plus board on eMMC; SD slot free; 32GB card flashed with PRO image must NOT reboot while in Plus"
+    },
+    "114": {
+      "hostname": "octopus-pro-114",
+      "role": "eval_batch/evaluator",
+      "uptime_at_probe": "2h34m",
+      "octopus_units_running": [],
+      "processes": "python3 /opt/octopus-worker/evaluator.py (nohup, etime ~15min)",
+      "listening_ports": [8114],
+      "health": "{\"status\": \"ok\", \"service\": \"evaluator\", \"types\": [patch, answer, deploy, generic]}",
+      "notes": "REBOOT-FRAGILE: no systemd unit"
+    }
+  }
+}

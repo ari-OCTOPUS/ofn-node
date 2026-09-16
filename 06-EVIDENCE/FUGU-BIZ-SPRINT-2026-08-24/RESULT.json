@@ -1,0 +1,24 @@
+{
+  "stamp": "20260824T071341Z",
+  "result": "FUGU_COPY_DRAFTS_PASS",
+  "key_status": "OK",
+  "provider": "fugu",
+  "sku_count": 11,
+  "pass_count": 11,
+  "fail_count": 0,
+  "providers_in_drafts": [
+    "fugu"
+  ],
+  "sample_one_sku": {
+    "sku": "ZM-GALLERY-0007",
+    "product_id": "8688854564964",
+    "provider": "fugu",
+    "model": "fugu",
+    "title_short": "Red Balloon Rose & Bear Box",
+    "seo_title": "Red Balloon Box with White Roses & Teddy | Ziman Sydney"
+  },
+  "usage_approx_tokens_sum": 14193,
+  "no_shopify_write": true,
+  "apply": "DRY_WAIT_OWNER_REVIEW",
+  "path": "F:\\backup\\06-EVIDENCE\\FUGU-BIZ-SPRINT-2026-08-24\\ziman\\COPY-DRAFTS.json"
+}

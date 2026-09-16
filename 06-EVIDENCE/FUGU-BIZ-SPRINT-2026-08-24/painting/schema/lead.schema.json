@@ -1,0 +1,22 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PaintingLead",
+  "type": "object",
+  "required": ["name", "contact", "suburb_or_postcode", "project_type", "interior_or_exterior", "consent_contact"],
+  "properties": {
+    "lead_id": {"type": "string"},
+    "name": {"type": "string"},
+    "contact": {"type": "string", "description": "phone or telegram or email"},
+    "suburb_or_postcode": {"type": "string"},
+    "project_type": {"type": "string"},
+    "rooms_or_sqm": {"type": ["string", "number", "null"]},
+    "interior_or_exterior": {"enum": ["interior", "exterior", "both"]},
+    "wall_condition": {"type": ["string", "null"]},
+    "desired_timing": {"type": ["string", "null"]},
+    "photo_paths": {"type": "array", "items": {"type": "string"}},
+    "budget_band": {"type": ["string", "null"]},
+    "consent_contact": {"type": "boolean"},
+    "source_channel": {"type": "string", "description": "telegram|form|miniapp"},
+    "created_at": {"type": "string"}
+  }
+}

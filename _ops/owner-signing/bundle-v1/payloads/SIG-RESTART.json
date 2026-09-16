@@ -1,0 +1,12 @@
+{
+  "authorized": [
+    "development processes",
+    "fixture processes",
+    "isolated canary processes"
+  ],
+  "excluded": [
+    "production-wide restart without separate owner approval"
+  ],
+  "purpose": "Restart authorization for dev/fixture/canary environments",
+  "sig_id": "SIG-RESTART"
+}

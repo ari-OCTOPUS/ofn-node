@@ -1,0 +1,44 @@
+﻿{
+  "stamp_local": "2026-08-24T16:05:00+10:00",
+  "schema": "board2-of-live-path-gaps/1",
+  "rank_criterion": "unblock_order_for_money",
+  "gaps": [
+    {
+      "rank": 1,
+      "id": "G1",
+      "gap": "HTTP client missing in onlyfans.py",
+      "today_rule_if_live_and_cookie": "adapter:real-publish-not-implemented",
+      "money_impact": "no outbound post possible"
+    },
+    {
+      "rank": 2,
+      "id": "G2",
+      "gap": "Vault cookie fields / OFN_ONLYFANS_SESSION_COOKIE unset",
+      "env_key_names": ["OFN_ONLYFANS_SESSION_COOKIE", "OFN_ONLYFANS_USER_AGENT", "OFN_ONLYFANS_ACCOUNT_ID"],
+      "secrets_env_has_keys": false,
+      "money_impact": "live branch returns onlyfans:no-credentials"
+    },
+    {
+      "rank": 3,
+      "id": "G3",
+      "gap": "Consent release scope does not include onlyfans",
+      "observed_scope_so_far": ["telegram_channel"],
+      "money_impact": "OwnerRelease consent_ok false once call-site exists"
+    },
+    {
+      "rank": 4,
+      "id": "G4",
+      "gap": "OFN_ONLYFANS_LIVE not set (and must stay unset until second GO)",
+      "today_rule_without_flag": "wire:disabled",
+      "money_impact": "hard gate on live attempt"
+    },
+    {
+      "rank": 5,
+      "id": "G5",
+      "gap": "No OwnerRelease-wired node publish path for onlyfans",
+      "telegram_reference": "Node.publish_to_telegram + require_release_context",
+      "money_impact": "cannot safely attach studio outbox/consent/matrix to OF"
+    }
+  ],
+  "related": ["G6_wire_outbound_closed", "G7_no_invent_captions", "G8_test_coverage_live_branches", "G9_ziman_gallery_shopify_HOLD"]
+}

@@ -1,0 +1,809 @@
+{
+  "schema": "octopus-preservation/2",
+  "created_at": "2026-08-21T22:07:48.127215+10:00",
+  "owner_order": "OWNER-EXECUTION-ORDER-OCTOPUS-REAL-LOOP-CLOSURE-2026-08-21",
+  "root": "F:/backup",
+  "head": "53e527aef95c9bb30a3822e3ac278df59590e1d4",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "worklock_lease_id": "481549e9b8ba415a977c6fec5faa9721",
+  "stability_digest": "130b307ad43de7ade96fb2ec36fe85a5fc3d8a3eb703da846d7ec2d6b62fe5c7",
+  "tracked_preserved": 49,
+  "untracked_copied": 63,
+  "excluded_recorded": 243,
+  "patch_bytes": 367816,
+  "secret_scan_classified": [
+    {
+      "path": "_ops/loops/closeout.py",
+      "kind": "telegram_token",
+      "classification": "FIXTURE_LITERAL",
+      "evidence": "line 96 contains FakeTelegramBotTokenValue and feeds redact()"
+    }
+  ],
+  "secret_scan_blocking": [],
+  "files": [
+    {
+      "path": ".gitignore",
+      "status": " M",
+      "sha256": "847644b15dd6afa98ad3a622ac7455ee6ef332fe29de090daeb1939f0f8eda6c",
+      "size": 13724,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "00 - Inbox/AGENT_QUESTIONS.md",
+      "status": " M",
+      "sha256": "035b0ed73e5ed972da898799a09a9853b118ea678f28df4686360a3a35f63284",
+      "size": 136562,
+      "mtime": "2026-08-21T19:38:08.664257+10:00"
+    },
+    {
+      "path": "01 - Dashboard/HANDOFF.md",
+      "status": " M",
+      "sha256": "2ae621ef8c5081a620f3fa0973bca0c0b989c4ee8a2f530daf41d7a4702133cd",
+      "size": 128759,
+      "mtime": "2026-08-21T20:08:58.619400+10:00"
+    },
+    {
+      "path": "01 - Dashboard/Home.md",
+      "status": " M",
+      "sha256": "d1f9d6d325d3fd8f578cf6c1f05356794dc48c986cdc2f4047ef6958ac9f64c5",
+      "size": 9696,
+      "mtime": "2026-08-21T19:09:30.623509+10:00"
+    },
+    {
+      "path": "02-DECISIONS/ACTIVATION-REPORT-2026-08-20.md",
+      "status": " M",
+      "sha256": "d16892223edeaf296b4dca68fd2184977481f904f33a07089164a07c500f416d",
+      "size": 4441,
+      "mtime": "2026-08-20T10:11:12.987919+10:00"
+    },
+    {
+      "path": "04 - Architect System/architect/PROJECT.md",
+      "status": " M",
+      "sha256": "22b820171da8929da05951f15e983b75d2995a1b22b1085c880e9c8f669af22b",
+      "size": 34762,
+      "mtime": "2026-08-21T19:09:45.022897+10:00"
+    },
+    {
+      "path": "04 - Architect System/scripts/germline-hourly.ps1",
+      "status": " M",
+      "sha256": "78a8ff095e01caff7dc0d7bc676660d6754a9c818017724250337d1f346d2171",
+      "size": 6680,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "06-EVIDENCE/POISONING-WATCH-4d.md",
+      "status": " M",
+      "sha256": "9a69deb06753501b943b663f37f8c38a9858e78e3564f910de1bf4f5e6d1e013",
+      "size": 13221,
+      "mtime": "2026-08-21T17:50:32.867745+10:00"
+    },
+    {
+      "path": "06-EVIDENCE/RESTART-ACTIVATION-20260820.md",
+      "status": " M",
+      "sha256": "9bbf0e21eaafe88e952fb1d7b7391502a0ad3e332801e9468628819933a14c38",
+      "size": 2522,
+      "mtime": "2026-08-20T10:12:42.475870+10:00"
+    },
+    {
+      "path": "06-EVIDENCE/SESSION-HARVEST-2026-08-21/APPROVAL-QUEUE-DIGEST.json",
+      "status": " M",
+      "sha256": "cb02d7ccfa31b5ae6355c0dabb9edb7b9372cbaae2ef4eef2f73385178a4cf13",
+      "size": 6646,
+      "mtime": "2026-08-21T05:07:10.199844+10:00"
+    },
+    {
+      "path": "06-EVIDENCE/SESSION-HARVEST-2026-08-21/SESSION-CAPSULE.json",
+      "status": " M",
+      "sha256": "db3be49496ae9966954b01f35d5b9fa27e2ef7046ee87dbf75afe7d82ccf366a",
+      "size": 2841,
+      "mtime": "2026-08-21T05:17:35.417877+10:00"
+    },
+    {
+      "path": "06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/REPORT.md",
+      "status": " M",
+      "sha256": "0d325cf9a11a3ffa610c7a5773e28409de8b3b2200955e4bf5c43149b039ab79",
+      "size": 1270,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "07 - Knowledge/_Index - Knowledge.md",
+      "status": " M",
+      "sha256": "c237875307c2218e3d3fbe06b2f1917ef19e7d3f63d4dde6a94abdd6c1b8cc9d",
+      "size": 9812,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "07 - Knowledge/genome-system/ledger/ledger.jsonl.tip.json",
+      "status": " M",
+      "sha256": "88fbcf950230c60e9942ddf4397de56459516528e0fa6e27a22ed4457e624682",
+      "size": 161,
+      "mtime": "2026-08-21T22:05:10.728656+10:00"
+    },
+    {
+      "path": "07 - Knowledge/شناخت-اختاپوس/01-ALL-AGENTS-INSTRUCTION.md",
+      "status": " M",
+      "sha256": "a2c071b651ceb93b8504e9ade78fb3b836cc982b576c4968946cefe6397f13c8",
+      "size": 7137,
+      "mtime": "2026-08-20T20:47:52.789891+10:00"
+    },
+    {
+      "path": "07 - Knowledge/شناخت-اختاپوس/49-NIGHT-CLOSE-ERRORHUNT-PERSIST-2026-08-16.md",
+      "status": " M",
+      "sha256": "0df4afb86d94467c6e7d2e1d2ef62fff0bac9a2a040af1ae92bd7b604a88c6cd",
+      "size": 4985,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "07 - Knowledge/شناخت-اختاپوس/51-WEBPANEL-REALITY-2026-08-16.md",
+      "status": " M",
+      "sha256": "b94edea6d436bb2dfbe22c54a630db6d3ea620e52c2cfff6610a9acb4382f4d3",
+      "size": 916,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "07 - Knowledge/شناخت-اختاپوس/52-OWNER-EASE-2026-08-16.md",
+      "status": " M",
+      "sha256": "4e72fef703a8f79836e99d42a3b3941d6f3594e2d2607042a3f8944e17dc8d59",
+      "size": 1104,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "07 - Knowledge/شناخت-اختاپوس/53-OWNER-CLOSE-2026-08-16.md",
+      "status": " M",
+      "sha256": "6542fe696f9e3bcafdd9c4cf40d3544f4700b4bb651bf14c9bb45e2b65bd30aa",
+      "size": 803,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "OCTOPUS-DOCTOR/60-یافته‌ها/F-AUTO-DELTASELF-خودشناسیِ-منفی.md",
+      "status": " M",
+      "sha256": "9c97674c6c35d5ca2a603778b0eccde739cef913610cec2cc6fe9d85f3a6a3aa",
+      "size": 484,
+      "mtime": "2026-08-20T07:00:06.285343+10:00"
+    },
+    {
+      "path": "OCTOPUS-DOCTOR/60-یافته‌ها/F-AUTO-FROZEN-CONTROL-PLANE-سبزی-که-هرگز-قرمز-نمی‌شود.md",
+      "status": " M",
+      "sha256": "78aaa77558c1a59f89ce281a75ee4fadf5892fd74f4027320c36512e19df7e06",
+      "size": 731,
+      "mtime": "2026-08-21T07:00:04.526429+10:00"
+    },
+    {
+      "path": "OCTOPUS-DOCTOR/doctor/daemon.py",
+      "status": " M",
+      "sha256": "4bd481522a0a1830779c1aded6db0f6d2c2e4c52fa70bef13e799a3f83f23db3",
+      "size": 22156,
+      "mtime": "2026-08-20T23:20:12.985568+10:00"
+    },
+    {
+      "path": "OCTOPUS/CURRENT-TRUTH.md",
+      "status": " M",
+      "sha256": "2a04eea37ca3907ab4644eabe0d91711239154552251022e5d71711f34771c2c",
+      "size": 10971,
+      "mtime": "2026-08-21T21:45:28.106766+10:00"
+    },
+    {
+      "path": "_ops/RESTART-PROCESS.ps1",
+      "status": " M",
+      "sha256": "c671e9d71a1843431d7296b8be69aebd95e2ffe94cbe3cdb6f1f1d3b65e96e5b",
+      "size": 15282,
+      "mtime": "2026-08-21T20:04:36.258344+10:00"
+    },
+    {
+      "path": "_ops/RUN-ORGANISM.bat",
+      "status": " M",
+      "sha256": "eeef99c2e1dcbb824d14f451715e3e26929860b8ce441d92afd98302df8d83b8",
+      "size": 3738,
+      "mtime": "2026-08-21T20:04:32.893663+10:00"
+    },
+    {
+      "path": "_ops/budget/opslib.py",
+      "status": " M",
+      "sha256": "f87e7b554ed0cb09b3d6fcdf0b1df01a944aa719820232dd3dbce0429ffa3284",
+      "size": 35736,
+      "mtime": "2026-08-19T10:12:02.078972+10:00"
+    },
+    {
+      "path": "_ops/cockpit_brain.py",
+      "status": " M",
+      "sha256": "f22f6a302a369340b39fbc1f18acac34326623dfe6c7d42263119dccdc6c6fd9",
+      "size": 48894,
+      "mtime": "2026-08-20T23:20:39.989509+10:00"
+    },
+    {
+      "path": "_ops/debate/SURVIVORS-QUEUE.md",
+      "status": " M",
+      "sha256": "323f4bb59b5f0033cc797386beb7202361a07733505946c1a3a9dcb5363c52ec",
+      "size": 276756,
+      "mtime": "2026-08-20T21:01:01.251244+10:00"
+    },
+    {
+      "path": "_ops/doctor/self_knowledge.py",
+      "status": " M",
+      "sha256": "bfc7a46e27b581dde82084b68d37016964ae2b8a630a91325c4726c8bbaca328",
+      "size": 71687,
+      "mtime": "2026-08-20T23:19:56.966742+10:00"
+    },
+    {
+      "path": "_ops/goal_action_bridge.py",
+      "status": " M",
+      "sha256": "a368180da33939d1d6f652368f06b64e5a4ad84d26abc3a67a892ea7b55d8e05",
+      "size": 34249,
+      "mtime": "2026-08-19T09:46:00.612443+10:00"
+    },
+    {
+      "path": "_ops/governor/governor-alerts.md",
+      "status": " M",
+      "sha256": "6ea8a5358f68982de784a26e57504bd0c10229898776b36308041c70bcbd9700",
+      "size": 422720,
+      "mtime": "2026-08-21T20:07:01.435059+10:00"
+    },
+    {
+      "path": "_ops/instant_alert_bridge.py",
+      "status": " M",
+      "sha256": "a273f4ae193e98a68a7d99f90c2eedbd7c2c19ee33ce15c690e46d75aec22cd0",
+      "size": 10458,
+      "mtime": "2026-08-21T01:48:51.913283+10:00"
+    },
+    {
+      "path": "_ops/loops/telegram_organ.py",
+      "status": " M",
+      "sha256": "8e4e593fb0703d716605e436a995a44026d1c01382a1a1c09e7faef6782d95ed",
+      "size": 11776,
+      "mtime": "2026-08-21T01:48:46.400124+10:00"
+    },
+    {
+      "path": "_ops/organs/WIRING.json",
+      "status": " M",
+      "sha256": "bff83137135cf33f2a8dfcbd44c8f28ac4b016aea6ee53b6d38cff7073f2b245",
+      "size": 617,
+      "mtime": "2026-08-20T21:46:07.433560+10:00"
+    },
+    {
+      "path": "_ops/orphan_watchdog.py",
+      "status": " M",
+      "sha256": "24590c6094ef942759ba51f22e639686aebcf6a4caab5ccc1a6f8912a54bf04c",
+      "size": 7967,
+      "mtime": "2026-08-21T19:05:57.405826+10:00"
+    },
+    {
+      "path": "_ops/receipt_critic.py",
+      "status": " M",
+      "sha256": "27b897c666ecd123377da0ae51d8859ac5564b2ae56590c92984c23f89109506",
+      "size": 8912,
+      "mtime": "2026-08-19T09:46:00.625022+10:00"
+    },
+    {
+      "path": "_ops/runtime/__init__.py",
+      "status": " M",
+      "sha256": "b2f3c53f89d8e0e67704b6b9b837e9f662ae46a59ec7a8c239dcade522e6d180",
+      "size": 197,
+      "mtime": "2026-08-16T20:42:15.607629+10:00"
+    },
+    {
+      "path": "_ops/scripts/render_now.py",
+      "status": " M",
+      "sha256": "6afec94434edd3f54649b8cce860e6988960dfa659ab15f50f16bd1f25e1e6a2",
+      "size": 4657,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "_ops/telegram_center/RUN-TG-CENTER.bat",
+      "status": " M",
+      "sha256": "13d447e91aeeb6633565a3ffaaa6077f0e6a51fcfc9a4065d12fc5e9312ca6d9",
+      "size": 1332,
+      "mtime": "2026-08-21T20:04:30.463655+10:00"
+    },
+    {
+      "path": "_ops/telegram_center/bounded_io.py",
+      "status": " M",
+      "sha256": "38b15ebe0df48192fa561ec4e7640ce68e8aec22267c0514e2cd9355ecbcd05e",
+      "size": 2379,
+      "mtime": "2026-08-21T18:05:22.029085+10:00"
+    },
+    {
+      "path": "_ops/telegram_center/center.py",
+      "status": " M",
+      "sha256": "9209db2b64c85414e24e9a994e85337da1d3ca0f298ca7242f2b19a1b4f73ced",
+      "size": 397216,
+      "mtime": "2026-08-21T19:56:56.045513+10:00"
+    },
+    {
+      "path": "_ops/telegram_center/health_metrics.py",
+      "status": " M",
+      "sha256": "4a7152b740aec26ab0d978b6021a6e2bdcb3a990109b5374e4bf3089ea52d71d",
+      "size": 12349,
+      "mtime": "2026-08-21T20:04:36.258893+10:00"
+    },
+    {
+      "path": "_ops/tests/run_all.py",
+      "status": " M",
+      "sha256": "0127ace723e030eaf279548d5905ff4ee3cb0236488d06eb4c1b74934b6a734b",
+      "size": 179610,
+      "mtime": "2026-08-21T19:02:00.514470+10:00"
+    },
+    {
+      "path": "_ops/tests/test_absence_is_not_emptiness.py",
+      "status": " M",
+      "sha256": "b19f240b843b6156111302603be7687887126f9dd3d9ced6820f35dc9fb3bb38",
+      "size": 26793,
+      "mtime": "2026-08-20T23:21:28.000713+10:00"
+    },
+    {
+      "path": "_ops/tests/test_bounded_read.py",
+      "status": " M",
+      "sha256": "03903f01a751c0276a720bb3fa6e98b5adff78253d6ee61752e4dab045a5b801",
+      "size": 9304,
+      "mtime": "2026-08-21T19:58:04.294123+10:00"
+    },
+    {
+      "path": "_ops/tests/test_doctor_selfknowledge.py",
+      "status": " M",
+      "sha256": "a1e18503f5267024d3e967b7f0754d9561ba327dbfff3c8801112f71efb7feee",
+      "size": 39603,
+      "mtime": "2026-08-20T23:21:28.000713+10:00"
+    },
+    {
+      "path": "_ops/tests/test_orphan_watchdog.py",
+      "status": " M",
+      "sha256": "90b0fa192c4f25f9f68db40405f6f6e04745d5f8d83e25025c205425f23fc0dc",
+      "size": 4752,
+      "mtime": "2026-08-21T19:06:00.972802+10:00"
+    },
+    {
+      "path": "docs/NOW.md",
+      "status": " M",
+      "sha256": "30b27ccaac5a9513bacbf39741806a69527dfa3ce5dd207d11df7062e7d57535",
+      "size": 10610,
+      "mtime": "2026-08-20T20:47:05.112940+10:00"
+    },
+    {
+      "path": "nervous-system/.audit_delta.json",
+      "status": " M",
+      "sha256": "2d32c552ae01f05533ca61ef561b57a19b9f1f37d37256bb527b47a99c014d21",
+      "size": 151,
+      "mtime": "2026-08-21T21:28:43.548290+10:00"
+    },
+    {
+      "path": "04 - Architect System/scripts/hourly-push-error-capture.ps1",
+      "status": "??",
+      "sha256": "0f6bc3a6c361449062d33fff8e63c8b092569fd4ed450dc4b2a537a66340341b",
+      "size": 8792,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "04 - Architect System/scripts/test-hourly-push-error-capture.ps1",
+      "status": "??",
+      "sha256": "2e3e043700340349ebbe97c23c07e6e5ea3fa161d1a77ed252aed719b79b3b92",
+      "size": 12656,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/_emit_a14_a19.py",
+      "status": "??",
+      "sha256": "f9113ee0d381d17b8a5ed2c2487749ceba95ec5cb666871dc23b552b67a36ec2",
+      "size": 15853,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/_refresh_obsidian.py",
+      "status": "??",
+      "sha256": "2de9a6f393593f676119cb7527f03ed947616f613cd1b976a7ed517c4dd3115f",
+      "size": 6146,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/gen_merge.py",
+      "status": "??",
+      "sha256": "2bcd6855b951b91af0c6bd2ed08fd6fc2a953390a806e7c1c939cb65fffa2d16",
+      "size": 10422,
+      "mtime": "2026-08-17T00:08:41.639990+10:00"
+    },
+    {
+      "path": "COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/gen_reports.py",
+      "status": "??",
+      "sha256": "0f9623a32fb8552f8e3d974f12d5a23e6cd1b64e15ca19fdff4dce576ac1e6ab",
+      "size": 18380,
+      "mtime": "2026-08-17T00:03:04.269069+10:00"
+    },
+    {
+      "path": "COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/sampler.py",
+      "status": "??",
+      "sha256": "3182cb6d5fe53777bb0e96fb2e351a17b74eae031eaadde4dac63bdc9e317462",
+      "size": 1632,
+      "mtime": "2026-08-16T23:54:27.042385+10:00"
+    },
+    {
+      "path": "COUNCIL_REPORTS/2026-08-16-wave-01/A02_runtime_investigator/raw/tasks.ps1",
+      "status": "??",
+      "sha256": "8ab081c96321150d8c904acd85f05ef4ae4f8c2bb8bdcb034aa57e61794c0cbf",
+      "size": 468,
+      "mtime": "2026-08-16T23:55:14.393639+10:00"
+    },
+    {
+      "path": "_ops/daily/daily_loop.py",
+      "status": "??",
+      "sha256": "b9c01f1a4189d3cdf641686b291b1be9860b2a8f3a9d94c84a8293bcbd4253c4",
+      "size": 3724,
+      "mtime": "2026-08-19T10:45:54.065825+10:00"
+    },
+    {
+      "path": "_ops/handshake/__init__.py",
+      "status": "??",
+      "sha256": "2e98ee22285f035db1147ccaa8579a5c2a087dee8f4e14c975e576d982f9f13b",
+      "size": 426,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "_ops/handshake/emit_a2_001.py",
+      "status": "??",
+      "sha256": "06be6f66f20bfbf6a5b409c14368efcb7584660ac404c77d4f64af19df1c8e32",
+      "size": 7619,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "_ops/handshake/emit_cycle.py",
+      "status": "??",
+      "sha256": "b8d3f71af14b4d498e15aa0073aa1b23ca9f72c85c7b6a5ccdaa7cd93b46f710",
+      "size": 10123,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "_ops/handshake/emit_cycle02.py",
+      "status": "??",
+      "sha256": "260f7e38584b1edf7b934516fcea174504bd72522fed924af5d7c08a7955d661",
+      "size": 10804,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "_ops/handshake/envelope.py",
+      "status": "??",
+      "sha256": "70d0872431b27e9e672d28016f8101aa4c10240f5d8cd4ff16a757a94a1518ed",
+      "size": 9151,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "_ops/loops/closeout.py",
+      "status": "??",
+      "sha256": "11b4f6cac3da0a4fdc7a86e95e3b325d0456f924383da6585a18b4fb50a07b28",
+      "size": 8789,
+      "mtime": "2026-08-20T23:19:19.613702+10:00"
+    },
+    {
+      "path": "_ops/loops/decision_card.py",
+      "status": "??",
+      "sha256": "4553da3987abdd2beb4391cc5f5c3bacd32be071e65759f30ac8690cd63307e4",
+      "size": 2343,
+      "mtime": "2026-08-20T23:18:43.347912+10:00"
+    },
+    {
+      "path": "_ops/loops/doctor_timeout.py",
+      "status": "??",
+      "sha256": "ced89d6df1d29cb6b8efefab0407e6975c1718fb82f94995cbbaafb213ebd87b",
+      "size": 2537,
+      "mtime": "2026-08-20T23:18:43.347912+10:00"
+    },
+    {
+      "path": "_ops/nervous_recovery/wave1_closeout.py",
+      "status": "??",
+      "sha256": "23fcddab5fbfe39152bb2e237a13e4c33dc62996d4edf248159b71178f9b0fcd",
+      "size": 6238,
+      "mtime": "2026-08-20T23:08:34.509429+10:00"
+    },
+    {
+      "path": "_ops/nervous_recovery/wave1_readonly.py",
+      "status": "??",
+      "sha256": "f48b67a04dcb41a2b090fc474c07d42fe84dd287325bba2e1777f1120e1a7142",
+      "size": 14047,
+      "mtime": "2026-08-20T23:07:56.053268+10:00"
+    },
+    {
+      "path": "_ops/nervous_recovery/wave1_verifier.py",
+      "status": "??",
+      "sha256": "80f87bce3b7baac9bdf6eea17b2b90cca4f269ccf89dc0c86ef0aaaafe627b2c",
+      "size": 3160,
+      "mtime": "2026-08-20T23:09:10.003795+10:00"
+    },
+    {
+      "path": "_ops/observatory/observation_v1.py",
+      "status": "??",
+      "sha256": "98a71cac5d8de1bc56021106a52b94af14d4ee4d429c6048b519d2b3df743a64",
+      "size": 3510,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "_ops/organs/contracts.py",
+      "status": "??",
+      "sha256": "7bbdf06764eada3f5d0cea8d5cf60037b0e07e84c763a6df60ee4949588a15a2",
+      "size": 2449,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "_ops/organs/feedback.py",
+      "status": "??",
+      "sha256": "9bd4a6cac01e780dd17f333182dcf83f9be064d375c087925456c9c8366b26c8",
+      "size": 1597,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "_ops/organs/lead_diagnose.py",
+      "status": "??",
+      "sha256": "2903e7fd8662c2407a8521643de930f2e0a3d0a32375fd188dba0dc1f19120ae",
+      "size": 3194,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "_ops/organs/loop_breakers.py",
+      "status": "??",
+      "sha256": "e4f64e5bcb3034729818271bf8cc581ab3cae181ab6d03f42bccfc3336da078d",
+      "size": 9004,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "_ops/organs/mapper_drift.py",
+      "status": "??",
+      "sha256": "d957a39deae00811cf39aeb629e3ce31aa8896e27848259d114dc5b3345e0881",
+      "size": 8003,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "_ops/organs/organ_map.py",
+      "status": "??",
+      "sha256": "914db0b4c8a7153dd4a28a283674a873bf22ad96b2c50bbe667e0d00e7b9162c",
+      "size": 10540,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "_ops/organs/run_session.py",
+      "status": "??",
+      "sha256": "f14148e98317752f4f25d333d7622984be0145c7a18cbbe863723baba2863ae6",
+      "size": 8372,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "_ops/organs/starvation.py",
+      "status": "??",
+      "sha256": "cb0fd562f8f3a5a809845bda68c1e8434b0750030e75f5b981bd54f15ef3e324",
+      "size": 4495,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "_ops/organs/telemetry.py",
+      "status": "??",
+      "sha256": "55db4ce110a473f268e7dcc8e54152fde029f24758a972668394c10c92be4e94",
+      "size": 1015,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "_ops/owner-runbook/B1-SIGN-2026-08-20.ps1",
+      "status": "??",
+      "sha256": "0b5ed2bb618bb66574270833a8b261dfb215320ee6df565a1720f3b05d92829a",
+      "size": 1722,
+      "mtime": "2026-08-20T10:33:11.810734+10:00"
+    },
+    {
+      "path": "_ops/owner-runbook/SIGN-ALL-PENDING-2026-08-20.ps1",
+      "status": "??",
+      "sha256": "a4d4d7bc01c057d6972bd5b00bd0e29231360636673d77179170a9f85294dd90",
+      "size": 3121,
+      "mtime": "2026-08-20T13:04:09.178798+10:00"
+    },
+    {
+      "path": "_ops/owner-runbook/SIGN-PRE-REG-K9-THREE-SEED-2026-08-20.ps1",
+      "status": "??",
+      "sha256": "6dfb01e1dec733f31c0d1df8010a950531b5c23f8c016c3ee9624c28b987080d",
+      "size": 1803,
+      "mtime": "2026-08-20T13:03:59.493174+10:00"
+    },
+    {
+      "path": "_ops/owner-runbook/SIGN-SHADOW-VERTICAL-SLICE-2026-08-20.ps1",
+      "status": "??",
+      "sha256": "175afbf3f2cf0e3c4d72a9ada4748afdb21875129a968596335b8a8e06c8bc96",
+      "size": 1750,
+      "mtime": "2026-08-20T13:03:47.775203+10:00"
+    },
+    {
+      "path": "_ops/predictor/__init__.py",
+      "status": "??",
+      "sha256": "ee0519f4064e438e085e22017d15665cb1b4ab00a0c2baaddb5b7d933a7ac76d",
+      "size": 204,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    },
+    {
+      "path": "_ops/predictor/persistence.py",
+      "status": "??",
+      "sha256": "47f6ea6fc60fc0c74a3c4bf0b7353bb58910721ac91f8839f18e749ee568ac0c",
+      "size": 1271,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "_ops/runtime/beat_lease.py",
+      "status": "??",
+      "sha256": "40c07f7cc3885fbefe29b68af9acc66cf1fab81c2d152e6dad3c2bab083edf24",
+      "size": 22268,
+      "mtime": "2026-08-16T20:41:37.979916+10:00"
+    },
+    {
+      "path": "_ops/runtime/beat_lease_cli.py",
+      "status": "??",
+      "sha256": "31ce77551099679a055b301dfe1da326c85acbff799df27a1900ba176e97fc9e",
+      "size": 3034,
+      "mtime": "2026-08-16T20:42:01.999737+10:00"
+    },
+    {
+      "path": "_ops/scripts/watch_hour.sh",
+      "status": "??",
+      "sha256": "c33048eb717644082cb95ca8ef2becd9c7f8ecc95692d2cbe1f24b6c2ad3fd20",
+      "size": 1822,
+      "mtime": "2026-08-20T14:45:34.409115+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/__init__.py",
+      "status": "??",
+      "sha256": "1812ea29a2264bc005ad2fbb2dc1e9e00fe7ab152977db95bb761a8cdc7c6939",
+      "size": 506,
+      "mtime": "2026-08-21T05:22:25.232973+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/api_router.py",
+      "status": "??",
+      "sha256": "916e10e95f5cc049c4682fa000521ff2bafb68a2890df0e9f25488976337d1a6",
+      "size": 2461,
+      "mtime": "2026-08-21T05:24:07.123300+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/contracts.py",
+      "status": "??",
+      "sha256": "fb53c8952292d2e9feebf071b68bd5f13efd3e8ad3d918aa0417f756ea87400d",
+      "size": 6135,
+      "mtime": "2026-08-21T05:22:40.101276+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/controller.py",
+      "status": "??",
+      "sha256": "c2342b3501a783c97a3d9c51551af37a3b564e6e680f6e327a51093a4bb2643d",
+      "size": 23326,
+      "mtime": "2026-08-21T19:02:01.635908+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/diagnoser.py",
+      "status": "??",
+      "sha256": "93aa55aecb99e58d8ce7794a01eb196cd3500b18227ab26155bcad205176186e",
+      "size": 2400,
+      "mtime": "2026-08-21T05:22:59.750336+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/experiment.py",
+      "status": "??",
+      "sha256": "3b802182d752a63464d76b179ef87e98edf65dcb5fa22cf6c944d55af05234eb",
+      "size": 4969,
+      "mtime": "2026-08-21T17:58:52.704748+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/hypothesis.py",
+      "status": "??",
+      "sha256": "30b5a2f789c1310cf9686d4af93e335073bae904ba29258a4c9c73b3b992b94a",
+      "size": 4082,
+      "mtime": "2026-08-21T05:23:00.182596+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/learning_writer.py",
+      "status": "??",
+      "sha256": "c7e8cf24ed627743c12355da422624d00423c75e67bb0173e1aa4bea37ee0a06",
+      "size": 2845,
+      "mtime": "2026-08-21T05:24:06.561285+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/patch_runner.py",
+      "status": "??",
+      "sha256": "87d04cfa03c8e251a9eba6565ab436c0aee2d95df6b5e77d381668b66860e1bb",
+      "size": 4708,
+      "mtime": "2026-08-21T18:44:44.208074+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/rollback.py",
+      "status": "??",
+      "sha256": "28916a4ef6945a96771fab93ed3503b1263b991b958732d0a0889c7658f82fdd",
+      "size": 1100,
+      "mtime": "2026-08-21T18:44:44.320829+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/scanner.py",
+      "status": "??",
+      "sha256": "badaf6ac0ec66c59932b5837490e4bf002a739ea26b82e7c3bfd6f983d64a786",
+      "size": 5555,
+      "mtime": "2026-08-21T05:22:47.213177+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/test_runner.py",
+      "status": "??",
+      "sha256": "e6fab2d1076245932ac21223870a52e5e244392e9847560e779493d0fef42c96",
+      "size": 3327,
+      "mtime": "2026-08-21T18:55:36.213206+10:00"
+    },
+    {
+      "path": "_ops/self_upgrade_lab/verifier.py",
+      "status": "??",
+      "sha256": "0e957c62af17ed610a3f80a2033e57dd815c5d6f806d230c522129e19fd19086",
+      "size": 2439,
+      "mtime": "2026-08-21T18:53:13.513711+10:00"
+    },
+    {
+      "path": "_ops/telegram_center/poll_lease.py",
+      "status": "??",
+      "sha256": "9c65e98217ceb7cffb806005a3dd125cb4105eaa2c9b5c20ba91fc07c98dcdb1",
+      "size": 6828,
+      "mtime": "2026-08-21T18:18:55.707097+10:00"
+    },
+    {
+      "path": "_ops/telegram_center/transport_subprocess.py",
+      "status": "??",
+      "sha256": "811be59322bc9b911f2e160560c26bbf8485dfa3c4bc2552fad7eaeab71adcf6",
+      "size": 2009,
+      "mtime": "2026-08-21T18:06:39.848318+10:00"
+    },
+    {
+      "path": "_ops/tests/test_organ_cartographer_20260820.py",
+      "status": "??",
+      "sha256": "923b1e44725f8df8ce80706db6d79e63a3d8d2d4720654aaa4c541c082e8124b",
+      "size": 9696,
+      "mtime": "2026-08-21T16:35:53.403851+10:00"
+    },
+    {
+      "path": "_ops/tests/test_poll_lease.py",
+      "status": "??",
+      "sha256": "215dda6c427d3667d1f999465712f7fb1ec285eb70f0f0eefaf39d510d060872",
+      "size": 2191,
+      "mtime": "2026-08-21T18:19:05.504261+10:00"
+    },
+    {
+      "path": "_ops/tests/test_self_upgrade_lab.py",
+      "status": "??",
+      "sha256": "62dfb1d1111819923fa059aedce31c68e8bd4e916ce890fb66cffbb1d49cd5cf",
+      "size": 1321,
+      "mtime": "2026-08-21T05:26:59.390709+10:00"
+    },
+    {
+      "path": "_ops/tests/test_transport_subprocess.py",
+      "status": "??",
+      "sha256": "ba8da6191341c8eb40dff7c351b692e49434415a534dea9bd41162dba6b1cc86",
+      "size": 2131,
+      "mtime": "2026-08-21T18:06:55.650416+10:00"
+    },
+    {
+      "path": "_ops/tests/test_wave1_preflight.py",
+      "status": "??",
+      "sha256": "5114a62c2d48dd6acc8c7a2b9d552702075de0acac2a1baaf306e4f6c893341c",
+      "size": 5246,
+      "mtime": "2026-08-20T23:09:12.635366+10:00"
+    },
+    {
+      "path": "_ops/tools/doctor_pulse.py",
+      "status": "??",
+      "sha256": "243f86345528d05108a4e71dc12864a999b72cf6cb3d825f4edff3b49b645c4b",
+      "size": 1516,
+      "mtime": "2026-08-20T23:19:19.613702+10:00"
+    },
+    {
+      "path": "_ops/world_discovery/gap001_closure_verify.ps1",
+      "status": "??",
+      "sha256": "0284ada983ffd0fe9db506e501ef04f87daed4726b1569c8d4e629d2dbbcf4aa",
+      "size": 13045,
+      "mtime": "2026-08-18T19:11:32.644666+10:00"
+    },
+    {
+      "path": "octopus-bridge/octopus_bridge/mirror_verify.py",
+      "status": "??",
+      "sha256": "a23989801a86e71d66dc18b26f8a8e5a300db759741ef3ed70af4f309126a039",
+      "size": 13648,
+      "mtime": "2026-08-21T16:36:14.887641+10:00"
+    },
+    {
+      "path": "octopus-bridge/tests/test_mirror_verify.py",
+      "status": "??",
+      "sha256": "b2dc36be9e4bd8033005f84610349b9b04c19fe427c4d5f9e78ac5af3ad96ef8",
+      "size": 6623,
+      "mtime": "2026-08-21T16:36:14.886060+10:00"
+    }
+  ]
+}

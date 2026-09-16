@@ -1,0 +1,10 @@
+# BEFORE snippet — /home/ari/.local/bin/ofn-wire-send.sh
+# Source: ofn-wire-send.sh.bak-idfix-20260822 (sha256 f3e49ccae33f9ff3c78ec362f84890e6d0342da95d0a1332097c55bbe1d5ef4e)
+
+STAMP="$(date +%Y%m%d-%H%M)"
+LAST_B=$(grep -oE 'id:b[0-9]+' WIRE.md 2>/dev/null | tail -1 | sed 's/id://')
+N=$((10#${LAST_B:-0} + 1))
+NEW_ID=$(printf 'b%03d' "$N")
+
+# Bug: sed 's/id://' leaves "b003"; bash $((10#b003)) =>
+#   value too great for base (error token is "10#b003")

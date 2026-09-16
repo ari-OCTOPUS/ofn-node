@@ -1,0 +1,89 @@
+{
+  "ok": true,
+  "hook": "connector_gap_hook",
+  "consumer": "organs.connector_gap.beat",
+  "mode": "advisory",
+  "consumer_fired": true,
+  "flag_drift": false,
+  "live_connectors_claimed": false,
+  "metrics_allowed": false,
+  "oauth_hold_u04": true,
+  "all_oauth_gaps_waiting": true,
+  "as_of_registry": "2026-08-22T23:05:00+10:00",
+  "loaded_from": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\CONNECTOR-GAP-REGISTRY.json",
+  "oauth_gaps": [
+    {
+      "connector": "GA4",
+      "gap_id": "CG-001",
+      "status": "WAITING_OWNER_OAUTH",
+      "is_gap": true,
+      "metrics_allowed": false,
+      "reason": "API requires owner OAuth and property grants",
+      "required_owner_action": [
+        "oauth-consent",
+        "property-mapping-signoff"
+      ],
+      "gate": [
+        "D1",
+        "D7"
+      ],
+      "gap_until_oauth": true,
+      "live_claimed": false
+    },
+    {
+      "connector": "GSC",
+      "gap_id": "CG-002",
+      "status": "WAITING_OWNER_OAUTH",
+      "is_gap": true,
+      "metrics_allowed": false,
+      "reason": "API requires owner OAuth and verified site ownership",
+      "required_owner_action": [
+        "oauth-consent",
+        "verified-property-binding"
+      ],
+      "gate": [
+        "D1",
+        "D7"
+      ],
+      "gap_until_oauth": true,
+      "live_claimed": false
+    },
+    {
+      "connector": "Google Ads",
+      "gap_id": "CG-003",
+      "status": "WAITING_OWNER_OAUTH",
+      "is_gap": true,
+      "metrics_allowed": false,
+      "reason": "API requires owner credentials and account linkage",
+      "required_owner_action": [
+        "oauth-consent",
+        "account-approval-signoff"
+      ],
+      "gate": [
+        "D1",
+        "D7"
+      ],
+      "gap_until_oauth": true,
+      "live_claimed": false
+    }
+  ],
+  "hard_rules": [
+    "Any datum missing evidence_id or source_type is unverified",
+    "No external write action without owner gate",
+    "Estimate data is not promoted to fact without explicit verification"
+  ],
+  "gap_ids": [
+    "CG-001",
+    "CG-002",
+    "CG-003"
+  ],
+  "do_not": [
+    "invent_oauth_credentials",
+    "claim_LIVE_connectors",
+    "enable_metrics_before_owner_oauth",
+    "automate_GA4_GSC_Ads"
+  ],
+  "stamp_unix": 1787465907.2151659,
+  "module": "F:\\backup\\_ops\\evidence_plane\\connector_gap_loader.py",
+  "enabled_flag": "connector_gap_hook"
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "octopus.wave0.lease-drill.v1",
+  "tag": "cleared",
+  "requested_at": "2026-08-22T15:07:40.248277+00:00",
+  "path": "A0_SOFTWARE_ONLY",
+  "actuator_id": "software://noop",
+  "allowed": true,
+  "deny_reason": null,
+  "latch": {
+    "schema": "octopus.wave0.software-estop-latch.v1",
+    "channel": "SOFTWARE_LATCH",
+    "asserted": false,
+    "reason": "REPROVE_CLEAR",
+    "updated_at": "2026-08-22T15:07:40.247880+00:00",
+    "reversible": true,
+    "hardware_gpio": false,
+    "pwm": false,
+    "mqtt": false,
+    "auth": [
+      "OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-20260823",
+      "OCTOPUS-ALL-DOORS-OPEN-20260822"
+    ],
+    "note": "Software kill latch only. Does not substitute physical estop for Path H / GPIO/PWM/leg."
+  },
+  "lease_id": "lease-cleared-1787411260",
+  "ttl_s": 60
+}

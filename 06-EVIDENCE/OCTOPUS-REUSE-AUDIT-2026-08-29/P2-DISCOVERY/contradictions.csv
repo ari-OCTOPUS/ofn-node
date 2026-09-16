@@ -1,0 +1,24 @@
+id,left,right,plane,truth_status,source,scope
+CON-ROLE-182-RECEIPT-VS-WITNESS,older chat: 182 receipt issuer,180 unsigned registry: 182 lab-witness only; receipt is other schema,roles,DISPUTED,02-ROLE-AUTHORITY.md,this_host_only
+CON-A2-001-VS-NARRATIVE-B,A2-001 owner: 138 origin / 180 execute / 191 canonical / 182 silent,unsigned V2+180 pack: 180 quality-only / 182 lab-witness,roles,CONTRADICTED,A2-001.md:16-57 vs _NODE_ROLES,this_host_only
+CON-C034-VS-OFN-WITNESS,C-034/Sensorium: 182 observation,unsigned OFN: 182 independent witness,roles,DISPUTED,01-TRUTH/CONTRADICTIONS.md C-034,this_host_only
+CON-ROLE-138-WITNESS-VS-COMMANDER,narrative A misread as 138=witness,L191 EDGE-7 mint + B 138=commander,roles,CONTRADICTED_IF_COLLAPSED,L191 + 180 pack,this_host_only
+CON-SIGNED-REGISTRY-ABSENT,P2 needs signed precedence,only unsigned JSON/prompts found,roles,NOT_FOUND,02-ROLE-AUTHORITY.md,this_host_only
+CON-DRAFT11,prior law: 182 only after draft-11,string not found in reuse-audit; 180 pack silent,roles,UNKNOWN,03 + 02,this_host_only
+CON-P1-FILE-COUNT,verbal allowlist 3 files,commit has 4th test file,p1,DOCUMENTED,01-P1-COMMIT-AUDIT.md,this_host_only
+CON-P1-STATUS-SEMANTICS,items unchanged,queue status can become degraded when owner callback missing,p1,DOCUMENTED,p1-owner-queue.patch,this_host_only
+CON-OWNERDECISION-UNWIRED,12-field schema exists on 138 spine,live owner_decide ignores it,p2,REPO_VERIFIED,node.py + owner_decision.p2.py,this_host_only
+CON-THREE-PAYLOAD-HASHES,payload_sha vs ManualPacket.sha256 vs witness payload_sha256,not proven equal,p2,CONTRADICTED,03-OWNER-DECIDE-12-FIELDS.md,this_host_only
+CON-PACKET-RAW-TARGET,OwnerDecision forbids raw address,owner_outbox_packet returns raw target,p2,CONTRADICTED,node.py:3160-3168,this_host_only
+CON-RUN-ID-OVERLOAD,business run-spine-... vs PATH_B spine-proposal-... vs notify UUID,same word three objects,transmit,DOCUMENTED,06-IDEMPOTENCY-AND-RECEIPTS.md,this_host_only
+CON-TWO-TRANSMIT,PATH_A common egress,PATH_B inline persist/transmit discarded,transmit,DOCUMENTED,04+05,this_host_only
+CON-L191-THREE-LINE-PATCH,MISSING-EDGES E4 still says add 3 persist lines,those lines are PATH_B already,edge6,STALE,MISSING-EDGES.md vs Phase 0,this_host_only
+CON-RECEIPT-630c5060,cited as this-run receipt,envelope run_id 425f4012 != snap run,edge6,CONTRADICTED,Phase 0,this_host_only
+CON-WITNESS-BEFORE-PROPOSAL,182 wr_950f8d0e at 07:19,proposal mtime 07:21,edge6,DOCUMENTED,08-EDGE6-CAUSAL-TRACE.md,this_host_only
+CON-APPROVAL-4-29-0-40,reported as comparable,four different 191 stores,approvals,DOCUMENTED,07-APPROVAL-STORES.md,this_host_only
+CON-WORKER-HASH,live worker sha c43afff0,header claims 72e3b3a3 NOT live,180,DOCUMENTED,180 pack 2026-08-29,this_host_only
+CON-USER-138,nodes.json ari@/home/ari,telegram unit User=dietpi,138,DOCUMENTED,180 pack,this_host_only
+CON-LLAMA-BIND,doc 08-26 127.0.0.1:8081,live 0.0.0.0:8081,180,DOCUMENTED,180 pack,this_host_only
+CON-P1-RUNTIME,source commit a27eb05,PID 1351408 started 27 Aug on 6881337,p1,DOCUMENTED,CHECKPOINT.md,this_host_only
+CON-RFC-ID-PHASE0-STALE,Phase 0 says renderer requires rfc_id,vault app.js now fail-closed; owner confirmed,ui,STALE_VS_LIVE,HANDOFF + 09,this_host_only
+CON-VAULT-483-19,P1-RESULT asserts 483/19 and no new errors,baseline artifact missing; jump from 345/9 unproven,vault,UNKNOWN,12-VAULT-DEBT.md,this_host_only

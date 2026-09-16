@@ -1,0 +1,78 @@
+{
+  "schema": "lanes/1",
+  "generated_at": "2026-08-21T00:31:00Z",
+  "lanes": [
+    {
+      "id": "A",
+      "name": "telegram-production-canary",
+      "status": "ARMED_WAITING_OWNER_EVENTS",
+      "blocker": "BLK-0002",
+      "next_executable": "process exactly five owner events; then close window and run independent verifier",
+      "note": "second controlled restart done (PID 23568); event_bridge outbox-first flag ON; 3 healthy cycles verified; durable AUTH_REJECTED records live"
+    },
+    {
+      "id": "B",
+      "name": "wave1-authority-reconciliation",
+      "status": "COMPLETED",
+      "blocker": null,
+      "next_executable": "write WAVE1-AUTHORITY.json; keep wave1_unlocked=false"
+    },
+    {
+      "id": "C",
+      "name": "event-bridge-durable-migration",
+      "status": "PATCHED_TESTS_3of3",
+      "blocker": null,
+      "next_executable": "failing test for pre-send dedupe, then outbox-first patch"
+    },
+    {
+      "id": "D",
+      "name": "legacy-receipt-truth-labeling",
+      "status": "PATCHED_TESTS_15of15",
+      "blocker": null,
+      "next_executable": "truth labels DELIVERY_CONFIRMED/DELIVERY_FAILED/LEGACY_UNCONFIRMED with failing test"
+    },
+    {
+      "id": "E",
+      "name": "test-runner-timeout-isolation",
+      "status": "FULL_SUITE_RUNNING",
+      "blocker": null,
+      "next_executable": "per-file timeout map + continue-on-timeout in run_all",
+      "note": "manifest 583 rows so far (553 PASS / 29 FAIL / 1 TIMED_OUT) at 2026-08-21"
+    },
+    {
+      "id": "F",
+      "name": "cognitive-broken-feedback",
+      "status": "WAITING_LEASE",
+      "blocker": "BLK-0003",
+      "next_executable": "read-only verification and registry update; patch after lease freed"
+    },
+    {
+      "id": "G",
+      "name": "doctor-recovery-deadlocks",
+      "status": "WAITING_LEASE",
+      "blocker": "BLK-0003",
+      "next_executable": "read-only verification; NO_BASELINE truth record"
+    },
+    {
+      "id": "H",
+      "name": "capability-verification",
+      "status": "INVENTORY_WRITTEN",
+      "blocker": null,
+      "next_executable": "post-canary capability level refresh"
+    },
+    {
+      "id": "I",
+      "name": "loop-registry-verification",
+      "status": "ACTIVE",
+      "blocker": null,
+      "next_executable": "update registry as lanes land"
+    },
+    {
+      "id": "J",
+      "name": "vault-debt",
+      "status": "ISOLATED_LOW_PRIORITY",
+      "blocker": null,
+      "next_executable": "lane kept separate; not mixed with runtime verdicts"
+    }
+  ]
+}

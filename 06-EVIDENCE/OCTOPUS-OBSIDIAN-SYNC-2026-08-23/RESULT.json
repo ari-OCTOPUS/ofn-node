@@ -1,0 +1,54 @@
+{
+    "schema":  "octopus-evidence-result/1",
+    "folder":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-OBSIDIAN-SYNC-2026-08-23",
+    "task":  "OCTOPUS-OBSIDIAN-SYNC-2026-08-23",
+    "stamp_local":  "2026-08-23T02:45:00+10:00",
+    "timezone":  "Australia/Sydney",
+    "result":  "PASS",
+    "destructive":  false,
+    "secrets":  false,
+    "deletes":  false,
+    "note_number":  75,
+    "note_number_note":  "75 free under 07 - Knowledge\\octopus\\ (board2 75 is a different folder/file)",
+    "paths_written":  [
+                          "F:\\backup\\07 - Knowledge\\octopus\\75-OCTOPUS-HARDWARE-SYNC-2026-08-23.md",
+                          "F:\\backup\\07 - Knowledge\\octopus\\CURRENT-HARDWARE.md",
+                          "F:\\backup\\07 - Knowledge\\octopus\\90-SEASON-ROLLUP-2026-08-22.md",
+                          "F:\\backup\\06-EVIDENCE\\OCTOPUS-OBSIDIAN-SYNC-2026-08-23\\RESULT.json"
+                      ],
+    "paths_updated":  [
+                          "F:\\backup\\07 - Knowledge\\octopus\\90-SEASON-ROLLUP-2026-08-22.md"
+                      ],
+    "paths_created":  [
+                          "F:\\backup\\07 - Knowledge\\octopus\\75-OCTOPUS-HARDWARE-SYNC-2026-08-23.md",
+                          "F:\\backup\\07 - Knowledge\\octopus\\CURRENT-HARDWARE.md"
+                      ],
+    "sources_read":  [
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-CONTINUOUS-DISCOVER-2026-08-23\\DISCOVER.json",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-CONTINUOUS-DISCOVER-2026-08-23\\A18-BLOCKER-NOTE.md",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23\\RESULT.json",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23\\LOCK-RENEW.json",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-2026-08-23\\FROM-PI\\RECEIPT-WAVE0-SOFT-UNLOCK.json",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-2026-08-23\\FROM-PI\\SUMMARY.json",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-ORANGEPI-MQTT-1883-ENABLE-ABD-2026-08-22\\FROM-PI\\RECEIPT-MQTT-ENABLE.json",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-ORANGEPI-ESP32-INET-DATA-START-2026-08-22\\FROM-PI\\RECEIPT-ESP32-INET-FEEDS-EXPAND.json",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-ORANGEPI-TORCH-EXECUTE-2026-08-22\\RECEIPT-TORCH-INSTALL.from-pi.json",
+                         "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\SIGN-RESULT.json",
+                         "F:\\backup\\06-EVIDENCE\\BOARD2-ZIMAN-GALLERY-INGEST-2026-08-23\\SKU-MAP.txt",
+                         "F:\\backup\\06-EVIDENCE\\BOARD2-ZIMAN-GALLERY-PHOTOS-2026-08-23\\",
+                         "F:\\backup\\06-EVIDENCE\\BOARD2-ZIMAN-MONEY-INFRA-2026-08-23\\",
+                         "F:\\backup\\06-EVIDENCE\\BOARD2-STUDIO-BATCH-QUEUE-2026-08-23\\RESULT.json",
+                         "F:\\backup\\06-EVIDENCE\\BOARD2-STUDIO-DUP-0002-NOTE-2026-08-23\\NOTE.md",
+                         "F:\\backup\\06-EVIDENCE\\BOARD2-STATUS-REFRESH-2026-08-23\\",
+                         "F:\\backup\\07 - Knowledge\\octopus\\90-SEASON-ROLLUP-2026-08-22.md",
+                         "F:\\backup\\07 - Knowledge\\octopus\\01-BUSINESS-MAP-CANONICAL.md"
+                     ],
+    "current_truth_summary":  {
+                                  "laptop":  "branch rescue/octopus-live-tree-20260821 HEAD d07c9ad; Center/poller PID 35916 single; LIVE-TELEGRAM; writer lock renew in flight; A18 BLOCKED (MISSING_ACK remember + correct invalid historically, code-fixed local PARTIAL); DISCOVER OCTOPUS-CONTINUOUS-DISCOVER-2026-08-23; continuous execution ON",
+                                  "board2_ziman":  "gallery 11 products Shopify; photo only IMG_4109-\u003e0016; shipping PASS domestic $20 intl OFF; GST OK; bank/PayPal/ABN Sunday noon Maliheh; Studio shot-0001 tg7 + shot-0002 tg9 (dup 10 left)",
+                                  "orange_pi":  "WAVE0 soft estop PERMITTED_SOFTWARE_A0 ARMED=false; MQTT local; feeds 7/7; torch/ckpt348 PASS",
+                                  "businesses":  "Painting+Abbas lead; Ziman Maliheh; Studio/OF Saba; Mining deferred"
+                              },
+    "no_00_index_under_octopus":  true,
+    "index_action":  "appended one line block to 90-SEASON-ROLLUP-2026-08-22.md; no 00-INDEX in octopus/"
+}

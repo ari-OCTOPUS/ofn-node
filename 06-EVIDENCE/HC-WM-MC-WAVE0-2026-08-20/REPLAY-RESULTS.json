@@ -1,0 +1,328 @@
+{
+  "run_id": "replay-2026-08-20-wave0",
+  "seed": "k-shadow-0",
+  "version": "0.1.0",
+  "scenarios": {
+    "healthy": {
+      "global_state": "GREEN",
+      "assessment_reasons_n": 13,
+      "excluded_n": 0,
+      "world_hypotheses_n": 0,
+      "gates": [
+        {
+          "domain": "telemetry_interpretation",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "homeostasis",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "identity_assessment",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "judge_reliability",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "life_currency_accounting",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "world_state_estimation",
+          "mode": "ADVISORY",
+          "executable": false
+        }
+      ],
+      "output_hash": "ffc4c129316a2345cc51eec0ad72088b5c82804c17e3bd94d0c32030b450e9ac",
+      "executable": false
+    },
+    "restart_hrv": {
+      "global_state": "WARMUP",
+      "assessment_reasons_n": 13,
+      "excluded_n": 2,
+      "world_hypotheses_n": 0,
+      "gates": [
+        {
+          "domain": "telemetry_interpretation",
+          "mode": "SHADOW",
+          "executable": false
+        },
+        {
+          "domain": "homeostasis",
+          "mode": "SHADOW",
+          "executable": false
+        },
+        {
+          "domain": "identity_assessment",
+          "mode": "SHADOW",
+          "executable": false
+        },
+        {
+          "domain": "judge_reliability",
+          "mode": "SHADOW",
+          "executable": false
+        },
+        {
+          "domain": "life_currency_accounting",
+          "mode": "SHADOW",
+          "executable": false
+        },
+        {
+          "domain": "world_state_estimation",
+          "mode": "SHADOW",
+          "executable": false
+        }
+      ],
+      "output_hash": "e2c56a05dadef8bc7f6e76f181b306bed274b84d5dbc6845fe4c647ec53976b4",
+      "executable": false
+    },
+    "period_conflict": {
+      "global_state": "UNKNOWN",
+      "assessment_reasons_n": 13,
+      "excluded_n": 2,
+      "world_hypotheses_n": 0,
+      "gates": [
+        {
+          "domain": "telemetry_interpretation",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "homeostasis",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "identity_assessment",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "judge_reliability",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "life_currency_accounting",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "world_state_estimation",
+          "mode": "BLOCK",
+          "executable": false
+        }
+      ],
+      "output_hash": "66fefd10be991ffaa0f6bf1591bc2e74c7c07931adb4fde4a1f62ab2638edc9b",
+      "executable": false
+    },
+    "latest_only": {
+      "global_state": "UNKNOWN",
+      "assessment_reasons_n": 13,
+      "excluded_n": 1,
+      "world_hypotheses_n": 0,
+      "gates": [
+        {
+          "domain": "telemetry_interpretation",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "homeostasis",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "identity_assessment",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "judge_reliability",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "life_currency_accounting",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "world_state_estimation",
+          "mode": "ADVISORY",
+          "executable": false
+        }
+      ],
+      "output_hash": "7e6d7b8d41bb9cebec9e9e101933890f7286d88ad2dc8cc698bf8d6da5a1a9d8",
+      "executable": false
+    },
+    "future": {
+      "global_state": "UNKNOWN",
+      "assessment_reasons_n": 13,
+      "excluded_n": 1,
+      "world_hypotheses_n": 0,
+      "gates": [
+        {
+          "domain": "telemetry_interpretation",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "homeostasis",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "identity_assessment",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "judge_reliability",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "life_currency_accounting",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "world_state_estimation",
+          "mode": "BLOCK",
+          "executable": false
+        }
+      ],
+      "output_hash": "0dabaa97b36644ebaa8242a5ce4aaf5116ef48b1da943f736e1a4b3db33555e0",
+      "executable": false
+    },
+    "missing_identity": {
+      "global_state": "UNKNOWN",
+      "assessment_reasons_n": 13,
+      "excluded_n": 0,
+      "world_hypotheses_n": 0,
+      "gates": [
+        {
+          "domain": "telemetry_interpretation",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "homeostasis",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "identity_assessment",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "judge_reliability",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "life_currency_accounting",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "world_state_estimation",
+          "mode": "ADVISORY",
+          "executable": false
+        }
+      ],
+      "output_hash": "b36dfc446f6e4e21e46ba455be724df901dfbdb00187d10cef82788f4743c4db",
+      "executable": false
+    },
+    "c042": {
+      "global_state": "AMBER",
+      "assessment_reasons_n": 13,
+      "excluded_n": 0,
+      "world_hypotheses_n": 0,
+      "gates": [
+        {
+          "domain": "telemetry_interpretation",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "homeostasis",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "identity_assessment",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "judge_reliability",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "life_currency_accounting",
+          "mode": "BLOCK",
+          "executable": false
+        },
+        {
+          "domain": "world_state_estimation",
+          "mode": "ADVISORY",
+          "executable": false
+        }
+      ],
+      "output_hash": "e82d1d5de78a92307232d9557c45798d35c02921583b24d98e8fd5c3c7d228e3",
+      "executable": false
+    },
+    "color_empty_reasons": {
+      "global_state": "GREEN",
+      "assessment_reasons_n": 13,
+      "excluded_n": 0,
+      "world_hypotheses_n": 0,
+      "gates": [
+        {
+          "domain": "telemetry_interpretation",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "homeostasis",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "identity_assessment",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "judge_reliability",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "life_currency_accounting",
+          "mode": "ADVISORY",
+          "executable": false
+        },
+        {
+          "domain": "world_state_estimation",
+          "mode": "ADVISORY",
+          "executable": false
+        }
+      ],
+      "output_hash": "2486e8516f44697d67f6f4166572385c18f3be15f938edaa3fd78a8cb6f2ce88",
+      "executable": false
+    }
+  },
+  "results_hash": "e1eaf3027cef9a6f4d427794bec483ff6b5f7399144289d0e4ef39257bb7073a"
+}

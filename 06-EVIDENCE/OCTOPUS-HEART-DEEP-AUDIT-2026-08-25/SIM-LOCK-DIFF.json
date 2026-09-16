@@ -1,0 +1,54 @@
+{
+  "schema": "octopus-heart-sim-lock-diff/1",
+  "stamp_local": "2026-08-25T07:53:39+10:00",
+  "apply": false,
+  "keep": [
+    "cardiac",
+    "control_law",
+    "rhythm",
+    "pulse_arbiter"
+  ],
+  "shadow_reasons": [
+    "Gate-0: delta_self_live=0.0",
+    "control_law hash != HEART-SIM-REPORT.code_sha256"
+  ],
+  "sog_provenance": "UNVERIFIABLE",
+  "files": {
+    "PULSE-EQUATIONS-LOCKED": {
+      "ts": "2026-07-10T20:09:22",
+      "status_ok": true,
+      "delta_self_locked": true,
+      "code_sha256": "f95d7f4ff6d141d5aa85f4e3a5cd272242a1d95b89f8cfed25ca070aa8ce984b"
+    },
+    "HEART-SIM-REPORT": {
+      "ts": "2026-07-11T11:31:15",
+      "sim_pass": true,
+      "code_sha256": "17dac993fd832bffbea5e050f2b973078492badaaa0661632ee401ff7dce2a22"
+    },
+    "live_sha256": {
+      "control_law.py": "029f174a4dc31f596ba5829fec5a5b540f084acfd2a27eef5186042b79b96f40",
+      "sog_math.py": "9b3463ddb39c17e01c260e04fd8fd14c70cb88f726ecb9ab6bb538082d0920bb",
+      "sim_heart.py": "5e2d5372b72337008e47837cdb45c7e6fc0b79e81421857ec6a03a572263feaa",
+      "shadow.py": "a74f224988d65d07a8d86c57ef81c3d377638b1574f15442346b4664853a92fc"
+    }
+  },
+  "matches": {
+    "control_law_vs_sim_report": false,
+    "sog_math_vs_lock_provenance": false
+  },
+  "age_days_lock_vs_now": "2026-07-10 lock / 2026-07-11 sim vs live 2026-08-25 — both artifacts ~6 weeks stale vs current source",
+  "verdict": "HOLD_UNTIL_OWNER_GO",
+  "why": "Both CLOSED reasons are honest: Gate-0 zero Delta_self AND code moved since SIM-REPORT. Do not auto-rehash to open wire.",
+  "later_go_procedure_only": [
+    "1) owner GO to re-run sim_heart offline",
+    "2) write new HEART-SIM-REPORT + evidence hash",
+    "3) optional separate GO to re-lock PULSE-EQUATIONS if sog_math changed",
+    "4) still does not open production_wire until Gate-0 also honest"
+  ],
+  "do_not": [
+    "rewrite CANONICAL anchors",
+    "auto-rehash",
+    "flip OCTOPUS_WIRE_BIO/PULSE",
+    "touch pulse_arbiter"
+  ]
+}

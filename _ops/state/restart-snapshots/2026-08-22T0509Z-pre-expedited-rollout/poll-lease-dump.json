@@ -1,0 +1,17 @@
+{
+  "token_digest": "83a4765b104e700d189b3d56693cf35177f370154b7f2918978996e4d1d8689f",
+  "owner_pid": 14856,
+  "owner_boot_id": "14856:1787374022194860544",
+  "acquired_at": 1787374090.02279,
+  "heartbeat_at": 1787375346.1181674,
+  "lease_until": 1787375436.1181674,
+  "state": "ACTIVE",
+  "fail_count": 0,
+  "cooldown_until": 0.0,
+  "generation": 3,
+  "owner_instance": "9d8c9f2b457fd56f4c09a705e3a40b01",
+  "host_boot_digest": "b5be1f3427bb00f4b6a48adccfbc95eb57d754efd4bdbdb871e1088ba87fc8ce",
+  "code_head": "2ab0eb8725653b02c19b316dc136347af26465c2",
+  "request_deadline": 1787375381.1167629,
+  "last_reason": ""
+}

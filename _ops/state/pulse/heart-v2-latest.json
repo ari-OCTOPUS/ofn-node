@@ -1,0 +1,21 @@
+{
+ "schema": "heart-v2/1",
+ "ts": "2026-09-04T11:26:09",
+ "beat": 5019,
+ "mode": "RUNNING",
+ "mode_prev": "RUNNING",
+ "green_streak": 49,
+ "period_advisory_s": 96.44,
+ "wake_brain": true,
+ "brain_stats": {
+  "ok": 251,
+  "degraded": 24
+ },
+ "store_counts": {
+  "beats": 4778,
+  "max_beat": 5019,
+  "events": 1836,
+  "outbox": {}
+ },
+ "advisory_only": true
+}

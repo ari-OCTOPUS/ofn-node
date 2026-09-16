@@ -1,0 +1,20 @@
+﻿{
+    "library_media_count":  66,
+    "studio_scheduled_posts":  "BLOCKED",
+    "painting_lead":  "PASS",
+    "outbox_lead_manual_completed":  2,
+    "blocked_by":  [
+                       "OFN_WIRE_OUTBOUND=0",
+                       "wire_outbound in OFN_EXTRA_CLOSED_GATES",
+                       "secret_rotation closed",
+                       "partner_precondition closed",
+                       "owner two-step",
+                       "sender_dryrun has no send()"
+                   ],
+    "public_catalog":  {
+                           "note":  "ZM-* skus; activated false",
+                           "http":  200,
+                           "count":  2,
+                           "activated":  false
+                       }
+}

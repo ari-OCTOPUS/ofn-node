@@ -1,0 +1,68 @@
+﻿{
+    "no_auto_patch_filename_found":  true,
+    "searched_paths":  [
+                           "F:\\backup\\OCTOPUS-DOCTOR\\90-_meta\\state\\doctor-vitals.json",
+                           "F:\\backup\\_ops\\OCTOPUS-flags.cmd",
+                           "F:\\backup\\_ops\\OCTOPUS.env",
+                           "F:\\backup\\_ops\\budget\\FREEZE.flag",
+                           "F:\\backup\\_ops\\backup\\GITWRITE-FAILED.flag",
+                           "F:\\backup\\_ops\\state\\flags-loaded-organism.json",
+                           "F:\\backup\\_ops\\state\\flags-loaded-live.json",
+                           "F:\\backup\\LAB-DOCTOR-CONTRACT.yaml",
+                           "F:\\backup\\OCTOPUS-DOCTOR\\doctor\\daemon.py",
+                           "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22\\OWNER-UNLOCK-2026-08-22.json",
+                           "F:\\backup\\02-DECISIONS\\OWNER-GRANT-UNLOCK-LOCKS-2026-08-22.md"
+                       ],
+    "timestamp":  "2026-08-22T18:51:19+10:00",
+    "OCTOPUS_DOCTOR_MAY_MERGE":  {
+                                     "observed":  "unset - merge blocked even with dry_run false",
+                                     "user_env":  null,
+                                     "in_OCTOPUS_env":  false,
+                                     "in_OCTOPUS_flags_cmd":  false,
+                                     "process_env":  null,
+                                     "in_flags_loaded_organism":  false,
+                                     "in_flags_loaded_live":  false,
+                                     "code_gate":  "F:\\backup\\OCTOPUS-DOCTOR\\doctor\\daemon.py _merge requires os.environ OCTOPUS_DOCTOR_MAY_MERGE==1 when dry_run is false",
+                                     "machine_env":  null
+                                 },
+    "organism":  "laptop",
+    "schema":  "octopus.doctor-autopatch.before.v1",
+    "invent_nothing":  true,
+    "related_already_on":  {
+                               "ACTIVATION-HEART-DOCTOR.flag":  true,
+                               "ACTIVATION-SELF-IMPROVE-AUTO.flag":  true,
+                               "OCTOPUS_WIRE_DOCTOR_KNOB_RFC":  "1",
+                               "OCTOPUS_WIRE_DOCTOR_PERSIST":  "1",
+                               "OCTOPUS_WIRE_DOCTOR":  "1",
+                               "OCTOPUS_CODE_AUTOAPPLY_LOWRISK":  "1",
+                               "ACTIVATION-CODE-AUTONOMY.flag":  true
+                           },
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "doctor_vitals":  {
+                          "note":  "Prior owner unlock already set doctor-vitals dry_run True-\u003eFalse. Observed file confirms dry_run=false.",
+                          "dry_run_unlocked_at":  "2026-08-22T12:23:01.504173+10:00",
+                          "dry_run_unlocked_by":  "owner-2026-08-22",
+                          "channel_mode":  "outbox",
+                          "path":  "F:\\backup\\OCTOPUS-DOCTOR\\90-_meta\\state\\doctor-vitals.json",
+                          "may_poll":  false,
+                          "dry_run":  false
+                      },
+    "FREEZE":  {
+                   "F:\\backup\\_ops\\backup\\GITWRITE-FAILED.flag":  {
+                                                                          "exists":  false,
+                                                                          "note":  "Absent; archived 2026-08-22 to OCTOPUS-OWNER-OVERRIDE-GROK unlocked-flags"
+                                                                      },
+                   "F:\\backup\\_ops\\budget\\FREEZE.flag":  {
+                                                                 "exists":  false,
+                                                                 "note":  "Absent; archived 2026-08-22 to OCTOPUS-OWNER-OVERRIDE-GROK unlocked-flags"
+                                                             }
+               },
+    "clear_enable_flag":  {
+                              "precondition_met":  "doctor dry_run already false from prior unlock",
+                              "name":  "OCTOPUS_DOCTOR_MAY_MERGE",
+                              "invent":  false,
+                              "required_value":  "1"
+                          },
+    "lab_contract_note":  "LAB-DOCTOR-CONTRACT.yaml still forbids doctor_patches_production_directly; scheduled_runs propose_only; limited_owner_approved_effect only. This unlock only sets the existing MAY_MERGE env gate used by daemon._merge.",
+    "token_provided":  "OCTOPUS-DOCTOR-AUTOPATCH-20260822"
+}

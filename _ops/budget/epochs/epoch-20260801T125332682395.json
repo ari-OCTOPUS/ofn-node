@@ -1,0 +1,202 @@
+{
+  "ts": "2026-08-01T12:51:48",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.44,
+        "DEBATE_LOOP": 0.12,
+        "GENOME_SYS": 0.44
+      },
+      "reason": "[EST] All telemetry zero (no fitness signal); fell back to floor-proportional split ARCH2/GENOME2/DEBATE0.5."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "organ-ACCOUNTING",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از فناوری‌های خودآموز برای آموزش کارکنان",
+          "why_genius": "توسعه و استفاده از مدل‌های یادگیری ماشین برای آموزش کارکنان می‌تواند هزینه‌های آموزش را کاهش دهد و به طور موثرتر آموزش را فراهم کند. این رویکرد می‌تواند نتایج بهتری در زمان کوتاه‌تری ارائه دهد.",
+          "why_insane": "استفاده از فناوری‌های خودآموز برای آموزش کارکنان ممکن است منجر به عدم توانایی کارکنان در فهم و پیاده‌سازی مفاهیم پیچیده شود. همچنین، این رویکرد ممکن است باعث عدم اطمینان کارکنان شود و سرگرمی‌های تکنولوژیکی را ایجاد کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "缺乏实际案例支持该技术在当前情境下的有效性，且未考虑员工接受度和现有培训体系的兼容性。",
+          "cheapest_test": "收集至少3个成功实施类似方案的企业案例，并评估其对员工技能提升的具体影响及员工满意度。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی نیاز به درخواست کار و بهینه‌سازی برنامه‌ریزی",
+          "why_genius": "این روش با استفاده از داده‌های تاریخچه‌ای از درخواست‌ها و عملکرد پیشگیرانه، می‌تواند نیازهای فعلی و آینده‌ای را بهتر پیش‌بینی کند. همچنین، بهینه‌سازی برنامه‌ریزی می‌تواند منابع را به صورت بهتری مدیریت کند.",
+          "why_insane": "استفاده از هوش مصنوعی ممکن است نیازهای فعلی و فرهنگ کاری را نادیده بگیرد. همچنین، پیاده‌سازی این روش ممکن است منابع زیادی بخواهد و برای اجرای آن، تمرینات جدیدی برای کارکنان لازم باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "نیاز به درخواست کار و تمرینات جدید برای کارکنان",
+          "cheapest_test": "بررسی آیا شرکت‌های مشابه در حال استفاده از هوش مصنوعی برای برنامه‌ریزی هستند و آن را به چه قیمتی تبلیغ می‌کنند",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی نیازهای حسابداری و برنامه‌ریزی فعالیت‌ها",
+          "why_genius": "این روش می‌تواند کارکنان را از تکراری و زمان‌برترین کارها آزاد کند، منجر به کاهش هزینه‌های آموزش و تمرینات شود و باعث افزایش دقت در برنامه‌ریزی فعالیت‌های حسابداری می‌شود.",
+          "why_insane": "آکادمیکان و کارگران حسابداری ممکن است مقاومت نشان دهند، این روش ممکن است در نظرات سازمانی برخورد پیدا کند و بتواند منجر به تمرکز خاطرناکی در برنامه‌ریزی شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "این روش ممکن است نیاز به تغییرات فرهنگی در سازمان داشته باشد که ممکن است مقاومت آکادمیکان و کارگران حسابداری را ایجاد کند.",
+          "cheapest_test": "مقابل نظر کارگران حسابداری را در پروژه‌ای کوتاه مدت بررسی کنید.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

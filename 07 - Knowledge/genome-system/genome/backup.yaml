@@ -1,0 +1,35 @@
+# GENOME / BACKUP + DISASTER RECOVERY  (INVARIANT CORE -- read-only)
+# "memory without backup is a liability." A local-first system carries all the
+# risk locally, so backup is a first-class, non-optional part of the genome.
+
+strategy: "3-2-1"
+# 3 copies, on 2 media, 1 off-site.
+copies:
+  - name: "primary"
+    location: "F:/backup/07 - Knowledge"        # the live vault + system
+  - name: "local_snapshot"
+    location: "external drive / second disk"     # e.g. weekly image
+    media: "disk"
+  - name: "offsite_encrypted"
+    location: "owner-chosen encrypted remote (rclone crypt / restic repo)"
+    media: "cloud"
+    encryption: "client-side, owner holds the key (no vendor lock-in)"
+
+what_to_back_up:
+  - { path: "genome/",        priority: "critical",    note: "the invariant core; small; version every change" }
+  - { path: "ledger/*.jsonl", priority: "critical",    note: "append-only audit + episodic memory" }
+  - { path: "vault (notes)",  priority: "critical",    note: "the actual knowledge" }
+  - { path: "index (*.db)",   priority: "rebuildable", note: "can be regenerated from the vault" }
+
+cadence:
+  git_commit: "on every genome or ledger change (automatic)"
+  local_snapshot: "daily"
+  offsite: "daily (incremental) via restic/rclone"
+
+retention: "keep 7 daily, 4 weekly, 12 monthly"
+
+disaster_recovery:
+  rto_hours: 4          # target time to restore
+  rpo_hours: 24         # max acceptable data loss window
+  restore_drill: "monthly -- actually restore into a scratch dir and run tests/smoke_test.py"
+  owner_confirmed: false   # <-- owner sets the concrete off-site target + key custody

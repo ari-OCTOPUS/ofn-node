@@ -1,0 +1,19 @@
+{
+  "ts": "2026-08-20T10:14:04Z",
+  "checkpoint_commit": "3abc16bcbda26b716be58905d5342951a049da9d",
+  "branch": "equip/g10-cognition-20260816",
+  "STOP_TG_CENTER": false,
+  "HALT_ALL": false,
+  "RESTART_REQUESTED": false,
+  "pids": {
+    "center": [],
+    "organism": [],
+    "brain": [],
+    "supervisor": []
+  },
+  "port_8776": true,
+  "last_offset": 223883327,
+  "last_inbound_hint": 26388,
+  "outbox_pending_lines": 2,
+  "poller_locks": []
+}

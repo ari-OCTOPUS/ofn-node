@@ -1,0 +1,13 @@
+{
+  "status": "FAIL",
+  "repairs_attempted": 0,
+  "checks_total": 18,
+  "blocking_failed": 2,
+  "blocking_failed_ids": [
+    "coverage_or_data_critical",
+    "disk_health"
+  ],
+  "unknown": 0,
+  "executed_actions": 0,
+  "actuator_authority": "NONE"
+}

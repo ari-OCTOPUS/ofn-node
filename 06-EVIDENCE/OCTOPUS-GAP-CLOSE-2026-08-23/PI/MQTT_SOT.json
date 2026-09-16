@@ -1,0 +1,24 @@
+{
+  "schema": "octopus.mqtt-sot.v1",
+  "ts_utc": "20260822T230411Z",
+  "KEEP_CLOSED": "WAN/public/UFW Anywhere \u2014 CLOSED",
+  "localhost": {
+    "inventory_phrase_KEEP_CLOSED": "means WAN/public CLOSED; not 'no process on host'",
+    "live_bind": "127.0.0.1:1883",
+    "wan_public": false,
+    "ufw_1883": "none",
+    "allow_anonymous": false,
+    "anon_denied": true,
+    "unit_active": "active",
+    "policy": "LOCAL_LOOPBACK_AUTH_OPEN__WAN_KEEP_CLOSED",
+    "cloud_broker_invented": false,
+    "hardened_actions": [
+      "CONF_LOOPBACK_OK"
+    ]
+  },
+  "auth": [
+    "OCTOPUS-GAP-CLOSE-20260823",
+    "OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-20260823",
+    "OCTOPUS-ALL-DOORS-OPEN-20260822"
+  ]
+}

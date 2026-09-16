@@ -1,0 +1,18 @@
+HEAD=9bc05abc18fe545f128b7ca6a23c77d888f23e36
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.err
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.exit
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.out
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/git-diff-check.txt
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/git-status-final.txt
+--BRANCHES--
+audit/cursor-20260828 d94c42cb
+audit/senior-auditor-20260828-138 f09681ad
+backup/board138-20260830 c1969bce
+discovery/138-body-map-20260828 56e93694
+integration/138-business-spine-20260828 a27eb053
+main 2533aa3c
+octopus/reconcile-138-20260827 d3fb20c1
+ofn-v1.0-three-business-owner-center 859edfc8
+ofn/board-snapshot-20260816 32a81d03
+ofn/cockpit-v2-20260827 6070f519
+work/truth-record-20260830 9bc05abc

@@ -1,0 +1,90 @@
+﻿{
+  "schema": "octopus-owner-chg-authorization/1",
+  "authorization_id": "OCTOPUS-ORANGEPI-CHG-C-NATS-20260822",
+  "package": [
+    "C"
+  ],
+  "package_label": "C_NATS_CAPACITY",
+  "package_excluded": [
+    "A_already_done",
+    "B_already_done",
+    "D_already_done",
+    "E_compaction",
+    "Board2_GitHub_creds"
+  ],
+  "board": {
+    "hostname": "sensorium-opi5pro",
+    "ip": "192.168.0.182",
+    "agent_executor": "sensoriom"
+  },
+  "authorizer": {
+    "role": "owner",
+    "via": "ari",
+    "channel": "owner_chat_directive"
+  },
+  "executor": "sensoriom",
+  "laptop_writer": "grok-ari-plans-only",
+  "written_at_local": "2026-08-22T18:28:49+10:00",
+  "timezone": "Australia/Sydney (AEST, UTC+10)",
+  "authority": "OWNER_AUTHORIZED_CHG_C_NATS_CAPACITY_ONLY",
+  "prior_package": {
+    "authorization_id": "OCTOPUS-ORANGEPI-CHG-ABD-20260822",
+    "evidence_dir": "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22",
+    "results": {
+      "A": "PASS",
+      "D": "PASS",
+      "B": "PASS"
+    },
+    "post_abd_soak": "PASS",
+    "soak_ack": "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/SOAK-POST-ABD-ACK.json",
+    "package_complete_ack": "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/PACKAGE-COMPLETE-ACK.json"
+  },
+  "bounds": {
+    "allowed": [
+      "CHG-C Path C1 FIRST (preferred): JetStream retention trim / stream+consumer limits if safe and reversible; document before/after stream info",
+      "CHG-C Path C2 (if C1 insufficient or unsafe): raise NATS unit MemoryMax via systemd drop-in to evidence-based ceiling 768M preferred (1G hard ceiling only with free-RAM proof)",
+      "Monitor MemoryCurrent / peak / NRestarts during and after change",
+      "Write receipts under board evidence + TO-LAPTOP exchange",
+      "Rollback per CHG-C-NATS-PLAN.md"
+    ],
+    "forbidden_globally": [
+      "private keys / make-root-v2",
+      "MQTT 1883 / MQTT/PWM/legs / root action_executor / leg01 user work",
+      "arm reflex",
+      "planner",
+      "Doctor auto-patch on Pi",
+      "torch WM",
+      "open 9101 to LAN",
+      "zero-fill sensors",
+      "in-place hash rewrite",
+      "truncate observations casually",
+      "unconstrained memory (never remove MemoryMax / never infinity)",
+      "E evidence compaction",
+      "Board2 GitHub credential setup (deferred)",
+      "leave WAVE0 actuators unlocked / mutate actuators",
+      "SSH/mutate Pi from laptop writer (plans + OWNER-CHG grant only; sensoriom executes)"
+    ],
+    "wave0": "KEEP_WAVE0_LOCKED for actuators/MQTT/legs; CHG-C is NATS capacity (JetStream limits and/or capped MemoryMax) only",
+    "separate_plans_required": true,
+    "evidence_refs": [
+      "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/OWNER-CHG-AUTHORIZATION.json",
+      "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/PACKAGE-COMPLETE-ACK.json",
+      "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/SOAK-POST-ABD-ACK.json",
+      "06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/BOARD-DEEP-DIAGNOSIS-ACK.json"
+    ]
+  },
+  "p0_baseline_at_auth": {
+    "prior_abd": "A+D+B PASS; post-ABD soak PASS",
+    "sensorium_status": "recovered (post-ABD NRestarts=0, WatchdogSec=180)",
+    "nats_MemoryMax": "512MiB",
+    "nats_MemoryCurrent_observed": "~498-523M",
+    "nats_peak_observed": "512M",
+    "nats_NRestarts": 0,
+    "nats_active_age": "~4d+",
+    "risk": "latent bus pressure if sensorium traffic recovers further while NATS sits at MemoryMax ceiling"
+  },
+  "plans": {
+    "C": "CHG-C-NATS-PLAN.md"
+  }
+}
+

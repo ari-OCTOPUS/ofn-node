@@ -1,0 +1,72 @@
+{
+  "schema": "byte-sprint/1",
+  "pass": 1,
+  "live": false,
+  "bytes": [
+    {
+      "byte": 1,
+      "file": "_ops/telegram_center/miniapp_gateway.py",
+      "task": "confirm unified façade (initData before any data byte)"
+    },
+    {
+      "byte": 2,
+      "file": "_ops/telegram_center/miniapp_gateway.py:validate_init_data",
+      "task": "HMAC(WebAppData, token) then sign data-check-string; T-05 tamper reject"
+    },
+    {
+      "byte": 3,
+      "file": "_ops/conversation_hub / Decision Ledger",
+      "task": "telegram and miniapp share one ledger — no parallel approval brains"
+    },
+    {
+      "byte": 4,
+      "file": "_ops/loops/telegram_organ.py",
+      "task": "outbox + update_id idempotency; T-08 restart-no-resend"
+    },
+    {
+      "byte": 5,
+      "file": "BotFather menu button → /miniapp",
+      "task": "LIVE only — four tabs; not this order"
+    },
+    {
+      "byte": 6,
+      "file": "brain_core parity",
+      "task": "keep NO_BASELINE as truth; do not invent a baseline"
+    },
+    {
+      "byte": 7,
+      "file": "_ops/cortex/improve.py",
+      "task": "SHADOW: calibration-latest → gather_signals / generate_proposals"
+    },
+    {
+      "byte": 8,
+      "file": "_ops/doctor/self_knowledge.py",
+      "task": "SHADOW: constant 0.4 → receipt EMA"
+    },
+    {
+      "byte": 9,
+      "file": "OCTOPUS-DOCTOR/doctor/daemon.py",
+      "task": "SHADOW: open-mission timeout + quarantine"
+    },
+    {
+      "byte": 10,
+      "file": "_ops/loops/telegram_organ.py:enqueue_digest",
+      "task": "SHADOW: 42 seams = 1 digest; T-22"
+    },
+    {
+      "byte": 11,
+      "file": "_ops/telegram_center/center.py",
+      "task": "HUNT T-21: webhook+polling dual ingest (read-only; WORKLOCK)"
+    },
+    {
+      "byte": 12,
+      "file": "ingest own replies",
+      "task": "HUNT: bot must not ingest from.id==bot"
+    },
+    {
+      "byte": 13,
+      "file": "doctor-pulse / heartbeat",
+      "task": "HUNT: green heartbeat with dead worker"
+    }
+  ]
+}

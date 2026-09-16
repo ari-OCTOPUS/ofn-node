@@ -1,0 +1,136 @@
+{
+  "boot_id": "4dbf4819-c7dc-4224-bb3b-2650f9d2aa6c",
+  "claim": "Board gauges were collected read-only at ts_utc; authority files unchanged since last message; senses report carries board_id + sensor_manifest_version + quarantine_status per charter v2; no autonomy or authority state was modified by the board.",
+  "escalation": "if reproduction fails or a hash differs, treat as integrity incident: stop publishing, write REPORT status=BLOCKED_NEEDS_OWNER, await owner decision in chat.",
+  "evidence_refs": [
+    "/var/lib/octopus/state/snapshots/latest.json",
+    "/var/lib/octopus/state/gaps/GAP-002-audit_head_unsigned.json",
+    "CHANGELOG.jsonl"
+  ],
+  "from": "board",
+  "may_authorize": false,
+  "msg_id": "msg-20260817T162417Z-4e82866b",
+  "payload": {
+    "authority_file_hashes": {
+      "OWNER_REVIEW_DECISION.json": "sha256:6fdf4f54c9a4a460d25eda416079d3646e55c4162e2f75a2721a12dd617be271",
+      "wave_baseline_accepted.json": "sha256:a313fd777ea21641e17771df436e1cffb37c21957144ba75369e057ff541d728"
+    },
+    "changelog_tail": [
+      {
+        "phase": "OWNER_DIRECTIVE",
+        "seq": 23,
+        "type": "REPORT_WRITTEN"
+      },
+      {
+        "phase": "OWNER_DIRECTIVE",
+        "seq": 24,
+        "type": "DEPLOYED"
+      },
+      {
+        "phase": "OWNER_DIRECTIVE",
+        "seq": 25,
+        "type": "CODE_CHANGE"
+      }
+    ],
+    "cross_nodes": {
+      "nodes": {
+        "laptop_191_board_cp_8801": "open",
+        "laptop_191_smb": "open",
+        "legs_board_138_ssh": "open"
+      },
+      "ts_utc": "2026-08-17T16:20:55Z"
+    },
+    "gaps": {
+      "GAP-001": {
+        "boot_id": "4dbf4819-c7dc-4224-bb3b-2650f9d2aa6c",
+        "readiness": "READY"
+      },
+      "GAP-002": {
+        "pass": true,
+        "status": "CLOSED_BY_SIGNED_CHECKPOINT"
+      }
+    },
+    "last_experiment": {
+      "experiment_id": "exp-batching-index-writes-v1",
+      "overall_verdict": "PASS",
+      "pairs": 3
+    },
+    "readiness": {
+      "gates_failed": [],
+      "nats_server": "active",
+      "octopus_sensorium": "active",
+      "readiness_state": "READY",
+      "safety_note": "safety signals derived from signed boot_report gates, not a direct MCU query"
+    },
+    "senses": {
+      "board_id": "sensorium-opi5pro-68e44cdf",
+      "numeric_sensors": 100,
+      "quarantine_status": {
+        "degraded_senses": [
+          "OCT-SENSE-099"
+        ],
+        "health_states": {
+          "OCT-SENSE-051": "healthy",
+          "OCT-SENSE-052": "healthy",
+          "OCT-SENSE-053": "healthy",
+          "OCT-SENSE-053.THERMAL": "healthy",
+          "OCT-SENSE-092": "healthy",
+          "OCT-SENSE-095": "healthy",
+          "OCT-SENSE-096": "healthy",
+          "OCT-SENSE-097": "healthy",
+          "OCT-SENSE-099": "degraded",
+          "OCT-SENSE-100": "healthy"
+        },
+        "quarantined_count": 0,
+        "quarantined_senses": [],
+        "shadow_note": "OCT-SENSE-092/095 are shadow-loaded (meta_phase) and may not quarantine or change readiness"
+      },
+      "runtime_enabled_wave0": [
+        "OCT-SENSE-051",
+        "OCT-SENSE-052",
+        "OCT-SENSE-053",
+        "OCT-SENSE-053.THERMAL",
+        "OCT-SENSE-092",
+        "OCT-SENSE-095"
+      ],
+      "sensor_manifest_version": "6"
+    },
+    "sensorium": {
+      "pid": 2258,
+      "service": "active",
+      "write_bps": 57344.0,
+      "write_bytes_delta": 172032
+    },
+    "subject": "board_status_gauges"
+  },
+  "payload_hash": "sha256:5c4db1df2a6806123f0305fffe5d1e03eda9fd4e2bc9a8c601ae2cfd9a99fdcf",
+  "prev_msg_hash": "sha256:d526e81d8216b9816968e28f5ec0b1a2510e6769097ac1f2b31c06fd05576959",
+  "raw_evidence": [
+    {
+      "command": "sha256sum /var/lib/octopus/state/OWNER_REVIEW_DECISION.json",
+      "desc": "authority file hashes (OWNER_REVIEW_DECISION.json, wave_baseline_accepted.json)"
+    },
+    {
+      "command": "jq '{readiness_state, gates_failed}' /var/lib/octopus/state/boot_report.json",
+      "desc": "signed boot report gates"
+    },
+    {
+      "command": "systemctl is-active nats-server octopus-sensorium",
+      "desc": "services independently checked"
+    },
+    {
+      "command": "grep config_version /etc/octopus/config/registry.yaml; jq '.health' /var/lib/octopus/state/snapshots/latest.json",
+      "desc": "senses: registry version + health states (charter v2)"
+    }
+  ],
+  "reproduction": [
+    "python3 /opt/octopus-agent/exchange/board_exchange.py --selftest",
+    "jq '.readiness' /var/lib/octopus/inbound/TO-LAPTOP/exchange/<latest-msg>.json",
+    "sha256sum /var/lib/octopus/state/OWNER_REVIEW_DECISION.json"
+  ],
+  "run_id": "run-20260817T1624Z-78378569",
+  "to": "laptop",
+  "ts_utc": "2026-08-17T16:24:17Z",
+  "type": "EVIDENCE",
+  "uncertainty": "sensorium gauge is a 3-second IO sample, not a continuous measure; safety signals come from the signed boot report, not a direct MCU query; laptop-side state is invisible to the board except via exchange files."
+}

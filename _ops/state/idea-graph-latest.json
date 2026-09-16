@@ -1,0 +1,93 @@
+{
+  "n_nodes": 800,
+  "n_edges": 990,
+  "n_broken_targets": 165,
+  "hubs": [
+    {
+      "note_id": "03 - Projects/WLOS - Weight Loss OS/wlos/HANDOFF",
+      "in_degree": 30,
+      "title": "HANDOFF — for the next agent"
+    },
+    {
+      "note_id": "03 - Projects/Accounting/_archive/original-dropin-2026-07-13/CryptoEtoro-Handoff/00_overview/INDEX",
+      "in_degree": 28,
+      "title": "📦 INDEX — بستهٔ تحویلِ Crypto-eToro"
+    },
+    {
+      "note_id": "03 - Projects/Lead-نقاشی/tradequote_local/DECISIONS",
+      "in_degree": 26,
+      "title": "Decisions log"
+    },
+    {
+      "note_id": "03 - Projects/اونلی فنز/CLAUDE",
+      "in_degree": 23,
+      "title": "CLAUDE.md — منشور کاری پروژه «اونلی فنز» (Project-F)"
+    },
+    {
+      "note_id": "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/04 - Adversarial-Defense-and-Antifragility",
+      "in_degree": 12,
+      "title": "لایه ۴ — دفاع خصمانه و آنتی‌فراژیل (Adversarial Defense & Antifragility)"
+    },
+    {
+      "note_id": "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/10 - DATA-STATE-and-SCHEMA",
+      "in_degree": 12,
+      "title": "لایه ۱۰ — داده، وضعیت و اسکیمای پایگاه (Data & Schema)"
+    },
+    {
+      "note_id": "03 - Projects/_OCTOPUS-PMO/Build Waves/Wave-2",
+      "in_degree": 11,
+      "title": "Build Wave 2 · P1 Channels"
+    },
+    {
+      "note_id": "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/01 - GOVERNANCE-and-SAFETY",
+      "in_degree": 11,
+      "title": "لایه ۱ — حاکمیت و ایمنی (Governance & Safety) — قانون اساسی شکارچی کوین"
+    },
+    {
+      "note_id": "03 - Projects/Accounting/PROJECT",
+      "in_degree": 10,
+      "title": "پروژه: Accounting"
+    },
+    {
+      "note_id": "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/03 - SCORE-Screening-and-Forensics",
+      "in_degree": 10,
+      "title": "لایه ۳ — غربالگری و فارنزیک / SCORE (موتور بقا)"
+    }
+  ],
+  "n_clusters": 183,
+  "n_bridges": 356,
+  "n_proposed_edges": 20,
+  "proposed_edges_sample": [
+    {
+      "src": "03 - Projects/_Index - Projects",
+      "dst": "03 - Projects/OFN-Board/INDEX",
+      "shared_tag": "moc",
+      "propose_new_edge": true
+    },
+    {
+      "src": "03 - Projects/_Index - Projects",
+      "dst": "03 - Projects/Ziman Galerry/ZIMAN-SYSTEM-MAP",
+      "shared_tag": "moc",
+      "propose_new_edge": true
+    },
+    {
+      "src": "03 - Projects/_Index - Projects",
+      "dst": "03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System",
+      "shared_tag": "moc",
+      "propose_new_edge": true
+    },
+    {
+      "src": "03 - Projects/_Index - Projects",
+      "dst": "03 - Projects/اونلی فنز/INDEX",
+      "shared_tag": "moc",
+      "propose_new_edge": true
+    },
+    {
+      "src": "03 - Projects/_Index - Projects",
+      "dst": "03 - Projects/Ziman Galerry/docs/ZIMAN-SYSTEM-MAP",
+      "shared_tag": "moc",
+      "propose_new_edge": true
+    }
+  ],
+  "propose_only": true
+}

@@ -1,0 +1,180 @@
+# EXP-004b / H-OWN-09b — Adaptive Forgetting v2: the honest hard test vs FIFO.
+# DECLARED FOLLOW-UP to ADR-015. v1's machine gate used the WEAKEST baseline
+# (cumulative / never-forget); against the STRONGER baseline (FIFO, which forgets
+# stale rules by accident under a purely temporal drift) the v1 confirmatory edge
+# was +0.018 — BELOW the 0.03 SESOI [FACT: ADR-015 §Verdict, family 965000].
+# v2 preregisters THAT contrast as the gated primary, knowing it may DISCARD:
+# a negative verdict is a legitimate outcome and will be reported as such.
+#
+# THE ONE PRINCIPLED STRENGTHENING (declared a priori, BEFORE the v2 pilot):
+# v1's retention utility = recency-DECAYED COUNT of winning re-uses. Two a-priori
+# biases push it away from tracking the current regime: (i) frequency conflation —
+# stale-but-formerly-popular rules keep residual mass long after their regime dies;
+# (ii) tenure asymmetry — fresh in-regime rules enter at 1.0 against incumbents'
+# accumulated mass. Fix: utility = recency-decayed HIT-RATE (decayed hits divided
+# by decayed exposure-time in store, same gamma=0.98). One change, same signal.
+# The pilot only calibrated prediction.expected; it did NOT select among rules.
+#
+# HONEST PILOT DISCLOSURE (assigned family 948000, 5 seeds, 2026-07-14):
+# rate−fifo = +0.016 ± 0.018 (per-seed −0.017,+0.010,+0.023,+0.033,+0.030) — below
+# the frozen 0.03 kill line, so the PREREGISTERED EXPECTATION IS DISCARD; the
+# strengthening added rate−raw = +0.000 at C=90 [all FACT: pilot log 2026-07-14].
+# The kill line is deliberately NOT lowered to rescue the hypothesis (the validator
+# WARN about its placement is accepted): SESOI 0.03 is inherited frozen from v1.
+idea: >
+  Does adaptive utility-based forgetting beat the STRONG blind baseline? v1
+  (ADR-015) showed recency-decayed utility eviction beats never-forgetting under
+  drift, but against FIFO — which under a purely temporal drift evicts stale rules
+  by accident — the edge was sub-SESOI. v2 asks the honest hard question: at EQUAL
+  bounded capacity and compute, does utility-aware forgetting (strengthened a
+  priori to recency-decayed HIT-RATE, normalizing pay-off by opportunity) retain a
+  store that transfers better on post-drift heldout than plain FIFO? If not, the
+  resource-rational forgetting story collapses to "any temporally-biased eviction
+  suffices" for this regime, and that must be said out loud.
+
+hypothesis: >
+  At EQUAL bounded capacity C=90 and equal compute under temporal modality drift,
+  post-drift heldout success of the rate-adaptive (recency-decayed hit-rate) store
+  exceeds that of a FIFO (evict-oldest) store by at least the SESOI +0.03. The
+  same contrast is EXACTLY 0 at unbounded capacity (no eviction fires), and the
+  recency component alone (decay on vs off within the identical rate algorithm)
+  is <= ~0 on a stationary (no-drift) stream. Preregistered risk: v1's rule sat
+  at +0.018 on this contrast [FACT: ADR-015] and the v2 pilot sits at +0.016
+  [FACT: pilot 948000] — the confirmatory verdict may well be DISCARD.
+
+prediction:
+  statement: adaptive_advantage_v2 = success(rate_adaptive) − success(FIFO) on post-drift heldout, at equal bounded capacity C=90 under drift.
+  baseline: 0.0     # [EST] no-effect floor. Sources: (a) structural — at UNBOUNDED capacity no eviction fires, stores are identical, delta EXACTLY 0 (pilot: 0.000 ± 0.000, family 948000 [FACT]); (b) FIFO is the strong baseline: v1 confirmatory adaptive−fifo was +0.018, sub-SESOI [FACT: ADR-015]
+  expected: 0.016   # [FACT] pilot family 948000 (5 disjoint seeds, C=90, drift): rate_adaptive−fifo mean +0.016 ± 0.018 [FACT: pilot log 2026-07-14]. BELOW the 0.03 kill line — the preregistered expectation is DISCARD unless confirmatory lands higher.
+
+metric:
+  name: adaptive_advantage_v2
+  dataset: gridworld-drift-heldout
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: 5 grid-world universes (CONFIRMATORY seeds 953000+/953500+, disjoint from the assigned pilot family 948000+/948500+ and from every other family in the repo). Per universe a context-tagged schema pool is streamed from a fixed base policy under a temporal modality drift, compressed online to capacity C=90 by each eviction rule, and evaluated on the SAME 60 post-drift (90% shape) heldout tasks.
+  n: 60
+  conditions:
+    - name: null_unbounded
+      description: control — rate_adaptive−FIFO at capacity >= pool size (no eviction ever fires -> identical stores -> exactly 0; any edge is capacity-driven).
+    - name: null_nodrift
+      description: control — recency-necessity, decay on vs off WITHIN the identical rate algorithm on a STATIONARY stream (no stale rules -> decay only discards evidence -> <= ~0). Disclosed a priori — rate-vs-FIFO itself is NOT expected <= 0 without drift (generic utility-gating, the H-OWN-06 effect), so the drift-isolation null sits on the decay knob, same discipline as v1.
+    - name: vs_raw_decay
+      description: reported — rate-utility − v1 raw-decay utility at bounded C under drift; isolates what the a-priori strengthening added (pilot +0.000 at C=90).
+    - name: v1_rule_vs_fifo
+      description: reported — v1's raw-decay rule − FIFO on THIS family; replication reference for ADR-015's +0.018 sub-SESOI edge (pilot +0.016).
+    - name: adaptive_advantage_v2
+      description: primary — rate_adaptive − FIFO at EQUAL bounded capacity C=90 under drift. The honest hard test.
+  protocol: >
+    Per universe (identical construction to ADR-015, rebuilt under the v2 seed
+    families): (1) train a fixed base tabular-Q cortex on the context-tagged key
+    (cue_type + minimal_sufficient) over BOTH modalities' train tasks (shared by
+    every arm). (2) Roll the base greedy policy over a temporal STREAM whose
+    modality mix drifts (early 85% color / 15% shape over 300 ticks; late 15% /
+    85% over 120 ticks); each learned key on a WINNING trajectory emits a store
+    event. (3) Stream the events into a bounded store of capacity C=90, evicting
+    online when full by: rate_adaptive = lowest recency-decayed HIT-RATE (decayed
+    hits / decayed exposure, gamma 0.98, refreshed on winning re-use);
+    raw_adaptive = v1's decayed count; fifo = oldest-inserted. (4) Evaluate each
+    final store AS A POLICY on the SAME post-drift heldout (hit -> stored action,
+    miss -> CRC-seeded random fallback) with gridworld's frozen evaluate().
+    Events + key->action are precomputed ONCE per universe and shared verbatim;
+    arms differ ONLY in the eviction rule. All constants (C=90, gamma=0.98,
+    stream 300+120, mixes, B_TRAIN=80k, SESOI 0.03, bands) inherited FROZEN from
+    v1 — nothing was re-tuned on the v2 pilot. Fully CRC-seeded, no LLM.
+
+failure_condition:
+  metric: adaptive_advantage_v2
+  op: "<"
+  threshold: 0.03
+  note: >
+    If the rate-adaptive store does not beat plain FIFO by at least the SESOI
+    +0.03 at equal bounded capacity under drift, utility-aware forgetting adds no
+    established value over blind temporally-biased eviction in this regime and
+    the strong form of the resource-rational forgetting claim is rejected. This
+    is the preregistered LIKELY outcome (v1 confirmatory +0.018 [FACT: ADR-015];
+    v2 pilot +0.016 with one negative seed [FACT: pilot 948000]). The metric can
+    be <= 0 (pilot seed 0 was −0.017): heldout success is trajectory-level and
+    FIFO's evict-oldest is well matched to a purely temporal drift. The unbounded
+    null must be exactly 0 and the nodrift decay-contrast <= ~0, else the effect
+    is not capacity-and-drift driven.
+
+architecture:
+  pattern: Recency-decayed hit-rate eviction (opportunity-normalized utility) vs FIFO under distribution drift — the strong-baseline gate for resource-rational forgetting
+  topology: fixed base cortex -> context-tagged schema events streamed under drift -> capacity-C online eviction rule (rate_adaptive | raw_adaptive | fifo) -> memory-lookup policy on post-drift heldout
+  tradeoff: >
+    Rate-normalization spends extra bookkeeping (per-entry decayed hits AND
+    decayed exposure) to correct the frequency/tenure biases of a raw decayed
+    count. It can only pay off where those biases actually cost FIFO-relative
+    performance; under a PURELY temporal drift, oldest≈stalest, so FIFO already
+    captures most of the signal for free — the a-priori risk, accepted and
+    preregistered, is that the whole utility apparatus is sub-SESOI here (pilot
+    says exactly that: rate−raw +0.000, rate−fifo +0.016 [FACT]).
+
+api_contract:
+  endpoint: /kernel/memory/forget-v2
+  method: POST
+  request:
+    mode: rate_adaptive     # rate_adaptive | raw_adaptive | fifo
+    capacity: 90
+    decay: 0.98
+  response:
+    # shape ([EST] illustrative — real numbers come from the run):
+    rate_adaptive_success: 0.58
+    fifo_success: 0.56
+    adaptive_advantage_v2: 0.016
+
+mvp:
+  stack: Python (full reuse of experiments/adaptive_forgetting.py + gridworld_wm.py; stdlib only)
+  deps: []
+  effort: "< 0.5 day"
+  notes: >
+    No LLM. v1 untouched — v2 imports v1's replay/stream/eval machinery and adds
+    ONE function (replay_rate) plus its own (family,i)-keyed universe cache.
+    Pilot family 948000 (assigned) calibrated expected, then FROZEN;
+    confirmatory family 953000 never piloted.
+
+evaluation:
+  comparisons: [null_unbounded, null_nodrift, vs_raw_decay, v1_rule_vs_fifo, adaptive_advantage_v2]
+  ablation:
+    - capacity diagnostics (pilot 948000, outside the verdict) — rate−fifo at C=60/90/120 = +0.006/+0.016/+0.017; exactly 0 unbounded [FACT]
+    - strengthening delta (pilot) — rate−raw = −0.014/+0.000/−0.001 at C=60/90/120; the a-priori fix does NOT rescue the contrast [FACT]
+    - nulls (pilot) — nodrift decay-contrast −0.017 ± 0.014 (<= 0 as required); unbounded 0.000 ± 0.000 exactly [FACT]
+  seeds: 5
+
+decision_rule:
+  primary_metric: adaptive_advantage_v2
+  rules:
+    - max: 0.03
+      verdict: DISCARD
+    - min: 0.03
+      max: 0.06
+      verdict: OPTIMIZE
+    - min: 0.06
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓ — preregistered
+# expecting DISCARD; the negative verdict is the deliverable, not a failure of it.
+#
+# ---------------------------------------------------------------------------
+# CONFIRMATORY OUTCOME (recorded AFTER the frozen run — not part of the
+# preregistration above). Family 953000, 5 seeds, 2026-07-14, all [FACT: run log]:
+#   adaptive_advantage_v2 (PRIMARY) = +0.023 ± 0.021  -> failure_condition
+#     TRIGGERED -> VERDICT: REJECTED / DISCARD band. Per-seed
+#     +0.020, 0.000, 0.000, +0.053, +0.040 (two seeds exactly 0).
+#   null_unbounded  =  0.000 ± 0.000 (exactly 0, structural guarantee holds)
+#   null_nodrift    = -0.008 ± 0.013 (<= 0 as required — drift-necessity holds)
+#   vs_raw_decay    = +0.005 ± 0.020 (the a-priori strengthening added ~nothing)
+#   v1_rule_vs_fifo = +0.018 ± 0.017 (replicates ADR-015's +0.018 on a 3rd
+#     disjoint family — the sub-SESOI edge vs FIFO is a stable fact, not noise)
+# Honest reading: utility-aware forgetting does NOT beat plain FIFO by the SESOI
+# under this purely temporal drift (oldest≈stalest, so blind age already captures
+# the signal). v1's OPTIMIZE stands only for adaptive-vs-never-forget
+# (mechanism isolation); the STRONG claim is now REJECTED by preregistration.
+# The sub-SESOI vs-FIFO edge replicates across three disjoint families:
+# 965000 v1-confirmatory +0.018, 948000 v2-pilot +0.016, 953000 v2-confirmatory
+# raw +0.018 / rate +0.023. The one above-SESOI reading of this contrast
+# (+0.041 at the v1 pilot, family 960000) never replicated [FACT: ADR-015 §3].
+# Scope C0-C3, grid-world, single-snapshot synthetic drift; no phenomenal claim.
+# Full record + confirmed caveats: adr/ADR-021-adaptive-forgetting-v2.md.

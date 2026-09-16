@@ -1,0 +1,186 @@
+{
+  "schema": "octopus.ui_registry.v1",
+  "updated_at": "2026-08-06T03:39:28Z",
+  "items": [
+    {
+      "id": "telegram_ops",
+      "title": "Telegram /ops",
+      "type": "telegram_command",
+      "status": "live",
+      "owner_visible": true,
+      "command": "/ops",
+      "notes": "owner control plane; flag OCTOPUS_WIRE_TG_CONTROL=1",
+      "risk": "low (read + owner-gated execute)"
+    },
+    {
+      "id": "outbound_status",
+      "title": "Outbound WAL Status",
+      "type": "telegram_command",
+      "status": "live",
+      "owner_visible": true,
+      "command": "/outbound status",
+      "notes": "G-03 write-ahead ledger snapshot",
+      "risk": "low (read-only)"
+    },
+    {
+      "id": "outbound_resolve",
+      "title": "Outbound Owner Resolve",
+      "type": "telegram_command",
+      "status": "live",
+      "owner_visible": true,
+      "command": "/outbound mark-sent|cancel|retry <effect_id>",
+      "notes": "owner-gated; terminal-state guards enforced",
+      "risk": "medium (state-changing, owner-gated)"
+    },
+    {
+      "id": "impact",
+      "title": "Leg Impact",
+      "type": "telegram_command",
+      "status": "live",
+      "owner_visible": true,
+      "command": "/impact <leg>",
+      "notes": "AdaptiveValueLedger.score; no auto-delete",
+      "risk": "low (read-only)"
+    },
+    {
+      "id": "telegram_now",
+      "title": "Telegram /now",
+      "type": "telegram_command",
+      "status": "live",
+      "owner_visible": true,
+      "command": "/now",
+      "notes": "passthrough; not swallowed by control plane",
+      "risk": "low"
+    },
+    {
+      "id": "ui_launcher",
+      "title": "Telegram /ui launcher",
+      "type": "telegram_command",
+      "status": "live",
+      "owner_visible": true,
+      "command": "/ui",
+      "notes": "2026-08-06: relabeled live -- center.py:2916-2919 calls agi2027_control.integration.try_handle_control() on every message (OCTOPUS_WIRE_TG_CONTROL=1 in managed_flags.json), and ControlPlane.handle() explicitly handles /ui and /open. Rides the same wired path as telegram_ops. Graceful CONFIG_NEEDED when OCTOPUS_MINIAPP_URL unset still applies.",
+      "risk": "low"
+    },
+    {
+      "id": "miniapp_gateway",
+      "title": "MiniApp HTTP Gateway",
+      "type": "http_gateway",
+      "status": "live",
+      "owner_visible": false,
+      "endpoint": "port from env",
+      "path": "_ops/telegram_center/miniapp_gateway.py",
+      "notes": "HTTPServer with initData HMAC auth; routes / and /api/miniapp (proxied)",
+      "risk": "medium (network; auth-gated)"
+    },
+    {
+      "id": "miniapp_frontend",
+      "title": "MiniApp Frontend",
+      "type": "web_frontend",
+      "status": "live",
+      "owner_visible": true,
+      "path": "_ops/telegram_center/miniapp/ (index.html/app.js/style.css)",
+      "notes": "2026-08-06: relabeled live -- owner's cockpit, in daily use throughout 08-03..08-06 (six tabs, arm-token flows, /heart /brain /doctor). Actions gated by owner auth, not disabled.",
+      "risk": "low (read-only, auth-gated writes)"
+    },
+    {
+      "id": "miniapp_state_api",
+      "title": "MiniApp /api/state",
+      "type": "http_endpoint",
+      "status": "live",
+      "owner_visible": false,
+      "endpoint": "GET /api/state",
+      "notes": "2026-08-06: relabeled live -- backs every miniapp_frontend tab (ops/value/brain/heart/registry/current-truth), confirmed serving throughout this session's work.",
+      "risk": "low (read-only, auth-gated)"
+    },
+    {
+      "id": "render_canonical",
+      "title": "Canonical Render",
+      "type": "render_layer",
+      "status": "live",
+      "owner_visible": true,
+      "path": "_ops/telegram_center/render.py",
+      "notes": "single source for leg/card → Telegram + dashboard",
+      "risk": "low"
+    },
+    {
+      "id": "organism_state",
+      "title": "ORGANISM-STATE Aggregate",
+      "type": "status_aggregate",
+      "status": "live",
+      "owner_visible": false,
+      "path": "_ops/state/ORGANISM-STATE.json",
+      "notes": "single status source; business_legs_beat writes it",
+      "risk": "low"
+    },
+    {
+      "id": "current_truth",
+      "title": "Octopus Current Truth",
+      "type": "obsidian_note",
+      "status": "live",
+      "owner_visible": true,
+      "path": "OCTOPUS/CURRENT-TRUTH.md",
+      "notes": "2026-08-06: path corrected -- the 08-02-dated file this entry named was moved long ago; miniapp_state.py::_find_truth() resolves the real path dynamically now (env var -> OCTOPUS/CURRENT-TRUTH.md -> legacy undated -> newest dated glob), this entry just followed suit. Separately: the external scheduled task that regenerates this file's CONTENT has a broken target path (see task #51) -- the path is correct, freshness is not guaranteed.",
+      "risk": "low"
+    },
+    {
+      "id": "handoff",
+      "title": "Session Handoff",
+      "type": "obsidian_note",
+      "status": "live",
+      "owner_visible": true,
+      "path": "01 - Dashboard/HANDOFF.md",
+      "notes": "wikilink index; agent orientation",
+      "risk": "low"
+    },
+    {
+      "id": "experience_ledger",
+      "title": "Experience Ledger",
+      "type": "obsidian_note",
+      "status": "live",
+      "owner_visible": true,
+      "path": "_memory/EXPERIENCE-LEDGER.md",
+      "notes": "append-only lessons ledger",
+      "risk": "low"
+    },
+    {
+      "id": "frustration_cli",
+      "title": "Budget Frustration Index",
+      "type": "cli_report",
+      "status": "staged",
+      "owner_visible": false,
+      "path": "_ops/legs/budget_frustration.py",
+      "command": "python _ops/legs/budget_frustration.py",
+      "notes": "not yet wired to Telegram/ORANGISM-STATE",
+      "risk": "low (read-only)"
+    },
+    {
+      "id": "syndrome_cli",
+      "title": "Cross-leg Syndrome",
+      "type": "cli_report",
+      "status": "staged",
+      "owner_visible": false,
+      "path": "_ops/legs/organism_syndrome.py",
+      "command": "python _ops/legs/organism_syndrome.py",
+      "notes": "not yet wired",
+      "risk": "low (read-only)"
+    },
+    {
+      "id": "dashboard_legacy",
+      "title": "Legacy dashboard/",
+      "type": "legacy_dir",
+      "status": "live",
+      "owner_visible": true,
+      "path": "_ops/dashboard/",
+      "notes": "2026-08-06: relabeled live -- audited and wired, not unreviewed. _ops/dashboard/RUN-DASHBOARD.bat launches server.py on 127.0.0.1:8770; its RESTART-REQUESTED marker is explicitly coupled to organism.py's STOP-ORGANISM restart flow (center.py:65-67, 'owner decision #25'). Not one of the 5 always-on limbs (organism/cortex/center/live/gateway) -- a manually-launched companion process, wired and reviewed rather than experimental.",
+      "risk": "low"
+    }
+  ],
+  "summary": {
+    "live": 15,
+    "staged": 2,
+    "unknown": 0,
+    "blocked": 0,
+    "total": 17
+  }
+}

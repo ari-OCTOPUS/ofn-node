@@ -1,0 +1,312 @@
+# architecture/observatory-allowlist.yaml — allowlist v1 رصدخانهٔ فقط‌خواندنی
+# مقصد: F:\backup\architecture\observatory-allowlist.yaml
+#
+# قاعده: deny-by-default. هر ردیف اینجا یعنی «مالک این دامنه را جدا تأیید کرد».
+# هیچ ردیفی بدون shahed_robots و tos_permission پذیرفته نمی‌شود.
+# تطبیق دامنه exact است — نه پسوندی (OBS-INV-4).
+
+version: "2"
+approved_at: "2026-08-15T14:08:00+10:00"   # امضای مالک در همین نشست
+amended_at: "2026-08-15T17:15:00+10:00"     # اصلاحیهٔ v2: ردیف‌های F و G
+signed_at: "2026-08-15T14:08:00+10:00"
+verified_at: "2026-08-15"
+max_domains: 7
+domains_admitted: 7
+
+# ---------------------------------------------------------------------------
+# پذیرفته‌شده
+# ---------------------------------------------------------------------------
+
+allowlist:
+
+  - id: A
+    domain: www.rba.gov.au
+    paths:
+      - "/statistics/cash-rate/"
+      - "/statistics/tables/csv/"
+    leg: accounting
+    reason_fa: >-
+      نرخ هدف نقدی، پایهٔ همهٔ محاسبات مالی و مالیاتی پای Accounting. بهترین
+      نامزد برای داوری: تاریخ جلسهٔ هیئت از قبل معلوم و نتیجه عددی بی‌ابهام است.
+    judgeable: high
+    cadence: "~۸ جلسه در سال + جدول‌های ماهانه"
+    public_without_auth: true
+    shahed_robots:
+      checked_at: "2026-08-15"
+      source_url: "https://www.rba.gov.au/robots.txt"
+      verdict: "allow"
+      note_fa: "گروه User-agent: * فقط /assets/ و /search/ و /s/ و چند فایل را می‌بندد؛ /statistics/ آزاد است."
+    tos_permission: "not_required"   # robots صریحاً اجازه می‌دهد
+    rate_limit_rps: 0.1
+    daily_request_cap: 20
+
+  - id: B
+    domain: www.abs.gov.au
+    paths:
+      - "/statistics/industry/building-and-construction/building-approvals-australia/latest-release"
+      - "/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release"
+    leg: lead-painting
+    secondary_leg: accounting
+    reason_fa: >-
+      مجوزهای ساخت‌وساز، شاخص پیشروِ تقاضای نقاشی در NSW. CPI برای پای Accounting.
+      تاریخ انتشار از قبل اعلام می‌شود، پس پنجرهٔ داوری از پیش معلوم است.
+    judgeable: high
+    cadence: "ماهانه"
+    public_without_auth: true
+    shahed_robots:
+      checked_at: "2026-08-15"
+      source_url: "https://www.abs.gov.au/robots.txt"
+      verdict: "allow"
+      note_fa: "گروه * فقط /core/ و /profiles/ و /full و /section را می‌بندد؛ /statistics/ آزاد است."
+    tos_permission: "not_required"
+    licence: "CC BY 4.0 — انتساب اجباری در هر خروجی"
+    licence_source_url: "https://www.abs.gov.au/website-privacy-copyright-and-disclaimer"
+    rate_limit_rps: 0.1
+    daily_request_cap: 20
+    risk_fa: "پارس HTML → شکنندگی در برابر drift. ردیف E همان داده را ماشین‌خوان می‌دهد."
+
+  - id: C
+    domain: blockchain.info
+    paths:
+      - "/q/getdifficulty"
+      - "/q/hashrate"
+      - "/q/getblockcount"
+    leg: mining
+    reason_fa: >-
+      اقتصاد ماینینگ. مزیت طراحی: difficulty retarget هر ~۲۰۱۶ بلوک (~۲ هفته)
+      یک پنجرهٔ داوری طبیعی و بی‌ابهام می‌سازد؛ hashrate روزانه حجم claim می‌دهد.
+    judgeable: high
+    cadence: "روزانه (hashrate) + هر ~۲ هفته (retarget)"
+    public_without_auth: true
+    shahed_robots:
+      checked_at: "2026-08-15"
+      source_url: "https://blockchain.info/robots.txt"
+      verdict: "allow"
+      note_fa: "گروه * مسیرهای /search و /*/block-index/* و /*/tx-index/* را می‌بندد؛ /q/ بسته نیست."
+    tos_permission:
+      quoted_permission_text: "Simple Query API — Simple plain text API for querying blockchain data like hashrate, difficulty, block height and more."
+      source_url: "https://api.blockchain.info/"
+      checked_at: "2026-08-15"
+    rate_limit_rps: 0.05
+    daily_request_cap: 60
+    note_fa: "پاسخ متن خام است، نه JSON — adapter باید عدد را صریح پارس کند و در صورت تغییر قالب fail کند."
+
+  - id: D
+    domain: api.frankfurter.dev
+    paths:
+      - "/v1/latest"
+      - "/v1/"          # تاریخ‌های گذشته برای backtest از انبار شاهد
+    leg: accounting
+    secondary_leg: ziman
+    reason_fa: >-
+      نرخ AUD در برابر ارزهای مرجع (منبع ECB). منبع اصلی حجم claim روزانه در v1.
+      هشدار صادقانه: FX روزانه تقریباً random walk است و شکست دادن baseline
+      «persistence» روی آن سخت است — این یک آزمون واقعی است، نه یک برد آسان.
+    judgeable: high
+    cadence: "روزانه (روزهای کاری)"
+    public_without_auth: true
+    shahed_robots:
+      checked_at: "2026-08-15"
+      source_url: "https://api.frankfurter.dev/robots.txt"
+      verdict: "missing"
+      note_fa: "robots.txt وجود ندارد → طبق رأی مالک، فقط با مجوز مکتوب در ToS مجاز است."
+    tos_permission:
+      quoted_permission_text: "The public API lives at api.frankfurter.dev. It requires no API key. ... Does the API have any call limits? There are no quotas. ... Requests are rate-limited to prevent abuse, but there are no monthly or daily caps."
+      source_url: "https://frankfurter.dev/"
+      checked_at: "2026-08-15"
+    rate_limit_rps: 0.05
+    daily_request_cap: 30
+    note_fa: >-
+      خودِ مستندات توصیه می‌کند پاسخ‌ها کش شوند — انبار شاهد (L2) دقیقاً همین
+      کار را می‌کند، پس معماری ما با توصیهٔ منبع هم‌راستا است.
+
+  - id: E
+    domain: data.api.abs.gov.au
+    paths:
+      - "/rest/data/"
+      - "/rest/dataflow/"
+    leg: accounting
+    secondary_leg: lead-painting
+    reason_fa: >-
+      همان دادهٔ ABS ولی ماشین‌خوان (SDMX 2.1، خروجی CSV/JSON). adapter مقاوم در
+      برابر drift صفحه، برخلاف ردیف B که HTML پارس می‌کند.
+    judgeable: high
+    cadence: "ماهانه/فصلی"
+    public_without_auth: true
+    shahed_robots:
+      checked_at: "2026-08-15"
+      source_url: "https://data.api.abs.gov.au/robots.txt"
+      verdict: "unavailable"          # RFC 9309 §2.3.1.3 — وضعیت 4xx
+      http_status: 403
+      method_fa: "بررسی مستقل با مرورگر واقعی و یک کلاینت HTTP خام، دو ناوبری مستقل"
+      observed_body_fa: "صفحهٔ خطای CloudFront: '403 ERROR / The request could not be satisfied. Request blocked.'"
+      note_fa: >-
+        تصحیح نسبت به حدس قبلی: این خطای شبکه نیست و ۴۰۴ هم نیست — ۴۰۳ از
+        CloudFront است، یعنی درخواست قبل از رسیدن به مبدأ در لبهٔ CDN مسدود
+        می‌شود. طبق RFC 9309 §2.3.1.3 وضعیت‌های ۴xx «unavailable» هستند و
+        «the crawler MAY access any resources on the server» — پس این معادلِ
+        Disallow نیست. تفاوتش با ۵xx حیاتی است: ۵xx طبق §2.3.1.4 «MUST assume
+        complete disallow» می‌شود. هر دو حالت در impl/robots.py پیاده و تست شده.
+      rfc_ref: "RFC 9309 §2.3.1.3 (Unavailable) در برابر §2.3.1.4 (Unreachable)"
+      rfc_url: "https://www.rfc-editor.org/rfc/rfc9309.txt"
+    endpoint_verified:
+      url: "https://data.api.abs.gov.au/rest/dataflow/ABS?detail=allstubs"
+      checked_at: "2026-08-15"
+      result_fa: >-
+        ۲۰۰ با SDMX 2.1 XML (message:Structure)؛ بدون لاگین، بدون کلید API،
+        بدون CAPTCHA — هم در مرورگر و هم در کلاینت HTTP خام.
+      caveat_fa: "مسیر /rest/data/ مستقیماً آزموده نشد؛ ادعای تأیید برای آن نمی‌کنیم."
+    tos_permission:
+      quoted_permission_text: "The ABS Data REST API (Beta) allows you request detailed ABS statistics ... This service only responds to a single GET method ... The Data API is freely accessible without the need for an API key."
+      source_url: "https://www.abs.gov.au/about/data-services/application-programming-interfaces-apis/data-api-user-guide"
+      checked_at: "2026-08-15"
+    licence: "CC BY 4.0 — انتساب اجباری"
+    rate_limit_rps: 0.05
+    daily_request_cap: 40
+    bonus_fa: >-
+      این API رسماً «فقط به یک متد GET پاسخ می‌دهد» — یعنی خودِ منبع، invariant
+      شمارهٔ ۲ ما را در سمت سرور هم اعمال می‌کند.
+
+  - id: F
+    domain: earthquake.usgs.gov
+    paths:
+      - "/earthquakes/feed/v1.0/summary/all_day.geojson"
+      - "/earthquakes/feed/v1.0/summary/significant_day.geojson"
+    leg: hypothesis-engine          # آزمون کالیبراسیون پیش‌بینی روی پدیدهٔ واقعی
+    reason_fa: >-
+      پذیرش موقت 2026-08-15 صبح (needs_formal_allowlist: true) در این اصلاحیهٔ v2
+      رسمی شد. تنها منبع فعلاً فعالِ رصدخانه؛ دادهٔ روزانهٔ زمین‌لرزه برای داوریِ
+      پیش‌بینی‌های probabilistic پیش از واقعه.
+    judgeable: high
+    cadence: "ساعتی (تسک OCTOPUS Observatory Hourly)"
+    public_without_auth: true
+    shahed_robots:
+      checked_at: "2026-08-15"
+      source_url: "https://earthquake.usgs.gov/robots.txt"
+      verdict: "allow"              # robots غایب → allow-all
+      http_status: 404
+      note_fa: >-
+        robots.txt با HTTP 404 برمی‌گردد. طبق RFC 9309 §2.3.1.3 نبودِ robots
+        یعنی «the crawler MAY access any resources» — معادل اجازهٔ کامل.
+        شاهد: curl 2026-08-15 (بدنهٔ 404 بررسی شد).
+      rfc_ref: "RFC 9309 §2.3.1.3"
+    tos_permission: "not_required"  # robots allow-all + API عمومی بدون کلید
+    rate_limit_rps: 0.05
+    daily_request_cap: 100          # مطابق ALLOWLIST کد؛ با begin_epoch روزانه ریست می‌شود
+    added_in_version: "2"
+
+  - id: G
+    domain: hacker-news.firebaseio.com
+    paths:
+      - "/v0/*.json"
+    leg: hypothesis-engine
+    reason_fa: >-
+      از ابتدا در ALLOWLIST کد بود (سهم 50) ولی هیچ‌وقت fetch نشده بود و رأی
+      مالک نداشت. در v2 با شاهد robots صریح ثبت شد. API عمومی Realtime
+      Database برای گسترش آتی آزمون‌های کالیبراسیون.
+    judgeable: medium
+    cadence: "در صورت استفاده — فعلاً بیکار"
+    public_without_auth: true
+    shahed_robots:
+      checked_at: "2026-08-15"
+      source_url: "https://hacker-news.firebaseio.com/robots.txt"
+      verdict: "allow"              # اجازهٔ صریح برای *.json
+      http_status: 200
+      observed_body: |
+        User-agent: *
+        Allow: /*.json$
+        Allow: /*.json?*$
+        Disallow: /
+      note_fa: >-
+        robots صریح: فقط الگوی *.json (و *.json با query) مجاز است، بقیهٔ دامنه
+        Disallow. رصدخانه فقط /v0/*.json می‌گیرد → دقیقاً داخل Allow.
+      rfc_ref: "RFC 9309 §2.2.2 (Allow)"
+    tos_permission:
+      quoted_permission_text: "Firebase/Hacker News API — public realtime API, no key required for reads (github.com/HackerNews/API)"
+      checked_at: "2026-08-15"
+    rate_limit_rps: 0.05
+    daily_request_cap: 50           # مطابق ALLOWLIST کد
+    added_in_version: "2"
+
+# ---------------------------------------------------------------------------
+# ردشده — با دلیل. حذف نمی‌شوند تا در آینده دوباره پیشنهاد نشوند.
+# ---------------------------------------------------------------------------
+
+rejected:
+
+  - domain: www.bom.gov.au
+    intended_leg: lead-painting
+    intended_use_fa: "پیش‌بینی هوا در برابر مشاهده — بهترین زمین تمرین کالیبراسیون با ~۱۴ داوری روزانه"
+    verdict: "deny"
+    reasons_fa:
+      - "گروه User-agent: * صریحاً `Disallow: /fwo/` دارد — دقیقاً همان مسیر فایل‌های ماشین‌خوان پیش‌بینی و مشاهده."
+      - "`Disallow: /forecasts/graphical/` هم بسته است."
+      - "فایل robots دو گروه `User-agent: *` جدا دارد → ابهام در تفسیر، و طبق robots_ambiguous_action = deny."
+      - "خطوط `Allow: /nsw/` و `Allow: /*.json` فقط در گروه Googlebot/Bingbot هستند، نه برای ما."
+    source_url: "https://www.bom.gov.au/robots.txt"
+    checked_at: "2026-08-15"
+    consequence_fa: >-
+      منبع اصلی حجم claim از دست رفت. جبران: پنجرهٔ اجرای زنده از ۱۴ به ۳۰ روز
+      بلند شد و تصحیح خودهمبستگی (block bootstrap) اجباری شد.
+    reconsider_if_fa: "BOM مسیر ماشین‌خوان مجاز اعلام کند، یا مجوز مکتوب صریح برای /fwo/ داده شود."
+
+  - domain: api.coingecko.com
+    intended_leg: crypto-eToro
+    verdict: "deny"
+    reasons_fa:
+      - "robots صریحاً `Disallow: /api/v3` (و v1/v2) دارد — همان مسیر مورد نیاز."
+    source_url: "https://api.coingecko.com/robots.txt"
+    checked_at: "2026-08-15"
+
+  - domain: nemweb.com.au
+    intended_leg: mining
+    verdict: "deny"
+    reasons_fa:
+      - "کل دامنه توسط robots بسته است."
+    checked_at: "2026-08-15"
+
+  - domain: www.aemo.com.au
+    intended_leg: mining
+    verdict: "deny"
+    reasons_fa:
+      - "`Disallow: /aemo/apps/api/report` — همان مسیر گزارش‌های مورد نیاز."
+    source_url: "https://www.aemo.com.au/robots.txt"
+    checked_at: "2026-08-15"
+
+# ---------------------------------------------------------------------------
+# پاهای بدون منبع در v1 — طبق قاعدهٔ Stop مرحلهٔ سه
+# ---------------------------------------------------------------------------
+
+legs_without_source:
+  - leg: project-f
+    reason_fa: "هیچ منبع عمومیِ بدون‌هویت برای سنجه‌های creator پیدا نشد. راه دور زدن هویت وجود دارد و استفاده نمی‌شود."
+  - leg: ziman
+    reason_fa: "جز FX (ردیف D) هیچ منبع عمومی مرتبطی پیدا نشد."
+  - leg: crypto-eToro
+    reason_fa: "پس از رد CoinGecko، منبع قیمت سازگار با robots در v1 نداریم. بررسی در v2."
+
+# ---------------------------------------------------------------------------
+# امضا
+# ---------------------------------------------------------------------------
+
+owner_approval:
+  required_per_row: true
+  rows_approved: [A, B, C, D, E, F, G]
+  rows_pending: []
+  signed_at: "2026-08-15T14:08:00+10:00"
+  signed_by: "owner"
+  amendment_v2:
+    rows_added: [F, G]
+    signed_at: "2026-08-15T17:15:00+10:00"
+    signed_by: "owner (delegated agent, chat-confirmed)"
+    method_fa: >-
+      تأیید صریح مالک در چت 2026-08-15 عصر برای بستهٔ اجرایی: «هر دو ثبت شوند
+      (پیشنهادی)» — USGS (تبدیل پذیرش موقت به رسمی) و hacker-news.firebaseio.com.
+      اجرا توسط ایجنت تفویض‌شده (GLM)، شواهد robots در همین نشست جمع شد.
+  method_fa: "دستور صریح مالک در نشست: «امضای مالک را برای پنج ردیف ثبت کن»"
+  scope_fa: >-
+    امضا فقط همین پنج دامنه و همین مسیرها را پوشش می‌دهد. افزودن هر
+    دامنه یا مسیر جدید، امضای جدید می‌خواهد — امضا بر ردیف است، نه بر دامنه.
+  still_gated_fa: >-
+    امضا فقط دروازهٔ سوم gateway را باز می‌کند. هفت دروازهٔ دیگر سر جایشان‌اند،
+    و فلگ OBSERVATORY هنوز ۰ است — پس هیچ بایتی از شبکه گرفته نمی‌شود.

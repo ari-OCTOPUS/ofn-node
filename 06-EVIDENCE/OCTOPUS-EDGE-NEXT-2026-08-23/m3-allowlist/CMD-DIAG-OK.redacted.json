@@ -1,0 +1,17 @@
+{
+  "sender_id": "octopus-core-e2e",
+  "role": "core",
+  "permission": "diagnostics.read",
+  "timestamp": "2026-08-23T04:13:06.975339Z",
+  "expiry": "2026-08-23T04:28:06.975339Z",
+  "nonce": "c6335cfa3369483c8445bc9497210fc6",
+  "command": "COLLECT_DIAGNOSTICS",
+  "request_id": "m3-ok-a95bf0b1",
+  "params": {
+    "mutates": false,
+    "include": [
+      "systemd"
+    ]
+  },
+  "signature": "b64:zbycl6sM\u2026REDACTED"
+}

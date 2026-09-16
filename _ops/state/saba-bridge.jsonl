@@ -1,0 +1,98 @@
+# saba-bridge.jsonl — پلِ ارتباطیِ Saba Studio ↔ Organism (verdict 2026-07-18 integration-debug)
+#
+# فرمت: یک JSON per line (JSONL append-only).
+#   {"ts": "...", "kind": "draft_submitted|halt|resume|boundary|first_message", "text": "..."}
+#
+# نویسنده (آینده): saba_brain.py در رویدادهای مهم (نه هر پیام).
+# خواننده (آینده): wiring.py::saba_bridge_beat() — هنوز ساخته نشده.
+#
+# فعلاً این فایل آماده است ولی consumer ندارد. وقتی owner خواست saba events
+# به organism loop برسد، یک beat در wiring.py با الگوی cockpit_requests_beat
+# (خط 1184) اضافه می‌شود. تا آن زمان، communication از طریق to_ari.json
+# (که لنگر می‌خواند) انجام می‌شود.
+{"ts": "2026-07-24T15:18:38", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-24T15:18:39", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:18:39", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:18:39", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:18:39", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:19:02", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-24T15:19:03", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:19:03", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:19:03", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:19:03", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:35:31", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-24T15:35:32", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:35:32", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:35:32", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:35:32", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:40:24", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-24T15:40:25", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:40:25", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:40:26", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:40:26", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:01:30", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:01:30", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:01:31", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:01:31", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:01:31", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:04:52", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:04:52", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:04:53", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:04:53", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:04:53", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:09:39", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:09:40", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:09:40", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:09:40", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:09:40", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:18:35", "kind": "brain_tick_done", "text": "test", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:19:19", "kind": "brain_tick_done", "text": "tick 1 done", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:19:32", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:19:33", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:19:33", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:19:33", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:19:33", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:21:50", "kind": "brain_tick_done", "text": "tick 1 done", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:23:45", "kind": "brain_tick_done", "text": "tick 1 done", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:25:04", "kind": "brain_tick_done", "text": "tick 1 done", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:25:39", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:25:40", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:25:40", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:25:40", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:25:40", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:26:56", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:26:57", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:26:57", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:26:57", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:26:57", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:37:40", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:37:41", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:37:41", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:37:41", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:37:41", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:38:48", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:38:49", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:38:49", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:38:49", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:38:50", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:41:01", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T20:41:02", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:41:02", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:41:02", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T20:41:02", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:08:00", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T21:08:00", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:08:01", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:08:01", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:08:01", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:13:42", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T21:13:42", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:13:43", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:13:43", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:13:43", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:21:29", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-25T21:21:30", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:21:30", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:21:30", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-25T21:21:30", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-08-02T23:58:36", "kind": "brain_tick_done", "text": "tick 1 done", "source": "pf_os", "count": 0}

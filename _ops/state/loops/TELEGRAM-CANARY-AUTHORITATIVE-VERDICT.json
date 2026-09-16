@@ -1,0 +1,115 @@
+{
+  "schema": "telegram-canary-authoritative-verdict/1",
+  "generated_at": "2026-08-21T04:05:00Z",
+  "code_checkpoint": "8fd7c72 (+ uncommitted staged package; BLK-0005 blocks commit)",
+  "authoritative_verdict": {
+    "TELEGRAM_CENTER_DURABLE_TRANSPORT_LOOP": "PRODUCTION_CLOSED",
+    "TELEGRAM_COMMAND_COVERAGE": "PRODUCTION_CLOSED",
+    "TELEGRAM_EVENT_BRIDGE_PATH": "IN_PROGRESS",
+    "TELEGRAM_UNOWNED_ALERT_PATH": "CONTAINED_VERIFIED",
+    "WAVE1": "LOCKED"
+  },
+  "closed_scope": [
+    {
+      "loop": "S-T01",
+      "what": "authorized owner update -> durable intent -> dispatch -> result -> outbox -> real delivery -> receipt -> readback -> CLOSED",
+      "evidence": "5/5 complete chains (tg:223883337..341); message_ids 554/557/560/561/562; direct_sends=0; legacy_hits=0; miscounted_failures=0; readbacks=5",
+      "audit": "_ops/state/loops/canary-audit-2026-08-21/AUDIT.json"
+    },
+    {
+      "loop": "LOOP-TELEGRAM-COMMAND-COVERAGE",
+      "what": "the five distinct canary commands accepted in strict 01..05 order with complete transport chains",
+      "status": "PRODUCTION_CLOSED 2026-08-21",
+      "evidence": "window CANARY-COVERAGE-20260821-C: guard wired at runtime (true), 5/5 ACCEPTED in order (updates 223883347..351), 5/5 DELIVERY_CONFIRMED (message_ids 572/574/576/578/580), 5/5 readbacks, 0 duplicates, 0 sequence violations, 0 uncertain in window, 0 direct sends, 0 memory mutations, 0 paid calls; independent scoped verifier confirmed=true (TELEGRAM-WINDOW-C-VERDICT.json)",
+      "audit": "_ops/state/loops/canary-coverage-2026-08-21-C/AUDIT.json"
+    }
+  ],
+  "open_scope": [
+    {"loop": "S-T02",
+     "what": "event_bridge outbox-first path had ZERO invocations in the window (no production evidence)",
+     "status": "IN_PROGRESS"}
+  ],
+  "window_20260821_C": {
+    "canary_id": "CANARY-COVERAGE-20260821-C",
+    "nonce": "a2a4a01832484d6d",
+    "verdict": "CLOSED",
+    "command_coverage": "PRODUCTION_CLOSED",
+    "guard_wired_at_runtime": true,
+    "sequence_inputs_received": 5,
+    "delivery_api_confirmed": 5,
+    "readback_confirmed": 5,
+    "uncertain_send_outcomes": 0,
+    "duplicate_effects": 0,
+    "direct_sends": 0,
+    "memory_mutations": 0,
+    "paid_calls": 0,
+    "verifier_confirmed": true,
+    "evidence": "_ops/state/loops/canary-coverage-2026-08-21-C/AUDIT.json",
+    "verifier_artifact": "_ops/state/loops/TELEGRAM-WINDOW-C-VERDICT.json",
+    "window_b_debt": "updates 223883344/346 remain UNCERTAIN_SEND_OUTCOME in the bounded reconciliation queue (independent, not counted in window C)"
+  },
+  "corrected_classification": {
+    "duplicate_effect": {
+      "definition": "one event producing more than one task, reply, or external effect",
+      "observed": 0,
+      "verdict": "PASS"
+    },
+    "duplicate_content": {
+      "definition": "two distinct authorized events carrying identical text",
+      "observed": "1 pair (updates 223883339/223883340)",
+      "verdict": "NOT_A_FAILURE — observation only"
+    },
+    "protocol_coverage": {
+      "definition": "the five distinct canary commands exercised in order",
+      "observed": "window B (CANARY-COVERAGE-20260821-B): 5/5 in order with 2 uncertain sends (CANARY_PARTIAL); window C (CANARY-COVERAGE-20260821-C): 5/5 in order with 5/5 confirmed deliveries and readbacks",
+      "verdict": "COMPLETE for window C — LOOP-TELEGRAM-COMMAND-COVERAGE PRODUCTION_CLOSED"
+    }
+  },
+  "superseded_artifacts": [
+    {"path": "_ops/state/loops/TELEGRAM-CANARY-RECONCILIATION-2026-08-21.json",
+     "prior_claim": "CANARY_FAILED (whole window)",
+     "reason": "misclassified two distinct authorized events (duplicate_content) as a duplicate_effect; corrected: the transport loop passed, only command coverage is incomplete",
+     "status": "SUPERSEDED_BY this file — corrected, not deleted"},
+    {"path": "_ops/state/loops/TELEGRAM-PRODUCTION-VERDICT.json",
+     "prior_claim": "unconditional PRODUCTION_CLOSED (implying full protocol)",
+     "reason": "narrowed to the durable transport loop scope only; command coverage remains OPEN",
+     "status": "SUPERSEDED_BY this file — narrowed, not deleted"}
+  ],
+  "evidence_references": [
+    "_ops/state/loops/canary-audit-2026-08-21/AUDIT.json",
+    "_ops/state/loops/canary-audit-2026-08-21/MANIFEST.sha256",
+    "_ops/state/loops/canary-coverage-2026-08-21-B/AUDIT.json",
+    "_ops/state/loops/canary-coverage-2026-08-21-B/DELIVERY-TRUTH-RECONCILIATION.json",
+    "_ops/state/loops/canary-coverage-2026-08-21-C/AUDIT.json",
+    "_ops/state/loops/TELEGRAM-WINDOW-C-VERDICT.json",
+    "_ops/state/loops/RUNNING-CODE-MANIFEST-2026-08-21.json",
+    "_ops/state/loops/TELEGRAM-CANARY-RECONCILIATION-2026-08-21.json"
+  ],
+  "window_20260821_B": {
+    "canary_id": "CANARY-COVERAGE-20260821-B",
+    "nonce": "d38db4ef39484656",
+    "verdict": "CANARY_PARTIAL",
+    "command_coverage": "OPEN",
+    "sequence_inputs_received": 5,
+    "runtime_sequence_guard": "NOT_WIRED",
+    "delivery_api_confirmed": 3,
+    "readback_confirmed": 3,
+    "uncertain_send_outcomes": 2,
+    "duplicate_effects": 0,
+    "direct_sends": 0,
+    "event_bridge_invocations": 0,
+    "memory_mutations": 0,
+    "paid_calls": 0,
+    "verifier_confirmed": false,
+    "evidence": "_ops/state/loops/canary-coverage-2026-08-21-B/AUDIT.json",
+    "delivery_truth": "_ops/state/loops/canary-coverage-2026-08-21-B/DELIVERY-TRUTH-RECONCILIATION.json",
+    "post_hoc_reconstruction_labeled": "wired_at_runtime=false",
+    "supersedes_window_A_verdict": "previous window was CANARY_FAILED (protocol incomplete); window B resolved the protocol gaps (03 sent, 04 not repeated) but delivery remained partial",
+    "not_rewritten_by_verifier_runs": true
+  },
+  "verifier": "AUDIT.json complete_chains=5/5; per-update chains independently reconstructed from durable state",
+  "wave1_unlocked": false,
+  "paid_calls": 0,
+  "memory_mutations": 0,
+  "stop_heartbeat": true
+}

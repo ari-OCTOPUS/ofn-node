@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCTOPUS — کاکپیتِ مالک</title>
+<style>
+  html,body{margin:0;height:100%;background:#02030e;overflow:hidden;font-family:"Segoe UI",Tahoma,sans-serif}
+  #app{position:fixed;inset:0}
+  #vig{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(120% 90% at 50% 45%,transparent 52%,rgba(0,0,4,.92) 100%)}
+  .top{position:fixed;top:14px;left:0;right:0;text-align:center;z-index:5;pointer-events:none}
+  .top b{font-size:15px;font-weight:800;letter-spacing:3px;background:linear-gradient(90deg,#ffffff,#fcd34d,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 22px #ffffff44}
+  .top span{display:block;font-size:11px;color:#6b7280;margin-top:3px;letter-spacing:1px}
+  #st{position:fixed;top:16px;left:16px;z-index:6;direction:ltr;text-align:left;font:12px/1.7 ui-monospace,Menlo,monospace;color:#e5e7eb;pointer-events:none}
+  #st b{color:#fcd34d}
+  .info{position:fixed;bottom:14px;right:14px;z-index:6;max-width:330px;background:rgba(8,16,28,.82);border:1px solid #1c2c44;border-radius:12px;padding:13px 15px;backdrop-filter:blur(6px);direction:rtl;text-align:right;font-size:12px;line-height:1.85;color:#9fb3cc}
+  .info h3{margin:0 0 6px;font-size:13px;color:#e5e7eb;letter-spacing:.5px}
+  .info .row{margin:3px 0}.info .k{color:#fcd34d}.info .b{color:#67e8f9}.info .src{margin-top:7px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#5b6b85;direction:ltr;text-align:left}
+  #hint{position:fixed;bottom:14px;left:14px;z-index:5;pointer-events:none;font-size:11.5px;color:#5b6b85;max-width:40%}
+  #hint b{color:#fcd34d}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app"></div><div id="vig"></div>
+<div class="top"><b>OWNER COCKPIT · کاکپیتِ مالک</b><span>انسان‌در‌حلقه · دو کانالِ تلگرام · verdict + kill-switch · هیچ اثری بدونِ تأیید</span></div>
+<div id="st"></div>
+<div class="info">
+  <h3>🕹️ کاکپیتِ مالک (آری)</h3>
+  <div class="row">ارگانیسم می‌تواند بی‌نهایت <span class="b">پیشنهاد</span> بدهد، اما تا یک <span class="k">verdict</span> از بالا نازل نشود، هیچ‌چیز به بیرون جاری نمی‌شود.</div>
+  <div class="row"><span class="k">🐙 زیست‌شناسی:</span> مالک بیرونِ بدن است — دستی که ارگانیسم را رام نگه می‌دارد.</div>
+  <div class="row"><span class="k">💾 F:\backup:</span> دو باتِ تلگرام — کانالِ خصوصیِ تأیید (طلایی) + مرکزِ فرمانِ گروهی (سیان)؛ کلیدِ kill هر لحظه در دستِ انسان.</div>
+  <div class="src">src: approval_channel.py · telegram_center/center.py · ARCHITECTURE-SOT §Telegram</div>
+</div>
+<div id="hint">بکش تا بچرخانی · اسکرول = زوم · پیشنهادها بالا می‌روند و منتظر می‌مانند؛ <b>verdict</b> پایین می‌آید</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+const ADD=THREE.AdditiveBlending;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+document.getElementById('app').appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x02030e);scene.fog=new THREE.FogExp2(0x02030e,0.012);
+const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,0.1,400);camera.position.set(3,3,30);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.05;
+controls.autoRotate=true;controls.autoRotateSpeed=0.35;controls.target.set(0,1,0);controls.minDistance=14;controls.maxDistance=70;
+scene.add(new THREE.AmbientLight(0x2a2a44,0.5));
+const ownerL=new THREE.PointLight(0xffffff,20,80);ownerL.position.set(0,12,3);scene.add(ownerL);
+const orgL=new THREE.PointLight(0xa855f7,16,60);orgL.position.set(0,-6,3);scene.add(orgL);
+(function(){const n=700,p=new Float32Array(n*3);for(let i=0;i<n;i++){const r=90+Math.random()*90,t=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x6688bb,size:0.15,transparent:true,opacity:0.5})));})();
+const SKIN=(emis,ei,op)=>new THREE.MeshStandardMaterial({color:0x081826,emissive:emis,emissiveIntensity:ei,roughness:0.35,metalness:0.45,transparent:true,opacity:op,flatShading:true});
+// organism cluster bottom
+const org=new THREE.Group();org.position.y=-7;scene.add(org);
+const cortex=new THREE.Mesh(new THREE.IcosahedronGeometry(2,1),SKIN(0xa855f7,0.9,0.7));cortex.position.y=2;cortex.material.color.setHex(0x1a0b2e);org.add(cortex);
+const heart=new THREE.Mesh(new THREE.SphereGeometry(1.5,24,18),SKIN(0x22d3ee,0.9,0.6));heart.position.y=-0.5;org.add(heart);
+const spine=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,7,12,1,true),new THREE.MeshStandardMaterial({color:0x0a1a3a,emissive:0x3b82f6,emissiveIntensity:1,transparent:true,opacity:0.6,side:THREE.DoubleSide}));spine.position.y=1;org.add(spine);
+// owner glyph high above
+const owner=new THREE.Mesh(new THREE.OctahedronGeometry(1.6,0),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:0.9,roughness:0.2,metalness:0.6}));owner.position.set(0,12,0);scene.add(owner);
+const ownerGlow=new THREE.Mesh(new THREE.SphereGeometry(3,20,20),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.1,blending:ADD,depthWrite:false}));owner.add(ownerGlow);
+// kill-switch ring beside owner
+const kill=new THREE.Mesh(new THREE.TorusGeometry(1.1,0.16,10,32),new THREE.MeshBasicMaterial({color:0xef4444,transparent:true,opacity:0.5,blending:ADD}));kill.position.set(4.5,12,0);scene.add(kill);
+// two channels owner<->organism
+function channel(col,r,off){const c=new THREE.CatmullRomCurve3([new THREE.Vector3(off,11,0),new THREE.Vector3(off*0.6,4,off),new THREE.Vector3(off*0.3,-3,0)]);return {mesh:new THREE.Mesh(new THREE.TubeGeometry(c,40,r,8,false),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.3,blending:ADD})),curve:c};}
+const chApprove=channel(0xfcd34d,0.06,-1.2),chCommand=channel(0x67e8f9,0.14,1.2);
+scene.add(chApprove.mesh,chCommand.mesh);
+// request cards rising (proposals), pool near owner
+const REQ=10,reqs=[];for(let i=0;i<REQ;i++){const m=new THREE.Mesh(new THREE.PlaneGeometry(0.9,0.6),new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.7,blending:ADD,side:THREE.DoubleSide}));scene.add(m);reqs.push({m,t:Math.random(),sp:0.06+Math.random()*0.05,x:(Math.random()-0.5)*3,z:(Math.random()-0.5)*3});}
+// verdict pulses descending
+const verdict=new THREE.Mesh(new THREE.SphereGeometry(0.5,16,16),new THREE.MeshBasicMaterial({color:0x34d399,transparent:true,opacity:0,blending:ADD,depthWrite:false}));scene.add(verdict);
+const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.05,0.8,0.12));
+const stEl=document.getElementById('st');const clock=new THREE.Clock();let vT=0,approve=true,armed=false;
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),0.05),t=clock.getElapsedTime();
+  owner.rotation.y+=0.01;owner.rotation.x+=0.004;ownerGlow.material.opacity=0.1+Math.sin(t*2)*0.04;
+  cortex.rotation.y+=0.005;heart.scale.setScalar(1+Math.abs(Math.sin(t*3))*0.08);
+  armed=Math.sin(t*0.5)>0.6;kill.material.opacity=armed?0.5+Math.abs(Math.sin(t*8))*0.4:0.3;kill.rotation.z+=0.02;kill.scale.setScalar(armed?1.1:1);
+  reqs.forEach(r=>{r.t+=r.sp*dt*3;if(r.t>=1)r.t=0;const p=chCommand.curve.getPoint(1-r.t);r.m.position.set(p.x+r.x*0.15,p.y,p.z+r.z*0.15);r.m.lookAt(camera.position);r.m.material.opacity=0.7*(1-r.t*0.5);});
+  vT+=dt;if(vT>3){vT=0;approve=Math.random()<0.7;}
+  const vc=Math.min(1,vT/1.2);verdict.material.opacity=vT<1.2?0.95:0;verdict.material.color.setHex(approve?0x34d399:0xef4444);
+  const vp=chApprove.curve.getPoint(vc);verdict.position.copy(vp);
+  orgL.color.setHex(approve?0x34d399:0xa855f7);
+  stEl.innerHTML=`<b>OWNER · آری</b><br>pending verdicts: ${reqs.length}<br>last: <span style="color:${approve?'#34d399':'#ef4444'}">${approve?'APPROVE':'DENY'}</span><br>kill-switch: <span style="color:${armed?'#ef4444':'#6ee7b7'}">${armed?'ARMED':'safe'}</span>`;
+  controls.update();composer.render();}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

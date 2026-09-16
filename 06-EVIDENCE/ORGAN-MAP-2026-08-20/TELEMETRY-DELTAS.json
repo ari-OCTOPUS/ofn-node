@@ -1,0 +1,21 @@
+{
+  "afferent_events_per_minute_by_source": {
+    "knowledge": 655.0
+  },
+  "knowledge": {
+    "notes_total": 655,
+    "notes_changed_last_hour": 7,
+    "frontmatter_valid_ratio": 0.4397,
+    "broken_links_count": null,
+    "untagged_ratio": 0.4931,
+    "stale_notes_ratio": 0.6107,
+    "knowledge_afferent_events": 655,
+    "duplicates_suppressed": 0,
+    "malformed": 0,
+    "ineligible_temporal": 0,
+    "future_use": 0,
+    "fabricated_occurred_at": 0,
+    "knowledge_afferent_events_per_min": 39300.0
+  },
+  "elapsed_s": 264.777
+}

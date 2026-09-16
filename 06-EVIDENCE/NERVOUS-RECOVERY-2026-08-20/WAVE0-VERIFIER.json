@@ -1,0 +1,142 @@
+{
+  "schema": "wave0-verifier/1",
+  "confirmed": true,
+  "live_verdict": "WAVE0_PASS",
+  "wave1_unlocked": false,
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "wave1_unlocked_live",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "wave1_unlocked_source_literal",
+      "ok": true,
+      "detail": "governor source"
+    },
+    {
+      "name": "canary_execute_false",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "receipt_attribution_ge_0.95",
+      "ok": true,
+      "detail": 1.0
+    },
+    {
+      "name": "fabricated_task_ids_eq_0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "duplicate_receipts_eq_0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "schema_validation_100",
+      "ok": true,
+      "detail": 1.0
+    },
+    {
+      "name": "receipt_hash_coverage_100",
+      "ok": true,
+      "detail": 1.0
+    },
+    {
+      "name": "test_registry_gap_eq_0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "memory_consecutive_cycles_ge_10",
+      "ok": true,
+      "detail": 15
+    },
+    {
+      "name": "capability_parse_count_gt_0",
+      "ok": true,
+      "detail": 10
+    },
+    {
+      "name": "critical_regressions_eq_0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "shadow_pass",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "rewrites_original_false",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "unique_cycle_identities",
+      "ok": true,
+      "detail": [
+        43390,
+        43392,
+        43394,
+        43396,
+        43399,
+        43401,
+        43403,
+        43405,
+        43407,
+        43409,
+        43411,
+        43413,
+        43416,
+        43418,
+        43420
+      ]
+    },
+    {
+      "name": "artifact_matches_live_verdict",
+      "ok": true,
+      "detail": {
+        "written": "WAVE0_PASS",
+        "live": "WAVE0_PASS"
+      }
+    },
+    {
+      "name": "artifact_gates_passed_match",
+      "ok": true,
+      "detail": {
+        "written": 4,
+        "live": 4
+      }
+    },
+    {
+      "name": "candidate_wave1_locked",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "candidate_does_not_unlock_wave1",
+      "ok": true,
+      "detail": "NOT_GRANTED"
+    }
+  ],
+  "independent_recompute": {
+    "attribution_ratio": 1.0,
+    "attribution_n": 51,
+    "test_gap": 0,
+    "memory_streak": 15,
+    "capability_n": 10,
+    "shadow_criteria": {
+      "duplicate_receipts": 0,
+      "fabricated_task_ids": 0,
+      "schema_validation": 1.0,
+      "original_receipt_hash_coverage": 1.0
+    }
+  },
+  "written_gates_ts": "2026-08-20T12:51:53+00:00",
+  "candidate_present": true,
+  "note": "confirmed=true only if every PASS condition holds and wave1 stays locked. This verifier does not open Wave 1."
+}

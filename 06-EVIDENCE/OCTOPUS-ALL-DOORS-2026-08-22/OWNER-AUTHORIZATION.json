@@ -1,0 +1,8 @@
+{
+  "owner": "Aroma Electronic",
+  "authorization": "ALL-DOORS-OPEN",
+  "token": "OCTOPUS-ALL-DOORS-OPEN-20260822",
+  "scope": "owner_all_doors",
+  "date": "2026-08-22",
+  "owner_all_doors": true
+}

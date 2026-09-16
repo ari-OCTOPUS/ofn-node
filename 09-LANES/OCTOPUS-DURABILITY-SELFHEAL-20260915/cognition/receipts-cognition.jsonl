@@ -1,0 +1,18 @@
+{"at_utc": "2026-09-15T08:19:17Z", "attempt_id": "3b25d7383c43", "stage": "TASK_START", "disposition": "TASK_STARTED", "cause": "", "task_sha256": "dbcd0dd68df7f5924f709d9302690606be494ebed3982c5958ef6109d34f3c58"}
+{"at_utc": "2026-09-15T08:19:43Z", "attempt_id": "3b25d7383c43", "stage": "SCHEMA_GATE", "disposition": "REJECTED_SCHEMA", "cause": "Expecting value: line 1 column 1 (char 0)"}
+{"at_utc": "2026-09-15T08:20:10Z", "attempt_id": "3b25d7383c43", "stage": "SCHEMA_GATE", "disposition": "REJECTED_SCHEMA", "cause": "Expecting value: line 1 column 1 (char 0)"}
+{"at_utc": "2026-09-15T08:21:57Z", "attempt_id": "4a65a1658739", "stage": "TASK_START", "disposition": "TASK_STARTED", "cause": "", "task_sha256": "dbcd0dd68df7f5924f709d9302690606be494ebed3982c5958ef6109d34f3c58"}
+{"at_utc": "2026-09-15T08:22:28Z", "attempt_id": "4a65a1658739", "stage": "SCHEMA_GATE", "disposition": "REJECTED_SCHEMA", "cause": "Expecting value: line 1 column 1 (char 0)", "response_sha256_16": "417ec31bf02406e1"}
+{"at_utc": "2026-09-15T08:22:52Z", "attempt_id": "4a65a1658739", "stage": "SCHEMA_GATE", "disposition": "REJECTED_SCHEMA", "cause": "Expecting value: line 1 column 1 (char 0)", "response_sha256_16": "925d5cd6ad00813b"}
+{"at_utc": "2026-09-15T08:28:36Z", "attempt_id": "6616145a792d", "stage": "TASK_START", "disposition": "TASK_STARTED", "cause": "", "task_sha256": "dbcd0dd68df7f5924f709d9302690606be494ebed3982c5958ef6109d34f3c58"}
+{"at_utc": "2026-09-15T08:28:36Z", "attempt_id": "6616145a792d", "stage": "TASK_META", "disposition": "REJECTED_SCHEMA", "cause": "task json lacks target/tests"}
+{"at_utc": "2026-09-15T08:29:04Z", "attempt_id": "47094e7a9a36", "stage": "TASK_START", "disposition": "TASK_STARTED", "cause": "", "task_sha256": "2739f9e7aed347167eddd2b0ad3dc5d9356da22f4fec90ae90756c4a0eaaa87b"}
+{"at_utc": "2026-09-15T08:29:28Z", "attempt_id": "47094e7a9a36", "stage": "ANCHOR_GATE", "disposition": "ANCHOR_MISS", "cause": "op[0] anchor count=0"}
+{"at_utc": "2026-09-15T08:30:33Z", "attempt_id": "9727f297afe5", "stage": "TASK_START", "disposition": "TASK_STARTED", "cause": "", "task_sha256": "44637f8a3b6a0a9136e93521dcffe82a57f4d28b69e76a03ba0db0d00bf476bd"}
+{"at_utc": "2026-09-15T08:31:15Z", "attempt_id": "9727f297afe5", "stage": "TEST_RUN", "disposition": "TEST_INFRA_RED", "cause": "test file missing in worktree: ofn/agents/tests/test_glass_routing_smoke.py"}
+{"at_utc": "2026-09-15T08:32:13Z", "attempt_id": "11e4d72cafb7", "stage": "TASK_START", "disposition": "TASK_STARTED", "cause": "", "task_sha256": "44637f8a3b6a0a9136e93521dcffe82a57f4d28b69e76a03ba0db0d00bf476bd"}
+{"at_utc": "2026-09-15T08:32:37Z", "attempt_id": "11e4d72cafb7", "stage": "TEST_RUN", "disposition": "PRODUCED", "cause": "1 test file(s) green"}
+{"at_utc": "2026-09-15T08:32:50Z", "attempt_id": "11e4d72cafb7", "stage": "CRITIC", "disposition": "CRITIC_REJECT", "cause": "unparseable"}
+{"at_utc": "2026-09-15T08:33:17Z", "attempt_id": "ae2a0b51fa6e", "stage": "TASK_START", "disposition": "TASK_STARTED", "cause": "", "task_sha256": "44637f8a3b6a0a9136e93521dcffe82a57f4d28b69e76a03ba0db0d00bf476bd"}
+{"at_utc": "2026-09-15T08:33:35Z", "attempt_id": "ae2a0b51fa6e", "stage": "TEST_RUN", "disposition": "PRODUCED", "cause": "1 test file(s) green"}
+{"at_utc": "2026-09-15T08:33:43Z", "attempt_id": "ae2a0b51fa6e", "stage": "CLOSE", "disposition": "PRODUCED", "cause": "", "artifact_sha256": "42bfb8d53a5ed8f44ea5dc0d38c3d54a8748b89fb1ea96bf5daeb9e003b2b1c2", "request_id": "cog-factory-677f995b"}

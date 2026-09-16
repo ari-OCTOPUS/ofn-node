@@ -1,0 +1,88 @@
+# EXP-003 / H-homeostasis — allostasis (خودمدلِ پیش‌بین) در برابر کنترلِ واکنشی.
+# مرجع: GEOMETRY.md §۳؛ D_t = Σwᵢ|sᵢ−sᵢ*| [N F3; O F9]؛ H1 [N L833].
+# دامنه: C3 (خودنگه‌داری) در نردبانِ فایل — ولی متریک فقط تنظیمِ کارکردی است.
+# تفسیرِ ممنوع: درد/لذت/احساس؛ تفسیرِ مجاز: ارزش‌گذاری کارکردی [N L867-871].
+idea: >
+  آیا یک عاملِ دارای خودمدلِ پیش‌بینِ حالتِ درونی (MPC روی مدلِ تهی‌شدنِ نیازها)
+  تحتِ اختلالِ OOD (تهی‌شدنِ سریع‌تر) بهتر از یک عاملِ واکنشیِ myopic (حریص روی
+  −D_t) تنظیم می‌کند؟
+
+hypothesis: >
+  تحتِ perturbationِ OOD (نرخِ تهی‌شدن ×۱٫۸)، کاهشِ میانگینِ انحرافِ هومیواستاتیک
+  عاملِ پیش‌بین نسبت به عاملِ واکنشی دست‌کم +۰٫۰۵ است؛ کنترلِ null (واکنشی در
+  برابر واکنشی) دقیقاً ۰ است.
+
+prediction:
+  statement: advantage_ood = deviation(reactive) − deviation(anticipatory) روی OOD.
+  baseline: 0.0    # [EST] کفِ null (واکنشی-vs-واکنشی)؛ منبع: قطعیتِ محیط
+  expected: 0.05   # [EST] هدف؛ منبع: pilot family 995500 داد advantage_ood≈0.02–0.04 [FACT: sweep log 2026-07-14]
+
+metric:
+  name: advantage_ood            # کاهشِ انحراف تحتِ OOD (بالاتر = بهتر)
+  dataset: homeostasis-world-ood
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: ۶۰ تکلیفِ HomeostasisWorld قطعی در هر seed (family 996000+، جدا از pilot 995500).
+  n: 60
+  conditions:
+    - name: null_control
+      description: کنترلِ صفر — واکنشی در برابر واکنشی (باید دقیقاً ۰).
+    - name: indist_advantage
+      description: کنترل — همان advantage اما تحتِ نرخِ درون‌توزیع (باید کوچک).
+    - name: ood_advantage
+      description: primary — کاهشِ انحرافِ پیش‌بین نسبت به واکنشی تحتِ OOD.
+  protocol: >
+    در هر seed، همان دستهٔ تکلیف با دو نرخِ تهی‌شدن (درون‌توزیع و OOD=×۱٫۸) و دو
+    پالیسیِ قطعی (reactive، anticipatory=MPC با horizon=۴۰) اجرا می‌شود؛ خروجی =
+    اختلافِ میانگینِ انحرافِ نرمال‌شدهٔ per-step. هیچ یادگیری/LLM؛ فقط استراتژیِ کنترل.
+
+failure_condition:
+  metric: advantage_ood
+  op: "<"
+  threshold: 0.02
+  note: اگر کاهشِ انحراف تحتِ OOD زیر +۰٫۰۲ بماند (SESOI)، «خودمدل ارزشِ تنظیمی افزوده ندارد» و فرضیه رد می‌شود.
+
+architecture:
+  pattern: Model-Predictive homeostatic control (self-model) vs myopic −D_t descent
+  topology: internal-state s -> forward depletion model -> MPC target selection -> action
+  tradeoff: عاملِ پیش‌بین compute هر گام بیشتری مصرف می‌کند (planning)؛ اگر منفعت کوچک باشد، هزینهٔ planning توجیه‌ناپذیر است.
+
+api_contract:
+  endpoint: /kernel/homeostasis/regulate
+  method: POST
+  request:
+    needs: [energy, temperature, integrity]
+    ood_factor: 1.8
+    horizon: 40
+  response:
+    # شکل پاسخ ([EST] illustrative — خروجی واقعی از run):
+    advantage_ood: 0.05
+    advantage_indist: 0.01
+    null_control: 0.0
+
+mvp:
+  stack: Python (HomeostasisWorld قطعی؛ بدون dependency)
+  deps: []
+  effort: "< 1 day"
+  notes: بدون LLM؛ دو پالیسیِ hand-coded قطعی؛ متریک = انحراف از setpoint.
+
+evaluation:
+  comparisons: [null_control, indist_advantage, ood_advantage]
+  ablation:
+    - جاروبِ ood_factor (گزارشِ pilot، خارج از verdict)
+    - حساسیت به horizon
+  seeds: 5
+
+decision_rule:
+  primary_metric: advantage_ood
+  rules:
+    - max: 0.02
+      verdict: DISCARD
+    - min: 0.02
+      max: 0.05
+      verdict: OPTIMIZE
+    - min: 0.05
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓

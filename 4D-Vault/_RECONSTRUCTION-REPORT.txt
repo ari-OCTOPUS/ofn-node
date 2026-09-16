@@ -1,0 +1,21 @@
+sources=3055 written=3055 rejected=0
+dup_chunks_dropped=3 overlap_trims_applied=2984
+
+2026-08-06: reconstructed from 4d_system/outputs/chroma_db/chroma.sqlite3
+(the frozen index's own stored chunk text, last real content ~2026-07-11/12).
+Original files lived at C:\Users\Armin\Desktop\4D-Vault at index time; this
+repo's 4d_system now resolves VAULT_DIR relative to its own location, which
+is F:\backup\4D-Vault today -- this is the correct, current location.
+
+Reindexed with index_vault(force=True) after fixing a real bug in
+4d_system/memory/vectorstore.py (single add_documents() call exceeded
+Chroma's max batch size for a vault this size -- see git log). Result:
+9295 chunks indexed successfully; sanity search against the rebuilt
+index returns real content. Old frozen index backed up (not deleted) at
+4d_system/outputs/chroma_db.frozen-backup-20260806/.
+
+Not done, left as an owner decision: no recurring/scheduled reindex was
+set up. VAULT_DIR content will go stale again unless someone re-runs
+index_vault(force=True) periodically -- this needs a scheduling decision
+(cron/Task Scheduler), which stays owner-only per this session's standing
+rule on OS-level changes.

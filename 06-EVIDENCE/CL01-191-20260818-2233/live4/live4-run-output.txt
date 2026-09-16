@@ -1,0 +1,91 @@
+{
+ "started": "2026-08-18T23:53:13+00:00",
+ "trace": "cl1-live4-235313",
+ "pairs": [],
+ "predictions": [],
+ "voids": [
+  {
+   "batch": 1,
+   "pair": 1
+  },
+  {
+   "batch": 1,
+   "pair": 2
+  },
+  {
+   "batch": 1,
+   "pair": 3
+  },
+  {
+   "batch": 1,
+   "pair": 4
+  },
+  {
+   "batch": 1,
+   "pair": 5
+  },
+  {
+   "batch": 1,
+   "pair": 6
+  },
+  {
+   "batch": 1,
+   "pair": 7
+  },
+  {
+   "batch": 1,
+   "pair": 8
+  },
+  {
+   "batch": 1,
+   "pair": 9
+  },
+  {
+   "batch": 1,
+   "pair": 10
+  },
+  {
+   "batch": 1,
+   "pair": 11
+  },
+  {
+   "batch": 1,
+   "pair": 12
+  },
+  {
+   "batch": 1,
+   "pair": 13
+  },
+  {
+   "batch": 1,
+   "pair": 14
+  },
+  {
+   "batch": 1,
+   "pair": 15
+  }
+ ],
+ "stops": [],
+ "summary": {
+  "valid_pairs": 0,
+  "cond_wins_total": 0,
+  "per_batch": {
+   "1": [
+    0,
+    0
+   ],
+   "2": [
+    0,
+    0
+   ]
+  },
+  "brier_pairs": null,
+  "availability_voids": 15,
+  "spent_aud": 0.0,
+  "paid_calls": 15,
+  "fugu_calls": 16,
+  "errors": 0
+ },
+ "finished": "2026-08-18T23:56:10+00:00",
+ "elapsed_min": 2.9
+}

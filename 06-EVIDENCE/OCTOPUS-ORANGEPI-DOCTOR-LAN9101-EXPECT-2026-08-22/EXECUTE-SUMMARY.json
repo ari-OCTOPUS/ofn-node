@@ -1,0 +1,21 @@
+{
+  "schema": "octopus.execute-summary.v1",
+  "package": "OCTOPUS-ORANGEPI-DOCTOR-LAN9101-EXPECT-2026-08-22",
+  "auth": "OCTOPUS-ORANGEPI-DOCTOR-LAN9101-EXPECT-20260822",
+  "result": "PASS",
+  "executor": "sensoriom",
+  "prove": {
+    "metrics_bind": true,
+    "unexpected_listeners": true,
+    "gap002_registry": true,
+    "lan_9101_still_open": true,
+    "mqtt": "CLOSED"
+  },
+  "doctor_blocking_after": ["checkpoint_unsigned"],
+  "note": "metrics_bind + unexpected_listeners cleared; remaining doctor FAIL is checkpoint_unsigned (out of scope). WAVE0 KEEP_LOCKED. GAP-002 untouched. Port stays OPEN.",
+  "pi_receipt": "/var/lib/octopus/evidence/session-doctor-lan9101-expect-20260822/RECEIPT-DOCTOR-LAN9101-EXPECT.json",
+  "exchange": "/var/lib/octopus/inbound/TO-LAPTOP/exchange/RECEIPT-DOCTOR-LAN9101-EXPECT.json",
+  "backup": "/opt/octopus/current/scripts/octopus_doctor_readonly.py.bak-20260822T112436Z",
+  "script": "/opt/octopus/current/scripts/octopus_doctor_readonly.py",
+  "sha256_after": "sha256:a43c3ff39dd020cc94809d1017191dc5c1a8b89f4a1bd1bee3cf988004582b49"
+}

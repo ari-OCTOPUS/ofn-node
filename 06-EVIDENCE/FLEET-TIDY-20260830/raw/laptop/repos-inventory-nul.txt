@@ -1,0 +1,60 @@
+=== REPO=/f/backup
+germline	E:/germline/octopus.git (fetch)
+germline	E:/germline/octopus.git (push)
+--HEAD=ee2ddb52794cfaf30fc059b1d87a5f7235e08485
+agent_C|e14a5d0|2026-08-20
+archive/ucp-unconnected-631913d|631913d|2026-08-29
+backup/pre-deploy-2026-07-21|28db463|2026-07-21
+cl01/p2-gate|1db8894|2026-08-18
+TRACKED=12742
+=== REPO=/f/backup-deploy-lab
+origin	C:\Users\Armin\Desktop\backup (fetch)
+origin	C:\Users\Armin\Desktop\backup (push)
+--HEAD=7fcdb19e3bed4d8270139f2a1110c44a7e81d1d4
+master|7fcdb19|2026-07-06
+TRACKED=1883
+=== REPO=/f/backup-SAFE-2026-07-19
+--HEAD=218b43c27d926d4dca2133a18ee09a306c72e55c
+backup/pre-golive-2026-07-15|6a38af8|2026-07-15
+backup/pre-truthful-cockpit-2026-07-15|6a38af8|2026-07-15
+backup/pre-truthful-cockpit-2026-7-15|6a38af8|2026-07-15
+claude/activation-report-review-ae69bc|3f12c0e|2026-07-16
+TRACKED=5262
+=== REPO=/f/octopus-phase0-isolated
+origin	F:/octopus-phase0.bundle (fetch)
+origin	F:/octopus-phase0.bundle (push)
+--HEAD=dc01e2291486cb18b3fb4c077b2344398c1c231a
+blocker-fixes-2026-07-22|dc01e22|2026-07-23
+phase0-A-halt|8b880c8|2026-07-23
+TRACKED=5696
+=== REPO=/f/octopus-wire
+ofn-local	F:\ofn-node (fetch)
+ofn-local	F:\ofn-node (push)
+--HEAD=ca038d42a1f2add43140b1a6fa3dd9d58949cc0d
+ofn/wire|ca038d4|2026-08-22
+TRACKED=6
+=== REPO=/f/ofn-node
+origin	https://github.com/ari322/ofn-node.git (fetch)
+origin	https://github.com/ari322/ofn-node.git (push)
+--HEAD=c1969bce5384f3371b916470299c991627c3d63c
+local/initial-e459e5f|e459e5f|2026-08-04
+main|c1969bc|2026-08-30
+ofn/wire|ca038d4|2026-08-22
+TRACKED=2243
+=== REPO=/f/romajan
+--HEAD=496a2cd6d2e0bf188c02300d2306e023bd4e072a
+master|496a2cd|2026-07-25
+TRACKED=187
+=== REPO=/f/_______Black Box
+--HEAD=48bd97585fda21d2d46f5e17bcd3f144dc152273
+master|48bd975|2026-07-25
+TRACKED=98
+=== REPO=/c/Users/Armin
+origin	https://github.com/ari322/Armin.git (fetch)
+origin	https://github.com/ari322/Armin.git (push)
+--HEAD=a3000f0a889cc2642c34906de4bd06452b4870cb
+agents/devops-docker-setup-guide|fcaca74|2026-06-27
+agents/devops-docker-setup-langar-project|fcaca74|2026-06-27
+claude/4d-control-plane-design-e68127|fcaca74|2026-06-27
+claude/4d-master-upgrade-prompt-47f989|fcaca74|2026-06-27
+TRACKED=5

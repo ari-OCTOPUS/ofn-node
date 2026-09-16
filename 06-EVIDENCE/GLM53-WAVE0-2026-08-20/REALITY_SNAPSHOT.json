@@ -1,0 +1,54 @@
+{
+ "schema": "reality-snapshot/1",
+ "timestamp": "2026-08-20T11:14:39.228428+00:00",
+ "organism_pid": 9904,
+ "organism_alive": true,
+ "organism_beat": 43324,
+ "center_pid": 8828,
+ "center_alive": true,
+ "brain_daemon_pid": 25680,
+ "daemon_alive": true,
+ "cortex_pid": 25284,
+ "cortex_alive": true,
+ "ports": {
+  "organism": "LISTENING",
+  "center": "LISTENING",
+  "cortex": "LISTENING",
+  "gateway": "LISTENING",
+  "live": "LISTENING"
+ },
+ "writer_lease_held": true,
+ "writer_lease_holder": "agent-C-organs",
+ "labels_count": 78,
+ "NOW_md_head": "# NOW — OCTOPUS current truth (generated 2026-08-20T10:47:04+00:00 from _ops/state/labels.json)\n## H",
+ "spine_rows": 7536,
+ "spine_v2_rows": 269,
+ "t48_sources": [
+  {
+   "domain": "provider",
+   "source": "provider_server_created",
+   "n": 1
+  },
+  {
+   "domain": "provider",
+   "source": "router_request_ts",
+   "n": 37
+  },
+  {
+   "domain": "telegram",
+   "source": "telegram_message_date",
+   "n": 11
+  }
+ ],
+ "telegram_events": 11,
+ "memory_read": {
+  "status": "OK",
+  "reads": 3,
+  "readback": "read_ok",
+  "beat": 43326
+ },
+ "knowledge_events": 659,
+ "knowledge_hook_state": "HOOK_COMMITTED",
+ "executable_in_snapshot": false,
+ "writes_performed": false
+}

@@ -1,0 +1,9 @@
+`git status --short` in the worktree after this session's writes, before staging:
+
+?? _ops/OCTOPUS-FIX-START-CODEX-20260804-200015/
+?? _ops/tests/run_p0_verify.py
+
+Both are pure additions (no existing tracked file modified). Full file list of the new
+report tree is in `25-DIFF-SUMMARY.md`. No further diff is meaningful here since there is no
+"before" content to diff against for new files — `git show <commit> --stat` after commit is
+the authoritative record.

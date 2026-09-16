@@ -1,0 +1,29 @@
+{
+  "ts": "2026-09-04T00:04:14",
+  "config": {
+    "max_cells": 6,
+    "spawn_depth": 1,
+    "accept_threshold": 0.4
+  },
+  "excluded_organs": [
+    "PROJECT_F"
+  ],
+  "sigma": {
+    "sigma_effective": 0.0,
+    "zone": "pre-replication",
+    "spawn_proposed": 0,
+    "spawn_approved": 0,
+    "parents": 1,
+    "alerts": []
+  },
+  "fitness_authoritative": true,
+  "eligible_cells": [],
+  "live_gate": {
+    "open": true,
+    "why": "open"
+  },
+  "proposals_written": [],
+  "would_propose": [],
+  "alerts": [],
+  "note": "این ماژول هرگز spawn اجرا نمی‌کند؛ فقط PROPOSAL human-gated (تو propose، انسان dispose)"
+}

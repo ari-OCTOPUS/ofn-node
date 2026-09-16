@@ -1,0 +1,14 @@
+{
+  "schema": "life-currency.v1",
+  "color": "GREEN",
+  "scale": 1.0,
+  "beat_pool": 0.04,
+  "reserve": 0.008,
+  "hard_cap": 0.08,
+  "daily_cap": 30.0,
+  "unit": "life_credit",
+  "money_path": false,
+  "beat": 42780,
+  "ts": "2026-08-20T11:47:25",
+  "members_min_tokens": 0.003
+}

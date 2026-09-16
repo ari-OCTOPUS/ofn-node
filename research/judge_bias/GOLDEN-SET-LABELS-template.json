@@ -1,0 +1,852 @@
+{
+ "_comment": "LAB-1 فاز ۱ (دستور #۱۰ §۴): قالب برچسب‌گذاری مالک برای مجموعهٔ طلایی. هر ردیف = یک جفت از یک تسک؛ ارزیابی کور (بدون نام داور). مالک پر می‌کند؛ ایجنت هرگز.",
+ "schema": "golden-set-labels/1",
+ "labeling_protocol": {
+  "blind": true,
+  "scale": "1-5 کیفیت هر بازو",
+  "allowed": "preferred_arm: A|B|TIE",
+  "rule": "معیار مالک است؛ سیستم فقط می‌سنجد"
+ },
+ "labels": [
+  {
+   "task_id": "R01",
+   "pair_id": "R01-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R01",
+   "pair_id": "R01-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R01",
+   "pair_id": "R01-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R01",
+   "pair_id": "R01-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R01",
+   "pair_id": "R01-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R01",
+   "pair_id": "R01-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R02",
+   "pair_id": "R02-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R02",
+   "pair_id": "R02-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R02",
+   "pair_id": "R02-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R02",
+   "pair_id": "R02-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R02",
+   "pair_id": "R02-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R02",
+   "pair_id": "R02-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R03",
+   "pair_id": "R03-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R03",
+   "pair_id": "R03-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R03",
+   "pair_id": "R03-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R03",
+   "pair_id": "R03-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R03",
+   "pair_id": "R03-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R03",
+   "pair_id": "R03-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R04",
+   "pair_id": "R04-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R04",
+   "pair_id": "R04-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R04",
+   "pair_id": "R04-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R04",
+   "pair_id": "R04-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R04",
+   "pair_id": "R04-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R04",
+   "pair_id": "R04-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R05",
+   "pair_id": "R05-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R05",
+   "pair_id": "R05-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R05",
+   "pair_id": "R05-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R05",
+   "pair_id": "R05-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R05",
+   "pair_id": "R05-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R05",
+   "pair_id": "R05-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R06",
+   "pair_id": "R06-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R06",
+   "pair_id": "R06-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R06",
+   "pair_id": "R06-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R06",
+   "pair_id": "R06-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R06",
+   "pair_id": "R06-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R06",
+   "pair_id": "R06-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R07",
+   "pair_id": "R07-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R07",
+   "pair_id": "R07-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R07",
+   "pair_id": "R07-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R07",
+   "pair_id": "R07-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R07",
+   "pair_id": "R07-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R07",
+   "pair_id": "R07-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R08",
+   "pair_id": "R08-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R08",
+   "pair_id": "R08-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R08",
+   "pair_id": "R08-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R08",
+   "pair_id": "R08-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R08",
+   "pair_id": "R08-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R08",
+   "pair_id": "R08-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R09",
+   "pair_id": "R09-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R09",
+   "pair_id": "R09-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R09",
+   "pair_id": "R09-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R09",
+   "pair_id": "R09-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R09",
+   "pair_id": "R09-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R09",
+   "pair_id": "R09-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R10",
+   "pair_id": "R10-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R10",
+   "pair_id": "R10-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R10",
+   "pair_id": "R10-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R10",
+   "pair_id": "R10-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R10",
+   "pair_id": "R10-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "R10",
+   "pair_id": "R10-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C01",
+   "pair_id": "C01-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C01",
+   "pair_id": "C01-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C01",
+   "pair_id": "C01-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C01",
+   "pair_id": "C01-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C01",
+   "pair_id": "C01-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C01",
+   "pair_id": "C01-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C02",
+   "pair_id": "C02-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C02",
+   "pair_id": "C02-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C02",
+   "pair_id": "C02-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C02",
+   "pair_id": "C02-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C02",
+   "pair_id": "C02-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C02",
+   "pair_id": "C02-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C03",
+   "pair_id": "C03-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C03",
+   "pair_id": "C03-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C03",
+   "pair_id": "C03-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C03",
+   "pair_id": "C03-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C03",
+   "pair_id": "C03-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C03",
+   "pair_id": "C03-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C04",
+   "pair_id": "C04-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C04",
+   "pair_id": "C04-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C04",
+   "pair_id": "C04-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C04",
+   "pair_id": "C04-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C04",
+   "pair_id": "C04-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C04",
+   "pair_id": "C04-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C05",
+   "pair_id": "C05-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C05",
+   "pair_id": "C05-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C05",
+   "pair_id": "C05-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C05",
+   "pair_id": "C05-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C05",
+   "pair_id": "C05-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C05",
+   "pair_id": "C05-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C06",
+   "pair_id": "C06-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C06",
+   "pair_id": "C06-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C06",
+   "pair_id": "C06-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C06",
+   "pair_id": "C06-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C06",
+   "pair_id": "C06-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C06",
+   "pair_id": "C06-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C07",
+   "pair_id": "C07-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C07",
+   "pair_id": "C07-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C07",
+   "pair_id": "C07-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C07",
+   "pair_id": "C07-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C07",
+   "pair_id": "C07-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C07",
+   "pair_id": "C07-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C08",
+   "pair_id": "C08-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C08",
+   "pair_id": "C08-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C08",
+   "pair_id": "C08-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C08",
+   "pair_id": "C08-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C08",
+   "pair_id": "C08-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C08",
+   "pair_id": "C08-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C09",
+   "pair_id": "C09-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C09",
+   "pair_id": "C09-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C09",
+   "pair_id": "C09-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C09",
+   "pair_id": "C09-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C09",
+   "pair_id": "C09-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C09",
+   "pair_id": "C09-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C10",
+   "pair_id": "C10-p0",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C10",
+   "pair_id": "C10-p1",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C10",
+   "pair_id": "C10-p2",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C10",
+   "pair_id": "C10-p3",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C10",
+   "pair_id": "C10-p4",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  },
+  {
+   "task_id": "C10",
+   "pair_id": "C10-p5",
+   "quality_A": null,
+   "quality_B": null,
+   "preferred_arm": null
+  }
+ ]
+}

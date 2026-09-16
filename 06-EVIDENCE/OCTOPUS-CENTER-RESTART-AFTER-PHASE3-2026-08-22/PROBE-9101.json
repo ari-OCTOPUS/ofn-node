@@ -1,0 +1,7 @@
+﻿{
+    "status":  "PASS",
+    "probed_at":  "2026-08-22T19:28:30+10:00",
+    "snippet":  "# HELP octopus_stability_distance RMS excess outside healthy host ranges\n# TYPE octopus_stability_distance gauge\noctopus_stability_distance 0.000000\n# HELP octopus_stability_in_envelope 1 if host variables are in healthy ranges\n# TYPE octopus_stability_in_envelope gauge\noctopus_stability_in_envelope 1\n# HELP octopus_homeostasis_ok 1 if host ranges and data health are both ok\n# TYPE octopus_homeostasis_ok gauge\noctopus_homeostasis_ok 0\n# HELP octopus_homeostasis_energy_ratio Headroom vs max(cpu, ",
+    "http":  200,
+    "bytes":  3064
+}

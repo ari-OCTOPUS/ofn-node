@@ -1,0 +1,1 @@
+{"ts": 1787232425.645354, "beat": 43454, "probe": "PROBE_RESPONSE_INVALID", "tg_events": 11, "identity_key": "1082c3f58a3b", "payload_hash": "3f530f54caaf8a85", "reason": "safe_mode_stop", "send": false, "kind": null, "terminal": "BLOCKED", "memread": ["OK", 3, "read_ok"], "closed_loop": false}

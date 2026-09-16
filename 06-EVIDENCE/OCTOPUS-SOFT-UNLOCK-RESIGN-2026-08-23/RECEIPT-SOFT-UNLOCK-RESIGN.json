@@ -1,0 +1,45 @@
+{
+  "schema": "octopus.receipt.v1",
+  "id": "RECEIPT-SOFT-UNLOCK-RESIGN-20260823",
+  "ts_utc": "20260823T035602Z",
+  "action": "offline_resign_soft_unlock_board",
+  "payload_sha256": "d3d56bdc29b8513a0a4746a1e70977dd35a494534ab8b77f2654e0c35c2c5f26",
+  "sig_sha256": "c2eed04c3a94ee21af1dbfb7f1c9d0758d859f689849894123d6a32985c3e9b7",
+  "pub_sha256": "a20d836d1f461482c76c4d3ed6c6de301d38b3e8e0ef4707e87d7b45e2223a40",
+  "verify_local": "PASS",
+  "actuator_authority": "PERMITTED_SOFTWARE_A0",
+  "estop_channel": "SOFTWARE_LATCH",
+  "private_key_material_printed": false,
+  "key_path_used": "C:\\Users\\Armin\\Desktop\\OCTOPUS-ROOT-V2\\private\\root-v2.ed25519.private",
+  "deploy": {
+    "ts_utc": "20260823T035718Z",
+    "bus": "CONNECTED",
+    "actuator_authority": "PERMITTED_SOFTWARE_A0",
+    "acq": "ACTIVE",
+    "obs": 1286312,
+    "audit_tail": [
+      {
+        "event_type": "boot_start",
+        "error": null,
+        "timestamp": "2026-08-23T03:41:53Z"
+      },
+      {
+        "event_type": "boot_gates",
+        "error": null,
+        "timestamp": "2026-08-23T03:41:54Z"
+      },
+      {
+        "event_type": "boot_start",
+        "error": null,
+        "timestamp": "2026-08-23T03:56:57Z"
+      },
+      {
+        "event_type": "boot_gates",
+        "error": null,
+        "timestamp": "2026-08-23T03:56:58Z"
+      }
+    ],
+    "ARMED_expected_false": true
+  },
+  "overall": "PASS"
+}

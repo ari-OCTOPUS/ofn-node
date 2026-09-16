@@ -1,0 +1,57 @@
+{
+  "verdict": "PARTIAL",
+  "question": "Do Telegram MiniApp confirmation approvals (پذیرش/تأیید) work and reach REAL code/effectors?",
+  "summary": {
+    "تأیید_proposal_approve": {
+      "reaches_durable_code": true,
+      "path": "MiniApp POST /api/actions → miniapp_gateway → OpsActionEngine.execute → OctopusOpsDB.decide_proposal → INSERT outcomes.event_type=owner-decision",
+      "reaches_effector": false,
+      "evidence": "18/18 owner-decision rows have effects_after=0 including P-091b88a78346 and P-ad115622f2ab (ziman-gallery)"
+    },
+    "پذیرش_rfc_approve": {
+      "handler_exists": true,
+      "path_if_id_present": "rfc.approve → decide_rfc → pending_card_recovery.persist_rfc_verdict → (doctor) claim_rfc_verdicts → begin_rfc_apply → ack",
+      "miniapp_lifecycle_ui_can_supply_rfc_id": false,
+      "reason": "/api/lifecycle stalled_list intentionally omits rfc_id; UI still binds data-pid=String(c.rfc_id) → literal undefined"
+    },
+    "undefined_titles_root_cause": "Contract split 2026-08-06: _lifecycle_public_stalled_rows strips rfc_id; app.js renderLifecycle still displays/escapes c.rfc_id as title id line"
+  },
+  "root_causes": [
+    {
+      "id": "RC1_UNDEFINED_TITLE",
+      "severity": "P0-UX/functional",
+      "detail": "Public lifecycle view returns only {created_ts,age_days}; UI expects c.rfc_id → String(undefined)===\"undefined\" on ~39 stalled cards"
+    },
+    {
+      "id": "RC2_OWNER_DECISION_NO_EFFECTOR",
+      "severity": "P0-effect",
+      "detail": "proposal.approve appends owner-decision (real DB write) but no production consumer turns approvals into outbox/effector work; UI honestly says هنوز هیچ اثری"
+    },
+    {
+      "id": "RC3_DECISION_NONCE_UNWIRED",
+      "severity": "P2-security-lab",
+      "detail": "miniapp_decision_ledger + _shadow_consume_decision_nonce exist; live routes do not call them (flag default off)"
+    }
+  ],
+  "exact_next_fix": [
+    "1) Restore actionable stalled rows without leaking raw identity OR return server-minted decision handles: change get_lifecycle_state to include a decide_token / opaque handle that decide_rfc accepts; update app.js to render summary_prefix + handle (never String(undefined)). Until then disable پذیرش/رد when id missing.",
+    "2) Wire owner-decision consumer for legs (esp ziman-gallery): after decide_proposal APPLIED, enqueue durable outbox job OR have leg worker SELECT owner-decision with no later effector event and execute; append effector event so effects_after>0.",
+    "3) Keep decision-nonce ledger shadow until canary; do not claim effector success from ledger alone."
+  ],
+  "constraints_honored": [
+    "no_live_telegram_send",
+    "no_invent",
+    "no_secrets_in_evidence"
+  ],
+  "evidence_sources": [
+    "_ops/telegram_center/miniapp/app.js",
+    "_ops/telegram_center/miniapp_state.py",
+    "_ops/telegram_center/miniapp_gateway.py",
+    "_ops/telegram_center/miniapp_decision_ledger.py",
+    "_ops/agi2027_control/ops_actions.py",
+    "_ops/outcomes/pending_card_recovery.py",
+    "_ops/lifecycle_fold.py",
+    "_ops/state/outcomes/outcomes.db",
+    "_ops/state/pulse/pending-cards.json"
+  ]
+}

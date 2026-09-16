@@ -1,0 +1,8 @@
+{
+  "message_key": "outbox-prove-remember-correct-6ab24aa1",
+  "event_id": "prove-remember-correct-6ab24aa1",
+  "state": "DRY_RUN_NO_SEND",
+  "message_id": null,
+  "text_preview": "remember=OCTOPUS-REMEMBER-PROVE-20260823-6ab24aa1; correct_invalid=INVALID-TURN-a0f29cf37b",
+  "delivery": "skipped_live_tg"
+}

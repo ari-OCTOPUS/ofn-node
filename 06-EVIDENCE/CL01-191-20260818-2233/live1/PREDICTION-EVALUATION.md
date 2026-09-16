@@ -1,0 +1,5 @@
+# PREDICTION EVALUATION (LIVE-1)
+- دفتر live: _ops/state/predictions.db (append-only، تریگرهای ABORT فعال در مسیر live)
+- cl1-pred-0001: created 23:12:46Z · confidence=0.85 · outcome=hit در 23:14:16Z (بعد از پیش‌بینی)
+- Brier این نقطه: (0.85-1)²=0.0225 · n=1 (یک نقطه — نتیجه‌گیری آماری ممنوع)
+- duplicate-ID/backdating: در تست‌های P4 رد شده‌اند (7/7)

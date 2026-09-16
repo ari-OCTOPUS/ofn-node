@@ -1,0 +1,62 @@
+{
+  "schema": "evo-outbox-callback-soak/1",
+  "title": "EVO-OUTBOX-CALLBACK-SOAK-2026-08-22",
+  "ts_sydney": "2026-08-22T14:35:25+10:00",
+  "live_send": false,
+  "paid": false,
+  "center_restart": false,
+  "center_pid_untouched": 26484,
+  "auto_merge_without_human_append": false,
+  "starting_head": "223ee167b17c38ab47ed02cf1c03444f61d6d438",
+  "writer": {
+    "agent_id": "grok-ari-single-writer",
+    "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+    "lease_id": "9816664e55684900988901c3c1e5b902",
+    "expires_at_sydney": "2026-08-22T15:54:07+10:00"
+  },
+  "callback_token_was_missing": true,
+  "callback_token_fix": "smallest additive attach_outbox_callback_token + parse_outbox_callback on QUEUED evo-lab outbox payload via pending_card_recovery.prepare_rfc_card; callback_merge=rfc:merge:{id}:{token}, callback_deny=rfc:deny:{id}:{token}; fail-soft callback_token_missing when OCTOPUS_CB_SECRET/owner absent",
+  "wire": {
+    "rfc_in": "lab_bridge.run_rfc_through_lab / rfc_cycle",
+    "outbox": "telegram/loop/outbox/*.json QUEUED live_send=false + callback_* fields",
+    "owner_callback": "approval_channel.dispatch_callback(callback_merge|deny)",
+    "owner_freetext": "approval_channel.handle_command('RFC-id [merge]')",
+    "doctor_consume": "claim_rfc_verdicts -> apply_owner_verdict -> gate_promote -> apply_merge",
+    "asserts": [
+      "with proofs -> apply_merge recorded",
+      "without proofs -> refuse (no apply_merge; status submitted|reconcile-required)",
+      "[reject]/deny -> human-rejected, no promote"
+    ]
+  },
+  "files": [
+    "_ops/doctor/lab_bridge.py",
+    "_ops/tests/test_evo_outbox_callback_soak.py",
+    "_ops/tests/run_all.py",
+    "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/EVO-OUTBOX-CALLBACK-SOAK-2026-08-22.json"
+  ],
+  "tests": {
+    "test_evo_outbox_callback_soak.py": "7/7 PASS",
+    "test_evo_lab_bridge.py": "5/5 PASS (regression)",
+    "test_merge_effect_p0.py": "6/6 PASS (regression)",
+    "test_merge_text_p0.py": "5/5 PASS (regression)"
+  },
+  "next_leftover": [
+    "optional: bind evidence JSON path into probe Done criteria (safe/reversible)",
+    "fixture: self_insight first journal cycle (module exists, dead)",
+    "fixture: epistemics C1/C2 called from improve/doctor (package unused)",
+    "LIVE-GATED: center controlled restart (PID 26484) — do not dual-poll",
+    "LIVE-GATED: A18 live-real / 60-min soak / outbound canary",
+    "LIVE-GATED: owner [merge] on a real lab-pass RFC after restart"
+  ],
+  "not_done": [
+    "no live Telegram send",
+    "no center restart/kill",
+    "no paid API",
+    "no git reset/clean/force/push",
+    "no auto-merge onto live production tree"
+  ],
+  "final_head": "cf61357d4b907cf26a8b2bbd735853597cf43c4e",
+  "final_head_short": "cf61357",
+  "commit_primary": "cf61357d4b907cf26a8b2bbd735853597cf43c4e",
+  "commit_subject": "fix(loop): fixture soak evo outbox card to owner merge callback"
+}

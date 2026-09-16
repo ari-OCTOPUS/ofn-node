@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<!-- CONTROL-PANEL v1 · unified interactive cockpit (merge of focus-board + system-dashboard) · derived · propose-only -->
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>کنترل‌پنلِ سیستم — مغز + رکنِ ساخت</title>
+<style>
+:root{color-scheme:light;
+ --bg:#f6f6f3;--card:#fff;--ink:#20242a;--mut:#6b7280;--line:#e4e4de;
+ --crit:#c0392b;--high:#d35400;--med:#b7950b;--low:#1e8449;--acc:#2c5f8a;--grey:#9ca3af;
+ --spine:#6d28d9;--spinebg:#f3effc}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Segoe UI","Vazirmatn",Tahoma,sans-serif;
+ font-size:14px;line-height:1.7;padding:16px;max-width:1120px;margin:0 auto}
+h1{font-size:20px}h2{font-size:15px;margin:24px 0 10px;color:var(--acc);border-bottom:1px solid var(--line);padding-bottom:4px}
+h2.spine{color:var(--spine)}
+small,.mut{color:var(--mut)}
+.hdr{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ring{width:60px;height:60px;flex:none}
+.banner{background:#fdecea;border:1px solid var(--crit);color:var(--crit);border-radius:8px;padding:8px 14px;margin:12px 0;font-weight:600}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2px 12px;font-size:12px}
+.chip.bad{border-color:var(--crit);color:var(--crit)}.chip.ok{border-color:var(--low);color:var(--low)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:8px}
+.panel.spine{background:var(--spinebg);border-color:#d9ccf5}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;border-inline-start:4px solid var(--mut)}
+.card.r-critical{border-inline-start-color:var(--crit)}.card.r-high{border-inline-start-color:var(--high)}
+.card.r-medium{border-inline-start-color:var(--med)}.card.r-low{border-inline-start-color:var(--low)}
+.card h3{font-size:14px;display:flex;gap:8px;align-items:center}
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin:5px 0}
+.b{font-size:10.5px;border-radius:10px;padding:0 8px;border:1px solid var(--line);color:var(--mut)}
+.b.st-active{color:var(--low);border-color:var(--low)}
+.next{padding-inline-start:16px;font-size:12.5px;color:#374151;margin:3px 0}
+.blk b{color:var(--crit)}
+a{color:var(--acc);text-decoration:none;font-size:12px}
+table{width:100%;border-collapse:collapse;background:var(--card);font-size:12.5px}
+th,td{border:1px solid var(--line);padding:5px 9px;text-align:right;vertical-align:top}
+th{background:#eef0ea}
+tr.dim td{color:var(--grey)}
+.sev{font-weight:700}.sev.CRITICAL{color:var(--crit)}.sev.HIGH{color:var(--high)}.sev.MEDIUM{color:var(--med)}.sev.LOW{color:var(--mut)}
+button{border:1px solid var(--line);background:var(--card);border-radius:6px;padding:3px 10px;font-family:inherit;font-size:11.5px;cursor:pointer;color:var(--acc)}
+button:hover{background:#f0f4f8}
+button.hand{border-color:var(--spine);color:var(--spine)}button.hand:hover{background:var(--spinebg)}
+button:disabled{color:var(--grey);cursor:not-allowed}
+.road{display:flex;gap:8px;flex-wrap:wrap}
+.step{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:12.5px}
+.step.done{border-color:var(--low);color:var(--low)}.step.gated{border-color:var(--crit);color:var(--crit)}.step.partial{border-color:var(--med);color:var(--med)}
+.ms{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+.mrow{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px}
+.mrow .id{font-weight:700;color:var(--spine)}
+.f5{background:#ede9fe;color:var(--spine);font-size:10px;padding:0 6px;border-radius:5px}
+.wv{font-size:10px;color:var(--mut)}
+.ask{display:flex;gap:6px;margin:8px 0}
+.ask textarea{flex:1;border:1px solid var(--line);border-radius:6px;padding:6px;font-family:inherit;font-size:12.5px;min-height:38px;resize:vertical}
+#docanswer{white-space:pre-wrap;font-size:12.5px;background:#f0f4f8;border-radius:6px;padding:8px;margin-top:6px;display:none}
+.vrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.vrow:last-child{border-bottom:none}
+.foot{margin-top:24px;font-size:11.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:8px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:720px){.cols{grid-template-columns:1fr}}
+.log{font-size:12px;padding-inline-start:16px;margin:0}
+</style>
+</head>
+<body>
+<div id="FROZEN-COCKPIT-BANNER" style="background:#7c2d12;color:#fff;padding:8px 14px;font:13px sans-serif;text-align:center;margin:0 0 12px">⚠️ اسنپ‌شات ثابت ۲۰۲۶-۰۸-۱۶ (بازتولید صادقانهٔ SELFRUN-2) — دادهٔ زندهٔ ارگانیسم نیست · زنده: <code>OCTOPUS/CURRENT-TRUTH.md</code> · <code>admin-telegram/index.html</code> · اعداد این صفحه از اسکنِ همان روزند، نه لحظه‌ای (C-032)</div>
+<div id="LIVE-STRIP" style="background:#1e3a5f;color:#fff;padding:8px 14px;font:13px sans-serif;text-align:center;margin:0 0 12px">validator امروز را از این صفحه نخوان (C-032) · فرمان: <code>python &quot;04 - Architect System/scripts/validate_frontmatter.py&quot;</code> · نوت: <code>07 - Knowledge/شناخت-اختاپوس/51-WEBPANEL-REALITY-2026-08-16.md</code> · JSON ژوئیه دست‌نخورده (OWNER-EASE 2026-08-16)</div>
+<div class="hdr">
+ <svg class="ring" viewBox="0 0 40 40" id="hring"></svg>
+ <div>
+  <h1>🧠 کنترل‌پنلِ سیستم <small>— مغز + رکنِ ساخت</small></h1>
+  <small id="gen"></small> · <small class="mut">تعاملی · مشتق · propose-only</small>
+ </div>
+</div>
+<div id="gatebar"></div>
+
+<h2 class="spine">🩺 کنسولِ Doctor — با سیستم حرف بزن</h2>
+<div class="panel">
+ <div id="docsum"></div>
+ <div class="ask">
+  <textarea id="docq" placeholder="از Doctor بپرس… مثلاً: مهم‌ترین ریسکِ الان چیست؟ یا: چطور M2 را امن بسازیم؟"></textarea>
+  <button onclick="askDoctor()" style="align-self:stretch">بپرس ▸</button>
+ </div>
+ <div id="docanswer"></div>
+ <small class="mut">پاسخِ سریع با askClaude (Haiku). برای ساختِ واقعی، دکمهٔ «تحویل به جلسهٔ ساخت» زیرِ هر یافته/کار.</small>
+ <table id="doctbl" style="margin-top:10px"><thead><tr><th>شدت</th><th>چک</th><th>مسیر</th><th>اقدام</th></tr></thead><tbody></tbody></table>
+</div>
+
+<h2 class="spine">🏗️ رکنِ ساخت (Build Spine) — §۳ اتصال · M0–M8 · verdictها</h2>
+<div class="panel spine">
+ <b>اندام‌های افقی (سرویس‌های ستون):</b>
+ <div class="chips" id="organs" style="margin:6px 0 10px"></div>
+ <b>milestoneهای ساخت <small class="mut">(برچسبِ <span class="f5">→F5</span> = برای Fable 5)</small>:</b>
+ <div class="ms" id="miles" style="margin-top:6px"></div>
+</div>
+<div class="panel spine">
+ <b>verdictهای فقط-انسان (منتظرِ تو):</b>
+ <div id="verdicts" style="margin-top:6px"></div>
+</div>
+
+<h2>مغزها (۸ پروژه)</h2>
+<div class="grid" id="cards"></div>
+
+<h2>🚁 ناوگان + 📡 Scout Intelligence</h2>
+<div class="panel" id="fleet"></div>
+
+<h2>🌉 BOARDLINK — پل برد اورنج‌پای <small>(رأی مالک 2026-08-16: کامل روشن)</small></h2>
+<div class="panel" id="blink"></div>
+
+<h2>📊 متریک‌ها <small>(اسنپ‌شات ۲۰۲۶-۰۸-۱۶ — نه اجرای زنده)</small></h2>
+<div class="panel" id="mets"></div>
+
+<h2>🗺️ نقشهٔ راهِ زنده‌سازی</h2>
+<div class="road" id="road"></div>
+
+<h2>⚙️ چرخهٔ خودبهبودی (Reflexion)</h2>
+<div class="panel" id="circle"></div>
+
+<h2>تغییرات از نسخهٔ قبل</h2>
+<div class="panel"><b>CONTROL-PANEL v2 (2026-08-16)</b> — بازتولیدِ صادقانهٔ مدل از اسکنِ همان روز (کارتِ C-032 اجرا شد): فرانت‌متر ۶۳۱/۲۲۴ (خطاها با ذکرِ علت رشد) · git init ✓ (رأیِ باز → done) · circle با ساختارِ بازلنگرشده · گام‌های ۶-۷ roadmap؛ + بخشِ <b>🌉 BOARDLINK</b> (پل برد، کانال‌ها، کلید، در انتظار). اعدادِ تأییدناپذیر عمداً دست‌نخورده ماندند (قاعدهٔ جعلِ عدد = ممنوع). <br><b>v1</b> — ادغامِ <code>BRAIN-FOCUS-BOARD</code> + <code>SYSTEM-DASHBOARD</code> در یک کاکپیتِ واحد؛ کنسولِ Doctor؛ لنزِ Build Spine؛ Scout Intelligence.</div>
+
+<div class="foot">فقط‌خواندنی · مشتق از اسکنِ vault + زمان‌بندِ زنده · قاعدهٔ Project-F برقرار (state ژنریک) · دکمه‌های «ساخت/تحویل» فقط پیام به چت می‌فرستند (sendPrompt) — هیچ اقدامِ مخرب/مالیِ مستقیم.</div>
+
+<script type="application/json" id="model">
+{
+ "generated":"2026-08-16",
+ "gates":{"rotation_critical_open":4,"gitleaks_done":false,"git_init":true,"brain_overwrite_ratified":false},
+ "boardlink":{
+  "bridge":"live","control_url":"https://192.168.0.191:8801","port":8801,
+  "verified":["بدون Bearer→401","با Bearer→200 (loopback+LAN)","مسیر ناشناس→404","تست 7/7+12/12"],
+  "board_agent":"خودکار — ضربان ۳۰ث · وایر هر ~۱د · run هر ۲ ساعت · روتین ۲۱:۰۰ (GitHub: ari322/ofn-node) · پنل مالکِ برد: سلول 🐙 سینک+ضربان فعال (9ac0da7 · ۱۹۴۵ تست سبز)",
+  "windows_github":false,"board_mounted_smb":false,
+  "bearer_delivery":"E:\\germline\\ofn-bearer.key — منتظر تأیید تحویل برد، سپس حذف",
+  "pending":["mount برد (SMB germline)","برد کلید را بگیرد → حذف از share","push برد به germline → ادغام per-leg (NBB-V5)","G7: روشن‌کردن octopus-bridge توسط خودِ برد پس از CONTROL_URL"],
+  "first_command_policy":"فقط ask یا status — panel/task با رأی تازه (سند ۴۶ فاز ۳)",
+  "evidence":"06-EVIDENCE/BOARDLINK-2026-08-16.md"},
+ "doctor":{"raw_score":63,"effective_score":90,"health_score":90,"counts":{"CRITICAL":0,"HIGH":0,"MEDIUM":3,"LOW":0},"raw_critical":1,
+  "findings":[
+   {"severity":"CRITICAL","check":"utf8-suspect","path":"07 - Knowledge/هیپنوتیزم/…/DecisionLog.md","msg":"بایتِ خرابِ UTF-8 @4697 — verify ویندوزی: واقعی پابرجا؛ خارج از گیتِ CRITICAL طبق طراحی","dim":true,"tag":"needs_source_verify"},
+   {"severity":"MEDIUM","check":"frontmatter-schema","path":"07 - Knowledge/شناخت-اختاپوس/49-ARCHITECTURE-STATE-2026-08-16.md","msg":"کلیدهای هسته غایب/خارج از schema — خودِ validator می‌گوید «اول Property Schema را آپدیت کن» (اسکن امروز)"},
+   {"severity":"MEDIUM","check":"frontmatter-schema","path":"07 - Knowledge/شناخت-اختاپوس/50-SEAM-LOOP-FIRST-SIX-2026-08-16.md","msg":"type نامعتبر + کلید خارج از schema (اسکن امروز)"},
+   {"severity":"MEDIUM","check":"frontmatter-growth","path":"کل ولت","msg":"خطاهای فرانت‌متر ۳۰ (جولای) → ۲۲۴ (امروز): نوت‌های ایجنت‌های موازی خارج از schema — کارت: به‌روزرسانی Property Schema"}
+  ]},
+ "brains":[
+  {"name":"Accounting","status":"active","risk":"high","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":2,"focus":"tenant #1 — رجیستر انطباق + انتخاب حسابدار","next":["تکمیل رجیستر انطباق (مالک)","انتخاب حسابدار + جلسهٔ اول"],"path":"03 - Projects/Accounting/PROJECT"},
+  {"name":"Crypto - etoro","status":"active","risk":"critical","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":0,"focus":"رجیستریِ پوزیشن + exit_rules","next":["ورودِ پوزیشن‌ها (مالک)","exit_rules هر پوزیشن"],"path":"03 - Projects/Crypto - etoro/PROJECT"},
+  {"name":"Lead-نقاشی","status":"active","risk":"medium","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":0,"focus":"چرخشِ اعتبارنامه → روشن‌کردنِ ربات → آزمایش #۱","next":["چرخشِ اعتبارنامه‌ها (مالک): مقادیرِ جدید در فایلِ پیکربندیِ محرمانهٔ ربات","شروعِ آزمایش #۱"],"path":"03 - Projects/Lead-نقاشی/PROJECT"},
+  {"name":"Mining","status":"active","risk":"medium","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":0,"focus":"رجیستریِ سخت‌افزار + کوین #۱","next":["چرخشِ عبارتِ‌بازیابیِ Monero (مالک)","تکمیلِ رجیستریِ نودها"],"path":"03 - Projects/Mining/PROJECT"},
+  {"name":"Ziman Galerry","status":"active","risk":"low","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":0,"focus":"عددِ ظرفیت از production owner","next":["ثبتِ units/week → تگ [Estimate]","آزمایشِ کانال #۱"],"path":"03 - Projects/Ziman Galerry/PROJECT"},
+  {"name":"Project-F","status":"active","risk":"high","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":0,"focus":"فاز validation · Track B/C","next":[],"generic_only":true},
+  {"name":"هیپنوتیزم","status":"active","risk":"low","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":0,"focus":"تفکیکِ معرفت‌شناختیِ محتوا","next":["بازبینیِ epistemic_status (مالک)"],"path":"07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT"},
+  {"name":"architect (مادر)","status":"active","risk":"critical","autonomy":"read-only","updated":"2026-07-05","kit":4,"blockers_n":1,"focus":"میزبانِ ستون — rotation → گیت → TOP-5","next":["lift رسمیِ Security Gate (مالک)","git init (مالک)"],"path":"04 - Architect System/architect/PROJECT"}
+ ],
+ "spine":{
+  "organs":[
+   {"name":"EffectorGate","st":"partial"},{"name":"Anchor Ledger","st":"partial"},{"name":"Budget guard","st":"partial"},
+   {"name":"Kill-switch","st":"ok"},{"name":"Scout Fleet","st":"ok"},{"name":"Doctor + validators","st":"ok"}
+  ],
+  "milestones":[
+   {"id":"M0","t":"سبز کردنِ سوئیت","f":"fusion-mvp/src/evals.py","w":"موج۱"},
+   {"id":"M1","t":"fail-closedِ IGK","f":"orchestrator.py + config.py","w":"موج۱"},
+   {"id":"M2","t":"EffectorGateِ یکپارچه","f":"orchestrator.py + tools.py","w":"موج۱"},
+   {"id":"M3","t":"تنزلِ امن به‌جای جعل","f":"llm.py + config.py","w":"موج۱"},
+   {"id":"M4","t":"بودجهٔ سراسری + دیسک","f":"langar/budget.py","w":"موج۲"},
+   {"id":"M6","t":"observability","f":"observability/tracer.py","w":"موج۲"},
+   {"id":"M5","t":"بکاپِ off-box (پیش‌شرطِ delete)","f":"_ops/backup/","w":"موج۳"},
+   {"id":"M7","t":"پنلِ واقعی","f":"fusion-mvp/src/panel.py","w":"موج۳"},
+   {"id":"M8","t":"L1.5 stress-gate","f":"self_update.py","w":"موج۳"}
+  ],
+  "verdicts":[
+   {"k":"git init روی vault","st":"done","why":"انجام شد — vault گیت است با ریموت germline (تأیید 2026-08-16)","act":""},
+   {"k":"lift رسمیِ Security Gate","st":"open","why":"CHARTER §۲ + ROTATION_CHECKLIST (فقط انسان)","act":"راهنمای lift رسمیِ Security Gate را بده: کدام خطوطِ CHARTER §۲ و ROTATION_CHECKLIST را دستی عوض کنم."},
+   {"k":"DNA/PII (~۶۰MB×۲)","st":"open","why":"خروج به cold-storage آفلاین","act":"نقشهٔ خروجِ امنِ DNA/PII از vault به cold-storage را بده."},
+   {"k":"بک‌لینکِ ۸ پروژه به ستون","st":"done","why":"اتصالِ دوطرفهٔ §۳","act":""}
+  ]
+ },
+ "fleet":{"tasks_live":6,"scouts":0,"note":"شش پروسهٔ زندهٔ ارگانیزم (organism·cortex·live·center·gateway·board-cp) + پروسهٔ هفتم: ایجنت برد اورنج‌پای (خودکار). اسکات‌های تحقیق خاموش — منتظرِ verdictِ حجم."},
+ "metrics":{"frontmatter_checked":631,"frontmatter_errors":224,"links_checked":476,"broken_links":1,"note":"اسکن امروز (2026-08-16): ۶۳۱ نوت · ۲۲۴ خطا — رشد از ۳۰ِ جولای، عمدتاً فرانت‌مترِ خارج از schema از نوت‌های ایجنت‌های موازی؛ کارت: به‌روزرسانی Property Schema. اعداد لینک از اسکنِ جولای (بازتولید نشد)."},
+ "roadmap":[
+  {"step":1,"state":"pending","label":"چرخشِ ۴ ردیفِ CRITICAL + gitleaks (مالک)"},
+  {"step":2,"state":"done","label":"Tier A لینک‌ها اعمال شد"},
+  {"step":3,"state":"done","label":"کیتِ ۴فایلی برای ۶ پروژه + بک‌لینکِ ستون"},
+  {"step":4,"state":"gated","label":"memory-layer (پشتِ گیتِ rotation)"},
+  {"step":5,"state":"partial","label":"سنجش: هر پروژه ≥۳ لینک به hub"},
+  {"step":6,"state":"done","label":"BOARDLINK: پل برد کامل روشن (رأی مالک 2026-08-16)"},
+  {"step":7,"state":"pending","label":"ادغام per-leg پس از push برد (NBB-V5)"}
+ ],
+ "circle":{"lessons_total":2,"applied":2,"pending":0,"info":0,"ledger":"_memory/EXPERIENCE-LEDGER","note":"ساختارِ جدولیِ بازلنگرشده — ۲ درسِ ثبت‌شده، هر دو از 2026-08-16"}
+}
+</script>
+<script>
+const M = JSON.parse(document.getElementById('model').textContent);
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CW = () => (typeof window!=='undefined' && window.cowork) ? window.cowork : null;
+function hand(text){ if(typeof sendPrompt==='function'){ sendPrompt(text); } else { alert('برای «تحویل به جلسهٔ ساخت»، پنل را داخل Cowork باز کن.'); } }
+async function ask(prompt, ctx){
+ const cw = CW();
+ if(!cw || !cw.askClaude) return 'برای گفتگوی زنده، پنل را داخل Cowork باز کن (askClaude در دسترس نیست).';
+ try{ const r = await cw.askClaude(prompt, ctx||[]);
+  return (typeof r==='string') ? r : (r && (r.text||r.answer||r.content||(r.content&&r.content[0]&&r.content[0].text))) || JSON.stringify(r); }
+ catch(e){ return 'خطا: '+(e&&e.message||e); }
+}
+/* header ring */
+(function(){const s=M.doctor.health_score,col=s>=80?'var(--low)':s>=60?'var(--med)':'var(--crit)',r=16,c=2*Math.PI*r,off=c*(1-s/100);
+ $('hring').innerHTML='<circle cx="20" cy="20" r="'+r+'" fill="none" stroke="#e8e8e2" stroke-width="4"/><circle cx="20" cy="20" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle" font-size="11" font-weight="700" fill="'+col+'">'+s+'</text>';})();
+$('gen').textContent='اسنپ‌شات ثابت: '+M.generated+' — نه وضعیت زنده';
+/* gates */
+(function(){const g=M.gates;let h='';if(g.rotation_critical_open>0)h+='<div class="banner">⛔ گیتِ rotation باز — '+g.rotation_critical_open+' ردیفِ CRITICAL. بالاترین‌اهرمِ کلِ سیستم.</div>';
+ h+='<div class="chips"><span class="chip '+(g.git_init?'ok':'bad')+'">git init: '+(g.git_init?'✓':'باز')+'</span><span class="chip '+(g.gitleaks_done?'ok':'bad')+'">gitleaks: '+(g.gitleaks_done?'✓':'باز')+'</span><span class="chip '+(g.brain_overwrite_ratified?'ok':'bad')+'">ratify Brain.md: '+(g.brain_overwrite_ratified?'✓':'باز')+'</span></div>';
+ $('gatebar').innerHTML=h;})();
+/* doctor */
+$('docsum').innerHTML='سلامتِ مؤثر: <b>'+M.doctor.effective_score+'</b>/100 · خام: <b>'+M.doctor.raw_score+'</b> · مؤثر: '+Object.entries(M.doctor.counts).map(([k,v])=>'<span class="sev '+k+'">'+k+':'+v+'</span>').join(' · ')+' · خامِ CRITICAL: '+M.doctor.raw_critical;
+(function(){const tb=$('doctbl').querySelector('tbody');tb.innerHTML=M.doctor.findings.map((f,i)=>
+ '<tr class="'+(f.dim?'dim':'')+'"><td class="sev '+f.severity+'">'+f.severity+(f.tag?' <small class="mut">('+f.tag+')</small>':'')+'</td><td>'+esc(f.check)+'</td><td dir="ltr" style="text-align:left">'+esc(f.path)+'</td>'+
+ '<td><button onclick="explainF('+i+')">پیشنهادِ رفع</button> <button class="hand" onclick="handF('+i+')">تحویل ▸</button></td></tr>').join('');})();
+window.explainF=async i=>{const f=M.doctor.findings[i];$('docanswer').style.display='block';$('docanswer').textContent='… در حالِ پرسیدن از Doctor';
+ $('docanswer').textContent=await ask('به‌عنوان Doctorِ این سیستم، این یافته را توضیح بده و امن‌ترین رفعِ گام‌به‌گام را بده (propose-only): '+f.severity+' · '+f.check+' · '+f.path+' · '+f.msg,[f]);};
+window.handF=i=>{const f=M.doctor.findings[i];hand('این یافتهٔ Doctor را رفع کن (propose-only، با verdict): '+f.check+' در «'+f.path+'» — '+f.msg);};
+window.askDoctor=async()=>{const q=$('docq').value.trim();if(!q)return;$('docanswer').style.display='block';$('docanswer').textContent='… در حالِ پرسیدن';
+ $('docanswer').textContent=await ask('تو Doctor و معمارِ این سیستمِ مایسیلیایی هستی. با دانشِ رکنِ ساخت (§۳، M0–M8)، گیت‌ها و یافته‌ها، به این پاسخ بده (propose-only، صادق، مختصر): '+q,[{gates:M.gates,doctor:M.doctor,spine:M.spine,fleet:M.fleet}]);};
+/* spine organs + milestones + verdicts */
+const STMAP={ok:['✓','var(--low)'],partial:['◐','var(--high)'],open:['○','var(--crit)']};
+$('organs').innerHTML=M.spine.organs.map(o=>'<span class="chip" style="border-color:'+STMAP[o.st][1]+';color:'+STMAP[o.st][1]+'">'+STMAP[o.st][0]+' '+esc(o.name)+'</span>').join('');
+$('miles').innerHTML=M.spine.milestones.map(m=>'<div class="mrow"><span class="id">'+m.id+'</span> <span class="f5">→F5</span> <span class="wv">'+m.w+'</span><br>'+esc(m.t)+'<br><small class="mut" dir="ltr">'+esc(m.f)+'</small> <button class="hand" onclick="buildM(\''+m.id+'\')">بساز ▸</button></div>').join('');
+window.buildM=id=>{const m=M.spine.milestones.find(x=>x.id===id);hand('پرامپتِ کدنویسِ '+id+' را از [[BUILD-BACKLOG]] اجرا کن: «'+m.t+'» ('+m.f+') — کدِ لوکال، MOCK، آخرش بایست.');};
+$('verdicts').innerHTML=M.spine.verdicts.map(v=>'<div class="vrow"><span>'+(v.st==='done'?'✅':'🔴')+' <b>'+esc(v.k)+'</b> <small class="mut">— '+esc(v.why)+'</small></span>'+(v.act?'<button class="hand" onclick="hand(this.dataset.a)" data-a="'+esc(v.act)+'">شروع ▸</button>':'<span class="chip ok">اعمال شد</span>')+'</div>').join('');
+/* brain cards */
+const RO={critical:0,high:1,medium:2,low:3};
+$('cards').innerHTML=M.brains.slice().sort((a,b)=>RO[a.risk]-RO[b.risk]).map(b=>{
+ const link=(b.path&&!b.generic_only)?'<a href="obsidian://open?vault=backup&file='+encodeURIComponent(b.path)+'">باز در Obsidian ↗</a>':(b.generic_only?'<span class="mut" style="font-size:11px">🔒 state ژنریک</span>':'');
+ const next=(b.next&&b.next.length)?'<ul class="next">'+b.next.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>':'';
+ return '<div class="card r-'+esc(b.risk)+'"><h3>'+esc(b.name)+'</h3><div class="badges"><span class="b st-'+esc(b.status)+'">'+esc(b.status)+'</span><span class="b">'+esc(b.risk)+'</span><span class="b">کیت '+b.kit+'/4</span></div><div style="font-size:12.5px">'+esc(b.focus)+'</div>'+next+'<div class="blk" style="font-size:12px">بلاکر: <b>'+b.blockers_n+'</b></div>'+link+'</div>';}).join('');
+/* fleet + live refresh */
+function renderFleet(live){
+ let h='تسکِ زندهٔ هسته: <b>'+(live!=null?live:M.fleet.tasks_live)+'</b> · اسکاتِ تحقیق: <b>'+M.fleet.scouts+'</b>'+(live!=null?' <span class="chip ok">زنده از زمان‌بند</span>':'')+'<br><small class="mut">'+esc(M.fleet.note)+'</small><div style="margin-top:8px"><button class="hand" onclick="hand(\'ناوگانِ اسکاتِ تحقیق را راه بینداز — پکِ متخصص (AI/Agent-eng · orchestration · امنیت · مایسیلیایی · بازار · ابزار)، propose-only به scout-digests، دیتا یکجا در همین پنل.\')">📡 راه‌انداختنِ اسکات‌ها ▸</button></div>';
+ $('fleet').innerHTML=h;}
+renderFleet(null);
+(async()=>{const cw=CW();if(!cw||!cw.callMcpTool)return;try{const r=await cw.callMcpTool('mcp__scheduled-tasks__list_scheduled_tasks',{});const d=r.structuredContent??JSON.parse(r.content[0].text);if(Array.isArray(d))renderFleet(d.filter(t=>t.enabled).length);}catch(e){}})();
+/* boardlink */
+(function(){const B=M.boardlink;let h='';
+ h+='<div class="chips"><span class="chip '+(B.bridge==='live'?'ok':'bad')+'">پل: '+(B.bridge==='live'?'🟢 زنده':'🔴')+'</span><span class="chip ok">'+esc(B.control_url)+'</span><span class="chip">اولین فرمان: '+esc(B.first_command_policy)+'</span></div>';
+ h+='<div style="margin:8px 0"><b>تأییدِ رفت‌وبرگشت:</b> '+B.verified.map(v=>'<span class="b st-active">'+esc(v)+'</span>').join(' ')+'</div>';
+ h+='<div style="margin:8px 0"><b>ایجنت برد:</b> <span style="font-size:12.5px">'+esc(B.board_agent)+'</span></div>';
+ h+='<div style="margin:8px 0"><b>کانال‌ها:</b> <span class="chip ok">SMB germline (ویندوز‌ساخته)</span> <span class="chip '+(B.board_mounted_smb?'ok':'bad')+'">mount برد: '+(B.board_mounted_smb?'✓':'هنوز نه')+'</span> <span class="chip '+(B.windows_github?'ok':'bad')+'">GitHub از ویندوز: '+(B.windows_github?'✓':'بدون credential')+'</span></div>';
+ h+='<div><b>در انتظار:</b><ul class="next">'+B.pending.map(p=>'<li>'+esc(p)+'</li>').join('')+'</ul></div>';
+ h+='<small class="mut">کلید Bearer: '+esc(B.bearer_delivery)+'</small> · <a href="obsidian://open?vault=backup&file='+encodeURIComponent(B.evidence)+'">دفتر شواهد BOARDLINK ↗</a>';
+ $('blink').innerHTML=h;})();
+/* metrics */
+$('mets').innerHTML='فرانت‌متر: <b>'+M.metrics.frontmatter_checked+'</b> بررسی · خطا: <b>'+M.metrics.frontmatter_errors+'</b> · لینک: <b>'+M.metrics.links_checked+'</b> بررسی · شکسته: <b>'+M.metrics.broken_links+'</b><br><small class="mut">'+esc(M.metrics.note)+'</small>';
+/* roadmap */
+const RS={done:'✓ انجام',pending:'در انتظار',gated:'⛔ پشتِ گیت',partial:'نیمه'};
+$('road').innerHTML=M.roadmap.map(r=>'<span class="step '+r.state+'">گام '+r.step+' — '+esc(r.label)+' · '+RS[r.state]+'</span>').join('');
+/* circle */
+$('circle').innerHTML='<div class="chips"><span class="chip">درس‌ها: <b>'+M.circle.lessons_total+'</b></span><span class="chip ok">applied: <b>'+M.circle.applied+'</b></span><span class="chip '+(M.circle.pending>0?'bad':'ok')+'">pending: <b>'+M.circle.pending+'</b></span><span class="chip">info: <b>'+M.circle.info+'</b></span></div><div style="margin-top:8px"><a href="obsidian://open?vault=backup&file='+encodeURIComponent(M.circle.ledger)+'">باز کردنِ EXPERIENCE-LEDGER ↗</a></div>';
+</script>
+</body>
+</html>

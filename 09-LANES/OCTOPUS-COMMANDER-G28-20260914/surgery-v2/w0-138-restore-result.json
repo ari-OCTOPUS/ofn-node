@@ -1,0 +1,12 @@
+{
+ "host": "138",
+ "bundle": "w0-138.tar.gz",
+ "files_in_manifest": 28,
+ "restored_and_hash_ok": 28,
+ "failures": [],
+ "restore_dependencies_not_bundled": [],
+ "py_compiled": 12,
+ "py_compile_failures": [],
+ "negative_probe_production_write": "REJECTED",
+ "verdict": "PASS"
+}

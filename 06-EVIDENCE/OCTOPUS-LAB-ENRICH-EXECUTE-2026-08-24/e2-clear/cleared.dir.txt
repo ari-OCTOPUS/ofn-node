@@ -1,0 +1,4 @@
+total 12
+drwxr-xr-x 2 root    root    4096 Aug 24 05:26 .
+drwxrwx--- 3 octopus octopus 4096 Aug 24 05:26 ..
+-rw-r----- 1 octopus octopus   68 Aug 16 14:01 OCT-SENSE-053.THERMAL-RANGE_CHECK.json

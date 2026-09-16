@@ -1,0 +1,65 @@
+{
+  "status": "F IN PROGRESS — foundation proven, full staged run OPEN",
+  "run_kind": "phase-0 test-authority bring-up (not the full accepted suite)",
+  "baseline_commit": "05d2b5a",
+  "candidate_patch_commits": ["8b61aa0", "88d07f2"],
+  "independent_repository": "F:\\octopus-phase0-isolated",
+  "git_common_dir_proof": ".git (inside isolated repo, NOT F:\\backup\\.git) — F-G1 PASS",
+  "python_version": "3.13.7",
+  "platform": "win32",
+
+  "barrier_self_test": {
+    "result": "PASS",
+    "checks_passed": "8/8",
+    "proves": [
+      "open() write under F:\\backup blocked+recorded",
+      "Path.write_text under F:\\backup blocked+recorded",
+      "os.remove under F:\\backup blocked+recorded",
+      "socket.create_connection blocked+recorded",
+      "subprocess.Popen blocked+recorded",
+      "write to sandbox temp ALLOWED",
+      "tripwire records ATTEMPTS not just successes"
+    ]
+  },
+
+  "test_census": {
+    "tracked_test_files_ops": 252,
+    "tracked_test_files_repo_wide": 419,
+    "note_on_historical_count": "the '251' figure was stale; real _ops count is 252 — recomputed, not trusted",
+    "ops_tests_with_hardcoded_live_path": 1,
+    "ops_tests_importing_network_or_providers": 80
+  },
+
+  "collect_only": {
+    "scope": "_ops/tests",
+    "tests_collected_before_crash": 189,
+    "duration_s": 80,
+    "collection_crashed": true,
+    "crash_cause": "test_durable_journal.py:82 has a MODULE-LEVEL sys.exit() (script-style test) that aborts pytest collection",
+    "finding": "the suite is HETEROGENEOUS — a mix of pytest-style and script-style (__main__ / sys.exit) tests; a proper runner must classify and quarantine script-style breakers, not run plain `pytest`"
+  },
+
+  "live_evidence": {
+    "runtime_state_mtime_before_after": "unchanged (necessary-not-sufficient)",
+    "attempted_live_writes_during_real_test_runs": 0,
+    "external_network_attempts": 0,
+    "note": "self-test deliberately attempted 3 live-writes + 1 network to prove the tripwire; those are self-test probes, not suite activity"
+  },
+
+  "exit_gate_status": {
+    "F-G1_independent_repo": "PASS",
+    "F-G2_all_test_files_inventoried": "PARTIAL — file-level census done; per-case classification OPEN",
+    "F-G3_all_valid_tests_seen_by_runner": "OPEN — script-style tests break plain pytest; runner must handle both",
+    "F-G4_full_sandbox_suite_run": "OPEN",
+    "F-G5_ruff_static_security": "OPEN",
+    "F-G6_attempted_live_writes_zero": "PASS so far (0 in real runs)",
+    "F-G7_successful_live_writes_zero": "PASS so far (barrier blocks)",
+    "F-G8_external_network_zero": "PASS so far (0)",
+    "F-G9_secret_exposure_zero": "PASS so far (env scrubbed; no values printed)",
+    "F-G10_capability_marker_sandbox_only": "OPEN",
+    "F-G11_before_after_live_evidence": "PARTIAL (tripwire + mtime; needs hash snapshot set)",
+    "F-G12_blocker1_green_in_production_like_fixture": "OPEN — current tests use fakes; production-like ledger/guard/gate/SQLite fixture needed"
+  },
+
+  "verdict": "F FOUNDATION PROVEN (independent repo + self-tested barrier + census). NOT COMPLETE. Next: build a runner that classifies pytest-style vs script-style tests, quarantines module-level sys.exit breakers, supplies fixtures + network fakes, and runs all valid tests in stages with the barrier."
+}

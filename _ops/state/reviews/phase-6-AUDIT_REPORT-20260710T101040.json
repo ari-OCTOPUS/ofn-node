@@ -1,0 +1,13 @@
+{
+  "phase_id": "phase-6",
+  "review_type": "AUDIT_REPORT",
+  "ts": "20260710T101040",
+  "payload": {
+    "summary": "13 چک: advisory-only ساختاری + regularization + fallback بدون numpy",
+    "note": "جلسه ۴۴"
+  },
+  "verdict": "approved",
+  "_file": "phase-6-AUDIT_REPORT-20260710T101040.json",
+  "verdict_ts": "20260710T110602",
+  "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+}

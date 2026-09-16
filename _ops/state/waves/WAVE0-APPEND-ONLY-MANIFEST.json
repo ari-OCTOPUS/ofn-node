@@ -1,0 +1,30 @@
+{
+  "schema": "wave0-append-only-manifest/1",
+  "freeze_commit": "9bc506f",
+  "generated_at": "2026-08-21T02:00:00Z",
+  "classification": {
+    "STATIC": [
+      "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/WAVE0_PASS.md",
+      "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/WAVE0_PASS.json",
+      "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/WAVE0_PASS_CANDIDATE.json",
+      "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/WAVE0-VERIFIER.json",
+      "06-EVIDENCE/NERVOUS-RECOVERY-2026-08-20/WAVE0-GATES.json"
+    ],
+    "APPEND_ONLY": [
+      "_ops/state/cortex/cost-receipts.jsonl"
+    ]
+  },
+  "append_only": {
+    "_ops/state/cortex/cost-receipts.jsonl": {
+      "frozen_line_count": 584,
+      "frozen_byte_length": 358459,
+      "prefix_sha256": "73fa522d2ebdb043236ee3899038a788dda443861399fdd9532fb5d31af1cd46",
+      "last_frozen_line_hash": "5521df64dbdfd784a37c673e580bc18cbbff6572cf7db48949e808e84af697dd",
+      "frozen_whole_sha256": "2e9f84a7bd42a48ff950b944af1a43857f508eabbe8bafdd1e1db06e9986a8e1"
+    }
+  },
+  "rules": {
+    "STATIC": "strict whole-file sha256; any byte change fails",
+    "APPEND_ONLY": "current_byte_length >= frozen_byte_length AND prefix bytes over the frozen range are byte-identical (prefix_sha256) AND frozen_line_count lines unchanged (last_frozen_line_hash). Growth is allowed; deletion, reordering, in-place edit or shrink fails."
+  }
+}

@@ -1,0 +1,16 @@
+{"mission_id": "wire", "gate": "test", "approved": true, "voter_id": 6150431610, "callback_id": "7969158549404056064", "ts": 1785307328.9982107}
+{"mission_id": "doctor-pulse", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158550297155072", "ts": 1785313248.597469}
+{"mission_id": "owner-gate-sign-d1-manifest", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158547746425635", "ts": 1786781430.077025}
+{"mission_id": "owner-gate-orange-4d", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158548722099829", "ts": 1786781437.829575}
+{"mission_id": "owner-gate-judgment-wait", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158547685244479", "ts": 1786781442.4918394}
+{"mission_id": "owner-gate-judgment-wait", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158548341060376", "ts": 1786781983.2565045}
+{"mission_id": "owner-gate-orange-4d", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158549974548691", "ts": 1786781985.6301427}
+{"mission_id": "owner-gate-sign-d1-manifest", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158551498800128", "ts": 1786781988.4461777}
+{"mission_id": "owner-gate-sign-d1-manifest", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158547981627808", "ts": 1786781991.7623544}
+{"mission_id": "owner-gate-sign-d1-manifest", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158550219339039", "ts": 1786782199.0285976}
+{"mission_id": "owner-gate-judgment-wait", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158550600803970", "ts": 1786783161.7964406}
+{"mission_id": "owner-gate-sign-d1-manifest", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158547587537070", "ts": 1786783164.1546485}
+{"mission_id": "owner-gate-orange-4d", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158548414340326", "ts": 1786783165.7463746}
+{"mission_id": "voice-test-single-20260815", "gate": "test", "approved": true, "voter_id": 6150431610, "callback_id": "sim-t6-1786790034", "ts": 1786790035.2676282}
+{"mission_id": "doctor-pulse", "gate": "intent", "approved": true, "voter_id": 6150431610, "callback_id": "7969158548891698653", "ts": 1788391402.7649221}
+{"mission_id": "wire", "gate": "test", "approved": true, "voter_id": 6150431610, "callback_id": "7969158548888138273", "ts": 1788391416.899303}

@@ -1,0 +1,55 @@
+{
+  "agent_id": "A03_dataflow_contract_auditor",
+  "wave": "2026-08-16-wave-01",
+  "mode": "READ_ONLY",
+  "observed_at": "2026-08-16",
+  "repo": "F:\\backup",
+  "branch": "equip/g10-cognition-20260816",
+  "flows_traced": ["A sensor->brain", "B owner->intent", "C memory->reasoning", "D decision->policy->execution", "E result->ledger->self-model->memory"],
+  "finding_count": 32,
+  "findings_by_status": {
+    "VERIFIED_LIVE": 5,
+    "VERIFIED_CODE_ONLY": 21,
+    "VERIFIED_TEST_ONLY": 0,
+    "DOCUMENTED_NOT_IMPLEMENTED": 2,
+    "STALE": 0,
+    "CONTRADICTED": 1,
+    "NOT_FOUND": 1,
+    "UNKNOWN": 2
+  },
+  "critical_condition_evaluated": {
+    "question": "can model output / retrieved note / memory text / sensor payload / tool result become a consequential execution argument without deterministic validation",
+    "answer": false,
+    "reasoning": "action_bridge classifies on structural fields only (text escalates never de-escalates; unknown=A6); executor implements A0/A1 only; A2 BLOCK (VQ-SELFGOAL-002); A4/A5 have no executor function; owner approvals HMAC-bound action+hash+scope+expiry+nonce; memory is veto-only over missions and plan is byte-identical with/without retrieval; MemoryGate bars model commits to procedural/owner_fact; telegram LLM replies display-only; lead-email lane requires per-effect owner authorization, consent, staleness proof, recorded price. Ungated LLM write exists only into the 4d research memory (poisoning vector, no execution authority).",
+    "residual_risks": ["BP-01 /sh owner shell single-message execution", "BP-08 ungated LLM->4d memory persistence", "BP-05 lead email lane outside action_bridge (cap env-removable)"]
+  },
+  "claim_scoreboard": {
+    "layers_L0_L8": "NOT_FOUND (doc model only)",
+    "brains_4d_and_NBB_CP": "VERIFIED_CODE_ONLY (4d side of dual veto PENDING/unconnected)",
+    "governance_mutual_veto": "VERIFIED_CODE_ONLY partial",
+    "actions_propose_only": "PARTIALLY CONTRADICTED (lead email lane executes after per-effect owner vote)",
+    "money_locked_destructive_disabled": "VERIFIED_CODE_ONLY at action layer; residual Q-7",
+    "A2_bounded_automatic": "CONTRADICTED (A2=BLOCK today, stricter than claim)",
+    "A4_owner_approval": "VERIFIED where lane exists",
+    "policy_gate_runtime_enforced": "SPLIT: action_bridge yes / 4d control_plane observe-only",
+    "viability_loop": "VERIFIED_LIVE (honest FAIL verdicts 2026-08-16)",
+    "ledger_live_bitemporal": "SPLIT: live+hash-chained yes / bitemporal DOCUMENTED_NOT_IMPLEMENTED",
+    "sensorium_active_legs_unauthorized": "CONTRADICTED (Sensorium NOT_FOUND; email leg owner-authorized)",
+    "memory_affects_reasoning": "VERIFIED_LIVE (veto/prompts/dedup)",
+    "identity_health_live": "VERIFIED_CODE_ONLY (computed per call)"
+  },
+  "bypass_paths": {
+    "count": 9,
+    "classifications": {"BENIGN_INTERNAL": 6, "LEGACY": 3, "TEST_ONLY": 0, "UNCONTROLLED_SIDE_EFFECT": 0, "UNKNOWN": 0},
+    "top_severity": ["BP-01 /sh", "BP-05 lead email lane", "BP-08 ungated LLM memory write"]
+  },
+  "temporal_audit": {
+    "bitemporal_claim": "not supported by any live ledger",
+    "single_timestamp_ledgers": ["genome ledger.jsonl", "chord-ledger.jsonl", "octopus_v3 IntentLedger", "durable_journal", "action-audit.jsonl", "events.jsonl", "intervention-ledger.jsonl", "agi2027_runtime/*.jsonl"],
+    "structural_occurred_recorded": ["spine.db", "outcomes.db", "funnel_events", "consent_events"],
+    "occurred_equals_recorded_in_practice": true,
+    "valid_time_implemented": "MemoryStore valid_from/valid_to",
+    "timestampless_ledger": "state/c6/research-ledger.jsonl"
+  },
+  "verdict": "READY_FOR_NEXT_WAVE"
+}

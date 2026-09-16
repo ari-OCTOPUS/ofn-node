@@ -1,0 +1,32 @@
+DietPi
+REPO=/home/ari/hypno-fugu-mini
+680548633ca42d9f61a84fd7397cd32c9cfd2e06
+## master
+ M obsidian-vault/Hypno-Fugu-Vault/00-Dashboard.md
+ M obsidian-vault/Hypno-Fugu-Vault/Memory/MOC-Memory.md
+ D "obsidian-vault/Hypno-Fugu-Vault/RAG-Chunks/0001-NCCIH- Hypnosis overview.md"
+ D "obsidian-vault/Hypno-Fugu-Vault/RAG-Chunks/0002-APA 2024- Science of clinical hypnosis.md"
+ D "obsidian-vault/Hypno-Fugu-Vault/RAG-Chunks/0003-Safe self-hypnosis contract.md"
+TRACKED=237
+---
+REPO=/home/ari/ofn
+germline	/mnt/octopus-germline/octopus.git (fetch)
+germline	/mnt/octopus-germline/octopus.git (push)
+9bc05abc18fe545f128b7ca6a23c77d888f23e36
+## work/truth-record-20260830...origin/work/truth-record-20260830
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.err
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.exit
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.out
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/git-diff-check.txt
+?? 06-EVIDENCE/runtime-provenance-20260828T230743Z/git-status-final.txt
+TRACKED=2244
+---
+REPO=/home/ari/octopus-bridge
+germline	/mnt/octopus-germline/octopus.git (fetch)
+germline	/mnt/octopus-germline/octopus.git (push)
+e21f20d7c690e4660894226b1cef1bd47b219b5a
+## main
+ M octopus_bridge/connector.py
+?? octopus_bridge/connector.py.bak-ua-20260822
+TRACKED=38
+---

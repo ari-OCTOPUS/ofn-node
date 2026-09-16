@@ -1,0 +1,2 @@
+rollback: git checkout -- _ops/memory/memory_store.py _ops/memory/gate.py _ops/wiring.py
+DB columns are additive ALTERs — harmless if left; no data migration back needed

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Owner Cockpit</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#050914;--surface:#0a1120;--card:#0f1828;--ink:#e8f0ff;--muted:#6b7a99;
+--accent:#22d3ee;--ok:#10b981;--warn:#f59e0b;--bad:#ef4444;--border:#1a2540}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.app{max-width:600px;margin:0 auto;padding:16px 12px 80px}
+.header{text-align:center;padding:20px 0;border-bottom:1px solid var(--border)}
+.header h1{font-size:1.4rem;color:var(--accent)}
+.header .sub{font-size:.85rem;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:4px;padding:12px 0;overflow-x:auto;border-bottom:1px solid var(--border)}
+.tab{padding:10px 16px;border-radius:8px 8px 0 0;background:transparent;color:var(--muted);
+border:none;cursor:pointer;font-size:.9rem;white-space:nowrap;transition:.2s}
+.tab.active{background:var(--card);color:var(--accent);border-bottom:2px solid var(--accent)}
+.tab:hover{color:var(--ink)}
+.content{padding:16px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+padding:16px;margin-bottom:12px}
+.card h2{font-size:1rem;color:var(--accent);margin-bottom:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:.85rem}
+.k{color:var(--muted)}.v{color:var(--ink);font-weight:500}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600}
+.badge.ok{background:rgba(16,185,129,.15);color:var(--ok)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--warn)}
+.badge.bad{background:rgba(239,68,68,.15);color:var(--bad)}
+.btn{display:block;width:100%;padding:14px;border-radius:8px;border:none;cursor:pointer;
+font-size:1rem;font-weight:600;margin-top:8px;transition:.2s}
+.btn.primary{background:var(--accent);color:var(--bg)}
+.btn.danger{background:var(--bad);color:#fff}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn:hover{opacity:.85}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+background:var(--card);border:1px solid var(--border);padding:12px 20px;border-radius:8px;
+font-size:.9rem;z-index:100;opacity:0;transition:.3s;max-width:90%}
+.toast.show{opacity:1}
+.err{color:var(--bad);font-size:.85rem;padding:8px 0}
+.loading{text-align:center;color:var(--muted);padding:40px 0}
+.login{text-align:center;padding:40px 20px}
+.login h2{color:var(--accent);margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{padding:8px;text-align:right;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:500}
+.empty{text-align:center;color:var(--muted);padding:40px 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>🐙 Owner Cockpit</h1>
+    <div class="sub" id="hdrSub">در حال بارگذاری…</div>
+  </div>
+
+  <div id="loginView" class="login" style="display:none">
+    <h2>ورود مالک</h2>
+    <p style="color:var(--muted);margin-bottom:16px">برای دسترسی، initData تلگرام لازم است.</p>
+    <button class="btn primary" id="loginBtn">ورود</button>
+  </div>
+
+  <div id="mainView" style="display:none">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="state">وضعیت</button>
+      <button class="tab" data-tab="fugu">فگو</button>
+      <button class="tab" data-tab="approvals">تأییدها</button>
+      <button class="tab" data-tab="safety">ایمنی</button>
+      <button class="tab" data-tab="traces">ردیابی</button>
+    </div>
+    <div class="content" id="content"><div class="loading">در حال بارگذاری…</div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var tg = window.Telegram && window.Telegram.WebApp;
+var API_BASE = ""; // same origin
+var sessionToken = sessionStorage.getItem("oc_session") || "";
+var toastT;
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]});}
+function toast(msg,tone){var t=document.getElementById("toast");t.textContent=msg;t.className="toast show "+(tone||"");
+if(toastT)clearTimeout(toastT);toastT=setTimeout(function(){t.className="toast"},3000);}
+function api(path,method,body){
+  var h={"Content-Type":"application/json"};
+  if(sessionToken)h["X-Session-Token"]=sessionToken;
+  return fetch(API_BASE+path,{method:method||"GET",headers:h,
+    body:body?JSON.stringify(body):undefined}).then(function(r){
+    if(r.status===401){sessionToken="";sessionStorage.removeItem("oc_session");showLogin();throw new Error("401");}
+    return r.json().catch(function(){return{error:"bad_json"};});
+  }).catch(function(e){return{error:e.message};});
+}
+function showLogin(){document.getElementById("loginView").style.display="block";document.getElementById("mainView").style.display="none";}
+function showMain(){document.getElementById("loginView").style.display="none";document.getElementById("mainView").style.display="block";render("state");}
+function login(){
+  var initData=tg?tg.initData:"";
+  if(!initData){toast("initData موجود نیست","bad");return;}
+  api("/auth/session","POST",{init_data:initData}).then(function(r){
+    if(r.session_token){sessionToken=r.session_token;sessionStorage.setItem("oc_session",sessionToken);
+    document.getElementById("hdrSub").textContent="owner: "+esc(r.owner_id);showMain();}
+    else{toast("ورود ناموفق: "+esc(r.reason||r.error),"bad");}
+  });
+}
+if(document.getElementById("loginBtn"))document.getElementById("loginBtn").addEventListener("click",login);
+
+// tabs
+document.getElementById("tabs").addEventListener("click",function(e){
+  var t=e.target.closest(".tab");if(!t)return;
+  [].forEach.call(this.querySelectorAll(".tab"),function(x){x.classList.remove("active");});
+  t.classList.add("active");render(t.getAttribute("data-tab"));
+});
+function render(tab){
+  var c=document.getElementById("content");
+  c.innerHTML='<div class="loading">…</div>';
+  if(tab==="state")renderState(c);
+  else if(tab==="fugu")renderFugu(c);
+  else if(tab==="approvals")renderApprovals(c);
+  else if(tab==="safety")renderSafety(c);
+  else if(tab==="traces")renderTraces(c);
+}
+function renderState(c){
+  api("/state").then(function(d){
+    if(d.error){c.innerHTML='<div class="err">خطا: '+esc(d.error)+'</div>';return;}
+    var org=d.organism||{},b=d.budget||{},f=d.flags||{},h=d.health||{};
+    c.innerHTML=
+    '<div class="card"><h2>ارگانیسم</h2><div class="kv">'+
+    '<span class="k">beat</span><span class="v">'+esc(org.beat||"—")+'</span>'+
+    '<span class="k">halted</span><span class="v">'+(org.halted?'<span class="badge bad">بله</span>':'<span class="badge ok">خیر</span>')+'</span>'+
+    '<span class="k">frozen</span><span class="v">'+(org.frozen?'<span class="badge warn">بله</span>':'خیر')+'</span></div></div>'+
+    '<div class="card"><h2>بودجه</h2><div class="kv">'+
+    '<span class="k">fugu امروز</span><span class="v">'+esc(b.spent_today_usd||0)+' USD</span>'+
+    '<span class="k">سهمیه</span><span class="v">'+esc(b.fugu_quota||"—")+'</span></div></div>'+
+    '<div class="card"><h2>فلگ‌ها</h2><div class="kv">'+
+    '<span class="k">فعال</span><span class="v">'+esc(f.n_armed)+' از '+esc(f.n_total)+'</span>'+
+    '<span class="k">dark gates</span><span class="v">'+esc(h.n_dark_gates||"—")+'</span></div></div>';
+  });
+}
+function renderFugu(c){
+  api("/fugu/usage").then(function(d){
+    if(d.error){c.innerHTML='<div class="err">خطا: '+esc(d.error)+'</div>';return;}
+    var t=d.today||{};
+    c.innerHTML='<div class="card"><h2>استفاده‌ی امروز</h2><div class="kv">'+
+    '<span class="k">callها</span><span class="v">'+esc(t.calls||0)+'</span>'+
+    '<span class="k">توکن</span><span class="v">'+esc(t.tokens||0)+'</span>'+
+    '<span class="k">هزینه</span><span class="v">$'+esc(t.cost_usd||0)+'</span>'+
+    '<span class="k">موفق</span><span class="v"><span class="badge ok">'+esc(t.ok||0)+'</span></span>'+
+    '<span class="k">خطا</span><span class="v"><span class="badge '+(t.errors?"bad":"ok")+'">'+esc(t.errors||0)+'</span></span></div></div>';
+  });
+}
+function renderApprovals(c){
+  api("/approvals").then(function(d){
+    if(d.error){c.innerHTML='<div class="err">خطا: '+esc(d.error)+'</div>';return;}
+    var p=d.pending||[];
+    if(!p.length){c.innerHTML='<div class="empty">صفِ تأیید خالی است</div>';return;}
+    c.innerHTML='<div class="card"><h2>منتظرِ تأیید ('+esc(d.count)+')</h2>'+
+    p.map(function(x){return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'+
+    '<div style="font-weight:500">'+esc(x.id||x.proposal_id||"—")+'</div>'+
+    '<div style="color:var(--muted);font-size:.8rem">'+esc(x.kind||"—")+'</div>'+
+    '<div style="margin-top:8px"><button class="btn primary" style="width:auto;display:inline-block;padding:6px 16px" onclick="approve(\''+esc(x.id||x.proposal_id)+'\',\''+esc(x.payload_hash||"")+'\')">تأیید</button>'+
+    '<button class="btn ghost" style="width:auto;display:inline-block;padding:6px 16px;margin-right:8px" onclick="reject(\''+esc(x.id||x.proposal_id)+'\')">رد</button></div></div>';}).join('')+
+    '</div>';
+  });
+}
+function approve(id,hash){
+  api("/approve/"+id,"POST",{payload_hash:hash}).then(function(r){
+    toast(r.status==="confirmed"?"تأیید شد":"خطا: "+esc(r.error),r.status==="confirmed"?"ok":"bad");
+    if(r.status==="confirmed")render("approvals");
+  });
+}
+function reject(id){
+  api("/reject/"+id,"POST",{}).then(function(r){
+    toast(r.status==="rejected"?"رد شد":"خطا",r.status==="rejected"?"warn":"bad");
+    if(r.status==="rejected")render("approvals");
+  });
+}
+function renderSafety(c){
+  c.innerHTML='<div class="card"><h2>کنترلِ ایمنی</h2>'+
+  '<p style="color:var(--muted);margin-bottom:12px;font-size:.85rem">فریز کردن = توقفِ فوریِ ارگانیسم (STOP-ORGANISM). بدونِ تأیید.</p>'+
+  '<button class="btn danger" id="freezeBtn">⏸ فریز کردن ارگانیسم</button></div>';
+  var fb=document.getElementById("freezeBtn");
+  if(fb)fb.addEventListener("click",function(){
+    if(!confirm("مطمئنی؟ ارگانیسم متوقف می‌شه."))return;
+    api("/freeze","POST",{}).then(function(r){
+      toast(r.status==="frozen"?"فریز شد":"خطا",r.status==="frozen"?"bad":"warn");
+    });
+  });
+}
+function renderTraces(c){
+  c.innerHTML='<div class="card"><h2>ردیابیِ OTel</h2>'+
+  '<p style="color:var(--muted);font-size:.85rem">آخرین span‌ها از traces.jsonl.</p>'+
+  '<div id="traceList" class="loading">…</div></div>';
+  api("/traces").then(function(d){
+    var el=document.getElementById("traceList");
+    if(d.error||!d.spans){el.innerHTML='<div class="muted">غیرفعال</div>';return;}
+    if(!d.spans.length){el.innerHTML='<div class="empty">هیچ spanی</div>';return;}
+    el.innerHTML='<table><tr><th>name</th><th>ms</th><th>status</th></tr>'+
+    d.spans.slice(0,20).map(function(s){return '<tr><td>'+esc(s.name)+'</td><td>'+esc(s.duration_ms)+'</td><td>'+esc(s.status)+'</td></tr>';}).join('')+
+    '</table>';
+  });
+}
+
+// boot
+if(sessionToken){showMain();}
+else if(tg&&tg.initData){
+  // auto-login با initData
+  login();
+}else{showLogin();}
+if(tg){try{tg.expand();tg.setHeaderColor("#050914");tg.setBackgroundColor("#050914");}catch(e){}}
+</script>
+</body>
+</html>

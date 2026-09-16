@@ -1,0 +1,17 @@
+Vazirmatn — SIL Open Font License 1.1
+https://github.com/rastikerdar/vazirmatn
+
+Copyright (c) Saber Rastikerdar
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+The full licence text is at https://openfontlicense.org
+
+Shipped here rather than fetched from a CDN because fonts.gstatic.com does
+not open reliably from Iran, which is where the partners using these shells
+are. A font request that never completes is a wasted connection on exactly
+the network that can least afford one — and as a render-blocking stylesheet
+it was a white screen for as long as the timeout took.
+
+One file, not two: Vazirmatn is a variable font, so 400 and 600 come from the
+same bytes. Shipping both weights separately doubled the payload for nothing,
+which is what the first attempt did.

@@ -1,0 +1,8 @@
+{
+  "ts": "2026-08-11T14:41:30.500590+00:00",
+  "CHRONO_NUDGE_EVERY_N_BEATS": 780,
+  "note": "owner-apply-2026-08-12: HEART=4500 CORTEX_THINK=11 CHRONO=780 (whitelist mid-safe)",
+  "HEART_SAMPLE_INTERVAL_S": 4500,
+  "CORTEX_THINK_EVERY_N": 11,
+  "owner_apply_ts": "2026-08-12T06:58:00"
+}

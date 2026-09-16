@@ -1,0 +1,1 @@
+octopus-core user added for collect_diagnostics E2E; creds in /etc/octopus/secrets/nats-core-e2e.env

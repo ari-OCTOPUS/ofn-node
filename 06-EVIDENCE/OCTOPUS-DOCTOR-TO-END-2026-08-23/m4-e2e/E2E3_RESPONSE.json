@@ -1,0 +1,122 @@
+{
+  "schema": "octopus.edge.diagnostics.v1",
+  "request_id": "e2e3-20260823T034228Z-f4526702",
+  "sender_id": "core://octopus/_ops/e2e",
+  "status": "DEGRADED",
+  "host": {
+    "hostname": "sensorium-opi5pro",
+    "machine_id": "3da939da38d14fc98267a5b94c519c51",
+    "uptime_sec": 494127.96
+  },
+  "checks": [
+    {
+      "id": "systemd.octopus-sensorium.service",
+      "status": "UNKNOWN",
+      "note": "Failed to connect to system scope bus via local transport: No such file or directory",
+      "evidence_ref": ""
+    },
+    {
+      "id": "systemd.nats-server.service",
+      "status": "UNKNOWN",
+      "note": "Failed to connect to system scope bus via local transport: No such file or directory",
+      "evidence_ref": ""
+    },
+    {
+      "id": "systemd.mosquitto.service",
+      "status": "UNKNOWN",
+      "note": "Failed to connect to system scope bus via local transport: No such file or directory",
+      "evidence_ref": ""
+    },
+    {
+      "id": "systemd.octopus-external-feeds.timer",
+      "status": "UNKNOWN",
+      "note": "Failed to connect to system scope bus via local transport: No such file or directory",
+      "evidence_ref": ""
+    },
+    {
+      "id": "systemd.octopus-homeo-feeds-snapshot.timer",
+      "status": "UNKNOWN",
+      "note": "Failed to connect to system scope bus via local transport: No such file or directory",
+      "evidence_ref": ""
+    },
+    {
+      "id": "nats.listen",
+      "status": "PASS",
+      "note": "192.168.0.182:4222",
+      "evidence_ref": ""
+    },
+    {
+      "id": "mqtt.sot",
+      "status": "PASS",
+      "note": "LOCAL_LOOPBACK_AUTH_OPEN__WAN_KEEP_CLOSED",
+      "evidence_ref": "/var/lib/octopus/state/mqtt/MQTT_SOT.json"
+    },
+    {
+      "id": "feeds.last_run",
+      "status": "DEGRADED",
+      "note": "ok=7/None path=/var/lib/octopus/state/external_feeds/LAST_RUN.json",
+      "evidence_ref": "/var/lib/octopus/state/external_feeds/LAST_RUN.json"
+    },
+    {
+      "id": "homeo.feeds_snapshot",
+      "status": "PASS",
+      "note": "mode=normal",
+      "evidence_ref": "/var/lib/octopus/state/homeostasis/feeds_snapshot.json"
+    },
+    {
+      "id": "doctor",
+      "status": "PASS",
+      "note": "age_sec=277",
+      "evidence_ref": "/var/lib/octopus/evidence/session-doctor-to-end-20260823/m3-doctor/doctor-summary.json"
+    },
+    {
+      "id": "wave0.board_yaml",
+      "status": "PASS",
+      "note": "read board.yaml",
+      "evidence_ref": "/etc/octopus/config/board.yaml"
+    },
+    {
+      "id": "wave0.ARMED",
+      "status": "PASS",
+      "note": "ARMED false/absent",
+      "evidence_ref": ""
+    },
+    {
+      "id": "disk.root",
+      "status": "PASS",
+      "note": "/dev/mmcblk0p1   58G   16G   40G  29% /",
+      "evidence_ref": ""
+    },
+    {
+      "id": "esp32",
+      "status": "ABSENT",
+      "note": "no physical ESP32 marker (not FAIL)",
+      "evidence_ref": ""
+    }
+  ],
+  "artifacts": [
+    "/var/lib/octopus/evidence/session-diag-20260823T034228Z-e2e3-2026082/diagnostics.json"
+  ],
+  "safety": {
+    "ARMED": false,
+    "actuator_authority": "UNKNOWN",
+    "mqtt_policy": "UNKNOWN",
+    "soft_latch": "UNKNOWN",
+    "note": "soft_latch_untouched_by_collector"
+  },
+  "params": {
+    "mutates": false,
+    "include": [
+      "systemd",
+      "nats",
+      "mqtt_sot",
+      "feeds",
+      "homeo",
+      "doctor",
+      "wave0_soft",
+      "disk"
+    ]
+  },
+  "ts_utc": "20260823T034228Z",
+  "signature_verify": "UNVERIFIED_NO_COMMAND_TRUST_ROOT"
+}
