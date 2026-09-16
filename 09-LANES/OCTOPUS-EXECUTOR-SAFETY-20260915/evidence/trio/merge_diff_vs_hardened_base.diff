@@ -1,0 +1,428 @@
+--- /home/ari/ofn/state/coding-worker/stage/EXECUTOR-SAFETY-20260915/ops_agent.py	2026-09-15 10:02:48.674917299 +0000
++++ /home/ari/ofn/state/coding-worker/stage/SUCCESSOR-TRIO-003-20260915/ops_agent.py	2026-09-15 10:19:46.415019558 +0000
+@@ -92,7 +92,18 @@
+ def read_receipts() -> list:
+     if not RECEIPTS.exists():
+         return []
+-    return [json.loads(l) for l in RECEIPTS.read_text(encoding="utf-8").splitlines() if l.strip()]
++    out = []
++    for l in RECEIPTS.read_text(encoding="utf-8").splitlines():
++        if not l.strip():
++            continue
++        try:
++            out.append(json.loads(l))
++        except ValueError:
++            # a torn/partial line must never kill the tick, and it can never
++            # count as OPS_B_EXECUTED, so budgets stay closed (fail-closed).
++            # Chain integrity stays strict in verify_own_chain().
++            continue
++    return out
+ 
+ 
+ def verify_own_chain() -> tuple:
+@@ -127,6 +138,10 @@
+ 
+ 
+ # ---------------------------------------------------------------- budgets
++def _cat_key(category: str) -> str:
++    return category.split('_')[0]
++
++
+ def budget_allows(category: str, component: str, now: float | None = None) -> tuple:
+     b = load_json(BUDGETS) or {}
+     now = now or time.time()
+@@ -135,10 +150,11 @@
+     # breaker: same-class failures (execution- or outcome-rejected) or unknown effect
+     fails = [r for r in ex
+              if (r.get("category") == category
+-                 or str(r.get("category", "")).startswith(category + "_"))
++                 or str(r.get("category", "")).startswith(category + "_")
++                 or _cat_key(r.get("category", "")) == _cat_key(category))
+              and r.get("verified") is False]
+     orej = [r for r in rows if r.get("kind") == "OPS_B_OUTCOME_REJECTED"
+-            and category[-2:] in str(r.get("category", ""))]
++            and _cat_key(r.get("category", "")) == _cat_key(category)]
+     # failures root-caused and fixed (state/failure-signatures.json) stop counting;
+     # the signature blacklist itself is append-only and operator-audited
+     sigs = load_json(STATE / "failure-signatures.json") or {"signatures": []}
+@@ -444,6 +460,43 @@
+          "verify_kind": "supervisor-age<300", "timeout_s": 60})
+ 
+ 
++def _b5_measure(paths) -> tuple:
++    """ONE counting rule for both sides of the B5 comparison: logical bytes of
++    regular files under each FROZEN path. Symlinks excluded (no traversal);
++    the SET itself is never re-enumerated. Returns (total, errs, per_path) -
++    unreadable bytes are UNKNOWN, not zero."""
++    total, errs = 0, 0
++    per = {}
++    for p in paths:
++        n, ok = 0, True
++        try:
++            _p = Path(p)
++            if _p.is_symlink():
++                per[str(p)] = {"bytes": 0, "visible": True, "symlink": True}
++                continue
++            if _p.is_file():
++                n = _p.stat().st_size
++            elif _p.is_dir():
++                # os.walk+onerror: pathlib rglob SWALLOWS PermissionError, so
++                # an unreadable dir would measure as 0 bytes instead of
++                # UNKNOWN - that silence is how a read error could masquerade
++                # as freed bytes
++                def _raise(e):
++                    raise e
++                for _dp, _dns, _fns in os.walk(_p, onerror=_raise):
++                    for _fn in _fns:
++                        _fp = Path(_dp) / _fn
++                        if _fp.is_file() and not _fp.is_symlink():
++                            n += _fp.stat().st_size
++            per[str(p)] = {"bytes": n, "visible": True}
++        except OSError:
++            ok = False
++            errs += 1
++            per[str(p)] = {"bytes": None, "visible": False}
++        total += n if ok else 0
++    return total, errs, per
++
++
+ def handle_b5_storage(cat: dict, pins: dict) -> str:
+     """Whitelist-only cache cleanup. NEVER touches the never_delete list."""
+     import fnmatch
+@@ -462,23 +515,60 @@
+                     findings.append(dp / f)
+     findings = [f for f in findings if any(
+         str(f).startswith(str(hp)) for hp in roots)]
++    # v2b dedupe: a *.pyc living INSIDE an already-found cache dir is
++    # carried by that dir own move; keeping both made the child mv fail
++    # (rc=1) and the whole action FAILED. Prevents double counting too.
++    _dirs = [f for f in findings if f.is_dir()]
++    if _dirs:
++        findings = [f for f in findings if f.is_dir() or not any(
++            str(f).startswith(str(_d) + os.sep) for _d in _dirs)]
+     if not findings:
+         return "no-action-needed"
+     ok_b, why_b = budget_allows("B5", "storage-cache")
+     if not ok_b:
+         receipt("OPS_B_BLOCKED", category="B5", component="storage-cache", reason=why_b)
+         return "budget-blocked"
+-    action_spec = {"commands": [["rm", "-rf", str(f)] for f in findings[:20]],
+-                   "rollback": "caches regenerate (reproducible artifacts only)",
+-                   "timeout_s": cat["timeout_s"]}
+-    evidence = {"paths": [str(f) for f in findings[:20]],
+-                "note": "whitelist-matched reproducible caches only"}
+     targets = findings[:20]
++    before_bytes, errs_before, per_before = _b5_measure(targets)
++    if errs_before:
++        # a partially-measurable set cannot be verified honestly - no
++        # proposal, no slot burn, no fake verdict
++        receipt("B5_MEASUREMENT_INCOMPLETE", component="storage-cache",
++                paths=len(targets), access_errors=errs_before, stage="before")
++        return "measurement-incomplete"
++    if before_bytes <= 0:
++        # explicit disposition: nothing measurable to free - proposing a
++        # no-op action would only burn a class-B slot for a fake verdict
++        receipt("B5_NOTHING_MEASURABLE", component="storage-cache",
++                paths=len(targets), access_errors=errs_before)
++        return "no-action-needed"
++    # AGENTS.md alignment: no rm -rf. Stale material moves to a quarantine
++    # (archive) dir; physical purge stays a separate owner-scoped decision.
++    _qdir = STATE / "b5-quarantine" / now_iso().replace(":", "")
++    action_spec = {"commands": [["mkdir", "-p", str(_qdir)]] +
++                               [["mv", str(f),
++                                  str(_qdir / ("%03d-%s" % (i, f.name)))]
++                                 for i, f in enumerate(targets)],
++                   "rollback": "mv back from the quarantine dir; caches are "
++                               "reproducible artifacts only",
++                   "timeout_s": cat["timeout_s"]}
++    evidence = {"paths": [str(f) for f in targets],
++                "measured_bytes_before": before_bytes,
++                "access_errors_before": errs_before,
++                "criterion": "logical byte reduction of the FROZEN target set, "
++                             "one counting rule on both sides; quarantine frees "
++                             "NO physical space (mv, not delete)"}
++    _vk = "target-set-bytes:%d" % before_bytes
++    action_spec["verify_kind"] = _vk
+     return _witnessed_action("B5_SAFE_STORAGE_MAINTENANCE", "storage-cache",
+                              action_spec, evidence, pins,
+-                             {"argv": [["rm", "-rf", str(f)] for f in targets],
+-                              "verify_kind": "paths-absent:" + "|".join(str(f) for f in targets),
+-                              "timeout_s": 30})
++                             {"argv": action_spec["commands"],
++                              "verify_kind": _vk,
++                              "timeout_s": 30,
++                              "target_set": [str(f) for f in targets],
++                              "access_errors_before": errs_before,
++                              "per_target_before": per_before,
++                              "quarantine_dir": str(_qdir)})
+ 
+ 
+ 
+@@ -539,6 +629,20 @@
+         receipt("RETIRE_FAULT", category=category, request=name, note=str(e)[:120])
+ 
+ 
++def _spool_order(_spool):
++    def _key(_n):
++        try:
++            _row = load_json(_spool / _n) or {}
++        except OSError:
++            _row = {}
++        try:
++            _prio = int(_row.get("priority", 100))
++        except (TypeError, ValueError):
++            _prio = 100  # missing/null/invalid: deterministic, never a crash
++        return (_prio, _n)
++    return sorted(os.listdir(_spool), key=_key)
++
++
+ def handle_spool_category(category: str, cat: dict, pins: dict, subdir: str) -> str:
+     """B4/B6/B8: act only on real request artifacts in the spool."""
+     spool = STATE / subdir
+@@ -546,7 +650,7 @@
+         return "no-action-needed"
+     (STATE / "owner-tasks").mkdir(parents=True, exist_ok=True)
+     _any_blocked = False          # OW-8: blocked requests disposition, never abort
+-    for name in sorted(os.listdir(spool)):
++    for name in _spool_order(spool):
+         req = load_json(spool / name)
+         if not req:
+             continue
+@@ -655,6 +759,9 @@
+             receipt("OPS_B_PRECONDITION_UNMET", category=category, request=name,
+                     unmet=_unmet_pc[:3])
+             continue
++        _preconds_verified = [{"path": str(_pc.get("path", "")),
++                               "sha256": _pc.get("sha256")}
++                              for _pc in _preconds]
+         if not backup or not Path(backup).exists():
+             continue
+         component = req.get("component", category)
+@@ -690,7 +797,8 @@
+                                   "pre_target_sha256":
+                                       (hashlib.sha256(_tgt_p.read_bytes()).hexdigest()
+                                        if _tgt_p.exists() else None),
+-                                  "deps_verified": _deps_verified})
++                                  "deps_verified": _deps_verified,
++                                  "preconditions_verified": _preconds_verified})
+         # FIX 2026-09-15: retire ONLY on successful execution. The 2026-09-14
+         # version retired unconditionally, which consumed G8 without deploying
+         # it (observed: proposal sent at 04:53Z, no OPS_B_EXECUTED, file moved
+@@ -854,16 +962,90 @@
+                            component=m.get("component"), reason="DEPENDENCY_DRIFT",
+                            dep=str(_dpt)[:80],
+                            outcome="BLOCKED_NO_EFFECT", exit_codes=[])
++    for _pv in (m.get("preconditions_verified") or []):
++        _ppt = Path(str(_pv.get("path", "")))
++        _have_pc2 = (hashlib.sha256(_ppt.read_bytes()).hexdigest()
++                     if _ppt.exists() else None)
++        if _have_pc2 != _pv.get("sha256"):
++            return receipt("OPS_B_PRE_EFFECT_BLOCKED", category=category,
++                           component=m.get("component"), reason="PRECONDITION_DRIFT",
++                           path=str(_ppt)[:80],
++                           outcome="BLOCKED_NO_EFFECT", exit_codes=[])
++    _internal_copy = None
++    if m.get("source_sha256") and m.get("target_path"):
++        _internal_copy = (Path(str(m.get("source_path", ""))),
++                          Path(str(m.get("target_path", ""))),
++                          m["source_sha256"])
+     raw = m.get("argv", [])
+     argvs = raw if (raw and isinstance(raw[0], list)) else ([raw] if raw else [])
+     codes = []
+-    for a in argvs:
+-        rc, out = run_frozen_action(a, m.get("timeout_s", 60))
+-        codes.append(rc)
++    if _internal_copy is not None:
++        # S4a GAP CLOSURE: the bytes READ at check time are the bytes WRITTEN.
++        # The executor performs the copy itself from memory, so a source swap
++        # after the check cannot alter what lands on the target; the frozen
++        # argv remains the recorded action contract.
++        _srcp, _tgtp, _sha = _internal_copy
++        try:
++            _data = _srcp.read_bytes()
++        except OSError as _e:
++            return receipt("OPS_B_PRE_EFFECT_BLOCKED", category=category,
++                           component=m.get("component"),
++                           reason="SOURCE_UNREADABLE", error=type(_e).__name__,
++                           outcome="BLOCKED_NO_EFFECT", exit_codes=[])
++        if hashlib.sha256(_data).hexdigest() != _sha:
++            return receipt("OPS_B_PRE_EFFECT_BLOCKED", category=category,
++                           component=m.get("component"), reason="SOURCE_DRIFT",
++                           outcome="BLOCKED_NO_EFFECT", exit_codes=[])
++        _tmpw = _tgtp.with_name(_tgtp.name + ".deploy.tmp")
++        with _tmpw.open("wb") as _f:
++            _f.write(_data)
++            _f.flush()
++            os.fsync(_f.fileno())
++        os.replace(_tmpw, _tgtp)
++        codes = [0]
++    else:
++        for a in argvs:
++            rc, out = run_frozen_action(a, m.get("timeout_s", 60))
++            codes.append(rc)
+     rc = max(codes) if codes else 1
+     vk = m.get("verify_kind", "")
+     verified = False
+-    if rc == 0:
++    _extra = {}
++    if vk.startswith("target-set-bytes:"):
++        # measurement IS the verdict: command exit codes are reported but do
++        # not gate the frozen-set criterion (partial access failures stay
++        # explicit; freed==0 still fails honestly)
++        want = int(vk.split(":", 1)[1] or 0)
++        after, errs_after, per_after = _b5_measure(m.get("target_set") or [])
++        qdir = m.get("quarantine_dir")
++        moved, move_failed, invisible = [], [], []
++        for i, p in enumerate(m.get("target_set") or []):
++            a = per_after.get(str(p), {})
++            if not a.get("visible", False):
++                invisible.append(str(p)[-60:])
++                continue
++            qitem = (list(Path(qdir).glob("%03d-*" % i))
++                     if qdir and Path(qdir).exists() else [])
++            if qitem or not Path(p).exists():
++                moved.append(str(p)[-60:])
++            else:
++                move_failed.append(str(p)[-60:])
++        _extra.update({"bytes_before": want, "bytes_after": after,
++                       "bytes_freed": want - after,
++                       "access_errors_after": errs_after,
++                       "targets_moved": len(moved),
++                       "targets_move_failed": len(move_failed),
++                       "targets_unreadable_after": len(invisible),
++                       "measurement_complete": errs_after == 0})
++        if errs_after:
++            # unreadable after-bytes are UNKNOWN, not zero - a read error can
++            # never masquerade as freed bytes; freed stays a LOWER BOUND
++            _extra["outcome_detail"] = ("MEASUREMENT_INCOMPLETE: freed %d "
++                                        "is a LOWER BOUND only" % (want - after))
++            verified = False
++        else:
++            verified = want > 0 and (want - after) > 0
++    elif rc == 0:
+         if vk.startswith("is-active:"):
+             unit = vk.split(":", 1)[1]
+             verified = subprocess.run(["systemctl", "is-active", unit],
+@@ -881,7 +1063,7 @@
+     return receipt("OPS_B_EXECUTED", category=category, component=m["component"],
+                    argv=argvs, exit_codes=codes, verified=verified, outcome=outcome,
+                    verify_kind=vk, request=m.get("request"),
+-                   proposal_id=exp["proposal_id"])
++                   proposal_id=exp["proposal_id"], **_extra)
+ 
+ 
+ def progress_outcomes(pins: dict) -> str:
+@@ -926,6 +1108,100 @@
+     return None
+ 
+ 
++# ------------------------------------------------- decision consumer (Class A)
++def _record_decision(cons_path, key, kind, **kw):
++    row = {"schema": "octopus.decision-consumption.v1", "key": key,
++           "kind": kind, "at": now_iso(), **kw}
++    with cons_path.open("a", encoding="utf-8") as fh:
++        fh.write(json.dumps(row, sort_keys=True) + "\n")
++
++
++def consume_decisions() -> str:
++    """The owner chain's FINAL edge: owner_decision.v1.jsonl -> task resume.
++    Contract: ACK_SEEN means the owner SAW the card - it clears an
++    awaiting-owner flag and NOTHING else (no approvals, no effects, no
++    money). Tasks come ONLY from the trusted decision_tasks.json registry
++    (never from message text); identity is an EXACT payload-hash match (no
++    prefix truncation); replay/restart are idempotent via task state; the
++    crash boundary is task-state-first, receipt-second."""
++    od = ROOT.parent / "owner_dialogue"
++    dec_path = od / "owner_decision.v1.jsonl"
++    tasks_path = od / "decision_tasks.json"
++    cons_path = od / "decision_consumption.jsonl"
++    if not dec_path.exists():
++        return "idle"
++    # TERMINAL dispositions only: a retryable disposition (e.g. the task
++    # wasn't registered yet) must NOT permanently consume the decision key;
++    # the next tick re-evaluates it against a possibly-registered task.
++    _TERMINAL = {"DECISION_CONSUMED", "DECISION_TASK_NOT_WAITING",
++                 "DECISION_STALE", "DECISION_IGNORED"}
++    consumed = set()
++    if cons_path.exists():
++        for l in cons_path.read_text(encoding="utf-8").splitlines():
++            try:
++                _r = json.loads(l)
++                if _r.get("kind") in _TERMINAL:
++                    consumed.add(_r.get("key"))
++            except ValueError:
++                continue
++    tasks = load_json(tasks_path) or {"tasks": []}
++    n = 0
++    for l in dec_path.read_text(encoding="utf-8").splitlines():
++        if not l.strip():
++            continue
++        try:
++            d = json.loads(l)
++        except ValueError:
++            receipt("DECISION_ROW_UNPARSEABLE", detail=l[:60])
++            continue
++        key = "%s|%s" % (d.get("at"), d.get("source_text_sha256"))
++        if not d.get("source_text_sha256") or key in consumed:
++            continue
++        bound = d.get("bound_request_payload_sha256")
++        verdict = str(d.get("verdict", ""))
++        task = next((t for t in tasks["tasks"]
++                     if t.get("payload_sha256") == bound), None)
++        if verdict not in ("ACK_SEEN", "ACK_BATCH"):
++            _record_decision(cons_path, key, "DECISION_IGNORED",
++                             verdict=verdict[:24],
++                             task=task and task.get("task_id"))
++        elif task is None:
++            # no registered task MATCHES this decision. This is RETRYABLE:
++            # the task may not have been registered yet (the registration
++            # contract says durable task BEFORE card display, but the
++            # consumer must tolerate a delayed registration). The decision
++            # key is NOT consumed here - the next tick will re-evaluate it.
++            # Cards themselves are consumed by the binder's one-use registry
++            # and are NEVER re-pended.
++            _record_decision(cons_path, key, "DECISION_NO_TASK_RETRYABLE",
++                             bound=str(bound)[:16])
++        elif task.get("state") != "awaiting_ack":
++            _record_decision(cons_path, key, "DECISION_TASK_NOT_WAITING",
++                             task=task.get("task_id"), state=task.get("state"))
++        elif str(d.get("at", "")) < str(task.get("created_at", "")):
++            _record_decision(cons_path, key, "DECISION_STALE",
++                             task=task.get("task_id"),
++                             decision_at=d.get("at"),
++                             task_created=task.get("created_at"))
++        else:
++            # resume = the ONE allowed internal action: clear the awaiting
++            # flag. Task-state write FIRST (crash boundary), receipt second;
++            # replay after a crash lands in TASK_NOT_WAITING, idempotent.
++            task["state"] = "resumed"
++            task["resumed_at"] = now_iso()
++            task["resumed_by_decision"] = key
++            _tmp = tasks_path.with_suffix(".tmp")
++            _tmp.write_text(json.dumps(tasks, indent=1, sort_keys=True) + "\n",
++                            encoding="utf-8")
++            os.replace(_tmp, tasks_path)
++            _record_decision(cons_path, key, "DECISION_CONSUMED",
++                             task=task.get("task_id"), bound=str(bound)[:16])
++            receipt("DECISION_CONSUMED", task=task.get("task_id"),
++                    verdict=verdict, note="awaiting flag cleared only")
++        n += 1
++    return "consumed" if n else "idle"
++
++
+ # ---------------------------------------------------------------- goal engine (Class A)
+ def goal_engine(contracts: dict) -> str:
+     """Observe and receipt goals; never invent problems. Healthy => health cycle."""
+@@ -986,8 +1262,11 @@
+         r2 in ("outcome-sent", "cycle-closed", "outcome-rejected")
+     # Class A goal engine every tick
+     ge = goal_engine(contracts)
++    # owner chain final edge: decisions -> task resume (ACK clears a flag only)
++    results = {"decisions": consume_decisions()}
+     # category handlers (skip if a witness cycle is mid-flight: one at a time)
+-    results = {"goal_engine": ge, "progress": r1 or r2}
++    results["goal_engine"] = ge
++    results["progress"] = r1 or r2
+     if not busy:
+         cats = contracts["categories"]
+         if armed.get("B2"):

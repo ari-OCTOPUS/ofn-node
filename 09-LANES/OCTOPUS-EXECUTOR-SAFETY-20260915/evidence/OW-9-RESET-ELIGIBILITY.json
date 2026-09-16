@@ -1,0 +1,28 @@
+{
+  "schema": "executor-safety.ow9-reset-eligibility.v1",
+  "order": "OCTOPUS-FINAL-SYNC-20260915-R2 §12",
+  "measured_at_utc": "2026-09-15T11:35:00Z",
+  "source_head": "82bd517",
+  "runtime_version": "octopus-ops-agent/1.3.0 (live ops_agent.py sha256 beaee58cc952351001b6b34c8658cbb7ef689b00510e866ffa172a4eb390682f)",
+  "breaker": "B5",
+  "breaker_state": "CIRCUIT_BREAKER_OPEN",
+  "breaker_state_evidence": "stateless breaker computed per call: 3 bad rows with at > fixed_at(2026-09-13T01:52:00+00:00) = OPS_B_EXECUTED 2026-09-13T02:24:54 (verified=false) + OPS_B_OUTCOME_REJECTED 2026-09-13T01:52:03 + 2026-09-13T02:30:02; threshold 2; last CB block 2026-09-15T11:21:52Z",
+  "historical_signature": "rm-under-readonly-sandbox-denied",
+  "root_fix_commit": "ops-agent v1.3.0 (agent child-path dedupe) + unit v1.1 (ReadWritePaths += /home/ari/ofn/state); exact git commit sha NOT re-derived this round (signature-file authority; status of commit sha: unverified)",
+  "root_fix_live_verified": true,
+  "root_fix_live_evidence": "/etc/systemd/system/octopus-ops-agent.service ProtectHome=read-only with ReadWritePaths=/home/ari/ofn/state/ops-agent /home/ari/ofn/state /home/ari/ofn/ofn/agents /tmp — the exact v1.1 fix is live on the unit",
+  "last_signature_seen_at": "2026-09-13T02:30:02+00:00 (last B5-category failure receipt of any kind)",
+  "post_fix_recurrence_count": 0,
+  "post_fix_recurrence_note": "zero B5 executions, rejections, or failures after 2026-09-13T02:30:02Z (only CIRCUIT_BREAKER_OPEN blocks, which are guards not incidents). The 3 counted bads are all inside the 09-13 incident window that the signature's own fixed_at (01:52:00, stamped 3s before the first rejection) fails to exclude — this is the latch mechanism, not a live fault.",
+  "reset_mechanism_found": true,
+  "reset_mechanism": "breaker is stateless; it closes automatically if failure-signatures.json gains an entry for category B5 with fixed_at >= 2026-09-13T02:30:02Z (append-only, operator-audited). No destructive state to clear; no service restart required.",
+  "reset_requires_owner": true,
+  "proposed_canary": "single B5_SAFE_STORAGE_MAINTENANCE dry-run task under the live v1.1 sandbox unit: rm-under-readonly must NOT recur; receipt verified=true; only then propose unpausing the B5 queue",
+  "rollback": "no destructive rollback needed: any new B5 failure (>=2) re-opens the breaker automatically; the signature entry is append-only and can itself be superseded by a newer entry",
+  "verdict": "RESET_NOT_AUTHORIZED",
+  "ow9_action": "PROPOSE_RESET_CANARY",
+  "b8_breaker_independence_check": {
+    "b8_state": "CLOSED (computed: canonical key B8, fixed_at max(B8 05:56:10Z, legacy RY 06:06:56Z/06:27:49Z)=06:27:49Z; post-fix bads=0; corroborated by live blocks showing BUDGET_NODE_24H not CIRCUIT_BREAKER_OPEN after 06:21)",
+    "independent": true
+  }
+}

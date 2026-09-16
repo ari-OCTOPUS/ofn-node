@@ -1,0 +1,5009 @@
+{
+ "scanned_at_utc": "2026-09-15T23:37:47Z",
+ "total_rows": 3527,
+ "malformed_rows": 0,
+ "budget": {
+  "rolling_24h_executed": 0,
+  "oldest": null,
+  "next_rolling_release_estimate": null,
+  "rows": []
+ },
+ "trio_rows": [
+  {
+   "agent": "octopus-commander-editor/2026-09-14",
+   "artifact": "d0b86a359917e04de348c25aa66113e1ce32a2a36437d2db0476b5a23d1202bf",
+   "at": "2026-09-14T10:39:57+00:00",
+   "kind": "OPS_B_REQUEST_QUEUED",
+   "ops_hash": "f051c3ed86862bb17d28804281884f3fa664e2f95967be46da3b2c39db1012c2",
+   "previous_ops_hash": "bfe5b9585d48711c402db93ac9d58dc2892bf6294c76f016d586e84eaf95ea01",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "why": "successor trio rebuilt on live baseline; matrix 32/32"
+  },
+  {
+   "agent": "octopus-commander-editor/2026-09-14",
+   "at": "2026-09-14T11:20:44+00:00",
+   "kind": "OPS_B_REQUEST_ARTIFACT_UPDATED",
+   "new_artifact": "a85db3b025ba60cb93ff1cc2be235387ffd97f73f250690b017dad2090bdf5cd",
+   "old_artifact": "d0b86a359917e04d",
+   "ops_hash": "b4ffaa479622ec9701a2c0da000551cedcd5df43c1874c15176b33212a86c12e",
+   "previous_ops_hash": "1800045a777e0c951035df686c4898cdb8bf045a2ab5eb37c404fe1db4e97e86",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "why": "ROUND30 fixes; battery 24/24 + matrix 32/32"
+  },
+  {
+   "agent": "octopus-commander-editor/2026-09-14",
+   "at": "2026-09-14T11:20:44+00:00",
+   "kind": "OPS_B_REQUEST_EDGE_UPDATED",
+   "new_edge": "deploy-ordering native-Z-SUCCESSOR-TRIO-001.json",
+   "old_edge": "capability-pin dep-evidence/B8-CAPABILITY-20260914.json",
+   "ops_hash": "85687436bb353f8662d7372de80a7a75679be7105f9a167114fe6b2378e8c6b5",
+   "previous_ops_hash": "b4ffaa479622ec9701a2c0da000551cedcd5df43c1874c15176b33212a86c12e",
+   "request": "native-G30-STAGE-GUARD-WIRING-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "why": "pin-version coupling turned into a consumed ordering edge"
+  },
+  {
+   "agent": "octopus-commander-editor/2026-09-14",
+   "artifact": "db03333d7f03ce03a25beedcc7789cb56e7d589f2b1e885351c8a10cba39ce98",
+   "at": "2026-09-14T11:47:04+00:00",
+   "kind": "OPS_B_REQUEST_EDGE_UPDATED",
+   "new_edge": "deploy-ordering native-A3-W24-BINDER-006.json",
+   "ops_hash": "ed5ca0c4dbe669178f7cfddf1343fc4ebff6fe4c92fdb3191762a7a2b56d9c07",
+   "previous_ops_hash": "27493ea1b2419aea02c90e0bf1554a667205f6ff1a10bbcffe4e53188898266d",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "why": "explicit consumed ordering; resolves ROUND30 independent-vs-last contradiction"
+  },
+  {
+   "agent": "octopus-commander-editor/2026-09-14",
+   "at": "2026-09-14T11:52:22+00:00",
+   "kind": "OPS_B_REQUEST_ARTIFACT_UPDATED",
+   "new_artifact": "9e157b4db282b5f28503284ad8861ab9fe2e3823dfa3c988fd9f5f84d36368a9",
+   "old_artifact": "db03333d7f03ce03",
+   "ops_hash": "f8ac113840b923e43e16e4452ac3eb4ec723468334c731c7d8260eae690e7264",
+   "previous_ops_hash": "dfe1351b2bd3f308aa535714c6d5c8f21ce4d6506135ff1138921c7ea9d4465f",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "why": "ROUND31 fixes; battery 26/26 fenced + matrix 32/32"
+  },
+  {
+   "agent": "octopus-commander-editor/2026-09-14",
+   "at": "2026-09-14T13:42:06+00:00",
+   "kind": "OPS_B_REQUEST_ARTIFACT_UPDATED",
+   "new_artifact": "c4a016cc251c3066686db707639452fef6c21ba3b68b659242a2176254435787",
+   "old_artifact": "9e157b4db282b5f2",
+   "ops_hash": "ba8925f97a592589fb9c1498027eb015be0d9ee400981d24d049ee91fbd5644f",
+   "previous_ops_hash": "c2b56edffc4c0c80255f051752163dd8a6969ccb1389f9437bb65bb4da9a8204",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "why": "W3 counterexample fix: NO_TASK is retryable, not terminal"
+  },
+  {
+   "agent": "octopus-commander-editor/2026-09-14",
+   "at": "2026-09-14T13:43:48+00:00",
+   "kind": "OPS_B_REQUEST_ARTIFACT_UPDATED",
+   "new_artifact": "f6bc8d1c5759a64e597abd724f1b690e4b907b82bb4ac9e7acf5d6452a9545d9",
+   "ops_hash": "16f4e742aca1adb6421ec275121bc72f7b9535fcbcba86ad1ca16e787893ad5a",
+   "previous_ops_hash": "ba8925f97a592589fb9c1498027eb015be0d9ee400981d24d049ee91fbd5644f",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "why": "W3 counterexample fix v2b: consumed set filters to TERMINAL kinds only"
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:32:07+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "6d6bdd03aafc8bbbd262facd218f6917a94a4b4ccdf099dd49fbb30109ac037f",
+   "previous_ops_hash": "3507fd01335257392ce66273fcd720e85162eb53fe574db71203c8eb420b99d2",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:32:07+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8c132585d3258e906e4c418b010ff320ba25b49dd244fb4cbcc06d8d687b53b6",
+   "previous_ops_hash": "6d6bdd03aafc8bbbd262facd218f6917a94a4b4ccdf099dd49fbb30109ac037f",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:37:45+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c6b512d2472a5188b8360395a22e314eaf226b2337e12b3de979a6f22515f4b0",
+   "previous_ops_hash": "d3266b5c9a634c95b64ebf37512101b1eb37e69b83b5bceac2f121981cba652d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:37:45+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8d61e5bcb363a7dc31c38132626b89a919ea9218f26dfb9d3c078206151e4ee2",
+   "previous_ops_hash": "c6b512d2472a5188b8360395a22e314eaf226b2337e12b3de979a6f22515f4b0",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:42:59+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d4577f6b87e2ec084d5f9162f807ce7e7900d7d53059dd2780238b7fce2e37fb",
+   "previous_ops_hash": "6ad82d3e598b214fc0a16124d4f5ae534c52ee459f675c0f6e04e3fadf2e5a6d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:42:59+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "badc26747a1a836ce49071c087d9696e27a302119d1af460cedb47d41bfc653e",
+   "previous_ops_hash": "d4577f6b87e2ec084d5f9162f807ce7e7900d7d53059dd2780238b7fce2e37fb",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:48:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "661f57005ea29438fd2da3125dffc29feaeb75544065b3d57ff1fc0979f701ea",
+   "previous_ops_hash": "837edfabc8099a6eab28d2e6688ad4b51a64c311356fd4a980389462bd060851",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:48:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "593b9a07ea0b3cf836a61f836d911e7e44ffa8399fab1dd1821413db9906e319",
+   "previous_ops_hash": "661f57005ea29438fd2da3125dffc29feaeb75544065b3d57ff1fc0979f701ea",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:53:42+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "85b65e8ad1f43a8e454456154a50079c92b436f48c2854308aa579ae2e29b6d8",
+   "previous_ops_hash": "c62388907d12c1085bd92694fbec135eb8734072e947cb15f66c261532242339",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:53:42+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "99a5b981a9b51fca1cdd4060d233c81b69777b65a469db4c81e4ef7446f47ee0",
+   "previous_ops_hash": "85b65e8ad1f43a8e454456154a50079c92b436f48c2854308aa579ae2e29b6d8",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:59:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "e2f4eac6bcb78173bb27af1db2866420de89dc6c0c382c8e7de69c147d0016e7",
+   "previous_ops_hash": "af1bd861128e6ac8af43c96819c6733e40f657c41d3cb38dbc8632f75d89cb72",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T22:59:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1f603360e8c8aaf577831152ab688cf050b9e2ada1e1e8db4d74a785da2520f1",
+   "previous_ops_hash": "e2f4eac6bcb78173bb27af1db2866420de89dc6c0c382c8e7de69c147d0016e7",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:04:36+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "760d02107149f83ee7eea124631ee8a0e15e01d747f41e2e763c6691facaa194",
+   "previous_ops_hash": "f97341564da06ca725b3cf0b89a0a64c8b3785af81b54ca236a83ecd7cbf6327",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:04:36+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3af1b4a07da1f15fdec96b67a70fbb8d623ec7720fd11a97a2c38f7c187f6465",
+   "previous_ops_hash": "760d02107149f83ee7eea124631ee8a0e15e01d747f41e2e763c6691facaa194",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:10:13+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5d603e0bdfa9df3883be2686f08b1537659849a13db348d105904e625d13a1db",
+   "previous_ops_hash": "39db9cd5c0e412b703fbf2da6a9ae28b23c17807cc04eac806fa81b3cdaf53e5",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:10:14+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "a18596cd5f070f5611cd31b6a8e8c5772582eb0114aabd90e1c6ce937775a38f",
+   "previous_ops_hash": "5d603e0bdfa9df3883be2686f08b1537659849a13db348d105904e625d13a1db",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:15:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "815ea1e337f2d4b8bb6ca49b1e350e680a4e418d996d4125175c8da4a60c4dc5",
+   "previous_ops_hash": "38231be3bd6fc93fda4ef1bd0468ba9ce9eb2b760860a1e940159ce307dcaa00",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:15:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "84b2c6af548d71fb8f32afff10bc5e82d09524c54aef4b841bd04bbb169cf9ed",
+   "previous_ops_hash": "815ea1e337f2d4b8bb6ca49b1e350e680a4e418d996d4125175c8da4a60c4dc5",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:21:13+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "bffe974f9e735b5ba829c918d0193e3082ac6ddc2334320d3fd378ccc8387aa2",
+   "previous_ops_hash": "9c4d46f4899eb79b670f2a3df1bfc294c93b759e064b95f2d20be418645a7cf4",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:21:13+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "4a3eee465d18267b891a41bb3a173cc5d2f9c0cd7c7d7005adb4c7ef2e360d41",
+   "previous_ops_hash": "bffe974f9e735b5ba829c918d0193e3082ac6ddc2334320d3fd378ccc8387aa2",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:27:11+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3d87fdd37d4efeab6363745ffabc3d070edf75cabe6dcd4b7aafb8b9120e9059",
+   "previous_ops_hash": "6b8e90313b1a621e7575f945a97ab44f3b4cc9ede0df17da3d1f27f2d6410c6d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:27:11+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "a8d269b89e8de0fcf8bcf6d1d9e3b95d0659ee1a9300c0b2f317f00c4f16f898",
+   "previous_ops_hash": "3d87fdd37d4efeab6363745ffabc3d070edf75cabe6dcd4b7aafb8b9120e9059",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:32:40+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "b8bb12f27273b9a57ae560a1d53922ea976255ea2ae2acfe56bbdd66b55dd627",
+   "previous_ops_hash": "ae5f81205aab8341ba84bda162bb4b18b31be1808c0f0cd01f98db766adda699",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:32:40+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d43e2afc494a0d591ce664ca0429f372e5793be32109df8c296458a30ae44be0",
+   "previous_ops_hash": "b8bb12f27273b9a57ae560a1d53922ea976255ea2ae2acfe56bbdd66b55dd627",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:37:48+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "070a4d2da0815e76dc69ff3bb24694865e443c527deb2b13f7f59bcb527d66f9",
+   "previous_ops_hash": "50c25818ef80fd9fe8bb53a84736708e699297d213667c5f2d60a492f07e683d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:37:48+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "64fe25fcf3bad2e251138f676864864d06d4a7f55158273a06ba016de466c4e1",
+   "previous_ops_hash": "070a4d2da0815e76dc69ff3bb24694865e443c527deb2b13f7f59bcb527d66f9",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:42:54+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "0ca0a76f170387db08e12e3cab94f1e142a3f9864f708d134e9095de00d78cbb",
+   "previous_ops_hash": "07c3475bbffad7a67e05b5dfe10d8139bde462cdc485790b0c0a0a1115be3c2f",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:42:54+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "40fb143ebaf016d38e1f9cde94ca7bcc8fde55aa094984776f5627b3d03b3ab2",
+   "previous_ops_hash": "0ca0a76f170387db08e12e3cab94f1e142a3f9864f708d134e9095de00d78cbb",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:48:18+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1f50c140d436b52aef93abbd93a976593ad7129da0076e110b2f55feb46e1f4a",
+   "previous_ops_hash": "051606bd0aaebfe284a6cb1e1de4ab4b78ad15c26d367679db5cb376a62f3bf3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:48:18+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c13cfe37c2d8007222c537e0f602b9a95405c36f3bd194cd55f5bc94ac2a550f",
+   "previous_ops_hash": "1f50c140d436b52aef93abbd93a976593ad7129da0076e110b2f55feb46e1f4a",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:53:52+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "0dd86336e60282ea877d349353d0fc30bb528e0fe138cff08ab39542d9731a66",
+   "previous_ops_hash": "fc559d30da2563e790182e4ce37a807124f09f60bd57f1c25fb82ead46a17b68",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:53:52+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "b1d533e9ce741e3d0185e2342e83f490c58a497a0c37258677f8e1749db265fc",
+   "previous_ops_hash": "0dd86336e60282ea877d349353d0fc30bb528e0fe138cff08ab39542d9731a66",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:58:57+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "51ff202cb9bddf9f7d9008c019f363766a5dc60625071c788df38c30d412012b",
+   "previous_ops_hash": "3da25ac3d1aec112cd3b71f59260dc356828235278c65295353c849c81b294c6",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-14T23:58:57+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8296c518dc7847cd6c31ed9e1c1b8eb0a4b23f5c2db2b26a29924cd8ce11532d",
+   "previous_ops_hash": "51ff202cb9bddf9f7d9008c019f363766a5dc60625071c788df38c30d412012b",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:04:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "2ea5a1299c98bfcc40f59827c6be9ef62b8df822b78236ea863d28431465fa97",
+   "previous_ops_hash": "e55c8bab69e80d68bd04488e25d72c16c02a7569b5dc8caef43786db3d6ed490",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:04:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c1db84a3b284786a7f10e12a1db9a0f53212d5db65862660cf2b4436f8f6e72e",
+   "previous_ops_hash": "2ea5a1299c98bfcc40f59827c6be9ef62b8df822b78236ea863d28431465fa97",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:09:42+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "08d4841e0fd5e3c5077ee5f0374fa076ca3109b52211d0ba0c9c7b928c8f65d9",
+   "previous_ops_hash": "45ba8fd5c84a022dc927c5b5f49b66814708463befdc60fc3e4b1007d3a43fd9",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:09:42+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d04ed0da0856179b06fbca0a62449627124f7e7e0f021f523b3ba1c685b46f9b",
+   "previous_ops_hash": "08d4841e0fd5e3c5077ee5f0374fa076ca3109b52211d0ba0c9c7b928c8f65d9",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:15:01+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ff404266e521548c3803753b69373fba70678af204ab39c50416356c9b65d796",
+   "previous_ops_hash": "70d1451a33865322d90966cba106a7fd0d2687a7231bc59cb99b2e9deeba4a63",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:15:01+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "b9839b94e6c06dd1b2bc0b35b6d4e75ff6235dfeb24d901318fa880ef5057f3d",
+   "previous_ops_hash": "ff404266e521548c3803753b69373fba70678af204ab39c50416356c9b65d796",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:20:37+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5abedebe015ff75c8db4ec6685f81bf1e6029470578de2bb126af01fc7d6d8a1",
+   "previous_ops_hash": "fc436071dbc4e8b2346c21815506b5598cb0615a140510b49adb2fcb12fe12b3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:20:37+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f95501e0f66215616725f8327f9ccdb6e85367c9be574170cdf9fd87ac14bdca",
+   "previous_ops_hash": "5abedebe015ff75c8db4ec6685f81bf1e6029470578de2bb126af01fc7d6d8a1",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:26:04+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "97e9628e8adb6e290218ee10f8a8925277b512c28200a16c412ff7b70c528005",
+   "previous_ops_hash": "49de83364785b4057fdb1777395a6f016578549c69f6763eb2ed00ca9b0b6544",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:26:04+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8802400d7449bce464e03762efab8194c749a1e67b562256e45775c3f756f1f3",
+   "previous_ops_hash": "97e9628e8adb6e290218ee10f8a8925277b512c28200a16c412ff7b70c528005",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:31:23+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ad99fc948cc102f8b4ab8f7350621dfe922b510e70f2fb9d166f2c7387e96193",
+   "previous_ops_hash": "67b7896ffd136d911b1057d8966c71f5e1bb7d6ebf292c13721937b588060371",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:31:23+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "daf3061571ffb47f769e06879e90a8778c51e32c17c24f4ed9dca2cef33d256d",
+   "previous_ops_hash": "ad99fc948cc102f8b4ab8f7350621dfe922b510e70f2fb9d166f2c7387e96193",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:36:28+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "db9ebbf3b3af81eab59dac5bd419d964442699046b67d2c712ed687567091f32",
+   "previous_ops_hash": "fda98ab7f019694721be3fb31bf9293c5caa1dcbb12e5baf072c45b3081faebd",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:36:28+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f9c38a00115ccde56d7ed27231e18d508ebfd32c3dddf4c5b41c80fe8351557e",
+   "previous_ops_hash": "db9ebbf3b3af81eab59dac5bd419d964442699046b67d2c712ed687567091f32",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:43:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "2efb1c86f4c6bfd616edb83eb8886e8de92c95b6f63edd60dca9e485bd152119",
+   "previous_ops_hash": "b5ea956a6890197dd03fc50cce8d80422f8a9362d69c6c92271d7be569e571fe",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:43:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ea527aee10243b945c00b5b0acaf2e4424f7df3e12b9a5ede340ad426e17cf0a",
+   "previous_ops_hash": "2efb1c86f4c6bfd616edb83eb8886e8de92c95b6f63edd60dca9e485bd152119",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:49:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "e750babb5b6ac8056be284acac681d29c1e0099e7e0aab99ade5b7f18ca37cbb",
+   "previous_ops_hash": "a0a85ab82d676ac494fe1737020a66cc91fa2a529f8bff70a9d6cef23de82bce",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:49:04+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "883e00e45506a5b1811fc521c15d1f705a1b6b166af45027a28dc6fa980373b8",
+   "previous_ops_hash": "e750babb5b6ac8056be284acac681d29c1e0099e7e0aab99ade5b7f18ca37cbb",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:54:10+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "80c5c2f79d4fcb8ff118202392ac52feacb3f24101a53261c5e6f0769c86ebb0",
+   "previous_ops_hash": "ab0e49c730b6bb2d293cb7da6ed1a50d012f91a73ffdaaaded4c8d06d18c5b73",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:54:10+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8a7ed161a90e00cebe8e83bdc4eb430f1cd776d00433258605da0d215e684cbd",
+   "previous_ops_hash": "80c5c2f79d4fcb8ff118202392ac52feacb3f24101a53261c5e6f0769c86ebb0",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:59:22+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "60656e8bbe627acd60d7c2c61e00e9cac1fab706e741218fe7cba385b551fc8e",
+   "previous_ops_hash": "e02a982c8493a33a9074a2a5b51f882e4cf703e35239e375aab380685fc351cb",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T00:59:22+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "6c7b2bf4fc574406b719ac4538a205507a72fb63c54eeb52b5288682e03b69a7",
+   "previous_ops_hash": "60656e8bbe627acd60d7c2c61e00e9cac1fab706e741218fe7cba385b551fc8e",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:05:01+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7e72532cc07a1b276d5048c6161be0dc6552d82bc5207c2be45d59e31cc29803",
+   "previous_ops_hash": "3d80b9c0e1a4fd9495e2bd6516a2d359358a5960d2c955ad1565eff5a2fde9a6",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:05:01+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7c06d570cbb62750e170542959f0b88d18abfe3ed44428b0a7d3e7094d6d473f",
+   "previous_ops_hash": "7e72532cc07a1b276d5048c6161be0dc6552d82bc5207c2be45d59e31cc29803",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:10:26+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "45be87ab6f8014ce6ad00127a319ad8c7c9dcce58fb0e62d333efac002266918",
+   "previous_ops_hash": "e14a51b5a86ced7ccac7e42581d7780a0ce6fb1136b956049bbb1a7393643b4f",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:10:26+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8b97e3d313352cffe22f84c01cf8db0d726c25738911411d7867ccd88c5f3d2d",
+   "previous_ops_hash": "45be87ab6f8014ce6ad00127a319ad8c7c9dcce58fb0e62d333efac002266918",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:15:40+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "9970aee4f7878a1df0c91d5e622d85640f270bd95aeaa5b45fdeec38d4c71848",
+   "previous_ops_hash": "09f2277f3856f7081d8af7b2157ce93e7dd5f8b139a0dc6eee7e917d494c5ba3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:15:41+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "607abd9a44a66ec3952bcf2a98ae0a5953f288778e1e1524add8cad889e301e0",
+   "previous_ops_hash": "9970aee4f7878a1df0c91d5e622d85640f270bd95aeaa5b45fdeec38d4c71848",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:21:02+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "bf6ddcf3ce198ecda95a428c16251e43bf9165459e34c28971286290a43c8a3f",
+   "previous_ops_hash": "8fa44a8e770f5dd897a78122932b4a630a9459171701c0c79963f4d4bf9fd03f",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:21:02+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "cb70660ca85f4bc91ae5390761e8a65ec8c66ff77cf16830f1b338a7dad94be1",
+   "previous_ops_hash": "bf6ddcf3ce198ecda95a428c16251e43bf9165459e34c28971286290a43c8a3f",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:26:37+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d6cdde576ecc7004efc0aab1a10fba0360468b0c8e1ed0ac9fda47e9f8894a86",
+   "previous_ops_hash": "ae0611ca7bf69c77c197a5415d8af275f6d04f9e11e681b8af165df76d7b9af3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:26:37+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "daff2f5a50af1cb655eaa0ab73f501af9a6a92be3f6aff0deb912633dc2949e2",
+   "previous_ops_hash": "d6cdde576ecc7004efc0aab1a10fba0360468b0c8e1ed0ac9fda47e9f8894a86",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:32:22+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "437aa2518a55c493dd7dfe082d02315d35f410cd5e3d4f537fb5d02fa6c2d078",
+   "previous_ops_hash": "b51b45971bb48ee13d2faa1e44eb55fa9df9b2a6ffa366a296af0f19cd3f682b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:32:22+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7a7223e6b6d03c080ee56a2d78dc3cfa2b0e09a934d0a8c7c2f345c913880892",
+   "previous_ops_hash": "437aa2518a55c493dd7dfe082d02315d35f410cd5e3d4f537fb5d02fa6c2d078",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:37:49+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8bfb233fed073cb7bd698f84227ddc3aa98e31a5c1d3350b3a5e8e17e0579f0f",
+   "previous_ops_hash": "8c0ea4e3917b8538a8482c4431e68d0d8c2feb7221c465b3ad2ab8488eedcfda",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:37:49+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "17c58934c79ccb3d0b2d833e1081c228ba5296cbe14417e253e8f6e41df3809a",
+   "previous_ops_hash": "8bfb233fed073cb7bd698f84227ddc3aa98e31a5c1d3350b3a5e8e17e0579f0f",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:43:12+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "e8ff7ec63a4cefa36442f606f942a8c7f1e5be9d5d3fe5a53ddedf375b20920d",
+   "previous_ops_hash": "efe1cdeff4d2a5801c23a46276e55a1ba0ac84f242a8484857993c1d108791be",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:43:12+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f75728594d260f1124e8d8ed589b792310aed78c1030dd8d5613b2f6b6ab5c07",
+   "previous_ops_hash": "e8ff7ec63a4cefa36442f606f942a8c7f1e5be9d5d3fe5a53ddedf375b20920d",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:48:17+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "cd1b78d8a5f83a9cc7c6a7604c9c895f51504d91232e0ca3bee0e7ef27f8ef69",
+   "previous_ops_hash": "cd1ed4260d6a8505de68561c9482a86f0bd2eb803da44a205ec98a76845cb95b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:48:17+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "a2ed2c25ceff2115a2236bb59d4bbb6ac5b84b221051e684942b7c3dc0ef6cb8",
+   "previous_ops_hash": "cd1b78d8a5f83a9cc7c6a7604c9c895f51504d91232e0ca3bee0e7ef27f8ef69",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:54:04+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "709dcb84504445f1c37e6eb05eefafbee7fc36c49609d107a899b7ac37b001b9",
+   "previous_ops_hash": "e0a996090386886546918ed72b2e0fd4ac6c8496420e9c51c12ad94ab00d068e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:54:04+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1dac70291fa5dcf637a79af40230f236111888ffa7a3f82fc10d01106555e1cd",
+   "previous_ops_hash": "709dcb84504445f1c37e6eb05eefafbee7fc36c49609d107a899b7ac37b001b9",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:59:53+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "76c50cee16f0879af919b09200de9ac60e2dbbab84ca63afaefd8e38b25faf62",
+   "previous_ops_hash": "a4e91088c867c2e6e9f0d12b4d550e9419cb88c129f5766ee5da0b09ed8e4ab1",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T01:59:53+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "6bec89f7876bd3871c8d9f76ffafb8ac08be1d80bd174b8a13269c4ed5317887",
+   "previous_ops_hash": "76c50cee16f0879af919b09200de9ac60e2dbbab84ca63afaefd8e38b25faf62",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:05:27+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3bb8cc5ce9ca4639d6f7eea4fc1ace635d3d8016137d92a1345e2edac11973bb",
+   "previous_ops_hash": "e6bfaed10df2ddd4725482027eb12d68888695343b3398521f6fb0e817675079",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:05:27+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "b2d9eb1280fa266a6c9210db279c96039927ec0fa1d7c4e75a3bc27db24513ae",
+   "previous_ops_hash": "3bb8cc5ce9ca4639d6f7eea4fc1ace635d3d8016137d92a1345e2edac11973bb",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:10:36+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "e0fd236d5ce2a4de3208157be1d9666531cff8b7daf0bcdba7727f1780c29bbe",
+   "previous_ops_hash": "638aa0180ea4c3a940cc784c09c7237ef70092ab6999ec7846599da33d9450d9",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:10:36+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "40a45f3b5242d2b8a400e26d856b93677348f4b7fda1509be189412e46c0b113",
+   "previous_ops_hash": "e0fd236d5ce2a4de3208157be1d9666531cff8b7daf0bcdba7727f1780c29bbe",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:16:01+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "bb509e3fe1e0a00af61ff0a25363c8de61853987418256c5eabc4877ed7ba0f3",
+   "previous_ops_hash": "0a8bf6dd6b5cceada944fa491478c43531f67cfe2371a7328e4b383258d06f61",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:16:01+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "179558c1a166013eee64e9e38c91e5c9e11d5c24210c039e465cdb4cba11b912",
+   "previous_ops_hash": "bb509e3fe1e0a00af61ff0a25363c8de61853987418256c5eabc4877ed7ba0f3",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:21:05+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c99edc91c8d3f0fc31ace951b2a9bc35b9d53b8ce321ab095ebc39d2a10089aa",
+   "previous_ops_hash": "3081af210af82fe4c2d545ddb90e37161029aba7aed5a411fed974bcf4e61205",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:21:05+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c678f6749cc7dc57741f3b66dffeccb5cddf8f013f2c63d521724fcb4d76f71b",
+   "previous_ops_hash": "c99edc91c8d3f0fc31ace951b2a9bc35b9d53b8ce321ab095ebc39d2a10089aa",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:26:06+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "2ceb56f5be5e2f2473d5015f5ef1f89916d45e322fdd70c226623f0712aaf135",
+   "previous_ops_hash": "fa4ba5cec36f8e8eac5b4368817ca6fb37f673bd28f9b9355a9f2dc47c6d1f84",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:26:07+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "28d3aeab42bff654f7f910698baa31b0272c2241e86f1c764ad1518c6aab7fb6",
+   "previous_ops_hash": "2ceb56f5be5e2f2473d5015f5ef1f89916d45e322fdd70c226623f0712aaf135",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:31:34+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "281e10ba928577b9e263eb2dc084f23d3924e8c5bcb62ebb6c42438188e767bc",
+   "previous_ops_hash": "ccc5825cea5069217e82c04838385c84d6af82d26b8af228adf16d5b2ae4560e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:31:34+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "46b780356750a7f2eaec1e808064e0e8a8c98452623d1d79417980b2de24d0dc",
+   "previous_ops_hash": "281e10ba928577b9e263eb2dc084f23d3924e8c5bcb62ebb6c42438188e767bc",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:37:07+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "73c11403b69b84dd1cc138d8b7ca9f777b856bfd78c4a0e258d59a822479da8b",
+   "previous_ops_hash": "955cc0faa38f495de2a9f176ed066b9c2891bfec87295eeca6d1140eabd19e7a",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:37:07+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "fa2b9b3cabbf4a47cc696e86c1b5365a4e05a69bf4bfc24170ed43fa6458ec5e",
+   "previous_ops_hash": "73c11403b69b84dd1cc138d8b7ca9f777b856bfd78c4a0e258d59a822479da8b",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:42:28+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "dca23a4efd084f64239ffb4e4037cf80b969ccd942da8cbc6f3abfaecd51f209",
+   "previous_ops_hash": "ded71657f23ac503c062fe51c99eca3b7639b7856df43e64bb5596f078f3d74b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:42:28+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "04c78e1aa2335048af1e65445338c15a857e28dd7a4555ba41c3f542745e4dfc",
+   "previous_ops_hash": "dca23a4efd084f64239ffb4e4037cf80b969ccd942da8cbc6f3abfaecd51f209",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:48:01+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "79a9a74c2ae24ef33e42346b814860735b73652283eaa2fc9d757a59431f9483",
+   "previous_ops_hash": "fe4017f8e30260cd6b62b91defd52062e22f565d06921f59f609784f6c227a2a",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:48:01+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8016e62841e00b01779b9dc1b0a0832e7959eedec8e46d5d2d1ccf5050d0ece9",
+   "previous_ops_hash": "79a9a74c2ae24ef33e42346b814860735b73652283eaa2fc9d757a59431f9483",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:53:43+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "e3c53aff233910db32f8ae2e3ab6b14929d9a15ecea484a2a9ab57bb75bd5591",
+   "previous_ops_hash": "d5ceeb380f6ce65ec11226a80402d7633a7e1291a8d308a8874fa2a29554c598",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:53:43+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "924103d57e283a72a7a47ee4e9f85c0478fd134d913462ac2712d11ef726403d",
+   "previous_ops_hash": "e3c53aff233910db32f8ae2e3ab6b14929d9a15ecea484a2a9ab57bb75bd5591",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:58:42+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7b387d39be25e775bf75a65383ad478b46b9cad8157bbef77c4ec28025f638c8",
+   "previous_ops_hash": "6963fb76a2b93adde76eab5b0e0409a1b47d4c1a5a0b7f3231c734d6eb39d91e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T02:58:42+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7e4e99c4658bef4cd357659e23084eea8842ccd6537f2b3488bc2202e839cea9",
+   "previous_ops_hash": "7b387d39be25e775bf75a65383ad478b46b9cad8157bbef77c4ec28025f638c8",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:04:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5f391c391b331c472795c5225ce27fa69f63577d0aa39468e30fe3b8dbd9bf2d",
+   "previous_ops_hash": "6cc4fd3fe5e543b97cbedd696525d3d7a2b649035b1bad7a95ab04ae4d3a3390",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:04:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "52c68df754ca59951a8e8220d624ebf5ce31265086da35cf6674d337156ba820",
+   "previous_ops_hash": "5f391c391b331c472795c5225ce27fa69f63577d0aa39468e30fe3b8dbd9bf2d",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:09:47+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "0081aab6c4c46157b844fb9b62a90ad22fb2c8448fcc78362cf3cce892dff398",
+   "previous_ops_hash": "6b89fb2bc7c17a43e72d0045123438121c20f4160c249a12e5524fb0b4d6ea87",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:09:47+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5cc0391bf6aa4efa1894b9ecd86f039b0d2da91303fd3295891c990004d3328e",
+   "previous_ops_hash": "0081aab6c4c46157b844fb9b62a90ad22fb2c8448fcc78362cf3cce892dff398",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:14:48+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "79cdba1f1a5b47bd647d3f5ed893c7269be408863edc1b8b79e5f4e74b41e8c8",
+   "previous_ops_hash": "3d9b22b7f7575b330ca5cd113ac0fb98f8fd324f9ecfddb974d3b6311ca8a50e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:14:48+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "30c342562621521c641764018de0803fcaf5ed38ddb86974cc1b8e9aab9ae458",
+   "previous_ops_hash": "79cdba1f1a5b47bd647d3f5ed893c7269be408863edc1b8b79e5f4e74b41e8c8",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:20:22+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "bd29ea7b2529d25e9089bac0156574b830b6e072f91d32140044d5f60ebedc3c",
+   "previous_ops_hash": "ff8af84d1425016a68ca0e24bf2907747ab8ce90fe9905ad2daf58c3d5295d71",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:20:22+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1457ad4b594f20ea89daf309631f71da09934b741dbdeeed4381e707b590a64b",
+   "previous_ops_hash": "bd29ea7b2529d25e9089bac0156574b830b6e072f91d32140044d5f60ebedc3c",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:25:50+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "302d23dae1dc3bdccb4bce2d2aa046b3d5e03f890470898ef6c5e5568616f11c",
+   "previous_ops_hash": "b27b71fbaad8954fc14b55531b20a718e3e9442167c8a90202e60a30a8c05c0a",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:25:50+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "6ab9b78210fde79e5ed5fb46451ba8e9232dcb9e3df281e8ba683eae605d9016",
+   "previous_ops_hash": "302d23dae1dc3bdccb4bce2d2aa046b3d5e03f890470898ef6c5e5568616f11c",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:31:35+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1009488eebf28ffc429676f24f4b3eea1bb3eee6b749c24531c01ef8e2e81f9d",
+   "previous_ops_hash": "7ca786794ab60bc96d1057e020dcd9d6eb8c85336be7f3837baca73f50294f96",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:31:35+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "9eddfbd388158264674c766501b32c19691ca1314f5e366aa45e5379c8f11f52",
+   "previous_ops_hash": "1009488eebf28ffc429676f24f4b3eea1bb3eee6b749c24531c01ef8e2e81f9d",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:37:16+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c8dde2ec1d0b4424b96e1113b962bb8ea2d1560d1c0f5afac2edd3b03ce89595",
+   "previous_ops_hash": "7982d07e428c31c748e8ad4f2aaa6613acc8a3f754fe2202dcf8994d66761f0e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:37:16+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d1e6426862ac2e5145a5d09ddfdbb244218018184f71eb93ae5fce14c1e1b4cd",
+   "previous_ops_hash": "c8dde2ec1d0b4424b96e1113b962bb8ea2d1560d1c0f5afac2edd3b03ce89595",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:42:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "71a528462e6727d56bb354e055ee4aa2d3e1f70b9d993e180e2d4299f625072c",
+   "previous_ops_hash": "b14f03012f42b5fbd4afae07842e211da05009963e79efe17ed4f0563e48514c",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:42:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f609ded06ad42fd7bed9d70d30aaff53638bd1ad1b805643688d61881b788aa8",
+   "previous_ops_hash": "71a528462e6727d56bb354e055ee4aa2d3e1f70b9d993e180e2d4299f625072c",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:48:18+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8efbd80ea7f19b105db6a7c6d3af2cd3f226fab01615e2ebc32e13474ab5e76d",
+   "previous_ops_hash": "451620eedf757fd001a281e8278148a5f06bfa172da5e872b2bf511dd9e239b6",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:48:18+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "963670dd31613d1d2a52d28cdd76a205d845c9d1a016a2096735a30dee390575",
+   "previous_ops_hash": "8efbd80ea7f19b105db6a7c6d3af2cd3f226fab01615e2ebc32e13474ab5e76d",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:54:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ab5dfca095bd38de3b59bc37971875d4f30677ca7d89804415d03c17d2fff077",
+   "previous_ops_hash": "63a7942a5821948394e705a990e10a8db13fe0ca9df887dacf72f9fda3a502e4",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:54:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "6b403dabff8027cf57197eb6a04c3f056dd519e993608668d3d2af3afea5f448",
+   "previous_ops_hash": "ab5dfca095bd38de3b59bc37971875d4f30677ca7d89804415d03c17d2fff077",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:59:41+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "2a794c40946dcec410774c597073e5a75f27d0a587fc0f346df24248e71b9074",
+   "previous_ops_hash": "ae8ce3d9089bd14903a8a899e73f3c804230da810aa48b5f49683b743f578cde",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T03:59:41+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "efc28a015b1f040e2a733fa4e12a4910dffa88f1a277cf29017552a59de223fa",
+   "previous_ops_hash": "2a794c40946dcec410774c597073e5a75f27d0a587fc0f346df24248e71b9074",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:04:47+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ea2fa86f933a8401f55ff35f54606c8ca5b6506b0f0f63902a71606319dfd7c8",
+   "previous_ops_hash": "4d216c035a0df9651b952322a2327833ca7b66e50247604c1677ad571e294751",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:04:47+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "969400de58a6d221db4f041ef4b1ad9f9ef88fe5a64586a6fe99d648314e844b",
+   "previous_ops_hash": "ea2fa86f933a8401f55ff35f54606c8ca5b6506b0f0f63902a71606319dfd7c8",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:10:33+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "50a571ee205afaaa7739bf9dc1ece8be36237e8450ef728db248658395ec1950",
+   "previous_ops_hash": "d81c994ebd38a5ec305e7090effd60c272bcb9fcb5423c30160243d0cbc3552a",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:10:33+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "2881b1d030cd42a451628897e6a9bdbd979dbe45f2b4518501c98a3df31e74dc",
+   "previous_ops_hash": "50a571ee205afaaa7739bf9dc1ece8be36237e8450ef728db248658395ec1950",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:15:52+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d9de614de21048f6e02883f7ec457f4e89a6cb92583d6fd20bbb92698daf8c6f",
+   "previous_ops_hash": "2da5b2667c2868652e0a59946cb925a4b9fa294103f275b3724b94a5e78f9f1c",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:15:52+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "51e1c72e3e3ac6f270aa6400222c887197bc79e84d3032bb6f33f7401fa15cc0",
+   "previous_ops_hash": "d9de614de21048f6e02883f7ec457f4e89a6cb92583d6fd20bbb92698daf8c6f",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:21:20+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1a720db7260fd28105f408675aa42e2f4ddefe5a054eecfc15cb4f2821223c5d",
+   "previous_ops_hash": "f36860d152bb3f9baff3e39c49409024c58c4a46d4b2196efe078f9a09ad122a",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:21:20+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c23fffe467a7501d8823315a7adadc66e65a2ced4d8e199ae1cfbd7d5d1b236a",
+   "previous_ops_hash": "1a720db7260fd28105f408675aa42e2f4ddefe5a054eecfc15cb4f2821223c5d",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:26:34+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "039a27cf224ab6d93e1f3ac981d6a3db43696794ba0b71e5050d0550a2632243",
+   "previous_ops_hash": "0000a2594afbf09b6d6a68cea5383fb7385bf6b1109a88e5266049e4ed64253d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:26:34+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7d749bbaf989c17c45fe47262785095258ec400b8a7b66b35a98f4478bfcf843",
+   "previous_ops_hash": "039a27cf224ab6d93e1f3ac981d6a3db43696794ba0b71e5050d0550a2632243",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:32:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "099f59ac1d76f22820206feadb25bb999520f5a6ebac063698651638185db210",
+   "previous_ops_hash": "7b0d69caa7bd403a1f133a2e6089695ea00acf7eebe715f95e2a638656ec0245",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:32:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f472cb7435524f5f16a68a87906a3c0071b8f77474b7e172c3d5a9c2599b223b",
+   "previous_ops_hash": "099f59ac1d76f22820206feadb25bb999520f5a6ebac063698651638185db210",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:37:36+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "93de80bbb935bb429070ef2d7b9e4d5566b426e527308279e7c09aa87981fdc4",
+   "previous_ops_hash": "5c7f9f876abc6844c08558c8d23a9bdd99f6668a4a167708843a09209c50447f",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:37:36+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5be7835236a5301d8cfadf2cb204c51c8f7058f7c6cb4324ff781f0e99913e03",
+   "previous_ops_hash": "93de80bbb935bb429070ef2d7b9e4d5566b426e527308279e7c09aa87981fdc4",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:42:47+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "88ef371796673c807a927660c48834437d22f59cb1e331a774baa7320f031630",
+   "previous_ops_hash": "6824ef99872fb8bb9d7cf1e4b92ea706368e8fccb53387c92741d0af7dc5878d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:42:47+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "cc13e2ea0fe62d52f9f3e8e1377f5ebe7285829e90e5e6158921d9f56c42a596",
+   "previous_ops_hash": "88ef371796673c807a927660c48834437d22f59cb1e331a774baa7320f031630",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:48:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7751758bbec08a63e91b83532c31488f4620dec5bdc05a7b7558f010581efc39",
+   "previous_ops_hash": "20472869e7e3e90d31ba1c8a36c9b2e81a86025145d4bef323508aa7db19e911",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T04:48:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1f3bc1fce3c9ba4c6a4c3b8dc798fe50043ddf7344b5ee6f6a77a665b8a31f86",
+   "previous_ops_hash": "7751758bbec08a63e91b83532c31488f4620dec5bdc05a7b7558f010581efc39",
+   "request": "native-Z-SUCCESSOR-TRIO-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-A3-W24-BINDER-006.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T09:16:25+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7e25406c9b130a77bcd5fc71bf33203fd59f81d530c629967e9ed2642a7c9b9f",
+   "previous_ops_hash": "6995e2c79c7b48b233e486e9b2bfc76e8014a4deca14df7df80cc8c2fbad498b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T09:37:36+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "6549894e63aacc4719b43f6cd63acb957edd9ba4c237186683fd8a6352851919",
+   "previous_ops_hash": "87aabd1a00f2e53b11af7e2d650e66d1a74819351d4ad918c977a68773d0e72b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T09:43:26+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3638ddf3732e33f1e34c7630c0611119fdb13ad555220b3f4b3863aeae1a6417",
+   "previous_ops_hash": "37c7a1ec5680abc771b2c7b9ec46644c7806450a1570a62fa0fe7c8333509221",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T09:48:55+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c29c97c9808b8b69ef7ac9171547825fbe6e9116bc54cedc53911549874da29d",
+   "previous_ops_hash": "495e5d89f23f711ac52803b9ffcc8ab9716caa28c092293b06bf7471c4e740d6",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T09:54:21+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "eac6abec47840e875e5ad1ba090f76b1a684b9479ff10be97e611a9f4313a614",
+   "previous_ops_hash": "d9e0367f0df233493d35cba7c131932535980f0b6629eb59163c8786bafa526e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:00:11+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "137dc92a9da83a923861a5eacc7b50b5656f864ed7c3d7e689cfb6e974d0f05c",
+   "previous_ops_hash": "bbf8fe241994608bac0c19fcbefbc06bda5740aea7b529ec35a568467a54ddbf",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:21:09+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "fd126527aadf44b62a87641ba9e3f64ddf71d51535059ace39e430f0e9d6ae04",
+   "previous_ops_hash": "cf8eb78b7e63a0deac383803228f9982ad0a912488c686451f6439b760d78070",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:26:43+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "591bf79015bd955d601f1e017601797b98be4cbd7912ecdd037d4c3d2dde7278",
+   "previous_ops_hash": "2518f3a7954a671da6e62086bc34b76f1024cd3828905d684363ae403f047250",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:31:54+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "0cf5d422db288a571eaaf999e471116e801c077ced4423c3605d69c5c89aff62",
+   "previous_ops_hash": "c57b21739db79d264ec1129667268bc2d0074d7fb3d734b93a9296975b25df9f",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:37:13+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1a4b5a84b0e835d0a8899ef5cbb9749ae4ff3b1f01a62918a267d06da74acaa1",
+   "previous_ops_hash": "ec9e111eb246a09d86105d1f8bba7f71321735ceeb39246ea7b3d7d299983b3f",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:42:46+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ac29e9526d09e448a58d3d5aed8fe11e88a1b66217e93067a078786645629a31",
+   "previous_ops_hash": "12f81ff3408566468a43f998aee3007d687f1267579e4ab65b38e9f6b081ee1b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:48:26+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5ddb4418d656d7ef6498b842c624510b371b6237bc3b27a14c0287bfd50e5356",
+   "previous_ops_hash": "fefa4f7d062d490e819259561f7a777f183303e2236491b36e3c3519004c03e9",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:54:10+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5f0b4846e59044065342e8a9bd75a86b57c35b5340689e34eb10a0b92724e1a0",
+   "previous_ops_hash": "c8ae7b510ae2cdf9fcef4fd8b7ecd7b78feaee37d2d02cd45c734e0b146688e3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T10:59:35+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "9a7d1054e556d993a3c4eb4ab2102adcacc6bd4f8d930394c1e388b1c83ce736",
+   "previous_ops_hash": "0b57a73396b082938f907d9218ac3612c6bf2ac283a2e43cec934772f462b843",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:05:28+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "0f50112fb9d51c98dcbcf97d3feeb4efe8e860407b0c88fb90a932f3ec63c57f",
+   "previous_ops_hash": "773867ff8c173cc3a96892ad46bdf756d1461514f39142528fc848f893235f1d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:10:57+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "07c145e73485e8d53bedd65ee9e79179761f9513a3c92a7059a03228a4772b02",
+   "previous_ops_hash": "e60af13553531e2acccf987433bbd43b042695216ef9746df381d363b073d1a4",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:16:27+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "9edc50cfb8e4809c2bf70dc34a1d79920035dd7418e571a2245a09bc613083ae",
+   "previous_ops_hash": "80ca1a6918a5fbc97fb0388a68ca8c85ca1771c6fa718caae601b8fe8c339e42",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:21:53+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "6fad3e82b3012c989b663198709a341355a86479622e0fa9566f6784a63667e2",
+   "previous_ops_hash": "a3c5dcead7f7245738218d9322e5e9dd83a46939f47324a673033b5c85992bef",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:27:36+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "be2ce6ea7ff2b816a55da34136f1b8ac45dfd23ef8f6515d445702bfc90f7569",
+   "previous_ops_hash": "7e683c3e9c1c572dc0ce987b867e2aa1d9083990798cda6295d700e51202a3f3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:33:07+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "99bdcdc30af648d513976acf0791f1e7c662192b8f7189ae3ebdb0932e7b39b2",
+   "previous_ops_hash": "7322e7491b89a4ff4cc4f1fac0ed3f54c8481640aa68106ebe63fcc701f55244",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:38:21+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "0fed2ef922834f3422f588a446f574d02374fcfcd7dadd6937e5f7fb24a38971",
+   "previous_ops_hash": "2ca323a6ed2c40c0c4ac4c952d65c02dc2b740e0657a59950f98d2b7427f3d83",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:44:06+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "bff2a56435616697186fafe1e410246cd1a29dc4a6f0f9a8b937b9b259605d83",
+   "previous_ops_hash": "c1b5d29c77242a791cb80e8f29f9da508b143368739a0a68eab3dabd1dca95de",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:49:28+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "de2026965d6428e00253913a7d3a5e4b56c471efd57fbad1696e9314ff495db3",
+   "previous_ops_hash": "c00e55c3cd9b47cb0d198a20777c62b4f474c9596e44aa70cac6aebfd4562f41",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T11:54:43+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "c83b5a1ef9c887524dee94f070a3c5d8010fd6b71d06e6093de6b0785d0fa59b",
+   "previous_ops_hash": "e3f09c686bce09bea31943ed5f6dbb842426f41fbd9f868ab7e22821173a93a7",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:00:06+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "102fc5a920c5e4dde9ca71b0be3fcd1aae5905a7ac6006628b9e0d146ccf9e15",
+   "previous_ops_hash": "f7b215fb44f7d438d69257f3ec1459064696bb44aa5d9e144964e2a8be4abfee",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:05:41+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "bd66a74974d806290a2bead65ed740394ddace303e70f9a24d4d30186d0bd146",
+   "previous_ops_hash": "c4808615a8dc080aa9f5af40b701cf976423298843e5ab60105113c54ab64d45",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:11:24+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "32b0704fc0e86b75e97c81bb905ce1171b6d950df3bc07870140ed065db76220",
+   "previous_ops_hash": "b90d4e3a3cc9baec71f27ee9771c4b2d23276214dd0a00a7c9d96691d54c3d85",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:16:46+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "e60a113e4a552133da9e8a5f7b719634e0565faa8d1285a6c3d64943cf31fd7b",
+   "previous_ops_hash": "9485d8b1f62475bcb271123c3de22bd0bd6a9316a3300f666aedbcb344af2f5f",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:22:24+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "b2ab229806ed18a55e0a408a0c65c8e117e195dc34ed97bef5971320fbb6e5ae",
+   "previous_ops_hash": "d62111ac4974774e26daad2ca9a160236f6fc4ef1aaeb77b2f51516c3235c1c9",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:28:06+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "dd2859044af853d2f5b1043a10c63702ed38f3fa27c193757a4cd171f4fe71da",
+   "previous_ops_hash": "9c86b55909e89002204374ab0123ca094ef91ae868fd82f62ebd9f652c78dc36",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:33:23+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "532df397b4425bb0072bcab718de1ab30e62d9e5504c08fdc16071e71fcfa8fc",
+   "previous_ops_hash": "d0fedcb969a1dcb540dcd7bcd6dac8cfedf9e0ccdf7854af96ecab1ae357a030",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:39:02+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "4aad8834f5951b94f6ca7d457581edfc19653a116cf92b63a2321614510a52e4",
+   "previous_ops_hash": "e5779fdb38416487e26987a3aa5f6e5b5bcb837fa39f971b80cac988819e60bb",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:44:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "17f983890492d025bc0a0aef71f6184cc0ee0946796313acf1d8e70e73c3d5a6",
+   "previous_ops_hash": "0c3b5fc6766d3e350ca8eb54ff0e920ff09be4c856aa2a21b18e5e73b223ee37",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:49:52+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "785a2e1c06e49cd2f00ca88dcc81189c12a45d4dcbe4d4cd91785126dab75796",
+   "previous_ops_hash": "eaefe4ed77200a989a440eb250671833453ae1a87768f5b0296dec9a2b7d17d5",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T12:55:20+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "961a8a4c7e18470ef258a32fdfd397866c9bb6e2f61bb82428a05747621cc458",
+   "previous_ops_hash": "c18f3cbe11a65357e1eabda1f0542b68a3c7de19e6892b205ca402336f011e42",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:00:40+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7198304ce2a4eaf16beab4d49f0181936c2e4d85961b0b2438cde0a95657f446",
+   "previous_ops_hash": "c7de342fb788238232728c977d9ad59ea2e8177d53ee0c18a2ad14aa602a5d8c",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:05:57+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "cbde8f7aaca7fe7fa02fda171f48d2ea8bee240cdf89a200c07ab176e2264970",
+   "previous_ops_hash": "58226992a95f1cf79fd5ce619b9720d650eea4e6f234b853e76a65d4f4657d2d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:11:06+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3eeadbd4cb20ac7c111d19691605a3232ffec61685161abc057603a6034469b8",
+   "previous_ops_hash": "b5b2ee3047be837dca0b1302b2d7794232da320af03ce19f3e87653120f91c68",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:16:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "71a29290f8c933037146b88e9995beb4da11f0d38a3ccfcec25f5867e1a39f02",
+   "previous_ops_hash": "ece2f5e073a02d7ece6af8bb87a8bc8d65fa18b06d10560104ff14deca0cfcf7",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:22:10+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "1c4fe68fb2d2bc515352f53d754fa5dddc600cdd4065003c3aad1e0dbdb41823",
+   "previous_ops_hash": "0e4f8b0df503749c7aa966a342b1629ab7d611075603686c9756d445bd346bfe",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:27:43+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "611b8e185f2f95c403ef2079ae3ffbbd7e391a9130b38e63e8c7203bcc2465d6",
+   "previous_ops_hash": "832cdea288992575d3017cd2584c1335d32bb378c5ee90d64310e009d46348b4",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:33:07+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "52f9f8e4cabee2170d721dc7dbf33a4bc201885f37be6f8bcecf62b9e0c58f94",
+   "previous_ops_hash": "b4ac8e39e7591ab50c4b40d4cb7892c074c06d57151a3884fbaf590a7f032b81",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:38:42+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "673930d19aa0cdc8a9038320509454fc327e372df85cb7ea4eb506ee4846c9b8",
+   "previous_ops_hash": "14b77ef5fcf75f60ee5302ddc2c3a0f74df62299ad25f323d7f01517b0dd4f9c",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:43:57+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "767b6aaa38748824ea611e2d9f5fc447a66b0b6984cf7a7a312e2977a9ecf078",
+   "previous_ops_hash": "a7d518bb0a1447443ea128d5d1fffd5a141d4af93885eb821104b069034843be",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:49:12+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "fe8ae35e775f87af87a90c4b7e2669a519c7f2368e4a34b70c9cf5b40dbef3d3",
+   "previous_ops_hash": "6a8e92710cf3cb8b5753d558ce5351cb23355315594946cded3b920081d5359b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:54:44+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "0763df1e91e4610e8218402b00e735602331611d85addbea3cdfe84f6435a85a",
+   "previous_ops_hash": "c2b49efaf0026b6c3b8a1f08e5d1a29121d96b7114bed9411bbe9b799eaa1b26",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T13:59:46+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "449ffd6110987cddf7bca110e315abd040a731cae24a85bc7bdef80d10d14765",
+   "previous_ops_hash": "94ac705e19f415649501aee256067e1d76ec1a989ad9f95da9ddcb7bf1ed03f1",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:05:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "9dee7bfa30e5c16d4d7549e720a4fea70c4e9686fc175cd73d9d163952e603d3",
+   "previous_ops_hash": "2bd51d946119e2edad0017e936aaf901009c5dd15ef3c0fa0700903c1838e2cb",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:10:26+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d5aff5e8a70bb13e66065e91b99cc48a43ea0e7334959bd43ead91397b9e0a6e",
+   "previous_ops_hash": "aaee402344a57965f679ccb235d52ed0ebfa5770fe0bbcb1b79f45c4c6c1a961",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:16:10+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8384fbe847d79657499f8897554962a5268e038c6b37bdf0b7e64b9e6dbe70cd",
+   "previous_ops_hash": "f69b0132a2ae8dcd56d2d38d0ce71b701a5615cd8bde5f32e7557b3d5400f0dd",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:21:24+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "81cb100196437d9eac27525690477470678ba07d1da3fe3ababc9c1833de184d",
+   "previous_ops_hash": "3bc0acc922f49550292109a0625d837f47f0f84759709bf069e3fb4e02ed9553",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:27:00+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "317a0e08b7195c7bf9cae94f3a441ea923f9f2138d5be84db129b95f81bece55",
+   "previous_ops_hash": "c7c7a515adf2ea837a8ee4a68c34f6a8e54f29202b2db5e33b88c5c57b843fc3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:32:11+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "39988ca94693097f467a78128c1810eb46514d597cbc4e719255f0715908bf2a",
+   "previous_ops_hash": "8aeb213c29239fa0fddf2584f63104d9addabca6e43f8a0ef1bb52e3240f66a7",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:37:22+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "9fcfef7cc4184832741c17918c4c9af707daacff2c0d12f1d403d052cc75bd75",
+   "previous_ops_hash": "e913cf1ed75cb9d745f34b40da07b152c4c266c8db45512cb5d4e88673a438aa",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:42:46+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "bc9a907954eab19dd5df91c5f3cda5b816d43b84563701c4f04e8f8db56ff805",
+   "previous_ops_hash": "4bab30b931fcad9bc0ec4199ce27fcf15991f4d0212b5cef7f0889dc86976e22",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:47:59+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "69a157fb400fec94cf0408ce89feb7fa41b078b25d3029243a75116532042c8d",
+   "previous_ops_hash": "2737eb28a5cf9579ba03032c516550425d619cf68c59e1aac11a4f52febc9537",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:53:03+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "90a4ebdd24ab462b331c793eb757a3e83500d114638eac08a1192e801a8e6a8a",
+   "previous_ops_hash": "1351787083674954f1fddc950a4085dce147c598b5765a78fdc0f2a309466d61",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T14:58:15+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "761a15472faae410618f872582e87b724bcecdcae4ac05e210bb29f7dcc595e4",
+   "previous_ops_hash": "700c96cbd56009a5d89b0116e77e3a351525a54fe39973ea351c6cf28a2afb4f",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:03:28+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8917b37f343d8c08f0aa0db51d7861c0a47434708d7940742e905f5c6b40c39f",
+   "previous_ops_hash": "f974c562f258f07bdc309a57211219e0478b8e62f4eb7d9e68ad2baef09613ca",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:09:15+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "cff4dace56ee3f4480641b4a53225bbf1b9d1c8602a3e35776fb230beb3e1779",
+   "previous_ops_hash": "d15bf8047a48a4eff4aacce97b6c242c2ced016827c1e14483549bcf53effbc9",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:14:37+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "dd0bb1823d67502fc098f1a5ccf76f0bd5182902457d546145349d926a780e01",
+   "previous_ops_hash": "798fa0e854a60a4d62775fc286e55ded19b46460ecfb5ef5f3c2a15b019c7f99",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:20:06+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "b6c72e99b6e39e65b6a8b65302412977835a99bcd85a2108e6df1e07f7508e67",
+   "previous_ops_hash": "a91626ce5cf11ce7b39939c63c2695ee288fa37901668717aef83a5b09135ce3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:25:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f41a8b5025ba98a114bfea644829a26084232a9e2574d7b1327e324b4715dc67",
+   "previous_ops_hash": "92f7490d3a3b9d36b78392e3e15031c2ffa58e8faff00300c648e4e9444196de",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:31:14+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "540e1c7d9ba46555d295312e1227ed2dd39147c4e4c5f127455bb3db7fd47e53",
+   "previous_ops_hash": "8a230daad8a9a95b5cbebedae41f190093183a4ebefc7fcca57719e4d6950d7c",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:36:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f995e134de702700a78d02871e7c19dff4453a3a51fd0189223c60b414762a6c",
+   "previous_ops_hash": "c1ac8a2c2f9e790084e278fdbfc38b67e855e21bf2e877b00907dc68c5e610e1",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:41:52+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "05a00fe91e409287fe71b1a71da3f6a5506b979688652586fb40e5ec3bfdb060",
+   "previous_ops_hash": "8e117797b52aa09ea01159c93d96ed84f518d951e618f99bd467cef260e41646",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:46:52+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "a1d2ac3dd3313e0456dcecaebb6e1d441fb650788c86e3aea51ceefa0e4af3fb",
+   "previous_ops_hash": "3a57974e0dd43d0274ea6c38ecd4f3f3151e4b6bd93e1e22607d7d5e4da38035",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:52:14+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3f83d1e1cf29691fdc2f9aa0fcbb68a4a2d5afd7ed54383cbfa62c281f85f362",
+   "previous_ops_hash": "7fd2d30846e59d4ef56cf4eaac4b853230e594242f528ca4955320cc1b985a89",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T15:57:41+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f4d726fdb3c0edb8fa440196389e183f496381b77ad2a58e4d366380ece55457",
+   "previous_ops_hash": "0a2598fd66967a4fb6dd0b8bfc342a4a28e097405a442a155421545625fe3600",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:02:46+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "876c52d89fde6af02312320e6c052cd49d6e85e03e17b0e89e476eeceb843734",
+   "previous_ops_hash": "0f655233ec98e26fef1e846bf33b931b2e9cb31d4f3cc3cc14630c9ee161bbc1",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:08:29+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "4e8663c0297c82538d58cc0ed3dac98a6cf81a318a74ac328661de4131e22c57",
+   "previous_ops_hash": "90fe0e04743639b9ca2c0ff8cfa82217aef733e582925f146381187811d5cf6b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:13:45+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5aeb56ee2374f4fba4b171a2e88673b1d32c032f77b2d4fe9b878ec3a0b45046",
+   "previous_ops_hash": "ace2fada26de60cefed9dc318d52f4bb9db9084f24d81213efb626e27a414ae5",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:19:20+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ee3d710eaa27b2de37677101d53060d11cc8841da591d39156c85925f0a2f764",
+   "previous_ops_hash": "3b556c8766e33d6783068589fc1f512a0f27ade4dac9d2d780d09cf9da36f0d8",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:24:31+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "7a0e82598a1b72002e2120a987362171a410fec9f56b9cd8182c9ba91004e30b",
+   "previous_ops_hash": "3514f00606edd5464c50c175dfcde3beb82a86b3377f7a8708ef3da0a0a888b3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:29:53+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "506222408f89cd8cd627ce7cbf2ebf88045b1736f1fa81aa2af0b43ec6076463",
+   "previous_ops_hash": "089d74ac2704e7688353a8dfb9678d896c06393ca62039509340cbe8fdf300ae",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:35:23+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "020485b63ad3eed4e3e1c79cc9ab3d1fde9f64654b40bc28259372d18bd1fdb2",
+   "previous_ops_hash": "df1fd4edd8fbabfd8379783fbaf24b7f2a6e5b9205f1f18999aa27253e6272b3",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:40:45+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "568292717528284492b077722c3fc14e641875e065e58a45a356298e9b0b9272",
+   "previous_ops_hash": "d80120ad8cdf5dff70f772caba3ff89d1ed6172326593aa4c20148da03be63e5",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:46:11+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "759cbd9be838c7c65f94ac3021dec9f9caf1dd011edd251ca8901a29dee2036e",
+   "previous_ops_hash": "28ee183e7760c270d293ce8fdadf72ef1c44f7ee6923d4de57c383280c7563bf",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:51:56+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "75e5d248848a695976e131b8b818fda0c0e8f3cc95ddf17e108c6074131edcd0",
+   "previous_ops_hash": "894e5c418fcaf3b0df8dcc3654f4c0e54eb4cc55d900c3dfa3a4367402b17008",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T16:57:25+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "42484fe27de1f2c01feb3394368ccc2ee238571b5ba0ef73129e64be92d28b1d",
+   "previous_ops_hash": "ec5b266dcff0a5248e0a41b1d56a978e96b10d69a5550833e55db0915d8b2855",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:03:17+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "4aee221a45a9fb9edb32dca9fe9cbfdc8057e244b670ae86a3c87619b7519a27",
+   "previous_ops_hash": "a6cb579af119e2b50851d7751ee28a00a210a9984d04ce72fbe95f99c6aaedaf",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:08:58+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "22e615a7ce4d40eaf4f9881b51ff39ba292571d6226057fef7663acabeb38ec4",
+   "previous_ops_hash": "04db5aaa0d68d2ab5fe4175f5a648845b53f8198d01344582e9bc0dfa863c0dc",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:14:18+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3e1750848c02d004e345096c1875074a15fdee7b633a40861687c6c14e542736",
+   "previous_ops_hash": "6298bb218030653e012a8c9dc11aa0f037ba210c19e2daa34c7823506d576a37",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:19:46+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ec331b191a658fde9d6e6cbcc8bc062949343bfb02e99545356a533889a77783",
+   "previous_ops_hash": "43f5e9a75afcfa70c55218d5bb7879b9cd289a812173d7e756a3de5197fb0f7d",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:25:11+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d74ff18798da82c505ea8f1f49a68373694c2e4682d3957eef846a705b0f8664",
+   "previous_ops_hash": "09e4bc460a4035d2e65ea5831ef3a08f7d97db9a5a180d84b43639df725d86a5",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:30:44+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ad91e8faae54dca878817a0db5c5b0e698ac0da662128f813a05c991c059b19b",
+   "previous_ops_hash": "004ac650254945ec1d63ab84cfc3525feec4363cb83e70ebaa1035dd17be7d86",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:36:23+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "e6680dc24b3ca606782fb90e12fb8803a95df3274c49796ad3fd0c3899c5250b",
+   "previous_ops_hash": "a7c57cc79725ebb52ca284ef6d23f747e2b1b6e34526f164b393051f8e62a663",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:41:52+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "ffba4c2dd81a9b30160ff3349ef0f571bdd72083cc98c6910f13f1202f95d860",
+   "previous_ops_hash": "6cb23d6d20c3dc64171f6c59ac34350d0a0c2ebed2c494e942308a8e096090cc",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:46:54+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "9fef42a5cb7fe770db27d1e6caf7fa4a00961a541abeb512323f218d2e062853",
+   "previous_ops_hash": "565a2d6b855563c9fcfc4fb587a6f394c2300863125732ab5b7696cd44a0eb09",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:52:28+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "b97d31379062eefe1bce7a863e72343f15dcbaa1288e11815d03cd1eb0ac6b40",
+   "previous_ops_hash": "a9a59a87f7b9bc3d8badff6f9fea82d6219ecf9619be1ca44bcd1aeb53a7fc7e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T17:57:33+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "278cb4412ecbd9f20f292963a7eb7f61876084697a389275b39edaae3c630384",
+   "previous_ops_hash": "5a33c010880fc416943099827d5e3182eacf7a334d2a3e393b3d1dd0faafc2da",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:02:59+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "e0f79d15a82d1781b03f95757676a84b947101e045a5053013323dac8599e82b",
+   "previous_ops_hash": "d56fb11468d123c406e17b8838d71656d9e87bcdebe48b1a88ec78b340ece0fa",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:08:44+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d4f14b595b9e5a101f876d4555c4c98342ed3f7e8b1b7b839445cc99d2dba7e1",
+   "previous_ops_hash": "cc790c2fe0fcde8d5ee6b820ffd8e04ecaa90c5d6944ee0007d1a6a330fb9d27",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:13:53+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "784c0812f013bf598e18bb47aa88b2a11c72527f1534e15a4249ada57832b4d7",
+   "previous_ops_hash": "a70d7b1991b86167631d7730d89edb30ebd602e8f8ef8a24f304ad91d263a095",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:19:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "71d95365751d9fa81bf8985eecd2141d6ab889009321a366fe666624306b3e54",
+   "previous_ops_hash": "ffdb9610b5b8fd2c967a9b902f8c8aa8058fd432984c2aa74cd2acaab56d3764",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:25:14+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "206ee75c32d95b36671dad67da02286967797100afb8b7ff5041bd921390caf4",
+   "previous_ops_hash": "e20d469d616b0f94005f12fef017dad73d0ca7b69e96324d4ab5c6a797498596",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:30:58+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3e27360b72a5d5231f71dfd7e2adce0960e44a02452833f3d30d7962eb669a84",
+   "previous_ops_hash": "5373b738bf310ce73986039ade345e1592c4256db9982aed0295d6b930ebddc0",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:36:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "8f63d68e66f603ef4c414979957784760b49a5e7cba2523d92bc0301d0a6cea0",
+   "previous_ops_hash": "7cdfd73117fa8deecfb31851d26b8d1baee4f1f4da228299e434e67fca0624f7",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:41:45+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "845d1c6a66a599b814f0d73c87214a8d2ea320a97918c7b7b3718d335a3e97d0",
+   "previous_ops_hash": "1513a5e3a1af092e577dc8ec187c06709e2631ff92f38f55b7540fe026313b18",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:47:04+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "79761b1712c33749f7ee2af6269ec5c7ab0da57f3ecb6e64f62dc8c41eb49a9d",
+   "previous_ops_hash": "7cc7265aaf0ab7929043d82fa135f5fe2e8d0aacdd3952fd3747be34fe1af340",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:52:45+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "38e6124860d6b1b4f34042978a4f7f71e8e864acbad6c9b6216f283303715103",
+   "previous_ops_hash": "0fec0f98c312c24e8e7d5b5391ac4fa40d6a7fee2dc9acfbeed686560976f4d8",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T18:58:24+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "292f826ae7309c847fcee6c1f688c5c3bb97df2374987244462c9e5d8b341f70",
+   "previous_ops_hash": "5bbb5085ca19be15fd4f5bd2d6b8710e4af135aeab24d69a9717687690108823",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:03:40+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "524b3ab327ca7ae623eaa7cec561e3c31af2ecf3f0542123e35ce1a75d95ce94",
+   "previous_ops_hash": "8346d0e5d55e3b03ee130b0ab6cc7327785f587afec767760a349fe68e950a64",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:09:25+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "16c04711ebb3f430ba0359022377470b2119cf7b8c7bd7f89708a93c68e58ce2",
+   "previous_ops_hash": "46b6473b6fcf18e778ba2d85864431469425fbb86e2c5940ffef404d21249625",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:14:45+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "641d4598149150cd336afe2ce9648c5db64e26776f42dd47f87ff9a74384e8f4",
+   "previous_ops_hash": "e347c053f78f508c097548af3680116ba8f6ee08f22d136eed0336bc2182e109",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:19:59+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f4c4c955474b6c1615fdfad56ec9dd950b3ebfc20d0e5f1bef9f059023f8bde1",
+   "previous_ops_hash": "c10df6b0e0735d34781d864f5868ace3d000b8bd291f95bc8ce24c33e3e8de3c",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:25:17+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "da70ae6f4b57a7e61c47b7868a1441630c22d34a5ca40cdd56301e8795b917d7",
+   "previous_ops_hash": "0f63d2eb784b7408a0c5dc38c9f305afa7be1fa28060b7854bf8b865a23f9ea2",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:30:31+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "a2c46c2bdf795b8af6a1d01d77961fc4db62e7d22cd9d836f9ea64d095e996cc",
+   "previous_ops_hash": "061737dceb7058b417294db0aa08bea1251a2e09f121ef8089762d67ae5085da",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:35:38+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3fea33830a52d83f2be5934d11d04032422fec1744c852a010faf9b965536eec",
+   "previous_ops_hash": "9f55775e8c350728bfeebad2a396dc5e3db0e9f2831317f8404d5c85e9088369",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:40:54+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "97b4eea0f66d2644d902b33cba7b0506bb94c31df4290bcbbeccd4af81e71dd4",
+   "previous_ops_hash": "6d1f016db337060b09b633f253ce7b209cdb8e5abab557b295d5256634a882bd",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:46:10+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "62c2f70d00f1fafdabfa807d4f67d86b58f9e874bf726f5917340f0c139c7a1b",
+   "previous_ops_hash": "2c7550b8a783e4604bc019976c6eab66305a1724ded3139a2a67beed39bff89e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:51:33+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "d0db95260054dfcf849eb35628b638e430f91687e953f3d311a854b591bd4a27",
+   "previous_ops_hash": "95e6bf601d3e3e3322532814ecddce8a759a2c2143449e1c250d204a6299d605",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T19:56:49+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "39aedee2b45e057fd2e11e5ab29dd312e1f2128860d496c7889b5a824c3154bd",
+   "previous_ops_hash": "919702be895841dc2715723c898222bdcf9d2b0e16a3cb4188bc137df1757c77",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:01:57+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "3a4f59906d00c0442b172efd7b04f8ab1e6cd9458eb02d2c57a8d1d66bf78935",
+   "previous_ops_hash": "15f78ea3dc9fed28854dcad9a3386c0f63231c843f04ac9069f2d89ee30054b8",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:07:25+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5255ff0d48fe9efda10da2d8a36d7290a62f69e5b82a0b3b10423c198f6dad83",
+   "previous_ops_hash": "a4f40e34e8d4a2058c191fe6779457ee3c1897d44b765159fd2dace9edef82d2",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:13:15+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "213523d9badeeed88344f0be05ae2ba5d69d8173bb6c4d31c8a42d031a84aeda",
+   "previous_ops_hash": "dcc443016578758eb4d2fb1ab7c14ebe3fd627ae52b82582269a6cbe69c9b7e6",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:18:40+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "f292fcc3a7968376216cb934d899f2bc092b2a36de35480bc27b1ac2f2aa6b51",
+   "previous_ops_hash": "56d776f9d79fa4cccea70237f59ac4fd85b891b52ff775c3c1b9a708d474410b",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:24:24+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "30ce9efe64c5f58e9ed246df43a78e2a17eb1af91e1a27d9a27a54aed4008c0b",
+   "previous_ops_hash": "6c405444aca3446f3bd8bb5f14fd6a75c4adcb58470404c1335bac3eaaa82b33",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:29:39+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "85e79a2feccbc97783ffbc61c7189067e954a3b86a0aac36aff51327ad53f3c9",
+   "previous_ops_hash": "e8c92e3454aa7bcc9120528bf49baf20446b6d0b42b9bd412b49af504a24b7c6",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:35:11+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "84a6d8f6e2bb023120cdb6a0a26626f229f192385c556039e686e6bf5390e269",
+   "previous_ops_hash": "7f33d56301bbfa13ac95c67d6eab14d670f59a45cf50c51935d80ce17a6a769a",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:40:51+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "da8d4478869f48ae19ebae38cdf5af58fb4fbb2f9e80108ed8cacaf35773db39",
+   "previous_ops_hash": "50b92884d33cc22b554b3ad1ef57316a1e96da072414cccb91a7cdfa1a083b3e",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:46:40+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "5f11676759e08a119ea61884b041f33312258ee89be0bdaa67e0582b944d0d60",
+   "previous_ops_hash": "bd2497f983223c1ce1cead791e5a3370b2887e197ac3533ad825b8a83bd0e88a",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:52:27+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "b6c73a8cf1ea6223a84ae7dc8660f1d6a6e4aca54a076f5c410596a5090dad7e",
+   "previous_ops_hash": "f64913e9ab264ef3a050b8c7d39022cf3464ab7de4c17b87d9446a546578ec43",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T20:57:56+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "a48ebeeb5a0bf426802d3b514072acb1bb9ba94bf5f7bf14b69d1372643d7569",
+   "previous_ops_hash": "529bb01534994f56d79547484007e91558d2a37d26bcbf39d9b3f9b580ca35ee",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "at": "2026-09-15T21:03:22+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "ops_hash": "901716fbe6dcf3291033f9f9919c0cbc943a3a10ffc7a2a933e8212c348cbb7a",
+   "previous_ops_hash": "63b072a0a0833def862d27bbc3397468ff9546f98fc183a14f092e47465d49ad",
+   "request": "native-W3G30-COMBINED-001.json",
+   "schema": "octopus.ops-receipt.v1",
+   "unmet": [
+    "native-Z-SUCCESSOR-TRIO-001.json"
+   ]
+  },
+  {
+   "agent": "octopus-ops-agent/1.3.0",
+   "argv": [
+    [
+     "cp",
+     "/home/ari/ofn/state/coding-worker/stage/SUCCESSOR-TRIO-003-20260915/ops_agent.py",
+     "/home/ari/ofn/state/ops-agent/ops_agent.py"
+    ]
+   ],
+   "at": "2026-09-15T21:08:21+00:00",
+   "category": "B8_NON_TCB_PATCH_CANARY",
+   "component": "ops-agent",
+   "exit_codes": [
+    0
+   ],
+   "kind": "OPS_B_EXECUTED",
+   "ops_hash": "1b8d3eb102fea2b8553004592662a161c60a5df12af043ec46af373e7eed57e9",
+   "outcome": "VERIFIED",
+   "previous_ops_hash": "b72af832beb37caecf3264afd68891156daf42ca6c02ea797203b597a02b382d",
+   "proposal_id": "op-29ff139a44f24090",
+   "request": "native-Z-SUCCESSOR-TRIO-003.json",
+   "schema": "octopus.ops-receipt.v1",
+   "verified": true,
+   "verify_kind": "sha256:/home/ari/ofn/state/ops-agent/ops_agent.py:a255c4c0deb380cdd6d2034671968c9737461798a4db4e857ea1122d9337ea51"
+  }
+ ],
+ "trio_executed_file": {
+  "exists": true,
+  "at": null,
+  "request": "<MISSING>",
+  "proposal_id": "<MISSING>",
+  "verified": "<MISSING>",
+  "artifact_sha256": "a255c4c0deb380cdd6d2034671968c9737461798a4db4e857ea1122d9337ea51"
+ },
+ "live": {
+  "sha256": "afefa020caae7b41dfcc543eed224cf5947ab95cfac5a2b20b3a167bfb1811b4",
+  "size": 62073,
+  "compile_check": true,
+  "equals_trio_artifact": false,
+  "content_has_request_emit": true
+ },
+ "fixb_post_reload_executed": [
+  {
+   "at": "2026-09-15T10:10:29+00:00",
+   "kind": "OPS_B_EXECUTED",
+   "request_present": false,
+   "request": "<MISSING>",
+   "proposal_id_present": false,
+   "proposal_id": "<MISSING>",
+   "identity_join_trio": false
+  },
+  {
+   "at": "2026-09-15T21:08:21+00:00",
+   "kind": "OPS_B_EXECUTED",
+   "request_present": true,
+   "request": "native-Z-SUCCESSOR-TRIO-003.json",
+   "proposal_id_present": true,
+   "proposal_id": "op-29ff139a44f24090",
+   "identity_join_trio": true
+  },
+  {
+   "at": "2026-09-15T21:13:44+00:00",
+   "kind": "OPS_B_EXECUTED",
+   "request_present": false,
+   "request": "<MISSING>",
+   "proposal_id_present": true,
+   "proposal_id": "op-3e346cff87ff4eb4",
+   "identity_join_trio": false
+  },
+  {
+   "at": "2026-09-15T21:30:07+00:00",
+   "kind": "OPS_B_EXECUTED",
+   "request_present": true,
+   "request": "native-W3G30-COMBINED-001.json",
+   "proposal_id_present": true,
+   "proposal_id": "op-5e4a76cd55d3456c",
+   "identity_join_trio": false
+  },
+  {
+   "at": "2026-09-15T21:46:21+00:00",
+   "kind": "OPS_B_EXECUTED",
+   "request_present": true,
+   "request": "F-NEW3-001.json",
+   "proposal_id_present": true,
+   "proposal_id": "op-dfb6161803014d57",
+   "identity_join_trio": false
+  },
+  {
+   "at": "2026-09-15T22:02:43+00:00",
+   "kind": "OPS_B_EXECUTED",
+   "request_present": false,
+   "request": "<MISSING>",
+   "proposal_id_present": true,
+   "proposal_id": "op-7764278529ba45db",
+   "identity_join_trio": false
+  }
+ ],
+ "fixb_live_proof": {
+  "any_post_reload_executed": true,
+  "all_carry_request_and_proposal": false,
+  "trio_receipt_identity_join": true
+ },
+ "blocked_post_fnew3": [
+  {
+   "at": "2026-09-15T22:13:41+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T22:19:13+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T22:24:40+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T22:30:29+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T22:35:39+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T22:40:43+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T22:46:14+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T22:51:25+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T22:57:19+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:02:47+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:07:58+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:13:43+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:19:28+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:24:41+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:30:10+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:35:54+00:00",
+   "request": "storage-cache",
+   "reason": "CIRCUIT_BREAKER_OPEN"
+  }
+ ],
+ "fnew3_live_proof": {
+  "status": "PASS",
+  "blocked_rows_seen": 16
+ },
+ "w3g30": {
+  "file_exists": false,
+  "executed_file_exists": true,
+  "executed_at": null,
+  "executed_verified": "<MISSING>"
+ },
+ "w3g30_receipts_kinds": [
+  {
+   "at": "2026-09-14T14:41:49+00:00",
+   "kind": "OPS_B_REQUEST_SUPERSEDED",
+   "verified": "<MISSING>",
+   "request": "native-W3-ACK-GATE-001.json"
+  },
+  {
+   "at": "2026-09-14T14:41:49+00:00",
+   "kind": "OPS_B_REQUEST_SUPERSEDED",
+   "verified": "<MISSING>",
+   "request": "native-G30-STAGE-GUARD-WIRING-001.json"
+  },
+  {
+   "at": "2026-09-14T14:41:49+00:00",
+   "kind": "OPS_B_REQUEST_QUEUED",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T22:10:50+00:00",
+   "kind": "OPS_B_REQUEST_ARTIFACT_UPDATED",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T22:32:07+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T22:37:45+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T22:42:59+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T22:48:39+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T22:53:42+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T22:59:03+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:04:36+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:10:13+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:15:38+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:21:13+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:27:11+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:32:40+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:37:48+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:42:54+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:48:18+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:53:52+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-14T23:58:57+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:04:39+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:09:42+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:15:01+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:20:37+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:26:04+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:31:23+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:36:28+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:43:39+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:49:03+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:54:10+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T00:59:22+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:05:01+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:10:26+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:15:40+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:21:02+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:26:37+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:32:22+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:37:49+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:43:12+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:48:17+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:54:04+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T01:59:53+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:05:27+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:10:36+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:16:01+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:21:05+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:26:06+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:31:34+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:37:07+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:42:28+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:48:01+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:53:43+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T02:58:42+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:04:03+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:09:47+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:14:48+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:20:22+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:25:50+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:31:35+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:37:16+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:42:38+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:48:18+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:54:03+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T03:59:41+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:04:47+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:10:33+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:15:52+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:21:20+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:26:34+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:32:03+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:37:36+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:42:47+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T04:48:39+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T09:16:25+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T09:37:36+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T09:43:26+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T09:48:55+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T09:54:21+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:00:11+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:21:09+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:26:43+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:31:54+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:37:13+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:42:46+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:48:26+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:54:10+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T10:59:35+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:05:28+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:10:57+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:16:27+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:21:53+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:27:36+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:33:07+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:38:21+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:44:06+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:49:28+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T11:54:43+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:00:06+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:05:41+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:11:24+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:16:46+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:22:24+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:28:06+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:33:23+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:39:02+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:44:39+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:49:52+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T12:55:20+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:00:40+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:05:57+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:11:06+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:16:38+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:22:10+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:27:43+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:33:07+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:38:42+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:43:57+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:49:12+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:54:44+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T13:59:46+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:05:03+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:10:26+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:16:10+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:21:24+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:27:00+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:32:11+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:37:22+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:42:46+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:47:59+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:53:03+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T14:58:15+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:03:28+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:09:15+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:14:37+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:20:06+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:25:38+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:31:14+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:36:38+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:41:52+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:46:52+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:52:14+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T15:57:41+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:02:46+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:08:29+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:13:45+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:19:20+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:24:31+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:29:53+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:35:23+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:40:45+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:46:11+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:51:56+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T16:57:25+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:03:17+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:08:58+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:14:18+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:19:46+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:25:11+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:30:44+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:36:23+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:41:52+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:46:54+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:52:28+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T17:57:33+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:02:59+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:08:44+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:13:53+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:19:38+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:25:14+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:30:58+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:36:38+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:41:45+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:47:04+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:52:45+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T18:58:24+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:03:40+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:09:25+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:14:45+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:19:59+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:25:17+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:30:31+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:35:38+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:40:54+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:46:10+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:51:33+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T19:56:49+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:01:57+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:07:25+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:13:15+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:18:40+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:24:24+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:29:39+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:35:11+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:40:51+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:46:40+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:52:27+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T20:57:56+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T21:03:22+00:00",
+   "kind": "OPS_B_DEPENDENCY_UNMET",
+   "verified": "<MISSING>",
+   "request": "native-W3G30-COMBINED-001.json"
+  },
+  {
+   "at": "2026-09-15T21:30:07+00:00",
+   "kind": "OPS_B_EXECUTED",
+   "verified": true,
+   "request": "native-W3G30-COMBINED-001.json"
+  }
+ ],
+ "fnew3_receipts": [
+  {
+   "at": "2026-09-15T21:46:21+00:00",
+   "kind": "OPS_B_EXECUTED",
+   "verified": true,
+   "artifact_sha256": "",
+   "request": "F-NEW3-001.json"
+  }
+ ],
+ "b5_recent": [
+  {
+   "at": "2026-09-15T23:07:58+00:00",
+   "kind": "OPS_B_BLOCKED",
+   "note": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:07:58+00:00",
+   "kind": "OPS_TICK_COMPLETE",
+   "note": ""
+  },
+  {
+   "at": "2026-09-15T23:13:43+00:00",
+   "kind": "OPS_B_BLOCKED",
+   "note": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:13:43+00:00",
+   "kind": "OPS_TICK_COMPLETE",
+   "note": ""
+  },
+  {
+   "at": "2026-09-15T23:19:28+00:00",
+   "kind": "OPS_B_BLOCKED",
+   "note": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:19:29+00:00",
+   "kind": "OPS_TICK_COMPLETE",
+   "note": ""
+  },
+  {
+   "at": "2026-09-15T23:24:41+00:00",
+   "kind": "OPS_B_BLOCKED",
+   "note": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:24:41+00:00",
+   "kind": "OPS_TICK_COMPLETE",
+   "note": ""
+  },
+  {
+   "at": "2026-09-15T23:30:10+00:00",
+   "kind": "OPS_B_BLOCKED",
+   "note": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:30:10+00:00",
+   "kind": "OPS_TICK_COMPLETE",
+   "note": ""
+  },
+  {
+   "at": "2026-09-15T23:35:54+00:00",
+   "kind": "OPS_B_BLOCKED",
+   "note": "CIRCUIT_BREAKER_OPEN"
+  },
+  {
+   "at": "2026-09-15T23:35:54+00:00",
+   "kind": "OPS_TICK_COMPLETE",
+   "note": ""
+  }
+ ],
+ "queue_files_now": [
+  "native-PROBE-G22-ENFORCEMENT-001.json"
+ ]
+}

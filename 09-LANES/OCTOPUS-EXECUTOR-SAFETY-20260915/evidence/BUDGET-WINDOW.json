@@ -1,0 +1,29 @@
+{
+  "order": "OCTOPUS-FINAL-SYNC-20260915-R2",
+  "computed_at_utc": "2026-09-15T23:37:47Z",
+  "source": "board138:/home/ari/ofn/state/ops-agent/state/ops-receipts.jsonl (kind=OPS_B_EXECUTED, rolling 24h, timestamps carry +00:00 suffix)",
+  "rolling_24h_executed_count": 14,
+  "rows_in_window": [
+    {"at": "2026-09-15T05:04:43Z", "component": "ofn-agents", "outcome": "FAILED", "verified": false},
+    {"at": "2026-09-15T06:15:31Z", "component": "ofn-agents", "outcome": "FAILED", "verified": false},
+    {"at": "2026-09-15T06:54:16Z", "component": "ofn-agents", "outcome": "VERIFIED", "verified": true},
+    {"at": "2026-09-15T07:32:16Z", "component": "ofn-agents", "outcome": "VERIFIED", "verified": true},
+    {"at": "2026-09-15T08:11:47Z", "component": "ofn-agents", "outcome": "VERIFIED", "verified": true},
+    {"at": "2026-09-15T08:49:34Z", "component": "ofn-agents", "outcome": "VERIFIED", "verified": true},
+    {"at": "2026-09-15T09:05:32Z", "component": "ops-agent-executor", "outcome": "VERIFIED", "verified": true},
+    {"at": "2026-09-15T09:26:43Z", "component": "ofn-agents", "outcome": "VERIFIED", "verified": true},
+    {"at": "2026-09-15T10:10:29Z", "component": "ops-agent-executor", "outcome": "VERIFIED", "verified": true, "note": "reload boundary (beaee58c base deploy); last exec without request/proposal_id"},
+    {"at": "2026-09-15T21:08:21Z", "component": "ops-agent", "outcome": "VERIFIED", "verified": true, "note": "TRIO-003"},
+    {"at": "2026-09-15T21:13:44Z", "component": "b5", "outcome": "FAILED", "verified": false, "note": "B5 storage maintenance"},
+    {"at": "2026-09-15T21:30:07Z", "component": "coding-worker", "outcome": "VERIFIED", "verified": true, "note": "W3G30-COMBINED-001"},
+    {"at": "2026-09-15T21:46:21Z", "component": "ops-agent", "outcome": "VERIFIED", "verified": true, "note": "F-NEW3-001"},
+    {"at": "2026-09-15T22:02:43Z", "component": "b5", "outcome": "FAILED", "verified": false, "note": "B5 quarantine approach"}
+  ],
+  "oldest_in_window": "2026-09-15T05:04:43Z",
+  "NEXT_ROLLING_RELEASE_ESTIMATE": "2026-09-16T05:04:43Z",
+  "quota_in_force": 20,
+  "quota_provenance": "owner vote 2026-09-15 (executed by parallel lane; this lane changed nothing)",
+  "budget_blocked_now": false,
+  "disposition": "RELEASED_EARLIER_THAN_ESTIMATE — order's 22:21Z estimate superseded; TRIO consumed naturally at 21:08:21Z. Nothing currently waits on budget (queue holds only native-PROBE-G22-ENFORCEMENT-001.json).",
+  "scanner_erratum": "first-pass scan printed rolling=0 due to parse_at expecting 'Z' suffix while receipts use '+00:00'; hand-recount from raw rows = 14; scan file retained as evidence with bug noted"
+}

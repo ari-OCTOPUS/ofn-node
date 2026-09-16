@@ -1,0 +1,158 @@
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "budget-blocked"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.316s CPU time, 22.4M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "budget-blocked"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.997s CPU time, 22.5M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "budget-blocked"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 2.892s CPU time, 22.4M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "budget-blocked"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.770s CPU time, 22.5M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "budget-blocked"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.451s CPU time, 22.5M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "proposal-sent", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "proposal-sent"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.560s CPU time, 23.8M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"goal_engine": "healthy", "progress": "outcome-sent"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": "outcome-sent"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": "outcome-rejected"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "proposal-sent"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.420s CPU time, 23.1M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": "outcome-sent"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": "cycle-closed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "proposal-sent"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 2.730s CPU time, 23.3M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": "outcome-sent"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": "cycle-closed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "proposal-sent", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 2.822s CPU time, 23.4M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": "outcome-sent"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": "outcome-rejected"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.198s CPU time, 20.7M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.050s CPU time, 20M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 2.097s CPU time, 18.9M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.921s CPU time, 18.9M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.170s CPU time, 19.5M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.818s CPU time, 19.1M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.008s CPU time, 21.1M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 2.874s CPU time, 19.1M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 2.381s CPU time, 19M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.480s CPU time, 19M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.586s CPU time, 19.1M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.615s CPU time, 19.8M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+octopus-ops-agent.service: Consumed 1.005s CPU time, 20.5M memory peak.
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).
+Starting octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913)...
+{"decisions": "consumed", "goal_engine": "healthy", "progress": null, "B2": "no-action-needed", "B3": "no-action-needed", "B5": "budget-blocked", "B4": "no-action-needed", "B6": "no-action-needed", "B8": "no-action-needed"}
+octopus-ops-agent.service: Deactivated successfully.
+Finished octopus-ops-agent.service - OCTOPUS ops-agent (non-TCB autonomous operations; Class B witness-gated; lane AUTONOMOUS-OPS-BUNDLE-20260913).

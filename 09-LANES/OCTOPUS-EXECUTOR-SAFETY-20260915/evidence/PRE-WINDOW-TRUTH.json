@@ -1,0 +1,53 @@
+{
+  "schema": "executor-safety.pre-window-truth.v1",
+  "order": "OCTOPUS-FINAL-SYNC-20260915-R2",
+  "measured_at_utc": "2026-09-15T11:35:00Z",
+  "note": "All values re-measured live from runtime (138 receipts, filesystem, git) — not from prior reports.",
+  "baseline_verdicts": {
+    "LOCAL_SYNC_COMMIT": {"reported": "ba3a633", "verdict": "LIVE_VERIFIED", "evidence": "git cat-file -t = commit; worktree F:/wt-consolidation-20260915 branch agent/octopus-final-sync-20260915-211213"},
+    "LOCAL_CLOSEOUT_PREP_COMMIT": {"reported": "82bd517", "verdict": "LIVE_VERIFIED", "evidence": "HEAD of F:/wt-executor-safety-20260915 [codex/executor-safety-20260915]"},
+    "EXECUTOR_SAFETY_COMMIT": {"reported": "dbebe03", "verdict": "LIVE_VERIFIED", "evidence": "in git log, parent of HEAD"},
+    "DEPLOYED_HARDENING_ARTIFACT": {"reported": "beaee58c", "verdict": "LIVE_VERIFIED", "evidence": "sha256(/home/ari/ofn/state/ops-agent/ops_agent.py) = beaee58cc952351001b6b34c8658cbb7ef689b00510e866ffa172a4eb390682f"},
+    "TRIO_ARTIFACT": {"reported": "a255c4c0", "verdict": "LIVE_VERIFIED", "evidence": "canary-requests/native-Z-SUCCESSOR-TRIO-003.json artifact_sha256=a255c4c0deb380cdd6d2034671968c9737461798a4db4e857ea1122d9337ea51, base beaee58c, priority 9"},
+    "PUSH_STATUS_REPORTED": {"reported": "PENDING_OWNER", "verdict": "LIVE_VERIFIED", "evidence": "git ls-remote autonomy → 'Permission denied (publickey)' at 2026-09-15T11:23Z; gh api branches/codex/executor-safety-20260915 → 404 (branch not on remote). nuance: gh CLI auth (ari322, repo scope) IS functional read-only — push remains owner-decision per directive §3"},
+    "TRIO_STATUS_REPORTED": {"reported": "QUEUED_AWAITING_BUDGET", "verdict": "LIVE_VERIFIED", "evidence": "queue file present in canary-requests/, absent from executed/, zero receipt rows match TRIO-003/a255c4c0 tokens"},
+    "TRIO_BLOCKER_REPORTED": {"reported": "BUDGET_NODE_24H", "verdict": "LIVE_VERIFIED", "evidence": "449 OPS_B_BLOCKED cat=B8 reason=BUDGET_NODE_24H; latest 2026-09-15T11:16:28Z; EXECUTED_24H_COUNT=10/10"},
+    "TRIO_BREAKER_REPORTED": {"reported": "HEALTHY", "verdict": "LIVE_VERIFIED", "evidence": "B8 breaker computed CLOSED: live call-site uses CANONICAL_CATEGORY B8; fixed_at=max(B8 sig 05:56:10Z, RY sigs 06:06:56Z/06:27:49Z legacy-honoured)=06:27:49Z; post-fix bads=0; live blocks after 06:21 say BUDGET_NODE_24H not CIRCUIT_BREAKER_OPEN"},
+    "B5_BREAKER_REPORTED": {"reported": "CIRCUIT_BREAKER_OPEN", "verdict": "LIVE_VERIFIED", "evidence": "computed OPEN: 3 bads after fixed_at 2026-09-13T01:52:00 (exec 02:24:54 vF, rejections 01:52:03 + 02:30:02) ≥ threshold 2; 606 B5 CB blocks, last 2026-09-15T11:21:52Z (every tick)"},
+    "FNEW3_PATCH_REPORTED": {"reported": "STAGED", "verdict": "LIVE_VERIFIED", "evidence": "work/base_fnew3.py + work/test_fnew3.py exist in lane; no deploy action taken"},
+    "FNEW3_TESTS_REPORTED": {"reported": "2/2_PASS", "verdict": "LIVE_VERIFIED", "evidence": "pytest work/test_fnew3.py -q → '2 passed in 0.45s' at 2026-09-15T11:3xZ"},
+    "FNEW3_LEGACY_MISSING_REQUEST_ROWS_REPORTED": {"reported": 1069, "verdict": "STALE", "current": 2429, "note": "rows without request field in ops-receipts.jsonl (file now 2782 rows; grows every tick; FIX-B only adds request to OPS_B_EXECUTED kind)"},
+    "LIVE_FINDINGS_ROWS_REPORTED": {"reported": 438, "verdict": "STALE", "current": 2782, "note": "ops-receipts.jsonl total rows; number grows with ticks — informational, not a contradiction"},
+    "B5_ROOT_CAUSE_REPORTED": {"reported": "rm-under-readonly-sandbox-denied", "verdict": "LIVE_VERIFIED", "evidence": "failure-signatures.json B5 entry"},
+    "B5_ROOT_FIX_REPORTED": {"reported": "2026-09-13/v1.3.0", "verdict": "LIVE_VERIFIED", "evidence": "signature fixed_at=2026-09-13T01:52:00+00:00 fixed_version=1.3.0; unit fix live: /etc/systemd/system/octopus-ops-agent.service ReadWritePaths includes /home/ari/ofn/state (and ofn/agents, /tmp)"},
+    "B5_RESET_RECEIPT_REPORTED": {"reported": "MISSING", "verdict": "LIVE_VERIFIED", "evidence": "breaker is stateless (computed from receipts each call); reset mechanism = newer append-only failure-signature entry for B5 with fixed_at >= 2026-09-13T02:30:02Z; no such entry exists; no reset receipt exists"}
+  },
+  "budget_window_initial": {
+    "measured_at_utc": "2026-09-15T11:21:08Z",
+    "executed_24h_count": 10,
+    "limit_per_node_24h": 10,
+    "oldest_executed_at": "2026-09-14T22:21:00+00:00",
+    "next_rolling_release_estimate": "2026-09-15T22:21:00Z",
+    "verdict": "ESTIMATE_LIVE_VERIFIED (oldest row +24h; matches directive §1 estimate exactly)",
+    "malformed_rows": 0
+  },
+  "runtime_facts": {
+    "tick_cadence": "~5min (octopus-ops-agent.timer oneshot; list-timers next 11:27:25 last 11:21:46)",
+    "service_state_between_ticks": "inactive/dead is NORMAL for Type=oneshot (memory: is-active lies between ticks)",
+    "grace_rule": "GRACE = max(2×5min, 15min) = 15min after release",
+    "live_ops_agent_sha": "beaee58cc952351001b6b34c8658cbb7ef689b00510e866ffa172a4eb390682f",
+    "trio_identity": {
+      "request": "SUCCESSOR-TRIO-003 [B5-completeness] [G3-priority] [S4a-barrier] [S4b-freeze] [decision-consumer] [torn-ledger-fail-closed]",
+      "queue_file": "canary-requests/native-Z-SUCCESSOR-TRIO-003.json",
+      "artifact_sha256": "a255c4c0deb380cdd6d2034671968c9737461798a4db4e857ea1122d9337ea51",
+      "base_sha256": "beaee58cc952351001b6b34c8658cbb7ef689b00510e866ffa172a4eb390682f",
+      "dependencies": ["dep-evidence/B8-CAPABILITY-20260915.json", "native-A3-W24-BINDER-006.json"],
+      "priority": 9,
+      "rollback": "restore pre-image /home/ari/ofn/state/ops-agent/preimage/ops_agent.py.beaee58cc9523510.orig",
+      "proposal_id_field": "absent in queue entry — receipts may not carry proposal_id (F-NEW-3 territory); identity match will rely on request + artifact_sha"
+    },
+    "receipt_schema_live": "octopus.ops-receipt.v1 — OPS_B_EXECUTED rows carry NO request/proposal_id yet (last exec 10:10:29Z emitted by pre-beaee58c code); FIX-B live proof = first post-reload B exec (i.e. TRIO itself or any earlier B8 exec)",
+    "w3g30_bump_self_gate": "scripts/bump_w3g30_dep.py refuses (assert) until executed/native-Z-SUCCESSOR-TRIO-003.json exists AND live ops_agent sha == expected_post; paths are Linux (run on 138, not locally)"
+  },
+  "clocks": {"laptop_utc": "2026-09-15T11:22:13+00:00 (approx, taken with state reads)", "board138_utc": "2026-09-15T11:22:13+00:00", "skew": "none observed"}
+}

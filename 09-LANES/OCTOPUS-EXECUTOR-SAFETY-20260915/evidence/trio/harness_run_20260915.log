@@ -1,0 +1,44 @@
+-- B5 (net-new)
+  PASS  B5-N1 frozen-set verdict VERIFIED with freed bytes               freed=20480
+  PASS  B5-N2 targets MOVED to quarantine (no delete)                    q=40 r2=outcome-sent
+  PASS  B5-N3 no rm -rf in executed action                               
+  PASS  B5-N4 out-of-scope growth never flips the verdict                
+  PASS  B5-N5 zero-before -> B5_NOTHING_MEASURABLE, no proposal          r1=no-action-needed
+  PASS  B5-N6 partial measurement -> explicit B5_MEASUREMENT_INCOMPLETE, no proposal, no slot burn r1=measurement-incomplete
+  PASS  B5-N7 symlink excluded, no traversal                             r1=proposal-sent
+-- G3 (net-new)
+  PASS  G3-N1 tie-break deterministic (priority then filename)           r=proposal-sent
+  PASS  G3-N2 priority-1 request wins the tick                           r=proposal-sent
+  PASS  G3-N3 invalid priority None: deterministic, no crash             r=proposal-sent
+  PASS  G3-N3 invalid priority 'abc': deterministic, no crash            r=proposal-sent
+  PASS  G3-N4 corrupt file ignored for ordering                          r=proposal-sent
+  PASS  G3-N5 CE baseline: blocked prio-1 starves ready prio-2           r=budget-blocked
+  PASS  G3-N6 merged: blocked prio-1 does NOT starve ready prio-2        r=proposal-sent
+-- S4a (net-new)
+  PASS  S4a-N1 source swapped after check -> target keeps VERIFIED bytes target='NEW'
+-- S4b (net-new)
+  PASS  S4b-N1 precondition drift after admission -> BLOCKED, target untouched r2=pre-effect-blocked
+  PASS  S4b-N2 valid precondition -> executes VERIFIED                   r2=outcome-sent
+  PASS  S4b-N3 verified receipt carries request + proposal_id (preserved) op-cb5316467
+-- CATSCOPE / torn ledger (net-new fix on hardened gap)
+  PASS  CAT-N1 outcome-rejection class-scoped (B8 blocked, B6 free)      
+  PASS  CAT-N2 same-class execution failure still blocks                 
+  PASS  CAT-N3 torn ledger row skipped, budget stays closed (fail-closed) 
+-- decision consumer (net-new)
+  PASS  DEC-N1 ACK_SEEN resumes registered task (flag clear only)        
+  PASS  DEC-N2 replay idempotent (second pass idle, state stable)        
+  PASS  DEC-N3 no matching task -> DECISION_NO_TASK_RETRYABLE, key not consumed 
+  PASS  DEC-N4 retryable decision re-evaluated next tick (not consumed)  
+  PASS  DEC-N5 non-ACK verdict ignored, task untouched                   
+  PASS  DEC-N6 no decision file -> idle                                  
+-- executor-safety regressions (preserved)
+  PASS  R1 F-001 layer-2: verified receipt self-retires (zero spend)     out=no-action-needed
+  PASS  R2 F-001 layer-1: retire before OPS_B_CYCLE_CLOSED               out=cycle-closed
+  PASS  R3 success-only retire: witness-unavailable stays queued (no false dedupe) out=no-action-needed
+  PASS  R4 canonical category key honoured (breaker closed)              OK
+  PASS  R5 named receipt does not retire a different request             
+{"decisions": "idle", "goal_engine": "healthy", "progress": null}
+  PASS  R6 tick consumes decisions (wired into results)                  
+  PASS  ISOLATION: production untouched                                  
+
+TRIO_003_HARNESS: 34 checks, 34 PASS, 0 FAIL

@@ -1,0 +1,133 @@
+{
+  "order": "OCTOPUS-FINAL-SYNC-20260915-R2",
+  "observed_at_utc": "2026-09-15T23:37:47Z",
+  "observation_mode": "read-only ssh + python scan of board138:/home/ari/ofn/state/ops-agent/state/ops-receipts.jsonl (3527 rows, 0 malformed) + journalctl + live file sha",
+  "clocks_and_health": {
+    "board138_utc": "2026-09-15T23:36:40Z",
+    "octopus-ops-agent.service": "ActiveState=inactive SubState=dead (NORMAL for Type=oneshot between ticks)",
+    "NRestarts": 0,
+    "last_tick": "2026-09-15T23:35:50Z",
+    "next_tick": "2026-09-15T23:40:55Z (cadence ~5min confirmed)"
+  },
+  "expected_vs_actual_timeline": {
+    "expected": "22:21:00Z budget release -> tick -> TRIO-003 selected -> executed -> outcome -> CYCLE_CLOSED",
+    "actual": "TRIO-003 selected and executed 21:08:21Z via the organism's natural executor path",
+    "attribution": "release estimate 22:21Z was computed pre-window and superseded: owner vote (2026-09-15, parallel agent report, owner-pasted + verified this lane) raised per_node_24h quota 10->20, freeing rolling capacity earlier; organism consumed naturally on the 21:05-21:08 tick. No manual retry, no agent-initiated quota change (quota change was owner vote, executed by parallel lane, not this lane).",
+    "status": "SUPERSEDED_ESTIMATE_EXECUTION_EARLIER"
+  },
+  "trio_003": {
+    "identity_expected": {
+      "request_token": "SUCCESSOR-TRIO-003 / native-Z-SUCCESSOR-TRIO-003.json",
+      "artifact_sha256": "a255c4c0deb380cdd6d2034671968c9737461798a4db4e857ea1122d9337ea51",
+      "category": "B8_NON_TCB_PATCH_CANARY",
+      "target": "/home/ari/ofn/state/ops-agent/ops_agent.py"
+    },
+    "executed_receipt": {
+      "at": "2026-09-15T21:08:21+00:00",
+      "kind": "OPS_B_EXECUTED",
+      "agent": "octopus-ops-agent/1.3.0",
+      "request": "native-Z-SUCCESSOR-TRIO-003.json",
+      "proposal_id": "op-29ff139a44f24090",
+      "category": "B8_NON_TCB_PATCH_CANARY",
+      "outcome": "VERIFIED",
+      "verified": true,
+      "exit_codes": [0],
+      "argv": "cp /home/ari/ofn/state/coding-worker/stage/SUCCESSOR-TRIO-003-20260915/ops_agent.py /home/ari/ofn/state/ops-agent/ops_agent.py",
+      "identity_join": "request matches queue token; executed/ file carries artifact a255c4c0..."
+    },
+    "cycle_close_receipt": {
+      "at": "2026-09-15T21:13:44+00:00",
+      "kind": "OPS_B_CYCLE_CLOSED",
+      "category": "B8_NON_TCB_PATCH_CANARY",
+      "component": "ops-agent",
+      "witness": "bfac13c6de83be8a",
+      "chronology": "5m23s after exec, same tick cadence"
+    },
+    "executed_file": {
+      "path": "state/executed/native-Z-SUCCESSOR-TRIO-003.json",
+      "exists": true,
+      "artifact_sha256": "a255c4c0deb380cdd6d2034671968c9737461798a4db4e857ea1122d9337ea51"
+    },
+    "live_readback": {
+      "live_sha256": "afefa020caae7b41dfcc543eed224cf5947ab95cfac5a2b20b3a167bfb1811b4",
+      "equals_trio_artifact": false,
+      "reason": "superseded by sanctioned successor deploy: F-NEW3-001.json canary executed 21:46:21Z (organism's own witnessed path, owner vote 'F-NEW-3 after TRIO'), receipt verified=true",
+      "compile_check": "PASS",
+      "content_has_request_emit_code": true,
+      "supersession_chain": "beaee58c (base) -> a255c4c0 (TRIO-003, 21:08:21Z) -> afefa020 (TRIO+F-NEW-3, 21:46:21Z)"
+    },
+    "TRIO_FINAL_STATE": "CYCLE_CLOSED with effect confirmed via supersession chain + behavioral emits (see below); exact-sha readback impossible by design after the sanctioned F-NEW-3 successor deploy (rolling it back to read a255c4c0 would violate the no-rollback/no-deploy locks)",
+    "effect_evidence_behavioral": [
+      "post-deploy OPS_B_EXECUTED B8 receipts carry request+proposal_id (only TRIO's FIX-B code emits these): 21:08 TRIO, 21:30 W3G30, 21:46 F-NEW3",
+      "post-F-NEW-3 OPS_B_BLOCKED receipts carry request field: 16 rows 22:13:41Z..23:35:54Z (storage-cache / CIRCUIT_BREAKER_OPEN)",
+      "live ops_agent.py compiles and contains the request-emit code"
+    ]
+  },
+  "fix_b": {
+    "claim": "FIX-B (in deployed beaee58c) adds request+proposal_id to OPS_B_EXECUTED emits",
+    "reload_boundary_row": "2026-09-15T10:10:29Z EXECUTOR-SAFETY deploy exec carries NEITHER field (last pre-FIX-B-code exec) — expected",
+    "post_reload_b8_execs": [
+      {"at": "21:08:21Z", "request": "native-Z-SUCCESSOR-TRIO-003.json", "proposal_id": "op-29ff139a44f24090"},
+      {"at": "21:30:07Z", "request": "native-W3G30-COMBINED-001.json", "proposal_id": "op-5e4a76cd55d3456c"},
+      {"at": "21:46:21Z", "request": "F-NEW3-001.json", "proposal_id": "op-dfb6161803014d57"}
+    ],
+    "post_reload_b5_execs": [
+      {"at": "21:13:44Z", "request": "<ABSENT>", "proposal_id": "op-3e346cff87ff4eb4", "note": "B5_SAFE_STORAGE_MAINTENANCE category — request field was never in FIX-B scope for B5 execs"},
+      {"at": "22:02:43Z", "request": "<ABSENT>", "proposal_id": "op-7764278529ba45db", "note": "same; minor provenance gap outside FIX-B scope, recorded not blocked"}
+    ],
+    "FIX_B_LIVE_PROOF": "PASS — all 3 post-reload B8 execs carry request AND proposal_id with valid identity join on TRIO",
+    "F_NEW_2": "CLOSED (was: live proof of request/proposal on OPS_B_EXECUTED)"
+  },
+  "w3g30": {
+    "directive_condition": "run bump only if TRIO>=CYCLE_CLOSED verified with identity+witness",
+    "actual": "organism executed W3G30-COMBINED-001 itself at 21:30:07Z (request+proposal op-5e4a76cd55d3456c, VERIFIED, exit 0, coding_worker.py canary), CYCLE_CLOSED 21:35:36Z witness faae584fe40e7e34",
+    "canary_request_file": "absent from queue (consumed; executed/native-W3G30-COMBINED-001.json exists)",
+    "bump_script_run_by_this_lane": false,
+    "reason_not_run": "already executed by organism; re-running would be a second mutation AND the script's own post-gate (live sha == a255c4c0) is now impossible after sanctioned F-NEW-3 supersession — the gate would correctly fail",
+    "W3G30_RESULT": "ALREADY_FRESH (organism-executed, receipts-verified; bump_run=false, freshness_verified=true)"
+  },
+  "f_new_3": {
+    "directive_expectation": "STAGED_TESTED_NOT_DEPLOYED (deploy locked for this lane)",
+    "actual": "deployed by the ORGANISM at 21:46:21Z via its own witnessed canary path (owner vote 'F-NEW-3 after TRIO', parallel lane) — NOT deployed by this lane; this lane's lock held",
+    "receipt": {"at": "21:46:21Z", "request": "F-NEW3-001.json", "proposal_id": "op-dfb6161803014d57", "verified": true, "exit_codes": [0]},
+    "live_proof": "PASS — 16 OPS_B_BLOCKED rows since 22:13:41Z all carry request field (new schema live and emitting)",
+    "tests_in_worktree": "2/2 (work/base_fnew3)"
+  },
+  "budget_post_window": {
+    "rolling_24h_executed_at_scan": 14,
+    "oldest_in_window": "2026-09-15T05:04:43Z",
+    "next_rolling_release_estimate": "2026-09-16T05:04:43Z",
+    "quota_in_force": 20,
+    "budget_blocked_now": false,
+    "note": "scanner's first pass printed 0 due to +00:00 vs Z timestamp parse bug in scan script (parse_at format); recomputed by hand-count from raw rows: 9 pre-reload (05:04..10:10) + 5 post (21:08, 21:13, 21:30, 21:46, 22:02) = 14 within 24h of 23:37:47Z"
+  },
+  "b5_breaker_recomputed": {
+    "state": "CIRCUIT_BREAKER_OPEN",
+    "as_of": "2026-09-15T23:35:54Z (latest OPS_B_BLOCKED storage-cache reason=CIRCUIT_BREAKER_OPEN, repeating every ~5min tick)",
+    "post_latch_release_events": [
+      "21:13:44Z B5 exec FAILED (rm -rf argv, legacy approach)",
+      "21:28:24Z root-cause-2 signature (parallel lane finding)",
+      "22:02:43Z B5 exec FAILED (quarantine/mv approach with mkdir b5-quarantine — root-cause-2 fix live)",
+      "22:13:41Z onward breaker OPEN, storage-cache canary blocked each tick"
+    ],
+    "post_fix_recurrence_count": "1 failed attempt (22:02:43Z) after root-cause-2 sig, then latch open",
+    "reset_executed": false,
+    "reset_authority": "OWNER (PROPOSE_RESET_CANARY pending per OW-9-RESET-ELIGIBILITY.json)"
+  },
+  "queue_now": ["native-PROBE-G22-ENFORCEMENT-001.json"],
+  "governance_locks_all_held": {
+    "manual_retry": false,
+    "direct_artifact_execution": false,
+    "per_node_24h_change_by_this_lane": false,
+    "budget_row_deletion": false,
+    "breaker_reset": false,
+    "service_restart_kill_enable": false,
+    "push": false,
+    "secrets_read_print": false,
+    "force_push": false,
+    "merge_rebase_cherry_pick": false,
+    "f_new_3_deploy_by_this_lane": false,
+    "bump_w3g30_run": false,
+    "receipt_rewrite": false
+  }
+}

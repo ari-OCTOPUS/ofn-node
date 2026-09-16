@@ -1,0 +1,65 @@
+{
+  "schema": "octopus.lane.checkpoint.v1",
+  "lane": "OCTOPUS-EXECUTOR-SAFETY-20260915",
+  "gov_version": "V8",
+  "ladder": "L2",
+  "written_at_utc": "2026-09-15T21:40:00Z",
+  "goal": "Owner choice: hardening then TRIO — eliminate witness-unavailable false retirement/dedupe, bind OPS_B_EXECUTED receipts to request/proposal, then rebuild + queue TRIO-003 on the post-hardening base",
+  "status": "OWNER_CARD_EXECUTED__TRIO003_DEPLOYED__W3G30_EXECUTED__FNEW3_QUEUED",
+  "owner_card_2026_09_15": {
+    "decisions": ["per_node_24h 10->20", "reset B5 now", "F-NEW-3 deploy after TRIO", "tomorrow=revenue funnel"],
+    "quota_applied_at": "2026-09-15T20:59:48Z (preimage saved; mesh_wide_24h=15 untouched+flagged)",
+    "trio_003_final": "proposal 21:03:22Z op-29ff139a44f24090 -> EXECUTED verified=true 21:08:21Z -> CYCLE_CLOSED 21:13:44Z; live a255c4c0...; FIX-B LIVE PROVEN (receipt carries request+proposal_id; F-NEW-2 closed)",
+    "w3g30_final": "dep bumped 21:25:06Z -> EXECUTED verified=true 21:30:07Z op-5e4a76cd55d3456c; full DAG G8->W24->TRIO->W3G30 drained",
+    "b5": "latch-release sig 20:59:48Z; legacy frozen canary 21:13:44Z verified=false (pre-TRIO paths-absent/rm) re-opened breaker; root-cause-2 sig 21:28:24Z (fix=TRIO B5 live); true canary = next B5 cycle under TRIO code",
+    "fnew3": "artifact afefa020... on base a255c4c0; static 4/4 + behavioural green; queued F-NEW3-001.json 21:29:21Z awaiting free class-B tick",
+    "next": "F-NEW-3 + B5-TRIO cycle land on coming ticks (one B per tick); R2 closeout 23:35Z records final ledger; then FUNNEL DAY per owner ORDER-LAW"
+  },
+  "scheduled_check_1": {
+    "at_utc": "2026-09-15T12:25:38Z",
+    "result": "EARLY_FIRE (cron written as UTC, host interprets local UTC+10); check read-only",
+    "state": "TRIO-003 still queued; live beaee58c; sole blocker BUDGET_NODE_24H (trailing 10/10); OW-8 fairness live (independent dispositions same tick); zero failures",
+    "next_slot_utc": "2026-09-15T22:21:00Z",
+    "corrected_followup": "NONE needed: pre-existing closeout order OCTOPUS-FINAL-SYNC-20260915-R2 (local cron 35 9 16 9 * = 2026-09-15T23:35Z) covers full post-window closeout with stricter locks; no second watcher armed to avoid conflicting lane commits"
+  },
+  "hardening": {
+    "base_sha256": "2074072489fcf2098774b8c3be37471bfc2f6799e06d2bd10ee02fbd5a9ac6cd",
+    "artifact_sha256": "beaee58cc952351001b6b34c8658cbb7ef689b00510e866ffa172a4eb390682f",
+    "preimage": "/home/ari/ofn/state/ops-agent/preimage/ops_agent.py.2074072489fcf209.orig",
+    "harness": "T1-T7 23/23 green (isolated HOME-redirected fixture)",
+    "request": "EXECUTOR-SAFETY-001.json",
+    "proposal_id": "op-21d12a487e9544d7",
+    "chain": "queued 10:05:12Z -> proposal 10:05:26Z -> EXECUTED verified=true 10:10:29Z -> CYCLE_CLOSED OUTCOME_CONFIRMED 10:15:43Z (witness 1fbb72e50a86773d)",
+    "live_readback": "beaee58c...; verify_own_chain() == (True, 2703)",
+    "behavioral_proof_fix_a": "live-bytes isolated probe with forced-dead witness: stays_in_queue=true, NOT_in_executed=true, false_dedupe_count=0, EXECUTE_DEFERRED_NOT_RETIRED per attempt",
+    "fix_b_live_proof": "PENDING first post-reload B execution (TRIO-003) — OPS_B_EXECUTED must carry request+proposal_id"
+  },
+  "trio_003": {
+    "target_base_sha256": "beaee58cc9523510...",
+    "artifact_sha256": "a255c4c0deb380cdd6d2034671968c9737461798a4db4e857ea1122d9337ea51",
+    "preimage": "/home/ari/ofn/state/ops-agent/preimage/ops_agent.py.beaee58cc9523510.orig",
+    "mechanical_rebase": "REJECTED_SAFELY (5 semantic overlaps)",
+    "strategy": "targeted splice of net-new TRIO blocks; all executor-core+safety behaviour preserved verbatim",
+    "battery": "34/34 green, fixture-isolated; independent invariant re-verification green (incl. rm -rf only in comment; actual B5 op = mkdir+mv quarantine)",
+    "queue_state": "QUEUED at 10:27:40Z with deps G22-met (fresh dep-evidence B8-CAPABILITY-20260915 pinning beaee58c + executed W24-BINDER post-hash live)",
+    "blocker": "OPS_B_BLOCKED BUDGET_NODE_24H (per_node_24h=10, 10 trailing executions) — guardrail honoured, NOT bypassed",
+    "expected_slot": "2026-09-15T22:21:00Z (oldest in-window receipt 2026-09-14T22:21:00Z ages out); TRIO-003 is the only budget-ready B8 candidate"
+  },
+  "w3g30": {
+    "state": "FRESH (base a8fb195c = live target sha, artifact b63fc710 present)",
+    "dep": "still points at superseded TRIO-001 (unresolvable) — bump script written and self-gated on TRIO-003 executed + post-hash live",
+    "script": "scripts/bump_w3g30_dep.py"
+  },
+  "live_observations": [
+    "OW-8 fairness visible in production: same tick independently dispositioned G22-probe, W3G30 (DEPENDENCY_UNMET) and TRIO-003 (BUDGET_NODE_24H)",
+    "residual debt registered: OPS_B_BLOCKED receipts lack request field (hid TRIO-003 status from naive greps)",
+    "B5 CIRCUIT_BREAKER_OPEN observed live at 10:31/10:37 (OW-9, separate lane)"
+  ],
+  "next_actions": [
+    "after 22:21Z confirm TRIO-003 EXECUTED verified=true + CYCLE_CLOSED + live a255c4c0 + receipt carries request+proposal_id",
+    "run bump_w3g30_dep.py and watch W3G30 execute",
+    "optional next patch: add request field to OPS_B_BLOCKED receipts",
+    "damped-oscillator remains separate future lane"
+  ],
+  "rollback": "hardening: restore preimage ops_agent.py.2074072489fcf209.orig via governed witnessed path; TRIO-003: preimage ops_agent.py.beaee58cc9523510.orig; never rewrite receipts"
+}

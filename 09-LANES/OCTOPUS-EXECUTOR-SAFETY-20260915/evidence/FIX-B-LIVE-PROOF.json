@@ -1,0 +1,19 @@
+{
+  "order": "OCTOPUS-FINAL-SYNC-20260915-R2",
+  "claim_under_test": "FIX-B (deployed in beaee58c base at 10:10:29Z) makes OPS_B_EXECUTED receipts carry request + proposal_id",
+  "reload_boundary": "2026-09-15T10:10:29Z",
+  "post_reload_b8_executed_rows": [
+    {"at": "2026-09-15T21:08:21Z", "request_present": true, "request": "native-Z-SUCCESSOR-TRIO-003.json", "proposal_id_present": true, "proposal_id": "op-29ff139a44f24090", "identity_join_trio": true},
+    {"at": "2026-09-15T21:30:07Z", "request_present": true, "request": "native-W3G30-COMBINED-001.json", "proposal_id_present": true, "proposal_id": "op-5e4a76cd55d3456c", "identity_join_trio": false},
+    {"at": "2026-09-15T21:46:21Z", "request_present": true, "request": "F-NEW3-001.json", "proposal_id_present": true, "proposal_id": "op-dfb6161803014d57", "identity_join_trio": false}
+  ],
+  "out_of_scope_rows_noted": [
+    {"at": "2026-09-15T21:13:44Z", "category": "B5_SAFE_STORAGE_MAINTENANCE", "request_present": false, "proposal_id_present": true, "note": "B5 execs were never in FIX-B scope; recorded as minor provenance gap, non-blocking"},
+    {"at": "2026-09-15T22:02:43Z", "category": "B5_SAFE_STORAGE_MAINTENANCE", "request_present": false, "proposal_id_present": true, "note": "same"}
+  ],
+  "request_present_on_all_b8": true,
+  "proposal_id_present_on_all_b8": true,
+  "identity_join_valid_on_trio": true,
+  "FIX_B_LIVE_PROOF": "PASS",
+  "F_NEW_2_state": "CLOSED"
+}

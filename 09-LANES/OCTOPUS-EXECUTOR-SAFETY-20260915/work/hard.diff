@@ -1,0 +1,219 @@
+--- baseline.py	2026-09-15 20:07:58.497452300 +1000
++++ base_hardened.py	2026-09-15 20:07:57.106995400 +1000
+@@ -133,14 +133,22 @@
+     rows = read_receipts()
+     ex = [r for r in rows if r.get("kind") == "OPS_B_EXECUTED"]
+     # breaker: same-class failures (execution- or outcome-rejected) or unknown effect
+-    fails = [r for r in ex if r.get("category") == category and r.get("verified") is False]
++    fails = [r for r in ex
++             if (r.get("category") == category
++                 or str(r.get("category", "")).startswith(category + "_"))
++             and r.get("verified") is False]
+     orej = [r for r in rows if r.get("kind") == "OPS_B_OUTCOME_REJECTED"
+             and category[-2:] in str(r.get("category", ""))]
+     # failures root-caused and fixed (state/failure-signatures.json) stop counting;
+     # the signature blacklist itself is append-only and operator-audited
+     sigs = load_json(STATE / "failure-signatures.json") or {"signatures": []}
++    # OW-8b: honour legacy accidental keys read-only ("RY" was what
++    # category[-2:] extracted from "...CANARY"); new signatures use the
++    # canonical key.
++    _legacy = {"B8": "RY"}.get(category)
+     fixed_at = max([sg.get("fixed_at", "") for sg in sigs["signatures"]
+-                    if sg.get("category") == category], default="")
++                    if sg.get("category") == category
++                    or (_legacy and sg.get("category") == _legacy)], default="")
+ 
+     def counts(r):
+         return (not fixed_at) or r.get("at", "") > fixed_at
+@@ -474,12 +482,70 @@
+ 
+ 
+ 
++# OW-8b (2026-09-15): explicit category keys — never slice a long category
++# name again (category[-2:] on "B8_NON_TCB_PATCH_CANARY" produced the accidental
++# breaker key "RY"). Legacy short keys stay read-only-honoured in budget_allows.
++CANONICAL_CATEGORY = {
++    "B8_NON_TCB_PATCH_CANARY": "B8",
++    "B5_SAFE_STORAGE_MAINTENANCE": "B5",
++    "B2_OCTOPUS_OWNED_WORKER_RECOVERY": "B2",
++}
++
++
++def _verified_by_receipt(req: dict, request: str | None = None) -> bool:
++    """True only when a verified receipt binds this request to this artifact.
++
++    New receipts carry the exact request name. Legacy receipts have no request
++    field, so they retain the sha-only fallback needed to self-heal old queue
++    entries without allowing a mismatched named receipt to retire a request.
++    """
++    want = str(req.get("target_sha256") or req.get("artifact_sha256") or "")
++    if len(want) < 32:
++        return False
++    try:
++        lines = (STATE / "ops-receipts.jsonl").read_text(
++            encoding="utf-8").splitlines()[-400:]
++    except OSError:
++        return False
++    for line in reversed(lines):
++        try:
++            d = json.loads(line)
++        except json.JSONDecodeError:
++            continue
++        if d.get("kind") != "OPS_B_EXECUTED" or d.get("verified") is not True:
++            continue
++        receipt_request = d.get("request")
++        if receipt_request is not None and request is not None and receipt_request != request:
++            continue
++        vk = str(d.get("verify_kind", ""))
++        if want[:64] and want[:64] in vk:
++            return True
++    return False
++
++
++def _retire_executed(src: Path, name: str, category: str) -> None:
++    _exec = STATE / "executed"
++    _exec.mkdir(parents=True, exist_ok=True)
++    dst = _exec / name
++    if dst.exists():
++        receipt("OPS_B_REQUEST_ALREADY_EXECUTED", category=category,
++                request=name, note="already in executed/")
++        return
++    try:
++        os.replace(src, dst)
++        receipt("F001_SELF_RETIRE", category=category, request=name,
++                note="verified-by-receipt; retired with zero budget spend")
++    except OSError as e:
++        receipt("RETIRE_FAULT", category=category, request=name, note=str(e)[:120])
++
++
+ def handle_spool_category(category: str, cat: dict, pins: dict, subdir: str) -> str:
+     """B4/B6/B8: act only on real request artifacts in the spool."""
+     spool = STATE / subdir
+     if not spool.exists():
+         return "no-action-needed"
+     (STATE / "owner-tasks").mkdir(parents=True, exist_ok=True)
++    _any_blocked = False          # OW-8: blocked requests disposition, never abort
+     for name in sorted(os.listdir(spool)):
+         req = load_json(spool / name)
+         if not req:
+@@ -515,6 +581,14 @@
+                 break
+         if _already:
+             continue
++        # F-001 LAYER-2 (2026-09-15): self-healing retire. A request whose
++        # execution already receipts verified=True removes itself with ZERO
++        # budget spend instead of re-fighting its own deployed bytes as
++        # STALE_BASE every tick (observed: G8-021 burned the component
++        # window for hours after its verified 06:54Z deploy).
++        if _verified_by_receipt(req, name):
++            _retire_executed(spool / name, name, category)
++            continue
+         # deploy candidate is the PATCHED artifact; a "backup" key is only the
+         # rollback pre-image and is never the deploy source (owner 2026-09-13).
+         backup = req.get("patched") or req.get("backup")
+@@ -584,10 +658,16 @@
+         if not backup or not Path(backup).exists():
+             continue
+         component = req.get("component", category)
+-        ok_b, why_b = budget_allows(category[-2:], component)
++        # OW-8 FIX (2026-09-15): disposition + continue, never abort the
++        # category loop — one blocked request must not starve independent
++        # ready requests (runtime-proven: g22-probe unevaluated 34+ min).
++        # OW-8b FIX: canonical category key replaces category[-2:].
++        ok_b, why_b = budget_allows(CANONICAL_CATEGORY.get(category, category),
++                                    component)
+         if not ok_b:
+             receipt("OPS_B_BLOCKED", category=category, component=component, reason=why_b)
+-            return "budget-blocked"
++            _any_blocked = True
++            continue
+         action_spec = {"commands": [["cp", str(Path(backup)), target]],
+                        "rollback": req.get("rollback", "restore pre-image"),
+                        "timeout_s": cat["timeout_s"]}
+@@ -611,15 +691,24 @@
+                                       (hashlib.sha256(_tgt_p.read_bytes()).hexdigest()
+                                        if _tgt_p.exists() else None),
+                                   "deps_verified": _deps_verified})
+-        # FIX 2026-09-14: retire the request right after submission so it cannot be
+-        # re-executed. The witnessed outcome chain (OPS_B_OUTCOME_SENT/CYCLE_CLOSED)
+-        # is the receipt; the executor must not run the same artifact again.
+-        try:
+-            os.replace(spool / name, STATE / "executed" / name)
+-        except OSError:
+-            receipt("EXECUTE_RETIRE_FAILED", category=category, request=name)
++        # FIX 2026-09-15: retire ONLY on successful execution. The 2026-09-14
++        # version retired unconditionally, which consumed G8 without deploying
++        # it (observed: proposal sent at 04:53Z, no OPS_B_EXECUTED, file moved
++        # to executed/, glass_runner stayed at the base hash).
++        # A request retires only after a successful hand-off/execution. Every
++        # witnessed-action return beginning with "witness" is a failure state;
++        # witness-unavailable must stay queued for retry and must never enter
++        # executed/, where target+sha dedupe would create a false positive.
++        if str(_out).startswith(("ok", "executed", "proposal-sent")):
++            try:
++                os.replace(spool / name, STATE / "executed" / name)
++            except OSError:
++                receipt("EXECUTE_RETIRE_FAILED", category=category, request=name)
++        else:
++            receipt("EXECUTE_DEFERRED_NOT_RETIRED", category=category, request=name,
++                    witness_result=str(_out)[:60])
+         return _out
+-    return "no-action-needed"
++    return "budget-blocked" if _any_blocked else "no-action-needed"
+ 
+ 
+ # ---------------------------------------------------------------- witnessed action core
+@@ -657,6 +746,8 @@
+     am.mkdir(parents=True, exist_ok=True)
+     arec = dict(action_record)
+     arec["component"] = component
++    arec["request"] = evidence.get("request")
++    arec["proposal_id"] = env["proposal_id"]
+     (am / (env["proposal_id"] + ".json")).write_text(
+         json.dumps(arec, sort_keys=True) + "\n", encoding="utf-8")
+     receipt("OPS_B_PROPOSAL_SENT", category=category, component=component,
+@@ -730,7 +821,8 @@
+     if not m:
+         return receipt("OPS_B_EXECUTED", category=category,
+                        component=exp["target_component"], verified=False,
+-                       outcome="NO_ACTION_MAP", exit_codes=[])
++                       outcome="NO_ACTION_MAP", exit_codes=[],
++                       request=None, proposal_id=exp["proposal_id"])
+     # PRE-EFFECT integrity (owner mission J4): connect the reviewed bytes to the
+     # executed bytes. Drift between approval and execution blocks BEFORE any
+     # invocation; the target is never written with unreviewed bytes.
+@@ -788,7 +880,8 @@
+     outcome = "VERIFIED" if verified else ("UNKNOWN_EFFECT" if rc == 124 else "FAILED")
+     return receipt("OPS_B_EXECUTED", category=category, component=m["component"],
+                    argv=argvs, exit_codes=codes, verified=verified, outcome=outcome,
+-                   verify_kind=vk)
++                   verify_kind=vk, request=m.get("request"),
++                   proposal_id=exp["proposal_id"])
+ 
+ 
+ def progress_outcomes(pins: dict) -> str:
+@@ -807,8 +900,23 @@
+             return "outcome-pending"
+         cat = info["category"]
+         if ov.get("verdict") in ("OUTCOME_CONFIRMED", "ROLLBACK_CONFIRMED"):
++            # F-001 LAYER-1 (2026-09-15): retire the originating canary
++            # request BEFORE the closure receipt — a receipt without the
++            # file move is how requests stayed queued forever. Failure is
++            # its own disposition and does not silently close the cycle.
++            _req_name = info.get("request")
++            if _req_name:
++                _src = STATE / "canary-requests" / str(_req_name)
++                if _src.exists():
++                    try:
++                        os.replace(_src, STATE / "executed" / _src.name)
++                    except OSError as _e:
++                        receipt("RETIRE_FAULT", category=cat, request=str(_req_name),
++                                note=str(_e)[:120])
++                        os.replace(d / name, STATE / "failed" / name)
++                        return "retire-fault"
+             receipt("OPS_B_CYCLE_CLOSED", category=cat, component=info["component"],
+-                    outcome_verdict=ov["verdict"], witness=ov.get("witness_hash", "")[:16])
++                    outcome_verdict=ov.get("verdict"), witness=ov.get("witness_hash", "")[:16])
+             os.replace(d / name, STATE / "closed" / name)
+             return "cycle-closed"
+         receipt("OPS_B_OUTCOME_REJECTED", category=cat, outcome_verdict=ov.get("verdict"),
