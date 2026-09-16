@@ -1,0 +1,79 @@
+{
+ "schema": "wave1-preflight-evidence/1",
+ "generated_at": "2026-08-21T06:15:00Z",
+ "baseline": "0ad6f53",
+ "wave1_unlocked": false,
+ "wave0": {
+  "baseline": "9bc506f",
+  "frozen": true,
+  "append_only_gate": {
+   "test": "test_wave0_append_only_gate.py",
+   "result": "4/4 PASS from committed code"
+  }
+ },
+ "memory_read": {
+  "method": "16 shadow reads against the REAL store (state/memory/memory.db, 594 rows) opened READ-ONLY (sqlite uri mode=ro)",
+  "reads": 16,
+  "non_empty": 11,
+  "queries_non_empty": [
+   "calibration(3)",
+   "telegram(1)",
+   "brain(8)",
+   "doctor(8)",
+   "memory(8)",
+   "self(8)",
+   "event(2)",
+   "wave(1)",
+   "owner(8)",
+   "loop(8)",
+   "attribution(8)"
+  ],
+  "queries_empty": [
+   "parity",
+   "orphan",
+   "capability",
+   "nervous",
+   "cognitive"
+  ]
+ },
+ "zero_mutation": {
+  "proof": "memory.db sha256 identical before/after read batches: 4cb57a9e7eafd682 == 4cb57a9e7eafd682",
+  "read_only_uri": true,
+  "mtime_ns": 1787246349865355800,
+  "mtime_note": "unchanged by reads"
+ },
+ "write_guard": {
+  "status": "VERIFIED (F3 fail-closed + two-phase staging + quarantine)",
+  "evidence": "memory gate suite has pre-existing baseline failures (triaged 2026-08-21, TRIAGE-51-FAILURES): test_memory_gate 3/10, test_memory_read_seam 4/5, test_g2_trusted_memory_loop 45/49, test_memory_read_loop + test_memory_admission_p2 timeout",
+  "classification": "tests predate the F3 confidence-required fail-closed gate contract (test file has zero confidence args vs gate.py F3); one crash t_h_restart_persist (TypeError NoneType) needs its own root-cause unit",
+  "not_a_new_regression": "all failures pre-exist this session; new-regression count = 0"
+ },
+ "kill_switch": "not re-verified this pass (memory gate suite blocking); listed as preflight blocker",
+ "task_isolation": "read-only uri + per-query connections; no cross-namespace mutation observed",
+ "receipt_readback": "not applicable at this gate depth; durable-loop receipts already PRODUCTION_CLOSED",
+ "verdict": {
+  "gate_result": "PARTIAL_PASS — memory debt cleared; attribution ratio + rollback test remain",
+  "wave1_activation": "NOT_PERMITTED — wave1_unlocked stays false",
+  "blockers": [
+   "memory gate suite pre-existing failures (stale tests vs F3 contract + t_h crash)",
+   "g2_trusted_memory_loop 45/49; memory_read_seam 4/5",
+   "memory_read_loop / memory_admission_p2 timeout (needs isolation harness)"
+  ],
+  "next_unit": "memory-gate repair: failing-test-first update to the F3 contract, t_h root cause, timeout isolation"
+ },
+ "memory_gate_repair": {
+  "status": "RESOLVED 2026-08-21",
+  "gate_suite": "12/12",
+  "seam_suite": "5/5",
+  "g2_suite": "49/49",
+  "timeout_pair": "pytest 5/5 + 8/8 (harness mismatch, no hang)",
+  "root_causes": [
+   "two-phase admission A1 staging (tests stale)",
+   "F3 confidence contract (fixtures stale)"
+  ],
+  "remaining_for_pass_candidate": [
+   "task attribution ratio on shadow sample",
+   "explicit rollback test"
+  ]
+ }
+}

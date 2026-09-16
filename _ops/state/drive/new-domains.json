@@ -1,0 +1,17 @@
+{
+  "domains": [
+    {
+      "name": "ziman-gift.com.au",
+      "role": "shop primary (D0 executed+verified 2026-09-08)"
+    },
+    {
+      "name": "ziman-gift.shop",
+      "role": "purchased, untouched; recommended miniapp host (R3-3 runbook)"
+    }
+  ],
+  "recorded_utc": "2026-09-08T00:22:36Z",
+  "receipts": [
+    "09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-EXECUTION-STEP3-FINAL.json",
+    "09-LANES/UNLOCK-REVIEW-20260908/OWNER-DECISION-D0-PRIMARY-20260908.json"
+  ]
+}

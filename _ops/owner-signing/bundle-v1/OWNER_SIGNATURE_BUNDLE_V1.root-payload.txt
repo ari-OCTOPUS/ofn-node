@@ -1,0 +1,168 @@
+OCTOPUS_OWNER_SIGNATURE_BUNDLE_V1
+{
+  "bundle_version": "OWNER_SIGNATURE_BUNDLE_V1",
+  "created": "2026-08-21",
+  "declared_verification_head": "cc267048075b0f64bd56c8ac59074d8a43233ae2",
+  "evidence_head": "d3013390d52aab2e61bd2578613aff7077f68742",
+  "excluded_signatures": [
+    {
+      "reason": "INDEPENDENT_VERIFIER_ONLY - the owner must not sign; AWAITING_INDEPENDENT_VERIFIER",
+      "sig_id": "SIG-IV"
+    },
+    {
+      "reason": "the single root signature over this manifest (owner) - not a separate payload",
+      "sig_id": "SIG-MANIFEST"
+    }
+  ],
+  "implementation_head": "fa38d16cca944a80396ae1e1a16c547ab3122f78",
+  "owner_identity": {
+    "display_name": "OWNER (ari-vault)",
+    "owner_id": "OWNER"
+  },
+  "owner_key_algorithm": "Ed25519 (pure, openssl pkeyutl -rawin)",
+  "owner_key_fingerprint": "2413e9746f13afc900b31ad4d966a6783d73662f661fa0d6dc578e9b244ab6b2",
+  "project": "OCTOPUS",
+  "signature_records": [
+    {
+      "payload_path": "payloads/SIG-B1.json",
+      "payload_sha256": "af9b0ff0e47170b60b017c173b8d430b3e192c77e90ea1ea15960c33bb11eaab",
+      "purpose": "Bind the declared owner identity to the supplied public-key fingerprint",
+      "scope": null,
+      "sig_id": "SIG-B1",
+      "superseded": [
+        {
+          "record": "02-DECISIONS/B1-SIGNING-PAYLOAD-2026-08-20.json",
+          "sha256": "e11f45e9a0913c066de99f0a25ee1b7aa1621c2a7929b817f48be4d5d9c72290",
+          "status": "ALREADY_SIGNED_AND_VERIFIED (openssl, 2026-08-20)"
+        }
+      ]
+    },
+    {
+      "payload_path": "payloads/SIG-CLOSEOUT.json",
+      "payload_sha256": "cac240d5437c0b6220776a041757ac52fd56fd3e3b7ae138a90b1b2618bdb714",
+      "purpose": "Accept implementation completion within the tested scope",
+      "scope": null,
+      "sig_id": "SIG-CLOSEOUT",
+      "superseded": null
+    },
+    {
+      "payload_path": "payloads/SIG-D1.json",
+      "payload_sha256": "0fe6799c7f7f4ece6a54982811d9fdb9cabdb4bd25f6ee259b00b71748dac490",
+      "purpose": "Owner approval of the exact D1 (ablation four-arm) payload and scope",
+      "scope": {
+        "arms": [
+          "M+",
+          "M-",
+          "P",
+          "B"
+        ],
+        "learning_gate": "20/30 overall (not per-arm)",
+        "metrics_frozen": [
+          "Brier delta on frozen Live-4 class: delta = Brier(arm) - Brier(baseline); T1 target delta < 0 for M+ vs B",
+          "per-arm hit/miss/void rates (void never silently dropped from valid denominator)",
+          "T6 causality: M- memory removal must change selection vs M+ repeatably"
+        ],
+        "thresholds_frozen": [
+          "30 valid pairs",
+          "20 wins",
+          "Brier delta < 0",
+          "provenance >= 0.9"
+        ],
+        "valid_pairs_target_per_arm": 30
+      },
+      "sig_id": "SIG-D1",
+      "superseded": "none - new experiment; results from pre-canonical-instrument runs are VOID"
+    },
+    {
+      "payload_path": "payloads/SIG-D7.json",
+      "payload_sha256": "09b98edcfb49053b9c91c1ae5348679d3b1e6146f8a3fe6fef4d33be2c38b28d",
+      "purpose": "Owner acceptance of the exact D7 evidence, verdict, limitations and checkpoint",
+      "scope": {
+        "allowed": "reviewed code only",
+        "isolation_verdict": "policy_workspace_env_timeout",
+        "model_mutation_in_sandbox": "FORBIDDEN",
+        "os_level_sandbox": false
+      },
+      "sig_id": "SIG-D7",
+      "superseded": null
+    },
+    {
+      "payload_path": "payloads/SIG-GOV.json",
+      "payload_sha256": "eb79fffe65c75f8b12c8a01670fc7af160510c983132acc0ae29f1aff66c94f1",
+      "purpose": "Governance policy: A2 automatic, A4 owner-centric, TCB protection",
+      "scope": null,
+      "sig_id": "SIG-GOV",
+      "superseded": null
+    },
+    {
+      "payload_path": "payloads/SIG-K9.json",
+      "payload_sha256": "391027e50ceebea12a9e0127507de0f42e7664af713ced4da76d40d9b5df2daf",
+      "purpose": "Freeze the K=9 three-seed preregistration",
+      "scope": null,
+      "sig_id": "SIG-K9",
+      "superseded": null
+    },
+    {
+      "payload_path": "payloads/SIG-LAB.json",
+      "payload_sha256": "13227d34a1044f5d90d0a540f04c829286c8cdf439478fca8a8f682c2bc1e14c",
+      "purpose": "Laboratory execution authorization",
+      "scope": null,
+      "sig_id": "SIG-LAB",
+      "superseded": null
+    },
+    {
+      "payload_path": "payloads/SIG-REPAIR.json",
+      "payload_sha256": "88e2be31021c4156ad7919d71b74004258927ed242751faade4d1e7f1fdd4542",
+      "purpose": "Automatic repair, test, commit and checkpoint authorization",
+      "scope": [
+        "repository inspection",
+        "code repair",
+        "testing",
+        "branch creation",
+        "commits",
+        "evidence generation",
+        "manifests",
+        "rollback packages"
+      ],
+      "sig_id": "SIG-REPAIR",
+      "superseded": null
+    },
+    {
+      "payload_path": "payloads/SIG-RESTART.json",
+      "payload_sha256": "a8083c6e412a8cbeed1b6542d3178785b45ee6d2826f1ed0513cedab60067d61",
+      "purpose": "Restart authorization for dev/fixture/canary environments",
+      "scope": [
+        "development processes",
+        "fixture processes",
+        "isolated canary processes"
+      ],
+      "sig_id": "SIG-RESTART",
+      "superseded": null
+    },
+    {
+      "payload_path": "payloads/SIG-VS.json",
+      "payload_sha256": "5ac7b197b3f26daae687c921ec4506b8eda307cb065b122e8d25d4b8de127760",
+      "purpose": "Owner acceptance of the shadow vertical-slice verdict card (discovered AWAITING_OWNER_SIGNATURE)",
+      "scope": null,
+      "sig_id": "SIG-VS",
+      "superseded": null
+    },
+    {
+      "payload_path": "payloads/SIG-W1.json",
+      "payload_sha256": "4fcd4a8a7f95c3d40200c7c84e0fd780cc55df19009dd0a09694d94bc0255cb8",
+      "purpose": "Conditional Wave 1 authorization and single-owner Telegram canary",
+      "scope": {
+        "max_confirmed_real_messages": 1,
+        "max_recipients": 1,
+        "paid_calls": 0,
+        "sender_default": "OFF",
+        "target": "OWNER_CHAT_ONLY",
+        "webhook": "OFF"
+      },
+      "sig_id": "SIG-W1",
+      "superseded": null
+    }
+  ],
+  "tool": "octopus-bundle-builder",
+  "tool_version": "1.0"
+}

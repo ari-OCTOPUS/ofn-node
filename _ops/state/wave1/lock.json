@@ -1,0 +1,13 @@
+{
+  "schema": "wave1-lock/1",
+  "wave1_unlocked": true,
+  "verifier_pass": true,
+  "updated": "2026-08-20T19:54:16Z",
+  "activation": "owner-grant-2026-08-21-full",
+  "prompt_injection": false,
+  "memory_writes": true,
+  "organism_hook": true,
+  "paid_calls": "budgeted",
+  "grant": "F:/backup/02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21.md",
+  "note": "Owner explicit full Wave 1 unlock. Wave0 governor report stays a historical WAVE0_PASS artifact; production authority is this lock."
+}

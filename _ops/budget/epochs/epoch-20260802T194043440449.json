@@ -1,0 +1,202 @@
+{
+  "ts": "2026-08-02T19:39:29",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.4444,
+        "DEBATE_LOOP": 0.1111,
+        "GENOME_SYS": 0.4445
+      },
+      "reason": "[FACT] All telemetry zero (no activity/cost); no fitness signal, so allocate by floor ratios."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "organ-GENOME_SYS",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "ارائه یک سیستم پیاده‌سازی شده برای جمع‌آوری داده‌ها از شبکه‌های اجتماعی و تحلیل آنها برای تشخیص محصولات محبوب در هفته آینده.",
+          "why_genius": "این روش می‌تواند با استفاده از هوش مصنوعی پیش‌بینی محصولات محبوب را با هزینه کمتر از تحقیقات دستی مشخص کند و به شرکت‌ها در تصمیم‌گیری برای استراتژی فروش کمک کند.",
+          "why_insane": "باورمندی بسیار بالا در صحت پیش‌بینی های هوش مصنوعی و عدم وجود داده‌های تأیید شده می‌تواند منجر به تصمیمات نادرست شود. علاوه بر این، جمع‌آوری داده‌ها از شبکه‌های اجتماعی کاربردی و قانونی ممکن است مشکلات فراوانی داشته باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "پیش‌بینی‌های هوش مصنوعی بدون داده‌های تأیید شده ناامن هستند.",
+          "cheapest_test": "بررسی اینکه آیا پیش‌بینی‌های قبلی سیستم با واقعیت‌ها مطابقت دارند یا خیر.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی سبد سهام روز بعد",
+          "why_genius": "این روش با استفاده از الگوریتم‌های پیشرفته پیش‌بینی‌های دقیق‌تری ارائه می‌دهد و هزینه‌های تحلیل دستی کاهش می‌یابند.",
+          "why_insane": "پیش‌بینی‌های هوش مصنوعی بدون داده‌های دقیق ممکن است ناامن و منحرف شده باشند، که می‌تواند منجر به از دست دادن سرمایه گذاری‌ها شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "idea is vulnerable to data quality issues and lacks a robust validation mechanism.",
+          "cheapest_test": "Verify the accuracy of the AI predictions using historical market data.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های تقویتی (Reinforcement Learning) برای پیش‌بینی حرکات بازار",
+          "why_genius": "الگوریتم‌های تقویتی می‌توانند با استفاده از آموزش با جریان و الگوهای پیچیده در داده‌های تاریخچه‌ای، حرکات دقیق‌تری از بازار پیش‌بینی کنند. این روش می‌تواند بسیار کم‌هزینه باشد زیرا نیاز به شبیه‌سازی و آزمایش فیزیکی وجود ندارد.",
+          "why_insane": "الگوریتم‌های تقویتی می‌توانند حساس به کیفیت داده‌ها باشند و نیاز به یک روش قوی برای اعتبارسنجی وجود دارد. همچنین، پیش‌بینی دقیق بازار با توجه به عدم قطعیت آن ممکن است غیرممکن باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم‌های تقویتی ممکن است حساس به کیفیت داده‌ها باشند و نیاز به یک روش قوی برای اعتبارسنجی وجود دارد.",
+          "cheapest_test": "بررسی دقیق از کیفیت داده‌های تاریخچه‌ای قبل از استفاده از الگوریتم.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

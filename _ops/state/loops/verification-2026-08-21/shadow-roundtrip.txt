@@ -1,0 +1,11 @@
+  PASS t10_kill_switch_blocks_dispatch
+  PASS t1_same_update_id_three_times_one_task
+  PASS t2_same_payload_different_update_id_is_new_event
+  PASS t3_unauthorized_zero_dispatch_zero_outbox
+  PASS t4_crash_after_intent_resumes_same_task
+  PASS t5_crash_after_result_before_delivery_retries_outbox_once
+  PASS t6_sender_restart_no_resend_if_confirmed
+  PASS t7_invalid_schema_dead_lettered
+  PASS t8_sig_fear_cannot_bypass_outbox
+  PASS t9_memory_disabled_degraded_response_survives
+PASS 10/10

@@ -1,0 +1,23 @@
+{
+  "authorization": "PREPARE Wave 1 and execute a single-owner Telegram canary ONLY after independent verification passes",
+  "expansion": "forbidden without new owner authorization",
+  "gates_required": [
+    "independent verification PASS (SIG-IV) at declared head cc267048... or a later declared descendant",
+    "owner Telegram chat target resolved",
+    "kill switch tested",
+    "rollback tested",
+    "fake transport rehearsal passes",
+    "queue empty or fully reconciled"
+  ],
+  "limits": {
+    "max_confirmed_real_messages": 1,
+    "max_recipients": 1,
+    "paid_calls": 0,
+    "sender_default": "OFF",
+    "target": "OWNER_CHAT_ONLY",
+    "webhook": "OFF"
+  },
+  "purpose": "Conditional Wave 1 authorization and single-owner Telegram canary",
+  "sig_id": "SIG-W1",
+  "verification_head_note": "declared descendant cc267048 (preflight findings 2026-08-21: d301339 alone does not reproduce 163/163)"
+}

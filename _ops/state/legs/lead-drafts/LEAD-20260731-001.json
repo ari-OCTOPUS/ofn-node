@@ -1,0 +1,139 @@
+{
+  "ts": "2026-07-31T16:15:08",
+  "schema": "lead-quote.v1",
+  "qt_number": "QT-2026-07-31-001",
+  "version": 1,
+  "attribution_id": "LEAD-20260731-001",
+  "intake": {
+    "scope": "Remedial render and paint of common property balconies and balustrades, strata apartments block of 24 units, full repaint of external common areas, owners corporation approved works",
+    "size_m2": 0.0,
+    "area_type": "exterior",
+    "surface_type": "wall",
+    "surface_condition": "good",
+    "prep_level": "heavy",
+    "access_type": "scaffold",
+    "segment": "strata",
+    "paint_quality": "standard",
+    "coat_count": 2,
+    "risk_flags": [],
+    "rooms": [],
+    "timeline": "flexible"
+  },
+  "breakdown": {
+    "line_items": [],
+    "labor_aud": [
+      0.0,
+      0.0
+    ],
+    "material_aud": [
+      0.0,
+      0.0
+    ],
+    "subtotal_excl_gst": [
+      0.0,
+      0.0
+    ],
+    "gst": [
+      0.0,
+      0.0
+    ],
+    "total_incl_gst": [
+      0.0,
+      0.0
+    ],
+    "max_deposit_nsw": 0.0,
+    "assumptions": [
+      "Standard residential painting conditions assumed",
+      "Client to clear rooms of furniture / cover remaining items",
+      "No structural repairs included",
+      "Surface condition assessed as: good",
+      "Heavy prep: full sanding, extensive filling, full priming",
+      "Scaffolding hire NOT included in this estimate",
+      "Valid for 30 days from issue date",
+      "Maximum deposit: 10% (NSW Home Building Act §8)"
+    ]
+  },
+  "proposal": {
+    "proposal_id": "P-5464bf431cd2",
+    "leg_id": "lead-naghshi",
+    "kind": "draft_quote",
+    "payload": {
+      "attribution_id": "LEAD-20260731-001",
+      "scope": "Remedial render and paint of common property balconies and balustrades, strata apartments block of 24 units, full repaint of external common areas, owners corporation approved works",
+      "price_range_aud": [
+        0.0,
+        0.0
+      ],
+      "assumptions": [
+        "Scope: Remedial render and paint of common property balconies and balustrades, strata apartments block of 24 units, full repaint of external common areas, owners corporation approved works",
+        "Standard residential painting conditions assumed",
+        "Client to clear rooms of furniture / cover remaining items",
+        "No structural repairs included",
+        "Surface condition assessed as: good",
+        "Heavy prep: full sanding, extensive filling, full priming",
+        "Scaffolding hire NOT included in this estimate",
+        "Valid for 30 days from issue date",
+        "Maximum deposit: 10% (NSW Home Building Act §8)"
+      ],
+      "not_included": [
+        "قراردادِ کتبی (الزامی برای کارهای >AU$5,000)",
+        "تأییدِ نهاییِ قیمت (تصمیمِ مالک)",
+        "بازدیدِ سایت (مرحلهٔ بعد)"
+      ],
+      "legal_placeholders": [
+        "شمارهٔ مجوز، ضمانتِ قانونی، Consumer Building Guide",
+        "بیعانهٔ نهایتاً ۱۰٪"
+      ],
+      "next_step": "تماس/بازدید — human-gated (از کانالِ P3)",
+      "draft_only": true,
+      "qt_number": "QT-2026-07-31-001",
+      "intake": {
+        "scope": "Remedial render and paint of common property balconies and balustrades, strata apartments block of 24 units, full repaint of external common areas, owners corporation approved works",
+        "size_m2": 0.0,
+        "area_type": "exterior",
+        "surface_type": "wall",
+        "surface_condition": "good",
+        "prep_level": "heavy",
+        "access_type": "scaffold",
+        "segment": "strata",
+        "paint_quality": "standard",
+        "coat_count": 2,
+        "risk_flags": [],
+        "rooms": [],
+        "timeline": "flexible"
+      },
+      "line_items": [],
+      "breakdown": {
+        "labor_aud": [
+          0.0,
+          0.0
+        ],
+        "material_aud": [
+          0.0,
+          0.0
+        ],
+        "subtotal_excl_gst": [
+          0.0,
+          0.0
+        ],
+        "gst": [
+          0.0,
+          0.0
+        ],
+        "total_incl_gst": [
+          0.0,
+          0.0
+        ],
+        "max_deposit_nsw": 0.0
+      }
+    },
+    "hlc": [
+      1785478505973,
+      0
+    ],
+    "hash": "c0a686752542811656c8c5ac"
+  },
+  "draft_only": true,
+  "sent": false,
+  "versions": []
+}

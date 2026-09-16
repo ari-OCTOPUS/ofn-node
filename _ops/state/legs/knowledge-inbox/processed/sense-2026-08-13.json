@@ -1,0 +1,11 @@
+{
+  "schema": "leg-feed.v1",
+  "kind": "sense-pulse",
+  "label": "knowledge sense 2026-08-13",
+  "leg": "knowledge",
+  "day": "2026-08-13",
+  "live": false,
+  "signal": "skeleton",
+  "note": "skeleton — نوت‌های دانشِ انسانی هست ولی afferent/بیزنسی سیم‌کشی نشده. منبعِ دادهٔ واقعیِ بعدی: پایپ‌لاینِ afferent روی ن",
+  "fed_by": "leg_feed.ensure_food"
+}

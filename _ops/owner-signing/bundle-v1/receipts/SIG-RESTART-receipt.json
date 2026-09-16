@@ -1,0 +1,13 @@
+{
+  "bundle_root": "b096ad9ceb973da60a6261bb1aee44f4b5207f5947f44c89c00adddcecb3053c",
+  "bundle_version": "OCTOPUS_OWNER_SIGNATURE_BUNDLE_V1",
+  "generated": "2026-08-21",
+  "manifest_sha256": "d4b15ae18a590d59babbcfe49124cd6abeb5d07f7777158a31920d711c39f232",
+  "owner_key_fingerprint": "2413e9746f13afc900b31ad4d966a6783d73662f661fa0d6dc578e9b244ab6b2",
+  "payload_sha256": "a8083c6e412a8cbeed1b6542d3178785b45ee6d2826f1ed0513cedab60067d61",
+  "root_signature_sha256": "5d234f5fc4a78cbc8d906c66ee5750c1a86da27581bc95deba78533340df607f",
+  "schema": "owner-signature-receipt/1",
+  "sig_id": "SIG-RESTART",
+  "status": "OWNER_SIGNED_VIA_BUNDLE",
+  "verification_result": "Signature Verified Successfully"
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "poller-uniqueness-receipt/1",
+  "source": "doctor_uniqueness_beat",
+  "beat": 61321,
+  "checked_at_unix": 1788482387.7311282,
+  "checked_at_local": "2026-09-04T10:39:47+10:00",
+  "dry_run": true,
+  "live_send": false,
+  "ok": true,
+  "fail_closed": true,
+  "checks": {
+    "one_center_pid": true,
+    "one_active_lease": true,
+    "one_tg_poller_lock": true,
+    "pids_agree": true
+  },
+  "reasons": [],
+  "center_pid_count": 1,
+  "active_lease_count": 1,
+  "tg_poller_lock_count": 1,
+  "center_pids": [
+    24088
+  ],
+  "paths": {
+    "state_dir": "F:\\backup\\_ops\\state",
+    "lease_db": "F:\\backup\\_ops\\state\\telegram\\poll-lease.sqlite3",
+    "lock_dir": "F:\\backup\\_ops\\state\\locks"
+  },
+  "probe": "poller-uniqueness/1"
+}

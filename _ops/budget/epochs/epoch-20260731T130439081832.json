@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-31T13:02:46",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 43.0,
+  "weekly_replan": true,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21624,
+    "usd": 0.021624,
+    "aud": 0.032436
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.378,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-stall",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.378,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.032436,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.65,
+        "DEBATE_LOOP": 0.2,
+        "GENOME_SYS": 0.15
+      },
+      "reason": "[EST] GENOME_SYS zero events (idle, floor-only); ARCHITECT_SYS holds ~98% of active spend."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-PAINTING",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "ایجاد فضای آنلاین مجازی برای نمایش کارهای هنرمندان جوان",
+          "why_genius": "این فضا می‌تواند به هنرمندان جوان امکان ارائه کارهای خود را بدهد و باعث افزایش آگاهی عمومی درباره هنرهای تجسمی شود. همچنین، با استفاده از فناوری‌های مدرن مانند AI برای پیشنهاد کارهای مشابه و جذاب، می‌توان به افزایش بازار خواند.",
+          "why_insane": "ممکن است بسیار دشوار باشد تا این فضا را در حالت آنلاین مدیریت کرد و نگهداری هزینه‌های بالا را کاهش دهیم. همچنین، ممکن است بسیار سخت باشد تا اطمینان حفظ کیفیت هنرمندان و جذابیت فضای آنلاین را حفظ کرد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "بدون کاهش هزینه‌های نگهداری، امکان دسترسی رایگان یا بهینه سازی مالی فضا وجود ندارد.",
+          "cheapest_test": "بررسی وضعیت مالی پروژه و تخمین هزینه‌های نگهداری آن.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از فضاهای ذکوهم",
+          "why_genius": "فضاهای ذکوهم با استفاده از سخت‌افزارهای مدرن و هوشمند، می‌توانند هزینه نگهداری را کاهش دهند و همچنین امکانات بیشتری برای دسترسی رایگان به فضاهای آرایشی فراهم کنند. این فضاها با استفاده از سیسیل‌های هوشمند و نرم‌افزارهای مدیریت مالی، هزینه‌های نگهداری را به 10-20 درصد کاهش داده و همچنین امکانات خصوصی سازی برای مشتریان وجود دارند.",
+          "why_insane": "استفاده از فضاهای ذکوهم ممکن است باعث افزایش پیچیدگی سامانه شود و هزینه‌های نصب و کاربرد آنها را افزایش دهد. همچنین، در صورت عدم توانایی مدیریت بهتر سخت‌افزارها، ممکن است مشکلات فنی و امنیتی پیش بیفتد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فضاهای ذکوهم نیاز به سخت‌افزارهای مدرن و هوشمند دارند که هزینه بالا را فراهم می‌کنند.",
+          "cheapest_test": "بررسی قیمت سخت‌افزارهای ذکوهم در بازار محلی.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از چاپ 3D برای تولید آثار نقاشی",
+          "why_genius": "چاپ 3D می‌تواند با استفاده از مواد نوآورانه و سخت‌افزارهای قابل دسترس، آثار نقاشی با کیفیت بالا را تولید کند. همچنین، این روش می‌تواند هزینه‌های زیادی را در زمینه سخت‌افزار و حفظ آثار کاهش دهد.",
+          "why_insane": "استفاده از چاپ 3D برای تولید آثار نقاشی ممکن است نتیجه گیری غیرطبیعی باشد، زیرا آثار چاپ شده ممکن است نتواند روحیه و احساسات هنرمند را به طور کامل نقل‌کنند. علاوه بر این، کیفیت نهایی آثار ممکن است ناقص باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "چاپ 3D آثار نقاشی نمی‌تواند روحیه و احساسات هنرمند را به طور کامل نقل‌کنند.",
+          "cheapest_test": "بررسی روحیه و احساسات در چندین آثار نقاشی متفاوت چاپ شده و دست‌نوشته توسط همان هنرمند.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

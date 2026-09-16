@@ -1,0 +1,60 @@
+{
+ "schema": "memory-gate-verifier/1",
+ "generated_at": "2026-08-21T08:00:00Z",
+ "baseline": "9bc506f",
+ "wave1_unlocked": false,
+ "suites": {
+  "test_memory_gate": {
+   "rc": 0,
+   "tail": "OK test_memory_gate: 12/12"
+  },
+  "test_memory_read_seam": {
+   "rc": 0,
+   "tail": "✅ test_memory_read_seam: 5/5"
+  },
+  "test_g2_trusted_memory_loop": {
+   "rc": 0,
+   "tail": "============================================================"
+  },
+  "test_mirror_rooms_memory": {
+   "rc": 0,
+   "tail": "✅ test_mirror_rooms_memory: 12/12"
+  },
+  "test_memory_team_a_promotion": {
+   "rc": 0,
+   "tail": "FINAL-A1: ALL PASS"
+  }
+ },
+ "pytest_style_suites": {
+  "test_memory_read_loop": "5 passed in ~1s",
+  "test_memory_admission_p2": "8 passed in ~3s"
+ },
+ "zero_mutation": {
+  "memory_db_sha256": "f451cf67a30e791d",
+  "note": "identical across all repair runs; test stores are temp-isolated"
+ },
+ "gates": {
+  "memory_read_capability": "VERIFIED (gate retrieval + seam 5/5 + router)",
+  "memory_readback": "VERIFIED (memory_read_loop 5/5 read_ok)",
+  "memory_receipt": "VERIFIED (t_g decision-receipt join)",
+  "write_guard": "VERIFIED (F3 fail-closed t_k + two-phase staging t_l + quarantine)",
+  "kill_switch": "VERIFIED (flag-off no-op t_a, zero DB)",
+  "task_attribution_ratio": "NOT_MEASURED_ON_SHADOW_SAMPLE — remaining",
+  "shadow_sample": "16 reads / 11 non-empty (read-only)",
+  "memory_mutations": 0,
+  "cross_task_leaks": 0,
+  "readback_failures": 0,
+  "rollback_test": "retract() implemented; explicit rollback test NOT verified — remaining",
+  "critical_regressions": 0
+ },
+ "wave1_gate_status": "NOT_YET_PASS_CANDIDATE — attribution ratio + explicit rollback test remain; wave1_unlocked stays false",
+ "repair_classification": {
+  "test_memory_gate": "STALE_TEST (two-phase admission A1 predates tests) — FIXED",
+  "test_memory_read_seam": "STALE_TEST (F3 confidence fixture) — FIXED",
+  "test_g2_trusted_memory_loop": "STALE_TEST (F3 confidence fixtures x4) — FIXED",
+  "test_memory_read_loop": "HARNESS_MISMATCH (pytest-style, plain runner) — no hang, 5/5 via pytest",
+  "test_memory_admission_p2": "HARNESS_MISMATCH (pytest-style, plain runner) — no hang, 8/8 via pytest",
+  "new_regressions": 0,
+  "real_gate_failures": 0
+ }
+}

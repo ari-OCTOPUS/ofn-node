@@ -1,0 +1,9 @@
+{
+  "schema": "sender-identity.v1",
+  "name": "Ziman Gift",
+  "phone": "0493577719",
+  "phone_e164": "+61493577719",
+  "received_local": "2026-09-08 ~12:40 (owner chat, verbatim «0493577719»)",
+  "authority": "OWNER-APPROVALS round-5 R3-1 («فعلاً به نام فروشگاه زیمان» — name) + round-8 (phone)",
+  "note": "unlock condition for drive-loop lock AUTO1_sender (name+phone); call TRANSPORT still suspended by owner vote R3-2 (no AU call service purchased)"
+}

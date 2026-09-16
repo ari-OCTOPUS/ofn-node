@@ -1,0 +1,66 @@
+{
+  "schema": "octopus.debug.state-ownership/1",
+  "baseline_head": "c713d26c9460e184347c82d13b0f96cb809975dd",
+  "owners": [
+    {
+      "artifact": "state/telegram/center-config.json",
+      "owner": "config_manager / center._save_config",
+      "idempotency_key": "single writer Center",
+      "notes": "LKG snapshot in memory"
+    },
+    {
+      "artifact": "state/telegram/poll-health.json",
+      "owner": "health_metrics",
+      "idempotency_key": "single Center poller",
+      "notes": "in-memory HealthState; write-through for crash mark"
+    },
+    {
+      "artifact": "state/pulse/tg-center.json",
+      "owner": "center iteration",
+      "idempotency_key": "pid+ts",
+      "notes": "watchdog liveness (not watchdog_truth)"
+    },
+    {
+      "artifact": "state/telegram/loop/events/*.json",
+      "owner": "durable_loop",
+      "idempotency_key": "update_id / event_id",
+      "notes": "intent/dispatch/result"
+    },
+    {
+      "artifact": "rate_limit_queue + DLQ",
+      "owner": "rate_limit_queue",
+      "idempotency_key": "message_key",
+      "notes": "not attached to live Center"
+    },
+    {
+      "artifact": "miniapp nonce ledger",
+      "owner": "miniapp_decision_ledger",
+      "idempotency_key": "nonce hash",
+      "notes": "raw nonce never persisted"
+    },
+    {
+      "artifact": "poll lease sqlite",
+      "owner": "poll_lease",
+      "idempotency_key": "token digest",
+      "notes": "one owner"
+    },
+    {
+      "artifact": "state/pulse/memory-read-latest.json",
+      "owner": "memory_read_loop",
+      "idempotency_key": "beat",
+      "notes": "telemetry; executable=false"
+    },
+    {
+      "artifact": "state/pulse/memory-context-latest.json",
+      "owner": "memory.cycle_context",
+      "idempotency_key": "context_id",
+      "notes": "W8 consume path; tests isolate via OCTOPUS_STATE_DIR"
+    },
+    {
+      "artifact": "state/memory/memory.db",
+      "owner": "memory_store / MemoryGate",
+      "idempotency_key": "memory_id",
+      "notes": "tests must not mutate production db"
+    }
+  ]
+}

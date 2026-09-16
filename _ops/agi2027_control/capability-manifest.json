@@ -1,0 +1,21 @@
+{
+  "schema": "octopus.capability-manifest.v1",
+  "capability_id": "agi2027_control",
+  "title": "🛰️ کنترل AGI-2027 — PolicyGate دوم (dual-stack کلاس ۸)",
+  "version": "0.1.0",
+  "owner_phrases": [
+    "agi2027_control"
+  ],
+  "action_contract": "octopus.decision.v1 → خروجی فقط-خواندنی/پیشنهادی",
+  "risk_class": "read",
+  "owner_gate": "بدون رأی تازه؛ اجرای بیرونی هرگز",
+  "surface": "owner_outer_dm",
+  "runtime_status_probe": "IMPLEMENTED_WIRED — miniapp_gateway reads via runtime store; read-only/proposal contract",
+  "tests": [
+    "_ops/agi2027_control/tests/test_runtime.py"
+  ],
+  "registration_is_authorization": false,
+  "visibility_only_manifest": true,
+  "added_by": "PHASE01 4-3 (2026-08-16) — فقط دید؛ هیچ سیمی/فلگی تغییر نکرد",
+  "read_handler": "agi2027_control.runtime:…"
+}

@@ -1,0 +1,1409 @@
+{
+ "_meta": {
+  "generator": "export_status.py v1 (read-only)",
+  "bundle_version": 1,
+  "note": "بستهٔ وضعیت اکتاپوس برای کابین بازرسی — هیچ secret؛ پروفایل خصوصی مالک عمداً غایب",
+  "generated_at": "2026-07-28T19:49:54"
+ },
+ "organism_state": {
+  "ts": "2026-07-28T19:49:10",
+  "started": "2026-07-28T19:22:06",
+  "epoch_mode": "allostatic — تابع فشار (نه clock)",
+  "halted": null,
+  "frozen": false,
+  "stop_organism": false,
+  "month": {
+   "key": "2026-07",
+   "musd": 21295,
+   "usd": 0.021295,
+   "aud": 0.031942
+  },
+  "today": {
+   "musd": 0,
+   "usd": 0.0
+  },
+  "beat": 16291,
+  "suspect_zero_total": 0,
+  "conflicts": [],
+  "germline_lag_h": 0.96,
+  "germline_alert": "ok",
+  "chrono": {
+   "beat": 16291,
+   "hlc": [
+    1785232141512,
+    0
+   ],
+   "legs": {
+    "lead-naghshi": "alive"
+   },
+   "legs_diag": {
+    "lead-naghshi": {
+     "state": "alive",
+     "phi": 0.33,
+     "phi_dead": 16.0,
+     "ack_samples": 20,
+     "silence_ms": 45258,
+     "mean_gap_ms": 43500,
+     "honest_tolerance": true
+    }
+   },
+   "metabolic_age": 16292.0,
+   "age_tick": 6,
+   "effects_pending": 0
+  },
+  "arbiter": {
+   "effective_period_s": 65.79,
+   "driver": "consensus",
+   "color": "GREEN",
+   "n_present": 3,
+   "n_braking": 0,
+   "wire_open": false
+  },
+  "protective_skip": false,
+  "wiring": {
+   "wire_doctor": true,
+   "wire_telegram": true,
+   "wire_unified": true,
+   "wire_lead": true,
+   "wire_neural": true,
+   "wire_school": true,
+   "wire_consolidation": true,
+   "wire_live_loop": true,
+   "wire_evolution": true,
+   "wire_box": true,
+   "wire_leg_tick": true,
+   "paid_governor_router": true,
+   "paid_heart_doctor_router": true,
+   "paid_doctor_selfknow": true,
+   "arm_gate_enforcing": false,
+   "wire_actuator": false,
+   "wire_ideas": true,
+   "wire_spectral": true,
+   "wire_rhythm": true,
+   "wire_circadian": true,
+   "wire_sprint": true,
+   "wire_barbell": false,
+   "wire_debate": true,
+   "wire_scheduler": true,
+   "wire_reconcile": false,
+   "wire_fitness": false,
+   "wire_epistemics": true,
+   "wire_bcm": true,
+   "wire_sparse": true,
+   "wire_chamber_t": false,
+   "wire_heart": true,
+   "wire_heart_work": true,
+   "wire_bio": true,
+   "wire_pulse": true,
+   "wire_selfheal": true,
+   "wire_pocketsmith": false,
+   "wire_web_research": true,
+   "wire_ziman": true,
+   "wire_cartographer": true,
+   "wire_fisher": true,
+   "wire_mining": true,
+   "wire_email": false,
+   "wire_ingest": false,
+   "wire_harvest": false,
+   "wire_lead_verdict_effect": false,
+   "profile": "paper-full",
+   "doctor_every_n": 1440,
+   "consolidation_every_n": 720,
+   "afferent_every_n": 1440
+  },
+  "leg": {
+   "leg_id": "lead-naghshi",
+   "hlc": [
+    1785232149635,
+    0
+   ],
+   "events_this_beat": 1,
+   "last_beat_seen": 16291,
+   "money_link": "active",
+   "proposals_emitted": 0,
+   "propose_only": true
+  },
+  "cartographer": {
+   "leg_id": "vault-cartographer",
+   "organ": "CARTOGRAPHER",
+   "money_link": "incubating",
+   "autonomy_floor": "read-only",
+   "read_only": true,
+   "proposals_total": 0,
+   "propose_only": true,
+   "outward_execution": false,
+   "beat": 16291,
+   "map_updated": "2026-07-16",
+   "map_age_days": 12,
+   "map_stale": false,
+   "drift_files": 536,
+   "refresh_recommended": true,
+   "mood": "🔴"
+  },
+  "business_legs": {
+   "business_legs": {
+    "lead": {
+     "leg": "lead",
+     "live": true,
+     "money_link": "active",
+     "confirmed_revenue_aud": null,
+     "note": "حساب‌کتاب با رأیِ مالک پارک است — درآمد None است نه صفر.",
+     "identity": {
+      "abn_valid": true,
+      "gst_registered": true,
+      "has_bank_details": false
+     },
+     "inbox": {
+      "exists": true,
+      "pending": 0,
+      "processed": 0,
+      "rejected": 0,
+      "frozen_LD": 0
+     },
+     "artifacts": {
+      "quotes": 2,
+      "invoices": 2
+     },
+     "signal": "هویتِ فاکتور ✅ · صندوق: 0 در انتظار · کوت/فاکتور روی دیسک: 2/2 · ⚠️ bank_details خالی → فاکتور قابلِ پرداخت نیست"
+    },
+    "mining": {
+     "leg": "mining",
+     "live": false,
+     "signal": "skeleton",
+     "age_days": 22.5,
+     "note": "skeleton — اسنادِ پروژه هست ولی afferent/scorer سیم‌کشی نشده. منبعِ دادهٔ واقعیِ بعدی: «02 - Code/Ai bots/coordinator/data/decisions.jsonl» (سن ≈ 23 روز — راکد؛ تا جریانِ تازه، scorerِ زنده جعل نمی‌شود). نیازمندِ business-spec از مالک (هش‌ریت/برق/سود)."
+    },
+    "crypto": {
+     "leg": "crypto",
+     "live": false,
+     "signal": "assets=21 completeness=11% errors=0",
+     "age_days": 43.1,
+     "note": "10 snapshot؛ آخرین analysis: cryptoquant_analysis_2026-06-15-16-38-35.json (بی‌PII، فقط‌خواندنی، صفر ترید). دادهٔ کهنه (>7 روز) → live=False؛ pipeline (ingest_raw) باید دوباره داده بیاورد."
+    },
+    "accounting": {
+     "leg": "accounting",
+     "live": false,
+     "signal": "workbooks=6",
+     "age_days": 609.0,
+     "note": "منبعِ مالی موجود — فقط تعداد/mtimeِ workbook دیده شد؛ صفر مقدار/نام/عدد خوانده شد (خط‌قرمزِ PII، فقط‌خواندنی). workbookها >35 روز دست‌نخورده‌اند → live=False (داده جریان ندارد)."
+    },
+    "knowledge": {
+     "leg": "knowledge",
+     "live": false,
+     "signal": "skeleton",
+     "age_days": 0.5,
+     "note": "skeleton — نوت‌های دانشِ انسانی هست ولی afferent/بیزنسی سیم‌کشی نشده. منبعِ دادهٔ واقعیِ بعدی: پایپ‌لاینِ afferent روی نوت‌های «07 - Knowledge» (تازه‌ترین نوت ≈ 1 روز پیش). نیازمندِ business-spec از مالک (این پا چه سیگنالی بدهد؟)."
+    }
+   },
+   "beat": 16291
+  },
+  "proposal_router": {
+   "seen_total": 0,
+   "new": 0,
+   "delivered": 0,
+   "sent": 0,
+   "proposals": []
+  },
+  "proposal_metrics": {
+   "proposals_delivered": 0,
+   "proposal_outcomes": 0,
+   "proposals_sent": 0,
+   "proposals_fake_delivered": 0,
+   "proposal_positive": 0,
+   "proposal_accept_rate": 0.0,
+   "proposal_value_aud": 0
+  },
+  "brain_core": {
+   "mode": "HARNESS",
+   "flag_on": false,
+   "beat": null,
+   "degraded": false,
+   "parity": {
+    "status": "HARNESS",
+    "counters": {
+     "compared": 0,
+     "matched": 0,
+     "mismatched": 0,
+     "missing_old": 0,
+     "missing_new": 0,
+     "critical_mismatched": 0
+    },
+    "started_at": null,
+    "last_sample_at": null,
+    "continuous_elapsed_s": 0.0,
+    "soak_min_hours": 24.0,
+    "restart_gaps": 0,
+    "per_organ_samples": {},
+    "required_comparators": [
+     "health-contract-v1"
+    ],
+    "soak_fingerprint": "b4f982a367a60c21204aa801add782cf9d95603f31807fbdc7b45526bcf2d9ae",
+    "schema": "health-contract.v1:afferent_ratio>=0.5&&!protective_halt"
+   }
+  },
+  "cardiac": {
+   "enabled": true,
+   "bio_rhythm": {
+    "period_s": 42.42640687119285,
+    "mass": 1.0,
+    "pace": "mice",
+    "reason": "جرمِ کم (m=1.0) → ضربانِ تند و سبک (آزمایش)"
+   },
+   "budget": {
+    "enabled": true,
+    "date": "2026-07-28",
+    "spent": 1483,
+    "resting": 0,
+    "daily_cap": 2000,
+    "remaining": 517,
+    "depleted": false
+   },
+   "baroreflex_factor": 1.0
+  }
+ },
+ "fitness": {
+  "ts": "2026-07-28T19:22:57",
+  "authoritative": false,
+  "experience_span_days": 11,
+  "authoritative_note": "قفل verdict جلسه ۱۶: تا ~۴ هفته دادهٔ ledger فقط سایه",
+  "acceptance_source": "logs/outbox.jsonl ⟂ core.db/outbox (فقط بعد از کلیک انسان)",
+  "integrity_alerts": [],
+  "attribution": {
+   "revenue_by_cell": {},
+   "coverage": null,
+   "claimed": 0,
+   "confirmed": 0,
+   "note": "فقط CONFIRMED؛ فرمولِ fitness هنوز شادو — این سیگنالِ پولِ محقق است"
+  },
+  "cells": {},
+  "weights": {
+   "value": 0.3,
+   "urgency": 0.25,
+   "efficiency": 0.2,
+   "human": 0.2,
+   "waste": 0.05
+  }
+ },
+ "replication": {
+  "ts": "2026-07-28T19:22:57",
+  "config": {
+   "max_cells": 6,
+   "spawn_depth": 1,
+   "accept_threshold": 0.4
+  },
+  "excluded_organs": [
+   "PROJECT_F"
+  ],
+  "sigma": {
+   "sigma_effective": 0.0,
+   "zone": "pre-replication",
+   "spawn_proposed": 0,
+   "spawn_approved": 0,
+   "parents": 1,
+   "alerts": []
+  },
+  "fitness_authoritative": false,
+  "eligible_cells": [],
+  "live_gate": {
+   "open": true,
+   "why": "open"
+  },
+  "proposals_written": [],
+  "would_propose": [],
+  "alerts": [],
+  "note": "این ماژول هرگز spawn اجرا نمی‌کند؛ فقط PROPOSAL human-gated (تو propose، انسان dispose)"
+ },
+ "telemetry": {
+  "ts": "2026-07-28T19:49:09",
+  "unit": "micro-USD (int)",
+  "fx_aud_per_usd": {
+   "rate": 1.5,
+   "tag": "FACT(budgets.yaml)"
+  },
+  "sources": {
+   "genome_ledger": "F:\\backup\\07 - Knowledge\\genome-system\\ledger\\ledger.jsonl",
+   "brain_core_db": "F:\\backup\\_launchpad\\second-brain-live\\control-brain\\core.db",
+   "organ_gate": "F:\\backup\\_ops\\budget\\organ-state.json"
+  },
+  "genome": {
+   "events": 0,
+   "cost_musd": 0,
+   "suspect_zero": 0
+  },
+  "brain": {
+   "rows": 0,
+   "cost_musd": 0,
+   "suspect_zero": 0
+  },
+  "organ_gate": {
+   "month_musd": 21295,
+   "today_musd": 0,
+   "live": true
+  },
+  "per_organ_alltime_musd": {
+   "GENOME_SYS": 0,
+   "ARCHITECT_SYS": 21295
+  },
+  "unmapped_musd": {},
+  "month": {
+   "key": "2026-07",
+   "musd": 21295,
+   "usd": 0.021295,
+   "aud": 0.031942
+  },
+  "today": {
+   "musd": 0,
+   "usd": 0.0
+  },
+  "suspect_zero_total": 0
+ },
+ "school_awareness": {
+  "awareness": {
+   "A01": 0.5064,
+   "A02": 0.4263,
+   "A03": 0.3563,
+   "A04": 0.2971,
+   "A05": 0.2492,
+   "A06": 0.2132,
+   "A07": 0.1892,
+   "A08": 0.1772,
+   "B01": 0.6133,
+   "B02": 0.5272,
+   "B03": 0.4502,
+   "B04": 0.384,
+   "B05": 0.3296,
+   "B06": 0.288,
+   "B07": 0.26,
+   "B08": 0.2459,
+   "C01": 0.8325,
+   "C02": 0.9899,
+   "C03": 0.9968,
+   "C04": 0.9468,
+   "C05": 0.8977,
+   "C06": 0.857,
+   "C07": 0.8279,
+   "C08": 0.8128,
+   "D01": 0.8549,
+   "D02": 0.7567,
+   "D03": 0.6657,
+   "D04": 0.5849,
+   "D05": 0.5167,
+   "D06": 0.4637,
+   "D07": 0.4274,
+   "D08": 0.4089,
+   "E01": 0.9918,
+   "E02": 0.9999,
+   "E03": 1.0,
+   "E04": 0.9984,
+   "E05": 0.9735,
+   "E06": 0.9512,
+   "E07": 0.9348,
+   "E08": 0.9259,
+   "F01": 0.9819,
+   "F02": 0.9694,
+   "F03": 0.9613,
+   "F04": 0.9589,
+   "F05": 0.9624,
+   "F06": 0.9714,
+   "F07": 0.9845,
+   "F08": 0.9991
+  },
+  "titles": {
+   "A01": "attention",
+   "A02": "working-memory",
+   "A03": "habit-loop",
+   "A04": "emotion-regulation",
+   "A05": "identity",
+   "A06": "self-narrative",
+   "A07": "motivation",
+   "A08": "perception-bias",
+   "B01": "trust",
+   "B02": "reciprocity",
+   "B03": "small-team-dynamics",
+   "B04": "family-systems",
+   "B05": "homophily",
+   "B06": "social-contagion",
+   "B07": "status",
+   "B08": "cooperation",
+   "C01": "law",
+   "C02": "markets",
+   "C03": "inequality",
+   "C04": "bureaucracy",
+   "C05": "power",
+   "C06": "collective-action",
+   "C07": "institutions",
+   "C08": "governance",
+   "D01": "narrative",
+   "D02": "myth-religion",
+   "D03": "art",
+   "D04": "media-ecology",
+   "D05": "values",
+   "D06": "ritual",
+   "D07": "meaning-making",
+   "D08": "taboo",
+   "E01": "platforms",
+   "E02": "recommender-loops",
+   "E03": "ai-agency",
+   "E04": "attention-economy",
+   "E05": "privacy",
+   "E06": "addiction",
+   "E07": "digital-identity",
+   "E08": "automation",
+   "F01": "historical-cycles",
+   "F02": "demographic-transition",
+   "F03": "climate",
+   "F04": "pandemics",
+   "F05": "technological-phase-shifts",
+   "F06": "existential-risk",
+   "F07": "long-termism",
+   "F08": "civilizational-resilience"
+  },
+  "mean": 0.6858
+ },
+ "channel_status": {
+  "ts": "2026-07-28T19:38:09",
+  "channels": {
+   "dashboard": {
+    "channel": "dashboard",
+    "live": true,
+    "mode": "read-only-local",
+    "organism_8771": true,
+    "panel_8790": false,
+    "notices_file": "channel-notices.jsonl"
+   },
+   "telegram": {
+    "channel": "telegram",
+    "live": true,
+    "mode": "long-poll(T-8)",
+    "writer": "approval_channel(run_forever/poll_once)",
+    "allowlist": false,
+    "owner_set": true
+   },
+   "whatsapp": {
+    "channel": "whatsapp",
+    "live": false,
+    "mode": "NotWiredStub",
+    "activation": "human-gated (قدمِ جدا)",
+    "required_env": [
+     "WHATSAPP_ACCESS_TOKEN",
+     "WHATSAPP_PHONE_ID",
+     "WHATSAPP_OWNER_NUMBER"
+    ]
+   },
+   "email": {
+    "channel": "email",
+    "live": false,
+    "mode": "NotWiredStub",
+    "activation": "human-gated (قدمِ جدا)",
+    "required_env": [
+     "SMTP_HOST",
+     "SMTP_USER",
+     "SMTP_PASS",
+     "EMAIL_OWNER_ADDR"
+    ]
+   }
+  },
+  "writer_note": "entryِ telegram توسطِ کانالِ زنده refresh می‌شود (2026-07-24)؛ بقیهٔ کانال‌ها snapshot"
+ },
+ "fisher": {
+  "ts": "2026-07-28T19:22:58",
+  "cells_used": 0,
+  "fisher_condition_number": null,
+  "current_weights": {
+   "value": 0.3,
+   "urgency": 0.25,
+   "efficiency": 0.2,
+   "human": 0.2,
+   "waste": 0.05
+  },
+  "advisory_weights": null,
+  "natural_step": null,
+  "eta": 0.1,
+  "eps": 0.001,
+  "advisory_only": true,
+  "authoritative": false,
+  "numpy_used": true,
+  "note": "no-cells (shadow) — منتظر دادهٔ EXPERIENCE"
+ },
+ "chamber_temperature": null,
+ "bcm_weights_summary": {
+  "step": 85,
+  "beta": 0.02,
+  "count": 8,
+  "saturation_of_512": 0.0156,
+  "strongest_10": [
+   [
+    "cycle-538:school_awareness",
+    4.0
+   ],
+   [
+    "cycle-538",
+    4.0
+   ],
+   [
+    "cycle-537",
+    3.995087431352099
+   ],
+   [
+    "cycle-539:school_awareness",
+    3.744524539859029
+   ],
+   [
+    "cycle-539",
+    3.744524539859029
+   ],
+   [
+    "cycle-536",
+    3.0593315479235508
+   ],
+   [
+    "cycle-537:school_awareness",
+    2.9595383939473647
+   ],
+   [
+    "cycle-536:school_awareness",
+    2.1144076809224375
+   ]
+  ],
+  "weakest_10": [
+   [
+    "cycle-538:school_awareness",
+    4.0
+   ],
+   [
+    "cycle-538",
+    4.0
+   ],
+   [
+    "cycle-537",
+    3.995087431352099
+   ],
+   [
+    "cycle-539:school_awareness",
+    3.744524539859029
+   ],
+   [
+    "cycle-539",
+    3.744524539859029
+   ],
+   [
+    "cycle-536",
+    3.0593315479235508
+   ],
+   [
+    "cycle-537:school_awareness",
+    2.9595383939473647
+   ],
+   [
+    "cycle-536:school_awareness",
+    2.1144076809224375
+   ]
+  ]
+ },
+ "latent_summary": {
+  "total": 8,
+  "by_layer": {
+   "school": 4,
+   "consolidation": 4
+  }
+ },
+ "phase_metrics": [
+  {
+   "phase": "blueprint-phase-3-bcm",
+   "ts": "2026-07-09T23:10:53Z",
+   "registered_before_implementation": true,
+   "metrics": {
+    "memory_decay_rate": {
+     "definition": "β — نرخ زوال وزن در هر گام consolidation (BCMStabilizer.decay_rate)",
+     "accept": "0 < β <= 0.1"
+    },
+    "memory_saturation": {
+     "definition": "len(weights)/max_keys بعد از هر step",
+     "accept": "همیشه <= 1.0"
+    },
+    "held_out_fixed_suite": {
+     "definition": "۵ تست canary ثابتِ held_out_evaluator",
+     "accept": "5/5 pass"
+    },
+    "no_regression": {
+     "definition": "flag خاموش → صفر تغییر رفتار و هیچ فایل bcm-weights",
+     "accept": "تست سبز"
+    }
+   },
+   "rollback": "OCTOPUS_WIRE_BCM پیش‌فرض خاموش؛ برداشتن flag = رفتار قبلی. هرس فقط روی ایندکس retrieval (latent-vectors.json) — consolidation.json (تاریخچه append-only, I1) هرگز لمس نمی‌شود.",
+   "gate": "فعال‌سازی flag در runtime = فقط با verdict انسانی (AGENT_QUESTIONS 2026-07-10)",
+   "registered_by": "claude-fable-5 (mega-prompt session)"
+  },
+  {
+   "phase": "blueprint-phase-5-chamber-temperature",
+   "ts": "2026-07-09T23:39:59Z",
+   "registered_before_implementation": true,
+   "risk_label": "RED-metaphorical (جدول ریسک بلوپرینت) — strictly sandbox، هرگز auto-merge",
+   "metrics": {
+    "chamber_temperature_range": {
+     "definition": "T در هر لحظه",
+     "accept": "همیشه در [T_min, T_max]"
+    },
+    "chamber_proposal_quality": {
+     "definition": "امتیاز sandbox پیشنهادهای chamber (measured_lift اگر موجود، وگرنه advisory None)",
+     "accept": "فقط گزارش — هیچ تصمیم خودکار"
+    },
+    "zero_auto_merge": {
+     "definition": "هیچ مسیر کدی از temperature/chamber به submit/merge/settle/spend",
+     "accept": "تست ساختاری سبز"
+    },
+    "held_out_fixed_suite": {
+     "accept": "5/5"
+    }
+   },
+   "rollback": "OCTOPUS_WIRE_CHAMBER_T پیش‌فرض خاموش و خارج از PAPER_FULL_FLAGS (RED → فعال‌سازی فقط verdict صریح، حتی با دستور کلی فعال نمی‌شود)",
+   "gate": "verdict صریح مالک",
+   "registered_by": "claude-fable-5 (جلسه ۴۴)"
+  },
+  {
+   "phase": "blueprint-phase-6-fisher",
+   "ts": "2026-07-09T23:39:59Z",
+   "registered_before_implementation": true,
+   "metrics": {
+    "fisher_condition_number": {
+     "definition": "cond(G+εI) ماتریس اطلاعات فیشر تجربی از مؤلفه‌های fitness",
+     "accept": "همیشه متناهی و کران‌دار (regularized)؛ گزارش در state/fisher-latest.json"
+    },
+    "fitness_improvement_rate": {
+     "definition": "مقایسهٔ advisory وزن‌های natural-gradient با baseline خطی روی دادهٔ shadow",
+     "accept": "فقط advisory — تا ~۴ هفته دادهٔ EXPERIENCE قابل قضاوت نیست"
+    },
+    "advisory_only": {
+     "definition": "وزن‌های واقعی fitness (I4: اعداد از فایل) دست‌نخورده",
+     "accept": "تست ساختاری سبز"
+    },
+    "held_out_fixed_suite": {
+     "accept": "5/5"
+    }
+   },
+   "rollback": "fisher.py فقط advisory JSON می‌نویسد؛ حذف فایل = حذف اثر. هیچ تغییر رفتاری در scoring.",
+   "gate": "جایگزینی وزن‌های واقعی = verdict جدا + ~۴ هفته داده",
+   "registered_by": "claude-fable-5 (جلسه ۴۴)"
+  },
+  {
+   "phase": "retro-registration-phases-0-1-2",
+   "ts": "2026-07-09T23:39:59Z",
+   "registered_before_implementation": false,
+   "retroactive": true,
+   "note": "issue #3 مگاپرامپت: متریک‌های P0/P1/P2 پیش از پیاده‌سازی ثبت نشده بودند — این ورودی صادقانه retroactive است (پیش‌ثبت جعل نمی‌شود).",
+   "metrics": {
+    "phase-0": {
+     "suite_green": "65/66 (پیش‌موجود: llm_routing)",
+     "held_out": "fixed 5/5؛ ledger chain broken@40 کشف شد",
+     "baseline": "captured"
+    },
+    "phase-1": {
+     "rfc_pending_rate": "RFC گیرکرده بعد از 24h منقضی شود",
+     "effects_stuck": "اثر معلق بعد از 72h refuse شود",
+     "distinguish": "None=خطا، empty=عادی"
+    },
+    "phase-2": {
+     "latent_dim": 32,
+     "retrieval": "cosine top-k",
+     "determinism": "همان ورودی → همان بردار"
+    }
+   },
+   "registered_by": "claude-fable-5 (جلسه ۴۴)"
+  },
+  {
+   "phase": "blueprint-phase-4-sparse",
+   "ts": "2026-07-09T23:41:05Z",
+   "registered_before_implementation": true,
+   "metrics": {
+    "input_sparsity_ratio": {
+     "definition": "سهم سیگنال‌های فیلترشده = filtered/total در هر گام SparseInputFilter",
+     "accept": "در دادهٔ تکراری/کم‌خبر باید بالای 0.5 برود؛ همیشه در [0,1]"
+    },
+    "prediction_error_distribution": {
+     "definition": "توزیع |x−x̂| روی سیگنال‌های ورودی (x̂ = EMA predictor)",
+     "accept": "heavy-tailed: سهم بالاترین دهکِ خطاها از مجموع بیش از 40٪ در دادهٔ واقعی"
+    },
+    "held_out_fixed_suite": {
+     "accept": "5/5"
+    },
+    "no_regression": {
+     "definition": "flag خاموش → صفر تغییر رفتار consolidation",
+     "accept": "تست سبز"
+    }
+   },
+   "rollback": "OCTOPUS_WIRE_SPARSE پیش‌فرض خاموش؛ برداشتن flag = رفتار قبلی. فیلتر فقط ورودی acquisition به consolidation را کم می‌کند — هیچ دادهٔ خام حذف نمی‌شود.",
+   "gate": "فعال‌سازی = verdict مالک (یا default-applied ثبت‌شده در AGENT_QUESTIONS)",
+   "registered_by": "claude-fable-5 (جلسه ۴۴)"
+  }
+ ],
+ "phase_reviews": [
+  {
+   "phase_id": "phase-0",
+   "review_type": "PHASE_RESULT",
+   "ts": "20260710T071517",
+   "payload": {
+    "summary": "فاز ۰ تثبیت و ایمن‌سازی تکمیل شد",
+    "modules_created": [
+     "baseline.py",
+     "held_out_evaluator.py",
+     "phase_gate.py",
+     "review_bus.py"
+    ],
+    "tests_added": [
+     "test_baseline.py",
+     "test_held_out_evaluator.py",
+     "test_phase_gate.py"
+    ],
+    "suite_count": 66,
+    "suite_green": 65,
+    "pre_existing_failure": "test_llm_routing_smoke.py (Fugu 429 rate-limit)",
+    "held_out_result": {
+     "fixed_suite": "5/5",
+     "ledger_chain": "broken at record 40 (pre-existing corruption from organism heartbeat)"
+    },
+    "baseline_captured": true,
+    "baseline_path": "state/baseline-phase-0-pre-*.json",
+    "finding": "held_out evaluator ledger chain break را کشف کرد — رفع در فاز بعدی"
+   },
+   "verdict": "approved",
+   "_file": "phase-0-PHASE_RESULT-20260710T071517.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-1",
+   "review_type": "AUDIT_REPORT",
+   "ts": "20260710T100220",
+   "payload": {
+    "summary": "پوشش تست: 20 چک روی سه ریشه + گزارش در مگاپرامپت Part 4.1",
+    "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری."
+   },
+   "verdict": "approved",
+   "_file": "phase-1-AUDIT_REPORT-20260710T100220.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-1",
+   "review_type": "PHASE_RESULT",
+   "ts": "20260710T100220",
+   "payload": {
+    "summary": "پنج ریشهٔ گیرکردن RFC/effect بسته شد: RFC auto-expire 24h (doctor)، تفکیک None/empty در consolidation، sweep اثرهای کهنه 72h (EffectorGate)، هوک sweep در tick، sweep در epoch",
+    "completed_ts": "2026-07-10T08:00:00 (تقریبی — جلسه مگا)",
+    "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری.",
+    "tests": [
+     "test_rfc_sweep.py",
+     "test_consolidation_distinguish.py",
+     "test_gate_sweep.py"
+    ]
+   },
+   "verdict": "approved",
+   "_file": "phase-1-PHASE_RESULT-20260710T100220.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-1",
+   "review_type": "ROADMAP",
+   "ts": "20260710T100220",
+   "payload": {
+    "summary": "بعدی: Blueprint P2 (latent space)",
+    "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری."
+   },
+   "verdict": "approved",
+   "_file": "phase-1-ROADMAP-20260710T100220.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-2",
+   "review_type": "AUDIT_REPORT",
+   "ts": "20260710T100221",
+   "payload": {
+    "summary": "35 چک روی latent/encoders/ادغام؛ backward-compat اثبات شد",
+    "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری."
+   },
+   "verdict": "approved",
+   "_file": "phase-2-AUDIT_REPORT-20260710T100221.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-2",
+   "review_type": "PHASE_RESULT",
+   "ts": "20260710T100220",
+   "payload": {
+    "summary": "SharedLatentSpace R^32 + ۵ encoder deterministic (hash-based) + retrieval cosine + ادغام در canonical_consolidation (advisory، fail-soft)",
+    "completed_ts": "2026-07-10T08:30:00 (تقریبی — جلسه مگا)",
+    "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری.",
+    "tests": [
+     "test_latent_space.py",
+     "test_encoders.py",
+     "test_consolidation_latent.py"
+    ]
+   },
+   "verdict": "approved",
+   "_file": "phase-2-PHASE_RESULT-20260710T100220.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-2",
+   "review_type": "ROADMAP",
+   "ts": "20260710T100221",
+   "payload": {
+    "summary": "بعدی: Blueprint P3 (BCM forgetting)",
+    "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری."
+   },
+   "verdict": "approved",
+   "_file": "phase-2-ROADMAP-20260710T100221.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-3",
+   "review_type": "AUDIT_REPORT",
+   "ts": "20260710T100221",
+   "payload": {
+    "summary": "19 چک شامل هومئوستاز ضد reward-hacking + گیت ساختاری flag + fail-soft",
+    "note": "جلسه ۴۳"
+   },
+   "verdict": "approved",
+   "_file": "phase-3-AUDIT_REPORT-20260710T100221.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-3",
+   "review_type": "PHASE_RESULT",
+   "ts": "20260710T100221",
+   "payload": {
+    "summary": "BCM forgetting (neural/bcm.py): Δw=η·y(y−θ)−β·w، θ=EMA(y²) per-key، هرس کف+اشباع، هومئوستاتیک؛ فقط ایندکس retrieval؛ پشت OCTOPUS_WIRE_BCM (paper-full از 2026-07-10، default-applied قابل‌وتو)",
+    "completed_ts": "2026-07-10T10:00:00",
+    "note": "جلسه ۴۳/۴۴. متریک‌های پیش‌ثبت‌شده: phase-metrics.jsonl → blueprint-phase-3-bcm. verdict فعال‌سازی = AGENT_QUESTIONS 2026-07-10.",
+    "tests": [
+     "test_bcm_forgetting.py (19 چک)"
+    ],
+    "suite": "72/73 سبز (شکست شناخته‌شدهٔ خارجی llm_routing)",
+    "held_out": "fixed 5/5 · ledger scar-aware ok-with-scars:1"
+   },
+   "verdict": "approved",
+   "_file": "phase-3-PHASE_RESULT-20260710T100221.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-3",
+   "review_type": "ROADMAP",
+   "ts": "20260710T100221",
+   "payload": {
+    "summary": "بعدی: P4 sparse/L1 + P5 chamber-T (RED، sandbox-only) + P6 Fisher — در حال ساخت جلسه ۴۴",
+    "note": "جلسه ۴۴"
+   },
+   "verdict": "approved",
+   "_file": "phase-3-ROADMAP-20260710T100221.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-4",
+   "review_type": "AUDIT_REPORT",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "15 چک + همسایه‌ها سبز؛ فیلتر فقط ورودی consolidation را باریک می‌کند، هیچ دادهٔ خام حذف نمی‌شود",
+    "note": "جلسه ۴۴"
+   },
+   "verdict": "approved",
+   "_file": "phase-4-AUDIT_REPORT-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-4",
+   "review_type": "PHASE_RESULT",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "Sparse Input Filter (neural/sparse_filter.py): EMA predictor per-key، گذر فقط با prediction_error بالا (novel بی‌قید)، L1 soft-shrink، eviction deterministic، heavy_tail_share. ادغام در consolidation_beat پشت OCTOPUS_WIRE_SPARSE (پیش‌فرض خاموش، خارج از profile).",
+    "completed_ts": "2026-07-10T12:00:00",
+    "tests": [
+     "test_sparse_filter.py (15)"
+    ],
+    "metrics_preregistered": "phase-metrics.jsonl → blueprint-phase-4-sparse",
+    "note": "جلسه ۴۴. فعال‌سازی = verdict (AGENT_QUESTIONS)."
+   },
+   "verdict": "approved",
+   "_file": "phase-4-PHASE_RESULT-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-4",
+   "review_type": "ROADMAP",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "بعد از فعال‌سازی: پایش input_sparsity_ratio و توزیع خطا روی دادهٔ واقعی",
+    "note": "جلسه ۴۴"
+   },
+   "verdict": "approved",
+   "_file": "phase-4-ROADMAP-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-5",
+   "review_type": "AUDIT_REPORT",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "24 چک شامل zero-auto-merge ساختاری + کران دما + backward-compat بایت-یکسان",
+    "note": "جلسه ۴۴"
+   },
+   "verdict": "approved",
+   "_file": "phase-5-AUDIT_REPORT-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-5",
+   "review_type": "PHASE_RESULT",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "Chamber Temperature (doctor/temperature.py): T∈[t_min,t_max] deterministic از verdict-history (stagnation↑→T↑، merge_rate↑→T↓)؛ run_chamber(temperature=) با سقف مطلق MAX_ROUNDS=3؛ مهارهای ایمنی (Red-Critic/λ_persist) عمداً خارج از دما. مصرف verdictهای RFC تلگرام در run_cycle (pop_rfc_verdicts→calibration).",
+    "completed_ts": "2026-07-10T12:00:00",
+    "tests": [
+     "test_chamber_temperature.py (24)"
+    ],
+    "risk_label": "RED — sandbox-only؛ OCTOPUS_WIRE_CHAMBER_T خارج از profile؛ فعال‌سازی فقط verdict صریح",
+    "metrics_preregistered": "phase-metrics.jsonl → blueprint-phase-5-chamber-temperature",
+    "note": "جلسه ۴۴. باگ pre-existing clobber ِ sandbox_result هم فیکس شد (merge + تست)."
+   },
+   "verdict": "approved",
+   "_file": "phase-5-PHASE_RESULT-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-5",
+   "review_type": "ROADMAP",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "RED می‌ماند تا اعتبارسنجی؛ فعال‌سازی جدا از بقیه",
+    "note": "جلسه ۴۴"
+   },
+   "verdict": "approved",
+   "_file": "phase-5-ROADMAP-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-6",
+   "review_type": "AUDIT_REPORT",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "13 چک: advisory-only ساختاری + regularization + fallback بدون numpy",
+    "note": "جلسه ۴۴"
+   },
+   "verdict": "approved",
+   "_file": "phase-6-AUDIT_REPORT-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-6",
+   "review_type": "PHASE_RESULT",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "Fisher metric (budget/fisher.py): G تجربی از مؤلفه‌های fitness، Gr=G+εI، cond=λmax/λmin، natural_step=η·Gr⁻¹·mean(g)، وزن‌های advisory با حفظ scale. فقط fisher-latest.json؛ وزن‌های واقعی (I4/I6) دست‌نخورده. هوک روزانه پشت OCTOPUS_WIRE_FISHER (خاموش، خارج از profile).",
+    "completed_ts": "2026-07-10T12:00:00",
+    "tests": [
+     "test_fisher.py (13)"
+    ],
+    "metrics_preregistered": "phase-metrics.jsonl → blueprint-phase-6-fisher",
+    "note": "جلسه ۴۴. cells فعلاً خالی (shadow) — advisory تا دادهٔ EXPERIENCE."
+   },
+   "verdict": "approved",
+   "_file": "phase-6-PHASE_RESULT-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  },
+  {
+   "phase_id": "phase-6",
+   "review_type": "ROADMAP",
+   "ts": "20260710T101040",
+   "payload": {
+    "summary": "بعد از ~۴ هفته داده: مقایسه advisory با baseline خطی → verdict جایگزینی",
+    "note": "جلسه ۴۴"
+   },
+   "verdict": "approved",
+   "_file": "phase-6-ROADMAP-20260710T101040.json",
+   "verdict_ts": "20260710T110602",
+   "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+  }
+ ],
+ "consolidation_summary": {
+  "cycles": 538,
+  "last": {
+   "cycle": 538,
+   "insights": [
+    "آگاهیِ میانگین: 0.69"
+   ],
+   "verified_sources": [
+    "school_awareness"
+   ],
+   "discarded_sources": [],
+   "timestamp": 1785220417.9989364,
+   "latent_vector": [
+    0.1491868590326731,
+    0.12558917457667565,
+    0.10496697842287012,
+    0.08752649253279457,
+    0.07341501830754767,
+    0.06280931742844768,
+    0.05573885017571436,
+    0.052203616549347694,
+    0.1806798985875561,
+    0.1553145973183753,
+    0.13263018154918924,
+    0.11312747604373316,
+    0.09710108360420429,
+    0.08484560703279986,
+    0.07659672857127765,
+    0.07244282906029684,
+    0.24525683282918712,
+    0.2916273138950298,
+    0.29366007323019067,
+    0.27892993312032954,
+    0.264464935532446,
+    0.25247460148301903,
+    0.2439016599390799,
+    0.23945315762590183,
+    0.25185593559840486,
+    0.22292594042263772,
+    0.19611708542269052,
+    0.172313179005155,
+    0.1522212678953045,
+    0.13660731937885173,
+    0.12591323765909257,
+    0.12046308581844396
+   ],
+   "similar_keys": [
+    "cycle-539:school_awareness",
+    "cycle-538",
+    "cycle-538:school_awareness",
+    "cycle-537"
+   ],
+   "bcm_pruned": null,
+   "bcm_theta": null,
+   "bcm_saturation": null,
+   "sparse_ratio": null,
+   "sparse_filtered": null,
+   "repeats": 3,
+   "last_cycle": 539
+  }
+ },
+ "governor_alerts_tail": [
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /now شکست — RuntimeError",
+  "",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /budget شکست — RuntimeError",
+  "",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /revenue شکست — RuntimeError",
+  "",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /missions شکست — RuntimeError",
+  "",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /menu شکست — RuntimeError",
+  "",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /start شکست — RuntimeError",
+  "",
+  "## 2026-07-28T19:39:32 (metabolism)",
+  "- ⚠️ cockpit tab error (brain): AttributeError: 'list' object has no attribute 'get'",
+  "",
+  "## 2026-07-28T19:48:58 (metabolism)",
+  "- ⚠️ cockpit tab error (brain): AttributeError: 'list' object has no attribute 'get'",
+  "",
+  "## 2026-07-28T19:49:00 (metabolism)",
+  "- ⚠️ cockpit tab error (brain): AttributeError: 'list' object has no attribute 'get'",
+  "",
+  "## 2026-07-28T19:49:52 (metabolism)",
+  "- ⚠️ cockpit tab error (brain): AttributeError: 'list' object has no attribute 'get'",
+  ""
+ ],
+ "chrono": {
+  "exists": true,
+  "heartbeats": 16291,
+  "gated_effects": 0,
+  "duration_markers": 10,
+  "rfc_verdicts_tail": [
+   {
+    "rfc_id": "RFC-aa01e8ff",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785049693710
+   },
+   {
+    "rfc_id": "c6-32d7981f0d99",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785049694255
+   },
+   {
+    "rfc_id": "RFC-886f7fac",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785056010706
+   },
+   {
+    "rfc_id": "c6-3fe57ed09556",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785056011329
+   },
+   {
+    "rfc_id": "c6-ae344f4b31e3",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785104300616
+   },
+   {
+    "rfc_id": "dt0727s2",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785132382325
+   },
+   {
+    "rfc_id": "dt0727s3",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785184772974
+   },
+   {
+    "rfc_id": "dt0728s0",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785184774044
+   },
+   {
+    "rfc_id": "RFC-c649c8f3",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785196565651
+   },
+   {
+    "rfc_id": "dt0728s1",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785196566227
+   }
+  ],
+  "rfc_verdicts_total": 10,
+  "effects_by_status": {}
+ },
+ "genome_ledger": {
+  "exists": true,
+  "records": 4669,
+  "verify_scars": "OK: ok",
+  "verify_scars_ok": true
+ },
+ "organ_table": {
+  "PROJECT_F": {
+   "floor": 3,
+   "human_priority": 2.0,
+   "deadline": "2026-07-20"
+  },
+  "ARCHITECT_SYS": {
+   "floor": 2,
+   "human_priority": 1.0
+  },
+  "GENOME_SYS": {
+   "floor": 2,
+   "human_priority": 1.0
+  },
+  "ZIMAN": {
+   "floor": 1,
+   "human_priority": 0.5
+  },
+  "PAINTING": {
+   "floor": 1,
+   "human_priority": 1.0
+  },
+  "ACCOUNTING": {
+   "floor": 1,
+   "human_priority": 1.0
+  },
+  "DEBATE_LOOP": {
+   "floor": 0.5,
+   "cap_monthly": 5
+  }
+ },
+ "epochs": {
+  "count": 445,
+  "latest": {
+   "ts": "2026-07-28T19:22:13",
+   "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+   "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+   },
+   "next_epoch_minutes": 60.0,
+   "weekly_replan": false,
+   "halted": null,
+   "frozen": false,
+   "conflicts": [],
+   "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+   },
+   "suspects": 0,
+   "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+     0.5134,
+     5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+     "velocity": "velocity-not-authoritative",
+     "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+   },
+   "next_epoch_minutes_raw": 60.0,
+   "heart_pressure_effective": 0.0,
+   "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+     "PROJECT_F": {
+      "verdict": "GRANT",
+      "floor_aud": 3.0,
+      "competitive_aud": 2.810741,
+      "total_month_aud": 5.810741,
+      "fitness": 0.3833,
+      "tag": "SPEC(shadow — صفر enforce)"
+     },
+     "ARCHITECT_SYS": {
+      "verdict": "GRANT",
+      "floor_aud": 2.0,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 4.322363,
+      "fitness": 0.3167,
+      "tag": "SPEC(shadow — صفر enforce)"
+     },
+     "GENOME_SYS": {
+      "verdict": "GRANT",
+      "floor_aud": 2.0,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 4.322363,
+      "fitness": 0.3167,
+      "tag": "SPEC(shadow — صفر enforce)"
+     },
+     "ZIMAN": {
+      "verdict": "GRANT",
+      "floor_aud": 1.0,
+      "competitive_aud": 2.077441,
+      "total_month_aud": 3.077441,
+      "fitness": 0.2833,
+      "tag": "SPEC(shadow — صفر enforce)"
+     },
+     "PAINTING": {
+      "verdict": "GRANT",
+      "floor_aud": 1.0,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 3.322363,
+      "fitness": 0.3167,
+      "tag": "SPEC(shadow — صفر enforce)"
+     },
+     "ACCOUNTING": {
+      "verdict": "GRANT",
+      "floor_aud": 1.0,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 3.322363,
+      "fitness": 0.3167,
+      "tag": "SPEC(shadow — صفر enforce)"
+     },
+     "DEBATE_LOOP": {
+      "verdict": "GRANT",
+      "floor_aud": 0.5,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 2.822363,
+      "fitness": 0.3167,
+      "tag": "SPEC(shadow — صفر enforce)"
+     }
+    },
+    "h1_check": {
+     "sum_grants_aud": 29.999997,
+     "cap_aud": 30.0,
+     "ok": true
+    }
+   },
+   "allocation_llm": {
+    "llm_allocation": {
+     "organ_pct": {
+      "ARCHITECT_SYS": 0.6,
+      "DEBATE_LOOP": 0.15,
+      "GENOME_SYS": 0.25
+     },
+     "reason": "[EST] ARCHITECT_SYS carries all measured spend/value; GENOME_SYS shows zero events (idle risk) but held at floor; ample headroom vs cap."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+   },
+   "debate": {
+    "status": "killed",
+    "topic_id": "organ-PROJECT_F",
+    "rounds": 1,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+     {
+      "round": 1,
+      "muse": {
+       "idea": "استفاده از قطار‌های هوایی محلی برای حمل مواد ضروری",
+       "why_genius": "قطار‌های هوایی محلی می‌توانند با هزینه‌ها کمتر و زمان کوتاه‌تری از راهبردهای سنتی مثل خودروها و لوازم آتیک استفاده شوند. در حال حاضر، این روش به دلیل عدم وجود شبکه قطار محلی گسترده ناامکان است، اما با توسعه شبکه‌ای مناسب، می‌تواند بخش مهمی از سیستم توزیع مواد شود.",
+       "why_insane": "از آنجا که قطار‌های هوایی محلی در حال حاضر وجود ندارند و هیچ شبکه ای برای آن‌ها وجود ندارد، این راه حل ممکن است منجر به سرمایه‌گذاری غیرمعقول شود. همچنین، تولید و نصب سیستم‌های لازم برای حمل مواد با قطار‌های هوایی محلی می‌تواند پیچیده و هزینه‌بر باشد.",
+       "est_tokens": 120,
+       "quality_bar": "normal",
+       "epistemic_tag": "EST"
+      },
+      "architect": {
+       "verdict": "kill",
+       "kill_condition": "実現可能性の欠如: 現在の技術水準とインフラストラクチャでは、地方向け飛行列車が実装不可能であり、その導入は非効率的かつ資金的に不合理。",
+       "cheapest_test": "確認する最安の方法： 当地の物流業界の専門家に調査を依頼し、現存するインフラと技術水準に基づいて地方向け飛行列車の実装可能性を評価してもらう。",
+       "epistemic_tag": "EST"
+      },
+      "cost_usd": 0.0,
+      "stub": false,
+      "tier": "local"
+     }
+    ]
+   }
+  }
+ }
+}

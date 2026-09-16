@@ -1,0 +1,77 @@
+{
+  "schema": "octopus-writer-lease/1",
+  "lease_id": "635737c719344a1bb67463429b910cac",
+  "agent_id": "fugu-ultra-single-writer",
+  "session_id": "sess_cad4fe9c-1be2-4771-86f7-ec0e12693afe",
+  "acquired_at": 1787344899.899,
+  "ttl_seconds": 21600,
+  "scope": [
+    "source",
+    "tests",
+    "evidence",
+    "plans",
+    "git",
+    "rescue"
+  ],
+  "owner_order_id": "OWNER-EXECUTION-ORDER-OCTOPUS-REAL-LOOP-CLOSURE-2026-08-21",
+  "orchestrator_identity": "fugu-ultra / ZCode single-writer",
+  "repository_root": "F:/backup",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "starting_head": "c7ec5f527243aa50b80bbdc5c790cebe4cb08854",
+  "current_head": "66c713084b972be1f40742312fdf0f205778edd8",
+  "started_at": "2026-08-22T06:41:39.899000+10:00",
+  "heartbeat_at": 1787346000.485,
+  "expires_at": 1787366499.899,
+  "allowed_source_paths": [
+    "06-EVIDENCE/OCTOPUS-*",
+    "_ops/cortex/plans/*",
+    "_ops/telegram_center/*",
+    "_ops/tests/*",
+    "_ops/organs/*",
+    "_ops/self_upgrade_lab/*",
+    "_ops/runtime/*",
+    "_ops/nervous_recovery/*",
+    "_ops/loops/*",
+    "_ops/budget/*",
+    "OCTOPUS-DOCTOR/doctor/*",
+    "07 - Knowledge/شناخت-اختاپوس/*"
+  ],
+  "forbidden_actions": [
+    "git reset --hard",
+    "git clean",
+    "force push",
+    "history rewrite",
+    "secret exposure or rotation",
+    "live sendMessage",
+    "live editMessageText during soak",
+    "webhook mutation",
+    "paid call",
+    "auto-resend UNCERTAIN_SEND_OUTCOME",
+    "destructive production-memory migration",
+    "self-sign SIG-IV"
+  ],
+  "source_stability_windows": {
+    "window_1": "12322f410cf78b307e6a252f4a6bcb7d7dbe315e424897a72ee83d7a75cb726f",
+    "window_2": "12322f410cf78b307e6a252f4a6bcb7d7dbe315e424897a72ee83d7a75cb726f",
+    "file_count": 108,
+    "interval_seconds": 30,
+    "changed_paths": []
+  },
+  "continuity_commits": [
+    "360d436",
+    "aa7a795",
+    "4ce67d2",
+    "c7ec5f5"
+  ],
+  "source_writers": 1,
+  "live_runtime_writers": [
+    "telegram_center",
+    "organism",
+    "cortex",
+    "miniapp_gateway",
+    "live_server",
+    "octopus_mcp"
+  ],
+  "release_procedure": "python _ops/writer_lease.py release --agent fugu-ultra-single-writer --session sess_cad4fe9c-1be2-4771-86f7-ec0e12693afe",
+  "wave_a_commit": "66c7130"
+}

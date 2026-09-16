@@ -1,0 +1,273 @@
+{
+ "schema": "staged-file-manifest/1",
+ "generated_at": "2026-08-21T05:10:00Z",
+ "branch": "equip/g10-cognition-20260816",
+ "count": 66,
+ "ofn_board_files": 0,
+ "files": [
+  {
+   "path": "00 - Inbox/PATCH-CANARY-COVERAGE-20260821-B.patch",
+   "sha256": "5d87e7d28328b8d878bc5b716f84a0dc0b2167e8a15d4325877119787128032d"
+  },
+  {
+   "path": "_ops/agi2027_control/capability-manifest.json",
+   "sha256": "8a524b3dc1f69858e730a3f318c5a484598017c23b3cd3209c99b5e6af124d30"
+  },
+  {
+   "path": "_ops/conversation_hub/capability-manifest.json",
+   "sha256": "183a495899891364a92bf5a75002773168c89b16954eb1eff26200867a9872c3"
+  },
+  {
+   "path": "_ops/epistemics/capability-manifest.json",
+   "sha256": "af2f2468d44a3c5365b5979e9439ea5c82daa85baf654438e549a7aac0a0f9bd"
+  },
+  {
+   "path": "_ops/hypothesis_engine/capability-manifest.json",
+   "sha256": "750a6716c058602f182a1519b7d1fb90e267bca48e588728dbb5f53ab9afe3f1"
+  },
+  {
+   "path": "_ops/math_control/capability-manifest.json",
+   "sha256": "d24a40a7c71de76f190216b0fc303726263313b11086e4359ef9b6adf8920610"
+  },
+  {
+   "path": "_ops/memory/capability-manifest.json",
+   "sha256": "b411a08ce19e4dbe90b62fcb33e3f1f8903002495be02ca63ff99eaade689bd3"
+  },
+  {
+   "path": "_ops/nervous_recovery/wave1_gates.py",
+   "sha256": "a196def72c3e9deb1e35b9a9f05e64f2fb578c8af341004fb2a60539a48579fb"
+  },
+  {
+   "path": "_ops/organs/paths.py",
+   "sha256": "bb5c8bb9fb99208077872975a522bf2c4e074f8be08d62b612f03798ea240f11"
+  },
+  {
+   "path": "_ops/orphan_watchdog.py",
+   "sha256": "aefb09b8892be7cad452fc82c35c812bce9a75b827ba6a0b4dbe70f720c5383e"
+  },
+  {
+   "path": "_ops/owner_console/telegram_adapter.py",
+   "sha256": "6fecbf3ac2f5c041c39d9df1ba294410813e3a8b1983e9179f90da4e85ab7b66"
+  },
+  {
+   "path": "_ops/state/coordination/BLOCKER-QUEUE.jsonl",
+   "sha256": "09e92f382d61e788bdfc35e48199312d28be626a966ff4bad6ef5e76a3ac9a50"
+  },
+  {
+   "path": "_ops/state/coordination/POST-COMMIT-CENTER-RESTART-PLAN.json",
+   "sha256": "c91b71627db9ae02425b5c550f230cf93734b09653e07d2bb765022a5a56a37b"
+  },
+  {
+   "path": "_ops/state/coordination/SERVICES-RUNTIME-MAP.md",
+   "sha256": "282d26b02710edd0ed146d21ebbda41ae257f33b40f3d741aa42eff251531da1"
+  },
+  {
+   "path": "_ops/state/loops/CLOSED-LOOPS.md",
+   "sha256": "f87b788903e4c41c406a1b5fd8b0330be43a9427fa594a58fa6afe9746fc3a91"
+  },
+  {
+   "path": "_ops/state/loops/LOOP-REGISTRY.json",
+   "sha256": "7717fdb808e6deb14213bb49eb41a7830ac383a719065e5be9b6279df02f46fd"
+  },
+  {
+   "path": "_ops/state/loops/LOOP-REGISTRY.jsonl",
+   "sha256": "80117b9002f80289748b0bd46436452c812c485077007ac5ed2ea03791fa257f"
+  },
+  {
+   "path": "_ops/state/loops/RUNNING-CODE-AUDIT-2026-08-21.json",
+   "sha256": "91f5b6408f8aef1213c93a169a71ebd5b939c252476747c206a5327bae302d51"
+  },
+  {
+   "path": "_ops/state/loops/S-T02-CLOSURE-PATH.md",
+   "sha256": "22bbd6fa99ab7c74b5e347d3400e539fe64f0c1312cbf4234192e43c44ca3cc8"
+  },
+  {
+   "path": "_ops/state/loops/TELEGRAM-CANARY-AUTHORITATIVE-VERDICT.json",
+   "sha256": "1c2e5557875b4044a54115698ac38481946d90660d21ea3b2bcca8533dc0b314"
+  },
+  {
+   "path": "_ops/state/loops/TELEGRAM-CANARY-RECONCILIATION-2026-08-21.json",
+   "sha256": "9f0b25e155ed7ff29341c8edeb1d23d87f64cc07d0d58a5298332d06da60675f"
+  },
+  {
+   "path": "_ops/state/loops/TELEGRAM-PRODUCTION-VERDICT.json",
+   "sha256": "40e475d80dc9c2d0c5bad571452ef25f30df080881f07679dcef80c517677840"
+  },
+  {
+   "path": "_ops/state/loops/TRIAGE-51-FAILURES-2026-08-21.md",
+   "sha256": "a08120a4395b0946cac028cd87b97dbfdf5e83e10c852f5efbd5576f58d584eb"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/AUDIT.json",
+   "sha256": "712fc2feb287897b6a5481014429a071053bacc12e76a1d8467594139210873b"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/MANIFEST.sha256",
+   "sha256": "9846c4d092fd86427a5c67a8e7108af46d33de1d48c663addccaba2796c79465"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/event-223883337.json",
+   "sha256": "cccd520b7d129a6b6ac2652d7df17e048d51d1d28749fd2ad624dcbef7cf20ae"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/event-223883338.json",
+   "sha256": "4c60557d3e8adb8082e2af25b99972dd346258a0aa8a944119066063952cdc3b"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/event-223883339.json",
+   "sha256": "fea0dddd17de5e4bdd1d076dd2927ff85260c681e9d1fd0ba6022bfc598d599c"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/event-223883340.json",
+   "sha256": "522bdd9151da6febacddfffb4c6b94c5100f8a23e3a90d0ac0b3d4b678a62ea7"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/event-223883341.json",
+   "sha256": "a0791a9be123f43288c98b9db8c5882bec6480c90d35ba402eee2183a97d5920"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/outbox-tg_223883337.json",
+   "sha256": "666bc7817cbc273845ea9ae638d1d8a22fb2fd4d616779ff27c74391ae86c616"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/outbox-tg_223883338.json",
+   "sha256": "784a785c815e652d3f5e79059bc6732d04305a251db13c006493d8f1085c7b7a"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/outbox-tg_223883339.json",
+   "sha256": "71ece2bf1da752d23a0650ad31b1662919615395c410622136a165329b5a0049"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/outbox-tg_223883340.json",
+   "sha256": "204f6716666efda451040305d2b3cc1663232897de82921bd6bbcbe0209f9d80"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/outbox-tg_223883341.json",
+   "sha256": "08bda2885f6b4215d6fc4ed06e52ee330bf9b1ec1d57d1421ffcba2732c1b077"
+  },
+  {
+   "path": "_ops/state/loops/canary-audit-2026-08-21/send-log-window.jsonl",
+   "sha256": "5ca4568d2b4d35922e8f4873ed99fa0eab9d6d1a17c7391872257ecf7b90d4eb"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/AUDIT.json",
+   "sha256": "e729cc2c83794daf5c4d351fdc625f5f673d02d45b47055af9dc02c8b9dc1751"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/DELIVERY-TRUTH-RECONCILIATION.json",
+   "sha256": "0d69358ab823acb03e3a079cc04cd8c1bc71b57bc28c1edced713cd6030bcfac"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/MANIFEST.sha256",
+   "sha256": "ca340530fe8a890683e9cd62111e738cd4ddc7ae2ffc7f106706400e33b1c2be"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/event-223883342.json",
+   "sha256": "491c4c4c48a9545864738b9ce9894d1a3a570ec1ee034962a17ec75ba28a4581"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/event-223883343.json",
+   "sha256": "043fe3c19da35b62da7454a6b15e7acadcc571522c81383ef6e24fc53d5c6eac"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/event-223883344.json",
+   "sha256": "373f7c4daf0e66b76ad6282b389c8f7c05989d77a8e72c2eb7ffa0c21344fb7a"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/event-223883345.json",
+   "sha256": "9fff5234e0218f8320996ad4d146ecea9b911fe7bdb4fa8993bf936a7a489115"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/event-223883346.json",
+   "sha256": "7ab51649a1117d79cafcd8d5450eb9090981fbf1063511164182a3cdbffa101d"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/outbox-tg_223883342.json",
+   "sha256": "ca6a0e1f2cbf844b3686e2501419ae2c911eff1c3ba7d18ecca67887aa992a69"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/outbox-tg_223883343.json",
+   "sha256": "c593cd9cb4db7e8691bd940dcf6bf5d7dd3f46e51d33ccc084fa1a23ceb5303b"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/outbox-tg_223883344.json",
+   "sha256": "8afee727d48abaf3f59e12e21615e5df7b288dd0acf4195228b7fabc384eee4f"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/outbox-tg_223883345.json",
+   "sha256": "28ef3fceb0c8468e1329061ff2d248f1936bcae2ded0f94c5ac429be5cd3e1db"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/outbox-tg_223883346.json",
+   "sha256": "dc0be8d231634fc330fa8a817bbac7d303a7530bbaede06f2a5d6ff614d78092"
+  },
+  {
+   "path": "_ops/state/loops/canary-coverage-2026-08-21-B/send-log-window.jsonl",
+   "sha256": "c4a700cc12cd0e9766a93bfc1dc4982eef7fd3068d40420feb86932f67b6933a"
+  },
+  {
+   "path": "_ops/state/telegram/loop/canary-window.json",
+   "sha256": "168eef83680f3b7e5b0781b0b5880b1ff7b86d896be63c83964793ffcabca920"
+  },
+  {
+   "path": "_ops/state/waves/WAVE0-APPEND-ONLY-MANIFEST.json",
+   "sha256": "e37e3b3e550ffed02f1fd146e4fccc1f93020836b05791f8ecc191f641327a70"
+  },
+  {
+   "path": "_ops/state/waves/WAVE1-AUTHORITY.json",
+   "sha256": "a48dedcaa8bab3b6f65fef990793cc6b01a5a2a6cedbfebcfc3917c972e9d023"
+  },
+  {
+   "path": "_ops/telegram_center/canary_window.py",
+   "sha256": "eefeda01a30c5b41f9bea380bc4278b52ce2e832dc7df27895b842a581764924"
+  },
+  {
+   "path": "_ops/telegram_center/center.py",
+   "sha256": "a43e54d2d59c93065550d2ee9ad33e0f04f8d2bf992711cca76d8a2f35374670"
+  },
+  {
+   "path": "_ops/telegram_center/delivery_reconciliation.py",
+   "sha256": "fa67d8c367561814853d52da91a1639606ee110bce11877f33186d858cbb7f61"
+  },
+  {
+   "path": "_ops/telegram_center/durable_loop.py",
+   "sha256": "dee5abe03954b7b75e409792b7783ba7cadefcae955b4deeeb2424ba1c559945"
+  },
+  {
+   "path": "_ops/telegram_center/verify_production_canary.py",
+   "sha256": "c3d4509c1311da14e206911792b584024a817ce3ebedb6374cc65b062bac15ca"
+  },
+  {
+   "path": "_ops/tests/run_all.py",
+   "sha256": "ae52979badb3f9f56fba402b12c25ac50652fe126f62343fb9120553d7b6bbfb"
+  },
+  {
+   "path": "_ops/tests/test_canary_window.py",
+   "sha256": "d6c3de6d269375cf3fb0d454ad4e483b958abe9013cca1b4f87a1baabfec073e"
+  },
+  {
+   "path": "_ops/tests/test_delivery_reconciliation.py",
+   "sha256": "3a0e53edf835f5bf8cfe1439b091077b5237a862053b9b709dcc39a44a09b4d4"
+  },
+  {
+   "path": "_ops/tests/test_orphan_watchdog.py",
+   "sha256": "fbf319751475daafb07967943d836a31768679b74cd083173440f205cff427d7"
+  },
+  {
+   "path": "_ops/tests/test_telegram_closed_loop_20260820.py",
+   "sha256": "7f8df522f0b3eda0d0f071ff2f2aa23ec65f149b28e375abefb81b3fa17eb5ea"
+  },
+  {
+   "path": "_ops/tests/test_telegram_verdict_conflict.py",
+   "sha256": "514f48c7467dab0c7e8c931c38b957b49fa39c5ef71813b71c27ada4dc19b9a1"
+  },
+  {
+   "path": "_ops/tests/test_tg_callback_emitter_parity.py",
+   "sha256": "dea7ae3f0e1b45a81e91f59c0f03fa40a5626b88b58d1a95c0e6ab9685cdbcd6"
+  },
+  {
+   "path": "_ops/tests/test_wave0_append_only_gate.py",
+   "sha256": "9f51a5f9fd318817e2c28347cc931697b483847f29a58de96b974b480a3722b8"
+  }
+ ]
+}

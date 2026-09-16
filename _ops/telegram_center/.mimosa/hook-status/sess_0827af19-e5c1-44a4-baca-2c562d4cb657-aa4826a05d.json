@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-08-20T17:53:26.189Z",
+  "sessionId": "sess_0827af19-e5c1-44a4-baca-2c562d4cb657",
+  "event": "PostToolUse",
+  "toolName": "Edit",
+  "file": "verify_production_canary.py",
+  "outcome": "clear",
+  "coverage": "complete",
+  "findingCount": 0,
+  "durationMs": 13,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

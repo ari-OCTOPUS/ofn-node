@@ -1,0 +1,513 @@
+2026-07-25T22:37:02 centre+loop both down - launching RUN-TG-CENTER.bat
+2026-07-26T09:32:05 centre+loop both down - launching RUN-TG-CENTER.bat
+2026-07-27T14:27:06 STOP-TG-CENTER present - not reviving centre
+2026-07-27T16:07:04 STOP-TG-CENTER present - not reviving centre
+2026-07-28T06:32:03 centre+loop both down - launching RUN-TG-CENTER.bat
+2026-07-29T06:52:03 centre+loop both down - launching RUN-TG-CENTER.bat
+2026-07-31T08:37:14 centre down (silent 14006s) - launching RUN-TG-CENTER.bat
+2026-07-31T10:02:02 STOP-TG-CENTER present - not reviving centre
+2026-07-31T19:57:02 STOP-TG-CENTER present - not reviving centre
+2026-08-01T09:07:02 STOP-TG-CENTER present - not reviving centre
+2026-08-01T09:47:04 STOP-TG-CENTER present - not reviving centre
+2026-08-01T16:02:03 centre down (silent 334s) - launching RUN-TG-CENTER.bat
+2026-08-02T09:37:02 centre down (silent 3567s) - launching RUN-TG-CENTER.bat
+2026-08-02T11:27:03 centre down (silent 999999s) - launching RUN-TG-CENTER.bat
+2026-08-02T11:37:01 STOP-TG-CENTER present - not reviving centre
+2026-08-02T12:52:04 centre down (silent 999999s) - launching RUN-TG-CENTER.bat
+2026-08-02T13:27:02 centre down (silent 307s) - launching RUN-TG-CENTER.bat
+2026-08-03T15:27:03 centre down (silent 20408s) - launching RUN-TG-CENTER.bat
+2026-08-09T08:42:04 centre down (silent 17545s) - launching RUN-TG-CENTER.bat
+2026-08-10T11:57:05 centre down (silent 34512s) - launching RUN-TG-CENTER.bat
+2026-08-11T08:47:05 centre down (silent 18099s) - launching RUN-TG-CENTER.bat
+2026-08-12T08:07:04 STOP-TG-CENTER present - not reviving centre
+2026-08-12T18:47:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T18:52:04 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T18:57:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:02:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:07:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:12:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:17:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:22:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:27:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:32:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:37:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:42:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:47:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:52:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T19:57:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:02:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:07:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:12:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:17:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:22:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:27:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:32:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:37:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:42:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:47:03 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:52:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T20:57:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:02:02 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:07:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:12:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:17:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:22:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:27:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:32:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:37:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:42:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:47:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:52:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T21:57:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:02:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:07:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:12:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:17:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:22:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:27:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:32:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:37:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:42:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:47:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-12T22:52:01 global HALT-ALL/architect-STOP present - not reviving centre
+2026-08-13T20:03:25 centre HUNG (alive, silent 411s) - killing pid 24028 then relaunching
+2026-08-13T20:03:31 centre down 411s but loop alive - stopping 1 stale loop(s)
+2026-08-13T20:03:33 reaping 1 orphan centre process(es)
+2026-08-13T20:03:35 centre down (silent 411s) - launching RUN-TG-CENTER.bat
+2026-08-14T11:42:06 centre down (silent 1008s) - launching RUN-TG-CENTER.bat
+2026-08-15T14:52:06 centre HUNG (alive, silent 514s) - killing pid 21300 then relaunching
+2026-08-15T14:52:13 centre down 514s but loop alive - stopping 1 stale loop(s)
+2026-08-15T14:52:17 centre down (silent 514s) - launching RUN-TG-CENTER.bat
+2026-08-16T00:27:03 STOP-TG-CENTER present - not reviving centre
+2026-08-16T16:37:03 STOP-TG-CENTER present - not reviving centre
+2026-08-17T16:47:10 centre down (silent 382s) - launching RUN-TG-CENTER.bat
+2026-08-18T00:07:12 centre HUNG (alive, silent 384s) - killing pid 2772 then relaunching
+2026-08-18T00:07:23 centre down 384s but loop alive - stopping 1 stale loop(s)
+2026-08-18T00:07:28 centre down (silent 384s) - launching RUN-TG-CENTER.bat
+2026-08-18T00:12:09 centre HUNG (alive, silent 681s) - killing pid 18452 then relaunching
+2026-08-18T00:12:18 centre down 681s but loop alive - stopping 1 stale loop(s)
+2026-08-18T00:12:22 centre down (silent 681s) - launching RUN-TG-CENTER.bat
+2026-08-18T01:12:04 centre HUNG (alive, silent 301s) - killing pid 11432 then relaunching
+2026-08-18T01:12:07 centre down 301s but loop alive - stopping 1 stale loop(s)
+2026-08-18T01:12:12 centre down (silent 301s) - launching RUN-TG-CENTER.bat
+2026-08-18T02:47:12 centre HUNG (alive, silent 538s) - killing pid 27844 then relaunching
+2026-08-18T02:47:15 centre down 538s but loop alive - stopping 1 stale loop(s)
+2026-08-18T02:47:19 centre down (silent 538s) - launching RUN-TG-CENTER.bat
+2026-08-18T16:27:04 centre down (silent 20834s) - launching RUN-TG-CENTER.bat
+2026-08-19T15:12:04 centre down (silent 5324s) - launching RUN-TG-CENTER.bat
+2026-08-20T00:22:30 STOP-TG-CENTER present - not reviving centre
+2026-08-20T11:27:09 STOP-TG-CENTER present - not reviving centre
+2026-08-21T16:12:11 centre down (silent 29041s) - launching RUN-TG-CENTER.bat
+2026-08-21T16:47:10 centre HUNG (alive, silent 517s) - killing pid 12128 then relaunching
+2026-08-21T16:47:21 centre down 517s but loop alive - stopping 1 stale loop(s)
+2026-08-21T16:47:25 centre down (silent 517s) - launching RUN-TG-CENTER.bat
+2026-08-21T16:57:11 centre HUNG (alive, silent 410s) - killing pid 19680 then relaunching
+2026-08-21T16:57:15 centre down 410s but loop alive - stopping 1 stale loop(s)
+2026-08-21T16:57:19 centre down (silent 410s) - launching RUN-TG-CENTER.bat
+2026-08-21T17:12:38 centre HUNG (alive, silent 308s) - killing pid 21236 then relaunching
+2026-08-21T17:12:48 centre down 308s but loop alive - stopping 1 stale loop(s)
+2026-08-21T17:12:50 reaping 1 orphan centre process(es)
+2026-08-21T17:12:53 centre down (silent 308s) - launching RUN-TG-CENTER.bat
+2026-08-22T19:27:02 STOP-TG-CENTER present - not reviving centre
+2026-08-23T20:27:03 centre down (silent 598s) - launching RUN-TG-CENTER.bat
+2026-08-23T21:52:03 centre down (silent 180s) - launching RUN-TG-CENTER.bat
+2026-08-25T04:47:23 centre HUNG (alive, silent 321s) - killing pid 6432 then relaunching
+2026-08-25T04:47:44 centre down 321s but loop alive - stopping 1 stale loop(s)
+2026-08-25T04:47:48 centre down (silent 321s) - launching RUN-TG-CENTER.bat
+2026-08-25T04:52:11 centre HUNG (alive, silent 613s) - killing pid 19524 then relaunching
+2026-08-25T04:52:14 centre down 613s but loop alive - stopping 1 stale loop(s)
+2026-08-25T04:52:18 centre down (silent 613s) - launching RUN-TG-CENTER.bat
+2026-08-25T11:07:14 centre HUNG (alive, silent 411s) - killing pid 7864 then relaunching
+2026-08-25T11:07:17 centre down 411s but loop alive - stopping 1 stale loop(s)
+2026-08-25T11:07:21 centre down (silent 411s) - launching RUN-TG-CENTER.bat
+2026-08-26T07:32:04 centre down (silent 1697s) - launching RUN-TG-CENTER.bat
+2026-08-27T07:07:04 centre down (silent 5157s) - launching RUN-TG-CENTER.bat
+2026-08-27T11:27:26 centre HUNG (alive, silent 336s) - killing pid 4032 then relaunching
+2026-08-27T11:28:03 centre down 336s but loop alive - stopping 1 stale loop(s)
+2026-08-27T11:28:07 centre down (silent 336s) - launching RUN-TG-CENTER.bat
+2026-08-27T13:17:02 centre HUNG (alive, silent 406s) - killing pid 12096 then relaunching
+2026-08-27T13:17:05 centre down 406s but loop alive - stopping 1 stale loop(s)
+2026-08-27T13:17:09 centre down (silent 406s) - launching RUN-TG-CENTER.bat
+2026-08-27T13:47:04 centre HUNG (alive, silent 494s) - killing pid 13668 then relaunching
+2026-08-27T13:47:07 centre down 494s but loop alive - stopping 1 stale loop(s)
+2026-08-27T13:47:11 centre down (silent 494s) - launching RUN-TG-CENTER.bat
+2026-08-27T15:19:03 centre HUNG (alive, silent 347s) - killing pid 9668 then relaunching
+2026-08-27T15:19:32 centre down 347s but loop alive - stopping 1 stale loop(s)
+2026-08-27T15:19:49 reaping 1 orphan centre process(es)
+2026-08-27T15:19:56 centre down (silent 347s) - launching RUN-TG-CENTER.bat
+2026-08-27T15:25:12 centre HUNG (alive, silent 716s) - killing pid 26284 then relaunching
+2026-08-27T15:25:49 centre down 716s but loop alive - stopping 1 stale loop(s)
+2026-08-27T15:25:53 centre down (silent 716s) - launching RUN-TG-CENTER.bat
+2026-08-27T15:27:02 centre HUNG (alive, silent 825s) - killing pid 8160 then relaunching
+2026-08-27T15:27:08 centre down 825s but loop alive - stopping 1 stale loop(s)
+2026-08-27T15:27:12 centre down (silent 825s) - launching RUN-TG-CENTER.bat
+2026-08-27T17:57:35 centre HUNG (alive, silent 439s) - killing pid 12284 then relaunching
+2026-08-27T17:57:53 centre down 439s but loop alive - stopping 1 stale loop(s)
+2026-08-27T17:58:01 centre down (silent 439s) - launching RUN-TG-CENTER.bat
+2026-08-27T18:07:30 centre HUNG (alive, silent 1034s) - killing pid 23412 then relaunching
+2026-08-27T18:07:34 centre down 1034s but loop alive - stopping 1 stale loop(s)
+2026-08-27T18:07:45 centre down (silent 1034s) - launching RUN-TG-CENTER.bat
+2026-08-27T18:33:03 centre down 2567s but loop alive - stopping 1 stale loop(s)
+2026-08-27T18:33:25 centre down (silent 2567s) - launching RUN-TG-CENTER.bat
+2026-08-27T21:07:17 centre HUNG (alive, silent 377s) - killing pid 15236 then relaunching
+2026-08-27T21:07:22 centre down 377s but loop alive - stopping 1 stale loop(s)
+2026-08-27T21:07:24 reaping 1 orphan centre process(es)
+2026-08-27T21:07:26 centre down (silent 377s) - launching RUN-TG-CENTER.bat
+2026-08-27T21:13:34 centre down 755s but loop alive - stopping 1 stale loop(s)
+2026-08-27T21:14:53 centre down (silent 755s) - launching RUN-TG-CENTER.bat
+2026-08-28T09:22:05 centre HUNG (alive, silent 566s) - killing pid 7452 then relaunching
+2026-08-28T09:22:14 centre down 566s but loop alive - stopping 1 stale loop(s)
+2026-08-28T09:22:18 centre down (silent 566s) - launching RUN-TG-CENTER.bat
+2026-08-28T13:42:16 centre HUNG (alive, silent 427s) - killing pid 27312 then relaunching
+2026-08-28T13:42:24 centre down 427s but loop alive - stopping 1 stale loop(s)
+2026-08-28T13:42:33 centre down (silent 427s) - launching RUN-TG-CENTER.bat
+2026-08-28T13:47:09 centre HUNG (alive, silent 724s) - killing pid 10668 then relaunching
+2026-08-28T13:47:17 centre down 724s but loop alive - stopping 1 stale loop(s)
+2026-08-28T13:47:21 centre down (silent 724s) - launching RUN-TG-CENTER.bat
+2026-08-28T13:52:11 centre HUNG (alive, silent 1027s) - killing pid 14528 then relaunching
+2026-08-28T13:52:21 centre down 1027s but loop alive - stopping 1 stale loop(s)
+2026-08-28T13:52:32 centre down (silent 1027s) - launching RUN-TG-CENTER.bat
+2026-08-28T14:12:33 centre HUNG (alive, silent 421s) - killing pid 21360 then relaunching
+2026-08-28T14:12:42 centre down 421s but loop alive - stopping 1 stale loop(s)
+2026-08-28T14:16:46 reaping 1 orphan centre process(es)
+2026-08-28T14:17:00 centre down (silent 421s) - launching RUN-TG-CENTER.bat
+2026-08-28T14:22:36 centre HUNG (alive, silent 1015s) - killing pid 21384 then relaunching
+2026-08-28T14:22:40 centre down 1015s but loop alive - stopping 1 stale loop(s)
+2026-08-28T14:22:45 centre down (silent 1015s) - launching RUN-TG-CENTER.bat
+2026-08-28T14:34:32 centre HUNG (alive, silent 311s) - killing pid 23560 then relaunching
+2026-08-28T14:34:44 centre down 311s but loop alive - stopping 1 stale loop(s)
+2026-08-28T14:34:47 reaping 1 orphan centre process(es)
+2026-08-28T14:34:49 centre down (silent 311s) - launching RUN-TG-CENTER.bat
+2026-08-28T14:56:04 WARNING: 1 loop(s) + 2 centre(s) after relaunch - expected 1+1 (409 risk)
+2026-08-28T14:57:20 centre HUNG (alive, silent 1677s) - killing pid 11196 then relaunching
+2026-08-28T14:57:33 centre down 1677s but loop alive - stopping 1 stale loop(s)
+2026-08-28T14:57:38 centre down (silent 1677s) - launching RUN-TG-CENTER.bat
+2026-08-28T15:12:50 centre HUNG (alive, silent 495s) - killing pid 21084 then relaunching
+2026-08-28T15:14:22 centre down 495s but loop alive - stopping 1 stale loop(s)
+2026-08-28T15:14:26 centre down (silent 495s) - launching RUN-TG-CENTER.bat
+2026-08-28T15:19:49 centre HUNG (alive, silent 916s) - killing pid 21160 then relaunching
+2026-08-28T15:24:07 centre down 916s but loop alive - stopping 1 stale loop(s)
+2026-08-28T15:24:11 centre down (silent 916s) - launching RUN-TG-CENTER.bat
+2026-08-28T15:27:07 centre HUNG (alive, silent 1353s) - killing pid 28076 then relaunching
+2026-08-28T15:27:14 centre down 1353s but loop alive - stopping 1 stale loop(s)
+2026-08-28T15:27:18 centre down (silent 1353s) - launching RUN-TG-CENTER.bat
+2026-08-28T15:32:08 centre HUNG (alive, silent 1655s) - killing pid 1912 then relaunching
+2026-08-28T15:32:11 centre down 1655s but loop alive - stopping 1 stale loop(s)
+2026-08-28T15:32:15 centre down (silent 1655s) - launching RUN-TG-CENTER.bat
+2026-08-28T15:49:02 centre HUNG (alive, silent 459s) - killing pid 12196 then relaunching
+2026-08-28T15:49:43 centre down 459s but loop alive - stopping 1 stale loop(s)
+2026-08-28T15:49:45 reaping 1 orphan centre process(es)
+2026-08-28T15:49:47 centre down (silent 459s) - launching RUN-TG-CENTER.bat
+2026-08-28T15:52:08 centre HUNG (alive, silent 645s) - killing pid 10160 then relaunching
+2026-08-28T15:52:17 centre down 645s but loop alive - stopping 1 stale loop(s)
+2026-08-28T15:52:21 centre down (silent 645s) - launching RUN-TG-CENTER.bat
+2026-08-28T15:57:07 centre HUNG (alive, silent 944s) - killing pid 23768 then relaunching
+2026-08-28T15:57:15 centre down 944s but loop alive - stopping 1 stale loop(s)
+2026-08-28T15:57:19 centre down (silent 944s) - launching RUN-TG-CENTER.bat
+2026-08-28T16:02:07 centre HUNG (alive, silent 1244s) - killing pid 14388 then relaunching
+2026-08-28T16:02:16 centre down 1244s but loop alive - stopping 1 stale loop(s)
+2026-08-28T16:02:20 centre down (silent 1244s) - launching RUN-TG-CENTER.bat
+2026-08-28T16:07:05 centre HUNG (alive, silent 1541s) - killing pid 21832 then relaunching
+2026-08-28T16:07:08 centre down 1541s but loop alive - stopping 1 stale loop(s)
+2026-08-28T16:07:13 centre down (silent 1541s) - launching RUN-TG-CENTER.bat
+2026-08-28T16:12:10 centre HUNG (alive, silent 1847s) - killing pid 448 then relaunching
+2026-08-28T16:12:15 centre down 1847s but loop alive - stopping 1 stale loop(s)
+2026-08-28T16:12:21 centre down (silent 1847s) - launching RUN-TG-CENTER.bat
+2026-08-28T16:27:26 centre HUNG (alive, silent 501s) - killing pid 26676 then relaunching
+2026-08-28T16:27:38 centre down 501s but loop alive - stopping 1 stale loop(s)
+2026-08-28T16:35:30 reaping 1 orphan centre process(es)
+2026-08-28T16:43:58 centre down (silent 501s) - launching RUN-TG-CENTER.bat
+2026-08-28T16:45:11 WARNING: 1 loop(s) + 2 centre(s) after relaunch - expected 1+1 (409 risk)
+2026-08-28T16:47:06 centre HUNG (alive, silent 1680s) - killing pid 26148 then relaunching
+2026-08-28T16:47:12 centre down 1680s but loop alive - stopping 1 stale loop(s)
+2026-08-28T16:52:23 centre down (silent 1995s) - launching RUN-TG-CENTER.bat
+2026-08-28T17:06:42 centre HUNG (alive, silent 338s) - killing pid 9664 then relaunching
+2026-08-28T17:06:45 centre down 338s but loop alive - stopping 1 stale loop(s)
+2026-08-28T17:06:47 reaping 1 orphan centre process(es)
+2026-08-28T17:06:49 centre down (silent 338s) - launching RUN-TG-CENTER.bat
+2026-08-28T17:17:19 centre HUNG (alive, silent 976s) - killing pid 17660 then relaunching
+2026-08-28T17:17:33 centre down 976s but loop alive - stopping 1 stale loop(s)
+2026-08-28T17:17:48 centre down (silent 976s) - launching RUN-TG-CENTER.bat
+2026-08-28T17:23:34 centre HUNG (alive, silent 1349s) - killing pid 16008 then relaunching
+2026-08-28T17:23:50 centre down 1349s but loop alive - stopping 1 stale loop(s)
+2026-08-28T17:23:52 reaping 1 orphan centre process(es)
+2026-08-28T17:23:54 centre down (silent 1349s) - launching RUN-TG-CENTER.bat
+2026-08-28T17:39:26 centre HUNG (alive, silent 495s) - killing pid 17344 then relaunching
+2026-08-28T17:39:47 centre down 495s but loop alive - stopping 1 stale loop(s)
+2026-08-28T17:39:54 reaping 1 orphan centre process(es)
+2026-08-28T17:40:01 centre down (silent 495s) - launching RUN-TG-CENTER.bat
+2026-08-28T19:27:01 centre HUNG (alive, silent 399s) - killing pid 26940 then relaunching
+2026-08-28T19:27:05 centre down 399s but loop alive - stopping 1 stale loop(s)
+2026-08-28T19:27:09 centre down (silent 399s) - launching RUN-TG-CENTER.bat
+2026-08-28T19:52:11 centre HUNG (alive, silent 507s) - killing pid 27740 then relaunching
+2026-08-28T19:52:23 centre down 507s but loop alive - stopping 1 stale loop(s)
+2026-08-28T19:52:28 centre down (silent 507s) - launching RUN-TG-CENTER.bat
+2026-08-28T19:57:14 centre HUNG (alive, silent 810s) - killing pid 22868 then relaunching
+2026-08-28T19:57:28 centre down 810s but loop alive - stopping 1 stale loop(s)
+2026-08-28T19:57:33 centre down (silent 810s) - launching RUN-TG-CENTER.bat
+2026-08-28T20:02:09 centre HUNG (alive, silent 1105s) - killing pid 4536 then relaunching
+2026-08-28T20:02:12 centre down 1105s but loop alive - stopping 1 stale loop(s)
+2026-08-28T20:02:16 centre down (silent 1105s) - launching RUN-TG-CENTER.bat
+2026-08-28T20:09:38 centre HUNG (alive, silent 1554s) - killing pid 11124 then relaunching
+2026-08-28T20:10:01 centre down 1554s but loop alive - stopping 1 stale loop(s)
+2026-08-28T20:10:05 centre down (silent 1554s) - launching RUN-TG-CENTER.bat
+2026-08-28T20:12:07 centre HUNG (alive, silent 1703s) - killing pid 1596 then relaunching
+2026-08-28T20:12:10 centre down 1703s but loop alive - stopping 1 stale loop(s)
+2026-08-28T20:12:14 centre down (silent 1703s) - launching RUN-TG-CENTER.bat
+2026-08-28T20:17:16 centre HUNG (alive, silent 2012s) - killing pid 22224 then relaunching
+2026-08-28T20:17:39 centre down 2012s but loop alive - stopping 1 stale loop(s)
+2026-08-28T20:17:53 centre down (silent 2012s) - launching RUN-TG-CENTER.bat
+2026-08-28T20:22:14 centre HUNG (alive, silent 2310s) - killing pid 30180 then relaunching
+2026-08-28T20:22:26 centre down 2310s but loop alive - stopping 1 stale loop(s)
+2026-08-28T20:22:30 centre down (silent 2310s) - launching RUN-TG-CENTER.bat
+2026-08-28T20:27:08 centre HUNG (alive, silent 2604s) - killing pid 28772 then relaunching
+2026-08-28T20:27:12 centre down 2604s but loop alive - stopping 1 stale loop(s)
+2026-08-28T20:27:16 centre down (silent 2604s) - launching RUN-TG-CENTER.bat
+2026-08-28T20:57:20 centre HUNG (alive, silent 350s) - killing pid 12368 then relaunching
+2026-08-28T20:57:36 centre down 350s but loop alive - stopping 1 stale loop(s)
+2026-08-28T20:57:54 centre down (silent 350s) - launching RUN-TG-CENTER.bat
+2026-08-28T21:02:08 centre HUNG (alive, silent 639s) - killing pid 16496 then relaunching
+2026-08-28T21:02:11 centre down 639s but loop alive - stopping 1 stale loop(s)
+2026-08-28T21:02:15 centre down (silent 639s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:02:14 centre HUNG (alive, silent 594s) - killing pid 8096 then relaunching
+2026-08-28T22:02:28 centre down 594s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:02:42 centre down (silent 594s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:07:16 centre HUNG (alive, silent 896s) - killing pid 15984 then relaunching
+2026-08-28T22:07:23 centre down 896s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:07:33 centre down (silent 896s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:12:16 centre HUNG (alive, silent 1196s) - killing pid 16476 then relaunching
+2026-08-28T22:12:29 centre down 1196s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:12:43 centre down (silent 1196s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:17:25 centre HUNG (alive, silent 1505s) - killing pid 28220 then relaunching
+2026-08-28T22:17:33 centre down 1505s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:17:37 centre down (silent 1505s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:22:09 centre HUNG (alive, silent 1789s) - killing pid 28992 then relaunching
+2026-08-28T22:22:17 centre down 1789s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:22:22 centre down (silent 1789s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:27:15 centre HUNG (alive, silent 2095s) - killing pid 28920 then relaunching
+2026-08-28T22:27:26 centre down 2095s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:27:38 centre down (silent 2095s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:32:17 centre HUNG (alive, silent 2397s) - killing pid 7792 then relaunching
+2026-08-28T22:32:32 centre down 2397s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:32:35 reaping 1 orphan centre process(es)
+2026-08-28T22:32:37 centre down (silent 2397s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:37:12 centre HUNG (alive, silent 2692s) - killing pid 29456 then relaunching
+2026-08-28T22:37:15 centre down 2692s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:37:19 centre down (silent 2692s) - launching RUN-TG-CENTER.bat
+2026-08-28T22:42:02 centre HUNG (alive, silent 2982s) - killing pid 3696 then relaunching
+2026-08-28T22:42:05 centre down 2982s but loop alive - stopping 1 stale loop(s)
+2026-08-28T22:42:09 centre down (silent 2982s) - launching RUN-TG-CENTER.bat
+2026-08-28T23:37:09 centre HUNG (alive, silent 323s) - killing pid 31876 then relaunching
+2026-08-28T23:37:12 centre down 323s but loop alive - stopping 1 stale loop(s)
+2026-08-28T23:37:17 centre down (silent 323s) - launching RUN-TG-CENTER.bat
+2026-08-28T23:42:05 centre HUNG (alive, silent 619s) - killing pid 34544 then relaunching
+2026-08-28T23:42:08 centre down 619s but loop alive - stopping 1 stale loop(s)
+2026-08-28T23:42:12 centre down (silent 619s) - launching RUN-TG-CENTER.bat
+2026-08-28T23:55:10 centre HUNG (alive, silent 327s) - killing pid 22252 then relaunching
+2026-08-28T23:55:25 centre down 327s but loop alive - stopping 1 stale loop(s)
+2026-08-28T23:55:27 reaping 1 orphan centre process(es)
+2026-08-28T23:55:29 centre down (silent 327s) - launching RUN-TG-CENTER.bat
+2026-08-28T23:57:02 centre HUNG (alive, silent 439s) - killing pid 19688 then relaunching
+2026-08-28T23:57:05 centre down 439s but loop alive - stopping 1 stale loop(s)
+2026-08-28T23:57:09 centre down (silent 439s) - launching RUN-TG-CENTER.bat
+2026-08-29T08:12:09 centre down (silent 338s) - launching RUN-TG-CENTER.bat
+2026-08-29T08:52:15 centre HUNG (alive, silent 399s) - killing pid 15152 then relaunching
+2026-08-29T08:52:36 centre down 399s but loop alive - stopping 1 stale loop(s)
+2026-08-29T08:52:40 centre down (silent 399s) - launching RUN-TG-CENTER.bat
+2026-08-29T08:57:28 centre HUNG (alive, silent 712s) - killing pid 21036 then relaunching
+2026-08-29T08:57:48 centre down 712s but loop alive - stopping 1 stale loop(s)
+2026-08-29T08:58:16 centre down (silent 712s) - launching RUN-TG-CENTER.bat
+2026-08-29T09:02:24 centre HUNG (alive, silent 1008s) - killing pid 26188 then relaunching
+2026-08-29T09:02:30 centre down 1008s but loop alive - stopping 1 stale loop(s)
+2026-08-29T09:02:34 centre down (silent 1008s) - launching RUN-TG-CENTER.bat
+2026-08-29T09:07:19 centre HUNG (alive, silent 1304s) - killing pid 24300 then relaunching
+2026-08-29T09:07:57 centre down 1304s but loop alive - stopping 1 stale loop(s)
+2026-08-29T09:08:01 centre down (silent 1304s) - launching RUN-TG-CENTER.bat
+2026-08-29T09:12:15 centre HUNG (alive, silent 1598s) - killing pid 2096 then relaunching
+2026-08-29T09:12:18 centre down 1598s but loop alive - stopping 1 stale loop(s)
+2026-08-29T09:12:20 reaping 1 orphan centre process(es)
+2026-08-29T09:12:22 centre down (silent 1598s) - launching RUN-TG-CENTER.bat
+2026-09-02T11:32:06 centre HUNG (alive, silent 353s) - killing pid 11508 then relaunching
+2026-09-02T11:32:10 centre down 353s but loop alive - stopping 1 stale loop(s)
+2026-09-02T11:32:14 centre down (silent 353s) - launching RUN-TG-CENTER.bat
+2026-09-02T12:22:19 centre HUNG (alive, silent 468s) - killing pid 3708 then relaunching
+2026-09-02T12:22:27 centre down 468s but loop alive - stopping 1 stale loop(s)
+2026-09-02T12:22:42 centre down (silent 468s) - launching RUN-TG-CENTER.bat
+2026-09-02T12:27:16 centre HUNG (alive, silent 766s) - killing pid 10744 then relaunching
+2026-09-02T12:27:33 centre down 766s but loop alive - stopping 1 stale loop(s)
+2026-09-02T12:27:37 centre down (silent 766s) - launching RUN-TG-CENTER.bat
+2026-09-02T12:32:14 centre HUNG (alive, silent 1065s) - killing pid 22260 then relaunching
+2026-09-02T12:32:26 centre down 1065s but loop alive - stopping 1 stale loop(s)
+2026-09-02T12:32:30 centre down (silent 1065s) - launching RUN-TG-CENTER.bat
+2026-09-02T12:37:14 centre HUNG (alive, silent 1365s) - killing pid 19152 then relaunching
+2026-09-02T12:37:31 centre down 1365s but loop alive - stopping 1 stale loop(s)
+2026-09-02T12:37:35 centre down (silent 1365s) - launching RUN-TG-CENTER.bat
+2026-09-02T12:42:01 centre HUNG (alive, silent 1656s) - killing pid 19208 then relaunching
+2026-09-02T12:42:04 centre down 1656s but loop alive - stopping 1 stale loop(s)
+2026-09-02T12:42:06 reaping 1 orphan centre process(es)
+2026-09-02T12:42:08 centre down (silent 1656s) - launching RUN-TG-CENTER.bat
+2026-09-02T12:47:10 centre HUNG (alive, silent 1961s) - killing pid 9620 then relaunching
+2026-09-02T12:47:21 centre down 1961s but loop alive - stopping 1 stale loop(s)
+2026-09-02T12:47:25 centre down (silent 1961s) - launching RUN-TG-CENTER.bat
+2026-09-02T12:52:44 centre HUNG (alive, silent 2292s) - killing pid 17492 then relaunching
+2026-09-02T12:53:21 centre down 2292s but loop alive - stopping 1 stale loop(s)
+2026-09-02T12:53:23 reaping 1 orphan centre process(es)
+2026-09-02T12:53:25 centre down (silent 2292s) - launching RUN-TG-CENTER.bat
+2026-09-02T12:58:04 centre HUNG (alive, silent 2614s) - killing pid 17204 then relaunching
+2026-09-02T12:59:07 centre down 2614s but loop alive - stopping 1 stale loop(s)
+2026-09-02T12:59:41 centre down (silent 2614s) - launching RUN-TG-CENTER.bat
+2026-09-02T13:03:04 centre down 2909s but loop alive - stopping 1 stale loop(s)
+2026-09-02T13:04:12 reaping 1 orphan centre process(es)
+2026-09-02T13:04:14 centre down (silent 2909s) - launching RUN-TG-CENTER.bat
+2026-09-02T13:07:22 centre HUNG (alive, silent 3170s) - killing pid 11512 then relaunching
+2026-09-02T13:07:31 centre down 3170s but loop alive - stopping 1 stale loop(s)
+2026-09-02T13:07:36 reaping 1 orphan centre process(es)
+2026-09-02T13:07:38 centre down (silent 3170s) - launching RUN-TG-CENTER.bat
+2026-09-02T13:12:19 centre HUNG (alive, silent 3468s) - killing pid 16268 then relaunching
+2026-09-02T13:12:41 centre down 3468s but loop alive - stopping 1 stale loop(s)
+2026-09-02T13:12:46 centre down (silent 3468s) - launching RUN-TG-CENTER.bat
+2026-09-02T13:17:23 centre HUNG (alive, silent 3773s) - killing pid 4112 then relaunching
+2026-09-02T13:17:31 centre down 3773s but loop alive - stopping 1 stale loop(s)
+2026-09-02T13:17:48 centre down (silent 3773s) - launching RUN-TG-CENTER.bat
+2026-09-02T13:22:21 centre HUNG (alive, silent 4069s) - killing pid 19104 then relaunching
+2026-09-02T13:22:58 centre down 4069s but loop alive - stopping 1 stale loop(s)
+2026-09-02T13:23:02 centre down (silent 4069s) - launching RUN-TG-CENTER.bat
+2026-09-02T13:28:41 centre HUNG (alive, silent 4450s) - killing pid 9120 then relaunching
+2026-09-02T14:07:01 centre down 4450s but loop alive - stopping 1 stale loop(s)
+2026-09-02T14:07:17 reaping 1 orphan centre process(es)
+2026-09-02T14:07:25 centre down (silent 4450s) - launching RUN-TG-CENTER.bat
+2026-09-02T14:22:01 centre HUNG (alive, silent 396s) - killing pid 9724 then relaunching
+2026-09-02T14:22:07 centre down 396s but loop alive - stopping 1 stale loop(s)
+2026-09-02T14:22:11 centre down (silent 396s) - launching RUN-TG-CENTER.bat
+2026-09-02T15:03:03 centre HUNG (alive, silent 409s) - killing pid 23784 then relaunching
+2026-09-02T15:03:07 centre down 409s but loop alive - stopping 1 stale loop(s)
+2026-09-02T15:03:11 centre down (silent 409s) - launching RUN-TG-CENTER.bat
+2026-09-02T15:17:12 centre HUNG (alive, silent 389s) - killing pid 22152 then relaunching
+2026-09-02T15:17:20 centre down 389s but loop alive - stopping 1 stale loop(s)
+2026-09-02T15:17:25 centre down (silent 389s) - launching RUN-TG-CENTER.bat
+2026-09-02T15:32:01 centre HUNG (alive, silent 375s) - killing pid 22308 then relaunching
+2026-09-02T15:32:11 centre down 375s but loop alive - stopping 1 stale loop(s)
+2026-09-02T15:32:15 centre down (silent 375s) - launching RUN-TG-CENTER.bat
+2026-09-02T15:37:01 centre HUNG (alive, silent 675s) - killing pid 18344 then relaunching
+2026-09-02T15:37:04 centre down 675s but loop alive - stopping 1 stale loop(s)
+2026-09-02T15:37:09 centre down (silent 675s) - launching RUN-TG-CENTER.bat
+2026-09-02T15:52:16 centre HUNG (alive, silent 358s) - killing pid 16956 then relaunching
+2026-09-02T15:52:25 centre down 358s but loop alive - stopping 1 stale loop(s)
+2026-09-02T15:52:29 centre down (silent 358s) - launching RUN-TG-CENTER.bat
+2026-09-02T15:57:11 centre HUNG (alive, silent 655s) - killing pid 6364 then relaunching
+2026-09-02T15:57:18 centre down 655s but loop alive - stopping 1 stale loop(s)
+2026-09-02T15:57:22 centre down (silent 655s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:12:18 centre HUNG (alive, silent 418s) - killing pid 21328 then relaunching
+2026-09-02T16:12:29 centre down 418s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:12:33 centre down (silent 418s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:17:53 centre HUNG (alive, silent 752s) - killing pid 17508 then relaunching
+2026-09-02T16:17:56 centre down 752s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:18:00 centre down (silent 752s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:22:33 centre HUNG (alive, silent 1031s) - killing pid 1604 then relaunching
+2026-09-02T16:22:51 centre down 1031s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:22:55 centre down (silent 1031s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:27:57 centre HUNG (alive, silent 1353s) - killing pid 20520 then relaunching
+2026-09-02T16:28:16 centre down 1353s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:28:20 centre down (silent 1353s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:32:35 centre HUNG (alive, silent 1623s) - killing pid 15936 then relaunching
+2026-09-02T16:32:55 centre down 1623s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:32:59 centre down (silent 1623s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:37:27 centre HUNG (alive, silent 1919s) - killing pid 22352 then relaunching
+2026-09-02T16:37:41 centre down 1919s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:37:45 centre down (silent 1919s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:43:05 centre HUNG (alive, silent 2256s) - killing pid 26204 then relaunching
+2026-09-02T16:43:24 centre down 2256s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:43:29 centre down (silent 2256s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:47:11 centre HUNG (alive, silent 2516s) - killing pid 472 then relaunching
+2026-09-02T16:47:15 centre down 2516s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:47:19 centre down (silent 2516s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:52:02 centre HUNG (alive, silent 2806s) - killing pid 2072 then relaunching
+2026-09-02T16:52:05 centre down 2806s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:52:09 centre down (silent 2806s) - launching RUN-TG-CENTER.bat
+2026-09-02T16:57:35 centre HUNG (alive, silent 3133s) - killing pid 23704 then relaunching
+2026-09-02T16:57:38 centre down 3133s but loop alive - stopping 1 stale loop(s)
+2026-09-02T16:57:40 reaping 1 orphan centre process(es)
+2026-09-02T16:57:42 centre down (silent 3133s) - launching RUN-TG-CENTER.bat
+2026-09-02T17:03:08 centre HUNG (alive, silent 3453s) - killing pid 15420 then relaunching
+2026-09-02T17:03:11 centre down 3453s but loop alive - stopping 1 stale loop(s)
+2026-09-02T17:03:13 reaping 1 orphan centre process(es)
+2026-09-02T17:03:15 centre down (silent 3453s) - launching RUN-TG-CENTER.bat
+2026-09-02T17:07:25 centre HUNG (alive, silent 3725s) - killing pid 24796 then relaunching
+2026-09-02T17:07:43 centre down 3725s but loop alive - stopping 1 stale loop(s)
+2026-09-02T17:07:47 centre down (silent 3725s) - launching RUN-TG-CENTER.bat
+2026-09-02T17:22:30 centre HUNG (alive, silent 378s) - killing pid 24616 then relaunching
+2026-09-02T17:22:33 centre down 378s but loop alive - stopping 1 stale loop(s)
+2026-09-02T17:22:50 centre down (silent 378s) - launching RUN-TG-CENTER.bat
+2026-09-02T17:27:11 centre HUNG (alive, silent 664s) - killing pid 19156 then relaunching
+2026-09-02T17:27:21 centre down 664s but loop alive - stopping 1 stale loop(s)
+2026-09-02T17:27:25 centre down (silent 664s) - launching RUN-TG-CENTER.bat
+2026-09-02T17:32:34 centre HUNG (alive, silent 986s) - killing pid 24056 then relaunching
+2026-09-02T17:32:37 centre down 986s but loop alive - stopping 1 stale loop(s)
+2026-09-02T17:32:41 centre down (silent 986s) - launching RUN-TG-CENTER.bat
+2026-09-02T18:47:38 centre HUNG (alive, silent 322s) - killing pid 25144 then relaunching
+2026-09-02T18:47:44 centre down 322s but loop alive - stopping 1 stale loop(s)
+2026-09-02T18:47:48 centre down (silent 322s) - launching RUN-TG-CENTER.bat
+2026-09-02T18:52:19 centre HUNG (alive, silent 624s) - killing pid 10840 then relaunching
+2026-09-02T18:52:32 centre down 624s but loop alive - stopping 1 stale loop(s)
+2026-09-02T18:52:36 centre down (silent 624s) - launching RUN-TG-CENTER.bat
+2026-09-02T18:57:08 centre HUNG (alive, silent 916s) - killing pid 25312 then relaunching
+2026-09-02T18:57:12 centre down 916s but loop alive - stopping 1 stale loop(s)
+2026-09-02T18:57:16 centre down (silent 916s) - launching RUN-TG-CENTER.bat
+2026-09-02T19:32:06 centre HUNG (alive, silent 418s) - killing pid 17848 then relaunching
+2026-09-02T19:32:14 centre down 418s but loop alive - stopping 1 stale loop(s)
+2026-09-02T19:32:18 centre down (silent 418s) - launching RUN-TG-CENTER.bat
+2026-09-02T19:37:35 centre HUNG (alive, silent 735s) - killing pid 24672 then relaunching
+2026-09-02T19:38:04 centre down 735s but loop alive - stopping 1 stale loop(s)
+2026-09-02T19:38:24 centre down (silent 735s) - launching RUN-TG-CENTER.bat
+2026-09-02T19:42:09 centre HUNG (alive, silent 1018s) - killing pid 15932 then relaunching
+2026-09-02T19:42:12 centre down 1018s but loop alive - stopping 1 stale loop(s)
+2026-09-02T19:42:16 centre down (silent 1018s) - launching RUN-TG-CENTER.bat
+2026-09-02T20:17:05 centre down (silent 336s) - launching RUN-TG-CENTER.bat
+2026-09-03T09:17:02 centre down (silent 999999s) - launching RUN-TG-CENTER.bat
+2026-09-03T16:27:20 centre HUNG (alive, silent 605s) - killing pid 4624 then relaunching
+2026-09-03T16:27:35 centre down 605s but loop alive - stopping 1 stale loop(s)
+2026-09-03T16:27:53 centre down (silent 605s) - launching RUN-TG-CENTER.bat
+2026-09-03T16:32:14 centre HUNG (alive, silent 902s) - killing pid 23844 then relaunching
+2026-09-03T16:32:25 centre down 902s but loop alive - stopping 1 stale loop(s)
+2026-09-03T16:32:29 centre down (silent 902s) - launching RUN-TG-CENTER.bat
+2026-09-03T19:03:04 centre HUNG (alive, silent 380s) - killing pid 25636 then relaunching
+2026-09-03T19:03:25 centre down 380s but loop alive - stopping 1 stale loop(s)
+2026-09-03T19:03:29 centre down (silent 380s) - launching RUN-TG-CENTER.bat
+2026-09-03T19:07:18 centre HUNG (alive, silent 642s) - killing pid 21532 then relaunching
+2026-09-03T19:07:31 centre down 642s but loop alive - stopping 1 stale loop(s)
+2026-09-03T19:07:35 centre down (silent 642s) - launching RUN-TG-CENTER.bat
+2026-09-03T19:12:01 centre HUNG (alive, silent 926s) - killing pid 14780 then relaunching
+2026-09-03T19:12:05 centre down 926s but loop alive - stopping 1 stale loop(s)
+2026-09-03T19:12:09 centre down (silent 926s) - launching RUN-TG-CENTER.bat
+2026-09-03T20:17:10 centre HUNG (alive, silent 399s) - killing pid 6912 then relaunching
+2026-09-03T20:17:16 centre down 399s but loop alive - stopping 1 stale loop(s)
+2026-09-03T20:17:20 centre down (silent 399s) - launching RUN-TG-CENTER.bat
+2026-09-03T20:32:23 centre HUNG (alive, silent 419s) - killing pid 14092 then relaunching
+2026-09-03T20:32:41 centre down 419s but loop alive - stopping 1 stale loop(s)
+2026-09-03T20:32:45 centre down (silent 419s) - launching RUN-TG-CENTER.bat
+2026-09-03T20:37:45 centre HUNG (alive, silent 741s) - killing pid 11696 then relaunching
+2026-09-03T20:38:07 centre down 741s but loop alive - stopping 1 stale loop(s)
+2026-09-03T20:38:09 reaping 1 orphan centre process(es)
+2026-09-03T20:38:11 centre down (silent 741s) - launching RUN-TG-CENTER.bat
+2026-09-03T20:42:08 centre HUNG (alive, silent 1004s) - killing pid 27752 then relaunching
+2026-09-03T20:42:11 centre down 1004s but loop alive - stopping 1 stale loop(s)
+2026-09-03T20:42:15 centre down (silent 1004s) - launching RUN-TG-CENTER.bat
+2026-09-04T01:22:05 centre HUNG (alive, silent 311s) - killing pid 19156 then relaunching
+2026-09-04T01:22:09 centre down 311s but loop alive - stopping 1 stale loop(s)
+2026-09-04T01:22:13 centre down (silent 311s) - launching RUN-TG-CENTER.bat
+2026-09-04T01:47:27 centre HUNG (alive, silent 514s) - killing pid 22040 then relaunching
+2026-09-04T01:47:39 centre down 514s but loop alive - stopping 1 stale loop(s)
+2026-09-04T01:47:41 reaping 1 orphan centre process(es)
+2026-09-04T01:47:43 centre down (silent 514s) - launching RUN-TG-CENTER.bat
+2026-09-04T01:52:44 centre HUNG (alive, silent 820s) - killing pid 26872 then relaunching
+2026-09-04T01:53:08 centre down 820s but loop alive - stopping 1 stale loop(s)
+2026-09-04T01:53:27 centre down (silent 820s) - launching RUN-TG-CENTER.bat
+2026-09-04T01:57:25 centre HUNG (alive, silent 1108s) - killing pid 22632 then relaunching
+2026-09-04T01:57:45 centre down 1108s but loop alive - stopping 1 stale loop(s)
+2026-09-04T01:58:03 centre down (silent 1108s) - launching RUN-TG-CENTER.bat
+2026-09-04T03:42:03 centre HUNG (alive, silent 381s) - killing pid 18428 then relaunching
+2026-09-04T03:42:06 centre down 381s but loop alive - stopping 1 stale loop(s)
+2026-09-04T03:42:10 centre down (silent 381s) - launching RUN-TG-CENTER.bat
+2026-09-04T04:32:05 centre HUNG (alive, silent 340s) - killing pid 22068 then relaunching
+2026-09-04T04:32:08 centre down 340s but loop alive - stopping 1 stale loop(s)
+2026-09-04T04:32:12 centre down (silent 340s) - launching RUN-TG-CENTER.bat

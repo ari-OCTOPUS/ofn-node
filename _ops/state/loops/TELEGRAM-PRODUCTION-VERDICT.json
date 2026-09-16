@@ -1,0 +1,149 @@
+{
+  "schema": "telegram-production-canary-verdict/1",
+  "generated_at": "2026-08-21T03:30:00Z",
+  "confirmed": false,
+  "failed_checks": [
+    "stuck_intents"
+  ],
+  "checks": {
+    "real_authorized_events": true,
+    "unique_update_ids": true,
+    "durable_intents": true,
+    "acknowledgments": 8,
+    "results_committed": 8,
+    "delivery_receipts_ok": 8,
+    "delivery_covers_all_events": true,
+    "readbacks_confirmed": 8,
+    "unique_task_ids": true,
+    "duplicate_effects": 0,
+    "fabricated_task_ids": 0,
+    "unauthorized_sends": 0,
+    "stuck_intents": 2,
+    "memory_mutations": 0,
+    "paid_calls": 0,
+    "heartbeat_spam": 0
+  },
+  "events": [
+    {
+      "event_id": "tg:223883337",
+      "state": "CLOSED",
+      "task_id": "task_2da6b33f6063d136d8ac87d1",
+      "run_id": "run_336d1e54bb394d468dcba6dd58347b74",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883338",
+      "state": "CLOSED",
+      "task_id": "task_e95ffd81779671153f5bb8da",
+      "run_id": "run_9938a40319f1489f87a5ab8808b9e7f9",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883339",
+      "state": "CLOSED",
+      "task_id": "task_ec9abe8e8c15926ca0eeceb7",
+      "run_id": "run_f8f91f79c4b8446aa638ef013e141867",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883340",
+      "state": "CLOSED",
+      "task_id": "task_910efe50e3d0d7653e17b995",
+      "run_id": "run_57efdfbf6a854abd884daae40ca8c188",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883341",
+      "state": "CLOSED",
+      "task_id": "task_4bf54822c69c9df1a2ed4145",
+      "run_id": "run_e010fb76b47a4cbfac8225af745c1eb2",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883342",
+      "state": "CLOSED",
+      "task_id": "task_6254d5c8da49782b9c59423b",
+      "run_id": "run_720951be13814d9da84d385ceff931bd",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883343",
+      "state": "CLOSED",
+      "task_id": "task_12256feef9cb35e22383fad3",
+      "run_id": "run_5a2f239508ac4015af82d1fce9684eeb",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883345",
+      "state": "CLOSED",
+      "task_id": "task_6aa13d52f0dc353dee727893",
+      "run_id": "run_c18a46e8a29d4fcfaf82eddc7f162c0e",
+      "readback_verified": true
+    }
+  ],
+  "outbox": [
+    {
+      "event_id": "tg:223883343",
+      "state": "CONFIRMED",
+      "message_id": 566,
+      "key": "01647979b15813f45be9ee1e907f05ff7ea29e2a"
+    },
+    {
+      "event_id": "tg:223883337",
+      "state": "CONFIRMED",
+      "message_id": 554,
+      "key": "3b0975cefee993fb20a4984dcbd5690ecfd2e425"
+    },
+    {
+      "event_id": "tg:223883339",
+      "state": "CONFIRMED",
+      "message_id": 560,
+      "key": "9e39b1a5f1a86479c9ada1fae95e651f8496c5e4"
+    },
+    {
+      "event_id": "tg:223883342",
+      "state": "CONFIRMED",
+      "message_id": 564,
+      "key": "dd9f649b24b12c95994ff6b0462e94b1b7cc490c"
+    },
+    {
+      "event_id": "tg:223883341",
+      "state": "CONFIRMED",
+      "message_id": 562,
+      "key": "e0e51c85403304531d2d3e367a33646197492e5d"
+    },
+    {
+      "event_id": "tg:223883338",
+      "state": "CONFIRMED",
+      "message_id": 557,
+      "key": "e8a3ea03ec1cdcce20dbf442ef3d5d9ed4be33b0"
+    },
+    {
+      "event_id": "tg:223883345",
+      "state": "CONFIRMED",
+      "message_id": 570,
+      "key": "f080f967c9794bf93c3d8ad70303ae7882293d16"
+    },
+    {
+      "event_id": "tg:223883340",
+      "state": "CONFIRMED",
+      "message_id": 561,
+      "key": "fc3f9f46b47ecd1021efd1339996c0e72cea1938"
+    }
+  ],
+  "state_hashes": {
+    "events_dir": "1870c243d9f7239b"
+  },
+  "production_closed": false,
+  "note": "production gates per owner table; memory writes 0; paid calls 0.",
+  "SUPERSEDED_BY": "_ops/state/loops/TELEGRAM-CANARY-AUTHORITATIVE-VERDICT.json",
+  "effective_claim": "refer to authoritative verdict; transport PRODUCTION_CLOSED, command coverage OPEN, event_bridge IN_PROGRESS",
+  "historical_result": {
+    "previous_generated_at": "2026-08-21T03:30:00Z",
+    "previous_confirmed": false,
+    "previous_failed_checks": [
+      "stuck_intents"
+    ],
+    "previous_production_closed": false
+  }
+}

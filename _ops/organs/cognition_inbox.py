@@ -1,0 +1,95 @@
+# -*- coding: utf-8 -*-
+"""T73 — append-only cognition inbox. Brains receive advisories, never execute."""
+from __future__ import annotations
+
+import json
+import time
+from pathlib import Path
+
+from .flags import enabled
+from .paths import INBOX, STATE, assert_not_telegram
+
+
+def _read_json(path: Path) -> dict:
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def append_event(event: dict, *, inbox: Path | None = None) -> Path:
+    inbox = Path(inbox) if inbox is not None else INBOX
+    assert_not_telegram(inbox)
+    inbox.mkdir(parents=True, exist_ok=True)
+    p = inbox / "events.jsonl"
+    with p.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+    return p
+
+
+def _receipt(brain: str, heard: bool, input_ids: list, evidence_ids: list,
+             degraded: bool = False) -> dict:
+    return {
+        "brain": brain,
+        "heard": heard,
+        "input_ids": input_ids,
+        "output_kind": "advisory",
+        "evidence_ids": evidence_ids,
+        "executable": False,
+        "status": "BRAIN_DEGRADED" if degraded else "ok",
+    }
+
+
+def brains_hear(events: list[dict], *, state: Path | None = None,
+                inbox: Path | None = None, now: float | None = None) -> dict:
+    """Cortex + business_brain hear via latest files (no live process restart).
+
+    Missing brain file → BRAIN_DEGRADED, not crash.
+    """
+    if not enabled("cognition_inbox", True):
+        return {"ok": False, "reason": "flag-off"}
+    now = time.time() if now is None else now
+    state = Path(state) if state is not None else STATE
+    inbox = Path(inbox) if inbox is not None else INBOX
+    input_ids = [str(e.get("event_id") or e.get("kind") or i) for i, e in enumerate(events[:32])]
+    evidence_ids = [i for i in input_ids if i]
+
+    cortex_path = state / "cortex" / "cortex-state.json"
+    bb_path = state / "cortex" / "business-brain-latest.json"
+    cortex_state = _read_json(cortex_path)
+    bb = _read_json(bb_path)
+
+    cortex_heard = cortex_path.is_file()
+    bb_heard = bb_path.is_file()
+    receipts = [
+        _receipt("cortex", cortex_heard, input_ids, evidence_ids, degraded=not cortex_heard),
+        _receipt("business_brain", bb_heard, input_ids, evidence_ids, degraded=not bb_heard),
+        _receipt("metacontrol", True, input_ids, evidence_ids, degraded=False),
+    ]
+    advisories = {
+        "cortex": {
+            "kind": "advisory",
+            "text": f"heard {len(events)} organ events; executable=false",
+            "n_events": len(events),
+        } if cortex_heard else {"kind": "advisory", "text": "BRAIN_DEGRADED"},
+        "business_brain": {
+            "kind": "advisory",
+            "text": f"projects={len(bb.get('projects') or [])} proposals={bb.get('n_proposals', 0)}",
+            "n_events": len(events),
+        } if bb_heard else {"kind": "advisory", "text": "BRAIN_DEGRADED"},
+        "cortex_keys": list(cortex_state)[:8],
+    }
+    pack = {
+        "schema": "cognition-inbox-receipts/1",
+        "ts": now,
+        "receipts": receipts,
+        "advisories": advisories,
+        "brains_receive_cognition_inbox": sum(1 for r in receipts if r["heard"]),
+        "executable": False,
+    }
+    assert_not_telegram(inbox)
+    inbox.mkdir(parents=True, exist_ok=True)
+    (inbox / "receipts.json").write_text(
+        json.dumps(pack, ensure_ascii=False, indent=2), encoding="utf-8")
+    return pack

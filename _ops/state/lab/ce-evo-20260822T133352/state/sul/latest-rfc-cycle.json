@@ -1,0 +1,66 @@
+{
+  "cycle_id": "CYC-20260822T033353-RFC-fbc872e6",
+  "hypothesis_id": "HYP-20260822T033353-RFC-fbc872e6",
+  "experiment_id": "EXP-20260822T033353-RFC-fbc872e6",
+  "rfc_id": "RFC-CE-EVO-20260822",
+  "organ": "doctor",
+  "bottleneck": "continuous-exec needs one fixture evolutionary cycle end-to-end",
+  "fix": "run isolated worktree coding then durable outbox [merge]/[reject] card",
+  "worktree": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree",
+  "worktree_meta": {
+    "path": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree",
+    "injected": true,
+    "reused": false,
+    "isolated": true
+  },
+  "patch": {
+    "ok": true,
+    "patch_hash": "079f6f3cc791f21a",
+    "files": [
+      "_ops/self_upgrade_lab/rfc_artifacts/RFC-CE-EVO-20260822.py",
+      "_ops/tests/test_rfc_RFC-CE-EVO-20260822.py"
+    ],
+    "reason": null
+  },
+  "test_outcome": "pass",
+  "verify": {
+    "confirmed": true,
+    "promotion_ceiling": "LAB_PASS",
+    "reasons": [],
+    "secret_scan_hits": 0,
+    "running_hash": "940119a9d6cd729d",
+    "before_had_failing_test": true,
+    "tests_pass": true,
+    "rollback_ok": true,
+    "memory_write": false,
+    "label": "LAB_PASS",
+    "note": "LAB_PASS is not production."
+  },
+  "proposed_promote": true,
+  "promotion_level": "NONE",
+  "commit": {
+    "ok": true,
+    "commit": "df5afdb5ad4ec7761d9c5dd083a60d8e762dc64b",
+    "stderr": ""
+  },
+  "telegram_card": {
+    "kind": "evo-lab-rfc-card",
+    "rfc_id": "RFC-CE-EVO-20260822",
+    "bottleneck": "continuous-exec needs one fixture evolutionary cycle end-to-end",
+    "organ": "doctor",
+    "experiment_id": "EXP-20260822T033353-RFC-fbc872e6",
+    "worktree": "F:\\backup\\_ops\\state\\lab\\ce-evo-20260822T133352\\worktree",
+    "test_ok": true,
+    "verify": true,
+    "verify_reasons": [],
+    "proposed_promote": true,
+    "live_send": false,
+    "actions": [
+      "[merge]",
+      "[reject]"
+    ]
+  },
+  "elapsed_s": 3.315,
+  "live_promote": false,
+  "paid": "FORBIDDEN"
+}

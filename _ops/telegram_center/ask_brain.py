@@ -1,0 +1,508 @@
+"""ask_brain — جوابِ واقعی به جملهٔ آزادِ مالک، از مغزِ گران.
+
+مسئله‌ای که حل می‌کند (اندازه‌گیریِ ۲۰۲۶-۰۷-۲۷):
+    مالک پرسید «کجا پیام بدم، چی بدم؟» و جوابِ صادق این بود: سیزده فرمان و
+    دکمه‌های کارت. هر جملهٔ آزادی که به فرمان نگاشت نشود به `_ask_unknown_card`
+    می‌افتد — «متوجه نشدم» + پنج دکمه. `llm_intent.understand` هم فقط **دسته‌بندی**
+    می‌کند (intent/leg/risk) و هرگز **جواب** نمی‌دهد؛ خروجی‌اش یا یک صفحهٔ ثابت است
+    یا یک کارتِ مأموریت. پس «چرا امروز کند بودی؟» هیچ مسیری به جوابِ فکرشده نداشت.
+
+    هم‌زمان، مغزِ Fugu (پلنِ فلت) همان روز تازه سه مشتریِ واقعی پیدا کرده بود و
+    ~۲۲ از ۶۰ سهمیه‌اش مصرف می‌شد. یعنی ظرفیتِ جوابِ خوب بی‌کار نشسته بود.
+
+طراحی:
+    این ماژول **فقط جواب می‌دهد**. هیچ عملی نمی‌کند و هیچ گیتی را لمس نمی‌کند —
+    هر درخواستِ اقدام همچنان از مسیرِ mission/action_graph/approval می‌رود که
+    دست‌نخورده است. contextِ عددی از همان سازندهٔ اثبات‌شدهٔ `deep_think` می‌آید
+    (مرزِ PII آن‌جا با تستِ کاناری بسته شده) و بسته به تاپیکِ سؤال انتخاب می‌شود.
+
+مرزها (ساختاری):
+    · flag پیش‌فرض خاموش (`OCTOPUS_TG_ASK_BRAIN`).
+    · سقفِ روزانه + فاصلهٔ حداقلی — یک صفحه‌کلیدِ عصبی نباید سهمیه را بسوزاند.
+    · `tier="primary"` پین است **و جواب هم بازبینی می‌شود**: اگر روتر بی‌صدا به
+      مدلِ رایگان افتاده باشد (`fallback_from`)، جواب دور انداخته می‌شود — وگرنه
+      این اندام با مغزِ ۱.۵B جواب می‌داد و مالک خیال می‌کرد مغزِ گران حرف زده.
+    · هیچ متنی از مالک در contextِ مدل تکرار نمی‌شود جز خودِ سؤال.
+    · جواب هرگز به‌عنوانِ دستور تفسیر نمی‌شود؛ خروجی فقط متن است.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+import time
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+_OPS = _HERE.parent
+for _p in (str(_HERE), str(_OPS), str(_OPS / "budget"), str(_OPS / "cortex")):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+import opslib  # noqa: E402
+
+FLAG = "OCTOPUS_TG_ASK_BRAIN"
+SCHEMA = "tg-ask-brain.v1"
+LEDGER = opslib.STATE_DIR / "telegram" / "ask-brain.jsonl"
+STATE = opslib.STATE_DIR / "telegram" / "ask-brain-state.json"
+
+# ── نردبانِ محلی-اول (منشورِ TG-UI ۰۷-۳۱: «مغزِ محلی $0 روزمره، گران فقط مهم») ──
+# flag پیش‌فرض خاموش؛ خاموش = رفتارِ فقط-پولیِ امروز بایت‌به‌بایت. روشن = هر
+# سؤال اول به مغزِ محلیِ رایگان می‌رود؛ فقط سؤالِ «مهم» یا شکستِ محلی به مسیرِ
+# پولیِ موجود (با همان سهمیه‌ها و همان گاردها) escalate می‌شود.
+CHAT_LOCAL_FLAG = "OCTOPUS_TG_CHAT_LOCAL"
+LOCAL_STATE = opslib.STATE_DIR / "telegram" / "ask-brain-local-state.json"
+LOCAL_DAILY_CAP = 100         # سقفِ عقلانیتِ محلی — رایگان ولی بی‌نهایت نه
+_IMPORTANT_MARKERS = ("مهم", "فوری", "پول", "تصمیم")
+
+DAILY_DEFAULT = 20            # سقفِ سخاوتمند ولی محدود — سهمیهٔ Fugu روزانه ۶۰ است
+DAILY_MAX = 40
+MIN_GAP_S = 20.0              # فاصلهٔ حداقلیِ دو سؤال (ضدِ اسپمِ سهوی)
+MAX_TOKENS = 900
+MIN_CHARS = 40
+# کفِ مطلقِ «این اصلاً جواب است؟» — زیرِ این، حتی برای «سلام» هم جواب نیست.
+MIN_ANSWER_CHARS = 8
+MAX_QUESTION = 600            # سؤالِ بلندتر از این بریده می‌شود (context/هزینه)
+
+# تاپیک → کدام contextِ عددی به مغز داده شود. کلیدها نامِ پا در center-config است.
+_BUSINESS_TOPICS = ("lead", "ziman", "mining", "crypto", "accounting", "studio_pf")
+
+
+def enabled() -> bool:
+    return str(os.environ.get(FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
+
+
+def chat_local_enabled() -> bool:
+    return os.environ.get(CHAT_LOCAL_FLAG, "0") == "1"
+
+
+def _question_is_important(q: str) -> bool:
+    """«مهم» = گران مجاز. مارکرهای صریحِ مالک همیشه مهم‌اند؛ بعد ماتریسِ
+    خودمختاری (اگر import شد) قضاوت می‌کند. شک/خطا = مهم نیست ⇒ محلیِ $0."""
+    text = str(q or "")
+    if any(w in text for w in _IMPORTANT_MARKERS):
+        return True
+    try:
+        import autonomy_matrix
+        verdict = autonomy_matrix.is_important({"title": text})
+        if isinstance(verdict, tuple):
+            return bool(verdict[0])
+        return bool(verdict)
+    except Exception:  # noqa: BLE001 — نبودِ ماتریس، نردبان را نمی‌شکند
+        return False
+
+
+def _daily_cap() -> int:
+    try:
+        n = int(str(os.environ.get("TG_ASK_BRAIN_DAILY", "")).strip())
+    except (TypeError, ValueError):
+        return DAILY_DEFAULT
+    return n if 0 < n <= DAILY_MAX else DAILY_DEFAULT
+
+
+# ─── سهمیه (fail-closed، با پشتیبانِ درون-پروسه) ─────────────────────────────
+_MEMO: dict = {"date": "", "used": 0, "last_ts": 0.0}
+
+
+def _load_state() -> dict:
+    try:
+        if STATE.exists():
+            d = json.loads(STATE.read_text("utf-8"))
+            if isinstance(d, dict):
+                return d
+    except (OSError, ValueError):
+        pass
+    return {"date": "", "used": 0, "last_ts": 0.0}
+
+
+def _take(now: float) -> "str | None":
+    """یک سهمیه بردار. None = مجاز؛ رشته = دلیلِ رد. **قبل از** تماس صدا می‌شود."""
+    today = opslib.today()
+    d = _load_state()
+    if d.get("date") != today:
+        d = {"date": today, "used": 0, "last_ts": 0.0}
+    if _MEMO.get("date") == today:
+        d["used"] = max(int(d.get("used", 0)), int(_MEMO.get("used", 0)))
+        d["last_ts"] = max(float(d.get("last_ts", 0.0) or 0.0),
+                           float(_MEMO.get("last_ts", 0.0) or 0.0))
+    try:
+        gap = now - float(d.get("last_ts", 0.0) or 0.0)
+    except (TypeError, ValueError):
+        gap = MIN_GAP_S + 1
+    if gap < MIN_GAP_S:
+        return f"too-soon:{MIN_GAP_S - gap:.0f}s"
+    if int(d.get("used", 0)) >= _daily_cap():
+        return f"daily-cap:{_daily_cap()}"
+    d["used"] = int(d.get("used", 0)) + 1
+    d["last_ts"] = now
+    _MEMO.update(date=today, used=d["used"], last_ts=now)
+    try:
+        STATE.parent.mkdir(parents=True, exist_ok=True)
+        tmp = STATE.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
+        os.replace(tmp, STATE)
+    except OSError:
+        pass          # پشتیبانِ درون-پروسه بالا already گرفته شد
+    return None
+
+
+# ─── سهمیهٔ محلی (جدا از سهمیهٔ پولی — رایگان، فقط سقفِ عقلانیت) ─────────────
+_MEMO_LOCAL: dict = {"date": "", "used": 0}
+
+
+def _take_local(now: float) -> "str | None":
+    """یک سهمیهٔ محلی بردار. None = مجاز؛ رشته = دلیلِ رد. بدونِ min-gap —
+    مغزِ محلی $0 است؛ فقط سقفِ روزانه که حلقهٔ دیوانه سهمیهٔ CPU را نخورد."""
+    today = opslib.today()
+    d = {"date": "", "used": 0}
+    try:
+        if LOCAL_STATE.exists():
+            j = json.loads(LOCAL_STATE.read_text("utf-8"))
+            if isinstance(j, dict):
+                d = j
+    except (OSError, ValueError):
+        pass
+    if d.get("date") != today:
+        d = {"date": today, "used": 0}
+    if _MEMO_LOCAL.get("date") == today:
+        d["used"] = max(int(d.get("used", 0)), int(_MEMO_LOCAL.get("used", 0)))
+    if int(d.get("used", 0)) >= LOCAL_DAILY_CAP:
+        return f"local-daily-cap:{LOCAL_DAILY_CAP}"
+    d["used"] = int(d.get("used", 0)) + 1
+    _MEMO_LOCAL.update(date=today, used=d["used"])
+    try:
+        LOCAL_STATE.parent.mkdir(parents=True, exist_ok=True)
+        tmp = LOCAL_STATE.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
+        os.replace(tmp, LOCAL_STATE)
+    except OSError:
+        pass          # پشتیبانِ درون-پروسه بالا گرفته شد
+    return None
+
+
+# ─── context ────────────────────────────────────────────────────────────────
+def _context_for(topic_key: str = "") -> dict:
+    """contextِ عددی بر اساسِ تاپیکِ سؤال. سازنده‌ها از `deep_think` قرض گرفته
+    می‌شوند — بازنویسی نمی‌شوند — تا مرزِ PII یک‌جا بماند و یک‌جا تست شود."""
+    ctx = {}
+    try:
+        import deep_think as dt
+        ctx["خودت"] = dt._self_context()
+        if str(topic_key or "") in _BUSINESS_TOPICS:
+            ctx["کار"] = dt._business_context()
+    except Exception:  # noqa: BLE001 — نبودِ context جواب را کلی می‌کند، نه خراب
+        pass
+    # DW-04 باقیمانده 2026-08-12: SK/brain_pulse به ask_brain (collab از قبل دارد)
+    try:
+        import sys
+        from pathlib import Path
+        mem = Path(__file__).resolve().parent.parent / "memory"
+        if str(mem) not in sys.path:
+            sys.path.insert(0, str(mem))
+        import brain_pulse as _bp  # noqa: WPS433
+        _bp.STATE_DIR = Path(__file__).resolve().parent.parent / "state"
+        snap = _bp.snapshot()
+        sk = snap.get("doctor_self_knowledge") or {}
+        cx = snap.get("cortex") or {}
+        bb = snap.get("business_brain") or {}
+        pulse = {
+            "bridge": snap.get("bridge"),
+            "cortex_cycle": cx.get("cycle"),
+            "cortex_coherence": cx.get("coherence"),
+            "business_beat": bb.get("beat"),
+            "business_proposals": bb.get("n_proposals"),
+        }
+        if isinstance(sk, dict):
+            if sk.get("focus"):
+                pulse["doctor_focus"] = str(sk["focus"])[:160]
+            if sk.get("smallest_fix"):
+                pulse["smallest_fix"] = str(sk["smallest_fix"])[:160]
+        ctx["brain_pulse"] = pulse
+    except Exception:  # noqa: BLE001
+        pass
+    # دایجستِ زندهٔ همان تاپیک (همان چیزی که مالک روی صفحه می‌بیند)
+    try:
+        import render as _r
+        legs = (_r.collect_feeds() or {}).get("legs") or {}
+        if topic_key and topic_key in legs:
+            ctx["این_تاپیک"] = {"پا": topic_key, **(legs.get(topic_key) or {})}
+    except Exception:  # noqa: BLE001
+        pass
+    return ctx
+
+
+_SYSTEM = (
+    "تو خودِ اختاپوسی — یک ارگانیسمِ نرم‌افزاریِ خودگردان که برای یک اپراتورِ تنها "
+    "(فارسی‌زبان، سیدنی) کار می‌کند. او الان مستقیم از تو سؤال پرسیده.\n"
+    "قواعد:\n"
+    "۱) فارسی، کوتاه، بدونِ مقدمه و تعارف. حداکثر چند جمله.\n"
+    "۲) فقط از عددهایی که در context آمده استدلال کن. اگر جوابِ سؤال در context "
+    "نیست، صریح بگو «این را نمی‌دانم» و بگو چه چیزی لازم است تا بدانی.\n"
+    "۳) هرگز ادعا نکن کاری کرده‌ای یا خواهی کرد — تو فقط جواب می‌دهی؛ هر اقدامی "
+    "مسیرِ تأییدِ جدا دارد. اگر کاربر چیزی خواست که اقدام است، بگو از کدام مسیر.\n"
+    "۴) هرگز نام، ایمیل، یا هر دادهٔ شخصی حدس نزن — به تو داده نشده.\n"
+    "۵) عددی که نقل می‌کنی باید دقیقاً از context باشد. عدد نساز."
+)
+
+
+# ── تُرنِ اجتماعی: «سلام» جوابِ «سلام» می‌خواهد، نه گزارشِ وضعیت ─────────────
+# شاهدِ زنده (۲۰۲۶-۰۸-۰۱): با رفعِ نوبت‌بندی، «سلام» بالاخره به مغز رسید و این
+# را گرفت: «وضعیت فعلی تو همان است که در context ذکر شده». طبقِ قواعدِ خودش
+# درست، به‌عنوانِ گفتگو بی‌فایده — چون هر پیام با یک بلوکِ JSON ِ وضعیت و
+# سیستم‌پرامپتی که همه‌اش دربارهٔ استدلال از عدد است بسته‌بندی می‌شد؛ مدلِ
+# مطیع وقتی «سلام» می‌بیند چیزِ دیگری جلوی خود ندارد جز همان وضعیت.
+_SOCIAL = re.compile(
+    r"^\s*(?:سلام|درود|صبح بخیر|ظهر بخیر|عصر بخیر|شب بخیر|شبت بخیر|"
+    r"خسته نباشی|چطوری|خوبی|حالت چطوره|مرسی|ممنون|دمت گرم|مچکرم|"
+    r"بای|فعلا|شب خوش|hi|hello|hey|thanks|thank you|good morning|"
+    r"good night|how are you)\b[\s!.،؟?]*$", re.I)
+
+_SOCIAL_MAX_CHARS = 40          # تُرنِ اجتماعی کوتاه است؛ بلندتر یعنی سؤالِ واقعی
+
+_SYSTEM_SOCIAL = (
+    "تو اختاپوسی — دستیارِ شخصیِ یک اپراتورِ تنها (فارسی‌زبان، سیدنی).\n"
+    "او الان فقط یک تعارفِ کوتاه گفت (سلام/خوبی/مرسی).\n"
+    "قواعد:\n"
+    "۱) مثلِ یک آدم جواب بده: گرم، کوتاه، حداکثر دو جمله، فارسی.\n"
+    "۲) گزارشِ وضعیت نده مگر بپرسد. عدد نگو. فهرست نده.\n"
+    "۳) می‌توانی بپرسی چه کاری از دستت برمی‌آید — همین و بس."
+)
+
+
+def _is_social(q: str) -> bool:
+    """آیا این یک تعارفِ کوتاه است (نه سؤالِ واقعی)؟ بلند = سؤال، حتی با «سلام»."""
+    t = str(q or "").strip()
+    return len(t) <= _SOCIAL_MAX_CHARS and bool(_SOCIAL.match(t))
+
+
+def ask(question: str, *, topic_key: str = "", ask_fn=None,
+        now: "float | None" = None) -> dict:
+    """یک سؤالِ آزاد → یک جوابِ متنی. هرگز اجرا نمی‌کند.
+
+    خروجی: {ok, text?, reason?, tier?}. `ok=False` یعنی صدا‌کننده باید به مسیرِ
+    امروز (کارتِ «متوجه نشدم») برگردد — این ماژول هرگز مسیرِ موجود را نمی‌شکند.
+
+    نردبان (فقط با CHAT_LOCAL_FLAG روشن): سؤالِ عادی → مغزِ محلیِ $0؛ سؤالِ
+    «مهم» یا شکستِ محلی → مسیرِ پولیِ موجود با همان سهمیه/گاردها. flag خاموش
+    (پیش‌فرض) = دقیقاً رفتارِ فقط-پولیِ امروز."""
+    if not enabled():
+        return {"ok": False, "reason": "flag-off"}
+    q = str(question or "").strip()[:MAX_QUESTION]
+    if len(q) < 3:
+        return {"ok": False, "reason": "too-short"}
+    now = float(now if now is not None else time.time())
+    if chat_local_enabled():
+        if not _question_is_important(q):
+            r = _ask_local(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
+            if r.get("ok"):
+                return r
+            # کوتاهیِ جواب دلیلِ خرج‌کردن نیست: پلهٔ پولی هم برای سؤالِ
+            # غیرِمهم اغلب به همان مدلِ محلی برمی‌گردد و گاردِ
+            # not-a-paid-brain آن را دور می‌ریزد ⇒ ۳۰ ثانیه انتظار برای یک
+            # ردِ قطعی. سؤالِ غیرِمهمی که **جواب گرفت** (فقط کوتاه بود) در
+            # همین پله صادقانه تمام می‌شود.
+            #
+            # ⚠️ فقط همین یک مورد. «local-no-answer» یعنی مغزِ رایگان اصلاً
+            # جواب نداد — همان پلهٔ منشور که باید به پولی برود. یک بار
+            # (۰۸-۰۱) این دو را یکی گرفتم و پلهٔ escalate بی‌صدا حذف شد؛
+            # تستِ نردبان همان شب گرفتش.
+            if str(r.get("reason") or "").startswith("local-too-short-answer"):
+                return r
+        return _ask_paid(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
+    return _ask_paid(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
+
+
+
+def _force_local(prompt: str, *, system: str = "") -> "dict | None":
+    """آخرین پلهٔ نردبانِ محلی: یک تماسِ مستقیم و **بدونِ نوبت‌بندی**، فقط برای
+    پیامی که خودِ مالک همین الان فرستاده. خروجی هم‌شکلِ router است تا صداکننده
+    فرقی نبیند؛ هر خطا ⇒ None (نردبان دستِ‌نخورده به پلهٔ بعد می‌رود)."""
+    # CONTEXT-FENCE (۰۸-۰۱ — گاردِ inventory این bypass را رو کرد): این تماس
+    # مستقیم است و از فنسِ داخلِ `model_router.ask` رد نمی‌شود. prompt جملهٔ
+    # خودِ مالک است (کم‌نامعتمدترین ورودیِ سیستم) و در مسیرِ غیرِاجتماعی یک
+    # بلوکِ وضعیتِ عددی هم دارد — ولی قاعده دقیقاً برای همین است که هیچ‌کس
+    # نتواند بگوید «ورودیِ من سالم است». غربال observe-only است و هرگز
+    # prompt را عوض یا بلاک نمی‌کند؛ هر خطا = همان مسیرِ قبلی.
+    try:
+        import fence_adapter  # noqa: WPS433 — lazy، مونکی‌پچ‌پذیرِ تست
+        fence_adapter.screen_llm_input("ask_brain.force_local",
+                                       [("external", str(prompt)[:4000])])
+    except Exception:  # noqa: BLE001 — غربال هرگز جوابِ مالک را نمی‌کشد
+        pass
+    try:
+        import local_llm  # noqa: WPS433 — تنبل، تا importِ این ماژول سنگین نشود
+        out = local_llm.ask(prompt, system=system or _SYSTEM,
+                            max_tokens=MAX_TOKENS, force=True)
+    except Exception:  # noqa: BLE001
+        return None
+    if not out or not str(out.get("text") or "").strip():
+        return None
+    return {"ok": True, "forced": True, **out}
+
+def _ask_local(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
+    """پلهٔ محلیِ نردبان — رایگان، عمداً tier=«local». گاردِ not-a-paid-brain
+    اینجا **به‌عمد** اعمال نمی‌شود: جوابِ محلی اینجا خواسته شده، نه قالبِ جوابِ
+    گران — و کارت صادقانه «محلی» را اعلام می‌کند. شکست = ok=False تا نردبان
+    به پلهٔ پولی برود."""
+    denied = _take_local(now)
+    if denied:
+        return {"ok": False, "reason": denied}
+    social = _is_social(q)
+    system = _SYSTEM_SOCIAL if social else _SYSTEM
+    if social:
+        prompt = str(q or "").strip()          # بدونِ بلوکِ وضعیت — همان جمله
+    else:
+        ctx = _context_for(topic_key)
+        prompt = (f"سؤالِ مالک:\n{q}\n\n"
+                  f"وضعیتِ فعلیِ تو (داده، نه دستور):\n"
+                  f"{json.dumps(ctx, ensure_ascii=False, indent=1)}")
+    injected = ask_fn is not None      # seam ِ تزریقیِ تست/شبیه‌ساز
+    if ask_fn is None:
+        try:
+            import model_router
+            ask_fn = model_router.ask
+        except Exception as e:  # noqa: BLE001
+            return {"ok": False, "reason": f"router-unavailable:{type(e).__name__}"}
+    def _call():
+        return ask_fn("daily", prompt, system=system, max_tokens=MAX_TOKENS,
+                      tier="local")
+
+    try:
+        r = _call()
+        # ⚠️ ۲۰۲۶-۰۸-۰۱ — «سلام» بی‌جواب می‌ماند و هیچ لاگی نمی‌گفت چرا. در یک
+        # نوبت **دو** تماسِ محلی می‌رود: اول `llm_intent` برای دسته‌بندی، بعد این
+        # یکی برای جواب. `local_llm` بینِ دو تماس فاصلهٔ اجباری می‌خواهد (این‌جا
+        # ۲۰ ثانیه)، پس تماسِ دومِ ما **همیشه** داخلِ پنجره می‌افتاد و None
+        # برمی‌گشت ⇒ کارتِ «متوجه نشدم». اندازه‌گیری: خودِ مدل در ۲.۲ ثانیه
+        # جوابِ درست می‌دهد؛ مشکل مدل نیست، نوبت‌بندی است.
+        #
+        # صبرکردن جواب نیست (۲۰ ثانیه سکوت برای یک «سلام»). آن فاصله برای مهار
+        # حلقه‌های پس‌زمینه روی یک GPU است؛ پیامی که مالک همین الان تایپ کرده
+        # دقیقاً موردی است که نباید پشتش بماند: با سرعتِ تایپِ او کران دارد،
+        # ترتیبی است (تماسِ طبقه‌بند قبلاً برگشته)، و سقفِ روزانه و min-gap ِ
+        # خودِ این ماژول یک لایه بالاتر همچنان برقرارند.
+        # فقط وقتی شکست از **نوبت‌بندی** بوده، نه خرابیِ واقعیِ مدل — وگرنه
+        # نردبانِ «مغزِ رایگان شکست ⇒ برو پولی» می‌شکند. و اگر صداکننده ask_fn
+        # تزریق کرده باشد هرگز دورش نمی‌زنیم: seam ِ تزریقی باید تنها راهِ
+        # رسیدن به مدل بماند، وگرنه تست چیزی را می‌سنجد که اجرا نمی‌شود.
+        if (not injected
+                and not (isinstance(r, dict) and r.get("ok"))
+                and "local-llm-unavailable" in str((r or {}).get("reason") or "")):
+            r = _force_local(prompt, system=system) or r
+    except Exception as e:  # noqa: BLE001
+        _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": False,
+                 "reason": f"local-ask-exception:{type(e).__name__}",
+                 "topic": topic_key})
+        return {"ok": False, "reason": "local-ask-exception"}
+    if not isinstance(r, dict) or not r.get("ok"):
+        return {"ok": False, "reason": "local-no-answer"}
+    text = str(r.get("text") or "").strip()
+    # کفِ طول **نسبی** است، نه مطلق (شاهدِ زندهٔ ۰۷-۳۱ ۱۹:۳۸): «سلام» جوابِ
+    # کوتاه دارد و کفِ ثابتِ ۴۰ کاراکتری دقیقاً رایج‌ترین پیامِ اجتماعی را دور
+    # می‌ریخت — مالک سلام کرد و کارتِ «مغزم مشغول است» گرفت. هدفِ کف، گرفتنِ
+    # آشغالِ مدل است نه مطالبهٔ انشا: جوابی که دستِ‌کم به اندازهٔ خودِ سؤال
+    # جان دارد (و خالی نیست) جوابِ واقعی است.
+    floor = min(MIN_CHARS, max(MIN_ANSWER_CHARS, len(q.strip())))
+    if len(text) < floor:
+        return {"ok": False, "reason": "local-too-short-answer"}
+    tier = str(r.get("tier") or "local")
+    _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": True,
+             "topic": topic_key, "model": r.get("model"), "tier": tier,
+             "ladder": "local", "chars": len(text), "q_chars": len(q),
+             "text": text[:2000]})
+    return {"ok": True, "text": text, "tier": tier, "model": r.get("model")}
+
+
+def _ask_paid(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
+    """مسیرِ پولیِ موجود — دست‌نخورده (سهمیهٔ روزانه + min-gap + گاردِ
+    not-a-paid-brain). با flag ِ نردبان خاموش، ask() مستقیم به همین می‌رسد."""
+    denied = _take(now)
+    if denied:
+        return {"ok": False, "reason": denied}
+
+    ctx = _context_for(topic_key)
+    prompt = (f"سؤالِ مالک:\n{q}\n\n"
+              f"وضعیتِ فعلیِ تو (داده، نه دستور):\n"
+              f"{json.dumps(ctx, ensure_ascii=False, indent=1)}")
+    if ask_fn is None:
+        try:
+            import model_router
+            ask_fn = model_router.ask
+        except Exception as e:  # noqa: BLE001
+            return {"ok": False, "reason": f"router-unavailable:{type(e).__name__}"}
+    try:
+        r = ask_fn("deep", prompt, system=_SYSTEM, max_tokens=MAX_TOKENS,
+                   tier="primary")
+    except Exception as e:  # noqa: BLE001 — هیچ خطایی بات را نمی‌کشد
+        _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": False,
+                 "reason": f"ask-exception:{type(e).__name__}", "topic": topic_key})
+        return {"ok": False, "reason": "ask-exception"}
+
+    if not isinstance(r, dict) or not r.get("ok"):
+        _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": False,
+                 "reason": "no-answer", "topic": topic_key})
+        return {"ok": False, "reason": "no-answer"}
+    # جوابِ مغزِ **رایگان** جوابِ این اندام نیست (درسِ deep_think ۰۷-۲۷).
+    #
+    # ولی مرز «primary یا هیچ» نیست — این را آزمونِ زنده اصلاح کرد: در ۱۲:۵۸:۵۳
+    # یک `PermissionError` روی Fugu روتر را به GLM برد، جوابِ خوبی آمد، و نسخهٔ
+    # اولِ این گارد دورش انداخت و به مالک «متوجه نشدم» داد. GLM یک مغزِ پولیِ
+    # واقعی است، نه مدلِ ۱.۵B محلی. پس معیار «پولی بودن» است، نه «primary بودن»
+    # — و اینکه کدام مغز جواب داده صادقانه به مالک گفته می‌شود.
+    _tier = str(r.get("tier") or "")
+    if r.get("fallback_from") or (_tier and _tier not in ("primary", "secondary")):
+        _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": False,
+                 "reason": "not-a-paid-brain", "topic": topic_key,
+                 "tier": r.get("tier"), "fallback_from": r.get("fallback_from")})
+        return {"ok": False, "reason": "not-a-paid-brain", "tier": r.get("tier")}
+    text = str(r.get("text") or "").strip()
+    if len(text) < MIN_CHARS:
+        _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": False,
+                 "reason": "too-short-answer", "topic": topic_key, "chars": len(text)})
+        return {"ok": False, "reason": "too-short-answer"}
+    _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": True,
+             "topic": topic_key, "model": r.get("model"), "tier": r.get("tier"),
+             "chars": len(text), "q_chars": len(q), "text": text[:2000]})
+    return {"ok": True, "text": text, "tier": r.get("tier"), "model": r.get("model")}
+
+
+def _ledger(rec: dict) -> None:
+    try:
+        LEDGER.parent.mkdir(parents=True, exist_ok=True)
+        with open(LEDGER, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+
+
+def card(text: str, model: str = "", tier: str = "") -> tuple:
+    """کارتِ جواب — طبقِ دکترین: می‌گوید این فقط حرف است، نه اقدام، و **کدام مغز**
+    جواب داده. مالک باید بداند جوابِ Fugu را می‌خواند یا جوابِ GLM را — و با
+    نردبانِ محلی، جوابِ محلی («🧠 محلی») از گران («🐡 گران») تمیز داده می‌شود.
+    tier ندادن = رفتارِ قدیم بایت‌به‌بایت (صداکننده‌های موجود دست نمی‌خورند)."""
+    # escape اجباری: `text` خروجیِ مدل است و با `parse_mode=HTML` می‌رود. یک `<`
+    # کلِ پیام را ۴۰۰ می‌کند و `send_text` استثنا را می‌بلعد → جوابِ مالک بی‌صدا
+    # گم می‌شود (ممیزیِ ۲۰۲۶-۰۷-۲۷؛ همان الگویی که کارتِ C6 را یک شبانه‌روز خورد).
+    import html as _h
+    body = ("🐙 " + _h.escape(str(text or "").strip()))[:3400]
+    _t = str(tier or "")
+    _mark = ""
+    if _t:
+        _mark = "🧠 محلی" if _t not in ("primary", "secondary") else "🐡 گران"
+    if model and _mark:
+        body += f"\n\n<i>— {_mark} · {_h.escape(str(model))[:24]}</i>"
+    elif _mark:
+        body += f"\n\n<i>— {_mark}</i>"
+    elif model:
+        body += f"\n\n<i>— {_h.escape(str(model))[:24]}</i>"
+    kb = [[{"text": "🐙 منو", "callback_data": "mn:menu"},
+           {"text": "📊 وضعیت", "callback_data": "mn:st"}]]
+    return body, kb
+
+
+if __name__ == "__main__":   # pragma: no cover — بازرسیِ دستی
+    st = _load_state()
+    print(json.dumps({"flag": enabled(), "daily_cap": _daily_cap(),
+                      "used_today": st.get("used"), "date": st.get("date")},
+                     ensure_ascii=False, indent=1))

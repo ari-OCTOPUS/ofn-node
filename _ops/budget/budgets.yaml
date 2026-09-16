@@ -1,0 +1,156 @@
+global:
+  cap_monthly: 30
+  currency: AUD
+  aud_per_usd: 1.5
+  epoch: daily
+  explore_pct: 0.1
+  spike_pct: 25
+  idle_epochs: 5
+  lend_max_pct: 15
+  human_gate_aud: 20
+  weights:
+    value: 0.3
+    urgency: 0.25
+    efficiency: 0.2
+    human: 0.2
+    waste: 0.05
+  # UNIT=life_credit NOT AUD. 2026-08-20 owner safety: rollback 1000→30
+  # until conversion-to-money is proven impossible. See
+  # 06-EVIDENCE/DAILY-CAP-DERIVATION-2026-08-20.md
+  life_currency_daily_cap: 30.0
+projects:
+  PROJECT_F:
+    floor: 3
+    human_priority: 2.0
+  ARCHITECT_SYS:
+    floor: 2
+    human_priority: 1.0
+  GENOME_SYS:
+    floor: 2
+    human_priority: 1.0
+  ZIMAN:
+    floor: 1
+    human_priority: 0.5
+  PAINTING:
+    floor: 1
+    human_priority: 1.0
+  ACCOUNTING:
+    floor: 1
+    human_priority: 1.0
+  DOCTOR:
+    floor: 0
+    human_priority: 0.5
+loop:
+  DEBATE_LOOP:
+    cap_monthly: 5
+    floor: 0.5
+allocation:
+  barbell:
+    core_share: 0.7
+    satellite_share: 0.3
+    satellite_cap_pct: 0.1
+    cull_zero_streak_days: 30
+    hysteresis_max_delta: 0.05
+  core_members:
+  - ZIMAN
+  - ARCHITECT_SYS
+  - GENOME_SYS
+  satellite_members:
+  - PROJECT_F
+  - MINING
+  research:
+    share: 0.25
+    is_cap_not_floor: true
+    beat_share: 0.25
+    program: romajan
+    ledger: F:/romajan/propagation-lab/data/claims_ledger.json
+    thesis_ledger: _ops/state/thesis/thesis-ledger.json
+    mutation_store: git
+    kill_condition: 'اگر ۹۰ روزِ متوالی هیچ ردیفی در thesis_ledger تغییرِ وضعیت نداد
+      (نه اثبات، نه ابطال)، این تخصیص متوقف می‌شود. پژوهشی که هیچ ردیفی را حرکت نمی‌دهد
+      پژوهش نیست؛ هزینه است. ابطال هم حرکت است — پیشرفت لازم نیست، سنجش لازم است.
+
+      '
+    no_phenomenal_claims: true
+  partners_default:
+    PROJECT_F:
+    - who: Ari
+      pct: 50
+    - who: Saba
+      pct: 50
+    ZIMAN:
+    - who: Ari
+      pct: 70
+    - who: Mother
+      pct: 30
+    ARCHITECT_SYS:
+    - who: Ari
+      pct: 100
+    GENOME_SYS:
+    - who: Ari
+      pct: 100
+    MINING:
+    - who: Ari
+      pct: 100
+business:
+  abn: ''
+  trading_name: ''
+  address: ''
+  payment_terms: Due within 14 days
+  payment_methods: Bank Transfer
+  bank_details: ''
+email:
+  gmail_client_id: ''
+  gmail_client_secret: ''
+  gmail_token_path: state/email/gmail_token.json
+  polling_interval_minutes: 30
+routing:
+  econ:
+    provider: deepseek
+    model: deepseek-v4-flash
+    base_url: https://api.deepseek.com
+    price_in: 0.14
+    price_out: 0.28
+    price_in_cache_hit: 0.0028
+  reason:
+    provider: deepseek
+    model: deepseek-v4-flash
+    mode: thinking
+    base_url: https://api.deepseek.com
+    price_in: 0.14
+    price_out: 0.28
+  glm:
+    provider: glm
+    model: glm-4.6
+    base_url: ${GLM_BASE_URL}
+    subscription: max
+    system_share: 0.5
+  anthropic:
+    provider: anthropic
+    note: 'فقط برای متر شدن مصرف. genome-system طبق genome/gates.yaml روی سه-tier
+      Anthropic قفل است (invariant core؛ تغییر = پروتکل تغییر ژنوم + owner_confirmed).
+      تعارض #۳ STATE-MAP عمداً این‌جا حل نشده — verdict جدا.
+
+      '
+  orchestr:
+    provider: sakana
+    model: fugu
+    base_url: https://api.sakana.ai/v1
+    cap_monthly: 100
+    subscription: max
+    system_share: 0.5
+  premium:
+    provider: sakana
+    model: fugu-ultra-20260615
+    human_gated: true
+  local:
+    provider: ollama
+    model: qwen2.5:1.5b
+    base_url: http://127.0.0.1:11434
+    cost: 0
+resilience:
+  circuit_breaker:
+    failure_threshold: 3
+    cooldown_seconds: 60
+    half_open_max: 3
+    success_to_close: 2

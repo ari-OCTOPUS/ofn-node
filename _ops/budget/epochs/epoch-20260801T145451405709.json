@@ -1,0 +1,202 @@
+{
+  "ts": "2026-08-01T14:53:08",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.444,
+        "DEBATE_LOOP": 0.111,
+        "GENOME_SYS": 0.445
+      },
+      "reason": "[EST] All telemetry zero (suspect_zero); no fitness signal, allocating by floor ratios pending data verification."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "seed-0",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های هوش مصنوعی برای تعیین قیمت کار هنرمندان",
+          "why_genius": "این روش می‌تواند به صاحب ارگان رسمی کمک کند تا قیمت‌گذاری دقیق و عادلانه‌تری برای کارهای هنرمندان انجام دهد، که باعث افزایش اعتماد مشتریان و افزایش سرمایه‌گذاری در فعالیت هنری می‌شود.",
+          "why_insane": "استفاده از الگوریتم‌های هوش مصنوعی ممکن است منجر به عدم شفافیت و نقض حریم خصوصی کارهای هنرمندان شود، که باعث اختلافات قانونی و اجتماعی می‌شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم‌های هوش مصنوعی نمی‌توانند به طور قطع اطمینان قیمت کار هنرمندان را تعیین کنند و باید تأیید شود که این الگوریتم‌ها در حفظ حریم خصوصی و شفافیت مطابق با قوانین و قواعد اخلاقی هستند.",
+          "cheapest_test": "بررسی قانونی و اخلاقی از الگوریتم‌های پیشنهادی توسط یک خلبان دستورالعمل کیفیت (QA) مستقل.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از مدل‌های هوش مصنوعی برای تحلیل نظرات مشتریان و هنرمندان",
+          "why_genius": "این روش می‌تواند به طور موثر کیفیت کار هنرمندان را افزایش دهد، زیرا نظرات مشتریان می‌توانند به هنرمندان کمک کنند تا بهترین کارهای خود را طراحی کنند.",
+          "why_insane": "استفاده از الگوریتم‌ها ممکن است منجر به نقض حریم خصوصی هنرمندان شود، و بدون تأیید قانونی و اخلاقی، ممکن است باعث عدم رضایت مشتریان شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "法律和伦理的验证未通过，具体表现为缺乏合法性和道德性的证明。",
+          "cheapest_test": "获取并审查相关法律法规以及行业标准，确认该方法是否符合要求。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از UNMAPPED را به عنوان یک روش خلاق برای ارزش‌بندی هنر در سرمایه‌گذاری های تلمتری شناخت و قانونی کرد.",
+          "why_genius": "این رویکرد می‌تواند به طور خلاق از UNMAPPED را به عنوان یک معیار جدید برای ارزش‌بندی هنر در بازار سرمایه‌گذاری تلمتری شناسایی و قانونی کند. این می‌تواند منجر به افزایش رقابتی بودن سرمایه‌گذاری در حوزه هنر شود و نوآوری جدیدی را برای صاحب‌ها فراهم کند.",
+          "why_insane": "استفاده از UNMAPPED ممکن است باعث توهین به قوانین موجود و قانونیت بودن سرمایه‌گذاری شود. همچنین، بدون دلایل قانونی و اخلاقی قطعی، این روش می‌تواند منجر به نقض قوانین و جادوگری باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "idea must provide clear legal and ethical justification for using UNMAPPED in art valuation.",
+          "cheapest_test": "Verify if the idea includes specific, legally binding references or precedents that support the use of UNMAPPED in art valuation within the context of Talmerti capital investments.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

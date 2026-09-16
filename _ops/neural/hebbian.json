@@ -1,0 +1,20 @@
+[
+  {
+    "signals": [
+      "afferent_starved",
+      "errors_high"
+    ],
+    "strength": 0.995,
+    "co_occurrences": 59,
+    "last_seen": 1788484859.4347126
+  },
+  {
+    "signals": [
+      "errors_high",
+      "rhythm_amber"
+    ],
+    "strength": 0.6890623076975582,
+    "co_occurrences": 40,
+    "last_seen": 1788394309.78778
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "schema": "octopus.capability-manifest.v1",
+  "capability_id": "math_control",
+  "title": "📐 ستون ریاضی — rank/think caps، spine کنترل نرم",
+  "version": "0.1.0",
+  "owner_phrases": [
+    "math_control"
+  ],
+  "action_contract": "octopus.decision.v1 → خروجی فقط-خواندنی/پیشنهادی",
+  "risk_class": "read",
+  "owner_gate": "بدون رأی تازه؛ اجرای بیرونی هرگز",
+  "surface": "owner_outer_dm",
+  "runtime_status_probe": "فلگ‌های cap: OCTOPUS_MATH_RANK_BIAS_CAP / OCTOPUS_MATH_THINK_DELTA_CAP (R6 ثبت شد).",
+  "tests": [],
+  "registration_is_authorization": false,
+  "visibility_only_manifest": true,
+  "added_by": "PHASE01 4-3 (2026-08-16) — فقط دید؛ هیچ سیمی/فلگی تغییر نکرد",
+  "read_handler": "math_control:…"
+}

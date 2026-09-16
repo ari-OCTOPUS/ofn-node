@@ -1,0 +1,2958 @@
+{
+  "ok": true,
+  "schema": "mapper-drift/1",
+  "map_updated": "2026-07-29",
+  "cutoff_unix": 1785247200.0,
+  "new_files": [],
+  "deleted_files": [],
+  "modified_files": [
+    {
+      "path": "_ops/organs/mapper_drift.py",
+      "mtime": 1787217397.183392,
+      "hash16": "00fe89ff11f6e3ee",
+      "bytes": 7769
+    },
+    {
+      "path": "_ops/organs/run_session.py",
+      "mtime": 1787217377.6324904,
+      "hash16": "776b10233a521c72",
+      "bytes": 8321
+    },
+    {
+      "path": "_ops/organs/knowledge_afferent.py",
+      "mtime": 1787217350.6226163,
+      "hash16": "28101d1f8372b13d",
+      "bytes": 7632
+    },
+    {
+      "path": "_ops/organs/cognition_inbox.py",
+      "mtime": 1787216328.478726,
+      "hash16": "6fe9e114bf99317f",
+      "bytes": 3519
+    },
+    {
+      "path": "_ops/tests/test_organ_cartographer_20260820.py",
+      "mtime": 1787216169.440623,
+      "hash16": "268422ff0b8677b5",
+      "bytes": 8930
+    },
+    {
+      "path": "_ops/organs/lead_diagnose.py",
+      "mtime": 1787216117.3268383,
+      "hash16": "f688712a9a742a06",
+      "bytes": 3113
+    },
+    {
+      "path": "_ops/organs/telemetry.py",
+      "mtime": 1787216004.0436864,
+      "hash16": "07a5c19530949ee2",
+      "bytes": 989
+    },
+    {
+      "path": "_ops/organs/feedback.py",
+      "mtime": 1787215911.59398,
+      "hash16": "b52389e71c827786",
+      "bytes": 1548
+    },
+    {
+      "path": "_ops/organs/organ_map.py",
+      "mtime": 1787215861.7349358,
+      "hash16": "07b56f108597e27e",
+      "bytes": 10265
+    },
+    {
+      "path": "_ops/owner_console/telegram_adapter.py",
+      "mtime": 1787215856.8205664,
+      "hash16": "d0c7e6931cdabae2",
+      "bytes": 5299
+    },
+    {
+      "path": "_ops/organs/starvation.py",
+      "mtime": 1787215764.3866196,
+      "hash16": "cec9b3dbbc909d22",
+      "bytes": 4390
+    },
+    {
+      "path": "_ops/organs/loop_breakers.py",
+      "mtime": 1787215764.0420146,
+      "hash16": "a82d36b1ad9471bb",
+      "bytes": 8793
+    },
+    {
+      "path": "_ops/organs/contracts.py",
+      "mtime": 1787215750.2550552,
+      "hash16": "f7e695470e07e4fb",
+      "bytes": 2373
+    },
+    {
+      "path": "_ops/organs/__init__.py",
+      "mtime": 1787215712.462702,
+      "hash16": "d743e5f7db3f5667",
+      "bytes": 219
+    },
+    {
+      "path": "_ops/organs/paths.py",
+      "mtime": 1787215694.0932903,
+      "hash16": "4f54a0a2d378d597",
+      "bytes": 1690
+    },
+    {
+      "path": "_ops/organs/flags.py",
+      "mtime": 1787215693.7371304,
+      "hash16": "403596c68d09dfe0",
+      "bytes": 616
+    },
+    {
+      "path": "_ops/telegram_center/tg_poller_lease.py",
+      "mtime": 1787215258.150411,
+      "hash16": "d776683a65452775",
+      "bytes": 2460
+    },
+    {
+      "path": "_ops/owner_console/local_commands.py",
+      "mtime": 1787215236.6988585,
+      "hash16": "df30f00b8334855c",
+      "bytes": 3512
+    },
+    {
+      "path": "_ops/telegram_center/input_surface_policy.py",
+      "mtime": 1787214662.937412,
+      "hash16": "afe6778c850f3433",
+      "bytes": 22699
+    },
+    {
+      "path": "_ops/tests/test_epistemic_bayes.py",
+      "mtime": 1787214656.972428,
+      "hash16": "327a820af97bb425",
+      "bytes": 9279
+    },
+    {
+      "path": "_ops/predictor/persistence.py",
+      "mtime": 1787214656.972428,
+      "hash16": "47f6ea6fc60fc0c7",
+      "bytes": 1271
+    },
+    {
+      "path": "_ops/handshake/__init__.py",
+      "mtime": 1787214656.972428,
+      "hash16": "2e98ee22285f035d",
+      "bytes": 426
+    },
+    {
+      "path": "_ops/tests/test_interview_organism_20260816.py",
+      "mtime": 1787214649.845693,
+      "hash16": "e04e9502ab2001bd",
+      "bytes": 4465
+    },
+    {
+      "path": "_ops/predictor/__init__.py",
+      "mtime": 1787214649.845693,
+      "hash16": "ee0519f4064e438e",
+      "bytes": 204
+    },
+    {
+      "path": "_ops/observatory/__init__.py",
+      "mtime": 1787214649.845693,
+      "hash16": "e86b0fe698426ef7",
+      "bytes": 940
+    },
+    {
+      "path": "_ops/handshake/envelope.py",
+      "mtime": 1787214649.845693,
+      "hash16": "70d0872431b27e9e",
+      "bytes": 9151
+    },
+    {
+      "path": "_ops/observatory/observation_v1.py",
+      "mtime": 1787214649.8451464,
+      "hash16": "98a71cac5d8de1bc",
+      "bytes": 3510
+    },
+    {
+      "path": "_ops/handshake/emit_a2_001.py",
+      "mtime": 1787214648.327202,
+      "hash16": "06be6f66f20bfbf6",
+      "bytes": 7619
+    },
+    {
+      "path": "_ops/handshake/emit_cycle.py",
+      "mtime": 1787214648.327202,
+      "hash16": "b8d3f71af14b4d49",
+      "bytes": 10123
+    },
+    {
+      "path": "_ops/tests/test_interview_unwired_4d_20260816.py",
+      "mtime": 1787214646.9840043,
+      "hash16": "9808c1300bf45063",
+      "bytes": 2250
+    },
+    {
+      "path": "_ops/handshake/emit_cycle02.py",
+      "mtime": 1787214646.9840043,
+      "hash16": "260f7e38584b1edf",
+      "bytes": 10804
+    },
+    {
+      "path": "_ops/epistemics/bayes.py",
+      "mtime": 1787214646.9840043,
+      "hash16": "dccc93532a525c20",
+      "bytes": 6997
+    },
+    {
+      "path": "_ops/scripts/tg_bridge_once.py",
+      "mtime": 1787213511.9230528,
+      "hash16": "fb4013a943088b8d",
+      "bytes": 3972
+    },
+    {
+      "path": "_ops/tests/test_c047_preflight.py",
+      "mtime": 1787203869.5512328,
+      "hash16": "03266c1822b59430",
+      "bytes": 3071
+    },
+    {
+      "path": "_ops/organism.py",
+      "mtime": 1787203469.8262641,
+      "hash16": "074b9765bb7ba5b4",
+      "bytes": 106597
+    },
+    {
+      "path": "_ops/tests/test_executable_allowlist.py",
+      "mtime": 1787203408.6445875,
+      "hash16": "8bc137eb333aac01",
+      "bytes": 3450
+    },
+    {
+      "path": "_ops/tests/test_server_created_plumbing.py",
+      "mtime": 1787202287.2627676,
+      "hash16": "36c8409e350687f4",
+      "bytes": 2247
+    },
+    {
+      "path": "_ops/cortex/model_router.py",
+      "mtime": 1787202276.5304725,
+      "hash16": "0b0f68648bb83597",
+      "bytes": 54511
+    },
+    {
+      "path": "_ops/debate/client.py",
+      "mtime": 1787202261.194487,
+      "hash16": "771150c4b922914b",
+      "bytes": 37333
+    },
+    {
+      "path": "_ops/memory_read_loop.py",
+      "mtime": 1787200354.829792,
+      "hash16": "a04b518d75e54c43",
+      "bytes": 9908
+    },
+    {
+      "path": "_ops/tests/test_event_time_producers.py",
+      "mtime": 1787200160.4068744,
+      "hash16": "26971bbaa42d0d98",
+      "bytes": 3817
+    },
+    {
+      "path": "_ops/intel_spine/telegram_adapter.py",
+      "mtime": 1787200146.2780173,
+      "hash16": "8da4fa75b6543b2d",
+      "bytes": 5095
+    },
+    {
+      "path": "_ops/spine/spine_adapters.py",
+      "mtime": 1787200119.6900659,
+      "hash16": "f173661af97b9332",
+      "bytes": 17618
+    },
+    {
+      "path": "_ops/spine/event_spine.py",
+      "mtime": 1787200106.3122163,
+      "hash16": "7aab4ec93d9bb113",
+      "bytes": 12406
+    },
+    {
+      "path": "_ops/tests/test_receipt_attribution.py",
+      "mtime": 1787199879.4087903,
+      "hash16": "47495bdda368894d",
+      "bytes": 1970
+    },
+    {
+      "path": "_ops/cortex/cost_receipt.py",
+      "mtime": 1787199845.0625913,
+      "hash16": "646d3b04cac6989e",
+      "bytes": 13134
+    },
+    {
+      "path": "_ops/tests/test_memory_read_loop.py",
+      "mtime": 1787199406.7990756,
+      "hash16": "25c6d21c03b4f719",
+      "bytes": 3261
+    },
+    {
+      "path": "_ops/writer_lease.py",
+      "mtime": 1787199336.737233,
+      "hash16": "220922cfdb7e4c99",
+      "bytes": 6149
+    },
+    {
+      "path": "_ops/tests/test_writer_lease.py",
+      "mtime": 1787199293.2496974,
+      "hash16": "9a97b983f4861347",
+      "bytes": 3383
+    },
+    {
+      "path": "_ops/tests/test_trust_anchor_fingerprint.py",
+      "mtime": 1787199250.1740887,
+      "hash16": "3faa8bb5d03caf60",
+      "bytes": 1652
+    },
+    {
+      "path": "_ops/owner-signing/check_anchor.py",
+      "mtime": 1787199234.4193106,
+      "hash16": "c794d2a490b82d48",
+      "bytes": 1673
+    },
+    {
+      "path": "_ops/measure/judge_triple.py",
+      "mtime": 1787197313.5907934,
+      "hash16": "812effee73b92852",
+      "bytes": 12087
+    },
+    {
+      "path": "_ops/tests/test_bitemporal_spine_spec.py",
+      "mtime": 1787196439.305136,
+      "hash16": "965c076db1af30b2",
+      "bytes": 19101
+    },
+    {
+      "path": "_ops/lab/full_loop_flash/telemetry.py",
+      "mtime": 1787195551.8659854,
+      "hash16": "39c967bbebb6a695",
+      "bytes": 7730
+    },
+    {
+      "path": "_ops/tests/test_full_loop_flash_stage_a.py",
+      "mtime": 1787195444.1089325,
+      "hash16": "a00d077d6ac40375",
+      "bytes": 6669
+    },
+    {
+      "path": "_ops/lab/full_loop_flash/gateway.py",
+      "mtime": 1787195426.3106496,
+      "hash16": "8d52d2da55d881b7",
+      "bytes": 12844
+    },
+    {
+      "path": "_ops/lab/full_loop_flash/adapter.py",
+      "mtime": 1787195425.7861493,
+      "hash16": "c75ea19cf812c059",
+      "bytes": 8456
+    },
+    {
+      "path": "_ops/lab/full_loop_flash/stages.py",
+      "mtime": 1787195335.665226,
+      "hash16": "6d6a4288f9b57400",
+      "bytes": 5520
+    },
+    {
+      "path": "_ops/lab/full_loop_flash/judge.py",
+      "mtime": 1787195274.3696258,
+      "hash16": "0684c6be379afdb2",
+      "bytes": 2626
+    },
+    {
+      "path": "_ops/lab/full_loop_flash/memory_lab.py",
+      "mtime": 1787195274.1168916,
+      "hash16": "7b27481c65a5bca7",
+      "bytes": 6525
+    },
+    {
+      "path": "_ops/lab/full_loop_flash/__init__.py",
+      "mtime": 1787195255.7201357,
+      "hash16": "2663208c0b042edb",
+      "bytes": 237
+    },
+    {
+      "path": "_ops/lab/full_loop_flash/budget.py",
+      "mtime": 1787195236.338772,
+      "hash16": "d83209a2b6638d4e",
+      "bytes": 4391
+    },
+    {
+      "path": "_ops/shadow_homeostasis/metacontrol.py",
+      "mtime": 1787194380.9764757,
+      "hash16": "a731adcddc37517d",
+      "bytes": 5084
+    },
+    {
+      "path": "_ops/tests/test_shadow_homeostasis_arch.py",
+      "mtime": 1787194191.3918343,
+      "hash16": "edb365e7db1e1298",
+      "bytes": 560
+    },
+    {
+      "path": "_ops/tests/test_shadow_homeostasis_core.py",
+      "mtime": 1787194178.2155452,
+      "hash16": "3195a6614e29b3a6",
+      "bytes": 6720
+    },
+    {
+      "path": "_ops/shadow_homeostasis/homeostasis.py",
+      "mtime": 1787194173.4052365,
+      "hash16": "07e64bf2747e97c5",
+      "bytes": 10324
+    },
+    {
+      "path": "_ops/tests/test_shadow_homeostasis_replay.py",
+      "mtime": 1787194140.495446,
+      "hash16": "452c76f9182fd1c8",
+      "bytes": 2764
+    },
+    {
+      "path": "_ops/tests/test_shadow_homeostasis_trust.py",
+      "mtime": 1787194133.6720364,
+      "hash16": "a814c2c43cb47f0b",
+      "bytes": 3422
+    },
+    {
+      "path": "_ops/shadow_homeostasis/replay.py",
+      "mtime": 1787194105.7262628,
+      "hash16": "2cb089cf87c070a7",
+      "bytes": 8039
+    },
+    {
+      "path": "_ops/shadow_homeostasis/pipeline.py",
+      "mtime": 1787194105.1571808,
+      "hash16": "e5608583ff79c1f9",
+      "bytes": 1848
+    },
+    {
+      "path": "_ops/shadow_homeostasis/world_model.py",
+      "mtime": 1787194084.2084818,
+      "hash16": "1236e494afd04a60",
+      "bytes": 3476
+    },
+    {
+      "path": "_ops/shadow_homeostasis/evidence_store.py",
+      "mtime": 1787194044.324458,
+      "hash16": "f23e54074337b02f",
+      "bytes": 4052
+    },
+    {
+      "path": "_ops/shadow_homeostasis/trust.py",
+      "mtime": 1787194044.2018025,
+      "hash16": "c41b983e2a385e49",
+      "bytes": 4047
+    },
+    {
+      "path": "_ops/shadow_homeostasis/registry.py",
+      "mtime": 1787194035.3126483,
+      "hash16": "e3ef142d2254c0e4",
+      "bytes": 3101
+    },
+    {
+      "path": "_ops/shadow_homeostasis/observation.py",
+      "mtime": 1787194028.5748453,
+      "hash16": "b96468b8ae2c6a5e",
+      "bytes": 1737
+    },
+    {
+      "path": "_ops/shadow_homeostasis/__init__.py",
+      "mtime": 1787194014.6858592,
+      "hash16": "480591ce5442570f",
+      "bytes": 793
+    },
+    {
+      "path": "_ops/tests/test_life_currency_floor_rounding.py",
+      "mtime": 1787192290.8203666,
+      "hash16": "c701d7370437ad10",
+      "bytes": 4912
+    },
+    {
+      "path": "_ops/tests/test_life_currency_units_safety.py",
+      "mtime": 1787185825.7087996,
+      "hash16": "5da8c7ce52b10a5a",
+      "bytes": 5850
+    },
+    {
+      "path": "_ops/heart/life_currency.py",
+      "mtime": 1787184506.775746,
+      "hash16": "af6e54099d960c51",
+      "bytes": 14165
+    },
+    {
+      "path": "_ops/tests/test_evidence_envelope_handshake.py",
+      "mtime": 1787148672.5964046,
+      "hash16": "27f9ee2463ac2c1b",
+      "bytes": 2977
+    },
+    {
+      "path": "_ops/measure/judge_pilot.py",
+      "mtime": 1787148503.6801915,
+      "hash16": "5678202334fbd4f3",
+      "bytes": 9304
+    },
+    {
+      "path": "_ops/tests/test_life_currency_b1.py",
+      "mtime": 1787148402.5762749,
+      "hash16": "a38e5bde78bb4a42",
+      "bytes": 2915
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws2/bad-1787148103622/main.py",
+      "mtime": 1787148103.622319,
+      "hash16": "dc937b59892604f5",
+      "bytes": 4
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/loop-1787148101412/main.py",
+      "mtime": 1787148101.4428616,
+      "hash16": "a9c5a5b3b47a8ad3",
+      "bytes": 23
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/ok1-1787148101355/main.py",
+      "mtime": 1787148101.355621,
+      "hash16": "600fcf3ecf4b9613",
+      "bytes": 100
+    },
+    {
+      "path": "_ops/tests/test_novelty_archive.py",
+      "mtime": 1787148075.5860877,
+      "hash16": "a7744418f18897f6",
+      "bytes": 5462
+    },
+    {
+      "path": "_ops/debate/debate_loop.py",
+      "mtime": 1787148042.113688,
+      "hash16": "2c84f645a184280b",
+      "bytes": 30290
+    },
+    {
+      "path": "_ops/novelty/debate_hook.py",
+      "mtime": 1787148012.7194948,
+      "hash16": "3fe3c667120f6ac1",
+      "bytes": 2844
+    },
+    {
+      "path": "_ops/heart/life_economy.py",
+      "mtime": 1787147903.019163,
+      "hash16": "fee5acc9b8291f8b",
+      "bytes": 15210
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws2/bad-1787147852306/main.py",
+      "mtime": 1787147852.3061407,
+      "hash16": "dc937b59892604f5",
+      "bytes": 4
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/loop-1787147850108/main.py",
+      "mtime": 1787147850.150504,
+      "hash16": "a9c5a5b3b47a8ad3",
+      "bytes": 23
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/ok1-1787147850053/main.py",
+      "mtime": 1787147850.0541673,
+      "hash16": "600fcf3ecf4b9613",
+      "bytes": 100
+    },
+    {
+      "path": "_ops/ablation/harness.py",
+      "mtime": 1787147842.3647776,
+      "hash16": "488b7f840c583fe8",
+      "bytes": 4518
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws2/bad-1787147811607/main.py",
+      "mtime": 1787147811.637203,
+      "hash16": "dc937b59892604f5",
+      "bytes": 4
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/loop-1787147809434/main.py",
+      "mtime": 1787147809.4337864,
+      "hash16": "a9c5a5b3b47a8ad3",
+      "bytes": 23
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/ok1-1787147809379/main.py",
+      "mtime": 1787147809.3785276,
+      "hash16": "600fcf3ecf4b9613",
+      "bytes": 100
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws2/bad-1787147787399/main.py",
+      "mtime": 1787147787.439639,
+      "hash16": "dc937b59892604f5",
+      "bytes": 4
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/loop-1787147785253/main.py",
+      "mtime": 1787147785.2535949,
+      "hash16": "a9c5a5b3b47a8ad3",
+      "bytes": 23
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/ok1-1787147785179/main.py",
+      "mtime": 1787147785.206978,
+      "hash16": "600fcf3ecf4b9613",
+      "bytes": 100
+    },
+    {
+      "path": "_ops/tests/test_gen_pages.py",
+      "mtime": 1787147756.6510973,
+      "hash16": "ccfc5cd0b00a1ffc",
+      "bytes": 2098
+    },
+    {
+      "path": "_ops/obsidian_sync/gen_pages.py",
+      "mtime": 1787147756.5815866,
+      "hash16": "752954c9790996cf",
+      "bytes": 12636
+    },
+    {
+      "path": "_ops/tests/test_gen_runtime_data.py",
+      "mtime": 1787147705.7797585,
+      "hash16": "e0d6ade4449ba41f",
+      "bytes": 2187
+    },
+    {
+      "path": "_ops/dashboard/gen_runtime_data.py",
+      "mtime": 1787147684.1070998,
+      "hash16": "d27cb15bbd47e3f8",
+      "bytes": 4094
+    },
+    {
+      "path": "_ops/organogenesis/engine.py",
+      "mtime": 1787147621.0971596,
+      "hash16": "38f4920ad13ea7e6",
+      "bytes": 16198
+    },
+    {
+      "path": "_ops/tests/test_organogenesis.py",
+      "mtime": 1787147607.092464,
+      "hash16": "01da081fd915c3e8",
+      "bytes": 3839
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws2/bad-1787147601374/main.py",
+      "mtime": 1787147601.3736253,
+      "hash16": "dc937b59892604f5",
+      "bytes": 4
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/loop-1787147599226/main.py",
+      "mtime": 1787147599.2272758,
+      "hash16": "a9c5a5b3b47a8ad3",
+      "bytes": 23
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/ok1-1787147599175/main.py",
+      "mtime": 1787147599.1748092,
+      "hash16": "600fcf3ecf4b9613",
+      "bytes": 100
+    },
+    {
+      "path": "_ops/organogenesis/__init__.py",
+      "mtime": 1787147591.661232,
+      "hash16": "82ae89099b231c2b",
+      "bytes": 97
+    },
+    {
+      "path": "_ops/tests/test_pain_triage.py",
+      "mtime": 1787147557.152695,
+      "hash16": "be70693f9f97bd04",
+      "bytes": 2745
+    },
+    {
+      "path": "_ops/legs/pain_triage.py",
+      "mtime": 1787147557.0960083,
+      "hash16": "4af5e23fe6661b0c",
+      "bytes": 5321
+    },
+    {
+      "path": "_ops/lab/runner.py",
+      "mtime": 1787147556.8979058,
+      "hash16": "48009b50cc50d27f",
+      "bytes": 8580
+    },
+    {
+      "path": "_ops/tests/test_life_economy.py",
+      "mtime": 1787147490.8331392,
+      "hash16": "befafdb8700e6675",
+      "bytes": 4102
+    },
+    {
+      "path": "_ops/tests/test_ablation_harness.py",
+      "mtime": 1787147374.9747107,
+      "hash16": "dfcf890cb61a8278",
+      "bytes": 1994
+    },
+    {
+      "path": "_ops/ablation/__init__.py",
+      "mtime": 1787147340.68484,
+      "hash16": "e15dc8f6a94e4f3c",
+      "bytes": 109
+    },
+    {
+      "path": "_ops/tests/test_prescription_gate.py",
+      "mtime": 1787147326.100155,
+      "hash16": "4a53de0a5170735c",
+      "bytes": 3738
+    },
+    {
+      "path": "_ops/doctor_contract/prescription_gate.py",
+      "mtime": 1787147326.0501473,
+      "hash16": "294260cdf0a22a23",
+      "bytes": 4832
+    },
+    {
+      "path": "_ops/doctor_contract/__init__.py",
+      "mtime": 1787147325.8997133,
+      "hash16": "ec2f27d79ba72170",
+      "bytes": 92
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws2/bad-1787147298022/main.py",
+      "mtime": 1787147298.0216894,
+      "hash16": "dc937b59892604f5",
+      "bytes": 4
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/loop-1787147295841/main.py",
+      "mtime": 1787147295.8536806,
+      "hash16": "a9c5a5b3b47a8ad3",
+      "bytes": 23
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/ok1-1787147295785/main.py",
+      "mtime": 1787147295.785607,
+      "hash16": "600fcf3ecf4b9613",
+      "bytes": 100
+    },
+    {
+      "path": "_ops/tests/test_lab_runner.py",
+      "mtime": 1787147289.1789184,
+      "hash16": "b26bfc943cec5b92",
+      "bytes": 2930
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws2/bad-1787147282461/main.py",
+      "mtime": 1787147282.4613216,
+      "hash16": "dc937b59892604f5",
+      "bytes": 4
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/loop-1787147280273/main.py",
+      "mtime": 1787147280.2743244,
+      "hash16": "a9c5a5b3b47a8ad3",
+      "bytes": 23
+    },
+    {
+      "path": "_ops/tests/_tmp_lab_ws/ok1-1787147280198/main.py",
+      "mtime": 1787147280.212381,
+      "hash16": "600fcf3ecf4b9613",
+      "bytes": 100
+    },
+    {
+      "path": "_ops/lab/__init__.py",
+      "mtime": 1787147271.40094,
+      "hash16": "26c2aa2ba9a31aef",
+      "bytes": 125
+    },
+    {
+      "path": "_ops/novelty/archive.py",
+      "mtime": 1787147211.6610408,
+      "hash16": "4354f6850acc668f",
+      "bytes": 12496
+    },
+    {
+      "path": "_ops/novelty/__init__.py",
+      "mtime": 1787147141.6759615,
+      "hash16": "523588fad0c0114e",
+      "bytes": 82
+    },
+    {
+      "path": "_ops/measure/swap_consistency.py",
+      "mtime": 1787147012.7751994,
+      "hash16": "8c2f76dccd6ca387",
+      "bytes": 10636
+    },
+    {
+      "path": "_ops/tests/test_swap_consistency.py",
+      "mtime": 1787146971.4246304,
+      "hash16": "db3cdbff63113e23",
+      "bytes": 3711
+    },
+    {
+      "path": "_ops/measure/__init__.py",
+      "mtime": 1787146971.259339,
+      "hash16": "7fd921bbcc97833b",
+      "bytes": 99
+    },
+    {
+      "path": "_ops/scripts/render_now.py",
+      "mtime": 1787140798.8463035,
+      "hash16": "f771cccb2590f48c",
+      "bytes": 4566
+    },
+    {
+      "path": "_ops/hypothesis_engine/experiments/analysis.py",
+      "mtime": 1787121223.401821,
+      "hash16": "af0be4823634ca80",
+      "bytes": 16976
+    },
+    {
+      "path": "_ops/tests/test_memory_team_a_promotion.py",
+      "mtime": 1787121197.8876727,
+      "hash16": "4a7583fcc13a2394",
+      "bytes": 7052
+    },
+    {
+      "path": "_ops/scripts/memory_promote.py",
+      "mtime": 1787121169.6880698,
+      "hash16": "e43fe5343ad8a30f",
+      "bytes": 2503
+    },
+    {
+      "path": "_ops/memory/gate.py",
+      "mtime": 1787121146.1337035,
+      "hash16": "157fd0b7c9450ffc",
+      "bytes": 15688
+    },
+    {
+      "path": "_ops/scripts/label_history.py",
+      "mtime": 1787120926.9261346,
+      "hash16": "15e56dcef1f1862a",
+      "bytes": 2469
+    },
+    {
+      "path": "_ops/tests/test_receipt_budget_fix.py",
+      "mtime": 1787120731.420673,
+      "hash16": "d78dd476725e8e5e",
+      "bytes": 9036
+    },
+    {
+      "path": "_ops/wiring.py",
+      "mtime": 1787119186.5745375,
+      "hash16": "45186320eb84584d",
+      "bytes": 277822
+    },
+    {
+      "path": "_ops/memory/memory_store.py",
+      "mtime": 1787119186.4993865,
+      "hash16": "85fe33b77d8a4a77",
+      "bytes": 21116
+    },
+    {
+      "path": "_ops/cortex/live4_reservation.py",
+      "mtime": 1787110170.443528,
+      "hash16": "12b75076479cea7f",
+      "bytes": 6671
+    },
+    {
+      "path": "_ops/tests/test_live4_reservation.py",
+      "mtime": 1787100588.5418875,
+      "hash16": "3eff141ed4aa2cbf",
+      "bytes": 2969
+    },
+    {
+      "path": "_ops/daily/daily_loop.py",
+      "mtime": 1787100354.0658245,
+      "hash16": "b9c01f1a4189d3cd",
+      "bytes": 3724
+    },
+    {
+      "path": "_ops/tests/test_freeze_semantics.py",
+      "mtime": 1787098322.1392517,
+      "hash16": "83bf10b524e5d07c",
+      "bytes": 3878
+    },
+    {
+      "path": "_ops/budget/opslib.py",
+      "mtime": 1787098322.078972,
+      "hash16": "f87e7b554ed0cb09",
+      "bytes": 35736
+    },
+    {
+      "path": "_ops/receipt_critic.py",
+      "mtime": 1787096760.6250217,
+      "hash16": "27b897c666ecd123",
+      "bytes": 8912
+    },
+    {
+      "path": "_ops/goal_action_bridge.py",
+      "mtime": 1787096760.6124427,
+      "hash16": "a368180da33939d1",
+      "bytes": 34249
+    },
+    {
+      "path": "_ops/tests/test_incident1_metadata.py",
+      "mtime": 1787096564.4731262,
+      "hash16": "4025d3f769b42623",
+      "bytes": 2624
+    },
+    {
+      "path": "_ops/tests/test_cost_receipt_costobs1.py",
+      "mtime": 1787096212.076375,
+      "hash16": "daea860168611948",
+      "bytes": 4038
+    },
+    {
+      "path": "_ops/tests/test_memory_admission_p2.py",
+      "mtime": 1787058657.9616263,
+      "hash16": "f5de5a228bd54cd5",
+      "bytes": 7410
+    },
+    {
+      "path": "_ops/memory/admission.py",
+      "mtime": 1787058657.8366902,
+      "hash16": "272f7a3126228b91",
+      "bytes": 8330
+    },
+    {
+      "path": "_ops/tests/test_phase8_dormant_wiring.py",
+      "mtime": 1786885362.3690114,
+      "hash16": "1b84f96c977a11d0",
+      "bytes": 5968
+    },
+    {
+      "path": "_ops/cognition/tests/test_g10_cognition.py",
+      "mtime": 1786885361.1133401,
+      "hash16": "a70967f0ab927d19",
+      "bytes": 32339
+    },
+    {
+      "path": "_ops/cognition/verifier.py",
+      "mtime": 1786885356.2690334,
+      "hash16": "676b2bc0766cafe2",
+      "bytes": 10056
+    },
+    {
+      "path": "_ops/cognition/task_router.py",
+      "mtime": 1786885350.9240048,
+      "hash16": "60f12ff41203db4f",
+      "bytes": 8534
+    },
+    {
+      "path": "_ops/cognition/structured_schemas.py",
+      "mtime": 1786885320.0163584,
+      "hash16": "ad10d7a82fadfb0a",
+      "bytes": 8497
+    },
+    {
+      "path": "_ops/cognition/tests/__init__.py",
+      "mtime": 1786885302.0622382,
+      "hash16": "9656fc92e7831bba",
+      "bytes": 38
+    },
+    {
+      "path": "_ops/tests/test_off_heartbeat.py",
+      "mtime": 1786885223.332262,
+      "hash16": "096912b7f7fc8339",
+      "bytes": 6836
+    },
+    {
+      "path": "_ops/off_heartbeat.py",
+      "mtime": 1786885208.9598303,
+      "hash16": "20f72ffb4bc6afdb",
+      "bytes": 4622
+    },
+    {
+      "path": "_ops/cognition/causal_guard.py",
+      "mtime": 1786885188.1134856,
+      "hash16": "4c42cc9cd19e4acd",
+      "bytes": 8484
+    },
+    {
+      "path": "_ops/cognition/capability_probe.py",
+      "mtime": 1786885157.3879566,
+      "hash16": "a1a2f8d63636df7b",
+      "bytes": 8955
+    },
+    {
+      "path": "_ops/cognition/confidence_calibrator.py",
+      "mtime": 1786885135.879117,
+      "hash16": "394e2153fb7c895c",
+      "bytes": 7995
+    },
+    {
+      "path": "_ops/tests/test_fourd_wired.py",
+      "mtime": 1786884935.4289782,
+      "hash16": "2b3824ae4c13ecdd",
+      "bytes": 4808
+    },
+    {
+      "path": "_ops/fourd_access.py",
+      "mtime": 1786884882.2414715,
+      "hash16": "369cfb330ad6c22e",
+      "bytes": 5318
+    },
+    {
+      "path": "_ops/tests/test_dual_brain_veto.py",
+      "mtime": 1786884792.7881663,
+      "hash16": "88f350a51574dc83",
+      "bytes": 8437
+    },
+    {
+      "path": "_ops/control_plane/dual_brain.py",
+      "mtime": 1786884725.8129704,
+      "hash16": "eafa7d3cc7a74f54",
+      "bytes": 9875
+    },
+    {
+      "path": "_ops/connectors/gateway.py",
+      "mtime": 1786884651.159844,
+      "hash16": "878e366d547974bf",
+      "bytes": 18323
+    },
+    {
+      "path": "_ops/tests/test_connector_gateway.py",
+      "mtime": 1786884612.7067087,
+      "hash16": "0a41e4df3954768c",
+      "bytes": 38646
+    },
+    {
+      "path": "_ops/cortex/provider_adapter.py",
+      "mtime": 1786884532.8298936,
+      "hash16": "d81451897287758c",
+      "bytes": 13223
+    },
+    {
+      "path": "_ops/tests/test_provider_router.py",
+      "mtime": 1786884490.9621167,
+      "hash16": "59229da73f6f3f9b",
+      "bytes": 6657
+    },
+    {
+      "path": "_ops/connectors/schema.py",
+      "mtime": 1786884464.5537095,
+      "hash16": "b1bba4a9aea20fef",
+      "bytes": 18510
+    },
+    {
+      "path": "_ops/connectors/__init__.py",
+      "mtime": 1786884423.121711,
+      "hash16": "0be4c6a35740361a",
+      "bytes": 1624
+    },
+    {
+      "path": "_ops/connectors/registry.py",
+      "mtime": 1786884373.4099882,
+      "hash16": "a8d71c12f7daadd8",
+      "bytes": 7662
+    },
+    {
+      "path": "_ops/tests/test_life_currency.py",
+      "mtime": 1786883881.247382,
+      "hash16": "d6ed3e66881e0907",
+      "bytes": 6883
+    },
+    {
+      "path": "_ops/heart/budget_transfer.py",
+      "mtime": 1786883701.3123112,
+      "hash16": "9aaca715e9d5cda1",
+      "bytes": 5280
+    },
+    {
+      "path": "_ops/capability_classifier.py",
+      "mtime": 1786883484.901406,
+      "hash16": "fc90a8d9391ec9cf",
+      "bytes": 13653
+    },
+    {
+      "path": "_ops/hypothesis_engine/experiments/deceptive_grid.py",
+      "mtime": 1786883451.3674178,
+      "hash16": "2beed889b496b0d4",
+      "bytes": 4799
+    },
+    {
+      "path": "_ops/events.py",
+      "mtime": 1786883094.5471802,
+      "hash16": "d97b1f4a31b28e87",
+      "bytes": 18698
+    },
+    {
+      "path": "_ops/flag_drift.py",
+      "mtime": 1786883056.9791932,
+      "hash16": "5999916a48044cf2",
+      "bytes": 35086
+    },
+    {
+      "path": "_ops/tests/test_spine_wired.py",
+      "mtime": 1786882794.0227175,
+      "hash16": "c0eba1cb819140d4",
+      "bytes": 5372
+    },
+    {
+      "path": "_ops/tests/test_g5_infra_selfheal.py",
+      "mtime": 1786882480.3615158,
+      "hash16": "6affce2a93dc00fa",
+      "bytes": 13302
+    },
+    {
+      "path": "_ops/infra/mcp_http_health.py",
+      "mtime": 1786882473.7953892,
+      "hash16": "ea166c1fb22db0bb",
+      "bytes": 11875
+    },
+    {
+      "path": "_ops/infra/service_inventory.py",
+      "mtime": 1786881379.3474386,
+      "hash16": "dc58761a60dd5de2",
+      "bytes": 8863
+    },
+    {
+      "path": "_ops/infra/__init__.py",
+      "mtime": 1786881360.5994937,
+      "hash16": "74bf676144e8c466",
+      "bytes": 287
+    },
+    {
+      "path": "_ops/tests/test_g4_coding_sandbox.py",
+      "mtime": 1786880905.3868003,
+      "hash16": "ae44ee8a61d93ad5",
+      "bytes": 40909
+    },
+    {
+      "path": "_ops/coding_sandbox/test_runner.py",
+      "mtime": 1786880866.1456287,
+      "hash16": "65ae837f3a4c75ff",
+      "bytes": 9000
+    },
+    {
+      "path": "_ops/coding_sandbox/protected_paths.py",
+      "mtime": 1786880696.6501186,
+      "hash16": "f198cd1532c008ea",
+      "bytes": 7836
+    },
+    {
+      "path": "_ops/coding_sandbox/filesystem_jail.py",
+      "mtime": 1786880690.174178,
+      "hash16": "0a4e455c4e73c856",
+      "bytes": 6811
+    },
+    {
+      "path": "_ops/coding_sandbox/sandbox.py",
+      "mtime": 1786880680.858534,
+      "hash16": "57d4c682a5aea5d8",
+      "bytes": 17828
+    },
+    {
+      "path": "_ops/coding_sandbox/command_runner.py",
+      "mtime": 1786880676.758232,
+      "hash16": "9f43252e84184ca7",
+      "bytes": 9554
+    },
+    {
+      "path": "_ops/tests/test_octopus_mcp_search.py",
+      "mtime": 1786880614.939079,
+      "hash16": "c6e6d05238e34dbb",
+      "bytes": 7058
+    },
+    {
+      "path": "_ops/octopus_mcp/server.py",
+      "mtime": 1786880600.1125977,
+      "hash16": "a17e5705ece29c05",
+      "bytes": 30275
+    },
+    {
+      "path": "_ops/orchestration/task_orchestrator.py",
+      "mtime": 1786880567.3712676,
+      "hash16": "52bd576999874d7e",
+      "bytes": 43859
+    },
+    {
+      "path": "_ops/identity/capability_token.py",
+      "mtime": 1786880559.206139,
+      "hash16": "476ab985945f9b99",
+      "bytes": 10652
+    },
+    {
+      "path": "_ops/tests/test_octopus_mcp_http_stateless.py",
+      "mtime": 1786880481.2686577,
+      "hash16": "0f7ea99179610ce8",
+      "bytes": 8820
+    },
+    {
+      "path": "_ops/coding_sandbox/patch_validator.py",
+      "mtime": 1786880479.7140672,
+      "hash16": "3c9321ab38ffdbb0",
+      "bytes": 8100
+    },
+    {
+      "path": "_ops/coding_sandbox/__init__.py",
+      "mtime": 1786880392.5494192,
+      "hash16": "029a149483140198",
+      "bytes": 986
+    },
+    {
+      "path": "_ops/tests/test_scan_wave_c_adversarial.py",
+      "mtime": 1786879930.4399757,
+      "hash16": "e58d69b3e1969678",
+      "bytes": 32950
+    },
+    {
+      "path": "_ops/tests/test_perception_envelope.py",
+      "mtime": 1786879548.2107613,
+      "hash16": "98c98ba7d4fab032",
+      "bytes": 30287
+    },
+    {
+      "path": "_ops/observatory/fetch_guard.py",
+      "mtime": 1786879542.084575,
+      "hash16": "234b7892c03159e9",
+      "bytes": 13377
+    },
+    {
+      "path": "_ops/observatory/evidence_parser.py",
+      "mtime": 1786879433.0832117,
+      "hash16": "f6ad9266394b7a0f",
+      "bytes": 9301
+    },
+    {
+      "path": "_ops/observatory/envelope.py",
+      "mtime": 1786879388.281698,
+      "hash16": "f3a28b6fc7b96b98",
+      "bytes": 11177
+    },
+    {
+      "path": "_ops/observatory/allowlist_loader.py",
+      "mtime": 1786879366.3712528,
+      "hash16": "9bc05bdb8d1177e1",
+      "bytes": 11083
+    },
+    {
+      "path": "_ops/tests/test_orchestration_g1.py",
+      "mtime": 1786879017.799913,
+      "hash16": "4748228e29818868",
+      "bytes": 42218
+    },
+    {
+      "path": "_ops/orchestration/__init__.py",
+      "mtime": 1786878787.032759,
+      "hash16": "299a05b28fd17a01",
+      "bytes": 645
+    },
+    {
+      "path": "_ops/tests/test_scan_wave_b_adversarial.py",
+      "mtime": 1786878491.2026978,
+      "hash16": "c9779fab1151b295",
+      "bytes": 12698
+    },
+    {
+      "path": "_ops/tests/test_alert_rules_testable.py",
+      "mtime": 1786877884.4384851,
+      "hash16": "eae79dd3400430cb",
+      "bytes": 7935
+    },
+    {
+      "path": "_ops/tests/test_containment.py",
+      "mtime": 1786877843.084139,
+      "hash16": "d567044130527b4c",
+      "bytes": 43014
+    },
+    {
+      "path": "_ops/containment/agent_circuit.py",
+      "mtime": 1786877705.6974912,
+      "hash16": "3baf3c26afbd5055",
+      "bytes": 8904
+    },
+    {
+      "path": "_ops/containment/approval_binder.py",
+      "mtime": 1786877698.9535327,
+      "hash16": "a4d685dbf334b351",
+      "bytes": 7762
+    },
+    {
+      "path": "_ops/containment/risk_gate.py",
+      "mtime": 1786877643.7293541,
+      "hash16": "9cfabff4934409a0",
+      "bytes": 11122
+    },
+    {
+      "path": "_ops/telemetry/alert_rules.py",
+      "mtime": 1786877514.5662582,
+      "hash16": "013b1914f3284d31",
+      "bytes": 10506
+    },
+    {
+      "path": "_ops/containment/kill_coordinator.py",
+      "mtime": 1786877500.3018765,
+      "hash16": "91434b643dc97d8d",
+      "bytes": 7535
+    },
+    {
+      "path": "_ops/containment/audit_chain.py",
+      "mtime": 1786877475.995839,
+      "hash16": "fc5662d898b12777",
+      "bytes": 8543
+    },
+    {
+      "path": "_ops/containment/__init__.py",
+      "mtime": 1786877347.5608628,
+      "hash16": "2c315e8fc2351a9f",
+      "bytes": 824
+    },
+    {
+      "path": "_ops/tests/test_g7_identity_zero_trust.py",
+      "mtime": 1786877018.7870207,
+      "hash16": "06e365f77ba7468e",
+      "bytes": 37373
+    },
+    {
+      "path": "_ops/memory/write_gate_enforcer.py",
+      "mtime": 1786876937.0370395,
+      "hash16": "f0a3384832c40baa",
+      "bytes": 12254
+    },
+    {
+      "path": "_ops/runtime/__init__.py",
+      "mtime": 1786876935.6076286,
+      "hash16": "b2f3c53f89d8e0e6",
+      "bytes": 197
+    },
+    {
+      "path": "_ops/octopus_v3/beat_lease.py",
+      "mtime": 1786876934.0300136,
+      "hash16": "c651e0d8fb60fbbe",
+      "bytes": 9425
+    },
+    {
+      "path": "_ops/identity/policy_enforcer.py",
+      "mtime": 1786876924.5313241,
+      "hash16": "e4d92b970d623414",
+      "bytes": 13287
+    },
+    {
+      "path": "_ops/tests/test_beat_lease.py",
+      "mtime": 1786876922.40764,
+      "hash16": "45d00003d53b56a7",
+      "bytes": 7098
+    },
+    {
+      "path": "_ops/runtime/beat_lease_cli.py",
+      "mtime": 1786876921.999737,
+      "hash16": "31ce77551099679a",
+      "bytes": 3034
+    },
+    {
+      "path": "_ops/runtime/beat_lease.py",
+      "mtime": 1786876897.9799156,
+      "hash16": "40c07f7cc3885fbe",
+      "bytes": 22268
+    },
+    {
+      "path": "_ops/identity/identity_store.py",
+      "mtime": 1786876880.0697374,
+      "hash16": "248b28180d846b67",
+      "bytes": 6483
+    },
+    {
+      "path": "_ops/identity/__init__.py",
+      "mtime": 1786876869.8206878,
+      "hash16": "11b2c1f7c2658fe5",
+      "bytes": 752
+    },
+    {
+      "path": "_ops/tests/test_scan_wave_a_adversarial_20260816.py",
+      "mtime": 1786876475.2373278,
+      "hash16": "4c9b3f425e674e5d",
+      "bytes": 14899
+    },
+    {
+      "path": "_ops/tests/test_beat_ownership_lease_20260816.py",
+      "mtime": 1786876392.0300133,
+      "hash16": "53ed725e9677086c",
+      "bytes": 5014
+    },
+    {
+      "path": "_ops/octopus_v3/__init__.py",
+      "mtime": 1786876261.5671587,
+      "hash16": "8e83c25cfd92b1d1",
+      "bytes": 1370
+    },
+    {
+      "path": "_ops/octopus_v3/exceptions.py",
+      "mtime": 1786876257.6438346,
+      "hash16": "da3eb946222a7878",
+      "bytes": 1144
+    },
+    {
+      "path": "_ops/tests/test_g6_observability.py",
+      "mtime": 1786876126.5701928,
+      "hash16": "8f6775dbb598e149",
+      "bytes": 32668
+    },
+    {
+      "path": "_ops/telemetry/redact.py",
+      "mtime": 1786876084.33744,
+      "hash16": "c972b19b0ce2470f",
+      "bytes": 4390
+    },
+    {
+      "path": "_ops/telemetry/evaluation_baseline.py",
+      "mtime": 1786875938.5893207,
+      "hash16": "bfe23ae6d2d50137",
+      "bytes": 16125
+    },
+    {
+      "path": "_ops/telemetry/health_digest.py",
+      "mtime": 1786875888.4599116,
+      "hash16": "0ef209cf6770f423",
+      "bytes": 9534
+    },
+    {
+      "path": "_ops/telemetry/trace_replay.py",
+      "mtime": 1786875872.2008493,
+      "hash16": "700cbd2279401c6c",
+      "bytes": 12355
+    },
+    {
+      "path": "_ops/telemetry/trace_context.py",
+      "mtime": 1786875841.1499388,
+      "hash16": "e822ad290c699708",
+      "bytes": 4283
+    },
+    {
+      "path": "_ops/telemetry/octopus_telemetry_schema.py",
+      "mtime": 1786875831.9371583,
+      "hash16": "6e320504855208d1",
+      "bytes": 8555
+    },
+    {
+      "path": "_ops/tests/test_g2_trusted_memory_loop.py",
+      "mtime": 1786875288.4764066,
+      "hash16": "49c7a261011e4da2",
+      "bytes": 35860
+    },
+    {
+      "path": "_ops/memory/contradiction_radar.py",
+      "mtime": 1786875144.5588357,
+      "hash16": "12709db2a958a0f9",
+      "bytes": 10269
+    },
+    {
+      "path": "_ops/memory/evidence_chain.py",
+      "mtime": 1786875099.873696,
+      "hash16": "1c57557b15785767",
+      "bytes": 11886
+    },
+    {
+      "path": "_ops/octopus_v3/verify_evidence.py",
+      "mtime": 1786873787.2126162,
+      "hash16": "a5bc4e4d31533f88",
+      "bytes": 3967
+    },
+    {
+      "path": "_ops/tests/test_octopus_v3_p0_20260816.py",
+      "mtime": 1786873697.1303937,
+      "hash16": "b110bdc16c0f175f",
+      "bytes": 9637
+    },
+    {
+      "path": "_ops/octopus_v3/gate.py",
+      "mtime": 1786873659.503631,
+      "hash16": "6964d974cfd5d4d7",
+      "bytes": 4474
+    },
+    {
+      "path": "_ops/octopus_v3/lease.py",
+      "mtime": 1786873659.1962385,
+      "hash16": "13cac8b975d6174d",
+      "bytes": 4997
+    },
+    {
+      "path": "_ops/octopus_v3/freedom.py",
+      "mtime": 1786873639.7238998,
+      "hash16": "9987efeee1655ed2",
+      "bytes": 1377
+    },
+    {
+      "path": "_ops/octopus_v3/policy.py",
+      "mtime": 1786873619.3454928,
+      "hash16": "c30621c715c13390",
+      "bytes": 1183
+    },
+    {
+      "path": "_ops/octopus_v3/budget.py",
+      "mtime": 1786873604.9449003,
+      "hash16": "eb82998a9e1b2a2e",
+      "bytes": 3964
+    },
+    {
+      "path": "_ops/octopus_v3/taint.py",
+      "mtime": 1786873586.4995956,
+      "hash16": "e9e3f7af338e75b6",
+      "bytes": 1178
+    },
+    {
+      "path": "_ops/octopus_v3/kill.py",
+      "mtime": 1786873570.705413,
+      "hash16": "6f5d900e9985eaeb",
+      "bytes": 3319
+    },
+    {
+      "path": "_ops/octopus_v3/ledger.py",
+      "mtime": 1786873550.4532197,
+      "hash16": "eb018c970615ec4e",
+      "bytes": 7091
+    },
+    {
+      "path": "_ops/octopus_v3/profile.py",
+      "mtime": 1786873549.682674,
+      "hash16": "a5e5ff923702d259",
+      "bytes": 4834
+    },
+    {
+      "path": "_ops/tests/test_close_tcb_model_listed_20260816.py",
+      "mtime": 1786864410.4993978,
+      "hash16": "7200aad94926aca1",
+      "bytes": 820
+    },
+    {
+      "path": "_ops/tests/test_close_kernel_integrity_20260816.py",
+      "mtime": 1786864402.5903027,
+      "hash16": "6d04897dcbac0703",
+      "bytes": 766
+    },
+    {
+      "path": "_ops/tests/test_close_reason_ask_budget_20260816.py",
+      "mtime": 1786864398.2570224,
+      "hash16": "08831a9b4d09cb11",
+      "bytes": 822
+    },
+    {
+      "path": "_ops/tests/test_close_hf_expected_absent_20260816.py",
+      "mtime": 1786864388.035432,
+      "hash16": "3ead85ce86dd2e85",
+      "bytes": 878
+    },
+    {
+      "path": "_ops/tests/test_close_c025_family_key_20260816.py",
+      "mtime": 1786864383.9699483,
+      "hash16": "c3c9d661c004ad80",
+      "bytes": 836
+    },
+    {
+      "path": "_ops/tests/test_close_ipred_dead_import_20260816.py",
+      "mtime": 1786864380.905839,
+      "hash16": "abfd45712c2cd83b",
+      "bytes": 1371
+    },
+    {
+      "path": "_ops/tests/test_close_experiments_retired_20260816.py",
+      "mtime": 1786864377.4220235,
+      "hash16": "9412b98999428a16",
+      "bytes": 1372
+    },
+    {
+      "path": "_ops/board_cp/server.py",
+      "mtime": 1786862553.4677887,
+      "hash16": "7a388b24f851cfb4",
+      "bytes": 7302
+    },
+    {
+      "path": "_ops/tests/test_board_cp_server.py",
+      "mtime": 1786862274.1219518,
+      "hash16": "1b53e4be0a216a69",
+      "bytes": 6677
+    },
+    {
+      "path": "_ops/tests/test_ease_live_strip_20260816.py",
+      "mtime": 1786861998.417688,
+      "hash16": "72b314cb83df6e7d",
+      "bytes": 872
+    },
+    {
+      "path": "_ops/tests/test_ease_claim_unwired_20260816.py",
+      "mtime": 1786861998.2146838,
+      "hash16": "03ba7391085ff1ec",
+      "bytes": 1463
+    },
+    {
+      "path": "_ops/tests/test_webpanel_reality_20260816.py",
+      "mtime": 1786860167.5918808,
+      "hash16": "2fbfc5887a00121b",
+      "bytes": 2608
+    },
+    {
+      "path": "_ops/tests/run_all.py",
+      "mtime": 1786859047.9452431,
+      "hash16": "49423cf1bc4474ec",
+      "bytes": 165862
+    },
+    {
+      "path": "_ops/tests/test_margin_m_v1.py",
+      "mtime": 1786859031.632897,
+      "hash16": "321da7fdb427ba78",
+      "bytes": 2513
+    },
+    {
+      "path": "_ops/margin/shadow_log.py",
+      "mtime": 1786859031.5943384,
+      "hash16": "5ba9fe31fb1a3243",
+      "bytes": 830
+    },
+    {
+      "path": "_ops/margin/margin.py",
+      "mtime": 1786859031.5613656,
+      "hash16": "d5a95233629570d8",
+      "bytes": 1706
+    },
+    {
+      "path": "_ops/margin/__init__.py",
+      "mtime": 1786859031.4877367,
+      "hash16": "cd5ca6cb0d060140",
+      "bytes": 418
+    },
+    {
+      "path": "_ops/tests/test_seam_selfcode_gate_20260816.py",
+      "mtime": 1786858935.2638595,
+      "hash16": "5e34c6a6aac28599",
+      "bytes": 2003
+    },
+    {
+      "path": "_ops/tests/test_sog_floor_guards.py",
+      "mtime": 1786858934.667539,
+      "hash16": "78302585fe94ab86",
+      "bytes": 3415
+    },
+    {
+      "path": "_ops/cortex/improve.py",
+      "mtime": 1786858234.7933307,
+      "hash16": "b7e36b4d1d086fd9",
+      "bytes": 55495
+    },
+    {
+      "path": "_ops/tests/test_miniapp_cockpit_ui.py",
+      "mtime": 1786856384.4743505,
+      "hash16": "9799faf5cbe066c8",
+      "bytes": 42561
+    },
+    {
+      "path": "_ops/tests/test_selfheal_ok_field.py",
+      "mtime": 1786854984.5107343,
+      "hash16": "e40a75746410f224",
+      "bytes": 3315
+    },
+    {
+      "path": "_ops/tests/test_money_gate.py",
+      "mtime": 1786854931.967134,
+      "hash16": "944d731cfef934cb",
+      "bytes": 3451
+    },
+    {
+      "path": "_ops/heart/sog_math.py",
+      "mtime": 1786854925.4455214,
+      "hash16": "9b3463ddb39c17e0",
+      "bytes": 25897
+    },
+    {
+      "path": "_ops/tests/test_phantom_guards.py",
+      "mtime": 1786854869.209751,
+      "hash16": "8abdfb9f3068e600",
+      "bytes": 37332
+    },
+    {
+      "path": "_ops/chrono.py",
+      "mtime": 1786854818.0703087,
+      "hash16": "d2c2f040082ebb70",
+      "bytes": 91553
+    },
+    {
+      "path": "_ops/budget/money_gate.py",
+      "mtime": 1786854696.6237242,
+      "hash16": "ba60bed163003aa9",
+      "bytes": 3023
+    },
+    {
+      "path": "_ops/tests/test_seam_ledger_sampling_20260816.py",
+      "mtime": 1786854355.8672295,
+      "hash16": "97ce8837163cae75",
+      "bytes": 2587
+    },
+    {
+      "path": "_ops/tests/test_seam_live_refresh_20260816.py",
+      "mtime": 1786852753.2166023,
+      "hash16": "f53d404a238175e8",
+      "bytes": 2545
+    },
+    {
+      "path": "_ops/tests/test_ledger_tip_commit.py",
+      "mtime": 1786852188.0926025,
+      "hash16": "ec5942638f0d344f",
+      "bytes": 3237
+    },
+    {
+      "path": "_ops/tests/test_self_improve.py",
+      "mtime": 1786852128.9944835,
+      "hash16": "247def762bef25ea",
+      "bytes": 8076
+    },
+    {
+      "path": "_ops/tests/test_self_improve_gauges.py",
+      "mtime": 1786851891.5708396,
+      "hash16": "137a11d3743dea39",
+      "bytes": 2920
+    },
+    {
+      "path": "_ops/cortex/self_improve_gauges.py",
+      "mtime": 1786851878.7511446,
+      "hash16": "95b56ff446d48ffb",
+      "bytes": 7345
+    },
+    {
+      "path": "_ops/tests/test_goal_generator.py",
+      "mtime": 1786851724.0253913,
+      "hash16": "b42d27b617f1f38d",
+      "bytes": 9890
+    },
+    {
+      "path": "_ops/cortex/goal_generator.py",
+      "mtime": 1786851718.4310162,
+      "hash16": "71282a3c5a0a92ab",
+      "bytes": 17133
+    },
+    {
+      "path": "_ops/tests/test_discovery_nudge_high_water_errorhunt.py",
+      "mtime": 1786845136.9907262,
+      "hash16": "6f51dddb45ee8bc5",
+      "bytes": 2238
+    },
+    {
+      "path": "_ops/tests/test_circuit_demote_persist_errorhunt.py",
+      "mtime": 1786844813.276425,
+      "hash16": "1c1ca4ac9d1c7cee",
+      "bytes": 2974
+    },
+    {
+      "path": "_ops/budget/circuit_breaker.py",
+      "mtime": 1786844799.9897845,
+      "hash16": "cf7f395b9ecdbd47",
+      "bytes": 14466
+    },
+    {
+      "path": "_ops/tests/test_encoders.py",
+      "mtime": 1786843921.3163762,
+      "hash16": "3a4d41776c72a365",
+      "bytes": 4873
+    },
+    {
+      "path": "_ops/tests/test_recall_loop_distant.py",
+      "mtime": 1786843885.6317606,
+      "hash16": "3f66d7320a1a1c60",
+      "bytes": 4873
+    },
+    {
+      "path": "_ops/audit/consolidation_4d_tick.py",
+      "mtime": 1786843860.1041982,
+      "hash16": "7545665215a1caf3",
+      "bytes": 3938
+    },
+    {
+      "path": "_ops/scripts/warm_recall.py",
+      "mtime": 1786843835.813719,
+      "hash16": "2b625cdf6251686c",
+      "bytes": 4305
+    },
+    {
+      "path": "_ops/audit/poisoning_watch_4d.py",
+      "mtime": 1786843813.9125197,
+      "hash16": "86986c5caf7a1389",
+      "bytes": 6252
+    },
+    {
+      "path": "_ops/memory/owner_recall.py",
+      "mtime": 1786843747.3772063,
+      "hash16": "7747dd10f942e79a",
+      "bytes": 8032
+    },
+    {
+      "path": "_ops/neural/consolidation.py",
+      "mtime": 1786843693.033896,
+      "hash16": "d48918569c80097a",
+      "bytes": 32736
+    },
+    {
+      "path": "_ops/neural/latent_space.py",
+      "mtime": 1786843683.2284157,
+      "hash16": "3ad4dba8b335e0d7",
+      "bytes": 9220
+    },
+    {
+      "path": "_ops/neural/encoders.py",
+      "mtime": 1786843674.1249006,
+      "hash16": "5c17449e4c808190",
+      "bytes": 7253
+    },
+    {
+      "path": "_ops/audit/generate_aeb.py",
+      "mtime": 1786820556.456144,
+      "hash16": "03cda2b0d66215ab",
+      "bytes": 13751
+    },
+    {
+      "path": "_ops/tests/test_evaluator_holdout.py",
+      "mtime": 1786820127.904165,
+      "hash16": "d0d430476c348707",
+      "bytes": 2689
+    },
+    {
+      "path": "_ops/evaluator-holdout/evaluator.py",
+      "mtime": 1786820036.0487208,
+      "hash16": "0ef5c2fee018be53",
+      "bytes": 1980
+    },
+    {
+      "path": "_ops/evaluator-holdout/build_holdout.py",
+      "mtime": 1786820013.0926528,
+      "hash16": "590eb6a19e0afb0b",
+      "bytes": 2505
+    },
+    {
+      "path": "_ops/tests/test_telegram_pep_shadow.py",
+      "mtime": 1786819841.891878,
+      "hash16": "1921bd5ad02bf14e",
+      "bytes": 4410
+    },
+    {
+      "path": "_ops/budget/telegram_pep_shadow.py",
+      "mtime": 1786819833.806996,
+      "hash16": "3fd5452b2cc75306",
+      "bytes": 5043
+    },
+    {
+      "path": "_ops/budget/approval_channel.py",
+      "mtime": 1786819737.506229,
+      "hash16": "798789d2c8420774",
+      "bytes": 321649
+    },
+    {
+      "path": "_ops/telegram_center/tg_api.py",
+      "mtime": 1786819712.600184,
+      "hash16": "83ca75d6eda5b834",
+      "bytes": 49558
+    },
+    {
+      "path": "_ops/tests/test_semantic_gist_dedup.py",
+      "mtime": 1786816539.0663755,
+      "hash16": "db906e564f895bc2",
+      "bytes": 2704
+    },
+    {
+      "path": "_ops/cortex/consolidate.py",
+      "mtime": 1786816507.418743,
+      "hash16": "c2ae93397eb850e0",
+      "bytes": 18798
+    },
+    {
+      "path": "_ops/tests/test_circuit_reset_not_recovery.py",
+      "mtime": 1786816224.946444,
+      "hash16": "6175dfd9bfb3dba8",
+      "bytes": 4048
+    },
+    {
+      "path": "_ops/audit/organism_manifest.py",
+      "mtime": 1786804736.925767,
+      "hash16": "a62b2eb7e01512bb",
+      "bytes": 8376
+    },
+    {
+      "path": "_ops/tests/test_ask_reasoning_preamble_strip.py",
+      "mtime": 1786801663.6023598,
+      "hash16": "b62ae2f879a0f378",
+      "bytes": 3132
+    },
+    {
+      "path": "_ops/tests/test_flag_shortfall_smtp_exemption.py",
+      "mtime": 1786800989.5996416,
+      "hash16": "a334410454a1eb76",
+      "bytes": 3623
+    },
+    {
+      "path": "_ops/tests/test_llm_routing_smoke.py",
+      "mtime": 1786800633.3245027,
+      "hash16": "70c591ac8c8db347",
+      "bytes": 16521
+    },
+    {
+      "path": "_ops/tests/test_telemetry.py",
+      "mtime": 1786800586.4313042,
+      "hash16": "e2573aca810133fd",
+      "bytes": 9427
+    },
+    {
+      "path": "_ops/tests/test_ti_collab_security.py",
+      "mtime": 1786800136.0504277,
+      "hash16": "99db5eefcc63812f",
+      "bytes": 10582
+    },
+    {
+      "path": "_ops/tests/test_ti_redteam_injection.py",
+      "mtime": 1786800136.0504277,
+      "hash16": "93865bf258eaf1cd",
+      "bytes": 15379
+    },
+    {
+      "path": "_ops/owner_console/collaborator.py",
+      "mtime": 1786800129.3421845,
+      "hash16": "9bb9d536ee744947",
+      "bytes": 24122
+    },
+    {
+      "path": "_ops/tests/test_discoveries.py",
+      "mtime": 1786800006.4688282,
+      "hash16": "167f6945ffdc9cba",
+      "bytes": 11517
+    },
+    {
+      "path": "_ops/tests/test_collab_components.py",
+      "mtime": 1786799728.211206,
+      "hash16": "22f4b1325c322da8",
+      "bytes": 19648
+    },
+    {
+      "path": "_ops/tests/test_hebbian_eventclock.py",
+      "mtime": 1786799269.8976688,
+      "hash16": "17c50e7fd2d940a9",
+      "bytes": 35351
+    },
+    {
+      "path": "_ops/tests/test_miniapp_look_locked.py",
+      "mtime": 1786799187.124007,
+      "hash16": "229544d125643cf2",
+      "bytes": 21789
+    },
+    {
+      "path": "_ops/tests/test_tg_callback_emitter_parity.py",
+      "mtime": 1786799089.5199924,
+      "hash16": "8032cb6dd94fc58f",
+      "bytes": 18669
+    },
+    {
+      "path": "_ops/tests/test_llm_call_inventory.py",
+      "mtime": 1786798924.2856221,
+      "hash16": "d757561ea934acb7",
+      "bytes": 15736
+    },
+    {
+      "path": "_ops/tests/test_miniapp_lifecycle_view.py",
+      "mtime": 1786798728.2721274,
+      "hash16": "b3f4c894c38389e8",
+      "bytes": 29566
+    },
+    {
+      "path": "_ops/tests/test_cortex_circuit_breaker.py",
+      "mtime": 1786798673.1617465,
+      "hash16": "36bfd9b3b4a86881",
+      "bytes": 12091
+    },
+    {
+      "path": "_ops/tests/test_miniapp_ops_readmodel.py",
+      "mtime": 1786798661.7068677,
+      "hash16": "b19f5fabd77cf370",
+      "bytes": 37521
+    },
+    {
+      "path": "_ops/tests/test_no_go_envelope.py",
+      "mtime": 1786792875.613978,
+      "hash16": "8cb3a955520173f2",
+      "bytes": 5301
+    },
+    {
+      "path": "_ops/tests/test_octopus_chat_endpoint.py",
+      "mtime": 1786790589.2684438,
+      "hash16": "338617cab9d68c0e",
+      "bytes": 6884
+    },
+    {
+      "path": "_ops/telegram_center/miniapp_gateway.py",
+      "mtime": 1786790504.8277414,
+      "hash16": "0392d2bd2fad47d2",
+      "bytes": 75031
+    },
+    {
+      "path": "_ops/tests/test_consolidation_latent.py",
+      "mtime": 1786789844.5855138,
+      "hash16": "58af4227888e746b",
+      "bytes": 16145
+    },
+    {
+      "path": "_ops/tests/test_consolidation_fold_rich.py",
+      "mtime": 1786788832.7754316,
+      "hash16": "3b256f4168acceca",
+      "bytes": 4856
+    },
+    {
+      "path": "_ops/tests/test_doctor_vote_bridge.py",
+      "mtime": 1786784127.5008094,
+      "hash16": "24c414274ec3a916",
+      "bytes": 4661
+    },
+    {
+      "path": "_ops/telegram_center/center.py",
+      "mtime": 1786784127.4996803,
+      "hash16": "d67422f1d32d6b34",
+      "bytes": 382032
+    },
+    {
+      "path": "_ops/scripts/tg_site_fire_report.py",
+      "mtime": 1786619643.6554446,
+      "hash16": "ae9404dca1e66acb",
+      "bytes": 1849
+    },
+    {
+      "path": "_ops/tests/test_tg_site_fire_log.py",
+      "mtime": 1786619643.5087807,
+      "hash16": "e1e1edf8a8a17bfd",
+      "bytes": 2580
+    },
+    {
+      "path": "_ops/tg_site_fire_log.py",
+      "mtime": 1786619623.3986218,
+      "hash16": "69972f5a6a0eedf6",
+      "bytes": 3758
+    },
+    {
+      "path": "_ops/tests/test_legs_status_reader.py",
+      "mtime": 1786614734.1155736,
+      "hash16": "41b7936555d10e53",
+      "bytes": 13043
+    },
+    {
+      "path": "_ops/owner_console/conversation.py",
+      "mtime": 1786614521.9679809,
+      "hash16": "dd937ab3fbdec33e",
+      "bytes": 51418
+    },
+    {
+      "path": "_ops/owner_console/legs_status.py",
+      "mtime": 1786614137.602851,
+      "hash16": "74382fe77d924264",
+      "bytes": 8943
+    },
+    {
+      "path": "_ops/epistemics/benchmark.py",
+      "mtime": 1786593192.6305697,
+      "hash16": "6a0fbcdcd160e051",
+      "bytes": 20130
+    },
+    {
+      "path": "_ops/tests/test_epistemic_compose_build.py",
+      "mtime": 1786590752.942405,
+      "hash16": "768116f90f0f39a7",
+      "bytes": 3787
+    },
+    {
+      "path": "_ops/epistemics/claim_builder.py",
+      "mtime": 1786590733.820882,
+      "hash16": "da0f597031499f02",
+      "bytes": 3112
+    },
+    {
+      "path": "_ops/epistemics/compose.py",
+      "mtime": 1786590711.4625354,
+      "hash16": "03dca932573bd8fe",
+      "bytes": 4276
+    },
+    {
+      "path": "_ops/tests/test_hub_shadow_rollout.py",
+      "mtime": 1786590672.1294098,
+      "hash16": "ef5ab2311c22bdee",
+      "bytes": 2333
+    },
+    {
+      "path": "_ops/conversation_hub/shadow_rollout.py",
+      "mtime": 1786590659.9146562,
+      "hash16": "0dd34d4b7bac6ffa",
+      "bytes": 6211
+    },
+    {
+      "path": "_ops/telegram_center/miniapp_state.py",
+      "mtime": 1786590310.7390375,
+      "hash16": "e5de2ab01ad04b24",
+      "bytes": 101880
+    },
+    {
+      "path": "_ops/tests/test_board_cp.py",
+      "mtime": 1786589990.089471,
+      "hash16": "b81195e89b7e53cd",
+      "bytes": 7468
+    },
+    {
+      "path": "_ops/board_cp/schema.py",
+      "mtime": 1786589985.9794247,
+      "hash16": "d88541187799a0c7",
+      "bytes": 1981
+    },
+    {
+      "path": "_ops/tests/test_conversation_hub.py",
+      "mtime": 1786589970.3849022,
+      "hash16": "1e3229265b4f6baf",
+      "bytes": 13316
+    },
+    {
+      "path": "_ops/board_cp/service.py",
+      "mtime": 1786589916.6894536,
+      "hash16": "fd1f8fef4be3c313",
+      "bytes": 3161
+    },
+    {
+      "path": "_ops/conversation_hub/service.py",
+      "mtime": 1786589876.984708,
+      "hash16": "98a0b060e8e8aa92",
+      "bytes": 17061
+    },
+    {
+      "path": "_ops/board_cp/config.py",
+      "mtime": 1786589704.5680475,
+      "hash16": "e7a2391de6b25440",
+      "bytes": 2386
+    },
+    {
+      "path": "_ops/board_cp/http.py",
+      "mtime": 1786589697.7784579,
+      "hash16": "1a75c34741de5dd9",
+      "bytes": 3274
+    },
+    {
+      "path": "_ops/board_cp/queue.py",
+      "mtime": 1786589679.1692998,
+      "hash16": "a41f1031eededb96",
+      "bytes": 3701
+    },
+    {
+      "path": "_ops/board_cp/__init__.py",
+      "mtime": 1786589658.969552,
+      "hash16": "319936c3128dff22",
+      "bytes": 414
+    },
+    {
+      "path": "_ops/tests/test_epistemic_c6c7.py",
+      "mtime": 1786589081.8740442,
+      "hash16": "92f48874695c7a09",
+      "bytes": 5533
+    },
+    {
+      "path": "_ops/epistemics/shadow_run.py",
+      "mtime": 1786589017.1723037,
+      "hash16": "2c7dbbfcf23d2190",
+      "bytes": 4640
+    },
+    {
+      "path": "_ops/tests/test_epistemic_benchmark.py",
+      "mtime": 1786587903.4920506,
+      "hash16": "c0cf057bbc79e709",
+      "bytes": 3220
+    },
+    {
+      "path": "_ops/cortex/cortex.py",
+      "mtime": 1786587809.9544294,
+      "hash16": "ef1471feef3e4d27",
+      "bytes": 47901
+    },
+    {
+      "path": "_ops/tests/test_epistemic_runner.py",
+      "mtime": 1786587153.6406553,
+      "hash16": "95fa26a2fc4050c9",
+      "bytes": 10841
+    },
+    {
+      "path": "_ops/epistemics/sandbox_runner.py",
+      "mtime": 1786587090.4522178,
+      "hash16": "bf71c39519814571",
+      "bytes": 6664
+    },
+    {
+      "path": "_ops/epistemics/test_planner.py",
+      "mtime": 1786587054.377694,
+      "hash16": "0a7cff1e2b7cf8bd",
+      "bytes": 4295
+    },
+    {
+      "path": "_ops/tests/test_epistemic_selector_metrics.py",
+      "mtime": 1786586932.853129,
+      "hash16": "9a439095b0d18595",
+      "bytes": 10048
+    },
+    {
+      "path": "_ops/epistemics/benchmark_metrics.py",
+      "mtime": 1786586893.6937966,
+      "hash16": "6a323b3b6402066a",
+      "bytes": 8126
+    },
+    {
+      "path": "_ops/epistemics/experiment_selector.py",
+      "mtime": 1786586857.8962889,
+      "hash16": "0efd8da27ce8b5cc",
+      "bytes": 5559
+    },
+    {
+      "path": "_ops/epistemics/schemas.py",
+      "mtime": 1786586667.338035,
+      "hash16": "43c1080a9776363e",
+      "bytes": 18447
+    },
+    {
+      "path": "_ops/tests/test_epistemic_invariants.py",
+      "mtime": 1786586370.2973173,
+      "hash16": "71188dd511ac743f",
+      "bytes": 13255
+    },
+    {
+      "path": "_ops/epistemics/validator.py",
+      "mtime": 1786586347.760156,
+      "hash16": "ab24070bee0a9d1f",
+      "bytes": 7185
+    },
+    {
+      "path": "_ops/epistemics/invariants.py",
+      "mtime": 1786586044.6119585,
+      "hash16": "49cae9711959a167",
+      "bytes": 5590
+    },
+    {
+      "path": "_ops/tests/test_collab_model_evidence.py",
+      "mtime": 1786583295.7793293,
+      "hash16": "8363527b89fdc937",
+      "bytes": 9892
+    },
+    {
+      "path": "_ops/owner_console/collab_model_adapter.py",
+      "mtime": 1786583176.2823055,
+      "hash16": "58e74b007d1d7d1b",
+      "bytes": 17001
+    },
+    {
+      "path": "_ops/tests/test_route_scorer_wire.py",
+      "mtime": 1786583112.2250319,
+      "hash16": "b9b8e2b7a3482d23",
+      "bytes": 9752
+    },
+    {
+      "path": "_ops/cortex/fugu_quota.py",
+      "mtime": 1786579863.2679584,
+      "hash16": "4e6dc0464b43721c",
+      "bytes": 22273
+    },
+    {
+      "path": "_ops/tests/test_deepseek_weekly_cap.py",
+      "mtime": 1786579821.3399377,
+      "hash16": "bbbb225f2b1ce3f0",
+      "bytes": 6490
+    },
+    {
+      "path": "_ops/owner_console/tests/test_conversation.py",
+      "mtime": 1786570607.297458,
+      "hash16": "4924bbea95c20374",
+      "bytes": 5050
+    },
+    {
+      "path": "_ops/tests/test_status_banner.py",
+      "mtime": 1786570444.953762,
+      "hash16": "477ce8c82a45aeef",
+      "bytes": 5973
+    },
+    {
+      "path": "_ops/owner_console/status.py",
+      "mtime": 1786570444.6732569,
+      "hash16": "2557b903eb2b5c9b",
+      "bytes": 6090
+    },
+    {
+      "path": "_ops/owner_console/status_banner.py",
+      "mtime": 1786569875.4033248,
+      "hash16": "78157070a078f866",
+      "bytes": 4176
+    },
+    {
+      "path": "_ops/tests/test_epistemics_receipt_chain.py",
+      "mtime": 1786568751.9863532,
+      "hash16": "eadca40a01d1066f",
+      "bytes": 11000
+    },
+    {
+      "path": "_ops/epistemics/provenance.py",
+      "mtime": 1786568722.988081,
+      "hash16": "8ac1b3167b93da87",
+      "bytes": 3536
+    },
+    {
+      "path": "_ops/epistemics/receipt_store.py",
+      "mtime": 1786568722.8237603,
+      "hash16": "df6721abe898a4b7",
+      "bytes": 4236
+    },
+    {
+      "path": "_ops/epistemics/canonical.py",
+      "mtime": 1786568664.6320004,
+      "hash16": "fffc1d6b27086ff5",
+      "bytes": 8252
+    },
+    {
+      "path": "_ops/conversation_hub/__init__.py",
+      "mtime": 1786568444.8514004,
+      "hash16": "012138469191ea7d",
+      "bytes": 546
+    },
+    {
+      "path": "_ops/conversation_hub/schemas.py",
+      "mtime": 1786568444.3848486,
+      "hash16": "0989d3c65289aaee",
+      "bytes": 4765
+    },
+    {
+      "path": "_ops/conversation_hub/router.py",
+      "mtime": 1786568443.5117702,
+      "hash16": "e4a0b9f990c4f789",
+      "bytes": 4940
+    },
+    {
+      "path": "_ops/tests/test_epistemic_schemas.py",
+      "mtime": 1786542309.7311935,
+      "hash16": "d600ee2ab4215937",
+      "bytes": 21324
+    },
+    {
+      "path": "_ops/epistemics/__init__.py",
+      "mtime": 1786542237.7156596,
+      "hash16": "bc3cbb44ab08f716",
+      "bytes": 1468
+    },
+    {
+      "path": "_ops/epistemics/policy.py",
+      "mtime": 1786542206.021209,
+      "hash16": "06ebc5a5b9669440",
+      "bytes": 5191
+    },
+    {
+      "path": "_ops/tests/test_env_factory.py",
+      "mtime": 1786540878.743019,
+      "hash16": "1c63cbd9da8db5c1",
+      "bytes": 9615
+    },
+    {
+      "path": "_ops/tests/test_verdict.py",
+      "mtime": 1786540824.3543198,
+      "hash16": "0eee1ca1621bcc28",
+      "bytes": 14257
+    },
+    {
+      "path": "_ops/hypothesis_engine/experiments/verdict.py",
+      "mtime": 1786540736.2969315,
+      "hash16": "4903bc69df094b59",
+      "bytes": 14731
+    },
+    {
+      "path": "_ops/tests/test_runner_provenance.py",
+      "mtime": 1786540711.7716725,
+      "hash16": "8237b89aa3e9d713",
+      "bytes": 9859
+    },
+    {
+      "path": "_ops/tests/test_agents.py",
+      "mtime": 1786540711.4115674,
+      "hash16": "b91da1ef6194fdd1",
+      "bytes": 10094
+    },
+    {
+      "path": "_ops/tests/test_scenarios.py",
+      "mtime": 1786540463.5744157,
+      "hash16": "18db3a8b89a5872c",
+      "bytes": 6718
+    },
+    {
+      "path": "_ops/hypothesis_engine/experiments/__init__.py",
+      "mtime": 1786540336.4507124,
+      "hash16": "bf892bb44afcfe70",
+      "bytes": 583
+    },
+    {
+      "path": "_ops/hypothesis_engine/experiments/runner.py",
+      "mtime": 1786540272.0614972,
+      "hash16": "bdec08d3ba2aa7cd",
+      "bytes": 19332
+    },
+    {
+      "path": "_ops/hypothesis_engine/experiments/scenarios.py",
+      "mtime": 1786540099.6439095,
+      "hash16": "7b98b1ffd5a86f9d",
+      "bytes": 17054
+    },
+    {
+      "path": "_ops/hypothesis_engine/experiments/agents.py",
+      "mtime": 1786540052.8331878,
+      "hash16": "8ed5ef35c69b1e56",
+      "bytes": 21633
+    },
+    {
+      "path": "_ops/hypothesis_engine/experiments/env_factory.py",
+      "mtime": 1786539989.205078,
+      "hash16": "59594b942ce17aef",
+      "bytes": 21163
+    },
+    {
+      "path": "_ops/tests/test_fourd_health.py",
+      "mtime": 1786539376.9127913,
+      "hash16": "315fe11d59d1c951",
+      "bytes": 3803
+    },
+    {
+      "path": "_ops/cortex/fourd_health.py",
+      "mtime": 1786539352.1382318,
+      "hash16": "f8819d653e77eed1",
+      "bytes": 4064
+    }
+  ],
+  "modified_count": 1257,
+  "orphan_modules": [],
+  "orphan_meta": {},
+  "dead_imports": [
+    {
+      "importer": "_ops/arm_gate.py",
+      "missing": "hmac"
+    },
+    {
+      "importer": "_ops/arm_renewal.py",
+      "missing": "hmac"
+    },
+    {
+      "importer": "_ops/arm_renewal.py",
+      "missing": "secrets"
+    },
+    {
+      "importer": "_ops/autonomy_grant.py",
+      "missing": "html"
+    },
+    {
+      "importer": "_ops/beat_scheduler.py",
+      "missing": "concurrent"
+    },
+    {
+      "importer": "_ops/beat_scheduler.py",
+      "missing": "spine_adapters"
+    },
+    {
+      "importer": "_ops/brain_core.py",
+      "missing": "sqlite3"
+    },
+    {
+      "importer": "_ops/brain_worker.py",
+      "missing": "queue"
+    },
+    {
+      "importer": "_ops/brain_worker.py",
+      "missing": "threading"
+    },
+    {
+      "importer": "_ops/brain_worker.py",
+      "missing": "governor_epoch"
+    },
+    {
+      "importer": "_ops/brain_worker.py",
+      "missing": "fitness"
+    },
+    {
+      "importer": "_ops/brain_worker.py",
+      "missing": "replication"
+    },
+    {
+      "importer": "_ops/brain_worker.py",
+      "missing": "fisher"
+    },
+    {
+      "importer": "_ops/c6_probes.py",
+      "missing": "importlib"
+    },
+    {
+      "importer": "_ops/c6_probes.py",
+      "missing": "warnings"
+    },
+    {
+      "importer": "_ops/c6_probes.py",
+      "missing": "approval_channel"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "calendar"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "gc"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "math"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "statistics"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "research_contract"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "research_loop"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "memory_store"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "gate"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "decision_receipt"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "outcome_store"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "learning_gate"
+    },
+    {
+      "importer": "_ops/c6_trigger.py",
+      "missing": "thesis_queue"
+    },
+    {
+      "importer": "_ops/capabilities.py",
+      "missing": "code_autonomy"
+    },
+    {
+      "importer": "_ops/capability_registry.py",
+      "missing": "html"
+    },
+    {
+      "importer": "_ops/capability_registry.py",
+      "missing": "warnings"
+    },
+    {
+      "importer": "_ops/capability_registry.py",
+      "missing": "importlib"
+    },
+    {
+      "importer": "_ops/cardiac.py",
+      "missing": "math"
+    },
+    {
+      "importer": "_ops/cardiac.py",
+      "missing": "threading"
+    },
+    {
+      "importer": "_ops/chrono.py",
+      "missing": "math"
+    },
+    {
+      "importer": "_ops/chrono.py",
+      "missing": "sqlite3"
+    },
+    {
+      "importer": "_ops/chrono.py",
+      "missing": "threading"
+    },
+    {
+      "importer": "_ops/chrono.py",
+      "missing": "human_append_guard"
+    },
+    {
+      "importer": "_ops/chrono.py",
+      "missing": "self_loop_ingest"
+    },
+    {
+      "importer": "_ops/clock_guard.py",
+      "missing": "math"
+    }
+  ],
+  "duplicate_capabilities": [
+    {
+      "name": "__init__",
+      "paths": [
+        "_ops/world_discovery/__init__.py",
+        "_ops/unified_control/__init__.py",
+        "_ops/test_intelligence/__init__.py",
+        "_ops/test_intelligence/adapters/__init__.py",
+        "_ops/telemetry/__init__.py",
+        "_ops/telegram_center/__init__.py",
+        "_ops/synapse/__init__.py",
+        "_ops/spine/__init__.py",
+        "_ops/signals/__init__.py",
+        "_ops/shadow_homeostasis/__init__.py",
+        "_ops/seed/__init__.py",
+        "_ops/runtime/__init__.py",
+        "_ops/predictor/__init__.py",
+        "_ops/policy/__init__.py",
+        "_ops/owner_console/__init__.py",
+        "_ops/owner_cockpit/__init__.py",
+        "_ops/outcomes/__init__.py",
+        "_ops/organs/__init__.py",
+        "_ops/organogenesis/__init__.py",
+        "_ops/orchestration/__init__.py",
+        "_ops/octopus_v3/__init__.py",
+        "_ops/observatory/__init__.py",
+        "_ops/now_moves/__init__.py",
+        "_ops/novelty/__init__.py",
+        "_ops/neural/__init__.py",
+        "_ops/memory/__init__.py",
+        "_ops/measure/__init__.py",
+        "_ops/math_control/__init__.py",
+        "_ops/margin/__init__.py",
+        "_ops/lab/__init__.py",
+        "_ops/lab/full_loop_flash/__init__.py",
+        "_ops/intel_spine/__init__.py",
+        "_ops/integrations/__init__.py",
+        "_ops/integrations/world_discovery_action/__init__.py",
+        "_ops/infra/__init__.py",
+        "_ops/identity/__init__.py",
+        "_ops/hypothesis_engine/__init__.py",
+        "_ops/hypothesis_engine/tests/__init__.py",
+        "_ops/hypothesis_engine/impl/__init__.py",
+        "_ops/hypothesis_engine/experiments/__init__.py",
+        "_ops/heart/__init__.py",
+        "_ops/handshake/__init__.py",
+        "_ops/evidence_plane/__init__.py",
+        "_ops/epistemics/__init__.py",
+        "_ops/doctor_contract/__init__.py",
+        "_ops/doctor/__init__.py",
+        "_ops/doctor/box/__init__.py",
+        "_ops/discovery/__init__.py",
+        "_ops/cortex/__init__.py",
+        "_ops/conversation_hub/__init__.py",
+        "_ops/control_plane/__init__.py",
+        "_ops/containment/__init__.py",
+        "_ops/connectors/__init__.py",
+        "_ops/collab/__init__.py",
+        "_ops/cognitive/__init__.py",
+        "_ops/cognition/tests/__init__.py",
+        "_ops/coding_sandbox/__init__.py",
+        "_ops/chrono_rhythm/__init__.py",
+        "_ops/chord/__init__.py",
+        "_ops/chord/adapters/__init__.py",
+        "_ops/brain/__init__.py",
+        "_ops/board_cp/__init__.py",
+        "_ops/agi2027_control/__init__.py",
+        "_ops/agi2027_control/tests/__init__.py",
+        "_ops/afferent/__init__.py",
+        "_ops/action_bridge/__init__.py",
+        "_ops/ablation/__init__.py"
+      ]
+    },
+    {
+      "name": "beat_lease",
+      "paths": [
+        "_ops/runtime/beat_lease.py",
+        "_ops/octopus_v3/beat_lease.py"
+      ]
+    },
+    {
+      "name": "budget",
+      "paths": [
+        "_ops/octopus_v3/budget.py",
+        "_ops/lab/full_loop_flash/budget.py"
+      ]
+    },
+    {
+      "name": "contracts",
+      "paths": [
+        "_ops/world_discovery/contracts.py",
+        "_ops/unified_control/contracts.py",
+        "_ops/organs/contracts.py",
+        "_ops/integrations/world_discovery_action/contracts.py",
+        "_ops/epistemics/contracts.py",
+        "_ops/action_bridge/contracts.py"
+      ]
+    },
+    {
+      "name": "envelope",
+      "paths": [
+        "_ops/observatory/envelope.py",
+        "_ops/handshake/envelope.py"
+      ]
+    },
+    {
+      "name": "gate",
+      "paths": [
+        "_ops/octopus_v3/gate.py",
+        "_ops/memory/gate.py"
+      ]
+    },
+    {
+      "name": "gateway",
+      "paths": [
+        "_ops/lab/full_loop_flash/gateway.py",
+        "_ops/connectors/gateway.py"
+      ]
+    },
+    {
+      "name": "harness",
+      "paths": [
+        "_ops/tests/harness.py",
+        "_ops/ablation/harness.py"
+      ]
+    },
+    {
+      "name": "integration",
+      "paths": [
+        "_ops/patch_backups/human-real-interaction-20260802-170914/integration.py",
+        "_ops/patch_backups/control-close-and-passthrough-20260802-171006/integration.py",
+        "_ops/agi2027_control/integration.py",
+        "_ops/action_bridge/integration.py"
+      ]
+    },
+    {
+      "name": "ledger",
+      "paths": [
+        "_ops/octopus_v3/ledger.py",
+        "_ops/chord/ledger.py"
+      ]
+    },
+    {
+      "name": "main",
+      "paths": [
+        "_ops/tests/_tmp_lab_ws2/bad-1787148103622/main.py",
+        "_ops/tests/_tmp_lab_ws2/bad-1787147852306/main.py",
+        "_ops/tests/_tmp_lab_ws2/bad-1787147811607/main.py",
+        "_ops/tests/_tmp_lab_ws2/bad-1787147787399/main.py",
+        "_ops/tests/_tmp_lab_ws2/bad-1787147601374/main.py",
+        "_ops/tests/_tmp_lab_ws2/bad-1787147298022/main.py",
+        "_ops/tests/_tmp_lab_ws2/bad-1787147282461/main.py",
+        "_ops/tests/_tmp_lab_ws/ok1-1787148101355/main.py",
+        "_ops/tests/_tmp_lab_ws/ok1-1787147850053/main.py",
+        "_ops/tests/_tmp_lab_ws/ok1-1787147809379/main.py",
+        "_ops/tests/_tmp_lab_ws/ok1-1787147785179/main.py",
+        "_ops/tests/_tmp_lab_ws/ok1-1787147599175/main.py",
+        "_ops/tests/_tmp_lab_ws/ok1-1787147295785/main.py",
+        "_ops/tests/_tmp_lab_ws/ok1-1787147280198/main.py",
+        "_ops/tests/_tmp_lab_ws/loop-1787148101412/main.py",
+        "_ops/tests/_tmp_lab_ws/loop-1787147850108/main.py",
+        "_ops/tests/_tmp_lab_ws/loop-1787147809434/main.py",
+        "_ops/tests/_tmp_lab_ws/loop-1787147785253/main.py",
+        "_ops/tests/_tmp_lab_ws/loop-1787147599226/main.py",
+        "_ops/tests/_tmp_lab_ws/loop-1787147295841/main.py",
+        "_ops/tests/_tmp_lab_ws/loop-1787147280273/main.py"
+      ]
+    },
+    {
+      "name": "metrics",
+      "paths": [
+        "_ops/epistemics/metrics.py",
+        "_ops/chord/metrics.py"
+      ]
+    },
+    {
+      "name": "observation",
+      "paths": [
+        "_ops/shadow_homeostasis/observation.py",
+        "_ops/chord/observation.py"
+      ]
+    },
+    {
+      "name": "pipeline",
+      "paths": [
+        "_ops/unified_control/pipeline.py",
+        "_ops/shadow_homeostasis/pipeline.py"
+      ]
+    },
+    {
+      "name": "policy",
+      "paths": [
+        "_ops/octopus_v3/policy.py",
+        "_ops/integrations/world_discovery_action/policy.py",
+        "_ops/epistemics/policy.py"
+      ]
+    },
+    {
+      "name": "provenance",
+      "paths": [
+        "_ops/provenance.py",
+        "_ops/epistemics/provenance.py"
+      ]
+    },
+    {
+      "name": "registry",
+      "paths": [
+        "_ops/shadow_homeostasis/registry.py",
+        "_ops/evidence_plane/registry.py",
+        "_ops/cortex/registry.py",
+        "_ops/connectors/registry.py"
+      ]
+    },
+    {
+      "name": "replay",
+      "paths": [
+        "_ops/shadow_homeostasis/replay.py",
+        "_ops/runtime/replay.py"
+      ]
+    },
+    {
+      "name": "rollback",
+      "paths": [
+        "_ops/runtime/rollback.py",
+        "_ops/agi2027_control/rollback.py",
+        "_ops/action_bridge/rollback.py"
+      ]
+    },
+    {
+      "name": "runner",
+      "paths": [
+        "_ops/lab/runner.py",
+        "_ops/hypothesis_engine/experiments/runner.py"
+      ]
+    },
+    {
+      "name": "runtime",
+      "paths": [
+        "_ops/patch_backups/control-close-and-passthrough-20260802-171006/runtime.py",
+        "_ops/agi2027_control/runtime.py"
+      ]
+    },
+    {
+      "name": "schema",
+      "paths": [
+        "_ops/connectors/schema.py",
+        "_ops/board_cp/schema.py"
+      ]
+    },
+    {
+      "name": "schemas",
+      "paths": [
+        "_ops/hypothesis_engine/impl/schemas.py",
+        "_ops/epistemics/schemas.py",
+        "_ops/conversation_hub/schemas.py",
+        "_ops/chord/schemas.py"
+      ]
+    },
+    {
+      "name": "server",
+      "paths": [
+        "_ops/panel/server.py",
+        "_ops/octopus_mcp/server.py",
+        "_ops/live/server.py",
+        "_ops/dashboard/server.py",
+        "_ops/board_cp/server.py"
+      ]
+    },
+    {
+      "name": "service",
+      "paths": [
+        "_ops/conversation_hub/service.py",
+        "_ops/board_cp/service.py"
+      ]
+    },
+    {
+      "name": "telegram_adapter",
+      "paths": [
+        "_ops/owner_console/telegram_adapter.py",
+        "_ops/intel_spine/telegram_adapter.py"
+      ]
+    },
+    {
+      "name": "telemetry",
+      "paths": [
+        "_ops/organs/telemetry.py",
+        "_ops/lab/full_loop_flash/telemetry.py",
+        "_ops/budget/telemetry.py"
+      ]
+    },
+    {
+      "name": "validator",
+      "paths": [
+        "_ops/integrations/world_discovery_action/validator.py",
+        "_ops/epistemics/validator.py"
+      ]
+    }
+  ],
+  "untested_modules": [
+    "_ops/autonomy_grant.py",
+    "_ops/blackbox_map.py",
+    "_ops/blackbox_scanner.py",
+    "_ops/brain_worker.py",
+    "_ops/c6_probes.py",
+    "_ops/c6_producer.py",
+    "_ops/c6_trigger.py",
+    "_ops/capabilities.py",
+    "_ops/cardiac.py",
+    "_ops/checkpoint.py",
+    "_ops/chrono.py",
+    "_ops/claim_when_ready.py",
+    "_ops/cockpit_brain.py",
+    "_ops/cockpit_brain_tick.py",
+    "_ops/code_autonomy_card.py",
+    "_ops/collab_coding.py",
+    "_ops/context_bundle.py",
+    "_ops/control_contracts.py",
+    "_ops/cycle_evaluator.py",
+    "_ops/defect_queue_card.py",
+    "_ops/export_status.py",
+    "_ops/fourd_access.py",
+    "_ops/germline.py",
+    "_ops/heart_wires.py",
+    "_ops/identity.py",
+    "_ops/initiative.py",
+    "_ops/instant_alert_bridge.py",
+    "_ops/mission_contract.py",
+    "_ops/money_caps_snapshot.py",
+    "_ops/money_fsm_card.py",
+    "_ops/octopus_logger.py",
+    "_ops/organism.py",
+    "_ops/output_guard.py",
+    "_ops/prereg.py",
+    "_ops/receipt_critic.py",
+    "_ops/review_bus.py",
+    "_ops/romajan_bridge.py",
+    "_ops/runner_apply_gate.py",
+    "_ops/run_doctor_day.py",
+    "_ops/seed_beat.py",
+    "_ops/shell_capability.py",
+    "_ops/smoke_24h.py",
+    "_ops/smoke_cartographer_virtual.py",
+    "_ops/smoke_live_path.py",
+    "_ops/smoke_ziman_wire.py",
+    "_ops/soak_pipeline.py",
+    "_ops/soak_scorecard.py",
+    "_ops/stop_probe.py",
+    "_ops/tg_receipts.py",
+    "_ops/tg_send_log.py",
+    "_ops/tick_timing.py",
+    "_ops/unified_bus.py",
+    "_ops/vault_updater_gate.py",
+    "_ops/verdict_probe.py",
+    "_ops/watchdog.py",
+    "_ops/watchdog_extension.py",
+    "_ops/wiring.py",
+    "_ops/_agent_reports/live-watch-2026-07-26/watcher.py",
+    "_ops/world_discovery/action_boundary.py",
+    "_ops/world_discovery/candidate_miner.py",
+    "_ops/world_discovery/competitor_intel.py",
+    "_ops/world_discovery/contracts.py",
+    "_ops/world_discovery/contradiction.py",
+    "_ops/world_discovery/direction_reader.py",
+    "_ops/world_discovery/experiment_designer.py",
+    "_ops/world_discovery/freshness.py",
+    "_ops/world_discovery/novelty.py",
+    "_ops/world_discovery/octopus_adapter.py",
+    "_ops/world_discovery/opportunity.py",
+    "_ops/world_discovery/public_web.py",
+    "_ops/world_discovery/report.py",
+    "_ops/world_discovery/scorer.py",
+    "_ops/world_discovery/source_policy.py",
+    "_ops/world_discovery/__init__.py",
+    "_ops/unified_control/compass.py",
+    "_ops/unified_control/contracts.py",
+    "_ops/unified_control/guidance_policy.py",
+    "_ops/unified_control/link_graph.py",
+    "_ops/unified_control/method_translator.py",
+    "_ops/unified_control/pipeline.py"
+  ],
+  "inventory_note": "new/deleted require a previous hash inventory; this session has none, so those lists stay empty rather than fabricated. modified_files = _ops/*.py with mtime > MASTER-ARCHITECTURE updated: — same rule as wiring._cartographer_map_signal, but with paths.",
+  "ts": 1787217673.2580633,
+  "executable": false
+}

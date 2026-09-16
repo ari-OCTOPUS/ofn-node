@@ -1,0 +1,26 @@
+{
+ "schema": "world-discovery-action.translation.v1",
+ "translation_id": "wda-92b53a15806cb9a0",
+ "created_at": "1785389672.5697834",
+ "source_artifact": {
+  "schema": "world-discovery.bundle.v1",
+  "result_schema": "world-discovery.discover.v1",
+  "artifact_id": "92b53a15806cb9a0e675c51b32befae3",
+  "content_hash": "92b53a15806cb9a0e675c51b32befae3"
+ },
+ "source_status": "NO_VALID_DISCOVERY",
+ "experiment_level_declared": null,
+ "experiment_level_inferred": null,
+ "action_class": null,
+ "decision": "NO_ACTION",
+ "action_id": null,
+ "reason": "NO_VALID_DISCOVERY: هیچ آزمایشی در artifact نیست | no-experiment-in-artifact",
+ "evidence_count": 0,
+ "independent_source_count": 0,
+ "falsifier_present": false,
+ "external_effects": [],
+ "estimated_cost": 0.0,
+ "owner_gate_required": false,
+ "warnings": [],
+ "errors": []
+}

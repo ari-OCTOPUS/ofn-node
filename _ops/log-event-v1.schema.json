@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/log-event-v1.json",
+  "title": "Octopus Structured Log Event v1",
+  "description": "Common envelope for all Octopus organism log events. Adapted from OpenTelemetry semantic conventions. Every event must pass this schema before ingestion to dashboard.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "v",
+    "ts",
+    "level",
+    "event",
+    "msg",
+    "organ",
+    "trace",
+    "span",
+    "status"
+  ],
+  "properties": {
+    "v": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version — allows dashboard to handle drift."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC ISO-8601 timestamp."
+    },
+    "level": {
+      "type": "string",
+      "enum": ["DEBUG", "INFO", "WARN", "ERROR", "CRIT"],
+      "description": "Severity level — syslog-compatible."
+    },
+    "event": {
+      "type": "string",
+      "pattern": "^[a-z]+\\.[a-z]+\\.[a-z_]+$",
+      "description": "Canonical event name from taxonomy v1 (e.g. organ.tick.completed)."
+    },
+    "msg": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Human-readable summary — NOT the primary data carrier."
+    },
+    "organ": {
+      "type": "string",
+      "description": "Octopus organ that produced this event (e.g. heart, doctor, governor, legs)."
+    },
+    "agent_id": {
+      "type": ["string", "null"],
+      "description": "Sub-agent identifier within an organ (e.g. doctor.box.warden)."
+    },
+    "trace": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{16}$",
+      "description": "Correlation ID for the execution chain. Propagated across organ boundaries."
+    },
+    "span": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{8}$",
+      "description": "Current span within the trace."
+    },
+    "parent": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Fa-f0-9]{8}$",
+      "description": "Parent span — enables causal chain reconstruction."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["started", "success", "failed", "blocked", "retrying", "skipped", "unknown"],
+      "description": "Outcome of the operation."
+    },
+    "duration_ms": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Elapsed time if event has start/end (task, tool_call, gate)."
+    },
+    "handoff_from": {
+      "type": ["string", "null"],
+      "description": "Source organ for handoff events."
+    },
+    "handoff_to": {
+      "type": ["string", "null"],
+      "description": "Target organ for handoff events."
+    },
+    "tool_name": {
+      "type": ["string", "null"],
+      "description": "Tool invoked (e.g. search_web, sandbox_test, llm_call)."
+    },
+    "gate_name": {
+      "type": ["string", "null"],
+      "description": "Gate that blocked/approved (e.g. money_gate, capability_gate, organ_gate)."
+    },
+    "gate_reason": {
+      "type": ["string", "null"],
+      "description": "Human-readable reason for gate decision."
+    },
+    "approval_state": {
+      "type": "string",
+      "enum": ["required", "approved", "denied", "not_required", "pending", "unknown"],
+      "description": "Approval lifecycle state."
+    },
+    "confidence": {
+      "type": ["number", "null"],
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Agent's self-assessed confidence (0-1)."
+    },
+    "tokens_in": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "LLM input tokens consumed."
+    },
+    "tokens_out": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "LLM output tokens consumed."
+    },
+    "cost_usd": {
+      "type": ["number", "null"],
+      "minimum": 0.0,
+      "description": "Estimated cost in USD."
+    },
+    "error_type": {
+      "type": ["string", "null"],
+      "description": "Error classification (e.g. TimeoutError, BudgetExceeded, PII_Detected)."
+    },
+    "error_redacted": {
+      "type": ["string", "null"],
+      "description": "Redacted error message — no secrets, no PII."
+    },
+    "payload_ref": {
+      "type": ["string", "null"],
+      "description": "Reference to full payload stored outside log stream (e.g. blob:// or file path)."
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Faceted labels for dashboard filtering."
+    },
+    "src": {
+      "type": ["string", "null"],
+      "description": "Source file and line (e.g. organism.py:276)."
+    },
+    "p": {
+      "type": "object",
+      "description": "Event-specific payload — schema defined per event type in taxonomy.",
+      "additionalProperties": true
+    }
+  }
+}

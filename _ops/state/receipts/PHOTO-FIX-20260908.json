@@ -1,0 +1,80 @@
+{
+ "schema": "photo-fix.v1",
+ "authority": "owner order 2026-09-08 (add product photos) + fresh vision re-verification",
+ "reason": "3 images uploaded earlier today were attached to WRONG products (stale proposal anchors); fresh vision check: 0007=red cylindrical box, 0008=cream woven basket",
+ "ts_utc": "2026-09-08T05:13:38.983096Z",
+ "deletes": [
+  {
+   "product": "8688854564964",
+   "image_id": 44145912610916,
+   "http": 200,
+   "why": "pink strawberry Lotso box != 0007 red box"
+  },
+  {
+   "product": "8688854564964",
+   "image_id": 44145912741988,
+   "http": 200,
+   "why": "green Elizabeth Arden tea box != 0007 red box"
+  },
+  {
+   "product": "8688854630500",
+   "image_id": 44145912807524,
+   "http": 200,
+   "why": "white/gold round box != 0008 cream basket"
+  }
+ ],
+ "uploads": [
+  {
+   "product": "8673569898596",
+   "file": "IMG_3636.HEIC",
+   "http": 200,
+   "image_id": 44145946263652,
+   "position": 2,
+   "why": "White & Gold Teddy Gift Box: same white box gold hearts + cream teddy + gold chocolates + outdoor table (vision SAME)"
+  },
+  {
+   "product": "8688854630500",
+   "file": "IMG_3101.jpg",
+   "http": 200,
+   "image_id": 44145946591332,
+   "position": 2,
+   "why": "0008 cream basket closer angle (vision SAME)"
+  },
+  {
+   "product": "8688854630500",
+   "file": "IMG_3728.jpg",
+   "http": 200,
+   "image_id": 44145946820708,
+   "position": 3,
+   "why": "0008 cream basket wider context (vision SAME)"
+  }
+ ],
+ "before_image_ids": {
+  "8688854630500": [
+   43902522490980,
+   44145912807524
+  ],
+  "8688854564964": [
+   43903065129060,
+   44145912610916,
+   44145912741988
+  ],
+  "8673569898596": [
+   43723598594148
+  ]
+ },
+ "after_image_ids": {
+  "8688854630500": [
+   43902522490980,
+   44145946591332,
+   44145946820708
+  ],
+  "8688854564964": [
+   43903065129060
+  ],
+  "8673569898596": [
+   43723598594148,
+   44145946263652
+  ]
+ }
+}

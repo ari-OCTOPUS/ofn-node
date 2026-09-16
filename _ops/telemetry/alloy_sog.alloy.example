@@ -1,0 +1,42 @@
+# Grafana Alloy — receive Octopus SOG/DARE + criticality metrics (OTLP/HTTP).
+# Secrets ONLY via env on the Alloy host — never in Python runtime.
+
+otelcol.receiver.otlp "octopus" {
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  output {
+    metrics = [otelcol.processor.batch.octopus.input]
+  }
+}
+
+otelcol.processor.batch "octopus" {
+  output {
+    metrics = [otelcol.processor.filter.octopus_signals.input]
+  }
+}
+
+# Keep octopus.* namespace; drop high-cardinality / raw-text attributes if any sneak in.
+otelcol.processor.filter "octopus_signals" {
+  metrics {
+    include {
+      match_type = "regexp"
+      metric_names = ["octopus\\..*"]
+    }
+  }
+  output {
+    metrics = [otelcol.exporter.otlphttp.metrics_backend.input]
+  }
+}
+
+otelcol.exporter.otlphttp "metrics_backend" {
+  client {
+    endpoint = env("GRAFANA_OTLP_METRICS_ENDPOINT")
+    headers = {
+      "Authorization" = env("GRAFANA_OTLP_AUTH_HEADER"),
+    }
+  }
+}

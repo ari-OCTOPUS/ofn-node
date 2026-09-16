@@ -1,0 +1,32 @@
+{
+  "ts": "2026-09-04T09:47:13",
+  "schema": "business-brain.v1",
+  "beat": 130,
+  "brain": "second (business ops)",
+  "projects": [
+    {
+      "id": "lead-naghshi",
+      "name": "🎯 Lead-نقاشی",
+      "status": "🟡",
+      "detail": "تأیید 0 · 0 سلولِ درآمد",
+      "authoritative": true
+    },
+    {
+      "id": "project-f",
+      "name": "🎬 Project-F",
+      "status": "🟢",
+      "detail": "فعال · money-locked · مهلت 2026-07-20",
+      "content_free": true
+    }
+  ],
+  "n_proposals": 1,
+  "proposals": [
+    {
+      "part": "Lead-نقاشی",
+      "title": "هنوز درآمدِ تأییدشده‌ای ثبت نشده",
+      "action": "یه لیدِ نقاشی ثبت کن (/lead) تا خطِ لوله راه بیفتد.",
+      "change_level": "reconfig",
+      "auto_ok": false
+    }
+  ]
+}

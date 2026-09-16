@@ -1,0 +1,17 @@
+{
+ "schema": "k9-triple-budget/1",
+ "seeds": [
+  "k9-triple-2026-08-20/A",
+  "k9-triple-2026-08-20/B",
+  "k9-triple-2026-08-20/C"
+ ],
+ "max_calls_total": 80,
+ "cap_aud": 2.0,
+ "target_valid_per_order": 9,
+ "max_attempts_per_order": 13,
+ "judge_contract": "V3 single-key {choice:A|B|TIE} @512 + single-token fallback @8",
+ "provider": "tier=primary via model_router (per-run pinned seed, temp0)",
+ "fx_gate": "required ≤24h (fx_timestamp_utc)",
+ "authority": "PRE-REG-K9-THREE-SEED-2026-08-20 §۶ — رأی چت مالک 2026-08-20",
+ "ts": "2026-08-20T13:41:59"
+}

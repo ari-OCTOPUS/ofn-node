@@ -1,0 +1,31 @@
+{
+  "schema": "lane-fg-verification/1",
+  "generated_at": "2026-08-21T00:45:00Z",
+  "scope": "read-only; no patches on concurrently-owned files",
+  "lane_f": {
+    "S-A03_calibration_to_improve": {
+      "status": "OPEN",
+      "evidence": ["rg 'calibration-latest' _ops/cortex/improve.py -> no match; improve.py reads improve-verdicts/auto-state/deep-slots, not calibration-latest", "calibration-latest.json fresh (n=408, brier 0.20539)"],
+      "action": "WAITING_LEASE on _ops/cortex/improve.py (concurrent writer)"
+    },
+    "S-A01_self_knowledge_confidence": {
+      "status": "MITIGATED_IN_CODE_NEEDS_VERIFY",
+      "evidence": ["_ops/doctor/self_knowledge.py:533-551 EMA accuracy clamp (_accuracy_ema/_clamp_confidence), forward-only, flag-gated", "state/doctor/self-knowledge-latest.json confidence=null 'not calibrated' (no hardcoded 0.4 in latest)"],
+      "action": "WAITING_LEASE on _ops/doctor/self_knowledge.py; independent verifier required before VERIFIED"
+    },
+    "S-A08_cockpit_self_knowledge_tier": {"status": "OPEN", "evidence": ["_ops/cockpit_brain.py concurrently modified"], "action": "WAITING_LEASE"},
+    "S-A02_self_insight": {"status": "OPEN", "evidence": ["_ops/self_insight.py exists; no verified completed cycle recorded"], "action": "shadow execution after lease"}
+  },
+  "lane_g": {
+    "S-D01_doctor_pulse_deadlock": {
+      "status": "OPEN_NEEDS_VERIFY",
+      "evidence": ["OCTOPUS-DOCTOR/doctor/daemon.py has MissionState with open_timeout_s default 7 days (env-overridable)", "awaiting-merge path requires verification; daemon.py concurrently modified"],
+      "action": "WAITING_LEASE on daemon.py"
+    },
+    "S-B05_parity_no_baseline": {
+      "status": "CONFIRMED_NO_BASELINE",
+      "evidence": ["_ops/state/pulse/beat-parity.json compared=6442 matched=0 missing_old=6442"],
+      "action": "truth state recorded; baseline construction is a separate lane"
+    }
+  }
+}

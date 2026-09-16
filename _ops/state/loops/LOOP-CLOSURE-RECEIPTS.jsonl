@@ -1,0 +1,2 @@
+{"schema": "loop-closure-receipt/1", "loop_id": "loop:S-T02", "status": "SHADOW_CLOSED", "evidence": ["_ops/tests/test_telegram_durable_loop.py:13/13", "_ops/state/loops/LOOP-VERIFIER.json:confirmed=true", "_ops/state/loops/TELEGRAM-SHADOW-RESULT.json:pass=true"], "ts": "2026-08-20"}
+{"schema": "loop-closure-receipt/1", "loop_id": "loop:S-T01", "status": "SHADOW_CLOSED", "evidence": ["durable intent binds task/run pre-dispatch", "duplicate suppressed pre-business-logic"], "ts": "2026-08-20"}

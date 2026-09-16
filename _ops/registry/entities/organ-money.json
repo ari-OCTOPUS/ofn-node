@@ -1,0 +1,13 @@
+{
+  "logical_id": "urn:octopus:organ:money",
+  "entity_type": "Organ",
+  "display_name": "Financial Nervous Layer (budget/organ gate)",
+  "physical_path": "_ops/budget",
+  "owner": "ari",
+  "risk_tier": "R4",
+  "autonomy_level": "L0",
+  "live_state": "live",
+  "approval_state": "approved",
+  "capabilities": ["C0_observe"],
+  "notes": "سقفِ AU$30/ماه (budgets.yaml SoT) · هر خرج از organ_gate→budget_gate · money-move همیشه human-gated · kill-switch جدا. گافِ شناختهٔ #۱ (fail-open ِ human_append بی‌سکرت) با رأی مالک باز است."
+}

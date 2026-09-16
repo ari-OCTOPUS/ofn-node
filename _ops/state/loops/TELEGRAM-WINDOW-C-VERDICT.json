@@ -1,0 +1,99 @@
+{
+  "schema": "telegram-production-canary-verdict/1",
+  "generated_at": "2026-08-21T03:30:00Z",
+  "confirmed": true,
+  "failed_checks": [],
+  "checks": {
+    "real_authorized_events": true,
+    "unique_update_ids": true,
+    "durable_intents": true,
+    "acknowledgments": 5,
+    "results_committed": 5,
+    "delivery_receipts_ok": 5,
+    "delivery_covers_all_events": true,
+    "readbacks_confirmed": 5,
+    "unique_task_ids": true,
+    "duplicate_effects": 0,
+    "fabricated_task_ids": 0,
+    "unauthorized_sends": 0,
+    "stuck_intents": 0,
+    "memory_mutations": 0,
+    "paid_calls": 0,
+    "heartbeat_spam": 0
+  },
+  "events": [
+    {
+      "event_id": "tg:223883347",
+      "state": "CLOSED",
+      "task_id": "task_b4d381ed575b9b1899f951c4",
+      "run_id": "run_a188d6b7571c4b9c8f381e81fbd8408e",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883348",
+      "state": "CLOSED",
+      "task_id": "task_8ab82eddfaf5f858c38f38d0",
+      "run_id": "run_ab15df05822f4b4a869646ca486c35df",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883349",
+      "state": "CLOSED",
+      "task_id": "task_357b0fa1aebb488a7f6b1d15",
+      "run_id": "run_a7c1c1c8ad2d41d4a9eb3bc78bffac84",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883350",
+      "state": "CLOSED",
+      "task_id": "task_da36f70ed1cf283922ad944e",
+      "run_id": "run_69ec0e4111b8447dbf83680157809fd2",
+      "readback_verified": true
+    },
+    {
+      "event_id": "tg:223883351",
+      "state": "CLOSED",
+      "task_id": "task_3516ce2ca412adbe75ef04dd",
+      "run_id": "run_89fad2656ba3458193cfbd606948761d",
+      "readback_verified": true
+    }
+  ],
+  "outbox": [
+    {
+      "event_id": "tg:223883348",
+      "state": "CONFIRMED",
+      "message_id": 574,
+      "key": "13c8cde1aaf36cb19b872e16016eb9c1b99efb7a"
+    },
+    {
+      "event_id": "tg:223883350",
+      "state": "CONFIRMED",
+      "message_id": 578,
+      "key": "ab1fd8cab3af44e5922bd5a3333092e0a9cc1086"
+    },
+    {
+      "event_id": "tg:223883347",
+      "state": "CONFIRMED",
+      "message_id": 572,
+      "key": "d7170952ea5616c2a130950f5bedd27fd3597c36"
+    },
+    {
+      "event_id": "tg:223883349",
+      "state": "CONFIRMED",
+      "message_id": 576,
+      "key": "f3078ae38218ebb2a26aaf20104c3af87903967d"
+    },
+    {
+      "event_id": "tg:223883351",
+      "state": "CONFIRMED",
+      "message_id": 580,
+      "key": "fbc5e9ad7a4791fdce59a61f41ea30e3ec19cbdb"
+    }
+  ],
+  "state_hashes": {
+    "events_dir": "fa062c44b8f3eed2"
+  },
+  "production_closed": true,
+  "scope": "window CANARY-COVERAGE-20260821-C (updates >= 223883347)",
+  "note": "production gates per owner table; memory writes 0; paid calls 0."
+}

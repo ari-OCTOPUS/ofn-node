@@ -1,0 +1,6 @@
+{
+  "acceptance_scope": "tested scope only (registered suite 163/163 reproduced at declared head cc267048, preflight 2026-08-21)",
+  "preserve_state": "IMPLEMENTATION_COMPLETE_VERIFICATION_PENDING until an independent verifier signs SIG-IV",
+  "purpose": "Accept implementation completion within the tested scope",
+  "sig_id": "SIG-CLOSEOUT"
+}

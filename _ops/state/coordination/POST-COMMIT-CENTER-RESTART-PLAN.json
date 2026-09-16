@@ -1,0 +1,38 @@
+{
+ "schema": "post-commit-center-restart-plan/1",
+ "generated_at": "2026-08-21T04:10:00Z",
+ "status": "EXECUTED",
+ "blocked_by": null,
+ "preconditions": [
+  "staged package committed",
+  "repository HEAD contains telegram_adapter.py, organs/paths.py, canary_window.py",
+  "code hashes match commit",
+  "STOP-TG-HEARTBEAT remains ON",
+  "Wave 1 remains locked"
+ ],
+ "steps": [
+  "snapshot PID 23568, port 8776, offset, pending intents, outbox, DLQ, poll health",
+  "restart only Telegram center via arm-canary.ps1",
+  "verify new PID owns 8776",
+  "wait for 3 healthy poll cycles, fails=0, no 409, offset no regression",
+  "verify running code hashes equal committed working-tree hashes",
+  "run cockpit smoke and durable verifier",
+  "mark LOOP-RUNNING-CODE-DRIFT closed only after verifier"
+ ],
+ "rollback": "unset newly added flags if needed, restart center, reconcile durable state; never restart organism/cortex/daemon/live",
+ "commit_attempts_this_window": 2,
+ "owner_action_required": "disable/pause the mimosa plugin git-gate hook in the ZCode client for one commit (or provide an owner-side gate release mechanism), then agent commits the ready 66-file staged set",
+ "executed_at": "2026-08-21T05:20:00Z",
+ "execution_evidence": {
+  "before_pid": 23568,
+  "after_pid": 29492,
+  "port_8776_owner": 29492,
+  "last_offset": 223883347,
+  "healthy_cycles": 3,
+  "consecutive_failures": 0,
+  "commit": "f37eb98 + 710cb45",
+  "manifest": "RUNNING-CODE-MANIFEST-2026-08-21.json",
+  "smoke": "test_telegram_closed_loop_20260820 15/15",
+  "verifier_ran": true
+ }
+}

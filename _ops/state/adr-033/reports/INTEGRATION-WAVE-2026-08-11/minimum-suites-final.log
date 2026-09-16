@@ -1,0 +1,84 @@
+F:\backup\_ops\blackbox_scanner.py:3: SyntaxWarning: invalid escape sequence '\ '
+  """blackbox_scanner.py — اسکنِ خودکارِ F:\ برای جعبه‌های سیاه (read-only، $0).
+
+â”€â”€ test_adr033_control_plane.py â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ✅ policy-gate-fail-closed
+  ✅ provenance-quarantine
+  ✅ event-log-digest-only
+  ✅ replay-dry-run-only
+  ✅ rollback-keeps-ledger
+  ✅ registry-spec-not-built
+  ✅ seven-day-no-promotion
+  ✅ spectral-unknown-not-zero
+  ✅ collaborator-adr033-gate
+  ✅ protective-halt-needs-policy-gate
+F:\backup\_ops\blackbox_scanner.py:3: SyntaxWarning: invalid escape sequence '\ '
+  """blackbox_scanner.py — اسکنِ خودکارِ F:\ برای جعبه‌های سیاه (read-only، $0).
+
+â”€â”€ test_approval_state.py â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ✅ mutated-proposal-blocks
+  ✅ expired-approval-blocked
+  ✅ external-send-forbidden
+  ✅ policy-version-mismatch
+  ✅ store-failure-blocked
+  ✅ duplicate-idempotency
+  ✅ spectral-disconnected
+  ✅ discover-facade-v2
+
+â”€â”€ test_signals_registry_schema.py â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ✅ registry-valid
+  ✅ diagnostic-no-gate
+  ✅ spec-path-null
+  ✅ effect-needs-rollback
+  ✅ neural-learned-apply-pin
+  ✅ halt-not-in-signals
+  ✅ sog-snapshot
+
+â”€â”€ test_registry_semantic_validator.py â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ✅ realistic-pass
+  ✅ duplicate-id-fail
+  ✅ diagnostic-may-gate-fail
+  ✅ spec-with-path-fail
+  ✅ shadow-no-rollback-fail
+  ✅ armed-no-7d-fail
+  ✅ neural-apply-true-fail
+  ✅ missing-impl-fail
+  ✅ missing-test-fail
+  ✅ report-fields
+
+â”€â”€ test_kalman_shadow_pipeline.py â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ✅ shadow-never-overrides
+  ✅ invalid-estimate
+  ✅ estimator-exception
+
+â”€â”€ test_bcm_hebbian_shadow_e2e.py â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ✅ bcm-high-grows
+  ✅ bcm-low-no-grow
+  ✅ bcm-forgetting
+  ✅ bcm-nan-unknown
+  ✅ hebbian-prune
+  ✅ hebbian-deterministic
+  ✅ hebbian-untrusted
+
+â”€â”€ test_nociceptor_chaos_shadow.py â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ✅ pain-bounded
+  ✅ pain-nan-unknown
+  ✅ pain-proposal-only
+  ✅ kill-switch-block
+  ✅ redis-down-block
+  ✅ scenario-deterministic
+
+â”€â”€ test_adr034_neural_demote.py â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ✅ PainAssessment immutable + fields
+  ✅ NaN → UNKNOWN no influence
+  ✅ high pain → proposal only
+  ✅ LEARNED_APPLY=1 not executable
+  ✅ PROPOSAL shadow fold only
+  ✅ organism/brain demoted
+  ✅ PolicyGate halt gates
+  ✅ replay deterministic / no skip mutation
+  ✅ flags containment A
+  ✅ capability SHADOW record
+
+==================================================================
+OK: all 8 suite(s) green (only-mode; capability marker untouched)

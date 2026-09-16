@@ -1,0 +1,15 @@
+{
+  "items": {
+    "ade8eaaae3e1fce305c3": {
+      "attempts": 3,
+      "last_ts": 1787217673.2782035,
+      "status": "TOOL_REQUEST_QUARANTINED",
+      "reasons": [
+        "denied-once",
+        "denied-twice"
+      ],
+      "last_reason": "denied-twice",
+      "cooldown_until": 1787304073.2782035
+    }
+  }
+}

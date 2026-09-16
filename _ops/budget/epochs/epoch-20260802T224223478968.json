@@ -1,0 +1,182 @@
+{
+  "ts": "2026-08-02T22:40:54",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.444,
+        "DEBATE_LOOP": 0.112,
+        "GENOME_SYS": 0.444
+      },
+      "reason": "[EST] All telemetry zero (no events/cost); no fitness signal, so allocate by floor ratios pending real data."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-ACCOUNTING",
+    "rounds": 2,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از روش‌های پیشرفته تحلیل داده برای شناسایی معاملات غیرعادی و بهبود کارکرد سهام‌های ناشناخته",
+          "why_genius": "این رویکرد می‌تواند با استفاده از هوش مصنوعی و تحلیل داده‌ها، معاملات غیرعادی را شناسایی کند و سهام ناشناخته را بهبود بخشد. این می‌تواند منجر به کم‌هزینه‌تر شدن حرکت با بیشترین ارزش شود.",
+          "why_insane": "استفاده از پیچیده‌ترین روش‌های تحلیل داده می‌تواند هزینه بالاتری نسبت به روش‌های سنتی داشته باشد و نیاز به تیم متخصص بیشتری دارد. علاوه بر این، عدم قطعیت در عملکرد این روش‌ها می‌تواند منجر به تصمیمات نادرست شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "روش‌های پیشرفته تحلیل داده باید باعث کاهش هزینه و بهبود عملکرد شوند، در غیر این صورت نفعی ندارند.",
+          "cheapest_test": "مقایسه هزینه‌ها و عملکرد روش پیشرفته تحلیل داده با روشهای سنتی برای هفته فعلی.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی نیازهای تراکنشی و بهینه‌سازی زمان پردازش در هفته فعلی.",
+          "why_genius": "این روش با استفاده از داده‌های تاریخچه‌ای، می‌تواند نیازهای دقیق تراکنشی را پیش‌بینی کند و زمان پردازش را به حداقل برساند. این کاهش هزینه‌ها و بهبود عملکرد را در طول هفته فعلی محقق می‌شود.",
+          "why_insane": "در صورت عدم توانایی هوش مصنوعی در پیش‌بینی دقیق نیازهای تراکنشی، ممکن است زمان پردازش افزایش یابد و هزینه‌ها به طور نامناسب کاهش یابند. این می‌تواند باعث عدم قطعیت در عملیات شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "نیاز به داده‌های دقیق و معتبر برای پیش‌بینی نیازهای تراکنشی وجود دارد که در صورت عدم ارائه آن‌ها، روش هوش مصنوعی نمی‌تواند عملکرد خواسته شده را احراز کند.",
+          "cheapest_test": "بررسی دقت پیش‌بینی‌های حاضر هوش مصنوعی بر اساس داده‌های تاریخچه‌ای موجود.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

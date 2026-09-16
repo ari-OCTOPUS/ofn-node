@@ -1,0 +1,18 @@
+{
+  "phase_id": "phase-6",
+  "review_type": "PHASE_RESULT",
+  "ts": "20260710T101040",
+  "payload": {
+    "summary": "Fisher metric (budget/fisher.py): G تجربی از مؤلفه‌های fitness، Gr=G+εI، cond=λmax/λmin، natural_step=η·Gr⁻¹·mean(g)، وزن‌های advisory با حفظ scale. فقط fisher-latest.json؛ وزن‌های واقعی (I4/I6) دست‌نخورده. هوک روزانه پشت OCTOPUS_WIRE_FISHER (خاموش، خارج از profile).",
+    "completed_ts": "2026-07-10T12:00:00",
+    "tests": [
+      "test_fisher.py (13)"
+    ],
+    "metrics_preregistered": "phase-metrics.jsonl → blueprint-phase-6-fisher",
+    "note": "جلسه ۴۴. cells فعلاً خالی (shadow) — advisory تا دادهٔ EXPERIENCE."
+  },
+  "verdict": "approved",
+  "_file": "phase-6-PHASE_RESULT-20260710T101040.json",
+  "verdict_ts": "20260710T110602",
+  "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
+}

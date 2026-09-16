@@ -1,0 +1,69 @@
+{
+  "schema": "octopus.debug.loop-closure-matrix/1",
+  "baseline_head": "c713d26c9460e184347c82d13b0f96cb809975dd",
+  "loops": [
+    {
+      "id": "T1-inbound-poll",
+      "stages": ["lease", "poll start", "transport", "complete/empty", "offset", "dispatch"],
+      "closed": "PARTIAL",
+      "evidence": "live empty polls 16/16; lease+409 in fixture W4; soak not measured",
+      "open": ["60min soak", "subprocess default-off"]
+    },
+    {
+      "id": "T2-miniapp-auth",
+      "stages": ["HMAC", "TTL 300", "skew 30", "dup keys"],
+      "closed": "PARTIAL",
+      "evidence": "C1 commit 2325ffce; SIG-IV 34/34 at bfbb03f",
+      "open": ["live gateway re-measure"]
+    },
+    {
+      "id": "T3-decision-nonce",
+      "stages": ["reserve", "consume", "receipt", "replay reject"],
+      "closed": "PARTIAL",
+      "evidence": "C2 ledger in tree; SIG-IV security-c1-c4 34/34",
+      "open": ["live miniapp nonce path"]
+    },
+    {
+      "id": "T4-durable-outbound",
+      "stages": ["outbox", "admit", "attempt", "receipt", "reconcile"],
+      "closed": "PARTIAL",
+      "evidence": "W5 fixture 7/7; SenderBridge unattached live",
+      "open": ["live send owner gate"]
+    },
+    {
+      "id": "T5-supervision",
+      "stages": ["classify hung vs empty vs dns"],
+      "closed": "OPEN",
+      "evidence": "PS1 uses pulse age only; watchdog_truth unused",
+      "open": ["T5 taxonomy", "PS1 TCB-adjacent kill policy"]
+    },
+    {
+      "id": "T6-evidence",
+      "stages": ["cite source/sha/boot/digest"],
+      "closed": "PARTIAL",
+      "evidence": "SIG-IV INDEPENDENT-VERDICT SECURITY_SHADOW_PASS bfbb03f; W7 receipts",
+      "open": ["60min soak"]
+    },
+    {
+      "id": "T7-cockpit",
+      "stages": ["API field → UI", "honest pending/confirmed"],
+      "closed": "NOT_MEASURED",
+      "evidence": "not exercised this session",
+      "open": ["cockpit truth audit"]
+    },
+    {
+      "id": "C5-memory-cycle",
+      "stages": ["observe", "retrieve", "decide", "later cycle uses prior"],
+      "closed": "FIXTURE_CLOSED",
+      "evidence": "test_memory_cycle_context 3/3; cycle_context decide_from_context",
+      "open": ["live organism consume_tick still explore-only without outcomes"]
+    },
+    {
+      "id": "C9-typed-agents",
+      "stages": ["contract", "budget", "critic separate"],
+      "closed": "SEAMS_CLOSED",
+      "evidence": "test_typed_agent_seams 4/4",
+      "open": ["no free-form runtime agents"]
+    }
+  ]
+}

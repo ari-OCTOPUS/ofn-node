@@ -1,0 +1,76 @@
+{
+  "schema": "octopus-writer-lease/1",
+  "lease_id": "481549e9b8ba415a977c6fec5faa9721",
+  "agent_id": "fugu-ultra-single-writer",
+  "session_id": "sess_cad4fe9c-1be2-4771-86f7-ec0e12693afe",
+  "acquired_at": 1787312763.831,
+  "ttl_seconds": 21600,
+  "scope": [
+    "source",
+    "tests",
+    "evidence",
+    "plans",
+    "git",
+    "rescue"
+  ],
+  "owner_order_id": "OWNER-EXECUTION-ORDER-OCTOPUS-REAL-LOOP-CLOSURE-2026-08-21",
+  "orchestrator_identity": "fugu-ultra / ZCode single-writer",
+  "repository_root": "F:/backup",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "starting_head": "53e527aef95c9bb30a3822e3ac278df59590e1d4",
+  "started_at": "2026-08-21T21:46:03.831000+10:00",
+  "allowed_source_paths": [
+    "06-EVIDENCE/OCTOPUS-*",
+    "_ops/cortex/plans/*",
+    "_ops/telegram_center/*",
+    "_ops/tests/*",
+    "_ops/organs/*",
+    "_ops/self_upgrade_lab/*",
+    "_ops/runtime/*",
+    "_ops/nervous_recovery/*",
+    "_ops/loops/*",
+    "_ops/budget/*",
+    "OCTOPUS-DOCTOR/doctor/*",
+    "07 - Knowledge/شناخت-اختاپوس/*"
+  ],
+  "forbidden_actions": [
+    "git reset --hard",
+    "git clean",
+    "force push",
+    "history rewrite",
+    "secret exposure or rotation",
+    "live sendMessage",
+    "live editMessageText during soak",
+    "webhook mutation",
+    "paid call",
+    "auto-resend UNCERTAIN_SEND_OUTCOME",
+    "destructive production-memory migration",
+    "self-sign SIG-IV"
+  ],
+  "heartbeat_at": 1787318963.233,
+  "expires_at": 1787334363.831,
+  "release_procedure": "python _ops/writer_lease.py release --agent fugu-ultra-single-writer --session sess_cad4fe9c-1be2-4771-86f7-ec0e12693afe",
+  "source_stability_windows": {
+    "window_1": "130b307ad43de7ade96fb2ec36fe85a5fc3d8a3eb703da846d7ec2d6b62fe5c7",
+    "window_2": "130b307ad43de7ade96fb2ec36fe85a5fc3d8a3eb703da846d7ec2d6b62fe5c7",
+    "file_count": 162,
+    "interval_seconds": 30,
+    "changed_paths": []
+  },
+  "live_runtime_writers": [
+    "telegram_center",
+    "organism",
+    "cortex",
+    "miniapp_gateway",
+    "live_server",
+    "octopus_mcp"
+  ],
+  "source_writers": 1,
+  "preservation_commit": "360d436",
+  "current_head": "c7ec5f527243aa50b80bbdc5c790cebe4cb08854",
+  "handoff_commit": "aa7a795",
+  "repro_commits": [
+    "4ce67d2",
+    "c7ec5f5"
+  ]
+}

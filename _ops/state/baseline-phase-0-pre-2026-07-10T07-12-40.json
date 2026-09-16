@@ -1,0 +1,27 @@
+{
+  "phase_id": "phase-0",
+  "label": "pre",
+  "snapshot": {
+    "ts": 1783631560.209538,
+    "iso": "2026-07-10T07:12:40",
+    "halted": null,
+    "frozen": false,
+    "stop_organism": false,
+    "conflicts": [],
+    "suspect_zero_total": 0,
+    "germline_lag_h": 8.32,
+    "germline_alert": "warn",
+    "month": {
+      "key": "2026-07",
+      "musd": 0,
+      "usd": 0.0,
+      "aud": 0.0
+    },
+    "today": {
+      "musd": 0,
+      "usd": 0.0
+    },
+    "fitness_cells": {},
+    "money_fingerprint": "20379db53fe0c60fd25a7321"
+  }
+}

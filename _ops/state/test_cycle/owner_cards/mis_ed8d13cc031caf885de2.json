@@ -1,0 +1,75 @@
+{
+ "schema": "octopus.owner-card-stage.v1",
+ "mission_id": "mis:ed8d13cc031caf885de2",
+ "trace_id": "trace:3179251dd0ba804bfdc8",
+ "action_id": "act:f560141de2e8e05a64ef",
+ "cycle_id": "act:f560141de2e8e05a64ef",
+ "classification": "A3",
+ "risk": "medium",
+ "card": {
+  "schema": "owner-action-card.v1",
+  "action_id": "act:f560141de2e8e05a64ef",
+  "payload_hash": "04a2a5f1f3f5e04bd7de5fefa983aff8",
+  "classification": "A3",
+  "intent": "پیشنهادِ صریح به مالک برای ثبتِ attribution.claim روی یک لیدِ مشخصِ تأییدشده (کارتِ تلگرام، نه اجرای خودکار)",
+  "target": "owner:qualified-lead-review",
+  "expected_effect": "مالک یک لید واقعیِ واجد شرایط را برای claim بررسی می‌کند؛ هیچ claim خودکار ساخته نمی‌شود",
+  "external_effect": false,
+  "estimated_cost": 0,
+  "allowed_scope": [
+   "owner-cards"
+  ],
+  "falsifier": "هیچ لید تحویل‌شده با مبلغ مثبت و شاهد مستقل وجود نداشته باشد",
+  "rollback": "کارت منقضی/رد می‌شود؛ metric و attribution خودکار تغییر نمی‌کنند",
+  "reason": "base:owner_action_card=A3",
+  "created_at": 1785463288.070569,
+  "is_authorization": false,
+  "note": "این کارت درخواست است. مجوز فقط رکوردِ owner-approval.v1 است."
+ },
+ "request": {
+  "schema": "action-request.v1",
+  "action_id": "act:f560141de2e8e05a64ef",
+  "goal_id": "f7ceb1b7dd0e",
+  "prereg_id": "2026-07-31#1:f7ceb1b7dd0e",
+  "source_component": "unified_control.method_translator",
+  "intent": "پیشنهادِ صریح به مالک برای ثبتِ attribution.claim روی یک لیدِ مشخصِ تأییدشده (کارتِ تلگرام، نه اجرای خودکار)",
+  "action_type": "owner_action_card",
+  "target": "owner:qualified-lead-review",
+  "expected_effect": "مالک یک لید واقعیِ واجد شرایط را برای claim بررسی می‌کند؛ هیچ claim خودکار ساخته نمی‌شود",
+  "metric": {
+   "path": "fitness-latest.json",
+   "key": "attribution.claimed",
+   "baseline": 0.0,
+   "target": {
+    "op": ">",
+    "value": 0.0
+   }
+  },
+  "allowed_scope": [
+   "owner-cards"
+  ],
+  "forbidden_actions": [
+   "fabricate_claim",
+   "external_send",
+   "spend",
+   "merge",
+   "deploy",
+   "restart",
+   "arm_flag",
+   "edit_evaluator"
+  ],
+  "required_capabilities": [],
+  "external_effect": false,
+  "estimated_cost": 0,
+  "privacy_class": "internal",
+  "deadline": "from-prereg",
+  "rollback": "کارت منقضی/رد می‌شود؛ metric و attribution خودکار تغییر نمی‌کنند",
+  "falsifier": "هیچ لید تحویل‌شده با مبلغ مثبت و شاهد مستقل وجود نداشته باشد",
+  "classification_hint": null
+ },
+ "plan_reason": "base:owner_action_card=A3",
+ "created_ts": 1785463288.070569,
+ "staged_job_id": "sgc-mission-mis-ed8d13cc031caf885de2",
+ "verdict": "",
+ "staged_ts": 1785463430.3835123
+}

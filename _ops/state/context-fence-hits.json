@@ -1,0 +1,25 @@
+{
+  "schema": "context-fence-hits.v1",
+  "total": 1,
+  "first_ts": "2026-08-29T00:11:18",
+  "last_ts": "2026-08-29T00:11:18",
+  "by_code": {
+    "delimiter-escape-attempt": 1
+  },
+  "by_caller": {
+    "model_router.deep": {
+      "n": 1,
+      "last": "2026-08-29T00:11:18",
+      "last_epoch": 1787926278.317,
+      "provenance": [
+        "external"
+      ],
+      "codes": [
+        "delimiter-escape-attempt"
+      ]
+    }
+  },
+  "by_day": {
+    "2026-08-29": 1
+  }
+}

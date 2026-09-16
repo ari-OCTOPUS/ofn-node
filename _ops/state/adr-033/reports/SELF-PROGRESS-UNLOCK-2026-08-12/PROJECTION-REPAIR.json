@@ -1,0 +1,22 @@
+{
+  "ts": "2026-08-11T14:44:04.526521+00:00",
+  "projection_repair": {
+    "fixed": 15,
+    "stalled_after": 0,
+    "decided_after": 79
+  },
+  "gates": {
+    "in_fear": [],
+    "ACT_AUTO": true,
+    "CAPABILITY_OK": false,
+    "APPLY": 0,
+    "CHRONO_NUDGE_EVERY_N_BEATS": 780,
+    "auto_enabled": true
+  },
+  "loops_verify": {
+    "improve_trail_growth": true,
+    "part_loops_ok": true,
+    "self_loop_lines": 99
+  },
+  "honest_limit": "CAPABILITY-OK requires green full run_all; auto knob apply still blocked; propose/work_pump/doctor/memory continue"
+}
