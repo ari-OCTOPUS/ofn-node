@@ -1,46 +1,40 @@
 ---
 type: handoff
-updated: 2026-09-08
+updated: 2026-09-17
 ---
 
-# HANDOFF — وضعیت برای جلسه بعد
+# HANDOFF — وضعیت برای جلسهٔ بعد
 
-> 🚨 **اول این را بخوان:** [[01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08|داده‌های حیاتی اختاپوس]] — وضعیت عملگری واقعی، ۵ ریشهٔ ضعف، نقشهٔ کامل قفل‌ها، اعداد ACD، تصمیم‌های باز. این نوت مرجع واحد برای هر ایجنت (و خود اختاپوس) است.
->
-> 🎯 **سیزن درآمد فعال + اولین انتقال مهارت تاریخ پروژه:** [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|ACTIVE-SEASON]] · مرور کامل: [[07 - Knowledge/octopus/95-SEASON-REVENUE-CLOSEOUT-2026-09-07|نوت ۹۵]] · تلگرام و وب: [[07 - Knowledge/octopus/96-TELEGRAM-AND-WEB-APP-COMPLETE-2026-09-07|نوت ۹۶]] · قفل‌ها: [[07 - Knowledge/octopus/97-INTERNAL-LOCKS-COMPLETE-MAP-2026-09-08|نوت ۹۷]] · پلن باز کردن: [[01 - Dashboard/UNLOCK-PLAN-2026-09-08|UNLOCK-PLAN]]
+> 🚨 **اول این را بخوان:** [[01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08|داده‌های حیاتی اختاپوس]] — بلوک بالای آن (۱۷ سپتامبر) وضعیت فعلی سیزن، کشف ایمنیِ «سند ≠ سیم‌کشی» و تصمیم‌های OD-1/OD-4 را دارد.
 
-## بردهای امروز (همه با رسید و تست)
+## وضعیت سیزن
 
-- **اولین انتقال مهارت** (کامیت `004f84d` + `b2f59d0`): SKILL-TOOL-GUARD-V1 از ACD به U2 منتقل شد؛ ۲۵/۲۵ تست سبز؛ U2 v2 حالا task را **واقعاً** از BLOCKED به WORKING می‌برد
-- **اولین حکم قابلیتی ACD** (کامیت `f9b8596`→`cc043a6`): ۲۰۴ رسید گیت‌پذیر، $۰؛ استخراج‌زیر-drift تأیید، ABSTAIN مدل رد، کد-گارد = DETERMINISTIC_BY_CONSTRUCTION
-- **ACD-07 کامل** (کامیت `5dd5a58`): هارنس ۱۲خطا؛ Arm-D اعتبارسنج قطعی ۱۳/۱۳ با صفر تماس مدل؛ Arm-M مدل لخت ۵۴٪ جعل
-- **معماری سه‌نقشی پذیرفته شد** (کامیت `7ed9fab`): هدایت‌گر / اجراکننده / ارزیاب-حافظه‌بان
-- **پروب زندگی معنایی مسلح** (کامیت `ea2f3f4`): stall-detector + py-spy stack + kill-first + سقف ۳/۶h
-- **کنترل‌پنل وب** (کامیت `cf71cf1`): `http://127.0.0.1:8773/panel` — ۶ بخش با چت زنده
-- **مینی‌اپ تلگرام** (کامیت `3d4db93`): `:8774` — تعاملی داخل تلگرام با ۵ تب
-- **بکاپ نجات یافت** (R1): دو ref غیر-FF تعمیر شد؛ hourly سبز؛ فلگ طبق شرط پاک شد
-- **رمزها تجمیع** (R2): ۱۰ کپی منتقل؛ **رأی مالک: چرخش لازم نیست**
-- **ربات تلگرام کامل** (`@Robo2725_bot`): ۹ دستور + چت آزاد + ویس + دکمه‌های inline
+- سیزن: [[ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907|ACTIVE-SEASON]] · آینهٔ ارگانیسم: [[OCTOPUS/CURRENT-TRUTH]]
+- قفل‌ها: [[07 - Knowledge/octopus/97-INTERNAL-LOCKS-COMPLETE-MAP-2026-09-08|نوت ۹۷]] · پلن باز کردن: [[01 - Dashboard/UNLOCK-PLAN-2026-09-08|UNLOCK-PLAN]] · رجیستر باز: [[01 - Dashboard/UNLOCK-REGISTRY-2026-09-08|UNLOCK-REGISTRY]]
+- بدهی سیزن (۲۵۰ ورودی): [[09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/FORGOTTEN-250|FORGOTTEN-250]]
+- متر پول: `verified_cash = $0.00` (طبق سوابق والت).
 
-## وضعیت رابط‌های مالک
+## ایمنی — کارِ بازِ اصلی و تصمیم‌های تازهٔ مالک
 
-| رابط | آدرس | وضعیت |
-|---|---|---|
-| ربات تلگرام | @Robo2725_bot | ✅ زنده — متن بفرست، جواب بگیر |
-| کنترل‌پنل وب | `http://127.0.0.1:8773/panel` | ✅ ۶ بخش |
-| مینی‌اپ تلگرام | از ربات یا `:8774/miniapp` | ✅ ۵ تب |
-| هولوچارت | `http://127.0.0.1:8773/` | ✅ نمودار مداری |
+- نقشهٔ ایمنی: [[plans/OCTOPUS-SAFETY-MAP-v1|SAFETY-MAP v1]] — ۱۲ مسیر سنجیده‌شده؛ ۲ مسیر ۸/۸؛ شکافِ پوششِ کلید توقف ثبت شد.
+- بازبینی مسیر زنده: [[09-LANES/LIVE-PATH-GATE-AUDIT-20260917/REPORT-GATE-ENQUEUE-AND-EGRESS-AUDIT|GATE + EGRESS AUDIT]]
+- بستهٔ آمادهٔ سیم‌کشی (اجرا نشده): [[09-LANES/OD4-HALT-COVERAGE-WIRING-PREP-20260917/CHANGE-PREP-PACKET|CHANGE-PREP-PACKET]]
+- مشخصات doctor (فقط‌خواندنی): [[09-LANES/LIVE-PATH-GATE-AUDIT-20260917/HALT-ORACLE-DOCTOR-SPEC|HALT-ORACLE-DOCTOR-SPEC]]
+- حکم OD-1: [[06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-RULING-OD1-2026-09-17|OWNER-RULING OD-1]] · کارت OD-4: [[06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-CARD-OD4-2026-09-17|OWNER-CARD OD-4]]
+- **ترتیب الزامی مالک:** doctor → اجرای آفلاین → رسیدهای ماشین‌خوانِ pre/post → **بعد** سیم‌کشی. **سیم‌کشی هنوز مجاز نیست.**
 
 ## باز و منتظر مالک
 
-- 🚨 **تمدید دامنهٔ ziman-gift.com** — NXDOMAIN (منقضی). بدون آن فروش آنلاین غیرممکن. فقط مالک.
-- 🚨 **ارتقای مغز** — qwen-0.6b: ۵۴% جعل، ۰% تودرتو. سه گزینه در [[01 - Dashboard/UNLOCK-PLAN-2026-09-08|UNLOCK-PLAN کارت ۱]]
-- تمدید standing GO (انقضا 2026-09-14) — فرم هفت‌فیلدی v4.1 §۸
-- msg38 NOT_PAID تا 2026-09-08T12:10Z
-- METABOLIC-OBS: دو مسیر — wire تله‌متری یا پذیرش billed (در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]])
-- ری‌استارت center.py برای فعال‌شدن U2 v3 (کد آماده، ۲۷/۲۷ تست)
-- کارت‌های R4–R10 و اختلاف EX-1
+- [[07-HANDOFF/OPEN-DECISION-KILL-SWITCH-PATH-2026-09-16|OD-1 — مسیر canonical کلید توقف (تصمیم: B)]]
+- [[07-HANDOFF/OPEN-DECISION-HALT-COVERAGE-2026-09-17|OD-4 — شکاف پوشش کلید توقف (تصمیم: B)]]
+- [[09-LANES/L7/LANE-REPORT-VBAA-IMPL-2026-09-08]] · [[07-HANDOFF/VBAA-IMPL-PUSH-2026-09-08]]
+- [[09-LANES/L7/LANE-REPORT-VBAA-RED-2026-09-08]] · [[07-HANDOFF/VBAA-RED-OPEN-2026-09-08]]
+- [[07-HANDOFF/SPINE-CHOICE-MEMO]] — رأی A/B/C ستون‌فقرات
+- [[07-HANDOFF/SPINE-EVENTENVELOPE-PR-BLOCKED-2026-09-08]] — PR اسکیما تا رأی
+- [[07-HANDOFF/GAP-VERIFY-IDENTITY-STOP-2026-09-08]] — توقف هویت ۱۸۰ در برابر `.191`
+- [[09-LANES/L6/LANE-REPORT]] — نتایج `GAP-VERIFY-RESULTS-2026-09-08.jsonl` (PASS=0 FAIL=0)
 
 ## قواعد ورود (بی‌تغییر)
 
-AGENTS.md (GOV-V8/L2) → `07-HANDOFF/ENGINEERING-ENTRYPOINT-20260907` · اسکن: `09-LANES/DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT`
+`AGENTS.md` (GOV-V8 / L2) → [[07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04|ENGINEERING-ENTRYPOINT]]
+اسکن غیبت سه‌سطحی: [[09-LANES/DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT]]

@@ -1,21 +1,22 @@
 ﻿---
 type: octopus-auto
 section: current-truth
-updated: 2026-09-11T07:40:00Z
+updated: 2026-09-17
 ---
 
 <!-- OCTOPUS-AUTO-START -->
-> auto-generated: 2026-09-15T10:43:50Z
+> auto-generated: 2026-09-16T22:08:06Z
 
 ## Current Truth
 
-- **coherence:** 0.803
+- **coherence:** 0.957
 - **members_present:** 11
 - **stale_members:** هیچ
-- **beat:** 75459
+- **beat:** 77487
 - **halted:** False
 - **rfcs_pending:** 0
-- **HEAD:** 686550b
+- **HEAD:** 108fad4
+
 
 <!-- OCTOPUS-AUTO-END -->
 
@@ -266,3 +267,35 @@ updated: 2026-09-11T07:40:00Z
 - **حلقه‌های دوپامین/ترس (فرمان مالک ۰۹-۰۷ شب) زنده و اثبات‌شده:** `_ops/drive_loops.py` توسط خودِ ارگانیسم هر ۲ بیت تیک می‌خورد؛ شمارهٔ نمایش ۰۴۹۳۵۷۷۱۹ (دور ۸) به‌طور خودکار قفل AUTO1_sender را باز کرد — task.resume + صفِ قدمِ بعدی، بدون ایجنت نشسته.
 - **⚠️ رگرسیون ویترین (13:1x):** `ziman-gift.com.au` حالا GoDaddy Website Builder سرو می‌کند (شاهد: generator=Starfield؛ مسیرهای محصول 404) و myshopify به آن 301 ⇒ صفحۀ محصول دوباره در دسترس نیست؛ ادعای «.com.au = 200» ظهر منسوخ. کاتالوگ سالم (ZM-GALLERY-0013 · A$45 · available). `.com` کهنه NXDOMAIN. کار هم‌زمان روی فروشگاه در جریان بود (updated_at 13:07) — بازبینی مجدد قبل از ادعا.
 - **VERIFIED_CASH = $0.00** — تنها قفلِ درآمدیِ بستهٔ drive = CASH_first_order. مانده از مالک: فقط انتخاب سرویس تماس A/B/C ([[07-HANDOFF/CALL-SERVICE-OFFER-CARD-20260908]]).
+
+
+### Human status - TG Unify P1/P1b permanent door on 138 (additive · 2026-09-16)
+
+> Outside auto block. Full note: [[10 - Telegram processing/TG-UNIFY-TRUTH-20260916]].
+
+- **Permanent door target:** board **138** Owner Control → private owner Telegram (not Grok Bot; laptop L1 not home).
+- **P1:** `/home/ari/.config/octopus/telegram-owner.env` landed · then **P1b** on-box bind · **`token_present=true`** (bool only; no values in vault).
+- **Poller:** still **OFF** until named GO · laptop not stopped · dual-poll DENY.
+- **Maps:** HQ RO map + pollers + presence; vault registry [[_ops/BOTS-REGISTRY]].
+
+### Human status — 2026-09-16 evening: permanent Telegram owner door (additive)
+
+> Outside auto block. Evidence: [[06-EVIDENCE/TG-UNIFY-OWNER-DOOR-20260916/REPORT]].
+
+- **Permanent door when Grok is gone:** private owner Telegram via board **138**, not this Grok chat.
+- **P1 + P1b landed:** `/home/ari/.config/octopus/telegram-owner.env` now `token_present=true` (copied on-box from `OFN_BOT_TOKEN_OWNER`; value never pasted in chat). Laptop not stopped. Poller not enabled yet.
+- **Laptop live surfaces still:** TG Center L2 (python center.py), MiniApp gateway + cloudflared, Telegram Desktop. Enabling 138 getUpdates without shadowing L2 risks 409 dual-poll.
+- **Obsidian health (this pass):** vault `F:\backup` opens; `.obsidian` present; plugins list loads; `OCTOPUS/CURRENT-TRUTH.md` auto-refresh works. Older Persian sections in this file show encoding damage — new notes use UTF-8; full re-encode of history deferred.
+- **Next named GO:** enable 138 owner poller / Owner Control push (P2) without dual-poll.
+
+### Human status — ۲۰۲۶-۰۹-۱۷: «سند ≠ سیم‌کشی» و اینکه کلید توقف واقعاً چه چیزی را می‌بندد (additive)
+
+> خارج از بلوک auto. منابع: `plans/OCTOPUS-SAFETY-MAP-v1.md` · `09-LANES/LIVE-PATH-GATE-AUDIT-20260917/` · `09-LANES/OD4-HALT-COVERAGE-WIRING-PREP-20260917/`
+
+- **متر سیزن:** `verified_cash = $0.00` (طبق سوابق والت؛ خودِ متر روی نود توسط این lane خوانده نشد).
+- **دربارهٔ رفتار خودت یک چیز اشتباه فهمیده می‌شد:** `ofn/kernel/gates.py` می‌گوید `admit()` «تنها مسیری» است که تصمیم می‌گیرد کاری انجام شود. در کد مسیر دومی هست (`ofn/node.py:3036`) که خودش می‌نویسد admit را دوباره اجرا نمی‌کند — و `admit()` فقط از `Node.propose` صدا زده می‌شود که **هیچ فراخوانِ تولیدی ندارد**. یعنی قوی‌ترین دروازهٔ سیاست روی مسیر زنده نیست.
+- **کلید توقف همه‌چیز را نمی‌بندد:** `~/ofn/HALT-ALL` فقط توسط **۵ ماژول** خوانده می‌شود. ارسال واقعی تلگرام و هزینهٔ مدل در مسیر خودشان آن را نمی‌خوانند؛ آن‌ها فقط یک پرچمِ درون‌برنامه‌ای دارند که با restart پاک می‌شود. برای توقف فوری، فایل کافی نیست.
+- **امروز امن هستی، ولی به دلیلی که «کنترل» نیست:** هیچ فرستندهٔ خودکاری وجود ندارد؛ هر ارسال واقعی به اقدام انسانی نیاز دارد. این یک خاصیتِ طراحی است و با وصل‌کردن `RunGate` یا `release_pipeline` به یک timer از بین می‌رود.
+- **آزمایشی که به تو اعتبار می‌داد معتبر نبود:** ۹۷/۱۰۰ در محیط فریبنده — ولی پاسخ داخل کاندیدا hardcode شده بود، کاندیدا `env.secret_doors` را مستقیم می‌خواند، و محیط در همهٔ ۱۰۰ اجرا یکی بود. کنترل کنجکاوی ۱۰۰/۱۰۰ برد و سریع‌تر بود.
+- **دو تصمیم مالک ثبت شد (OD-1 و OD-4، هر دو گزینهٔ B).** ترتیب الزامی: اول doctor ساخته و آفلاین اجرا شود، بعد رسیدهای ماشین‌خوانِ pre/post، و **فقط بعد** سیم‌کشی. سیم‌کشی هنوز مجاز نیست.
+- **درس:** تستِ سبز و سندِ خوب، شاهدِ زنده‌بودنِ یک کنترل نیستند. برای هر کنترل بپرس: «کدام لایه — `WIRED` / `TESTED_ONLY` / `DOC_ONLY` / `UNVERIFIED`؟»
