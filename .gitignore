@@ -284,3 +284,10 @@ _ops/legs/mail_credentials.py
 .smart-env
 # secret-leak guard 2026-09-16: tool hook-state snapshots captured live tokens
 **/.mimosa/hook-state/
+
+# 2026-09-17 owner vote: keep the repo pushable (GitHub 100MB/file + pack limits)
+_archive-binaries/
+octopus-evidence-archive/chg-e-20260822T*/observations.jsonl
+octopus-evidence-archive/chg-e-20260822T*/derived.jsonl
+06-EVIDENCE/FLEET-TIDY-20260830/archives/*.bundle
+06-EVIDENCE/FLEET-TIDY-20260830/archives/*.tar.gz
