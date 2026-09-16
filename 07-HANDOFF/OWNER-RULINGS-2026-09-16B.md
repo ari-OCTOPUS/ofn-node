@@ -73,7 +73,20 @@ status: REGISTERED
   `git push https://github.com/ari-OCTOPUS/ofn-node.git` (gh HTTPS credential);
   the SSH remote `autonomy` stays as-is until the owner re-enables SSH keys.
 
-## PUSH-RECEIPT (fill after push completes)
+## PUSH-RECEIPT (final)
 
-- rootfix/phase1-rca-20260916 → bb286c028e2c495ef86097363309e264b61ce53a ✓
-- rescue/octopus-live-tree-20260821 → (see lane report / git ls-remote)
+- `rootfix/phase1-rca-20260916` → remote `bb286c028e2c495ef86097363309e264b61ce53a` ✓ (contains 499b680 RCA + phase-3 scorer + phase-4)
+- `rescue/octopus-live-tree-20260821` (full history) → **BLOCKED at legacy secret commit `6a38af8`** by GitHub Push Protection (GitHub PAT + LangSmith token in `03 - Projects/Mining/02 - Code/Robo-data/scout_all_in_one.py:38,40`). History rewrite is charter-red-line; "allow secret" on a PUBLIC repo is forbidden. Remote ref advanced to `4dcaa821c945` (~first 400 commits, GitHub-verified clean range).
+- `receipts/durability-snapshot-20260916` → orphan snapshot commit `26978d30ca6b7fcd8ac702dab6660c2a57e188c1` = full vault tree at `9c81591` minus `_archive-binaries` (2.53GB, six files >50MB incl two 1GB DietPi images — over GitHub's 100MB file limit; offline copies: E:/germline + S: archive) — push in flight at report time, hash verify pending.
+
+## SECURITY FINDING (charter absolute-1) — found BY the push
+
+1. **Two real tokens sat in the tracked tree**: `ghp_…` (GitHub PAT) at `scout.py:14` and `lsv2_pt_…` (LangSmith) at `scout_all_in_one.py:40`. FIXED forward (commit `9c81591`): values redacted to env-var placeholders. **Owner action required: REVOKE/ROTATE both tokens — treat as compromised** (they were headed to a public remote).
+2. **`.mimosa/hook-state/` AND `_ops/.mimosa/hook-state/`** (tool hook-state snapshots) had captured live `ghp_` tokens into tracked files. FIXED: untracked both + `**/.mimosa/hook-state/` in .gitignore.
+3. Remaining `ghp_…` matches in tree are synthetic test fixtures (`ghp_TESTTOKEN…`, `ghp_ABCDEFGH…` in the ps1 test + EQUIP scanner evidence) — verified fake, left as-is.
+4. Recommendation: enable Secret Scanning on the repo (GitHub flagged it as eligible-but-off).
+
+## Durability posture after this ruling
+
+- Onsite: E:/germline (nightly, verified) · 138 runtime (PC-independent).
+- Offsite/public: GitHub `ari-OCTOPUS/ofn-node` — rootfix branch + receipts snapshot (this push). Full history stays local-only until the owner decides (rotate-then-unblock, or accept snapshot-only).
