@@ -1,0 +1,102 @@
+{
+  "schema": "octopus-service-inventory/1",
+  "generated_at": "2026-08-18T02:40:00+10:00",
+  "host": "DESKTOP-KA9RFN5",
+  "host_ipv4": "192.168.0.191",
+  "canonical": {
+    "vault": "F:\\backup",
+    "germline": "E:\\germline",
+    "promotion_receipt": false
+  },
+  "continuity_candidate": "192.168.0.180",
+  "gitwrite_failed": true,
+  "gitwrite_failed_path": "_ops/backup/GITWRITE-FAILED.flag",
+  "actions": {
+    "services_stopped": false,
+    "services_migrated": false,
+    "gitwrite_flag_touched": false,
+    "tcb_edited": false,
+    "ssh_to_boards": false,
+    "network_switched": false,
+    "awaiting": "owner-confirmation"
+  },
+  "counts": {
+    "MUST_STAY_ON_LAPTOP": 20,
+    "CAN_MOVE_TO_180": 1,
+    "CAN_REPLICATE_TO_180": 3,
+    "MUST_BE_REDESIGNED": 11,
+    "UNKNOWN": 2,
+    "total_rows": 37
+  },
+  "proposed_first_move": {
+    "kind": "PROPOSAL",
+    "action": "read-only pulse/evidence replica on 192.168.0.180",
+    "not_included": ["git", "tcb", "secrets", "board_cp", "telegram", "4d_daemon", "organism"]
+  },
+  "live_pids": {
+    "4d_daemon": 24588,
+    "board_cp": 26932,
+    "organism": 7416,
+    "cortex": 15368,
+    "live_cockpit": 19228,
+    "telegram_center": 27844,
+    "miniapp_gateway": 22768,
+    "cloudflared": 11080
+  },
+  "live_ports": {
+    "board_cp_tls": "0.0.0.0:8801",
+    "organism": "127.0.0.1:8771",
+    "organism_extra_unproven": "127.0.0.1:8777",
+    "cortex": "127.0.0.1:8772",
+    "live": "127.0.0.1:8773",
+    "miniapp": "127.0.0.1:8774",
+    "tg_center_lock": "127.0.0.1:8776",
+    "ollama": "127.0.0.1:11434"
+  },
+  "nats": {
+    "laptop_listener_4222": false,
+    "laptop_process": false,
+    "file_evidence_host": "192.168.0.182",
+    "interconnect_to_180_claimed": false
+  },
+  "handshake_sidecar_running": false,
+  "services": [
+    {"name": "4d_daemon", "cat": 1, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "organism_loop", "cat": 1, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "handshake_sidecar", "cat": 1, "class": "CAN_REPLICATE_TO_180", "live": false},
+    {"name": "beat_lease_fencing", "cat": 1, "class": "MUST_BE_REDESIGNED", "live": false},
+    {"name": "windows_task_scheduler", "cat": 2, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "watchdog_pack", "cat": 2, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "OCTOPUS-Cockpit-Brain", "cat": 2, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "OCTOPUS-doctor-day", "cat": 2, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "OCTOPUS 4d Consolidation Tick", "cat": 2, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "OctopusLiveDataRefresh", "cat": 2, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "OCTOPUS_Observatory_pair", "cat": 2, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "nats-server-laptop", "cat": 3, "class": "UNKNOWN", "live": false},
+    {"name": "nats-server-sensorium-182", "cat": 3, "class": "MUST_BE_REDESIGNED", "live": "file-evidence"},
+    {"name": "nbb_cp_fastapi", "cat": 4, "class": "UNKNOWN", "live": false},
+    {"name": "cortex_loop", "cat": 4, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "live_cockpit", "cat": 4, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "fourd_outputs_memory", "cat": 5, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "semantic_memory", "cat": 5, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "genome_ledger", "cat": 5, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "ollama_local_llm", "cat": 5, "class": "CAN_MOVE_TO_180", "live": true},
+    {"name": "control_brain_core_db", "cat": 5, "class": "MUST_STAY_ON_LAPTOP", "live": false},
+    {"name": "board_cp_tls", "cat": 6, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "nbb_cp_library", "cat": 6, "class": "MUST_STAY_ON_LAPTOP", "live": false},
+    {"name": "telegram_center", "cat": 7, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "miniapp_gateway_and_tunnel", "cat": 7, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "pulse_telemetry", "cat": 8, "class": "CAN_REPLICATE_TO_180", "live": true},
+    {"name": "poisoning_watch_4d", "cat": 8, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "germline-hourly", "cat": 9, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "germline-daily", "cat": 10, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "e_germline_offbox", "cat": 10, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "board_cp_command_queue", "cat": 11, "class": "MUST_BE_REDESIGNED", "live": true},
+    {"name": "telegram_approval_queues", "cat": 11, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "fourd_digest_queue", "cat": 11, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "secrets_sot", "cat": 12, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "owner_verdicts_and_flags", "cat": 13, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "tcb_signing_ceremony", "cat": 14, "class": "MUST_STAY_ON_LAPTOP", "live": true},
+    {"name": "recovery_tooling", "cat": 15, "class": "CAN_REPLICATE_TO_180", "live": false}
+  ]
+}

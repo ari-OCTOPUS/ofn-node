@@ -1,0 +1,21 @@
+﻿{
+  "stamp": "2026-08-24T09:34+10",
+  "laptop": {
+    "color": "GREEN",
+    "center_pid": 6432,
+    "center_prio": "BelowNormal",
+    "center_ram_mb": 25.1,
+    "organism_pid": 15272,
+    "organism_prio": "BelowNormal",
+    "organism_ram_mb": 188.4,
+    "cloudflared": true,
+    "index_lock": false,
+    "metrics_9101": 200,
+    "freeze_halt": false
+  },
+  "boards": {
+    "sensoriom": "asked",
+    "marketing": "asked"
+  },
+  "user_notify": false
+}

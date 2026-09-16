@@ -1,0 +1,32 @@
+{
+  "schema": "octopus.lab-enrich.e3.receipt.v1",
+  "id": "LAB-ENRICH-E3-FEEDS-QUALITY-20260824",
+  "captured_at_utc": "20260824T062144Z",
+  "status": "DEGRADED",
+  "holds": [
+    "snapshot_age_gt_300s",
+    "homeo_ok_false_seen",
+    "readings_cover_lt_expected_feeds"
+  ],
+  "samples": 15,
+  "duration_sec_observed": 842.0,
+  "ARMED": false,
+  "PWM": false,
+  "artifacts": [
+    "samples.jsonl",
+    "FEEDS-QUALITY.json",
+    "RECEIPT-E3.json"
+  ],
+  "quality_summary": {
+    "ok_count_last": 7,
+    "expected_last": 7,
+    "taxonomy_sum": {
+      "OK": 30,
+      "STALE": 0,
+      "FAIL": 0,
+      "MISSING": 0,
+      "UNKNOWN": 0
+    },
+    "snapshot_age_max": 1780.399974
+  }
+}

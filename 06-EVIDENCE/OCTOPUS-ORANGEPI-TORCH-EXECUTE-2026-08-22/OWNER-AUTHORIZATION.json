@@ -1,0 +1,71 @@
+﻿{
+  "schema": "octopus.owner-authorization.v1",
+  "token": "OCTOPUS-ORANGEPI-TORCH-20260822",
+  "authorization_id": "OCTOPUS-ORANGEPI-TORCH-20260822",
+  "owner_choice": "Unlock torch on Orange Pi (execute package; mutate_device=true)",
+  "mutate_device": true,
+  "execute": true,
+  "executor": "sensoriom",
+  "laptop_writer": "grok-bot-plans-auth-only",
+  "timezone": "Australia/Sydney (UTC+10)",
+  "timestamp": "2026-08-22T19:10:00+10:00",
+  "written_at_local": "2026-08-22T19:10:00+10:00",
+  "evidence_dir": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-TORCH-EXECUTE-2026-08-22",
+  "package_status": "BLOCKED_NEED_WHEEL_URL",
+  "gate": {
+    "status": "BLOCKED_NEED_WHEEL_URL",
+    "note": "No safe CPU aarch64/arm64 torch wheel URL+SHA256 found under F:/backup docs. Owner must supply before install proceeds past precheck. Do not invent CUDA."
+  },
+  "supersedes": {
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-TORCH-2026-08-22",
+    "prior_mutate_device": false,
+    "reason": "Auth-only STOP elevated to EXECUTE package; install gated on owner wheel URL"
+  },
+  "board": {
+    "hostname": "sensorium-opi5pro",
+    "ip": "192.168.0.182",
+    "agent_executor": "sensoriom"
+  },
+  "scope": {
+    "description": "CPU torch into /opt/octopus/venv only; MemoryMax guard retained",
+    "target": "sensorium-opi5pro /opt/octopus/venv",
+    "allowed": [
+      "Confirm board arch (uname -m); CPU torch wheel for aarch64/arm64 only",
+      "Install owner-supplied CPU torch wheel into /opt/octopus/venv only after URL+SHA256+Python match",
+      "Verify import torch PASS under /opt/octopus/venv",
+      "Keep world_model/skill MemoryMax guard from CHG-B (128M live; band 128-256M still capped)",
+      "Write receipts + TO-LAPTOP exchange ack",
+      "Rollback per ROLLBACK.md (uninstall/venv restore)"
+    ]
+  },
+  "memorymax_guard": {
+    "world_model_MemoryMax": "128M",
+    "skill_tracker_MemoryMax": "128M",
+    "band": "128M-256M still capped; never unconstrained; torch must not remove MemoryMax",
+    "source": "CHG-B / PACKAGE-COMPLETE-ACK.json"
+  },
+  "forbidden": [
+    "Invent CUDA / GPU stacks / nvidia / mali proprietary torch builds without owner wheel URL",
+    "Install torch without owner-supplied verified CPU wheel URL+SHA256+Python match",
+    "Remove or unconstrained MemoryMax on WM/skill",
+    "private keys export/rewrite",
+    "Doctor auto-patch",
+    "LAN:9101 (separate package)",
+    "zero-fill",
+    "hash rewrite",
+    "money/webhook/work_pump",
+    "re-run CHG-C",
+    "MQTT/PWM/legs/root action_executor",
+    "arm reflex",
+    "planner",
+    "git add -A",
+    "SSH/mutate Pi from laptop writer"
+  ],
+  "plans": {
+    "plan": "PLAN.md",
+    "execution_order": "EXECUTION-ORDER.md",
+    "brief": "SENSORIOM-EXECUTE-BRIEF.md",
+    "rollback": "ROLLBACK.md"
+  },
+  "notes": "EXECUTE package complete on disk; install runbook BLOCKED until owner supplies CPU wheel URL. Laptop does not SSH."
+}

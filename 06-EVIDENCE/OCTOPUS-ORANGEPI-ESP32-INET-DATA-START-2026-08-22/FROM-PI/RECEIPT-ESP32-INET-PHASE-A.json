@@ -1,0 +1,72 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "RECEIPT-ESP32-INET-PHASE-A",
+  "auth": [
+    "OCTOPUS-ESP32-INET-DATA-START-20260822",
+    "OCTOPUS-ALL-DOORS-OPEN-20260822"
+  ],
+  "package": "F:\\backup\\06-EVIDENCE\\OCTOPUS-ORANGEPI-ESP32-INET-DATA-START-2026-08-22",
+  "phase": "A_EXTERNAL_PUBLIC_FEED_ONLY",
+  "result": "PASS",
+  "ts_utc": "20260822T125104Z",
+  "preflight": {
+    "mqtt_ss": "NONE",
+    "mqtt_closed": true,
+    "wave0_decision": "KEEP_WAVE0_LOCKED",
+    "actuator_authority": "NONE"
+  },
+  "allowlist": [
+    "open_meteo_sydney",
+    "timeapi_io_sydney",
+    "frankfurter_aud"
+  ],
+  "feeds_ok": 3,
+  "feeds_fail": [],
+  "published": [
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-OPENMETEO",
+      "event_id": "2343a97f-2e1c-425f-88e5-da12687c556c",
+      "sensor_id": "OCT-FEED-OPENMETEO"
+    },
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-TIME",
+      "event_id": "f9249727-28be-47f2-a2d5-6f89bac8f351",
+      "sensor_id": "OCT-FEED-TIME"
+    },
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-FX-AUD",
+      "event_id": "0b721148-fae1-4781-9e84-199ff621bb6b",
+      "sensor_id": "OCT-FEED-FX-AUD"
+    }
+  ],
+  "sensor_ids": [
+    "OCT-FEED-OPENMETEO",
+    "OCT-FEED-TIME",
+    "OCT-FEED-FX-AUD"
+  ],
+  "wave0_required_set_promoted": false,
+  "registry_yaml_mutated": false,
+  "signed_registry_slot": "NOT_REQUIRED_sidecar_subjects",
+  "mqtt": "CLOSED",
+  "wave0_decision": "KEEP_WAVE0_LOCKED",
+  "actuator_authority": "NONE",
+  "gpio_pwm_legs_touched": false,
+  "timer": "octopus-external-feeds.timer",
+  "timer_active": true,
+  "doctor_status": "PASS",
+  "doctor_blocking": [],
+  "health_counts": {
+    "DISABLED": 29,
+    "MANIFEST_ONLY": 62,
+    "ACTIVE": 4,
+    "SHADOW": 6,
+    "DISCOVERED": 2
+  },
+  "drop_path": "/var/lib/octopus/inbound/FROM-LAPTOP/datasets",
+  "session": "/var/lib/octopus/evidence/session-esp32-inet-phase-a-20260822",
+  "rollback": {
+    "stop_timer": "systemctl disable --now octopus-external-feeds.timer",
+    "stop_service": "systemctl stop octopus-external-feeds.service",
+    "note": "Leaves MQTT CLOSED and WAVE0 locked"
+  }
+}

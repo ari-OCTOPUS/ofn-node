@@ -1,0 +1,10 @@
+  OK  t_a_gate_refuses_missing_proofs
+  OK  t_b_gate_refuses_missing_evidence_file
+  OK  t_c_gate_allows_when_all_present
+  OK  t_d_promote_refuses_without_gate
+  OK  t_e_promote_allows_lab_pass_with_proofs
+  OK  t_f_lab_bridge_gate_merge_wires_promoter
+
+test_promote_gate: 6/6
+
+---STDERR---

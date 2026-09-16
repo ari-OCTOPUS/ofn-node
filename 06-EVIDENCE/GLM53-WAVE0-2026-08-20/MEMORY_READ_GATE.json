@@ -1,0 +1,14 @@
+{
+ "schema": "memory-read-gate/1",
+ "timestamp": "2026-08-20T11:16:23.761935+00:00",
+ "memory_reads_per_cycle": 3,
+ "memory_read_status": "OK",
+ "readback": "read_ok",
+ "consecutive_cycles_positive": 0,
+ "gate_threshold": 10,
+ "gate_met": false,
+ "memory_utility": 0.3333,
+ "memory_utility_formula": "READ_BACK_USED / (RETRIEVED + MISSED_RELEVANT)",
+ "memory_candidates_total": 158,
+ "writes_performed": false
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "octopus.gap-close.v1",
+  "gap_id": "G06",
+  "result": "PASS",
+  "ts_utc": "20260822T230411Z",
+  "auth": [
+    "OCTOPUS-GAP-CLOSE-20260823",
+    "OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-20260823",
+    "OCTOPUS-ALL-DOORS-OPEN-20260822"
+  ],
+  "physical_estop": "ABSENT_ACCEPTED_DEFERRED_BUY",
+  "parts_purchased": false,
+  "pwm_fired": false,
+  "telegram_live_send": false,
+  "soft_latch_prove": [
+    {
+      "step": "assert",
+      "gate": {
+        "allowed": false,
+        "reason": "ESTOP_LATCH_ASSERTED"
+      },
+      "authority": "actuator_authority: NONE",
+      "pass": true
+    },
+    {
+      "step": "clear",
+      "gate": {
+        "allowed": true,
+        "reason": "CLEARED"
+      },
+      "authority": "actuator_authority: PERMITTED_SOFTWARE_A0",
+      "pass": true
+    },
+    {
+      "step": "rollback_assert_forces_NONE",
+      "gate": {
+        "allowed": false,
+        "reason": "ESTOP_LATCH_ASSERTED"
+      },
+      "authority": "actuator_authority: NONE",
+      "pass": true
+    }
+  ],
+  "latch_final": {
+    "schema": "octopus.wave0.software-estop-latch.v1",
+    "channel": "SOFTWARE_LATCH",
+    "asserted": false,
+    "reason": "G06_LEAVE_CLEARED_LATCH_LIVE",
+    "updated_at": "2026-08-22T23:04:11.609055+00:00",
+    "reversible": true,
+    "hardware_gpio": false,
+    "pwm": false,
+    "mqtt": false,
+    "auth": [
+      "OCTOPUS-GAP-CLOSE-20260823",
+      "OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-20260823",
+      "OCTOPUS-ALL-DOORS-OPEN-20260822"
+    ],
+    "note": "Software kill latch \u2014 live e-stop for soft-unlock path. Physical Path H still deferred."
+  },
+  "actuator_authority_final": "actuator_authority: PERMITTED_SOFTWARE_A0",
+  "ARMED": false,
+  "mqtt_sot": {
+    "inventory_phrase_KEEP_CLOSED": "means WAN/public CLOSED; not 'no process on host'",
+    "live_bind": "127.0.0.1:1883",
+    "wan_public": false,
+    "ufw_1883": "none",
+    "allow_anonymous": false,
+    "anon_denied": true,
+    "unit_active": "active",
+    "policy": "LOCAL_LOOPBACK_AUTH_OPEN__WAN_KEEP_CLOSED",
+    "cloud_broker_invented": false,
+    "hardened_actions": [
+      "CONF_LOOPBACK_OK"
+    ]
+  },
+  "ss_1883": "LISTEN 0      100        127.0.0.1:1883      0.0.0.0:*    users:((\"mosquitto\",pid=382176,fd=5))",
+  "gate_helper": "/var/lib/octopus/state/wave0/estop_gate.py",
+  "ctl_present": true,
+  "note": "Physical Path H remains deferred. Soft latch live. MQTT WAN closed; localhost auth broker may run."
+}

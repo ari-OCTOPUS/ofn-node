@@ -1,0 +1,30 @@
+{
+  "gap": "G22",
+  "stamp_local": "2026-08-23T09:13:00+10:00",
+  "slice": "LAPTOP",
+  "status": "PASS",
+  "verdict": "Inventoried 4 orphans; quarantine note; not deleted",
+  "count": 4,
+  "orphans": [
+    {
+      "path": "_ops\\scripts\\__pycache__\\tg_bridge_once.cpython-313.pyc",
+      "size": 18696,
+      "mtime": "2026-08-20T23:26:41"
+    },
+    {
+      "path": "_ops\\scripts\\tg_bridge_loop.sh",
+      "size": 250,
+      "mtime": "2026-08-20T18:12:18"
+    },
+    {
+      "path": "_ops\\scripts\\tg_bridge_once.py",
+      "size": 14360,
+      "mtime": "2026-08-20T23:25:34"
+    },
+    {
+      "path": "_ops\\scripts\\unlock_self_progress.py",
+      "size": 12831,
+      "mtime": "2026-08-12T17:04:25"
+    }
+  ]
+}

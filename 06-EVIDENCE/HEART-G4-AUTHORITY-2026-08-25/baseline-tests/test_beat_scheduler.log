@@ -1,0 +1,14 @@
+  ✅ [E-1] crash after reserve → reconcile, no advance
+  ✅ [E-2] final commit persist failure checked
+  ✅ [E-3] committed beat not rerun after restart
+  ✅ [E-4] committed advances exactly once
+  ✅ [۹] persist failure → block commit, no advance
+  ✅ [P] production-safe forbids ACT/LEARN
+  ✅ [۸] watchdog stall detection
+  ✅ [۱] ترتیبِ فازِ قطعی
+  ✅ [۲] every_n_beats
+  ✅ [۳] bounded + circuit breaker
+  ✅ [۴] organ failure isolation
+  ✅ [۵] restart continuity (beatِ بعدی، نه دوباره)
+  ✅ [۶] HALT — فقط فازهای امن
+  ✅ [۷] zero double-actuation (ACT dry-run)

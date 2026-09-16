@@ -1,0 +1,66 @@
+{
+  "schema": "octopus.nats.contract.v1",
+  "id": "BL-01",
+  "frozen_at_utc": "20260823T032000Z",
+  "status": "FROZEN",
+  "control_plane": {
+    "url": "nats://192.168.0.182:4222",
+    "jetstream": true,
+    "monitor_http": "http://127.0.0.1:8222"
+  },
+  "streams": [
+    {"name": "SENSORIUM", "subjects": ["octopus.sensorium.>"]},
+    {"name": "OBSERVATION", "subjects": ["octopus.sensor.observation.>"]},
+    {"name": "FEATURE", "subjects": ["octopus.sensor.feature.>"]},
+    {"name": "SENSOR_HEALTH", "subjects": ["octopus.sensor.health.>", "octopus.sensor.anomaly.>"]},
+    {"name": "WORLD", "subjects": ["octopus.world.>"]},
+    {"name": "AUDIT", "subjects": ["octopus.audit.>"]},
+    {"name": "COMMAND", "subjects": ["octopus.command.>"]},
+    {"name": "LEG", "subjects": ["octopus.leg.>"]}
+  ],
+  "edge_subscribes": [
+    "octopus.command.sensorium",
+    "octopus.leg.*.birth",
+    "_INBOX.>"
+  ],
+  "edge_must_not_subscribe": [
+    "octopus.sensor.observation.>",
+    "octopus.sensor.anomaly.>",
+    "octopus.world.contradiction"
+  ],
+  "collect_diagnostics": {
+    "command": "COLLECT_DIAGNOSTICS",
+    "aliases": ["REQUEST_DIAGNOSTIC"],
+    "request_subject": "octopus.command.sensorium",
+    "response_subject_template": "octopus.sensorium.diagnostics.{request_id}",
+    "reply_to_allowed": true,
+    "schema_request": "octopus.edge.diagnostics.request.v1",
+    "schema_response": "octopus.edge.diagnostics.v1",
+    "required_fields": ["sender_id", "signature", "role", "permission", "timestamp", "expiry", "nonce", "command", "request_id"],
+    "params": {
+      "mutates": {"type": "boolean", "required": true, "must_equal": false},
+      "window_minutes": {"type": "integer", "default": 360},
+      "include": {
+        "type": "array",
+        "default": ["systemd", "nats", "mqtt_sot", "feeds", "homeo", "doctor", "wave0_soft", "disk"],
+        "forbidden_includes": ["pwm", "gpio", "esp32_actuate", "shell"]
+      },
+      "timeout_sec": {"type": "integer", "default": 60}
+    },
+    "statuses": ["PASS", "DEGRADED", "FAIL", "UNKNOWN", "ABSENT", "STALE"],
+    "safety_rails": [
+      "refuse_if_mutates_not_false",
+      "no_pwm_gpio_esp32_actuation",
+      "no_systemd_restart",
+      "no_firewall_change",
+      "soft_latch_untouched",
+      "ARMED_must_remain_false"
+    ],
+    "wave0_note": "Existing REQUEST_DIAGNOSTIC was ALLOWLISTED_DEFERRED pending command-trust root; COLLECT_DIAGNOSTICS executes readonly collector under explicit Stage2D GO with field gate + mutates=false."
+  },
+  "forbidden_commands_unchanged": true,
+  "mqtt": {
+    "policy": "LOCAL_LOOPBACK_AUTH_OPEN__WAN_KEEP_CLOSED",
+    "not_part_of_core_control_plane": true
+  }
+}

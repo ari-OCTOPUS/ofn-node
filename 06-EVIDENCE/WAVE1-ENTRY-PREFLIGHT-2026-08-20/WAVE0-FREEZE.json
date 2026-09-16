@@ -1,0 +1,47 @@
+{
+  "schema": "wave0-freeze/1",
+  "commit": "9bc506f",
+  "ts": "2026-08-20T13:08:44+00:00",
+  "freeze": {
+    "freeze_commit": "9bc506f",
+    "head": "9bc506ffb34763731aedd4653fc26019963a303e",
+    "ancestor": true,
+    "artifact_hash_mismatches": [],
+    "wave0_verifier_confirmed": true,
+    "wave0_governor_wave1_unlocked": false,
+    "schema_present": {
+      "n": 51,
+      "attributed": 51,
+      "ratio": 1.0
+    },
+    "today_full_forensic": {
+      "n": 149,
+      "attributed": 51,
+      "ratio": 0.3423
+    },
+    "pre_schema_skipped": 98
+  },
+  "production_before": {
+    "cost_receipts": {
+      "path": "F:\\backup\\_ops\\state\\cortex\\cost-receipts.jsonl",
+      "sha256": "2e9f84a7bd42a48ff950b944af1a43857f508eabbe8bafdd1e1db06e9986a8e1",
+      "exists": true
+    },
+    "memory_db": {
+      "path": "F:\\backup\\_ops\\state\\memory\\memory.db",
+      "sha256": "fc2c0de75d98343c72f6e2f4db83c19d7222da3393da4cc67fc518d90a0e5549",
+      "exists": true
+    },
+    "pulse_latest": {
+      "path": "F:\\backup\\_ops\\state\\pulse\\memory-read-latest.json",
+      "sha256": "123869126f8530bf5e31e4f375454486f0f6a0eb52044938fc5a4099c4783612",
+      "exists": true
+    },
+    "wave0_gates": {
+      "path": "F:\\backup\\06-EVIDENCE\\NERVOUS-RECOVERY-2026-08-20\\WAVE0-GATES.json",
+      "sha256": "2716c789539e25cb6b2eac31a92f8392a1bf5db0d2416bcb378c84ab6fcb96a2",
+      "exists": true
+    }
+  },
+  "note": "Wave 0 artifacts must remain bit-identical."
+}

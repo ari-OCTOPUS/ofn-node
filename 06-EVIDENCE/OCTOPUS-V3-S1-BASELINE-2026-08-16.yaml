@@ -1,0 +1,141 @@
+# OCTOPUS v3.0 — S1 landscape baseline (machine-reviewable)
+# verified_on: 2026-08-16
+# method: live web + GitHub release page + Win32 CIM + F:\backup repo
+# supersedes: hand-written PART 1 prose tables in MEGA-PROMPT v3.0
+#
+# status: live | stale | unknown | corrected
+# tag: REPO | SPEC | DOC | PAPER | INFER | UNKNOWN | UNVERIFIED | VERIFIED | CORRECTED | CHANGED
+
+- id: eu_ai_act_high_risk
+  claim: "Reg. (EU) 2026/1744 (Digital Omnibus on AI) deferred Chapter III high-risk duties: Annex III to 2027-12-02; Annex I to 2028-08-02. Art. 50 transparency still applied from 2026-08-02."
+  tag: DOC
+  source_url: "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202601744"
+  also: "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: changed
+  note: "PART 1 rows that still treat 2026-08-02 as the high-risk deadline are STALE. For a personal Australian operator, Art. 50 matters if the system is placed on the EU market; local-only owner tool is not automatically Annex III."
+
+- id: au_no_horizontal_ai_act_today
+  claim: "Australia still has no general AI Act in force on 2026-08-16. Existing technology-neutral laws apply. Office of AI exists in PM&C from 2026-07-15; National Cabinet consideration Aug 2026; legislation expected early 2027, currently framed around large data centres + copyright, not a copy of the EU high-risk Annex."
+  tag: DOC
+  source_url: "https://www.pmc.gov.au/domestic-policy/office-ai"
+  also: "https://www.pm.gov.au/media/ai-australias-interests"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+  note: "December 2025 National AI Plan dropped the 2024 mandatory high-risk guardrails. July 2026 re-opened a narrower mandatory standards path. Do not claim 'no AI law forever'."
+
+- id: au_privacy_adm_2026_12_10
+  claim: "APP 1.7–1.9 ADM transparency in privacy policy commences 2026-12-10 for APP entities using a computer program + personal information to make (or substantially make) decisions that significantly affect an individual's rights or interests."
+  tag: DOC
+  source_url: "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-1-app-1-open-and-transparent-management-of-personal-information"
+  verified_on: 2026-08-16
+  expires_on: 2026-12-10
+  status: live
+  note: "Triggers when OCTOPUS decides about a third party's personal information. Owner-only local tool with no third-party PI is out of scope until that changes."
+
+- id: esafety_age_restricted_codes
+  claim: "Age-Restricted Material Codes (six of nine) in force 2026-03-09 cover generative AI services and AI companion chatbots capable of sexually explicit / self-harm / high-impact violence material. Age assurance or strong guardrails required. Civil penalty up to AUD 49.5 million per breach of a direction."
+  tag: DOC
+  source_url: "https://www.esafety.gov.au/industry/codes/faq-access-to-online-porn-and-other-adult-content"
+  also: "https://www.esafety.gov.au/newsroom/media-releases/online-safety-codes-introduce-real-world-protections-for-children-online"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+  note: "Largest legal red line for a PUBLIC service. Personal owner-only Telegram bot with whitelist is a different class — crossing into public companion/content generation is the tripwire."
+
+- id: mcp_python_sdk_2_0_0
+  claim: "modelcontextprotocol/python-sdk v2.0.0 published 2026-07-28T13:41:36Z. Spec 2026-07-28 stateless, FastMCP→MCPServer, Resolve(fn)/MRTR, OTel on by default, MCP_* env vars gone, Context.client_id gone, Streamable HTTP 4 MiB → 413. Known gaps: SEP-2663 Tasks, DPoP SEP-1932, jwt-bearer."
+  tag: SPEC
+  source_url: "https://github.com/modelcontextprotocol/python-sdk/releases/tag/v2.0.0"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+  note: "THIS REPO's server is NOT that SDK. [REPO] `_ops/octopus_mcp/server.py:37` PROTOCOL_VERSION = '2025-06-18' handwritten stdio. P0 must not pip install mcp==2.0.0 into live _ops."
+
+- id: mcp_this_repo
+  claim: "Live MCP is a custom read-only stdio server with five tools; propose_action is the only writer and only queues JSON."
+  tag: REPO
+  source_url: "`_ops/octopus_mcp/server.py:37`"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+
+- id: a2a_version
+  claim: "A2A v1.2 with Agent-DID / DNS TXT binding is reported in secondary articles (Cloud Next / I/O 2026). Official a2a-protocol.org page fetched 2026-08-16 does not pin 1.2 in the intro. Treat production-1.2 + DID/TXT as UNKNOWN until the spec repo tag is cited."
+  tag: UNKNOWN
+  source_url: "https://a2a-protocol.org/latest/"
+  also: "https://www.cloudmagazin.com/en/2026/04/25/a2a-protocol-1-2-in-production-what-dach-cloud-architects-need-to-change-in-their-istio-setup-now/"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: unknown
+
+- id: qwen38_max_license
+  claim: "Qwen3.8-Max / Qwen3.8-2.4T-A95B ships under a custom Qwen3.8-Max License (not Apache-2.0). Separate-license trigger at USD 50M MaaS/work-assistant revenue. Newest ≠ freest."
+  tag: DOC
+  source_url: "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B/raw/main/LICENSE"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+
+- id: qwen38_27b_apache
+  claim: "Qwen3.8-27B is reported Apache-2.0 with 262k context (secondary coverage 2026-08-13/14). Still NO-GO on this laptop (see hardware). STUDY until a machine that can host it exists."
+  tag: DOC
+  source_url: "https://the-decoder.com/alibabas-qwen-team-releases-qwen-3-8-models-with-open-weights-under-the-apache-2-0-license/"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+  note: "Council said 'Qwen 3.8-Max proprietary' (true) and 'Qwen3.6-27B for G700 64GB' (hardware false for this repo)."
+
+- id: hardware_this_machine
+  claim: "Lenovo 81Y6, i7-10750H, 15.87 GiB RAM, GTX 1660 Ti + Intel UHD. Not G700, not 64GB."
+  tag: REPO
+  source_url: "Win32_ComputerSystem + Win32_VideoController 2026-08-16 session"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: corrected
+  note: "7B qwen2.5:latest hung this laptop (VRAM 4216→163 MiB after 1.5b). 27B local BRAIN is a hardware fantasy on this box."
+
+- id: live_local_model
+  claim: "Live Ollama members use qwen2.5:1.5b (Apache-2.0 lineage). Do not revert to 7b without owner vote."
+  tag: REPO
+  source_url: "`_ops/ROUTE-POLICY.md`"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+
+- id: live_budget_caps
+  claim: "budget_gate HARD floors: day AU$2, month AU$30, disaster AU$500. Overlay must not exceed these."
+  tag: REPO
+  source_url: "`04 - Architect System/scripts/budget_gate.py:17`"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+
+- id: vaara_kremis
+  claim: "vaaraio/vaara and TyKolt/kremis were recommended as PRIMARY in paste.txt; connector audit 2026-08-16 found 11★ AGPL and 14★ single-author. Admission gate → STUDY-ONLY. Do not pip install."
+  tag: CORRECTED
+  source_url: "council AGENT-KIT v3.1 (GitHub API 2026-08-16)"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: corrected
+  note: "This session did not re-hit GitHub API for star counts; inherited [CORRECTED] from the verified kit. Re-verify before any install."
+
+- id: abliteration
+  claim: "Abliteration of BRAIN is hard_no_go. Comparative GSM8K deltas and off-target risk-seeking are literature claims — treat magnitude as UNVERIFIED until independently reproduced; the architectural reason (Uncertainty self-report corruption) is INFER from §5.6 + INV-8."
+  tag: UNVERIFIED
+  source_url: ""
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: live
+  note: "Not TIER-1. Forbidden anyway under HARD_NO_GO."
+
+- id: mcp_deprecated_window
+  claim: "MCP 2026-07-28 deprecations (Roots/Sampling/Logging and related) have a documented migration window; 'guaranteed through at least July 2027' needs the spec/SEP citation on next pass."
+  tag: UNKNOWN
+  source_url: "https://github.com/modelcontextprotocol/python-sdk/releases/tag/v2.0.0"
+  verified_on: 2026-08-16
+  expires_on: 2026-09-16
+  status: unknown
+  note: "Do not treat 2027-07 as a verified migration trigger until the SEP text is quoted."

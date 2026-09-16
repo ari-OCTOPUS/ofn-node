@@ -1,0 +1,28 @@
+{
+    "schema":  "octopus.owner-authorization.v1",
+    "token":  "OCTOPUS-ORANGEPI-MQTT-1883-20260822",
+    "owner_choice":  "Open MQTT 1883 for WAVE0/legs path on Orange Pi",
+    "scope":  {
+                  "description":  "open MQTT 1883 for WAVE0/legs path",
+                  "target":  "Orange Pi MQTT 1883",
+                  "allowed":  [
+                                  "MQTT 1883",
+                                  "WAVE0/legs path"
+                              ],
+                  "pairs_with":  "OCTOPUS-ORANGEPI-WAVE0-ACTUATORS-20260822"
+              },
+    "forbidden":  [
+                      "private keys export/rewrite",
+                      "Doctor auto-patch",
+                      "torch",
+                      "LAN:9101",
+                      "zero-fill",
+                      "hash rewrite",
+                      "money/webhook/work_pump",
+                      "re-run CHG-C"
+                  ],
+    "mutate_device":  false,
+    "notes":  "File owner authorization only. Do not mutate the Orange Pi. Do not git add -A. Pairs with OCTOPUS-ORANGEPI-WAVE0-ACTUATORS-20260822.",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "timestamp":  "2026-08-22T18:43:52+10:00"
+}

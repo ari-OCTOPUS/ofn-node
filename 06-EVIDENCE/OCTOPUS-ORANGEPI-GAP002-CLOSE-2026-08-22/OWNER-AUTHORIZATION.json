@@ -1,0 +1,82 @@
+{
+  "schema": "octopus.owner-authorization.v1",
+  "authorization_id": "OCTOPUS-ORANGEPI-GAP002-CLOSE-20260822",
+  "token": "OCTOPUS-ORANGEPI-GAP002-CLOSE-20260822",
+  "owner_fix_all": true,
+  "owner_choice": "Close GAP-002 registry mismatch: set open-gaps GAP-002 pass=true + EXTERNALLY_CHECKPOINTED (CHG-A style backup+edit+doctor readonly prove)",
+  "mutate_device": true,
+  "execute": true,
+  "executor": "sensoriom",
+  "laptop_writer": "grok-bot-plans-auth-only",
+  "timezone": "Australia/Sydney (UTC+10)",
+  "timestamp": "2026-08-22T21:13:00+10:00",
+  "written_at_local": "2026-08-22T21:13:00+10:00",
+  "evidence_dir": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-GAP002-CLOSE-2026-08-22",
+  "package_status": "EXECUTE_READY_DISCOVER_FIRST",
+  "board": {
+    "hostname": "sensorium-opi5pro",
+    "ip": "192.168.0.182",
+    "agent_executor": "sensoriom"
+  },
+  "authorizer": {
+    "role": "owner",
+    "via": "ari",
+    "channel": "owner_chat_directive"
+  },
+  "intent": {
+    "problem": "Live GAP-002 gap file already CLOSED_BY_SIGNED_CHECKPOINT pass=true, but doctor reports signature_does_not_close_registry / gap002_registry NEED_OWNER",
+    "goal": "Align open-gaps registry GAP-002 to pass=true + EXTERNALLY_CHECKPOINTED (or matching CLOSED example shape) without inventing WAVE0 unlock or zero-filling keys",
+    "preferred_path": "CHG-A style: backup open-gaps.json, edit ONLY GAP-002 fields, re-run doctor readonly, prove gap002 cleared"
+  },
+  "targets": {
+    "open_gaps_primary": "/opt/octopus/current/manifests/open-gaps.json",
+    "open_gaps_alternates_document_if_different": [
+      "/opt/octopus/manifests/open-gaps.json",
+      "/var/lib/octopus/state/gaps/open-gaps.json",
+      "path recorded in doctor/latest.json"
+    ],
+    "doctor_readonly": "doctor/latest.json (board-standard path; discover if needed)",
+    "live_gap_file_already_closed": "/var/lib/octopus/state/gaps/GAP-002-audit_head_unsigned.json (historical evidence: CLOSED_BY_SIGNED_CHECKPOINT pass=true)"
+  },
+  "bounds": {
+    "WAVE0_hardware": "KEEP_LOCKED",
+    "MQTT": "CLOSED",
+    "allowed": [
+      "DISCOVER-FIRST: read current open-gaps.json + doctor/latest.json; match GAP-002 entry shape from CLOSED examples",
+      "Backup open-gaps.json with timestamped copy + sha256 before edit",
+      "Edit ONLY GAP-002 fields: pass=true and status/closure EXTERNALLY_CHECKPOINTED (or exact CLOSED example enum)",
+      "Do not rewrite other gaps, digests, or unrelated manifests",
+      "Re-run doctor readonly; capture before/after proving gap002_registry cleared",
+      "Write receipts under board evidence + TO-LAPTOP exchange"
+    ],
+    "forbidden": [
+      "WAVE0 hardware unlock / GPIO / PWM / legs actuate",
+      "MQTT 1883 open/pair/publish (KEEP CLOSED)",
+      "zero-fill keys / sensors",
+      "private keys / make-root-v2 / key export",
+      "invent crypto or invent new gap schema fields beyond CLOSED examples",
+      "silent hash rewrite of ledgers",
+      "Doctor auto-patch / merge (readonly doctor only for prove)",
+      "torch / LAN:9101 / money/webhook/work_pump",
+      "arm reflex / planner / root action_executor",
+      "git add -A",
+      "SSH/mutate Pi from laptop writer (sensoriom executes)"
+    ]
+  },
+  "plans": {
+    "plan": "PLAN.md",
+    "execution_order": "EXECUTION-ORDER.md",
+    "brief": "SENSORIOM-EXECUTE-BRIEF.md",
+    "rollback": "ROLLBACK.md"
+  },
+  "laptop_discovery_note": {
+    "NEED-OWNER-GAP002.json": "NOT_FOUND under F:/backup/** at package write time",
+    "TO-LAPTOP_exchange_copies": "NOT_FOUND as local TO-LAPTOP roots; historical GAP-002 evidence under OCTOPUS-HANDOFF-MERGE + sensorium-d14-verify",
+    "gap002_evidence_refs": [
+      "06-EVIDENCE/OCTOPUS-HEALTH-SWEEP-2026-08-22/HEALTH.json (doctor_gap.gap002_registry=unknown_not_found_in_quick_scan)",
+      "06-EVIDENCE/sensorium-d14-verify-2026-08-18/msg-evidence-latest.json (GAP-002 pass=true CLOSED_BY_SIGNED_CHECKPOINT)",
+      "06-EVIDENCE/OCTOPUS-HANDOFF-MERGE-2026-08-22/from-pi/owner-review/gap-002-checkpoint-spec.md"
+    ]
+  },
+  "notes": "Owner fix-all authorize. Laptop writer creates plans+auth only; does not SSH. Sensoriom executes CHG-A-style registry close. WAVE0_hardware=KEEP_LOCKED; MQTT=CLOSED."
+}

@@ -1,0 +1,10 @@
+{
+ "schema": "fx-evidence/1",
+ "source_url": "https://www.rba.gov.au/statistics/frequency/exchange-rates.html (گزارش رسمی روزانهٔ RBA)",
+ "retrieval": "owner-provided, data date 2026-08-18 (RBA daily, 4pm AEST ≈ 06:00 UTC)",
+ "conversion": "USD_to_AUD = 1 / 0.7101 = 1.4082523588227012",
+ "stored_rate": 1.4082523588,
+ "fx_hash": "839517e38172210c61a4fe57950d63bda10d8456edd91ed8f082b1be8560d6b8",
+ "owner_pin_id": "FX-PIN-20260819-01",
+ "policy": "no auto-refresh; >24h at paid-call ⇒ BLOCKED automatically"
+}

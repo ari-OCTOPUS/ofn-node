@@ -1,0 +1,23 @@
+  ✅ [الف] ترمز غالب
+  ✅ [الف] کفِ ترمز = BRAKE_PERIOD
+  ✅ [ب] شتاب اجماعی < base
+  ✅ [ج] کششِ محتاط بالا
+  ✅ [د] clamp به MAX
+  ✅ [د] clamp به FLOOR
+  ✅ [د] abstain بدونِ قلب
+  ✅ [ه] precision weighting
+  ✅ [و] رنگ = بدترین
+  ✅ [و] rhythm RED = ترمز
+  ✅ [ز] نرمال‌سازیِ رأی
+  ✅ [ح] gather_views fail-soft
+  ✅ [ح] no forbidden import
+  ✅ [ط] persist flag off = no write
+  ✅ [ط] persist flag on = only own sink
+  ✅ [ط] written روی دیسک True است، نه فقط در حافظه
+  ✅ [ی] wire_open بسته
+  ✅ [ی] if_open → default وقتی بسته
+  ✅ [ی] snapshot advisory+gated
+  ✅ [چ] inverse-variance precision math
+  ✅ [چ] 2027 precision flag off = byte-identical
+  ✅ [چ] 2027 precision flag on = active-inference
+  ✅ [چ] 2027 precision replay counterfactual

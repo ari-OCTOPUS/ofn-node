@@ -1,0 +1,39 @@
+{
+  "schema": "agi-loops-pass2-shadow/1",
+  "pass": "SHADOW",
+  "ts": "2026-08-20T19:55:38Z",
+  "wave1_unlocked": true,
+  "wave1_lock_ok": true,
+  "paid_calls": "BUDGETED",
+  "memory_writes_readonly_wave": "GRANTED",
+  "live_telegram": false,
+  "S-A03_calibration_in_improve": true,
+  "S-A01_ema_present": true,
+  "S-A01_literal_0_4_assign": false,
+  "S-D01_doctor_copy": {
+    "ok": true,
+    "backup": "F:\\backup\\06-EVIDENCE\\AGI-LOOPS-PASS2-SHADOW-2026-08-21\\missions.copy.bak",
+    "n_open_before": 0,
+    "n_open_after": 0,
+    "quarantined": 0,
+    "log": [],
+    "live_written": false,
+    "live_path": "F:\\backup\\OCTOPUS-DOCTOR\\90-_meta\\state\\missions.json",
+    "copy_path": "C:\\Users\\Armin\\AppData\\Local\\Temp\\sul-doctor-unm98vhc\\missions.json"
+  },
+  "S-T03_outbox_digest": {
+    "digest": {
+      "status": "dry_run",
+      "sent": false,
+      "n_loops": 42,
+      "coalesced": 39,
+      "listed": null
+    },
+    "first": "accepted",
+    "replay": "duplicate",
+    "live": false,
+    "ok": true
+  },
+  "agi_claim": false,
+  "pass3_live": "OWNER_GRANTED_SEE_PASS3"
+}

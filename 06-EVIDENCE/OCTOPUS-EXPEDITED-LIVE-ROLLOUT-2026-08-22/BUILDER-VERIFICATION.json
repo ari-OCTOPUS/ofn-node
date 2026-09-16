@@ -1,0 +1,145 @@
+{
+  "schema": "octopus-builder-verification/1",
+  "authorization_id": "OCTOPUS-OWNER-CANARY-20260822-N1",
+  "mode": "EXPEDITED_BOUNDED_LIVE_ROLLOUT",
+  "builder": "grok-ari-single-writer",
+  "independent_verification": false,
+  "verdict": "BUILDER_VERIFIED_FOR_BOUNDED_OWNER_ROLLOUT",
+  "verdict_label": "BUILDER_VERIFIED_FOR_BOUNDED_OWNER_ROLLOUT",
+  "forbidden_labels_not_used": [
+    "SIG-IV",
+    "INDEPENDENTLY_VERIFIED"
+  ],
+  "root_cause_note": "Most suites are harness t_* scripts; pytest collects 0. Runner uses harness_script for those, pytest only for test_self_evidence_p1.py. collected==0 / no tests ran => FAIL.",
+  "written_at_local": "2026-08-22T15:21:01.713600+10:00",
+  "isolation": {
+    "OCTOPUS_STATE_DIR": "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus-builder-verify-state-v6059hz6",
+    "live_state_guard": "block",
+    "net_guard": true,
+    "isolation_echo_armed": true,
+    "fake_transport": true,
+    "token_in_fixtures": false,
+    "telegram_api_called": false,
+    "live_send": false
+  },
+  "suites": [
+    {
+      "file": "test_poll_lease.py",
+      "runner": "harness_script",
+      "status": "PASS",
+      "returncode": 0,
+      "duration_sec": 1.64,
+      "collected": 14,
+      "passed": 14,
+      "failed": 0,
+      "summary": "OK test_poll_lease: 14/14",
+      "log": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\builder-test-logs\\test_poll_lease.py.out.txt",
+      "fail_reason": null
+    },
+    {
+      "file": "test_telegram_durable_loop.py",
+      "runner": "harness_script",
+      "status": "PASS",
+      "returncode": 0,
+      "duration_sec": 1.82,
+      "collected": 16,
+      "passed": 16,
+      "failed": 0,
+      "summary": "test_telegram_durable_loop: 16/16",
+      "log": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\builder-test-logs\\test_telegram_durable_loop.py.out.txt",
+      "fail_reason": null
+    },
+    {
+      "file": "test_merge_effect_p0.py",
+      "runner": "harness_script",
+      "status": "PASS",
+      "returncode": 0,
+      "duration_sec": 0.32,
+      "collected": 6,
+      "passed": 6,
+      "failed": 0,
+      "summary": "RESULT failed=0 passed=6",
+      "log": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\builder-test-logs\\test_merge_effect_p0.py.out.txt",
+      "fail_reason": null
+    },
+    {
+      "file": "test_merge_text_p0.py",
+      "runner": "harness_script",
+      "status": "PASS",
+      "returncode": 0,
+      "duration_sec": 0.41,
+      "collected": 5,
+      "passed": 5,
+      "failed": 0,
+      "summary": "RESULT failed=0 passed=5",
+      "log": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\builder-test-logs\\test_merge_text_p0.py.out.txt",
+      "fail_reason": null
+    },
+    {
+      "file": "test_evo_lab_bridge.py",
+      "runner": "harness_script",
+      "status": "PASS",
+      "returncode": 0,
+      "duration_sec": 1.95,
+      "collected": 5,
+      "passed": 5,
+      "failed": 0,
+      "summary": "test_evo_lab_bridge: 5/5",
+      "log": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\builder-test-logs\\test_evo_lab_bridge.py.out.txt",
+      "fail_reason": null
+    },
+    {
+      "file": "test_evo_outbox_callback_soak.py",
+      "runner": "harness_script",
+      "status": "PASS",
+      "returncode": 0,
+      "duration_sec": 5.11,
+      "collected": 7,
+      "passed": 7,
+      "failed": 0,
+      "summary": "RESULT failed=0 passed=7 total=7",
+      "log": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\builder-test-logs\\test_evo_outbox_callback_soak.py.out.txt",
+      "fail_reason": null
+    },
+    {
+      "file": "test_promote_gate.py",
+      "runner": "harness_script",
+      "status": "PASS",
+      "returncode": 0,
+      "duration_sec": 0.15,
+      "collected": 6,
+      "passed": 6,
+      "failed": 0,
+      "summary": "test_promote_gate: 6/6",
+      "log": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\builder-test-logs\\test_promote_gate.py.out.txt",
+      "fail_reason": null
+    },
+    {
+      "file": "test_self_evidence_p1.py",
+      "runner": "pytest",
+      "status": "PASS",
+      "returncode": 0,
+      "duration_sec": 2.87,
+      "collected": 62,
+      "passed": 62,
+      "failed": 0,
+      "summary": "62 passed in 0.88s",
+      "log": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\builder-test-logs\\test_self_evidence_p1.py.out.txt",
+      "fail_reason": null
+    }
+  ],
+  "coverage": {
+    "poll_lease": "test_poll_lease.py",
+    "durable_outbox": "test_telegram_durable_loop.py",
+    "merge_proof_gate": "test_merge_effect_p0.py",
+    "callback_text_verdict": [
+      "test_merge_text_p0.py",
+      "test_evo_outbox_callback_soak.py"
+    ],
+    "evo_lab_bridge": "test_evo_lab_bridge.py",
+    "self_evidence": "test_self_evidence_p1.py",
+    "promote_gate": "test_promote_gate.py"
+  },
+  "duration_sec": 14.29,
+  "git_head": "2ab0eb8725653b02c19b316dc136347af26465c2"
+}

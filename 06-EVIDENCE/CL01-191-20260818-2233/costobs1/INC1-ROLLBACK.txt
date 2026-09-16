@@ -1,0 +1,2 @@
+
+# rollback INC1: git apply -R INC1-PROMOTION.diff (یا git checkout -- دو فایل) + rm تست

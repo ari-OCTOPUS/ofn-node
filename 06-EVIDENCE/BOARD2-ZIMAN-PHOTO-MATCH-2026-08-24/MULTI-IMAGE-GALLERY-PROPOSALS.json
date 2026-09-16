@@ -1,0 +1,118 @@
+[
+  {
+    "sku": "ZM-GALLERY-0007",
+    "product_id": "8688854564964",
+    "featured_untouched": "IMG_3984 (image 43902515773540)",
+    "extras": [
+      {"rank": 1, "file": "IMG_3987.DNG", "shot": "close-up", "confidence": 0.85, "why": "برگهٔ خانوادهٔ fam-0007: SAME — کلوزآپ جزئیات بالون/رز قرمز-طلایی."},
+      {"rank": 2, "file": "IMG_3746.HEIC", "shot": "top-view close-up", "confidence": 0.85, "why": "SAME — نمای بالای همان جعبهٔ قرمز+بالون (تأیید انفرادی ران قبل + برگهٔ خانواده)."},
+      {"rank": 3, "file": "IMG_3980.HEIC", "shot": "different angle", "confidence": 0.85, "why": "SAME — زاویهٔ دیگر همان سلکشن 3978-4003."},
+      {"rank": 4, "file": "IMG_3983.HEIC", "shot": "different angle", "confidence": 0.85, "why": "SAME — ذخیرهٔ چهارم؛ 3998/4003/3740 هم SAMEاند (سپر عمیق)."}
+    ],
+    "family_sheet": "previews/families/fam-0007.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0008",
+    "product_id": "8688854630500",
+    "featured_untouched": "IMG_2978 (image 43902522490980)",
+    "extras": [
+      {"rank": 1, "file": "IMG_3101.DNG", "shot": "closer angle", "confidence": 0.85, "why": "fam-0008: SAME — همان سبد کرم با رز کرم/سفید، نمای نزدیک‌تر."},
+      {"rank": 2, "file": "IMG_3636.HEIC", "shot": "different angle", "confidence": 0.8, "why": "SAME — همان نوع سبد، زاویهٔ متفاوت."},
+      {"rank": 3, "file": "IMG_3728.DNG", "shot": "wider context", "confidence": 0.8, "why": "SAME — قاب محیطی‌تر."}
+    ],
+    "warning": "IMG_9429 که ران قبل بکاپ 0008 بود، در مقایسهٔ تفکیکی fam-0008 محصولِ متفاوتی از آب درآمد (بافت/رنگ شامپاینی) — از extras حذف شد و به‌عنوان محصول وصل‌نشده ثبت شد.",
+    "family_sheet": "previews/families/fam-0008.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0009",
+    "product_id": "8688854728804",
+    "featured_untouched": "IMG_4066 (image 43902517379172)",
+    "extras": [
+      {"rank": 1, "file": "IMG_4067.HEIC", "shot": "different angle", "confidence": 0.85, "why": "fam-0009a: SAME — همان سلکشن (سبد آبی + هیدرانژیا سفید + رز آبی)."}
+    ],
+    "warning": "عمق استخر برای این محصول کم است: بلوکهای 3106-3127 و 9433-9450 و 4537/4540 همه «سبد سفید با گل آبی»اند — محصولِ متفاوت (DIFFERENT در fam-0009a/b) — به extras اضافه نشدند. برای گالری غنی‌تر، شات تازه از همین محصول لازم است.",
+    "family_sheet": "previews/families/fam-0009a.jpg | fam-0009b.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0010",
+    "product_id": "8688854794340",
+    "featured_untouched": "IMG_4462 (قبلی)",
+    "extras": [],
+    "status": "SKIP",
+    "why": "fam-0010: هیچ‌یک از 2770/3352/3389/3399/3403/3410 همان جعبهٔ قلبی لحاف‌دوز + LOVE نیستند — همه رز روی در دارند و بدون تایپوگرافی LOVEاند (محصول/واریانت دیگر). بدون شاتِ همان محصول، extras ساخته نمی‌شود — invent ممنوع.",
+    "family_sheet": "previews/families/fam-0010.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0011",
+    "product_id": "8688854827108",
+    "featured_untouched": "IMG_4418 (image 43902517936228)",
+    "extras": [
+      {"rank": 1, "file": "IMG_4487.HEIC", "shot": "top view", "confidence": 0.85, "why": "fam-0011: SAME — نمای بالای جعبهٔ گرد مشکی-طلایی."},
+      {"rank": 2, "file": "IMG_4484.HEIC", "shot": "closer", "confidence": 0.85, "why": "SAME — نمای نزدیک نقش-وگل طلایی + رز قرمز."},
+      {"rank": 3, "file": "IMG_4525.DNG", "shot": "wider context", "confidence": 0.8, "why": "SAME — قاب محیطی؛ 4447/4519 هم SAME (ذخیره)."}
+    ],
+    "warning": "IMG_3524 جعبهٔ مشکی-طلاییِ «مستطیلی» است (DIFFERENT در fam-0011) — محصول جدا؛ حذف شد.",
+    "family_sheet": "previews/families/fam-0011.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0012",
+    "product_id": "8688854892644",
+    "featured_untouched": "IMG_4581 (image 43902518657124)",
+    "extras": [
+      {"rank": 1, "file": "IMG_4583.DNG", "shot": "top-down", "confidence": 0.85, "why": "fam-0012: SAME — نمای بالای باکس چوبی رز کرمی."},
+      {"rank": 2, "file": "IMG_4582.DNG", "shot": "different angle", "confidence": 0.85, "why": "SAME — همان سلکشن."},
+      {"rank": 3, "file": "IMG_3659.DNG", "shot": "different lighting/session", "confidence": 0.8, "why": "SAME — همان محصول در نور/جلسهٔ متفاوت؛ 3709 هم SAME (ذخیره)."}
+    ],
+    "family_sheet": "previews/families/fam-0012.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0013",
+    "product_id": "8688854990948",
+    "featured_untouched": "IMG_4113 (image 43902519214180)",
+    "extras": [
+      {"rank": 1, "file": "IMG_4096.HEIC", "shot": "top view", "confidence": 0.8, "why": "برگهٔ حلّ تناقض fam-1316-resolve: نمای بالا پترن راهراه صورتی/بنفش/آبی را صریح نشان می‌دهد → متعلق به 4113."},
+      {"rank": 2, "file": "IMG_4102.DNG", "shot": "wider context", "confidence": 0.8, "why": "همان برگه: راهراه دیده می‌شود → متعلق به 4113."}
+    ],
+    "warning": "قضاوت اول fam-0013 همهٔ 4084-4102 را SAME گفت؛ قضاوت تفکیکی (fam-1316-resolve) تصحیحش کرد: 4084/4099 متعلق به 0016اند. فقط 4096/4102 برای 0013. 3774 هم DIFFERENT (پترن متفاوت).",
+    "family_sheet": "previews/families/fam-1316-resolve.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0014",
+    "product_id": "8688855056484",
+    "featured_untouched": "IMG_9453 (image 43902519869540)",
+    "extras": [
+      {"rank": 1, "file": "IMG_9461.HEIC", "shot": "close-up with roses", "confidence": 0.9, "why": "fam-0014: SAME — کلوزآپ خرس صورتی + قلب + رزهای صورتی."},
+      {"rank": 2, "file": "IMG_9458.HEIC", "shot": "top-ish view", "confidence": 0.85, "why": "SAME — نمای بالایی."},
+      {"rank": 3, "file": "IMG_9459.HEIC", "shot": "wider context", "confidence": 0.85, "why": "SAME — قاب محیطی؛ 9455/9456/9457/9465/9469/9471 هم همه SAME (سپر ۹تایی)."}
+    ],
+    "family_sheet": "previews/families/fam-0014.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0015",
+    "product_id": "8688855089252",
+    "featured_untouched": "IMG_4561 (قبلی)",
+    "extras": [
+      {"rank": 1, "file": "IMG_4500.DNG", "shot": "different angle", "confidence": 0.75, "why": "fam-0015: SAME — همان استوانهٔ صورتی-طلایی با ربان عمودی و پاپیون، زاویهٔ دیگر. تنها extras موجود؛ اطمینان کمی پایین‌تر چون شاهد شماره‌ای دور است (۶۱ فاصله)."}
+    ],
+    "family_sheet": "previews/families/fam-0015.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0016",
+    "product_id": "8688855154788",
+    "featured_untouched": "IMG_4109 (قبلی)",
+    "extras": [
+      {"rank": 1, "file": "IMG_4095.HEIC", "shot": "closer", "confidence": 0.75, "why": "fam-1316-resolve: متعلق به 4109 (استوانهٔ در-صورتی/کرم-طلایی، بدون راهراه)."},
+      {"rank": 2, "file": "IMG_4084.DNG", "shot": "different angle", "confidence": 0.75, "why": "همان برگه: متعلق به 4109. پرچم احتیاط: قضاوت اولیهٔ fam-0013 این دو را به 4113 می‌داد — تصحیح با شاهد صریح «بدون راهراه». چک چشمی سریع توصیه."}
+    ],
+    "family_sheet": "previews/families/fam-1316-resolve.jpg"
+  },
+  {
+    "sku": "ZM-GALLERY-0017",
+    "product_id": "8688855253092",
+    "featured_untouched": "IMG_4058 (قبلی)",
+    "extras": [],
+    "status": "SKIP",
+    "why": "fam-0017: 4066/4067 چیدمانِ دیگری از سبد آبی‌اند (هیدرانژیا سفید غالب، بدون رز گلیتر) — DIFFERENT. تنها شات هم‌خانوادهٔ واقعی IMG_4054 است که به‌فرمان ari محفوظِ 0017 مانده و مصرف نمی‌شود. extras: هیچ.",
+    "family_sheet": "previews/families/fam-0017.jpg"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "schema": "octopus-gap-close-ios-rollup/1",
+  "stamp_local": "2026-08-23T09:05:12+10:00",
+  "agent": "Ios",
+  "pytest_rc": 0,
+  "pytest_stdout_tail": "..................                                                       [100%]\n18 passed in 3.07s\n",
+  "per_gap": {
+    "G03": "PASS",
+    "G04": "PASS_PREP",
+    "G05": "PASS",
+    "G07": "PASS_PLAN",
+    "G10": "PASS",
+    "G16": "PASS_PROPOSE",
+    "G18": "PASS_DOC",
+    "G19": "PASS_MONITOR",
+    "G21": "PASS_PROPOSE",
+    "G22": "PASS_PROPOSE",
+    "G23": "PASS_PROPOSE",
+    "G24": "PASS_PROPOSE",
+    "G25": "PASS_DOC",
+    "G08": "PASS",
+    "G09": "PASS"
+  },
+  "forbidden_honored": {
+    "no_money": true,
+    "no_unrestricted_telegram": true,
+    "no_WAVE0": true,
+    "no_force_git": true,
+    "no_invent_captions_photos": true
+  }
+}

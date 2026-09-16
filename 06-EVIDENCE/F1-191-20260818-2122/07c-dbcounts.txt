@@ -1,0 +1,17 @@
+== chrono.db tables: ['heartbeat', 'leg_clock', 'experience_meter', 'duration_marker', 'anticipation_queue', 'checkpoint', 'metabolic_age', 'gated_effect']
+   heartbeat: 40713 rows
+   leg_clock: 1 rows
+   experience_meter: 40266 rows
+   duration_marker: 106 rows
+   anticipation_queue: 6 rows
+   checkpoint: 40712 rows
+   metabolic_age: 2 rows
+   gated_effect: 0 rows
+== memory.db tables: ['memory', 'memory_fts', 'memory_fts_data', 'memory_fts_idx', 'memory_fts_content', 'memory_fts_docsize', 'memory_fts_config']
+   memory: 483 rows
+   memory_fts: 483 rows
+   memory_fts_data: 31 rows
+   memory_fts_idx: 29 rows
+   memory_fts_content: 483 rows
+   memory_fts_docsize: 483 rows
+   memory_fts_config: 1 rows

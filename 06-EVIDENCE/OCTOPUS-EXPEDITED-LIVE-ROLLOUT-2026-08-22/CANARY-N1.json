@@ -1,0 +1,58 @@
+{
+  "schema": "octopus-owner-canary-n1/1",
+  "authorization_id": "OCTOPUS-OWNER-CANARY-20260822-N1",
+  "mode": "EXPEDITED_BOUNDED_LIVE_ROLLOUT",
+  "builder": "grok-ari-single-writer",
+  "verdict_label": "BUILDER_VERIFIED",
+  "independent_verification": false,
+  "canary_token": "OCTOPUS-LIVE-CANARY-N1-2026-08-22",
+  "sent": true,
+  "live_send": true,
+  "message_id": 596,
+  "chat_target_class": "owner-only",
+  "chat_id_hash_ok": true,
+  "chat_id_sha12": "14280e011544",
+  "chat_hash_sha12": "14280e011544",
+  "outbox_path": "F:\\backup\\_ops\\state\\telegram\\canary-n1-rate-limit.sqlite3",
+  "outbox_message_key": "feeeb92e260dd242473700016226daf73010e35c",
+  "outbox_state": "CONFIRMED",
+  "bridge_counts": {
+    "sent": 1,
+    "deferred": 0,
+    "dlq": 0,
+    "rate_blocked": 0,
+    "due": 1
+  },
+  "readback_confirm": {
+    "queue_state": "CONFIRMED",
+    "message_id_match": true,
+    "delivery_attempts": 1,
+    "send_attempts": 1,
+    "send_error": null
+  },
+  "timestamp_local_aest": "2026-08-22T15:29:52.125+10:00",
+  "blocked": false,
+  "block_reason": null,
+  "env_load": {
+    "loaded": true,
+    "n_set": 4,
+    "keys_present": [
+      "TELEGRAM_BOT_TOKEN",
+      "TELEGRAM_OWNER_CHAT_ID",
+      "TG_CENTER_BOT_TOKEN",
+      "TG_CENTER_CHAT_ID"
+    ]
+  },
+  "heartbeat": {
+    "ok": true,
+    "remaining_hours": 5.117751603060299,
+    "ttl_extended": false
+  },
+  "token_source": "TG_CENTER_BOT_TOKEN",
+  "path": "RateLimitQueue+SenderBridge+TgClient.send(owner_only)",
+  "paid_calls": 0,
+  "webhook_mutated": false,
+  "broadcast": false,
+  "groups": false,
+  "second_canary": false
+}

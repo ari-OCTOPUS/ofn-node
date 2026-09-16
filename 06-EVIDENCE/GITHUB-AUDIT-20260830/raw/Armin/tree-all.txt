@@ -1,0 +1,6 @@
+Documents
+Documents/Claude
+Documents/Claude/Projects
+Documents/Claude/Projects/Ai farm (1)
+Documents/Claude/Projects/Ai farm (1)/heart-awareness-map-v3.html
+Documents/Claude/Projects/Ai farm (1)/سیستم-همیشه-روشن-پرامپت-و-دستورالعمل.md

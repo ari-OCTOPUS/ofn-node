@@ -1,0 +1,22 @@
+{
+  "schema": "octopus.lab-enrich.e1.receipt.v1",
+  "id": "LAB-ENRICH-E1-OBS-AGE-20260824",
+  "captured_at_utc": "20260824T052419Z",
+  "metric_present": true,
+  "labeled_series_count": 4,
+  "sample_lines": [
+    "# HELP octopus_sensor_observation_age_seconds Seconds since evidence phenomenon_time",
+    "# TYPE octopus_sensor_observation_age_seconds gauge",
+    "octopus_sensor_observation_age_seconds{sensor=\"OCT-SENSE-053.CPU\"} 1.634",
+    "octopus_sensor_observation_age_seconds{sensor=\"OCT-SENSE-053.MEMORY\"} 1.624",
+    "octopus_sensor_observation_age_seconds{sensor=\"OCT-SENSE-053.STORAGE\"} 1.618",
+    "octopus_sensor_observation_age_seconds{sensor=\"OCT-SENSE-053.THERMAL\"} 1.436",
+    "# HELP octopus_sensor_observation_age_max_seconds Max observation age across host evidence sources",
+    "# TYPE octopus_sensor_observation_age_max_seconds gauge",
+    "octopus_sensor_observation_age_max_seconds 1.634"
+  ],
+  "ARMED": false,
+  "PWM": false,
+  "pass": true,
+  "rollback": "restore stability_monitor.py.from before + systemctl restart octopus-stability"
+}

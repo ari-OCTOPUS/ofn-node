@@ -1,0 +1,81 @@
+{
+ "schema": "life-currency.v1",
+ "color": "GREEN",
+ "scale": 1.0,
+ "beat_pool": 1.323,
+ "reserve": 0.265,
+ "hard_cap": 2.645,
+ "members": {
+  "organism": {
+   "member": "organism",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "heart": {
+   "member": "heart",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "producers": {
+   "member": "producers",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "work_pump": {
+   "member": "work_pump",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "doctor_setpoint": {
+   "member": "doctor_setpoint",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "governor": {
+   "member": "governor",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "sigma": {
+   "member": "sigma",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "fitness": {
+   "member": "fitness",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "school": {
+   "member": "school",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "reconcile": {
+   "member": "reconcile",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  },
+  "fourd_system": {
+   "member": "fourd_system",
+   "tokens": 0.096,
+   "calls": 0,
+   "risk_pool": 0.192
+  }
+ },
+ "reasons": [],
+ "ts": "2026-08-20T11:16:07",
+ "daily_cap": 1000.0,
+ "dry_run": false,
+ "beat": 42770
+}

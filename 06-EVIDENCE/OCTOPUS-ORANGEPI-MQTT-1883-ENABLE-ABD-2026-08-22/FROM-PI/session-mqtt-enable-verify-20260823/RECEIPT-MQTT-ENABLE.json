@@ -1,0 +1,30 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "RECEIPT-MQTT-ENABLE",
+  "auth": [
+    "OCTOPUS-ALL-DOORS-OPEN-20260822",
+    "OCTOPUS-MQTT-ENABLE-ABD-20260822"
+  ],
+  "package": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-ORANGEPI-MQTT-1883-ENABLE-ABD-2026-08-22",
+  "result": "PASS",
+  "ts_utc": "20260822T151104Z",
+  "bind": "127.0.0.1:1883",
+  "allow_anonymous": false,
+  "anon_denied": true,
+  "anon_evidence": "Connection error: Connection Refused: not authorised.",
+  "auth_probe": {
+    "user": "octopus_local",
+    "topic": "octopus/probe/verify",
+    "pass": true,
+    "detail": "EXIT:0",
+    "password": "NOT_EXPORTED"
+  },
+  "unit_active": "active",
+  "ss": "LISTEN 0      100        127.0.0.1:1883      0.0.0.0:*    users:((\"mosquitto\",pid=382176,fd=5))",
+  "wan_open": false,
+  "ufw_1883": "none",
+  "note": "Loopback bind per PLAN option1; prior fail was secrets dir perms; readable passwd under /etc/mosquitto/. Password rotated for probe; plaintext not exported.",
+  "session": "/var/lib/octopus/evidence/session-mqtt-enable-verify-20260823",
+  "wave0_soft_unlock_receipt": "/var/lib/octopus/inbound/TO-LAPTOP/exchange/RECEIPT-WAVE0-SOFT-UNLOCK.json",
+  "prior_journal_fail": "status=13 until passwd path readable"
+}

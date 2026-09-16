@@ -1,0 +1,307 @@
+{
+  "schema": "octopus.doctor-report.v1",
+  "timestamp": "2026-08-17T04:28:16.090243+00:00",
+  "status": "FAIL",
+  "checks": [
+    {
+      "id": "service_state",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "nats-server": "active",
+        "octopus-sensorium": "active",
+        "octopus-stability": "active",
+        "octopus-world-model": "active",
+        "octopus-skill-tracker": "active",
+        "octopus-metacontrol": "active",
+        "octopus-reflex": "active",
+        "octopus-fusiond": "active",
+        "octopus-shadow-validation": "inactive",
+        "octopus-gap001-boot-probe": "failed"
+      }
+    },
+    {
+      "id": "metrics_bind",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "ss": [
+          "tcp   LISTEN 0      5          127.0.0.1:9101       0.0.0.0:*    users:((\"python\",pid=7190,fd=3))    "
+        ]
+      }
+    },
+    {
+      "id": "unexpected_listeners",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "unexpected": [],
+        "lan_9101": false
+      }
+    },
+    {
+      "id": "ledger_integrity",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "world_model": "seq=259",
+        "metacontrol": "seq=2",
+        "reflex": "seq=1",
+        "wm_break": null
+      }
+    },
+    {
+      "id": "checkpoint_signature",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "signed_bundle_present": true,
+        "gap002": "CLOSED_BY_SIGNED_CHECKPOINT",
+        "gap002_signed": true,
+        "creates_authority": false,
+        "phrase": "octopus-audit-ledger checkpoint anchored at seq=266"
+      }
+    },
+    {
+      "id": "registry_signature",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "registry_sha256": "sha256:19f25383d2611000e3272ad9ad5d55e2e645cb5db757a9419f4e7b6d5f1251c5",
+        "live_version": 5
+      }
+    },
+    {
+      "id": "policy_mode",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "readiness_profile": "WAVE0_OBSERVE_ONLY",
+        "actuator_authority": "NONE"
+      }
+    },
+    {
+      "id": "planner_import",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "world_model_shadow.py": false,
+        "skill_tracker_loop.py": false,
+        "metacontrol_shadow.py": false,
+        "stability_monitor.py": false
+      }
+    },
+    {
+      "id": "planner_invocation",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "world_model": false,
+        "metacontrol": false,
+        "skill": false
+      }
+    },
+    {
+      "id": "executable_action_count",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "metacontrol_executable": false,
+        "reflex_execute_enabled": false
+      }
+    },
+    {
+      "id": "actuator_authority",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "homeostasis": "NONE",
+        "reflex_armed": false
+      }
+    },
+    {
+      "id": "sensor_coverage",
+      "ok": false,
+      "status": "FAIL",
+      "detail": {
+        "coverage": 0.6667,
+        "status": "critical",
+        "active": 4,
+        "expected": 6,
+        "degraded": [
+          "OCT-SENSE-092",
+          "OCT-SENSE-095"
+        ],
+        "would_decide": "block",
+        "note": "coverage not imputed; 092/095 shadow-stale is reported not filled"
+      }
+    },
+    {
+      "id": "missing_data",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "unknown": [
+          "prediction_calibration"
+        ],
+        "model_skill": {
+          "value": 0.0,
+          "status": "critical",
+          "stale": false,
+          "source": "world_model_skill",
+          "stamp": null,
+          "raw": null
+        },
+        "prediction_calibration": {
+          "value": null,
+          "status": "unknown",
+          "stale": true,
+          "source": "world_model_calibration_error",
+          "stamp": null,
+          "raw": null
+        },
+        "coverage": 0.6667,
+        "note": "calibration stays UNKNOWN; coverage 0.6667 not imputed to 1.0; skill 0.0 after >=50 pairs is a real persistence score not a missing fill"
+      }
+    },
+    {
+      "id": "clock_monotonicity",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "clock_trust": "SYNCED_NTP",
+        "ntp_synchronised": true,
+        "rtc_valid": true,
+        "rtc_battery_present": "unknown",
+        "monotonic_available": true,
+        "max_acceptable_offset_ms": 250,
+        "utc_now": "2026-08-17T03:40:56.316144+00:00",
+        "rtc_name": "rtc-hym8563 6-0051"
+      }
+    },
+    {
+      "id": "disk_health",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "storage": {
+          "value": 0.053399999999999996,
+          "status": "healthy",
+          "stale": false,
+          "source": "disk_used_ratio",
+          "stamp": "2026-08-17T04:28:02.181358+00:00",
+          "raw": 5.34
+        }
+      }
+    },
+    {
+      "id": "stale_observations",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "value": 13.098522,
+        "status": "healthy",
+        "stale": false,
+        "source": "evidence_age_seconds",
+        "stamp": "2026-08-17T04:28:13.716526+00:00",
+        "raw": null
+      }
+    },
+    {
+      "id": "restart_consistency",
+      "ok": true,
+      "status": "DEGRADED",
+      "detail": {
+        "boot_id": "063fef44-cd54-4a68-81b5-7ac5fd2c39f0",
+        "gap001_probe_status": "TESTED_FAIL",
+        "gap001_file_status": "OPEN"
+      }
+    },
+    {
+      "id": "configuration_drift",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "registry": "sha256:19f25383d2611000e3272ad9ad5d55e2e645cb5db757a9419f4e7b6d5f1251c5",
+        "board": "sha256:b53ec5ba3764f035513535577df5e72f25767e54dda2cedfd5d9b1ca73cd0d5d",
+        "homeostasis": "sha256:2396535d517c2eea5fe5ac2f958a17390ce778777b44db0b408ea2982f9f7c1c",
+        "world_model": "sha256:ea4b482fdc8e936e87fef1c0aa3f3104a0754c4b0541fd1daa705fa1c590fb8b"
+      }
+    },
+    {
+      "id": "skill_samples",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "samples": 127,
+        "min": 50,
+        "score": 0.0,
+        "reason": "not_better_than_baseline",
+        "model_version": "persistence-v1",
+        "baseline_version": "persistence-v1",
+        "meaning": "model_is_the_baseline",
+        "is_evidence_of_model_quality": false,
+        "candidate_model_evaluated": false
+      }
+    },
+    {
+      "id": "gap001",
+      "ok": false,
+      "status": "FAIL",
+      "detail": {
+        "file_status": "OPEN",
+        "probe_status": "TESTED_FAIL",
+        "probe_pass": false,
+        "gap_001": "OPEN",
+        "gap_001_last_result": "TESTED_FAIL",
+        "gap_001_cryptographically_verified": false,
+        "correction_of": "mega-prompt baseline claim gap_001=PASSED",
+        "megaprompt_claimed": "PASSED",
+        "live_truth": "TESTED_FAIL"
+      }
+    },
+    {
+      "id": "gap002",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "status": "CLOSED_BY_SIGNED_CHECKPOINT",
+        "signed": true,
+        "pass": true,
+        "checkpoint_sequence": 266,
+        "creates_authority": false,
+        "note": "Closure is provenance of octopus-audit-ledger through seq 266 only"
+      }
+    },
+    {
+      "id": "verifier",
+      "ok": true,
+      "status": "PASS",
+      "detail": {
+        "readiness_state": "READY",
+        "gates_failed": [],
+        "meaning": "WAVE0_OBSERVE_ONLY"
+      }
+    }
+  ],
+  "blocking_checks": [
+    {
+      "id": "gap_001_open",
+      "severity": "blocking",
+      "observed": "TESTED_FAIL",
+      "required": "PASS_WITH_EVIDENCE"
+    },
+    {
+      "id": "coverage_or_data_critical",
+      "severity": "blocking",
+      "observed": "would_block",
+      "required": "healthy_or_explained"
+    }
+  ],
+  "repairs_attempted": 0,
+  "executed_actions": 0,
+  "mutations": 0,
+  "oa_t7_meaningful": false,
+  "note": "Read-only. Doctor must not repair, restart, arm, or sign. FAIL here does not unlock anything. OA-T7 is meaningless while status=FAIL.",
+  "pid": 10138
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "wave1-entry-gates/1",
+  "all_pass": true,
+  "failed": [],
+  "conditions": {
+    "wave0_checkpoint_frozen": true,
+    "wave0_verifier_confirmed": true,
+    "wave1_unlocked_false_before": true,
+    "memory_read_capability_verified": true,
+    "memory_write_guard_verified": true,
+    "kill_switch_verified": true,
+    "task_attribution_ge_0.95": true,
+    "shadow_sample_size_ge_10": true,
+    "fabricated_task_ids_eq_0": true,
+    "memory_mutations_eq_0": true,
+    "cross_task_leaks_eq_0": true,
+    "readback_failures_eq_0": true,
+    "critical_regressions_eq_0": true,
+    "rollback_test_pass": true,
+    "schema_present_preserved": true,
+    "today_full_forensic_preserved": true,
+    "pre_schema_unmigrated": true,
+    "paid_calls_eq_0": true,
+    "wave0_governor_still_locks_wave1": true
+  },
+  "wave1_unlocked": false,
+  "note": "all_pass authorizes a canary proposal; this module never flips the lock."
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "octopus.a2.execution-authorization.v1",
+  "authorization": "EXECUTION_AUTHORIZATION_A2-001",
+  "task_id": "A2-001",
+  "from_node": ".191",
+  "to_node": ".180",
+  "issued_at": "2026-08-18T04:04:55+10:00",
+  "observed_tz": "UTC+10",
+  "binding_file": "/opt/octopus/a2-lab/inbox/TO-180-A2-001-binding.json",
+  "binding_sha256": "95527b069a15af1cd45d35894d7e42861fc9b30fffa8b2c269a43392216f7d68",
+  "ack_file": "/opt/octopus/a2-lab/envelopes/run-20260817T175442Z-a2-001-binding-ack.json",
+  "ack_sha256": "a2f0fce71b9327b57703b3695a06895745547c9541f4ccd8374bee8f4e859ae8",
+  "ack_outcome": "BINDING_ACKED",
+  "ack_hash_match": true,
+  "constraints": {
+    "start": "fresh worktree from immutable base_commit only",
+    "base_commit": "d10887cbb5c80ec2c3e347f070556ba8276d8a79",
+    "branch": "equip/g10-cognition-20260816",
+    "repo_locator": "F:\\backup\\octopus-bridge",
+    "allowed_paths": [
+      "schemas/",
+      "octopus_bridge/",
+      "tests/",
+      "docs/"
+    ],
+    "success_verdict": "QUARANTINED_PASS",
+    "promotion": false,
+    "do_not": [
+      "merge",
+      "push",
+      "deploy",
+      "start A2-002",
+      "start A2-003",
+      "write ofn/bridge",
+      "canonical=true"
+    ]
+  },
+  "uncertainty": [
+    "ACK timestamp_utc_plus_11 uses +11; August Sydney is UTC+10. UTC event_time 2026-08-17T17:54:58Z accepted.",
+    "Pre-binding receipt 0001-1786985171.json exists on .180 from 16:46Z; it is not this authorization."
+  ],
+  "packet_hash": "a7dc5dfde2c96f655a91a50deb8c581160980784edd8a3d548eb926bea101b11"
+}

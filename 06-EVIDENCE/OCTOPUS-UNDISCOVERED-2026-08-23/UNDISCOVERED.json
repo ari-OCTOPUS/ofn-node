@@ -1,0 +1,629 @@
+{
+  "schema": "octopus-undiscovered/1",
+  "stamp_local": "2026-08-23T16:03:18+10:00",
+  "timezone": "Australia/Sydney",
+  "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23",
+  "constraints": {
+    "no_invent": true,
+    "no_live_sendMessage": true,
+    "no_money_unlock": true,
+    "no_PWM": true,
+    "no_secrets_in_report": true
+  },
+  "known_excluded_reference_only": [
+    "OCTOPUS-GAP-CLOSE-2026-08-23 (G01-G25)",
+    "OCTOPUS-GAP-INVENTORY-2026-08-23",
+    "ZIMAN money foot LIVE / BOARD2-ZIMAN-BIZ-FOOT",
+    "OCTOPUS-DOCTOR-TO-END",
+    "OCTOPUS-EDGE-NEXT (M1-M4 done; residual HOLDS listed separately)",
+    "OCTOPUS-SOFT-UNLOCK-RESIGN",
+    "OCTOPUS-HOMEO-MIRROR-ALIGN (authority PASS; residual homeo_ok flap listed)",
+    "OCTOPUS-TECH-ADMISSION-REFRESH (save-only pack; unfinished TDR backlog listed)",
+    "OCTOPUS-LAPTOP-THROTTLE",
+    "A18 lab fake PASS (live inbound listed as known-still-open)"
+  ],
+  "lanes_merged": [
+    "laptop",
+    "board2",
+    "pi",
+    "reconcile"
+  ],
+  "lane_sources": {
+    "board2": "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2",
+    "pi": "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\PI",
+    "reconcile": "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\RECONCILE.json"
+  },
+  "scan_focus": [
+    "WIRING/organs/legs",
+    "flags vs consumers",
+    "docs/playbooks without code",
+    "UNWIRED lists / tests",
+    "MiniApp/cloudflared/public URL",
+    "Telegram Full Loop inbound durable SoT",
+    "Arch-loop DESIGN backlog",
+    "handoffs/registries/NODE-PACKs",
+    "Pi/Board2/laptop cross-surface",
+    "epistemics/self_audit/evelab promote"
+  ],
+  "counts": {
+    "items": 44,
+    "P0": 3,
+    "P1": 19,
+    "P2": 22
+  },
+  "top25_ids": [
+    "U01",
+    "U08",
+    "U29",
+    "U02",
+    "U03",
+    "U04",
+    "U07",
+    "U30",
+    "U09",
+    "U10",
+    "U39",
+    "U40",
+    "U43",
+    "U31",
+    "U32",
+    "U33",
+    "U38",
+    "U15",
+    "U16",
+    "U18",
+    "U27",
+    "U24",
+    "U06",
+    "U12",
+    "U05"
+  ],
+  "items": [
+    {
+      "id": "U01",
+      "title": "A18 LIVE owner inbound Full Loop still OPEN (lab fake PASS only)",
+      "area": "telegram_full_loop",
+      "severity": "P0",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-ARCH-EVOLUTION-LOOP-2026-08-23\\A18-INBOUND-LAB-FAKE\\RESULT.json",
+        "06-EVIDENCE\\OCTOPUS-CONTINUOUS-MISSION-2026-08-23\\STATUS.json",
+        "_ops\\state\\telegram\\poll-health.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Read-only: compare durable loop/outbox+events for a real owner /remember + /correct-invalid receipt after live inbound; do not sendMessage; do not restart center."
+    },
+    {
+      "id": "U02",
+      "title": "WIRING connector_gap_hook=true with no organism/wiring beat consumer",
+      "area": "wiring_organs",
+      "severity": "P1",
+      "evidence_paths": [
+        "_ops\\organs\\WIRING.json",
+        "_ops\\evidence_plane\\connector_gap_loader.py",
+        "_ops\\evidence_plane\\__init__.py"
+      ],
+      "status": "FLAG_DRIFT",
+      "next_safe_probe": "rg consumers of mark_oauth_gaps/load_registry outside evidence_plane; dry-import mark_oauth_gaps() once; do not invent OAuth."
+    },
+    {
+      "id": "U03",
+      "title": "synthesis_node_packs_hook ON + pointer enabled; packs orphaned from live beat",
+      "area": "wiring_organs",
+      "severity": "P1",
+      "evidence_paths": [
+        "_ops\\organs\\WIRING.json",
+        "_ops\\evidence_plane\\SYNTHESIS-NODE-PACKS.pointer.json",
+        "06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs"
+      ],
+      "status": "UNWIRED",
+      "next_safe_probe": "Confirm no wiring.py/organism import of pointer/packs; propose read-only beat card only; no restart."
+    },
+    {
+      "id": "U04",
+      "title": "CONNECTOR-GAP CG-001/002/003 still WAITING_OWNER_OAUTH (GA4/GSC/Ads)",
+      "area": "connectors",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\CONNECTOR-GAP-REGISTRY.json",
+        "_ops\\organs\\WIRING.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Owner OAuth/signoff only; until then keep metrics_allowed=false; registry hygiene RFC only."
+    },
+    {
+      "id": "U05",
+      "title": "Connector probe queue never runtime-probed (Similarweb/Statista/CB Insights/Finance/GitHub/HF)",
+      "area": "connectors",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\CONNECTOR-GAP-REGISTRY.json"
+      ],
+      "status": "UNWIRED",
+      "next_safe_probe": "Read-only probe plan with estimate labels; no paid unlock; no invent facts."
+    },
+    {
+      "id": "U06",
+      "title": "Arch-loop DESIGN backlog not fully sliced (CONNECTOR-GAP hygiene + MiniApp lab UI still uncut)",
+      "area": "arch_loop",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-ARCH-EVOLUTION-LOOP-2026-08-23\\DESIGN.md",
+        "06-EVIDENCE\\OCTOPUS-ARCH-EVOLUTION-LOOP-2026-08-23\\A18-INBOUND-LAB-FAKE",
+        "06-EVIDENCE\\OCTOPUS-ARCH-EVOLUTION-LOOP-2026-08-23\\C05-DUAL-OUTBOX-CONTRACT",
+        "06-EVIDENCE\\OCTOPUS-ARCH-EVOLUTION-LOOP-2026-08-23\\CENTER-BRIDGE-ATTACH-DEFAULT-OFF"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Open propose-only slices 4-5 under ARCH-EVOLUTION evidence; human/ari merge gate only."
+    },
+    {
+      "id": "U07",
+      "title": "MiniApp triple-URL residual: state named-tunnel + env trycloudflare + docs localhost primary",
+      "area": "miniapp_public_url",
+      "severity": "P1",
+      "evidence_paths": [
+        "_ops\\state\\telegram\\miniapp-url.json",
+        "06-EVIDENCE\\OCTOPUS-MINIAPP-DOC-RECONCILE-2026-08-23\\RESULT.json"
+      ],
+      "status": "FLAG_DRIFT",
+      "next_safe_probe": "Re-measure cloudflared/miniapp_gateway PIDs; document single truth card; no Telegram menu mutate without owner GO."
+    },
+    {
+      "id": "U08",
+      "title": "Telegram poll alive but inbound update SoT stale (empty polls dominate; last_update old)",
+      "area": "telegram_full_loop",
+      "severity": "P0",
+      "evidence_paths": [
+        "_ops\\state\\telegram\\poll-health.json",
+        "_ops\\state\\telegram\\inbound-log.jsonl",
+        "_ops\\state\\telegram\\process-identity.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Read-only diff last_update_received_at vs last_ok_ts vs inbound-log mtime; no restart; no send."
+    },
+    {
+      "id": "U09",
+      "title": "Board2 ports 8791/8792/8793 not listening on laptop (business node remote-liveness blind)",
+      "area": "cross_surface",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-BUSINESS.json"
+      ],
+      "status": "UNKNOWN",
+      "next_safe_probe": "Owner-authorized remote health read of Board2; do not invent listening services on laptop."
+    },
+    {
+      "id": "U10",
+      "title": "Laptop NATS:4222 direct connect timed out (EDGE E2E stayed on-Pi)",
+      "area": "cross_surface",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-EDGE-NEXT-2026-08-23\\RECEIPT.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Read-only LAN/firewall/NATS listener check; no ARM; no PWM; no secret print."
+    },
+    {
+      "id": "U11",
+      "title": "WAVE-B uncommitted-wave-b.patch still orphaned on disk",
+      "area": "handoffs_registries",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-WAVE-B-HANDOFF-2026-08-21\\uncommitted-wave-b.patch",
+        "06-EVIDENCE\\OCTOPUS-WAVE-B-HANDOFF-2026-08-21\\HANDOFF.md"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Owner sparse-commit decision or quarantine note; do not mass-commit dirty tree."
+    },
+    {
+      "id": "U12",
+      "title": "4d ConsolidationCycle still NEVER-WIRED into daemon (Aug-16 UNWIRED remains real)",
+      "area": "unwired_code",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\UNWIRED-4d-consolidation-2026-08-16.md",
+        "4d_system\\brain\\daemon.py",
+        "4d_system\\brain\\consolidation.py"
+      ],
+      "status": "UNWIRED",
+      "next_safe_probe": "rg ConsolidationCycle in 4d_system; keep contained; docstring ERRATA only unless owner GO to wire."
+    },
+    {
+      "id": "U13",
+      "title": "self_audit evidence_bound Done probes with evidence_json=null (gate soft spot)",
+      "area": "epistemics_self_audit",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-SELF-AUDIT-PROBE-2026-08-23\\STATUS.json",
+        "_ops\\cortex\\self_audit.py"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Bind an existing prove RESULT.json as evidence_json for one audit item; fail-closed dry run."
+    },
+    {
+      "id": "U14",
+      "title": "self_insight full live self_scan path not executed (fixture --once only)",
+      "area": "epistemics_self_audit",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-SELF-INSIGHT-EPISTEMICS-2026-08-23\\RESULT.json",
+        "_ops\\self_insight.py"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Optional timed self_insight --json --no-journal under owner GO; no phenomenal claims."
+    },
+    {
+      "id": "U15",
+      "title": "Epistemics advisory live but ident/channel/levels/self_reference still non-authoritative null samples",
+      "area": "epistemics_self_audit",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-SELF-INSIGHT-EPISTEMICS-2026-08-23\\RESULT.json",
+        "06-EVIDENCE\\OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23",
+        "_ops\\epistemics"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Natural sample accrual plan; do not lower MIN_SAMPLES; keep advisory_only=true."
+    },
+    {
+      "id": "U16",
+      "title": "evelab/self_upgrade promoter exists but no continuous promote schedule",
+      "area": "evelab_promote",
+      "severity": "P1",
+      "evidence_paths": [
+        "_ops\\self_upgrade_lab\\promoter.py",
+        "_ops\\doctor\\lab_bridge.py",
+        "06-EVIDENCE\\OCTOPUS-EVELAB-DOCTOR-WIRE-2026-08-23\\RESULT.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Keep propose-only; document absence of Windows cron; human [merge]/reject] only."
+    },
+    {
+      "id": "U17",
+      "title": "Chroma vault_whole collection documented not-yet-wired",
+      "area": "docs_no_code",
+      "severity": "P2",
+      "evidence_paths": [
+        "4d_system\\memory\\vectorstore.py",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\AUDIT.json"
+      ],
+      "status": "UNWIRED",
+      "next_safe_probe": "Read-only confirm OCTOPUS_WIRE_VAULT_RAG still unarmed; no new vector DB install."
+    },
+    {
+      "id": "U18",
+      "title": "MCP 2026-07-28 Mcp-Method/Mcp-Name headers not implemented; initialize handshake still present",
+      "area": "docs_no_code",
+      "severity": "P1",
+      "evidence_paths": [
+        "_ops\\octopus_mcp\\server.py",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\AUDIT.json",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\DECISIONS.json"
+      ],
+      "status": "DOC_ONLY",
+      "next_safe_probe": "Draft MCP-adapter-headers TDR scoped to server.py only; no code until owner TDR GO."
+    },
+    {
+      "id": "U19",
+      "title": "SSE O-E4 endpoint live but heartbeat/resume-after-disconnect tests missing",
+      "area": "miniapp_public_url",
+      "severity": "P2",
+      "evidence_paths": [
+        "_ops\\telegram_center\\miniapp_gateway.py",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\AUDIT.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Write verification tests for /api/runs/{id}/events?after=N; no menu publish."
+    },
+    {
+      "id": "U20",
+      "title": "OTel GenAI mapping TRIAL + DBOS Run Store TRIAL still save-only backlog",
+      "area": "docs_no_code",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\DECISIONS.json",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\SAVE-ONLY.md",
+        "_ops\\cognitive\\event_stream.py",
+        "_ops\\evidence_plane\\event_log.py"
+      ],
+      "status": "DOC_ONLY",
+      "next_safe_probe": "TDR first: map gen_ai.* onto event_stream; compare DBOS trial vs existing event_log before claiming gap."
+    },
+    {
+      "id": "U21",
+      "title": "conversation_hub located but not deep-read / wiring status UNKNOWN after TECH-ADMISSION step1",
+      "area": "wiring_organs",
+      "severity": "P2",
+      "evidence_paths": [
+        "_ops\\conversation_hub",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\AUDIT.json"
+      ],
+      "status": "UNKNOWN",
+      "next_safe_probe": "Read-only map router/service/shadow_rollout to MiniApp/MCP; no behavior change."
+    },
+    {
+      "id": "U22",
+      "title": "04-SYSTEMS/TYPED-EVENTS.md still phantom-name doc trap in tree",
+      "area": "docs_no_code",
+      "severity": "P2",
+      "evidence_paths": [
+        "04-SYSTEMS\\TYPED-EVENTS.md",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\AUDIT.json"
+      ],
+      "status": "DOC_ONLY",
+      "next_safe_probe": "Keep phantom label; cite _ops/cognitive/event_stream.py in any OTel TDR; do not register nbb_cp ledger as match."
+    },
+    {
+      "id": "U23",
+      "title": "homeo_ok intermittent false after HOMEO-MIRROR-ALIGN (soak DEGRADED residual)",
+      "area": "cross_surface",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-HOMEO-MIRROR-ALIGN-2026-08-23\\RECEIPT.json",
+        "06-EVIDENCE\\OCTOPUS-EDGE-NEXT-2026-08-23\\RECEIPT.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Read-only Pi homeostasis latest freshness envelope; keep ARMED=false; no PWM."
+    },
+    {
+      "id": "U24",
+      "title": "NODE-PACK laptop open gates still dark: gap002_registry blocking + GitHub DietPi PAT pending",
+      "area": "handoffs_registries",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-LAPTOP.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Owner-only PAT/signature actions; agents only document blockers; no key export."
+    },
+    {
+      "id": "U25",
+      "title": "Pi LAN:9101 firewall verify still pending (sensorium NODE-PACK open question)",
+      "area": "cross_surface",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\node-packs\\NODE-PACK-SENSORIUM.json",
+        "06-EVIDENCE\\OCTOPUS-ORANGEPI-LAN-9101-2026-08-22"
+      ],
+      "status": "UNKNOWN",
+      "next_safe_probe": "Read-only connectivity check laptop->Pi :9101; no MQTT open; no WAVE0 unlock."
+    },
+    {
+      "id": "U26",
+      "title": "ACTIVATION-* flag sprawl residual (beyond CORTEX-PAID disarm) still present under _ops",
+      "area": "flag_drift",
+      "severity": "P2",
+      "evidence_paths": [
+        "_ops\\arm_gate.py",
+        "_ops\\flag_drift.py",
+        "_ops\\ACTIVATION-FLAGS.md"
+      ],
+      "status": "FLAG_DRIFT",
+      "next_safe_probe": "Run flag_drift dry inventory; propose cleanup checklist only; do not arm paid."
+    },
+    {
+      "id": "U27",
+      "title": "TECH-ADMISSION immediate_week TDRs not drafted (MCP headers / SSE tests / gen_ai mapping)",
+      "area": "docs_no_code",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\DECISIONS.json",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\SAVE-ONLY.md",
+        "06-EVIDENCE\\OCTOPUS-TECH-ADMISSION-REFRESH-2026-08-23\\EXEC-GUIDE-CONSERVATIVE.md"
+      ],
+      "status": "DOC_ONLY",
+      "next_safe_probe": "Write TDRs under save-only rule; no installs; measured problem + rollback required."
+    },
+    {
+      "id": "U28",
+      "title": "SenderBridge attach path exists default-OFF; live poll-loop still not owner-attached",
+      "area": "telegram_full_loop",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-ARCH-EVOLUTION-LOOP-2026-08-23\\CENTER-BRIDGE-ATTACH-DEFAULT-OFF\\RESULT.json",
+        "_ops\\telegram_center\\poll_sender_bridge_attach.py"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Keep attach OFF; owner GO + send_exceptions required before env/flag enable."
+    },
+    {
+      "id": "U29",
+      "title": "MiniApp public Telegram menu URL not LIVE / not owner-published (reconcile P0)",
+      "area": "miniapp_public_url",
+      "severity": "P0",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\RECONCILE.json",
+        "_ops\\state\\telegram\\miniapp-url.json",
+        "06-EVIDENCE\\OCTOPUS-MINIAPP-DOC-RECONCILE-2026-08-23\\RESULT.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Do not invent menu URL; verify tunnel metadata vs localhost primary; owner GO before BotFather/menu mutate.",
+      "lane": "reconcile"
+    },
+    {
+      "id": "U30",
+      "title": "WIRING lead_activation=false while lead_* leg code present (flag OFF / consumer dark)",
+      "area": "wiring_organs",
+      "severity": "P1",
+      "evidence_paths": [
+        "_ops\\organs\\WIRING.json",
+        "_ops\\legs\\lead_leg.py",
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\RECONCILE.json"
+      ],
+      "status": "FLAG_DRIFT",
+      "next_safe_probe": "Map lead_* modules vs lead_activation flag; keep OFF unless owner GO; no outbound lead send.",
+      "lane": "laptop"
+    },
+    {
+      "id": "U31",
+      "title": "Board2: Instagram/GBP/Layer-C socials DOC-ONLY (registry claims, zero runtime adapters)",
+      "area": "board2",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED.json",
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED-TOP10-DEEP.md"
+      ],
+      "status": "DOC_ONLY",
+      "next_safe_probe": "Keep adapters absent; registry hygiene note only; no invent social posts.",
+      "lane": "board2"
+    },
+    {
+      "id": "U32",
+      "title": "Board2: ShopifyConnector scaffold never imported/registered into node",
+      "area": "board2",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED.json",
+        "06-EVIDENCE\\BOARD2-SHOPIFY-DOMAIN-2026-08-23\\RESULT.json"
+      ],
+      "status": "UNWIRED",
+      "next_safe_probe": "Read-only import graph; no OAuth invent; no money unlock.",
+      "lane": "board2"
+    },
+    {
+      "id": "U33",
+      "title": "Board2: OFN_WIRE_EMAIL/PUBLISH=1 dead flags (no .py readers)",
+      "area": "board2",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED.json"
+      ],
+      "status": "FLAG_DRIFT",
+      "next_safe_probe": "Confirm env keys unread; propose disarm or wire doc; no live publish.",
+      "lane": "board2"
+    },
+    {
+      "id": "U34",
+      "title": "Board2: Studio OF/adult-platform adapter ABSENT (telegram_channel-only publish)",
+      "area": "board2",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED.json",
+        "06-EVIDENCE\\BOARD2-STUDIO-BATCH-QUEUE-2026-08-23"
+      ],
+      "status": "UNWIRED",
+      "next_safe_probe": "Document absent adapters; do not invent OF/Fansly paths.",
+      "lane": "board2"
+    },
+    {
+      "id": "U35",
+      "title": "Board2: ofn-marketing.timer present but disabled",
+      "area": "board2",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Leave disabled unless owner GO; no auto studio cycle.",
+      "lane": "board2"
+    },
+    {
+      "id": "U36",
+      "title": "Board2: hypno-fugu-mini /healthz 404 while /health 200",
+      "area": "board2",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Align health contract or document /health as SoT; no secrets.",
+      "lane": "board2"
+    },
+    {
+      "id": "U37",
+      "title": "Board2: Bluesky adapter scaffold never imported into node",
+      "area": "board2",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED.json"
+      ],
+      "status": "UNWIRED",
+      "next_safe_probe": "Leave scaffold; no auto-post.",
+      "lane": "board2"
+    },
+    {
+      "id": "U38",
+      "title": "Board2: Google Merchant Center / Content API sync path ABSENT",
+      "area": "board2",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\BOARD2\\UNDISCOVERED.json"
+      ],
+      "status": "UNWIRED",
+      "next_safe_probe": "Do not invent merchant sync; catalog stays local until owner TDR.",
+      "lane": "board2"
+    },
+    {
+      "id": "U39",
+      "title": "Pi: MQTT loopback SoT LIVE (127.0.0.1:1883 auth) vs stale CLOSED docs risk",
+      "area": "pi",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\PI\\UNDISCOVERED.json"
+      ],
+      "status": "FLAG_DRIFT",
+      "next_safe_probe": "Confirm LOCAL_LOOPBACK_AUTH_OPEN__WAN_KEEP_CLOSED SoT; refresh stale CLOSED docs; keep WAN closed.",
+      "lane": "pi"
+    },
+    {
+      "id": "U40",
+      "title": "Pi: gateway allowlist freeze leaves non-diag cmds dark; laptop NATS client flaky",
+      "area": "pi",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\PI\\UNDISCOVERED.json",
+        "06-EVIDENCE\\OCTOPUS-EDGE-NEXT-2026-08-23\\RECEIPT.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Keep allowlist freeze; optional laptop NATS path diagnose read-only; no ARM.",
+      "lane": "pi"
+    },
+    {
+      "id": "U41",
+      "title": "Pi: doctor residual metrics_observation_age fail + ancient boot_report",
+      "area": "pi",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\PI\\UNDISCOVERED.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Read-only doctor latest; refresh boot_report only with owner GO.",
+      "lane": "pi"
+    },
+    {
+      "id": "U42",
+      "title": "Pi: THERMAL RANGE_CHECK quarantine residue still on disk",
+      "area": "pi",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\PI\\UNDISCOVERED.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Confirm quarantine auto-clear vs hold; no PWM.",
+      "lane": "pi"
+    },
+    {
+      "id": "U43",
+      "title": "Pi: NATS ACL / octopus-core E2E creds lifecycle + production ACL still open design",
+      "area": "pi",
+      "severity": "P1",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\PI\\UNDISCOVERED.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Optional rotate if exposed; do not print secrets; design-only ACL expand.",
+      "lane": "pi"
+    },
+    {
+      "id": "U44",
+      "title": "Pi: ESP32 Phase B / physical sensors still deferred",
+      "area": "pi",
+      "severity": "P2",
+      "evidence_paths": [
+        "06-EVIDENCE\\OCTOPUS-UNDISCOVERED-2026-08-23\\PI\\UNDISCOVERED.json"
+      ],
+      "status": "PARTIAL",
+      "next_safe_probe": "Keep deferred; software WAVE0 only until owner buy/estop.",
+      "lane": "pi"
+    }
+  ]
+}

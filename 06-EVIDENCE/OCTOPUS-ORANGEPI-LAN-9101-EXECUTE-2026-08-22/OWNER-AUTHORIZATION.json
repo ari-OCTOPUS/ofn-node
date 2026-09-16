@@ -1,0 +1,71 @@
+﻿{
+    "mutate_device":  true,
+    "wave0":  "KEEP_WAVE0_LOCKED for actuators/MQTT/legs; this package is bind-address + firewall ACL only",
+    "sot_at_auth":  {
+                        "service_name_observed_healthy":  "stability",
+                        "laptop_config_detail":  "no board.yaml/systemd unit text for 9101 found on laptop evidence; executor must discover on-board existing knob",
+                        "laptop_access":  "ssh -N -L (local forward to board 127.0.0.1:9101)",
+                        "listen":  "127.0.0.1:9101"
+                    },
+    "scope":  {
+                  "port":  9101,
+                  "description":  "bind 9101 on LAN for laptop\u003c-\u003eboard; change bind address only on existing stability service",
+                  "target":  "Orange Pi LAN:9101",
+                  "allowed":  [
+                                  "Discover existing 9101 listener/unit/config (stability python, board.yaml, systemd unit/drop-in, env)",
+                                  "Change bind address only: 127.0.0.1 -\u003e 0.0.0.0 OR board LAN IP 192.168.0.182 using EXISTING config knob",
+                                  "Reload/restart the existing stability service unit only",
+                                  "Add/adjust host firewall ACL so LAN laptop can reach :9101 (prefer source allowlist to laptop LAN subnet/host)",
+                                  "Document doctor lan_9101 check implications (localhost-only assertion may FAIL after LAN bind - expected)",
+                                  "Verify laptop\u003c-\u003eboard reachability without ssh -N -L; write receipts + TO-LAPTOP exchange",
+                                  "Rollback to 127.0.0.1 per ROLLBACK.md"
+                              ]
+              },
+    "board":  {
+                  "agent_executor":  "sensoriom",
+                  "ip":  "192.168.0.182",
+                  "hostname":  "sensorium-opi5pro"
+              },
+    "schema":  "octopus.owner-authorization.v1",
+    "owner_choice":  "Bind Orange Pi port 9101 on LAN (not only 127.0.0.1) for laptop\u003c-\u003eboard",
+    "laptop_writer":  "grok-ari-plans-only",
+    "timestamp":  "2026-08-22T19:22:00+10:00",
+    "authorization_id":  "OCTOPUS-ORANGEPI-LAN-9101-EXECUTE-20260822",
+    "executor":  "sensoriom",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "plan_file":  "PLAN.md",
+    "forbidden":  [
+                      "WAVE0 actuators invent / unlock / arm",
+                      "MQTT invent / open 1883 / broker changes",
+                      "private keys export / rewrite / make-root-v2",
+                      "zero-fill sensors",
+                      "re-run CHG-C / NATS MemoryMax or JetStream retention changes",
+                      "Doctor auto-patch on Pi",
+                      "torch WM",
+                      "invent new protocol / new port / new service / new HTTP API",
+                      "change auth model, TLS, or payload schema beyond bind address + firewall ACL",
+                      "PWM / legs / root action_executor / arm reflex / planner",
+                      "in-place hash rewrite / casual observation truncate",
+                      "SSH/mutate Pi from laptop writer (plans + grant only; sensoriom executes)"
+                  ],
+    "upgrade_from":  {
+                         "prior_mutate_device":  false,
+                         "prior_role":  "auth-only file evidence",
+                         "this_package_supersedes":  true,
+                         "prior_package":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-LAN-9101-2026-08-22"
+                     },
+    "token":  "OCTOPUS-ORANGEPI-LAN-9101-20260822",
+    "notes":  "Owner late-answer SUPERSEDES tunnel-only / auth-only default. mutate_device=true. Token unchanged OCTOPUS-ORANGEPI-LAN-9101-20260822 (upgrade from auth-only).",
+    "rollback_file":  "ROLLBACK.md",
+    "execution_order_file":  "EXECUTION-ORDER.md",
+    "authorizer":  {
+                       "channel":  "owner_chat_directive",
+                       "via":  "ari",
+                       "role":  "owner"
+                   },
+    "evidence_refs":  [
+                          "06-EVIDENCE/OCTOPUS-ORANGEPI-LAN-9101-2026-08-22/OWNER-AUTHORIZATION.json",
+                          "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/OWNER-CHG-AUTHORIZATION.json",
+                          "06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/BOARD-DEEP-DIAGNOSIS-ACK.json"
+                      ]
+}

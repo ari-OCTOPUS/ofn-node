@@ -1,0 +1,24 @@
+{
+  "schema": "octopus-orangepi-chg-c-receipt-ack/1",
+  "auth": "OCTOPUS-ORANGEPI-CHG-C-NATS-20260822",
+  "received_at_local": "2026-08-22T18:37:18.804374+10:00",
+  "result": "C1_PASS_C2_NOT_NEEDED",
+  "memory_current_before_mib": 487,
+  "memory_current_after_mib": 58,
+  "memory_max_mib": 512,
+  "js_storage_before": 948049741,
+  "js_storage_after": 293799268,
+  "streams_limited": [
+    "OBSERVATION",
+    "FEATURE",
+    "SENSOR_HEALTH",
+    "SENSORIUM",
+    "WORLD"
+  ],
+  "streams_untouched": [
+    "AUDIT",
+    "COMMAND",
+    "LEG"
+  ],
+  "wave0": "LOCKED"
+}

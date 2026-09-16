@@ -1,0 +1,43 @@
+﻿{
+    "broadcast":  false,
+    "git_add_A":  false,
+    "token":  "OCTOPUS-MONEY-WEBHOOK-WORKPUMP-20260822",
+    "already_open":  [
+                         "ACTIVATION-WORK-LLM.flag (work_pump paid)",
+                         "ACTIVATION-GO-LIVE.flag",
+                         "ACTIVATION-CORTEX-PAID.flag",
+                         "OCTOPUS_WIRE_HEART_WORK=1",
+                         "FREEZE.flag absent"
+                     ],
+    "center_restart":  false,
+    "timestamp":  "2026-08-22T18:55:18+10:00",
+    "changed":  [
+                    {
+                        "path":  "F:\\backup\\_ops\\organs\\WIRING.json",
+                        "unchanged_keys":  {
+                                               "flags.studio_wire":  false,
+                                               "flags.live_organism_hook":  true,
+                                               "flags.lead_activation":  false,
+                                               "paid_calls":  0,
+                                               "executable":  true
+                                           },
+                        "keys":  {
+                                     "flags.crypto_wire":  {
+                                                               "before":  false,
+                                                               "after":  true
+                                                           },
+                                     "flags.mining_wire":  {
+                                                               "before":  false,
+                                                               "after":  true
+                                                           },
+                                     "flags.accounting_amounts":  {
+                                                                      "before":  false,
+                                                                      "after":  true
+                                                                  }
+                                 }
+                    }
+                ],
+    "webhook":  "policy authorized in OWNER-AUTHORIZATION; no setWebhook; no new flag invented",
+    "schema":  "octopus.unlock-changes.v1",
+    "secrets":  "not rotated/exported"
+}

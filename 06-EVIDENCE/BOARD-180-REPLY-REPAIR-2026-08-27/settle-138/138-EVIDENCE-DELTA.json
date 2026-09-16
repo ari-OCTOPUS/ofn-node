@@ -1,0 +1,24 @@
+{
+  "schema": "node_evidence_delta.v1",
+  "node": "138",
+  "supersedes_gates_in": "138-EVIDENCE.json",
+  "snapshot_at_utc": "2026-08-27T23:03:14Z",
+  "delta_at_utc": "2026-08-27T23:08:18Z",
+  "note": "Do not rewrite the hashed snapshot. This delta is later live SoT.",
+  "gates": {
+    "live_painting_pack": "2e8a8e42 EXECUTABLE_PASS 7bce4c1f TG 1522",
+    "live_run": "bizop-20260828T230148Z",
+    "artifact_file_sha256": "91c0387178566865a59d45cb53ef95dc09960badab59adee9ac29a0aeca550e2",
+    "payload_sha256": "4cdc1400cca38762b3d9d19fc522cea598d76d1be6fb6c8468338c5a0aea7f79",
+    "superseded_pack": "f16eea74 NOT_EXECUTABLE 89f9529f",
+    "superseded_payload": "e2f55c41 223048Z",
+    "1515_1517": "EXPIRED_UNEXECUTABLE",
+    "ziman_studio": "BLOCKED_MISSING_EXECUTABLE_FIELDS",
+    "ignore_runs": [
+      "bizop-20260828T224500Z",
+      "bizop-20260827T230316Z"
+    ]
+  },
+  "hold_external": true,
+  "verified_cash_aud": 0
+}

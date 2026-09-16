@@ -1,0 +1,9 @@
+{
+ "token": "OCTOPUS-WAVE0-SOFT-ESTOP-UNLOCK-20260823",
+ "also": "OCTOPUS-ALL-DOORS-OPEN-20260822",
+ "accepts": "WAVE0 hardware unlock with software latch only; no physical e-stop",
+ "risk_accepted_by": "owner",
+ "via": "ari",
+ "ts": "2026-08-23",
+ "rollback": "assert software latch → KEEP_LOCKED"
+}

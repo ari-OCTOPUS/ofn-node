@@ -1,0 +1,72 @@
+{
+  "schema": "octopus-evidence/1",
+  "task": "OCTOPUS-TG-PATH-NORMALIZE-2026-08-23",
+  "status": "DONE",
+  "timestamp_sydney": "2026-08-23 03:13:20 AEST",
+  "timestamp_utc": "2026-08-22T17:13:20.706928Z",
+  "timezone": "Australia/Sydney",
+  "constraints_honored": {
+    "no_live_telegram_send": true,
+    "no_sendMessage": true,
+    "no_center_restart": true,
+    "center_pid_35916_left_running": true,
+    "no_auto_DEAD_LETTER_live_outbox": true,
+    "no_outbox_delete": true,
+    "no_owner_data_delete": true,
+    "no_secrets_in_evidence": true,
+    "no_mass_commit": true,
+    "reversible": true
+  },
+  "problem": {
+    "id": "B5_EVENT_PATH_MISMATCH",
+    "from": "OCTOPUS-OUTBOX-RECONCILE-2026-08-23",
+    "detail": "Logical event_id uses colon (tg:223883344); durable_loop stores events/tg_<id>.json; delivery_reconciliation._search_transport_evidence looked up events/{event_id}.json with colon and missed on-disk files."
+  },
+  "findings": {
+    "event_id_built_as": "durable_loop._normalize -> f'tg:{uid}'",
+    "on_disk_stem": "durable_loop._event_path -> event_id.replace(':', '_')",
+    "reconcile_lookup_before": "events/{event_id}.json (colon form, Windows-illegal / mismatch)",
+    "reconcile_lookup_after": "events/{_event_fs_name(event_id)}.json"
+  },
+  "fix": {
+    "approach": "minimal normalize helper in reconcile matcher only (no durable_loop rewrite, no live outbox mutation)",
+    "helper": "delivery_reconciliation._event_fs_name",
+    "canonical_form": "underscore stem (tg_<id>), matching durable_loop._event_path",
+    "used_at": ["_search_transport_evidence event file lookup"]
+  },
+  "files_touched": [
+    "_ops/telegram_center/delivery_reconciliation.py",
+    "_ops/tests/test_delivery_reconciliation.py"
+  ],
+  "tests": {
+    "suite": "_ops/tests/test_delivery_reconciliation.py",
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "new_tests": [
+      "t_i_event_path_normalize_colon_and_underscore_match",
+      "t_j_reconcile_confirms_via_normalized_event_path"
+    ],
+    "live_send": false
+  },
+  "live_outbox_left_unchanged": {
+    "CONFIRMED": 18,
+    "NEEDS_RECONCILIATION": 2,
+    "DRY_RUN_NO_SEND": 1,
+    "auto_DEAD_LETTER_applied": false,
+    "note": "NEEDS_RECONCILIATION items left for owner GO; path fix only enables future transport-evidence confirms when message_id+readback exist."
+  },
+  "center_pid_35916": {
+    "running": true,
+    "restarted": false,
+    "image": "python.exe"
+  },
+  "git": {
+    "mass_commit": false,
+    "dirty_slice_only": [
+      "_ops/telegram_center/delivery_reconciliation.py",
+      "_ops/tests/test_delivery_reconciliation.py"
+    ]
+  },
+  "next_action": "Owner GO still required before any live outbox NEEDS_RECONCILIATION -> DEAD_LETTERED sync for OWNER_OBSERVED items (B3/B6). Path normalize unblocks transport-evidence confirm path only when delivery_message_id+readback exist; historical items still lack message_id so remain quarantine markers until owner decides."
+}

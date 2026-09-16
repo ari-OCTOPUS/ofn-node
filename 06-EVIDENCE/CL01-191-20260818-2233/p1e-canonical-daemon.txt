@@ -1,0 +1,57 @@
+=== P) 4d store.py DB_PATH ===
+18:DB_PATH = Path(__file__).resolve().parent.parent / "outputs" / "4d_experiments.db"
+28:    conn = sqlite3.connect(str(DB_PATH), timeout=30)
+39:    DB_PATH.parent.mkdir(exist_ok=True)
+40:    conn = sqlite3.connect(str(DB_PATH))
+347:    print(f"✓ SQLite database initialized at {DB_PATH}")
+
+=== Q) memory_store.py default path body ===
+def _default_path() -> Path:
+    base = os.environ.get("OCTOPUS_STATE_DIR", "").strip()
+    root = Path(base) if base else (_HERE.parent / "state")
+    return root / "memory" / "memory.db"
+
+
+class MemoryStore:
+
+=== R) _unwired_4d story ===
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""4d_system class caller counts + 7-day effect logs. Read-only."""
+from __future__ import annotations
+
+import ast
+import json
+import re
+import sqlite3
+from collections import Counter
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+ROOT = Path(r"F:/backup")
+D4 = ROOT / "4d_system"
+OPS = ROOT / "_ops"
+
+SKIP = {"tests", "__pycache__", "nbb-cp-kre", "src"}  # src/nbb_cp is separate product
+
+
+0 _ops/state/_unwired_4d_err.txt
+0 _ops/state/_unwired_4d_out.json
+0 total
+
+=== S) c6 production caller (state_dir=?) ===
+_ops\blackbox_map.py:102:        "path_declared": r"F:\backup\_ops\c6_trigger.py",
+_ops\blackbox_map.py:110:            r"F:\backup\_ops\c6_trigger.py",
+_ops\brain_worker.py:301:                        import c6_trigger as _c6
+_ops\brain_worker.py:303:                        _c6.c6_research_beat(state_dir=str(opslib.STATE_DIR),
+_ops\brain_worker.py:306:                        opslib.alert([f"c6_research_beat error (non-fatal): {type(_c6e).__name__}: {_c6e}"])
+
+=== T) daemon log candidates ===
+./06-EVIDENCE/CL01-191-20260818-2233/p1e-canonical-daemon.txt
+./4d_system/outputs/daemon-console-20260816.log
+./4d_system/outputs/daemon-launch.err.log
+./4d_system/outputs/daemon-launch.log
+./4d_system/outputs/daemon-launch2.err.log
+./4d_system/outputs/daemon-launch2.log
+./4d_system/outputs/daemon-launch3.err.log
+./4d_system/outputs/daemon-launch3.log

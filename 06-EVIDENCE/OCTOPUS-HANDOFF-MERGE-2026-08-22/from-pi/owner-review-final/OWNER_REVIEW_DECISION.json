@@ -1,0 +1,66 @@
+{
+  "schema": "octopus.owner-review-decision.v1",
+  "written_at": "2026-08-17T04:28:15.589793+00:00",
+  "decision": "KEEP_WAVE0_LOCKED",
+  "ready_for_owner_decision": false,
+  "ready_for_bounded_transition": false,
+  "authority_changed": false,
+  "oa_t7_created": false,
+  "executed_actions": 0,
+  "planner_invocations": 0,
+  "actuator_authority": "NONE",
+  "control_safety": "PASS",
+  "t0_result": "DEGRADED",
+  "t4_result": "DENY",
+  "doctor": "FAIL",
+  "gap_001": "OPEN_TESTED_FAIL",
+  "gap_002": "CLOSED_BY_SIGNED_CHECKPOINT",
+  "candidate_registered": true,
+  "candidate_in_live_policy": false,
+  "planning_evidence": false,
+  "remaining_blockers": [
+    {
+      "id": "doctor_not_pass",
+      "status": "FAIL",
+      "checks": [
+        "sensor_coverage",
+        "gap001"
+      ]
+    },
+    {
+      "id": "gap_001",
+      "status": "OPEN_TESTED_FAIL",
+      "owner": "OWNER_MAINTENANCE_WINDOW_REQUIRED"
+    },
+    {
+      "id": "sensor_coverage_critical",
+      "coverage": 0.6667,
+      "degraded": [
+        "OCT-SENSE-092",
+        "OCT-SENSE-095"
+      ],
+      "would_decide": "block",
+      "owner": "OWNER_MAINTENANCE_WINDOW_REQUIRED signed registry v6 apply (restarts sensorium); do not impute"
+    },
+    {
+      "id": "t4_deny",
+      "decision": "DENY",
+      "skill_point_estimate": 0.0043008637535759675,
+      "skill_lower_bound": -0.0037242728317090634,
+      "reason": "candidate did not meet PLAN_ALLOWED_ADVISORY; thresholds not relaxed"
+    },
+    {
+      "id": "power_loss_untested",
+      "status": "UNKNOWN",
+      "artifact_missing": "power-cycle GAP-001 evidence",
+      "owner_action": "physical power-loss test not authorized this session"
+    },
+    {
+      "id": "seven_day_telemetry",
+      "status": "UNKNOWN",
+      "artifact_missing": "7-day scrape archive",
+      "owner_action": "leave board observing; do not fake"
+    }
+  ],
+  "oa_t7_present": false
+}

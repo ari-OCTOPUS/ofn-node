@@ -1,0 +1,124 @@
+diff --git a/live4_harness.py.pre-v3 b/live4_harness.py
+index 7383bef..f55d7f0 100644
+--- a/live4_harness.py.pre-v3
++++ b/live4_harness.py
+@@ -61,13 +61,23 @@ JUDGE_PROMPT = ("Which proposal is more specific and testable for the question b
+                 "Use A or B (TIE only if truly equal).\n"
+                 "Question: {q}\nA: {a}\nB: {b}")
+ 
+-
+-def blind_pair(baseline: str, conditioned: str, *, seed: int) -> dict:
+-    """جایتصادفیِ قطعی با seed؛ خروجی: prompt داور + نگاشت موقعیت‌ها."""
++# D-B/V3 (DEEPSEEK-AUTOMATIC-ROUTING-01): پیلودِ حداقلیِ تک‌کلیدی — دقیقاً {"choice":"A"|"B"|"TIE"}
++# V3.1: دستورِ فرمت در انتها (اثرِ recency) + مثالِ صریح — چون حالتِ شکستِ مشاهده‌شده
++# خروجیِ نثریِ ۷۰۰کاراکتری بود، نه حرفِ لخت.
++JUDGE_PROMPT_V3 = ("Question: {q}\nA: {a}\nB: {b}\n\n"
++                   "Which proposal (A or B) is more specific and testable? TIE only if truly equal.\n"
++                   "Answer with ONLY one JSON object and absolutely nothing else. "
++                   'Example of a valid answer: {"choice":"A"}')
++
++
++def blind_pair(baseline: str, conditioned: str, *, seed: int, template: str | None = None) -> dict:
++    """جایتصادفیِ قطعی با seed؛ خروجی: prompt داور + نگاشت موقعیت‌ها.
++    template: JUDGE_PROMPT (پیش‌فرض/V2) یا JUDGE_PROMPT_V3 (D-B/V3)."""
+     cond_is_a = random.Random(seed).random() < 0.5
+     A, B = (conditioned, baseline) if cond_is_a else (baseline, conditioned)
++    tpl = template or JUDGE_PROMPT
+     return {"cond_position": "A" if cond_is_a else "B",
+-            "judge_prompt": (JUDGE_PROMPT.replace("{q}", "{TASK}")
++            "judge_prompt": (tpl.replace("{q}", "{TASK}")
+                              .replace("{a}", A[:200]).replace("{b}", B[:200])),
+             "baseline_sha": hashlib.sha256(baseline.encode("utf-8", "replace")).hexdigest(),
+             "conditioned_sha": hashlib.sha256(conditioned.encode("utf-8", "replace")).hexdigest()}
+@@ -119,6 +129,34 @@ def judge_json(text: str, cond_position: str, *, judge_provider: str = "",
+             "trace_id": trace_id, "schema": "judge-json/1", "void": not ok}
+ 
+ 
++def judge_choice_v3(text: str, cond_position: str, *, judge_provider: str = "",
++                    judge_model: str = "", trace_id: str = "") -> dict:
++    """D-B/V3 (DEEPSEEK-AUTOMATIC-ROUTING-01): پذیرشِ فقطِ اسکیمای حداقلی
++    {"choice":"A"|"B"|"TIE"} — تک‌کلید، بدون rationale؛ هر چیز دیگر = UNREADABLE/VOID.
++    ناخوانا هرگز برنده حدس نمی‌زند؛ winner فقط از نگاشت موقعیت می‌آید."""
++    import hashlib as _h
++    import json as _j
++    import re as _re
++    raw = str(text or "")
++    m = _re.search(r"\{[^{}]*\}", raw)
++    verdict = None
++    if m:
++        try:
++            obj = _j.loads(m.group(0))
++            if (isinstance(obj, dict) and set(obj) == {"choice"}
++                    and str(obj["choice"]) in ("A", "B", "TIE")):
++                verdict = str(obj["choice"])
++        except Exception:  # noqa: BLE001
++            verdict = None
++    winner = None
++    if verdict == "A": winner = "conditioned" if cond_position == "A" else "baseline"
++    elif verdict == "B": winner = "conditioned" if cond_position == "B" else "baseline"
++    return {"verdict": verdict or "UNREADABLE", "winner": winner,
++            "raw_output_sha256": _h.sha256(raw.encode("utf-8", "replace")).hexdigest(),
++            "judge_provider": judge_provider, "judge_model": judge_model,
++            "trace_id": trace_id, "schema": "judge-choice-v3/1", "void": verdict is None}
++
++
+ def parse_judge(text: str, cond_position: str) -> str | None:
+     """خروجی داور → 'conditioned' | 'baseline' | None(خوانا نیست)."""
+     t = str(text or "").strip().upper()
+diff --git a/live4_fg_runner.py.pre-v3 b/live4_fg_runner.py
+index 1a105ba..3fe95a4 100644
+--- a/live4_fg_runner.py.pre-v3
++++ b/live4_fg_runner.py
+@@ -20,7 +20,8 @@ for i in range(NPAIRS):
+         print(f"BATCH {b} PARTIAL at pair {i}"); break
+     rows = D.retrieve_evidence()
+     ev = " | ".join(f"[{r[0]} conf={r[2]}] {r[1][:90]}" for r in rows)
+-    pid = f"cl1-live4-e2e5-b{b}-{i+1:02d}"
++    # V3: pid زمان‌دار — ریشهٔ exc:IntegrityErrorهای قبلی، PKِ تکراری در اجرای مجدد بود
++    pid = f"{D.TRACE}-b{b}-{i+1:02d}"
+     try:
+         D.LED.append_prediction(prediction_id=pid,
+             content=f"L4fg batch{b} pair{i+1}: blind judge prefers evidence-conditioned proposal",
+@@ -36,23 +37,28 @@ for i in range(NPAIRS):
+             D.receipt("PAIR_VOID", prediction_id=pid, note=f"base_ok={bok} cond={cnote}")
+             emit(PAIRS, {"batch": b, "pair": i+1, "void": True, "why": f"base={bok}/{bmod} cond={cnote}"})
+             continue
+-        bp = D.H.blind_pair(base_txt, cond_txt, seed=100*b + i)
++        bp = D.H.blind_pair(base_txt, cond_txt, seed=100*b + i, template=D.H.JUDGE_PROMPT_V3)
+         j_txt, jok, jmod = D.ask_fugu(bp["judge_prompt"].replace("{TASK}", D.Q), f"live4-b{b}-judge-{i}")
+-        jc = D.H.judge_json(j_txt if jok else "", bp["cond_position"],
++        jc = D.H.judge_choice_v3(j_txt if jok else "", bp["cond_position"],
+                                 judge_provider="deepseek", judge_model=jmod or "deepseek-v4-flash",
+                                 trace_id=f"{pid}-judge")
+         jc["judge_independence_limited"] = True  # same provider family as arms (fugu dead, local unusable)
+         if jc["void"]:
+-            # رفع D-B reliability: یک re-ask رسیددار (بدون حدسِ برنده) — ناخوانای دوم = VOID قطعی
+-            D.receipt("JUDGE_REASK", prediction_id=pid, note="unreadable-1st")
++            # V3: ضبطِ خامِ خروجیِ ناخوانا برای تشخیص (شکافِ مشاهده‌پذیریِ قبلی)
++            emit(L4/"live4-judge-raws.jsonl", {"pid": pid, "attempt": 1, "raw": (j_txt or "")[:1200],
++                                               "raw_sha256": jc["raw_output_sha256"], "ts": D.now()})
++            # D-B/V3: دقیقاً یک re-ask رسیددار (بدون حدسِ برنده) — ناخوانای دوم = VOID قطعی
++            D.receipt("JUDGE_REASK", prediction_id=pid, note="unreadable-1st contract=v3")
+             j_txt, jok, jmod = D.ask_fugu(bp["judge_prompt"].replace("{TASK}", D.Q), f"live4-b{b}-judge2-{i}")
+-            jc = D.H.judge_json(j_txt if jok else "", bp["cond_position"],
++            jc = D.H.judge_choice_v3(j_txt if jok else "", bp["cond_position"],
+                                 judge_provider="deepseek", judge_model=jmod or "deepseek-v4-flash",
+                                 trace_id=f"{pid}-judge2")
+             jc["judge_independence_limited"] = True
+             jc["reasked"] = True
+         won = jc["winner"]
+         if jc["void"]:
++            emit(L4/"live4-judge-raws.jsonl", {"pid": pid, "attempt": 2, "raw": (j_txt or "")[:1200],
++                                               "raw_sha256": jc["raw_output_sha256"], "ts": D.now()})
+             D.ST["availability_voids"] += 1
+             D.LED.attach_outcome(prediction_id=pid, outcome="VOID_JUDGE_UNREADABLE")
+             D.receipt("PAIR_VOID", prediction_id=pid, note=f"judge-{jc['verdict']}")
+@@ -63,7 +69,7 @@ for i in range(NPAIRS):
+         D.receipt("PAIR_COMPLETE", prediction_id=pid, note=f"cond_won={hit} pos={bp['cond_position']}")
+         emit(PAIRS, {"batch": b, "pair": i+1, "void": False, "cond_won": hit,
+                      "cond_position": bp["cond_position"], "evidence_ids": [r[0] for r in rows],
+-                     "judge": jc})
++                     "contract": "judge-choice-v3/1", "judge": jc})
+         emit(PREDS, {"id": pid, "conf": 0.55, "hit": hit})
+         LR.record("pair")
+         print(f"b{b}p{i+1}: {'WIN' if hit else 'LOSS'} ({bp['cond_position']}) spent={D.ST['spent_aud']:.4f}")

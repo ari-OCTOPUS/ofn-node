@@ -1,0 +1,24 @@
+{
+  "schema": "octopus-owner-chg-grant-for-executor/1",
+  "authorization_id": "OCTOPUS-ORANGEPI-CHG-E-20260822",
+  "to_executor": "sensoriom",
+  "board": "sensorium-opi5pro",
+  "ip": "192.168.0.182",
+  "package": ["E"],
+  "execute": true,
+  "execute_gate": "BLOCKED_NEED_ARCHIVE_ROOT",
+  "order": ["E"],
+  "plans_relative": [
+    "PLAN.md",
+    "EXECUTION-ORDER.md",
+    "ROLLBACK.md",
+    "OWNER-AUTHORIZATION.json"
+  ],
+  "laptop_path": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-EXECUTE-2026-08-22",
+  "supersedes_auth_only": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-2026-08-22",
+  "links_abd_package": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22",
+  "links_c_package": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-C-NATS-2026-08-22",
+  "mutate_device": true,
+  "written_at_local": "2026-08-22T19:08:12+10:00",
+  "note": "Owner CHG-E execute grant. mutate_device=true resolves prior auth-only conflict (mutate_device false + execute true). DO NOT begin Pi mutation until ARCHIVE_ROOT and blocked owner inputs are filled and gate flips to EXECUTE_READY. Laptop writer does not SSH. Forbidden: casual truncate of observations."
+}

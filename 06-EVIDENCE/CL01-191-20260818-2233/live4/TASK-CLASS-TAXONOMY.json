@@ -1,0 +1,6 @@
+{"schema":"live4-taxonomy/1","frozen":"2026-08-19","task_classes":[
+ {"id":"next-testable-step-24h","prompt":"پیشنهاد بده: کوچک‌ترین گامِ بعدیِ قابل‌تست برای بهبود چرخهٔ یادگیریِ حافظهٔ کانونی OCTOPUS در ۲۴ ساعت آینده. فقط یک جمله.",
+  "eligible_pair":true,"judge":"blind-ab-specificity-testability"}],
+ "rules":{"provider_policy":"fugu<=500chars; deepseek fallback only with valid pinned FX (<=24h) or after 1 receipted fugu failure",
+ "batches":2,"min_pairs_per_batch":15,"min_cond_wins_per_batch":10,"min_total_valid_pairs":30,"min_total_cond_wins":20,
+ "availability_failure":"neither-win-nor-loss","scoring_numeric":"min 20 wins in 30 valid pairs (recorded as counts, not percentages)"}}

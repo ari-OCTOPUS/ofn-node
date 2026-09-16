@@ -1,0 +1,15 @@
+{
+ "memory_research_ingest": {
+  "sha256": "aee9e472eaefd81d94f287db88365274652b5679062627999cce49b13050ca1f"
+ },
+ "memory_self_loop_ingest": {
+  "sha256": "49fda3762da8777a340c3bbe6e45b37937f50f0ecf862eed2be0fa0140bbf3ce"
+ },
+ "miniapp_hits": {
+  "sha256": "01bc105087de7b20e88f690b6530fc26f0f5cac83a3caef70630366dfa7944ce"
+ },
+ "tg_send_log": {
+  "sha256": "613e55bb0fa4dd20dc09dc3c406d3fb3d7b54ff8b8ee15a6b0ff05ee53b83899"
+ },
+ "captured_at": 1787304224.5628033
+}

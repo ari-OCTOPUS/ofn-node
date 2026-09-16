@@ -1,0 +1,40 @@
+{
+  "schema": "octopus-genome-tip-reseal-receipt/1",
+  "ts_utc": "2026-08-25T01:41:13.665073+00:00",
+  "reason": "count-only drift 362 (2026-08-16..20 silent sidecar write failures, preserved by prev_n+1); chain verified intact; hash current; behavioral monitor delta frozen; seal_tip fixed and rehearsed on temp copy",
+  "tool": "ledger.Ledger.seal_tip (fixed: explicit true count) — atomic tmp+fsync+replace, ledger history untouched",
+  "before": {
+    "verify": [
+      true,
+      "ok"
+    ],
+    "verify_tip": [
+      false,
+      "length mismatch: file=14661 tip=14299"
+    ],
+    "tip": {
+      "n": 14299,
+      "tip_hash": "580fbc019ef5d778950df90005f1a0f1ecea6e025549e73b395ed86a1c9a8a35",
+      "ts": "2026-08-25T01:35:49.956787+00:00"
+    }
+  },
+  "seal": {
+    "n": 14661,
+    "sealed": true
+  },
+  "after": {
+    "verify": [
+      true,
+      "ok"
+    ],
+    "verify_tip": [
+      true,
+      "ok"
+    ],
+    "tip": {
+      "n": 14661,
+      "tip_hash": "580fbc019ef5d778950df90005f1a0f1ecea6e025549e73b395ed86a1c9a8a35",
+      "ts": "2026-08-25T01:41:13.059179+00:00"
+    }
+  }
+}

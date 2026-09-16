@@ -1,0 +1,51 @@
+{
+  "schema": "octopus.checkpoint.v1",
+  "chain_id": "octopus-audit-ledger",
+  "anchored_seq": 266,
+  "anchored_head_hash": "sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2",
+  "exported_at": "2026-08-17T03:49:18.866833+00:00",
+  "boot_id": "063fef44-cd54-4a68-81b5-7ac5fd2c39f0",
+  "semantics": "anchors_chain_up_to_seq_266_only",
+  "creates_authority": false,
+  "CREATES_NO_AUTHORITY": true,
+  "unsigned_checkpoint_digest": "sha256:3b60751b3759698b4982ccda035a008539cc0014cb086d96f516fc274142c150",
+  "unsigned_checkpoint_path": "/var/lib/octopus/inbound/TO-LAPTOP/OCTOPUS-AUDIT-CHECKPOINT/checkpoint.unsigned.json",
+  "head_identity_file": "AUDIT-HEAD-seq-266.json",
+  "live_head_hash": "sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2",
+  "live_head_seq": 266,
+  "seq_266_record_hash_now": "sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2",
+  "seq_266_unchanged": true,
+  "rewrite_detected": false,
+  "STOPPED_SAFE": false,
+  "chain_continuity_266_to_live_head": true,
+  "not_chain_id": "octopus-reflex-ledger",
+  "reflex_ledger": {
+    "chain_id": "octopus-reflex-ledger",
+    "seq": 1,
+    "hash": "018d8bc5bb6e12290e01979aaade8f701deeba306dcce90aa847b0b357f49260",
+    "note": "Reflex HEAD is seq=1. Do not bind audit seq 266 to the reflex chain."
+  },
+  "return_bundle_checks": [
+    "gpg/ed25519 signature verifies with existing root-v2 public key",
+    "record seq=266 still has hash sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2",
+    "chain from 266 to current head is continuous"
+  ],
+  "if_seq_266_hash_changed": "STOPPED_SAFE",
+  "laptop_verify_example": [
+    "gpg --verify checkpoint-266.json.sig checkpoint-266.json",
+    "sha256sum checkpoint-266.json"
+  ],
+  "phrase": "octopus-audit-ledger checkpoint anchored at seq=266",
+  "forbidden_phrase": "ledger head = 266",
+  "record_hash_full": "sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2",
+  "abbreviated_hash_not_evidence": true,
+  "represents_latest_state": false,
+  "root_v2_signed": true,
+  "signing_creates_authority": false,
+  "signing_greens_doctor": false,
+  "signing_closes_gap_001": false,
+  "signing_executes_t4": false,
+  "signing_permits_oa_t7": false,
+  "same_as_reflex_ledger": false,
+  "verified_at": "2026-08-17T04:20:17.736300+00:00"
+}

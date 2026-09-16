@@ -1,0 +1,123 @@
+{
+  "schema": "octopus-wave-b-handoff-summary/1",
+  "written_at": "2026-08-22T01:58Z",
+  "session": "sess_cad4fe9c-1be2-4771-86f7-ec0e12693afe",
+  "mode": "fixture-only; zero network; no token, webhook, paid call, or production write",
+  "suites": [
+    {
+      "suite": "test_typed_poll_outcome.py",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "suite": "test_poll_schedule.py",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "test_tg_api.py",
+      "passed": 34,
+      "failed": 0
+    },
+    {
+      "suite": "test_tg_center.py",
+      "passed": 43,
+      "failed": 0
+    },
+    {
+      "suite": "test_tg_poll_health.py",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "test_no_silent_message_drop.py",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "suite": "test_inbound_log_and_hang_detection.py",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "test_poll_lease.py",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "suite": "test_poller_lease_20260821.py",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "suite": "test_security_c1_c4.py",
+      "passed": 34,
+      "failed": 0
+    },
+    {
+      "suite": "test_transport_subprocess.py",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "suite": "test_transport_pool_20260821.py",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "suite": "test_bounded_read.py",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "suite": "test_launcher_state_dir_scrub.py",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "test_test_node_map.py",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "suite": "test_config_manager_20260821.py",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "suite": "test_telegram_durable_loop.py",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "suite": "test_wave_e_c3c4_20260821.py",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "suite": "test_organ_cartographer_20260820.py",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "suite": "test_wave1_preflight.py",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "test_wave_f_battery_20260821.py",
+      "passed": 0,
+      "failed": 0,
+      "note": "registry listing, exit 0"
+    }
+  ],
+  "total_checks": 264,
+  "node_map": {
+    "registered_files": 816,
+    "missing": 0,
+    "duplicates": 0,
+    "parse_errors": 0
+  },
+  "committed": false,
+  "reason_not_committed": "concurrent writer holds valid module lease; single-writer protocol honored"
+}

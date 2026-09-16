@@ -1,0 +1,11 @@
+﻿SUMMARY — OCTOPUS vs mouse slow-motion (2026-08-22)
+====================================================
+• Verdict: SYSTEM (memory + disk thrashing) — not a hot OCTOPUS CPU runaway right now.
+• Memory ~93% used (~1.1 GB free / 16 GB) + Disk queue ~20 → pointer/UI slow-motion.
+• Mouse settings normal (EPP likely ON, sensitivity 10) — not the main cause.
+• OCTOPUS CPU sample ~0% sum; still uses ~550 MB RAM and writes hard under _ops\state.
+• Hot OCTOPUS (lifetime): organism PID 33164 (~363 MB), cortex 24760, cloudflared miniapp 7816, self_scan 35204 (~386 MB).
+• cloudflared: octopus-cp + octopus-miniapp both RUNNING.
+• Other heavy: ZCode, Grok Bot, Claude, Firefox, MsMpEng, remoting_host.
+• Safe next steps: free RAM, defer germline hourly, lower organism/self_scan priority if needed — do NOT auto-kill.
+• Evidence: F:\backup\06-EVIDENCE\OCTOPUS-LAPTOP-MOUSE-SLOW-2026-08-22\

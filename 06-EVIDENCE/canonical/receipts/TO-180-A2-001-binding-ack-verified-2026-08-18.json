@@ -1,0 +1,24 @@
+{
+  "schema": "octopus.a2.binding-ack-verified.v1",
+  "task_id": "A2-001",
+  "from_node": ".191",
+  "to_node": ".180",
+  "observed_at": "2026-08-18T04:16:12+10:00",
+  "observed_tz": "UTC+10",
+  "delivery_claim": "DELIVERED",
+  "source_path": "F:\\backup\\06-EVIDENCE\\canonical\\inbox\\TO-180-A2-001-binding.json",
+  "source_sha256": "95527b069a15af1cd45d35894d7e42861fc9b30fffa8b2c269a43392216f7d68",
+  "expected_sha256": "95527b069a15af1cd45d35894d7e42861fc9b30fffa8b2c269a43392216f7d68",
+  "ack_copy_path": "F:\\backup\\06-EVIDENCE\\canonical\\inbox\\from-180\\run-20260817T175442Z-a2-001-binding-ack.json",
+  "ack_sha256": "a2f0fce71b9327b57703b3695a06895745547c9541f4ccd8374bee8f4e859ae8",
+  "ack_outcome": "BINDING_ACKED",
+  "ack_hash_match": true,
+  "ack_field_verify": "ALL_OK",
+  "ack_event_time_utc": "2026-08-17T17:54:58Z",
+  "independent_180_report": true,
+  "uncertainty": [
+    "ACK timestamp_utc_plus_11 uses +11; August Sydney is UTC+10. UTC event_time accepted.",
+    "Older transfer receipt remains historically NOT_DELIVERED; this receipt upgrades the live claim after independent ACK."
+  ],
+  "receipt_hash": "872da15c3200afa5f08ee5db65b3d8ddd00f63ed3bb1ac727be2b90ef94312df"
+}

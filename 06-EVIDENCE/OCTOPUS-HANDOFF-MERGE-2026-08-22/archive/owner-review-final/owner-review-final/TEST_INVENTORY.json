@@ -1,0 +1,14 @@
+{
+  "schema": "octopus.test-inventory.v1",
+  "pytest_cognition": {
+    "returncode": 0,
+    "tail": "................................................                         [100%]\n"
+  },
+  "pytest_shadow": {
+    "returncode": 0,
+    "tail": ".........................                                                [100%]\n"
+  },
+  "interaction_candidate_tests": "test_interaction_candidate.py",
+  "doctor_repairs_attempted": 0,
+  "planner_invocations": 0
+}

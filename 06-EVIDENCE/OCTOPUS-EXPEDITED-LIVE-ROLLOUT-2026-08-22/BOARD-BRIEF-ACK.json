@@ -1,0 +1,32 @@
+{
+  "schema": "octopus-board-brief-ack/1",
+  "authorization_id": "OCTOPUS-OWNER-CANARY-20260822-N1",
+  "mode": "EXPEDITED_BOUNDED_LIVE_ROLLOUT",
+  "builder": "grok-ari-single-writer",
+  "written_at_local": "2026-08-22T15:21:10.186543+10:00",
+  "subject": "New Bot Orange Pi scan",
+  "receipt": "received_read_only",
+  "disposition": "KEEP_WAVE0_LOCKED",
+  "board_mutate": false,
+  "actions_taken": "none",
+  "p0_noted": [
+    {
+      "id": "sensorium_crash_loop",
+      "note": "P0 noted; no board mutate"
+    },
+    {
+      "id": "wm_oom",
+      "note": "P0 noted; no board mutate"
+    },
+    {
+      "id": "ledger_9025",
+      "note": "P0 noted; no board mutate"
+    },
+    {
+      "id": "nats_cap",
+      "note": "P0 noted; no board mutate"
+    }
+  ],
+  "telegram_api_called": false,
+  "live_send": false
+}

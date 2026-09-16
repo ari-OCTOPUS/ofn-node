@@ -1,0 +1,42 @@
+{
+  "schema": "telegram-shadow-roundtrip/1",
+  "generated_at": "2026-08-20T13:47:29+00:00",
+  "update_id": 900001,
+  "event_id": "tg:900001",
+  "task_id": "task_19d84b590475fcd8d75c018f",
+  "run_id": "run_1dc34abaacd04ecba8f2479b9933caa5",
+  "correlation_id": "corr_26f9eceb627c95369d3bad5f",
+  "task_id_source": "durable_loop._normalize (payload hash, not PID/time)",
+  "ack": {
+    "schema": "telegram-ack/1",
+    "event_id": "tg:900001",
+    "update_id": 900001,
+    "task_id": "task_19d84b590475fcd8d75c018f",
+    "run_id": "run_1dc34abaacd04ecba8f2479b9933caa5",
+    "correlation_id": "corr_26f9eceb627c95369d3bad5f",
+    "status": "ack",
+    "immediate": true
+  },
+  "delivery_receipt": {
+    "ok": true,
+    "message_id": 4242,
+    "message_key": "30b2d4003d26fa670e2a830b5ea9407c79dfe1e1",
+    "state": "CONFIRMED"
+  },
+  "readback_verified": true,
+  "state": "CLOSED",
+  "shadow_event_count": 1,
+  "task_count": 1,
+  "result_count": 1,
+  "outbox_count": 1,
+  "delivery_receipt_count": 1,
+  "response_readback_count": 1,
+  "duplicate_effects": 0,
+  "fabricated_task_ids": 0,
+  "unauthorized_dispatches": 0,
+  "memory_mutations": 0,
+  "paid_calls": 0,
+  "direct_telegram_sends": 0,
+  "used_frozen_probe": false,
+  "wave1_unlocked": false
+}

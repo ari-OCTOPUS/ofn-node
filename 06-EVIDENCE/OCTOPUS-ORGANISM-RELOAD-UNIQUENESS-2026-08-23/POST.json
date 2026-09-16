@@ -1,0 +1,101 @@
+{
+  "schema": "octopus-organism-reload-uniqueness-post/1",
+  "captured_at_utc": "2026-08-22T17:55:36.003247+00:00",
+  "captured_at_local": "2026-08-23T03:55:36",
+  "STATUS": "OK_RELOADED",
+  "reload_method": "RESTART-REQUESTED marker only; RUN-ORGANISM.bat relaunched",
+  "pids": {
+    "organism_before": 33164,
+    "organism_after": 26900,
+    "organism_after_cmdline": "python -X utf8 organism.py",
+    "organism_after_parent": 21272,
+    "organism_after_start_local": "2026-08-23T03:53:17",
+    "center_before": 35916,
+    "center_after": 35916,
+    "center_unchanged": true,
+    "center_start_local": "2026-08-22T19:28:37",
+    "center_alive_now": true,
+    "organism_alive_now": true,
+    "launcher_cmd_alive": true
+  },
+  "port_8771": {
+    "listening_pid": 26900
+  },
+  "control_flags_post": {
+    "HALT-ALL": false,
+    "STOP-ORGANISM": false,
+    "RESTART-REQUESTED": false,
+    "STOP-TG-CENTER": false
+  },
+  "uniqueness_receipt_pre_mtime": "2026-08-23T03:32:33",
+  "uniqueness_receipt_post": {
+    "schema": "poller-uniqueness-receipt/1",
+    "source": "doctor_uniqueness_beat",
+    "beat": 45925,
+    "checked_at_unix": 1787421273.768085,
+    "checked_at_local": "2026-08-23T03:54:35+10:00",
+    "dry_run": true,
+    "live_send": false,
+    "ok": true,
+    "fail_closed": true,
+    "checks": {
+      "one_center_pid": true,
+      "one_active_lease": true,
+      "one_tg_poller_lock": true,
+      "pids_agree": true
+    },
+    "reasons": [],
+    "center_pid_count": 1,
+    "active_lease_count": 1,
+    "tg_poller_lock_count": 1,
+    "center_pids": [
+      35916
+    ],
+    "paths": {
+      "state_dir": "F:\\backup\\_ops\\state",
+      "lease_db": "F:\\backup\\_ops\\state\\telegram\\poll-lease.sqlite3",
+      "lock_dir": "F:\\backup\\_ops\\state\\locks"
+    },
+    "probe": "poller-uniqueness/1"
+  },
+  "uniqueness_receipt_post_mtime": "2026-08-23T03:54:35",
+  "uniqueness_mtime_advanced": true,
+  "uniqueness_invoke": {
+    "method": "run_uniqueness_heartbeat beat=45950 dry_run=True",
+    "live_send": false,
+    "ok": true
+  },
+  "writer_lock_post": {
+    "schema": "octopus-writer-lease/1",
+    "agent_id": "grok-ari-single-writer",
+    "lease_id": "9816664e55684900988901c3c1e5b902",
+    "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+    "ttl_seconds": 900,
+    "expires_at": 1787419252.684406,
+    "heartbeat_at": 1787418352.684406,
+    "renewed_at_local": "2026-08-23T03:05:52.684406+10:00",
+    "live_runtime_writers": [
+      "telegram_center",
+      "organism",
+      "cortex",
+      "miniapp_gateway",
+      "live_server",
+      "octopus_mcp"
+    ],
+    "path": "F:\\backup\\_ops\\state\\locks\\octopus-writer.lock",
+    "mtime": "2026-08-23T03:05:52"
+  },
+  "organism_state_safe_post": {
+    "beat": 45925,
+    "halted": null,
+    "frozen": false,
+    "stop_organism": false
+  },
+  "safety": {
+    "center_not_restarted": true,
+    "no_live_sendMessage": true,
+    "no_DEAD_LETTER_touch": true,
+    "no_owner_data_delete": true
+  },
+  "NEXT": "Monitor next natural doctor_uniqueness_beat on live organism cadence (CHRONO_DOCTOR_UNIQUENESS_EVERY_N_BEATS default 60). Center PID 35916 left running. Optional: confirm receipt advances from organism tick without manual invoke."
+}

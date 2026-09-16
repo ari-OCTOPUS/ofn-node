@@ -1,0 +1,232 @@
+{
+  "board_id": "sensorium-opi5pro-68e44cdf",
+  "timestamp": "2026-08-17T04:28:18.695255+00:00",
+  "runtime_state": "ACTIVE",
+  "readiness_state": "READY",
+  "bus_state": "CONNECTED",
+  "acquisition_state": "ACTIVE",
+  "safety_state": "SOFTWARE_ONLY",
+  "readiness_profile": "WAVE0_OBSERVE_ONLY",
+  "operational_mode": "OBSERVE_ONLY",
+  "leg_authority": "DENIED",
+  "mqtt_state": "DISABLED",
+  "readiness_source": {
+    "type": "deterministic_verifier",
+    "report": "/var/lib/octopus/state/boot_report.json",
+    "gates_failed": []
+  },
+  "state": "READY",
+  "gates": [
+    {
+      "id": "G4",
+      "ok": true,
+      "detail": "authenticated as sensorium"
+    },
+    {
+      "id": "JS",
+      "ok": true,
+      "detail": "store_dir=/var/lib/nats/jetstream/jetstream"
+    },
+    {
+      "id": "G5",
+      "ok": true,
+      "detail": "streams=['AUDIT', 'COMMAND', 'FEATURE', 'LEG', 'OBSERVATION', 'SENSORIUM', 'SENSOR_HEALTH', 'WORLD']"
+    },
+    {
+      "id": "G2",
+      "ok": true,
+      "detail": "board=sha256:b53ec5ba3764f035513535577df5e72f25767e54dda2cedfd5d9b1ca73cd0d5d registry=sha256:19f25383d2611000e3272ad9ad5d55e2e645cb5db757a9419f4e7b6d5f1251c5"
+    },
+    {
+      "id": "IDS",
+      "ok": true,
+      "detail": "no sensor id collision"
+    },
+    {
+      "id": "THERMAL_ID",
+      "ok": true,
+      "detail": [
+        "OCT-SENSE-053.THERMAL"
+      ]
+    },
+    {
+      "id": "G6",
+      "ok": true,
+      "detail": "trust=SYNCED_NTP rtc_valid=True"
+    },
+    {
+      "id": "G7",
+      "ok": true,
+      "detail": "/etc/systemd/system.conf.d/99-watchdog.conf"
+    },
+    {
+      "id": "G8",
+      "ok": true,
+      "detail": "agent process present"
+    },
+    {
+      "id": "G9",
+      "ok": true,
+      "detail": "octopus pwm export not writable"
+    },
+    {
+      "id": "G12",
+      "ok": true,
+      "detail": "observation_messages=78541"
+    },
+    {
+      "id": "G14",
+      "ok": true,
+      "detail": "sensorium_messages=8815"
+    },
+    {
+      "id": "G13",
+      "ok": true,
+      "detail": "from_empty=sha256:57f868e44c2c26fba7e764a78fa41bb6c5f97fa1614ff531d4b7e456d09b5fa8 from_snapshot=sha256:57f868e44c2c26fba7e764a78fa41bb6c5f97fa1614ff531d4b7e456d09b5fa8 after_seq=77944 n=77955"
+    },
+    {
+      "id": "G15",
+      "ok": true,
+      "detail": "seq=266 head=sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2"
+    },
+    {
+      "id": "G-LEDGER",
+      "ok": true,
+      "detail": "seq=1"
+    },
+    {
+      "id": "G1",
+      "ok": true,
+      "detail": "board_id=sensorium-opi5pro-68e44cdf"
+    },
+    {
+      "id": "G11",
+      "ok": true,
+      "detail": "enabled=['OCT-SENSE-051', 'OCT-SENSE-052', 'OCT-SENSE-053', 'OCT-SENSE-092', 'OCT-SENSE-095', 'OCT-SENSE-053.THERMAL']"
+    },
+    {
+      "id": "PORTS",
+      "ok": true,
+      "detail": "4222/8222"
+    }
+  ],
+  "gates_failed": [],
+  "service_state": {
+    "nats-server": "ACTIVE",
+    "octopus-sensorium": "ACTIVE"
+  },
+  "clock": {
+    "clock_trust": "SYNCED_NTP",
+    "ntp_synchronised": true,
+    "rtc_valid": true,
+    "rtc_battery_present": "unknown",
+    "monotonic_available": true,
+    "max_acceptable_offset_ms": 250,
+    "utc_now": "2026-08-17T04:28:17.989394+00:00",
+    "rtc_name": "rtc-hym8563 6-0051"
+  },
+  "identity": {
+    "board_id": "sensorium-opi5pro-68e44cdf",
+    "hostname": "DietPi",
+    "soc": "rk3588s",
+    "machine_id": "3da939da38d14fc98267a5b94c519c51",
+    "serial": "68e44cdfcb8d57ce",
+    "model": "Orange Pi 5 Pro",
+    "agent_id": "agent://octopus/sensorium-board/main"
+  },
+  "mqtt_1883_open": false,
+  "gates_by_id": {
+    "G4": {
+      "id": "G4",
+      "ok": true,
+      "detail": "authenticated as sensorium"
+    },
+    "JS": {
+      "id": "JS",
+      "ok": true,
+      "detail": "store_dir=/var/lib/nats/jetstream/jetstream"
+    },
+    "G5": {
+      "id": "G5",
+      "ok": true,
+      "detail": "streams=['AUDIT', 'COMMAND', 'FEATURE', 'LEG', 'OBSERVATION', 'SENSORIUM', 'SENSOR_HEALTH', 'WORLD']"
+    },
+    "G2": {
+      "id": "G2",
+      "ok": true,
+      "detail": "board=sha256:b53ec5ba3764f035513535577df5e72f25767e54dda2cedfd5d9b1ca73cd0d5d registry=sha256:19f25383d2611000e3272ad9ad5d55e2e645cb5db757a9419f4e7b6d5f1251c5"
+    },
+    "IDS": {
+      "id": "IDS",
+      "ok": true,
+      "detail": "no sensor id collision"
+    },
+    "THERMAL_ID": {
+      "id": "THERMAL_ID",
+      "ok": true,
+      "detail": [
+        "OCT-SENSE-053.THERMAL"
+      ]
+    },
+    "G6": {
+      "id": "G6",
+      "ok": true,
+      "detail": "trust=SYNCED_NTP rtc_valid=True"
+    },
+    "G7": {
+      "id": "G7",
+      "ok": true,
+      "detail": "/etc/systemd/system.conf.d/99-watchdog.conf"
+    },
+    "G8": {
+      "id": "G8",
+      "ok": true,
+      "detail": "agent process present"
+    },
+    "G9": {
+      "id": "G9",
+      "ok": true,
+      "detail": "octopus pwm export not writable"
+    },
+    "G12": {
+      "id": "G12",
+      "ok": true,
+      "detail": "observation_messages=78541"
+    },
+    "G14": {
+      "id": "G14",
+      "ok": true,
+      "detail": "sensorium_messages=8815"
+    },
+    "G13": {
+      "id": "G13",
+      "ok": true,
+      "detail": "from_empty=sha256:57f868e44c2c26fba7e764a78fa41bb6c5f97fa1614ff531d4b7e456d09b5fa8 from_snapshot=sha256:57f868e44c2c26fba7e764a78fa41bb6c5f97fa1614ff531d4b7e456d09b5fa8 after_seq=77944 n=77955"
+    },
+    "G15": {
+      "id": "G15",
+      "ok": true,
+      "detail": "seq=266 head=sha256:ec98f51753c6565d845acd6734c052e2c929383469c8a2755d88dcfbb24b7fc2"
+    },
+    "G-LEDGER": {
+      "id": "G-LEDGER",
+      "ok": true,
+      "detail": "seq=1"
+    },
+    "G1": {
+      "id": "G1",
+      "ok": true,
+      "detail": "board_id=sensorium-opi5pro-68e44cdf"
+    },
+    "G11": {
+      "id": "G11",
+      "ok": true,
+      "detail": "enabled=['OCT-SENSE-051', 'OCT-SENSE-052', 'OCT-SENSE-053', 'OCT-SENSE-092', 'OCT-SENSE-095', 'OCT-SENSE-053.THERMAL']"
+    },
+    "PORTS": {
+      "id": "PORTS",
+      "ok": true,
+      "detail": "4222/8222"
+    }
+  }
+}

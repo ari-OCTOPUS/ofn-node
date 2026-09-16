@@ -1,0 +1,175 @@
+
+TaskPath                                                               TaskName                                                                                   State
+--------                                                               --------                                                                                   -----
+\                                                                      germline-daily                                                                             Ready
+\                                                                      germline-hourly                                                                            Ready
+\                                                                      OCTOPUS 4d Consolidation Tick                                                              Ready
+\                                                                      OCTOPUS 4d Poisoning Watch                                                                 Ready
+\                                                                      OCTOPUS Observatory Hourly                                                                 Ready
+\                                                                      OCTOPUS-Cockpit-Brain                                                                      Ready
+\                                                                      OCTOPUS-Cortex-Watchdog                                                                    Ready
+\                                                                      OCTOPUS-doctor-day                                                                         Ready
+\                                                                      OCTOPUS-Live-Watchdog                                                                      Ready
+\                                                                      OCTOPUS-MiniApp-Watchdog                                                                   Ready
+\                                                                      OCTOPUS-Observatory                                                                        Ready
+\                                                                      OCTOPUS-TG-Center-Watchdog                                                                 Ready
+\                                                                      OctopusLiveDataRefresh                                                                     Ready
+\                                                                      OneDrive Reporting Task-S-1-5-21-1904952333-486408809-1363513654-1000                      Ready
+\                                                                      OneDrive Standalone Update Task-S-1-5-21-1904952333-486408809-1363513654-1000              Ready
+\                                                                      OneDrive Startup Task-S-1-5-21-1904952333-486408809-1363513654-1000                        Ready
+\                                                                      organism-watchdog                                                                          Ready
+\GoogleUserPEH\                                                        RunPlatformExperienceHelper_Daily                                                          Ready
+\GoogleUserPEH\                                                        RunPlatformExperienceHelper_Metrics                                                        Ready
+\Microsoft\Windows\.NET Framework\                                     .NET Framework NGEN v4.0.30319                                                             Ready
+\Microsoft\Windows\.NET Framework\                                     .NET Framework NGEN v4.0.30319 64                                                          Ready
+\Microsoft\Windows\AccountHealth\                                      RecoverabilityToastTask                                                                    Ready
+\Microsoft\Windows\Active Directory Rights Management Services Client\ AD RMS Rights Policy Template Management (Manual)                                          Ready
+\Microsoft\Windows\Application Experience\                             MareBackup                                                                                 Ready
+\Microsoft\Windows\Application Experience\                             Microsoft Compatibility Appraiser Exp                                                      Ready
+\Microsoft\Windows\Application Experience\                             PcaPatchDbTask                                                                             Ready
+\Microsoft\Windows\Application Experience\                             SdbinstMergeDbTask                                                                         Ready
+\Microsoft\Windows\Application Experience\                             StartupAppTask                                                                             Ready
+\Microsoft\Windows\ApplicationData\                                    appuriverifierdaily                                                                        Ready
+\Microsoft\Windows\ApplicationData\                                    appuriverifierinstall                                                                      Ready
+\Microsoft\Windows\ApplicationData\                                    CleanupTemporaryState                                                                      Ready
+\Microsoft\Windows\ApplicationData\                                    DsSvcCleanup                                                                               Ready
+\Microsoft\Windows\AppListBackup\                                      Backup                                                                                     Ready
+\Microsoft\Windows\AppListBackup\                                      BackupNonMaintenance                                                                       Ready
+\Microsoft\Windows\Autochk\                                            Proxy                                                                                      Ready
+\Microsoft\Windows\BitLocker\                                          BitLocker Encrypt All Drives                                                               Ready
+\Microsoft\Windows\BitLocker\                                          BitLocker MDM policy Refresh                                                               Ready
+\Microsoft\Windows\Bluetooth\                                          UninstallDeviceTask                                                                        Ready
+\Microsoft\Windows\BrokerInfrastructure\                               BgTaskRegistrationMaintenanceTask                                                          Ready
+\Microsoft\Windows\capabilityaccessmanager\                            maintenancetasks                                                                           Ready
+\Microsoft\Windows\CertificateServicesClient\                          UserTask                                                                                   Ready
+\Microsoft\Windows\CertificateServicesClient\                          UserTask-Roam                                                                              Ready
+\Microsoft\Windows\Chkdsk\                                             ProactiveScan                                                                              Ready
+\Microsoft\Windows\Chkdsk\                                             SyspartRepair                                                                              Ready
+\Microsoft\Windows\CloudExperienceHost\                                CreateObjectTask                                                                           Ready
+\Microsoft\Windows\CloudRestore\                                       Backup                                                                                     Ready
+\Microsoft\Windows\CloudRestore\                                       Restore                                                                                    Ready
+\Microsoft\Windows\ConsentUX\UnifiedConsent\                           UnifiedConsentSyncTask                                                                     Ready
+\Microsoft\Windows\Containers\                                         CmCleanup                                                                                  Ready
+\Microsoft\Windows\Customer Experience Improvement Program\            Consolidator                                                                               Ready
+\Microsoft\Windows\Customer Experience Improvement Program\            UsbCeip                                                                                    Ready
+\Microsoft\Windows\Data Integrity Scan\                                Data Integrity Check And Scan                                                              Ready
+\Microsoft\Windows\Data Integrity Scan\                                Data Integrity Scan                                                                        Ready
+\Microsoft\Windows\Data Integrity Scan\                                Data Integrity Scan for Crash Recovery                                                     Ready
+\Microsoft\Windows\Defrag\                                             ScheduledDefrag                                                                            Ready
+\Microsoft\Windows\Device Information\                                 Device                                                                                     Ready
+\Microsoft\Windows\Device Information\                                 Device User                                                                                Ready
+\Microsoft\Windows\Diagnosis\                                          RecommendedTroubleshootingScanner                                                          Ready
+\Microsoft\Windows\Diagnosis\                                          Scheduled                                                                                  Ready
+\Microsoft\Windows\Diagnosis\                                          UnexpectedCodepath                                                                         Ready
+\Microsoft\Windows\DirectX\                                            DirectXDatabaseUpdater                                                                     Ready
+\Microsoft\Windows\DirectX\                                            DXGIAdapterCache                                                                           Ready
+\Microsoft\Windows\DiskCleanup\                                        SilentCleanup                                                                              Ready
+\Microsoft\Windows\DiskFootprint\                                      Diagnostics                                                                                Ready
+\Microsoft\Windows\DiskFootprint\                                      StorageSense                                                                               Ready
+\Microsoft\Windows\DUSM\                                               dusmtask                                                                                   Ready
+\Microsoft\Windows\EDP\                                                EDP App Launch Task                                                                        Ready
+\Microsoft\Windows\EDP\                                                EDP Auth Task                                                                              Ready
+\Microsoft\Windows\EDP\                                                EDP Inaccessible Credentials Task                                                          Ready
+\Microsoft\Windows\EDP\                                                StorageCardEncryption Task                                                                 Ready
+\Microsoft\Windows\ExploitGuard\                                       ExploitGuard MDM policy Refresh                                                            Ready
+\Microsoft\Windows\Feedback\Siuf\                                      DmClient                                                                                   Ready
+\Microsoft\Windows\Feedback\Siuf\                                      DmClientOnScenarioDownload                                                                 Ready
+\Microsoft\Windows\FileHistory\                                        File History (maintenance mode)                                                            Ready
+\Microsoft\Windows\Flighting\FeatureConfig\                            GovernedFeatureUsageProcessing                                                             Ready
+\Microsoft\Windows\Flighting\FeatureConfig\                            ReconcileConfigs                                                                           Ready
+\Microsoft\Windows\Flighting\FeatureConfig\                            ReconcileFeatures                                                                          Ready
+\Microsoft\Windows\Flighting\FeatureConfig\                            SafeguardsReconciliation                                                                   Ready
+\Microsoft\Windows\Flighting\FeatureConfig\                            UsageDataFlushing                                                                          Ready
+\Microsoft\Windows\Flighting\FeatureConfig\                            UsageDataReceiver                                                                          Ready
+\Microsoft\Windows\Flighting\FeatureConfig\                            UsageDataReporting                                                                         Ready
+\Microsoft\Windows\Flighting\OneSettings\                              RefreshCache                                                                               Ready
+\Microsoft\Windows\Hotpatch\                                           Monitoring                                                                                 Ready
+\Microsoft\Windows\input\                                              InputSettingsRestoreDataAvailable                                                          Ready
+\Microsoft\Windows\input\                                              LocalUserSyncDataAvailable                                                                 Ready
+\Microsoft\Windows\input\                                              MouseSyncDataAvailable                                                                     Ready
+\Microsoft\Windows\input\                                              PenSyncDataAvailable                                                                       Ready
+\Microsoft\Windows\input\                                              RemoteMouseSyncDataAvailable                                                               Ready
+\Microsoft\Windows\input\                                              RemotePenSyncDataAvailable                                                                 Ready
+\Microsoft\Windows\input\                                              RemoteTouchpadSyncDataAvailable                                                            Ready
+\Microsoft\Windows\input\                                              syncpensettings                                                                            Ready
+\Microsoft\Windows\input\                                              TouchpadSyncDataAvailable                                                                  Ready
+\Microsoft\Windows\InstallService\                                     RestoreDevice                                                                              Ready
+\Microsoft\Windows\InstallService\                                     ScanForUpdates                                                                             Ready
+\Microsoft\Windows\InstallService\                                     ScanForUpdatesAsUser                                                                       Ready
+\Microsoft\Windows\International\                                      Synchronize Language Settings                                                              Ready
+\Microsoft\Windows\Kernel\                                             La57Cleanup                                                                                Ready
+\Microsoft\Windows\LanguageComponentsInstaller\                        Installation                                                                               Ready
+\Microsoft\Windows\LanguageComponentsInstaller\                        ReconcileLanguageResources                                                                 Ready
+\Microsoft\Windows\Location\                                           WindowsActionDialog                                                                        Ready
+\Microsoft\Windows\Maintenance\                                        WinSAT                                                                                     Ready
+\Microsoft\Windows\Management\Provisioning\                            Cellular                                                                                   Ready
+\Microsoft\Windows\Management\Provisioning\                            Logon                                                                                      Ready
+\Microsoft\Windows\Maps\                                               MapsToastTask                                                                              Ready
+\Microsoft\Windows\MemoryDiagnostic\                                   AutomaticOfflineMemoryDiagnostic                                                           Ready
+\Microsoft\Windows\MemoryDiagnostic\                                   ProcessMemoryDiagnosticEvents                                                              Ready
+\Microsoft\Windows\MUI\                                                LPRemove                                                                                   Ready
+\Microsoft\Windows\Multimedia\                                         SystemSoundsService                                                                      Running
+\Microsoft\Windows\Network Connectivity Status Indicator\              NcsiIdentifyUserProxies                                                                    Ready
+\Microsoft\Windows\NlaSvc\                                             WiFiTask                                                                                   Ready
+\Microsoft\Windows\PCRPF\                                              PCR Prediction Framework Firmware Update Task                                              Ready
+\Microsoft\Windows\PerformanceTrace\                                   ShowFeedbackToast                                                                          Ready
+\Microsoft\Windows\PerformanceTrace\                                   WhesvcToast                                                                                Ready
+\Microsoft\Windows\Plug and Play\                                      Device Install Group Policy                                                                Ready
+\Microsoft\Windows\Plug and Play\                                      Device Install Reboot Required                                                             Ready
+\Microsoft\Windows\Plug and Play\                                      Sysprep Generalize Drivers                                                                 Ready
+\Microsoft\Windows\Power Efficiency Diagnostics\                       AnalyzeSystem                                                                              Ready
+\Microsoft\Windows\Printing\                                           EduPrintProv                                                                               Ready
+\Microsoft\Windows\Printing\                                           PrinterCleanupTask                                                                         Ready
+\Microsoft\Windows\ReFsDedupSvc\                                       Initialization                                                                             Ready
+\Microsoft\Windows\Registry\                                           RegIdleBackup                                                                              Ready
+\Microsoft\Windows\Servicing\                                          StartComponentCleanup                                                                      Ready
+\Microsoft\Windows\Setup\                                              PITRTask                                                                                   Ready
+\Microsoft\Windows\Setup\                                              SetupRecoveryDataTask                                                                      Ready
+\Microsoft\Windows\Shell\                                              CreateObjectTask                                                                           Ready
+\Microsoft\Windows\Shell\                                              FamilySafetyMonitor                                                                        Ready
+\Microsoft\Windows\Shell\                                              FamilySafetyRefreshTask                                                                    Ready
+\Microsoft\Windows\Shell\                                              IndexerAutomaticMaintenance                                                                Ready
+\Microsoft\Windows\Shell\                                              ThemesSyncedImageDownload                                                                  Ready
+\Microsoft\Windows\SpacePort\                                          SpaceAgentTask                                                                             Ready
+\Microsoft\Windows\SpacePort\                                          SpaceManagerTask                                                                           Ready
+\Microsoft\Windows\StateRepository\                                    MaintenanceTasks                                                                           Ready
+\Microsoft\Windows\Storage Tiers Management\                           Storage Tiers Management Initialization                                                    Ready
+\Microsoft\Windows\Subscription\                                       EnableLicenseAcquisition                                                                   Ready
+\Microsoft\Windows\Sustainability\                                     PowerGridForecastTask                                                                      Ready
+\Microsoft\Windows\Sustainability\                                     SustainabilityTelemetry                                                                    Ready
+\Microsoft\Windows\Sysmain\                                            ResPriStaticDbSync                                                                         Ready
+\Microsoft\Windows\Sysmain\                                            WsSwapAssessmentTask                                                                       Ready
+\Microsoft\Windows\SystemRestore\                                      SR                                                                                         Ready
+\Microsoft\Windows\Task Manager\                                       Interactive                                                                                Ready
+\Microsoft\Windows\TextServicesFramework\                              MsCtfMonitor                                                                               Ready
+\Microsoft\Windows\Time Synchronization\                               ForceSynchronizeTime                                                                       Ready
+\Microsoft\Windows\Time Synchronization\                               SynchronizeTime                                                                            Ready
+\Microsoft\Windows\Time Zone\                                          SynchronizeTimeZone                                                                        Ready
+\Microsoft\Windows\UPnP\                                               UPnPHostConfig                                                                             Ready
+\Microsoft\Windows\USB\                                                Usb-Notifications                                                                          Ready
+\Microsoft\Windows\WCM\                                                WiFiTask                                                                                   Ready
+\Microsoft\Windows\WDI\                                                ResolutionHost                                                                             Ready
+\Microsoft\Windows\Windows Defender\                                   Windows Defender Cache Maintenance                                                         Ready
+\Microsoft\Windows\Windows Defender\                                   Windows Defender Cleanup                                                                   Ready
+\Microsoft\Windows\Windows Defender\                                   Windows Defender Scheduled Scan                                                            Ready
+\Microsoft\Windows\Windows Defender\                                   Windows Defender Verification                                                              Ready
+\Microsoft\Windows\Windows Error Reporting\                            QueueReporting                                                                             Ready
+\Microsoft\Windows\Windows Filtering Platform\                         BfeOnServiceStartTypeChange                                                                Ready
+\Microsoft\Windows\Windows Media Sharing\                              UpdateLibrary                                                                              Ready
+\Microsoft\Windows\WindowsColorSystem\                                 Calibration Loader                                                                         Ready
+\Microsoft\Windows\WindowsUpdate\                                      Scheduled Start                                                                            Ready
+\Microsoft\Windows\Wininet\                                            CacheTask                                                                                Running
+\Microsoft\Windows\WlanSvc\                                            CDSSync                                                                                    Ready
+\Microsoft\Windows\WlanSvc\                                            MoProfileManagement                                                                        Ready
+\Microsoft\Windows\Work Folders\                                       Work Folders Logon Synchronization                                                         Ready
+\Microsoft\Windows\Work Folders\                                       Work Folders Maintenance Work                                                              Ready
+\Microsoft\Windows\WwanSvc\                                            NotificationTask                                                                           Ready
+\Microsoft\Windows\WwanSvc\                                            OobeDiscovery                                                                              Ready
+\Microsoft\XblGameSave\                                                XblGameSaveTask                                                                            Ready
+\Mozilla\                                                              Firefox Background Update S-1-5-21-1904952333-486408809-1363513654-1000 308046B0AF4A39CB   Ready
+\Mozilla\                                                              Firefox Default Browser Agent 308046B0AF4A39CB                                             Ready
+\SoftLanding\S-1-5-21-1904952333-486408809-1363513654-1000\            SoftLandingCreativeManagementTask                                                          Ready
+\SoftLanding\S-1-5-21-1904952333-486408809-1363513654-1000\            SoftLandingDeferralTask-{865738a0-101c-4ff8-af43-78aab8c8d8ef}                             Ready
+
+
+

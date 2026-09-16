@@ -1,0 +1,28 @@
+{
+  "schema": "soak-epoch/1",
+  "status": "PASS",
+  "checked_at_local": "2026-08-23T06:03:00+10:00",
+  "baseline": {
+    "beat": 45925,
+    "mtime_local": "2026-08-23T03:54:35+10:00"
+  },
+  "observed": {
+    "beat": 46020,
+    "mtime_local": "2026-08-23T05:30:45+10:00",
+    "ok": true,
+    "live_send": false,
+    "dry_run": true,
+    "source": "doctor_uniqueness_beat",
+    "center_pids": [
+      35916
+    ],
+    "checks": {
+      "one_center_pid": true,
+      "one_active_lease": true,
+      "one_tg_poller_lock": true,
+      "pids_agree": true
+    }
+  },
+  "receipt": "F:\\\\backup\\\\_ops\\\\state\\\\doctor\\\\poller-uniqueness-latest.json",
+  "note": "Natural uniqueness epoch advanced without manual invoke; live_send false; center 35916 untouched."
+}

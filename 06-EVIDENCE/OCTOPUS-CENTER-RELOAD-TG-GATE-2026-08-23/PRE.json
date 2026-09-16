@@ -1,0 +1,152 @@
+﻿{
+    "schema":  "octopus-center-reload-tg-gate/pre/1",
+    "captured_at_local":  "2026-08-23T08:37:02+10:00",
+    "pids":  {
+                 "organism":  {
+                                  "pid":  29020,
+                                  "cmd_tail":  "python  -X utf8 organism.py",
+                                  "started":  "2026-08-23T08:02:26"
+                              },
+                 "center":  {
+                                "pid":  35916,
+                                "cmd_tail":  "python  -X utf8 telegram_center\\center.py",
+                                "started":  "2026-08-22T19:28:37"
+                            },
+                 "miniapp":  {
+                                 "pid":  12220,
+                                 "cmd_tail":  "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py ",
+                                 "started":  "2026-08-21T16:18:04"
+                             }
+             },
+    "center_supervisor_loop_pids":  [
+                                        30996
+                                    ],
+    "live_telegram_flag":  {
+                               "present":  true,
+                               "enabled":  true,
+                               "schema":  "live-telegram.v1",
+                               "armed_at":  "2026-08-22T12:23:01.504173+10:00",
+                               "by":  "owner-chat-2026-08-22",
+                               "grant":  "02-DECISIONS/OWNER-GRANT-UNLOCK-AGI-LOCKS-2026-08-21.md",
+                               "note":  "Unlock only. Does not by itself send. Center restart still required to load HEAD e8d661e.",
+                               "path":  "F:\\backup\\_ops\\LIVE-TELEGRAM.flag"
+                           },
+    "writer_lock":  {
+                        "send_exceptions_count":  0,
+                        "path":  "F:\\backup\\_ops\\state\\locks\\octopus-writer.lock",
+                        "lock_keys":  [
+                                          "schema",
+                                          "lease_id",
+                                          "agent_id",
+                                          "session_id",
+                                          "acquired_at",
+                                          "ttl_seconds",
+                                          "scope",
+                                          "owner_order_id",
+                                          "orchestrator_identity",
+                                          "repository_root",
+                                          "branch",
+                                          "starting_head",
+                                          "current_head",
+                                          "started_at",
+                                          "heartbeat_at",
+                                          "expires_at",
+                                          "allowed_source_paths",
+                                          "forbidden_actions",
+                                          "source_stability_windows",
+                                          "continuity_commits",
+                                          "source_writers",
+                                          "live_runtime_writers",
+                                          "release_procedure",
+                                          "wave_a_commit",
+                                          "override",
+                                          "renewed_at",
+                                          "renewed_at_local"
+                                      ],
+                        "present":  true,
+                        "active_send_exceptions":  0,
+                        "forbidden_actions":  [
+                                                  "git reset --hard",
+                                                  "git clean",
+                                                  "force push",
+                                                  "history rewrite",
+                                                  "secret exposure or rotation",
+                                                  "live sendMessage",
+                                                  "live editMessageText during soak",
+                                                  "webhook mutation",
+                                                  "paid call",
+                                                  "auto-resend UNCERTAIN_SEND_OUTCOME",
+                                                  "destructive production-memory migration",
+                                                  "self-sign SIG-IV"
+                                              ]
+                    },
+    "poll_health":  {
+                        "last_ok_ts":  1787438206.1131997,
+                        "consecutive_failures":  0,
+                        "last_reason":  "",
+                        "last_round_ts":  1787438206.1131997,
+                        "counters":  {
+                                         "poll_started_total":  21618,
+                                         "poll_completed_total":  4700,
+                                         "poll_empty_total":  4694,
+                                         "poll_updates_total":  5
+                                     },
+                        "last_poll_started_at":  1787438176.5136857,
+                        "last_poll_completed_at":  1787438204.991154,
+                        "last_empty_poll_at":  1787438206.1131997,
+                        "last_progress_at":  1787438206.1131997,
+                        "process_thread_count":  4,
+                        "active_transport_workers":  0,
+                        "active_config_workers":  0,
+                        "last_update_received_at":  1787377642.9127328,
+                        "last_dispatch_completed_at":  1787377645.4027107
+                    },
+    "poll_lease":  {
+                       "path":  "F:\\backup\\_ops\\state\\telegram\\poll-lease.sqlite3",
+                       "present":  true,
+                       "now":  1787438244.233865,
+                       "tables":  [
+                                      "lease"
+                                  ],
+                       "schema":  {
+                                      "lease":  [
+                                                    "token_digest",
+                                                    "owner_pid",
+                                                    "owner_boot_id",
+                                                    "acquired_at",
+                                                    "heartbeat_at",
+                                                    "lease_until",
+                                                    "state",
+                                                    "fail_count",
+                                                    "cooldown_until",
+                                                    "generation",
+                                                    "owner_instance",
+                                                    "host_boot_digest",
+                                                    "code_head",
+                                                    "request_deadline",
+                                                    "last_reason"
+                                                ]
+                                  },
+                       "rows":  {
+                                    "lease":  [
+                                                  {
+                                                      "token_digest":  "[REDACTED]",
+                                                      "owner_pid":  35916,
+                                                      "owner_boot_id":  "35916:1787390917367623680",
+                                                      "acquired_at":  1787390929.4752796,
+                                                      "heartbeat_at":  1787438233.4683244,
+                                                      "lease_until":  1787438323.4683244,
+                                                      "state":  "ACTIVE",
+                                                      "fail_count":  0,
+                                                      "cooldown_until":  0.0,
+                                                      "generation":  4,
+                                                      "owner_instance":  "34f47c12de0e0be31d639b7a535bc8a6",
+                                                      "host_boot_digest":  "df5a6c8feb84e49b3e46952942029a3ae885a4dbd93926dd9bf1e6ce3bb36e8a",
+                                                      "code_head":  "9957d5e5f11baa68e5c8a9133dbf907d00ec3082",
+                                                      "request_deadline":  1787438268.4655058,
+                                                      "last_reason":  ""
+                                                  }
+                                              ]
+                                }
+                   }
+}

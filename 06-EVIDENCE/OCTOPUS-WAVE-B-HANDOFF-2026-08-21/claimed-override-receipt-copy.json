@@ -1,0 +1,25 @@
+{
+  "schema": "octopus-owner-override-receipt/1",
+  "owner_directive": "Authorize Grok/ari on the real live tree F:/backup only. Continue existing Wave-A work. Do not restart implementation. Do not treat E:/germline/octopus.git or /workspace as canonical. Do not modify live runtimes cortex/miniapp_gateway/live_server/octopus_mcp. Previous writer session absent.",
+  "old_lock_sha256": "3b815d4845268090e8152e1e9159d48960c4cb67c4d402f763ae03531409aa4a",
+  "old_lock_archive": "F:/backup/_ops/state/locks/octopus-writer.lock.archived.20260822T095407+1000",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "head": "66c713084b972be1f40742312fdf0f205778edd8",
+  "source_digest": "b9f1d6fee47bb97385f6923059612a426c4660c42c91596c59c4be2169e84577",
+  "source_file_count": 2022,
+  "new_owner_identity": "grok-ari-single-writer",
+  "new_session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+  "new_lease_id": "9816664e55684900988901c3c1e5b902",
+  "new_lock_sha256": "afcbdaea54a1551a28ce86ee8083615bb26783a7221511c6cfb765025055072b",
+  "timestamp": "2026-08-22T09:54:07.626960+10:00",
+  "recovery_procedure": "To restore previous lease bytes: copy octopus-writer.lock.archived.20260822T095407+1000 over octopus-writer.lock. To release this lease: python _ops/writer_lease.py release --agent grok-ari-single-writer --session sess_830e364e-8cd7-4046-ade3-9862f40ec726. Do not git reset --hard / git clean / force-push. Do not live-send Telegram.",
+  "readback": {
+    "agent_id": "grok-ari-single-writer",
+    "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+    "current_head": "66c713084b972be1f40742312fdf0f205778edd8",
+    "repository_root": "F:/backup",
+    "expires_at": 1787378047.62696,
+    "source_digest_w1": "b9f1d6fee47bb97385f6923059612a426c4660c42c91596c59c4be2169e84577",
+    "source_digest_w2": "b9f1d6fee47bb97385f6923059612a426c4660c42c91596c59c4be2169e84577"
+  }
+}

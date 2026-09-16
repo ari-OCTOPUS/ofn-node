@@ -1,0 +1,24 @@
+﻿{
+    "captured_at_local":  "2026-08-22T17:18:34+10:00",
+    "octopus_wire_exists":  true,
+    "path":  "F:\\octopus-wire",
+    "branch":  "ofn/wire",
+    "HEAD":  "ca038d42a1f2add43140b1a6fa3dd9d58949cc0d",
+    "origin_ofn_wire":  "ca038d42a1f2add43140b1a6fa3dd9d58949cc0d",
+    "w001_written":  true,
+    "w001_stamp":  "20260822-1715",
+    "messages_windows_ids":  [
+                                 "cp-rescue-1",
+                                 "w001"
+                             ],
+    "push_target":  "https://github.com/ari322/ofn-node.git ofn/wire",
+    "push_first_attempt":  "FAIL (no username / prompts disabled) — see PUSH-ATTEMPT.json",
+    "push_retry":  "SUCCESS bed6219..ca038d4 via GCM — see PUSH-SUCCESS.json",
+    "github_push_blocked_now":  false,
+    "board_github_fetch_blocked":  true,
+    "germline_ofn_wire":  "175e95651281c3f3815fb596467e3d6b9ca0e949",
+    "germline_has_MESSAGES_WINDOWS":  true,
+    "onboarding_doc":  "F:\\octopus-wire\\WIRE-ONBOARDING-WINDOWS.md",
+    "phase3_armed":  false,
+    "cron_step4_done":  false
+}

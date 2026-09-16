@@ -1,0 +1,330 @@
+{
+  "schema": "octopus-gap-close-status/1",
+  "stamp_local": "2026-08-23T09:13:06+10:00",
+  "timezone": "Australia/Sydney",
+  "evidence_root": "F:\\backup\\06-EVIDENCE\\OCTOPUS-GAP-CLOSE-2026-08-23",
+  "producer": "grok-executor-subagent",
+  "slice": "LAPTOP",
+  "counts": {
+    "PASS": 18,
+    "HOLD": 6,
+    "ADVANCE": 1,
+    "FAIL": 0,
+    "OTHER": 0,
+    "PASS_PARTIAL": 0
+  },
+  "rows": [
+    {
+      "id": "G01",
+      "status": "HOLD",
+      "slice": "BOARD2",
+      "verdict": "Ziman payouts BLOCKED (bank/id) + PayPal incomplete — owner/Maliheh noon"
+    },
+    {
+      "id": "G02",
+      "status": "HOLD",
+      "slice": "BOARD2",
+      "verdict": "Gallery for_sale without photos — need real photos; do not invent"
+    },
+    {
+      "id": "G03",
+      "status": "PASS",
+      "slice": "IOS+ARI",
+      "verdict": "EXPIRED lock archived; ios lease done; ari reclaimed writer lock"
+    },
+    {
+      "id": "G04",
+      "status": "HOLD",
+      "slice": "OWNER",
+      "verdict": "lab fake PASS; LIVE owner Telegram inbound Full Loop still OPEN"
+    },
+    {
+      "id": "G05",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "Dry-run prove send_allowed=false when exceptions absent; unlock!=send contract documented"
+    },
+    {
+      "id": "G06",
+      "status": "PASS",
+      "slice": "PI",
+      "verdict": "soft latch re-prove PASS; physical buy deferred accepted; MQTT WAN KEEP_CLOSED; ARMED=false"
+    },
+    {
+      "id": "G07",
+      "status": "ADVANCE",
+      "slice": "LAPTOP",
+      "verdict": "Dirty tree categorized; sparse list proposed; commit SKIPPED (live writer holds git scope; no steal)"
+    },
+    {
+      "id": "G08",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "C05 durable SoT contract holds; triple surfaces classified; merge_into_durable_sot=false"
+    },
+    {
+      "id": "G09",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "SenderBridge attach default-OFF; dry refuse when attach off; gate also blocks send_allowed=false"
+    },
+    {
+      "id": "G10",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "Docs reconciled to truth: localhost/process primary; state-file tunnel URL is metadata not invented; no menu mutate"
+    },
+    {
+      "id": "G11",
+      "status": "PASS",
+      "slice": "BOARD2",
+      "verdict": "WIRE_* != auto_*; auto_post/dm/email CLOSED; studio manual only"
+    },
+    {
+      "id": "G12",
+      "status": "HOLD",
+      "slice": "BOARD2",
+      "verdict": "Studio captions HOLD 0003-0022 — do not invent captions"
+    },
+    {
+      "id": "G13",
+      "status": "PASS",
+      "slice": "BOARD2",
+      "verdict": "dup shot-0002 leave id=10; Etsy remains HELD (intentional)"
+    },
+    {
+      "id": "G14",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "studio_wire=false reconciled with Board2 OOB publish note in WIRING hooks; DIFF recorded"
+    },
+    {
+      "id": "G15",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "Money wires measured false; policy hook documents OFF/DEFERRED; stale iOS true-read superseded by current WIRING"
+    },
+    {
+      "id": "G16",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "Stale topology notes refreshed; wire remains ON_ADVISORY_LIVE; no self-aware claims"
+    },
+    {
+      "id": "G17",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "CORTEX-PAID disarmed (.flag.off + FLAGS CLOSED); lock+WIRING remain paid FORBIDDEN; no money unlock"
+    },
+    {
+      "id": "G18",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "evelab/lab_bridge propose-only; no continuous promote schedule found; merge human-gated"
+    },
+    {
+      "id": "G19",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "Uniqueness heartbeat receipt present; monitor evidence dir exists"
+    },
+    {
+      "id": "G20",
+      "status": "HOLD",
+      "slice": "BOARD2",
+      "verdict": "GST ABN empty + gallery-0016 note drift — owner/external"
+    },
+    {
+      "id": "G21",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "NEXT-AGENT-HANDOFF.md pointers updated"
+    },
+    {
+      "id": "G22",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "Inventoried 4 orphans; quarantine note; not deleted"
+    },
+    {
+      "id": "G23",
+      "status": "HOLD",
+      "slice": "LAPTOP",
+      "verdict": "MED backlog note for CLOSE-MATRIX; no mass TODO scrub"
+    },
+    {
+      "id": "G24",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "Aug-16 UNWIRED marked STALE; brief test count re-scan"
+    },
+    {
+      "id": "G25",
+      "status": "PASS",
+      "slice": "LAPTOP",
+      "verdict": "Documented Laplacian connectivity=0 as topology fact; propose-only ARCH note"
+    }
+  ],
+  "top_blockers": [
+    "G01",
+    "G02",
+    "G04",
+    "G06",
+    "G12",
+    "G13",
+    "G23"
+  ],
+  "tests_smoke": {
+    "passed": 17,
+    "files": [
+      "test_dual_outbox_contract_c05.py",
+      "test_live_telegram_wire_20260823.py",
+      "test_poll_sender_bridge_attach_default_off.py"
+    ]
+  },
+  "g07_sparse_commit": false,
+  "g07_sparse_commit_reason": "live writer ari holds git scope; no steal",
+  "forbidden_honored": true,
+  "matrix": {
+    "G01": {
+      "status": "HOLD",
+      "lane": "BOARD2",
+      "reason": "Ziman payouts BLOCKED (bank/id) + PayPal incomplete — owner/Maliheh noon"
+    },
+    "G02": {
+      "status": "HOLD",
+      "lane": "BOARD2",
+      "reason": "Gallery for_sale without photos — need real photos; do not invent"
+    },
+    "G03": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "EXPIRED orphan archived; LIVE writer now ios-gap-close; unlock!=send preserved; did not steal live writer"
+    },
+    "G04": {
+      "status": "HOLD",
+      "lane": "LAPTOP",
+      "reason": "Lab fake inbound already PASS; real owner TG inbound Full Loop remains OPEN until owner sends real Telegram"
+    },
+    "G05": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "Dry-run prove send_allowed=false when exceptions absent; unlock!=send contract documented"
+    },
+    "G06": {
+      "status": "HOLD",
+      "lane": "PI",
+      "reason": "WAVE0 physical estop ABSENT; MQTT KEEP_CLOSED; physical deferred"
+    },
+    "G07": {
+      "status": "ADVANCE",
+      "lane": "LAPTOP",
+      "reason": "Dirty tree categorized; sparse list proposed; commit SKIPPED (live writer holds git scope; no steal)"
+    },
+    "G08": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "C05 durable SoT contract holds; triple surfaces classified; merge_into_durable_sot=false"
+    },
+    "G09": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "SenderBridge attach default-OFF; dry refuse when attach off; gate also blocks send_allowed=false"
+    },
+    "G10": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "Docs reconciled to truth: localhost/process primary; state-file tunnel URL is metadata not invented; no menu mutate"
+    },
+    "G11": {
+      "status": "HOLD",
+      "lane": "BOARD2",
+      "reason": "OFN wire/flags ON vs auto_* CLOSED; studio manual — Board2 lane"
+    },
+    "G12": {
+      "status": "HOLD",
+      "lane": "BOARD2",
+      "reason": "Studio captions HOLD 0003-0022 — do not invent captions"
+    },
+    "G13": {
+      "status": "HOLD",
+      "lane": "BOARD2",
+      "reason": "Dup shot-0002 + Etsy HELD — Board2/owner"
+    },
+    "G14": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "studio_wire=false reconciled with Board2 OOB publish note in WIRING hooks; DIFF recorded"
+    },
+    "G15": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "Money wires measured false; policy hook documents OFF/DEFERRED; stale iOS true-read superseded by current WIRING"
+    },
+    "G16": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "Stale topology notes refreshed; wire remains ON_ADVISORY_LIVE; no self-aware claims"
+    },
+    "G17": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "CORTEX-PAID .flag.off + FLAGS CLOSED; paid stays FORBIDDEN"
+    },
+    "G18": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "evelab/lab_bridge propose-only; no continuous promote schedule found; merge human-gated"
+    },
+    "G19": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "Uniqueness heartbeat receipt present; monitor evidence dir exists"
+    },
+    "G20": {
+      "status": "HOLD",
+      "lane": "BOARD2",
+      "reason": "GST ABN empty + gallery-0016 note drift — owner/external"
+    },
+    "G21": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "NEXT-AGENT-HANDOFF.md pointers updated"
+    },
+    "G22": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "Inventoried 4 orphans; quarantine note; not deleted"
+    },
+    "G23": {
+      "status": "HOLD",
+      "lane": "LAPTOP",
+      "reason": "MED backlog note for CLOSE-MATRIX; no mass TODO scrub"
+    },
+    "G24": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "Aug-16 UNWIRED marked STALE; brief test count re-scan"
+    },
+    "G25": {
+      "status": "PASS",
+      "lane": "LAPTOP",
+      "reason": "Documented Laplacian connectivity=0 as topology fact; propose-only ARCH note"
+    }
+  },
+  "reconciled_by": "ari",
+  "lanes": {
+    "IOS": "COMPLETE",
+    "BOARD2": "COMPLETE",
+    "PI": "COMPLETE",
+    "LAPTOP": "COMPLETE"
+  },
+  "owner_holds": [
+    "G01 payouts/PayPal noon Maliheh",
+    "G02 gallery photos",
+    "G04 live TG inbound",
+    "G12 studio captions",
+    "G20 ABN empty"
+  ],
+  "note": "Reconciled laptop HOLD placeholders for G06/G11/G13 with PI/BOARD2 PASS receipts"
+}

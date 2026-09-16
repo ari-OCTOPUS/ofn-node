@@ -1,0 +1,7 @@
+{
+  "encode_path": "/opt/octopus/current/scripts/octopus_doctor_readonly.py",
+  "encode_kind": "hardcoded_script",
+  "config_knob_found": false,
+  "sha256_before": "sha256:3d62d6194bac0ea6cda76b8c7417c455497d0549df8aadc2cf3e39d15a922684",
+  "planned_change": "allow 0.0.0.0:9101|192.168.0.182:9101; expect lan_9101 True when allowed bind present"
+}

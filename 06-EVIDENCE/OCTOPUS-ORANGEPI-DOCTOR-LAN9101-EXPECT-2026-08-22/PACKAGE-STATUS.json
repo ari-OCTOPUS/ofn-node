@@ -1,0 +1,33 @@
+{
+  "schema": "octopus.package-status.v1",
+  "package": "OCTOPUS-ORANGEPI-DOCTOR-LAN9101-EXPECT-2026-08-22",
+  "token": "OCTOPUS-ORANGEPI-DOCTOR-LAN9101-EXPECT-20260822",
+  "written_at_local": "2026-08-22T21:19:00+10:00",
+  "timezone": "Australia/Sydney (UTC+10)",
+  "package_status": "EXECUTE_READY_DISCOVER_FIRST",
+  "mutate_device": true,
+  "owner_fix_all": true,
+  "WAVE0_hardware": "KEEP_LOCKED",
+  "MQTT": "CLOSED",
+  "executor": "sensoriom",
+  "laptop_ssh": false,
+  "scope": "doctor_allowlist_expected_listeners_9101_only",
+  "do_not_close_port": true,
+  "do_not_revert_lan_open": true,
+  "prove": [
+    "metrics_bind PASS",
+    "unexpected_listeners PASS",
+    "gap002_registry stays PASS"
+  ],
+  "files": [
+    "OWNER-AUTHORIZATION.json",
+    "PLAN.md",
+    "EXECUTION-ORDER.md",
+    "SENSORIOM-EXECUTE-BRIEF.md",
+    "ROLLBACK.md",
+    "README.md",
+    "SOURCE-SCAN.json",
+    "PACKAGE-STATUS.json"
+  ],
+  "notes": "Live doctor encode path (config vs script) must be DISCOVER-FIRST on Pi; laptop has historical hardcoded loopback expectation + GAP002 after-receipt showing remaining FAILs."
+}

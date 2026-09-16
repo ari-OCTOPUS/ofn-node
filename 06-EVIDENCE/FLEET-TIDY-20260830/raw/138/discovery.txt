@@ -1,0 +1,54 @@
+=== REPO=/home/ari/hypno-fugu-mini
+HEAD=680548633ca42d9f61a84fd7397cd32c9cfd2e06 BRANCH=master
+UPSTREAM=NONE
+UNTRACKED_TOTAL=107
+UNTRACKED_SOURCEISH= 11
+UNTRACKED_RUNTIMEISH= 96
+data/hypno.db
+data/state/*
+obsidian-vault/Hypno-Fugu-Vault/.obsidian/core-plugins.json
+obsidian-vault/Hypno-Fugu-Vault/.obsidian/daily-notes.json
+obsidian-vault/Hypno-Fugu-Vault/Edge/MOC-Edge.md
+obsidian-vault/Hypno-Fugu-Vault/Sessions/2026-08-05.md
+obsidian-vault/Hypno-Fugu-Vault/Sessions/2026-08-06.md
+obsidian-vault/Hypno-Fugu-Vault/Sessions/2026-08-07.md
+obsidian-vault/Hypno-Fugu-Vault/Sessions/2026-08-29.md
+obsidian-vault/Hypno-Fugu-Vault/Sources/0001-NCCIH- Hypnosis overview.md
+obsidian-vault/Hypno-Fugu-Vault/Sources/0002-APA 2024- Science of clinical hypnosis.md
+obsidian-vault/Hypno-Fugu-Vault/Sources/0003-Safe self-hypnosis contract.md
+TESTS_DIR=yes count=4
+---
+=== REPO=/home/ari/ofn
+germline	/mnt/octopus-germline/octopus.git (fetch)
+germline	/mnt/octopus-germline/octopus.git (push)
+HEAD=9bc05abc18fe545f128b7ca6a23c77d888f23e36 BRANCH=work/truth-record-20260830
+UPSTREAM=origin/work/truth-record-20260830 BEHIND=0 0 AHEAD=0 0
+UNTRACKED_TOTAL=39
+UNTRACKED_SOURCEISH= 26
+UNTRACKED_RUNTIMEISH= 13
+06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.err
+06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.exit
+06-EVIDENCE/runtime-provenance-20260828T230743Z/e8-unittest.out
+06-EVIDENCE/runtime-provenance-20260828T230743Z/git-diff-check.txt
+06-EVIDENCE/runtime-provenance-20260828T230743Z/git-status-final.txt
+06-EVIDENCE/runtime-provenance-20260828T230743Z/import-origins-from-cwd.txt
+06-EVIDENCE/runtime-provenance-20260828T230743Z/import-origins.txt
+06-EVIDENCE/runtime-provenance-20260828T230743Z/outbox-recent-ids.txt
+06-EVIDENCE/runtime-provenance-20260828T230743Z/outbox-status-counts.txt
+06-EVIDENCE/runtime-provenance-20260828T230743Z/p1-full-suite.exit
+06-EVIDENCE/runtime-provenance-20260828T230743Z/p1-full-suite.out
+06-EVIDENCE/runtime-provenance-20260828T230743Z/p1-parity-report.json
+RUNNER=pytest (pytest.ini)
+TESTS_DIR=yes count=118
+---
+=== REPO=/home/ari/octopus-bridge
+germline	/mnt/octopus-germline/octopus.git (fetch)
+germline	/mnt/octopus-germline/octopus.git (push)
+HEAD=e21f20d7c690e4660894226b1cef1bd47b219b5a BRANCH=main
+UPSTREAM=NONE
+UNTRACKED_TOTAL=1
+UNTRACKED_SOURCEISH= 0
+UNTRACKED_RUNTIMEISH= 1
+octopus_bridge/connector.py.bak-ua-20260822
+TESTS_DIR=yes count=10
+---

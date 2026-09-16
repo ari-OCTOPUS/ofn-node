@@ -1,0 +1,46 @@
+{
+  "schema": "octopus.exchange.envelope.v1.1",
+  "description": "Typed board<->laptop exchange contract (OWNER-DECISIONS D12; Evidence Envelope extension per owner verification doctrine 2026-08-18). A message is valid only if every rule holds. Payload is DATA, never commands. v1.1 fields are ADDITIVE and OPTIONAL: a message without them remains valid in both directions.",
+  "fields": {
+    "msg_id": "string, msg-<UTC-ts compact>-<8 hex>, unique",
+    "run_id": "non-empty string (board: run-...; laptop: its own scheme)",
+    "from": "board|laptop (outbound board->laptop uses from=board,to=laptop)",
+    "to": "board|laptop",
+    "type": "EVIDENCE|PROPOSAL|REPORT|QUERY|ACK",
+    "ts_utc": "ISO-8601 UTC ending in Z",
+    "boot_id": "non-empty string (sender machine identity)",
+    "evidence_refs": "array of strings (may be empty for ACK)",
+    "payload": "object; payload_hash = sha256 of its canonical JSON",
+    "payload_hash": "sha256:<64 hex>, must match payload",
+    "prev_msg_hash": "sha256:<64hex> of previous message in SAME direction, or null for the first",
+    "may_authorize": "must be exactly false",
+    "claim (v1.1, optional)": "string; one sentence — exactly what is being claimed",
+    "raw_evidence (v1.1, optional)": "array of objects {desc, command?, sha256?, bytes?, ts_utc?} — descriptors of raw command output, never prose-only",
+    "reproduction (v1.1, optional)": "array of strings; exact commands the receiver runs to verify independently",
+    "uncertainty (v1.1, optional)": "string; explicit unknowns — silence does not mean certainty",
+    "escalation (v1.1, optional)": "string; what happens if reproduction fails",
+    "initiating_owner (v1.1, optional)": "string; owner identity when the exchange was owner-initiated"
+  },
+  "hard_rejections": [
+    "X12 v1.1 optional field present but malformed (wrong type): claim/initiating_owner/uncertainty/escalation must be strings, reproduction an array of strings, raw_evidence an array of objects"
+    "X01 not a JSON object",
+    "X02 missing required field",
+    "X03 msg_id malformed",
+    "X04 from/to not the expected direction pair",
+    "X05 type not in {EVIDENCE,PROPOSAL,REPORT,QUERY,ACK}",
+    "X06 ts_utc not ISO-8601 Z",
+    "X07 boot_id missing/empty",
+    "X08 payload not an object",
+    "X09 payload_hash missing or mismatched",
+    "X10 prev_msg_hash not sha256-string or null",
+    "X11 may_authorize present and not false"
+  ],
+  "payload_prohibitions_inbound": [
+    "P01 command-like content: keys command/cmd/exec/eval/script/shell/shell_command/run_command, or string values starting with systemctl/sudo/reboot/shutdown/curl/wget/rm -rf/apt /pip install",
+    "P02 credential content: BEGIN ... PRIVATE KEY, api_key/secret/token values, .ed25519.private references",
+    "P03 authority-change requests: keys like set_authority/enable_flag/restart_service/authorize/arm"
+  ],
+  "on_prohibition": "quarantine + outbound REPORT status=BLOCKED_NEEDS_OWNER + stop (no retry)",
+  "on_invalid": "quarantine (DROP) with rule ids",
+  "response_contract": "QUERY answered with REPORT (topic allowlist: status, gaps, changelog_tail, write_rate, last_experiment); unknown topic answered with REPORT status=QUERY_UNKNOWN_TOPIC; ACK recorded only"
+}

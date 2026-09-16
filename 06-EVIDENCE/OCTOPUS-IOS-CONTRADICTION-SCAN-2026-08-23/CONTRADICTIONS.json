@@ -1,0 +1,248 @@
+{
+  "schema": "octopus-ios-contradiction-scan/1",
+  "agent": "Ios",
+  "parent": "ari",
+  "stamp_local": "2026-08-23T08:20:00+10:00",
+  "timezone": "Australia/Sydney",
+  "scope": "REAL Telegram <-> OCTOPUS capability wiring mismatches on F:/backup SoT",
+  "constraints_honored": {
+    "no_live_sendMessage": true,
+    "no_secrets": true,
+    "no_WAVE0": true,
+    "no_destructive": true,
+    "evidence_only_plus_one_line_truth_label_fix": true
+  },
+  "live_snapshot": {
+    "LIVE-TELEGRAM.flag": {
+      "path": "F:/backup/_ops/LIVE-TELEGRAM.flag",
+      "enabled": true,
+      "note": "Unlock only; does not by itself send"
+    },
+    "writer_lock": {
+      "path": "F:/backup/_ops/state/locks/octopus-writer.lock",
+      "agent_id": "grok-ari-single-writer",
+      "live_sendMessage_in_forbidden_actions": true,
+      "has_send_exceptions": false,
+      "renewed_at_local": "2026-08-23T07:44:12.327+10:00"
+    },
+    "pids_now": {
+      "center": {
+        "pid": 35916,
+        "alive": true,
+        "cmd": "python -X utf8 telegram_center\\center.py"
+      },
+      "organism": {
+        "pid": 29020,
+        "alive": true,
+        "cmd": "python -X utf8 organism.py",
+        "note": "A18 RESULT cited organism_pid 26900; epistemics reload replaced with 29020"
+      },
+      "miniapp_gateway": {
+        "pid": 12220,
+        "alive": true,
+        "cmd": "miniapp_gateway.py"
+      }
+    },
+    "WIRING.json": {
+      "path": "F:/backup/_ops/organs/WIRING.json",
+      "executable": true,
+      "live_organism_hook": true,
+      "studio_wire": false,
+      "mining_wire": true,
+      "crypto_wire": true,
+      "accounting_amounts": true
+    },
+    "A18_canary": {
+      "RESULT": "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/RESULT.json",
+      "VERIFY": "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/VERIFY.json",
+      "status": "PASS",
+      "mids_CONFIRMED": [
+        617,
+        618
+      ],
+      "path": "RateLimitQueue+SenderBridge owner-only",
+      "durable_loop_inbound_CLOSED": "NOT claimed (VERIFY N/A_PATH)"
+    },
+    "CONTINUOUS_MISSION_STATUS": {
+      "path": "F:/backup/06-EVIDENCE/OCTOPUS-CONTINUOUS-MISSION-2026-08-23/STATUS.json",
+      "overall": "PARTIAL",
+      "A18_live_TG": "PASS",
+      "epistemics_wire": "ON_ADVISORY_LIVE",
+      "no_live_telegram_send_this_verify_step": true,
+      "stamp_local": "2026-08-23T08:11:25+10:00"
+    },
+    "durable_outbox_recent": {
+      "path": "F:/backup/_ops/state/telegram/loop/outbox",
+      "latest": [
+        {
+          "key_prefix": "948643b4748d5cb6",
+          "delivery_truth": "DEAD_LETTERED",
+          "reason": "OWNER_OBSERVED_SYNC"
+        },
+        {
+          "key_prefix": "3a8e60bf162c3474",
+          "delivery_truth": "DEAD_LETTERED",
+          "reason": "OWNER_OBSERVED_SYNC"
+        },
+        {
+          "key_prefix": "prove-remember-c",
+          "state": "DRY_RUN_NO_SEND"
+        },
+        {
+          "key_prefix": "ef729b5ef0bbc863",
+          "state": "CONFIRMED",
+          "message_id": 606
+        }
+      ]
+    }
+  },
+  "contradictions_ranked": [
+    {
+      "rank": 1,
+      "severity": "CRITICAL",
+      "id": "A18_label_split_truth_vs_blocker",
+      "claim": "A18 Full Loop / LIVE-B still BLOCKED (BLOCKER.json status=BLOCKED; CURRENT-TRUTH early bullet 'A18 / Full Loop BLOCKED'; epistemics topology gap 'A18 live owner-chat canary still BLOCKED')",
+      "reality": "A18_live_TG owner-chat canary PASS @ 07:44–07:48 local (RESULT+VERIFY+A18-LIVE-PASS); STATUS.json marks A18_live_TG PASS; CURRENT-TRUTH later section already documents narrow PASS",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-BLOCKER-2026-08-23/BLOCKER.json",
+        "F:/backup/OCTOPUS/CURRENT-TRUTH.md",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/RESULT.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/VERIFY.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-TOPOLOGY-2026-08-23/RESULT.json"
+      ],
+      "suggested_fix": "Split labels: keep Full-Loop-inbound BLOCKED until durable_loop CLOSED proven; mark A18_live_TG=PASS; supersede/annotate BLOCKER.json; remove stale 'canary still BLOCKED' gap from epistemics topology RESULT"
+    },
+    {
+      "rank": 2,
+      "severity": "HIGH",
+      "id": "LIVE_TELEGRAM_flag_vs_forbidden_sendMessage",
+      "claim": "LIVE-TELEGRAM.flag enabled=true (armed unlock) reads as Telegram live capability",
+      "reality": "Flag note: unlock only / does not send; writer lock forbidden_actions still includes 'live sendMessage'; A18 exceptions rolled back; STATUS constraints no_live_telegram_send",
+      "evidence_paths": [
+        "F:/backup/_ops/LIVE-TELEGRAM.flag",
+        "F:/backup/_ops/state/locks/octopus-writer.lock",
+        "F:/backup/06-EVIDENCE/OCTOPUS-CONTINUOUS-MISSION-2026-08-23/STATUS.json"
+      ],
+      "suggested_fix": "Surface dual-state in dashboards: LIVE_UNLOCK=true AND live_sendMessage=FORBID default; only send_exceptions TTL windows count as live-send capable"
+    },
+    {
+      "rank": 3,
+      "severity": "HIGH",
+      "id": "outbound_canary_PASS_vs_inbound_full_loop_still_open",
+      "claim": "A18 canary /remember+/correct mids imply full remember/correct loop live",
+      "reality": "VERIFY explicitly NOT claims durable_loop inbound CLOSED or new memory write from mid 617; canary was outbound SenderBridge DMs only",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/VERIFY.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/A18-LIVE-PASS.md",
+        "F:/backup/06-EVIDENCE/OCTOPUS-CONTINUOUS-MISSION-2026-08-23/STATUS.json"
+      ],
+      "suggested_fix": "Keep NEXT optional gate A18_center_inbound_remember_correct; never collapse A18_live_TG into Full Loop PASS"
+    },
+    {
+      "rank": 4,
+      "severity": "HIGH",
+      "id": "WIRING_studio_wire_false_vs_Studio_Telegram_publish",
+      "claim": "WIRING.json flags.studio_wire=false",
+      "reality": "Board2 Studio shots published to Telegram (external_id evidence packs 2026-08-22/23) while organ cartographer studio_wire remains false",
+      "evidence_paths": [
+        "F:/backup/_ops/organs/WIRING.json",
+        "F:/backup/06-EVIDENCE/BOARD2-STUDIO-PUBLISH-DRAIN-2026-08-22",
+        "F:/backup/06-EVIDENCE/BOARD2-STUDIO-BATCH-QUEUE-2026-08-23"
+      ],
+      "suggested_fix": "Either set studio_wire true with rollback note, or document Studio publish as out-of-WIRING Board2 path so cartographer flag is not read as capability truth"
+    },
+    {
+      "rank": 5,
+      "severity": "HIGH",
+      "id": "WIRING_money_wires_true_vs_owner_money_off",
+      "claim": "WIRING mining_wire=true crypto_wire=true accounting_amounts=true",
+      "reality": "Owner/ari memory and rollout notes keep mining/crypto/accounting money wires off; LIVE-TELEGRAM unlock grant also forbids paid",
+      "evidence_paths": [
+        "F:/backup/_ops/organs/WIRING.json",
+        "F:/backup/_ops/state/locks/octopus-writer.lock"
+      ],
+      "suggested_fix": "Align WIRING flags to owner money-off policy OR rename flags to mean schema-present-not-armed; do not invent enablement"
+    },
+    {
+      "rank": 6,
+      "severity": "MED",
+      "id": "epistemics_advisory_vs_docs_off_gap",
+      "claim": "EPISTEMICS-TOPOLOGY RESULT still says OCTOPUS_WIRE_EPISTEMICS left OFF / keep off until owner GO; gap A18 canary BLOCKED",
+      "reality": "EPISTEMICS-WIRE-ON RESULT PASS ON_ADVISORY; STATUS epistemics_wire ON_ADVISORY_LIVE; organism 29020 advisory beat; emit false / no live TG",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-TOPOLOGY-2026-08-23/RESULT.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23/RESULT.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-CONTINUOUS-MISSION-2026-08-23/STATUS.json"
+      ],
+      "suggested_fix": "Mark topology pack superseded-for-wire-state; keep advisory-only / no phenomenal claim language"
+    },
+    {
+      "rank": 7,
+      "severity": "MED",
+      "id": "organism_pid_stale_in_A18_RESULT",
+      "claim": "A18 RESULT runtime_health.organism_pid=26900",
+      "reality": "Live organism PID now 29020 after epistemics RESTART-REQUESTED reload; center 35916 unchanged",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/RESULT.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23/POST.json",
+        "live Get-Process"
+      ],
+      "suggested_fix": "Add PID epoch note on STATUS; treat 26900 as historical canary-time only"
+    },
+    {
+      "rank": 8,
+      "severity": "MED",
+      "id": "outbox_mixed_CONFIRMED_DEAD_LETTER_DRY_RUN",
+      "claim": "Telegram durable outbox implies live closed-loop send health",
+      "reality": "Recent outbox mixes DEAD_LETTERED (OWNER_OBSERVED_SYNC / UNCERTAIN_SEND_OUTCOME), DRY_RUN_NO_SEND prove item, and older CONFIRMED; STATUS overall still PARTIAL",
+      "evidence_paths": [
+        "F:/backup/_ops/state/telegram/loop/outbox",
+        "F:/backup/06-EVIDENCE/OCTOPUS-OUTBOX-DEAD-LETTER-2026-08-23/RESULT.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-CONTINUOUS-MISSION-2026-08-23/STATUS.json"
+      ],
+      "suggested_fix": "Dashboard by delivery_truth counts; never summarize outbox as all-live-CONFIRMED"
+    },
+    {
+      "rank": 9,
+      "severity": "MED",
+      "id": "miniapp_process_live_vs_docs_URL_BLOCKED",
+      "claim": "Architecture CURRENT-TRUTH Blocked: OCTOPUS_MINIAPP_URL unset / MiniApp UI blocked",
+      "reality": "miniapp_gateway.py PID 12220 live alongside center 35916; separate process from center durable_loop; WIRING does not gate miniapp",
+      "evidence_paths": [
+        "F:/backup/06 - Architecture Maps/OCTOPUS-CURRENT-TRUTH.md",
+        "live Get-CimInstance Win32_Process miniapp_gateway.py",
+        "F:/backup/_ops/telegram_center/miniapp_gateway.py"
+      ],
+      "suggested_fix": "Split MiniApp process-up vs public URL/Telegram menu wiring; refresh Blocked section if URL still missing"
+    },
+    {
+      "rank": 10,
+      "severity": "LOW",
+      "id": "CURRENT-TRUTH_internal_A18_dual_bullets",
+      "claim": "Same file early 'A18 / Full Loop BLOCKED' and later 'A18_live_TG = PASS (narrow)' without cross-link at first bullet",
+      "reality": "Both present in F:/backup/OCTOPUS/CURRENT-TRUTH.md; readers hitting only early bullet get stale capability picture",
+      "evidence_paths": [
+        "F:/backup/OCTOPUS/CURRENT-TRUTH.md"
+      ],
+      "suggested_fix": "One-line qualify early bullet to Full-Loop-inbound + pointer to narrow PASS section (applied if safe)"
+    }
+  ],
+  "safe_doc_fix_applied": {
+    "path": "F:/backup/OCTOPUS/CURRENT-TRUTH.md",
+    "from": "**A18 / Full Loop BLOCKED.**",
+    "to": "**A18 / Full Loop inbound still BLOCKED** (outbound owner-chat canary A18_live_TG=PASS narrow 2026-08-23 — see Human status below).",
+    "backup": "F:\\backup\\OCTOPUS\\CURRENT-TRUTH.md.bak-ios-a18-label-20260823"
+  },
+  "top10_for_ari": [
+    "1 CRITICAL: A18 BLOCKER/topology still say canary/Full-Loop BLOCKED while A18_live_TG PASS (mids 617/618 CONFIRMED)",
+    "2 HIGH: LIVE-TELEGRAM.flag enabled but lock forbids live sendMessage (unlock≠send)",
+    "3 HIGH: Canary outbound PASS ≠ inbound durable_loop Full Loop CLOSED",
+    "4 HIGH: WIRING studio_wire=false vs Studio Telegram publishes",
+    "5 HIGH: WIRING mining/crypto/accounting true vs money-wires-off policy",
+    "6 MED: Epistemics topology docs still OFF/A18-BLOCKED vs ON_ADVISORY_LIVE",
+    "7 MED: A18 RESULT organism_pid 26900 stale; live 29020",
+    "8 MED: Outbox mix DEAD_LETTERED + DRY_RUN + CONFIRMED",
+    "9 MED: miniapp_gateway live vs docs MiniApp URL BLOCKED",
+    "10 LOW: CURRENT-TRUTH dual A18 bullets need first-bullet qualify"
+  ]
+}

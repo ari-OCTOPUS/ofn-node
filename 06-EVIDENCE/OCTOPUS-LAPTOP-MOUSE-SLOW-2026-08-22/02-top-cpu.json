@@ -1,0 +1,107 @@
+[
+    {
+        "Id":  2144,
+        "ProcessName":  "ZCode",
+        "CPU":  20296.3125,
+        "WS_MB":  38.8,
+        "StartTime":  "\/Date(1787292509789)\/"
+    },
+    {
+        "Id":  18424,
+        "ProcessName":  "ZCode",
+        "CPU":  5926.453125,
+        "WS_MB":  19.7,
+        "StartTime":  "\/Date(1787292507438)\/"
+    },
+    {
+        "Id":  26208,
+        "ProcessName":  "Grok Bot",
+        "CPU":  5764.484375,
+        "WS_MB":  312.1,
+        "StartTime":  "\/Date(1787379494896)\/"
+    },
+    {
+        "Id":  10876,
+        "ProcessName":  "Grok Bot",
+        "CPU":  2640.4375,
+        "WS_MB":  59.3,
+        "StartTime":  "\/Date(1787379492340)\/"
+    },
+    {
+        "Id":  9104,
+        "ProcessName":  "msedgewebview2",
+        "CPU":  1359.140625,
+        "WS_MB":  86.8,
+        "StartTime":  "\/Date(1787292540507)\/"
+    },
+    {
+        "Id":  29604,
+        "ProcessName":  "claude",
+        "CPU":  1312.390625,
+        "WS_MB":  256.3,
+        "StartTime":  "\/Date(1787306596624)\/"
+    },
+    {
+        "Id":  35252,
+        "ProcessName":  "claude",
+        "CPU":  1201.109375,
+        "WS_MB":  155.4,
+        "StartTime":  "\/Date(1787306703566)\/"
+    },
+    {
+        "Id":  7772,
+        "ProcessName":  "remoting_host",
+        "CPU":  1126.46875,
+        "WS_MB":  21.8,
+        "StartTime":  "\/Date(1787292478564)\/"
+    },
+    {
+        "Id":  33164,
+        "ProcessName":  "python",
+        "CPU":  1126.34375,
+        "WS_MB":  362.7,
+        "StartTime":  "\/Date(1787306795793)\/"
+    },
+    {
+        "Id":  6572,
+        "ProcessName":  "ZCode",
+        "CPU":  883.546875,
+        "WS_MB":  21.9,
+        "StartTime":  "\/Date(1787292511683)\/"
+    },
+    {
+        "Id":  4868,
+        "ProcessName":  "claude",
+        "CPU":  875.9375,
+        "WS_MB":  24.3,
+        "StartTime":  "\/Date(1787306595924)\/"
+    },
+    {
+        "Id":  26288,
+        "ProcessName":  "Telegram",
+        "CPU":  840.765625,
+        "WS_MB":  222.2,
+        "StartTime":  "\/Date(1787293279404)\/"
+    },
+    {
+        "Id":  3420,
+        "ProcessName":  "Fing",
+        "CPU":  658,
+        "WS_MB":  40.1,
+        "StartTime":  "\/Date(1787292539998)\/"
+    },
+    {
+        "Id":  22908,
+        "ProcessName":  "explorer",
+        "CPU":  635.609375,
+        "WS_MB":  193.2,
+        "StartTime":  "\/Date(1787301592551)\/"
+    },
+    {
+        "Id":  4920,
+        "ProcessName":  "msedgewebview2",
+        "CPU":  504.640625,
+        "WS_MB":  32.3,
+        "StartTime":  "\/Date(1787292540127)\/"
+    }
+]

@@ -1,0 +1,21 @@
+﻿{
+    "blockers":  [
+                     "2FA_SETUP_REQUIRED on Shopify account (maliheh) before Add account"
+                 ],
+    "PAYOUTS_STATUS":  "N — Accepting payments / Can\u0027t receive payouts; Add account gated by 2FA",
+    "EMAIL_STATUS":  "PASS",
+    "BANK_STATUS":  "NOT_ADDED — blocked by mandatory two-step authentication modal before bank form",
+    "bank_ready_to_enter":  {
+                                "account":  "463106127",
+                                "bsb":  "112879",
+                                "name":  "Maliheh Khalajijou"
+                            },
+    "overall":  "FAIL_PAYOUTS_2FA",
+    "schema":  "board2-ziman-shopify-apply-final/1",
+    "no_tfn":  true,
+    "PAYPAL_STATUS":  "Setup incomplete — not started (await bank path + PayPal login)",
+    "ABN_STATUS":  "PASS",
+    "GST_STATUS":  "PASS_NO_COLLECT",
+    "stamp_local":  "2026-08-23T10:37:44+10:00",
+    "next":  "Owner completes Set up two-step on box; then Board2 enters bank + PayPal"
+}

@@ -1,0 +1,186 @@
+{
+  "schema": "octopus-handshake-envelope/1",
+  "identity": {
+    "handoff_id": "ho-20260817T170159Z-066e3e17",
+    "task_id": "a2-001-inventory",
+    "sender": "agent://octopus/laptop-brain/main",
+    "receiver": "agent://octopus/feet-board/main",
+    "initiating_owner": "Armin",
+    "host": "DESKTOP-KA9RFN5"
+  },
+  "relation": {
+    "role": "source-of-truth",
+    "sees": "peer-artifacts-only",
+    "does_not_see": "peer-reasoning-chain",
+    "modality_shift": true
+  },
+  "goal": {
+    "one_sentence": "Inventory octopus-bridge clones on .191 for A2-001. Do not guess canonical path. Record OWNER-APPROVED-PROPOSAL. Halt on ambiguity.",
+    "cycle": "a2-001-inventory"
+  },
+  "scope": {
+    "vault": "F:\\backup",
+    "may_exec_on_feet": false,
+    "may_edit_tcb": false,
+    "may_clear_gitwrite_flag": false
+  },
+  "status": {
+    "operational": "WAVE0_OBSERVE_ONLY",
+    "authority_level": "L2-armed-propose-only",
+    "gap_001": "open"
+  },
+  "inputs": [],
+  "decisions": [
+    {
+      "id": "A2-001",
+      "state": "owner-approved-proposal",
+      "what": "Mirror Manifest Verifier; execution intended .180; canonical .191"
+    },
+    {
+      "id": "canonical-repo",
+      "state": "unknown-canonical",
+      "what": "octopus-bridge not rubber-stamped; inventory found >1 plausible root"
+    },
+    {
+      "id": "gitwrite-failed-flag",
+      "state": "held-deliberately",
+      "what": "GITWRITE-FAILED.flag stays"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\A2-001-CANONICAL-DECISION-2026-08-18.md",
+      "bytes": 7783,
+      "sha256": "753231f755ead243bae9f291c071a06ace4cf3ba4a0fd216e0fb7d3120dc545b"
+    },
+    {
+      "path": "F:\\backup\\02-DECISIONS\\A2-001-MIRROR-MANIFEST-VERIFIER.md",
+      "bytes": 4001,
+      "sha256": "9b9edb4251986d69d18a865901f4e505944209824bb8e0e540ef21fadb69733d"
+    },
+    {
+      "path": "F:\\backup\\_ops\\backup\\GITWRITE-FAILED.flag",
+      "bytes": 120,
+      "sha256": "e0774eec840e10b2808171fb999b5b5e7a8360b9fc2867e7280a1f22de2ed05e"
+    }
+  ],
+  "evidence": {
+    "claim": "A2-001 halted on .191 with UNKNOWN_CANONICAL: vault octopus-bridge is a two-file OFN stub and ofn/bridge is a different full package; neither has schemas/ or mirror_verify.py, so no unique SoT path exists.",
+    "raw": [
+      {
+        "command": "git -C F:\\backup rev-parse HEAD",
+        "stdout": "d10887cbb5c80ec2c3e347f070556ba8276d8a79\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "git -C F:\\backup rev-parse --abbrev-ref HEAD",
+        "stdout": "equip/g10-cognition-20260816\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "git -C F:\\backup ls-files octopus-bridge",
+        "stdout": "octopus-bridge/octopus_bridge/__init__.py\noctopus-bridge/octopus_bridge/models.py\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "git --git-dir=E:\\germline\\octopus.git ls-tree -r --name-only refs/heads/ofn/bridge",
+        "stdout": ".gitignore\nREADME.md\nconfig/capabilities.yaml\nconfig/policy.yaml\nconfig/principals.yaml\ndeploy/bridge.env.example\ndeploy/octopus-bridge.service\ndocs/COMMAND-HALF-LOCK.md\noctopus_bridge/__init__.py\noctopus_bridge/adapters/__init__.py\noctopus_bridge/adapters/base.py\noctopus_bridge/adapters/hypno.py\noctopus_bridge/adapters/ofn.py\noctopus_bridge/api.py\noctopus_bridge/approvals.py\noctopus_bridge/board_cp.py\noctopus_bridge/config.py\noctopus_bridge/connector.py\noctopus_bridge/kill_switch.py\noctopus_bridge/mcp_server.py\noctopus_bridge/models.py\noctopus_bridge/policy.py\noctopus_bridge/registry.py\noctopus_bridge/run.py\noctopus_bridge/store.py\noctopus_bridge/telemetry.py\ntests/__init__.py\ntests/conftest.py\ntests/test_board_cp_pull.py\ntests/test_command_half_lock.py\ntests/test_command_lifecycle.py\ntests/test_kill_switch.py\ntests/test_models.py\ntests/test_no_outbound.py\ntests/test_policy.py\ntests/test_registry.py\ntests/test_store.py\ntests/test_tls_pinning.py\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "git --git-dir=E:\\germline\\octopus.git ls-tree -r --name-only equip/g10-cognition-20260816 -- octopus-bridge",
+        "stdout": "octopus-bridge/octopus_bridge/__init__.py\noctopus-bridge/octopus_bridge/models.py\n",
+        "stderr": "",
+        "exit": 0,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "Test-Path F:\\backup\\octopus-bridge\\schemas",
+        "stdout": "exists=False is_dir=False\n",
+        "stderr": "",
+        "exit": 1,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "Test-Path F:\\backup\\octopus-bridge\\octopus_bridge\\mirror_verify.py",
+        "stdout": "exists=False is_dir=False\n",
+        "stderr": "",
+        "exit": 1,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "Test-Path F:\\backup-wt-a2-001",
+        "stdout": "exists=False is_dir=False\n",
+        "stderr": "",
+        "exit": 1,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      },
+      {
+        "command": "Test-Path F:\\backup\\_ops\\mirror_verifier",
+        "stdout": "exists=False is_dir=False\n",
+        "stderr": "",
+        "exit": 1,
+        "ts": "2026-08-18T03:01:58+10:00",
+        "host": "DESKTOP-KA9RFN5"
+      }
+    ],
+    "reproduction_command": "git -C F:\\backup rev-parse HEAD && git -C F:\\backup ls-files octopus-bridge && git --git-dir=E:\\germline\\octopus.git ls-tree -r --name-only refs/heads/ofn/bridge && git --git-dir=E:\\germline\\octopus.git ls-tree -r --name-only equip/g10-cognition-20260816 -- octopus-bridge"
+  },
+  "authority": {
+    "may_authorize": false,
+    "autonomy_delta": 0,
+    "external_effect": false,
+    "propose_only": true
+  },
+  "sensitivity": {
+    "secrets_in_envelope": false,
+    "classification": "ops-internal"
+  },
+  "uncertainty": {
+    "notes": [
+      "Tests were not run; this is inventory halt, not verifier PASS/FAIL.",
+      ".180 was not executed. Fugu/DeepSeek did not run.",
+      "octopus-bridge was not confirmed canonical. Guessing the implementation tree is forbidden.",
+      "Owner-assumed empty octopus-bridge/schemas/ does not exist on this laptop.",
+      "_ops/mirror_verifier/ and F:\\backup-wt-a2-001 were not created (old layout never landed).",
+      "Sydney in August is AEST UTC+10; megaprompt UTC+11 is wrong — using OS local offset."
+    ],
+    "tz_note": "Sydney in August is AEST UTC+10; megaprompt said UTC+11 — using OS local offset"
+  },
+  "escalation": {
+    "on_repro_fail": "Do not implement into a guessed tree. Do not SSH .180/.138/.182. Escalate path choice to owner on .191.",
+    "max_retries": 3,
+    "retry_count": 0,
+    "after_max": "owner"
+  },
+  "changelog_seq": 3,
+  "issued_at_utc": "2026-08-17T17:01:59+00:00",
+  "issued_at_local": "2026-08-18T03:01:59+10:00",
+  "extra": {
+    "verdict": "UNKNOWN_CANONICAL",
+    "implementation_proceeded": false,
+    "wave0": true,
+    "integrity_hint": "hash-chain-unkeyed",
+    "a2_order": [
+      "A2-001",
+      "A2-002",
+      "A2-003-draft-only"
+    ]
+  }
+}

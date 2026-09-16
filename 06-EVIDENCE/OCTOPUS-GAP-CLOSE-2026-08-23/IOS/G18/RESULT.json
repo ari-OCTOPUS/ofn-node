@@ -1,0 +1,11 @@
+{
+  "status": "PASS_DOC",
+  "claim": "evelab/lab_bridge propose-only — not continuous promote",
+  "evidence_prior": "06-EVIDENCE/OCTOPUS-EVELAB-DOCTOR-WIRE-2026-08-23",
+  "proposal": "Keep propose-only; schedule promote only via owner/ari GO; no Windows cron added this slice",
+  "code_change": false,
+  "gap_id": "G18",
+  "stamp_local": "2026-08-23T09:05:12+10:00",
+  "timezone": "Australia/Sydney",
+  "agent": "Ios"
+}

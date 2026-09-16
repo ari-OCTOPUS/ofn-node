@@ -1,0 +1,83 @@
+{
+  "stamp": "20260824T072439Z",
+  "sku": "ZM-GALLERY-0014",
+  "product_id": "8688855056484",
+  "title": "Pink Teddy Bear LED Bubble Balloon Gift with Roses & Chocolates",
+  "handle": "خرس-صورتی-led-بادکنک-شیشه‌ای-قلب-ستاره-شکلات-رز-صورتی",
+  "status": "active",
+  "variant_price": "110.00",
+  "image_count": 4,
+  "image_filenames": [
+    "IMG_9453.HEIC",
+    "IMG_9461.HEIC",
+    "IMG_9458.HEIC",
+    "IMG_9459.HEIC"
+  ],
+  "images": [
+    {
+      "position": 1,
+      "id": 43902519869540,
+      "filename": "IMG_9453.HEIC",
+      "alt": "ZM-GALLERY-0014 IMG_9453.HEIC"
+    },
+    {
+      "position": 2,
+      "id": 43902547198052,
+      "filename": "IMG_9461.HEIC",
+      "alt": "ZM-GALLERY-0014 extra IMG_9461"
+    },
+    {
+      "position": 3,
+      "id": 43902547230820,
+      "filename": "IMG_9458.HEIC",
+      "alt": "ZM-GALLERY-0014 extra IMG_9458"
+    },
+    {
+      "position": 4,
+      "id": 43902547296356,
+      "filename": "IMG_9459.HEIC",
+      "alt": "ZM-GALLERY-0014 extra IMG_9459"
+    }
+  ],
+  "storefront_url": "https://ziman-gift.com/products/خرس-صورتی-led-بادکنک-شیشه‌ای-قلب-ستاره-شکلات-رز-صورتی",
+  "admin_readonly": true,
+  "browser_visual_qa": "CONFIRMED_WRONG_PERSONAL_MEDIA",
+  "result": "WRONG_FOR_TITLE",
+  "expected_visual_from_title": "pink teddy bear LED bubble balloon gift with roses",
+  "no_image_replace": true,
+  "hold_paid_orders_if_MIXED": true,
+  "stamp_qa_update": "20260824T072625Z",
+  "severity": "URGENT",
+  "browser_source": "ari browserUse",
+  "hold_paid_orders": true,
+  "findings": {
+    "all_four_wrong": true,
+    "filenames": [
+      "IMG_9453.HEIC",
+      "IMG_9461.HEIC",
+      "IMG_9458.HEIC",
+      "IMG_9459.HEIC"
+    ],
+    "observed": "private personal legs/feet photos — zero product",
+    "expected_from_title": "pink teddy bear LED bubble balloon gift with roses",
+    "product_images_present": false
+  },
+  "owner_options_pending": [
+    "unpublish",
+    "clear gallery",
+    "wait for replace pack"
+  ],
+  "no_image_replace_until_owner_GO": true,
+  "stamp_browser_detail": "20260824T072710Z",
+  "browser_detail": {
+    "title_seen": "Pink Teddy Bear LED Bubble Balloon Gift with Roses & Chocolates (\\.00)",
+    "images_desc": [
+      "MAIN: bare legs/feet red pedicure on beige armchair — NO product",
+      "2-4: same personal legs/feet crops"
+    ],
+    "reason": "All 4 images personal legs/feet; zero pink teddy/balloon/roses",
+    "search_thumbnail_note": "Correct pink-teddy-with-balloons photo appears as search thumbnail but product-page media set is wrongly assigned"
+  },
+  "stamp_reverify": "20260824T073539Z",
+  "note": "Owner skipped clear widget; private photos still live; HOLD paid"
+}

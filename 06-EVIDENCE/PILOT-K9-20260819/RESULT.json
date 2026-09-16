@@ -1,0 +1,73 @@
+{
+ "schema": "k9-pilot-result/1",
+ "seed": "k9-pilot-20260819",
+ "grade": "MEASURED",
+ "pair": {
+  "arm1_sha": "6aa23c0c6686d0cb",
+  "arm2_sha": "171defa93851a316"
+ },
+ "ab": {
+  "order": "AB",
+  "attempts": 9,
+  "valid": 9,
+  "consistent_arm1": 9,
+  "ties": 0,
+  "voids": [],
+  "stopped_midway": false
+ },
+ "ba": {
+  "order": "BA",
+  "attempts": 9,
+  "valid": 9,
+  "consistent_arm1": 9,
+  "ties": 0,
+  "voids": [],
+  "stopped_midway": false
+ },
+ "classify": {
+  "schema": "swap-consistency.v1",
+  "grade": "MEASURED",
+  "verdict": "CONSISTENT",
+  "gate": {
+   "ok": true,
+   "verdict": "STABLE",
+   "reason": "both orders above threshold",
+   "k_min": 9,
+   "rs_ab": 1.0,
+   "rs_ba": 1.0
+  },
+  "rs_ab": 1.0,
+  "rs_ba": 1.0,
+  "method": "classify_swap"
+ },
+ "rate_ab_arm1": {
+  "schema": "swap-consistency.v1",
+  "grade": "MEASURED",
+  "consistent": 9,
+  "total": 9,
+  "rate": 1.0,
+  "wilson_95_ci": [
+   0.7008,
+   1.0
+  ],
+  "label": "MEASURED",
+  "method": "winner-mapped-to-base-arm"
+ },
+ "rate_ba_arm1": {
+  "schema": "swap-consistency.v1",
+  "grade": "MEASURED",
+  "consistent": 9,
+  "total": 9,
+  "rate": 1.0,
+  "wilson_95_ci": [
+   0.7008,
+   1.0
+  ],
+  "label": "MEASURED",
+  "method": "winner-mapped-to-base-arm"
+ },
+ "calls": 20,
+ "spent_aud_cap": 1.0,
+ "ts": "2026-08-20T00:11:41",
+ "rs_ab_label": "STABLE"
+}

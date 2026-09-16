@@ -1,0 +1,42 @@
+{
+  "probe_count": 45,
+  "has_gate_evidence_bound_done": true,
+  "has_resolve_evidence_json_path": true,
+  "has_run_audit": true,
+  "gate_fail_closed_on_missing_json": true,
+  "gate_status_when_missing": "Missing",
+  "sample_probes": [
+    {
+      "probe": "_probe_dry_run",
+      "status": "Missing",
+      "evidence_bound": true,
+      "evidence_json": null,
+      "gap_type": "implementation",
+      "evidence_snippet": "governor_epoch.py and sim_heart.py unreadable: C:\\Users\\Armin\\AppData\\Local\\Temp\\organism-self-audit-outbox-probe-lcm7pqhi\\_ops\\budget\\governor_epoch.py / C:\\Users\\Armin\\AppData\\Local\\Temp\\organism-self-audit-outbox-probe-lcm7pqhi\\_ops\\hear"
+    },
+    {
+      "probe": "_probe_regression_suite",
+      "status": "Missing",
+      "evidence_bound": true,
+      "evidence_json": null,
+      "gap_type": "implementation",
+      "evidence_snippet": "run_all.py missing/unparseable TESTS: C:\\Users\\Armin\\AppData\\Local\\Temp\\organism-self-audit-outbox-probe-lcm7pqhi\\_ops\\tests\\run_all.py"
+    },
+    {
+      "probe": "_probe_replay",
+      "status": "Missing",
+      "evidence_bound": false,
+      "evidence_json": null,
+      "gap_type": "observability",
+      "evidence_snippet": "checkpoint.py replay/replay_state_at + chrono.db"
+    },
+    {
+      "probe": "_probe_rollback",
+      "status": "Missing",
+      "evidence_bound": true,
+      "evidence_json": null,
+      "gap_type": "governance",
+      "evidence_snippet": "doctor.py missing/unreadable: C:\\Users\\Armin\\AppData\\Local\\Temp\\organism-self-audit-outbox-probe-lcm7pqhi\\_ops\\doctor\\doctor.py"
+    }
+  ]
+}

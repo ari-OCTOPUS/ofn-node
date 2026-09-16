@@ -1,0 +1,24 @@
+{
+  "schema": "octopus.receipt.v1",
+  "id": "RECEIPT-EDGE-AUDIT-STAGE2-20260823",
+  "ts_utc": "20260823T031700Z",
+  "agent": "sensoriom",
+  "mode": "READ_ONLY",
+  "owner_selection": "A+C+D+E",
+  "completed": ["A_copy_artifacts", "C_asis_tobe", "E_e2e_plan_design_only"],
+  "held": ["D_repo_mutate_until_post_stage2_GO"],
+  "not_executed": ["collect_diagnostics_e2e", "doctor_mutate", "arm", "pwm", "esp32"],
+  "artifacts": [
+    "ARCHITECTURE_ASIS_TOBE.md",
+    "E2E_COLLECT_DIAGNOSTICS_PLAN.md",
+    "RECEIPT-STAGE2.json"
+  ],
+  "source_of_truth_paths": {
+    "unit": "/etc/systemd/system/octopus-sensorium.service",
+    "code": "/opt/octopus/current/src/octopus_sensorium",
+    "nats_conf": "/etc/nats/nats-server.conf",
+    "mqtt_sot": "/var/lib/octopus/state/mqtt/MQTT_SOT.json",
+    "stage0_1_laptop": "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-EDGE-AUDIT-STAGE0-1-2026-08-23"
+  },
+  "overall": "STAGE2_PLAN_PASS"
+}

@@ -1,0 +1,102 @@
+{
+ "schema": "telegram-deep-debug-suite-matrix/1",
+ "generated": "2026-08-21",
+ "suites": [
+  {
+   "suite": "security-c1-c4",
+   "registered": 34,
+   "executed": 34,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "lab-registry",
+   "registered": 8,
+   "executed": 8,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "miniapp-regression",
+   "registered": 49,
+   "executed": 49,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "tg-api-regression",
+   "registered": 34,
+   "executed": 34,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "durable-loop",
+   "registered": 15,
+   "executed": 15,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "delivery-reconciliation",
+   "registered": 8,
+   "executed": 8,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "closed-loop",
+   "registered": 15,
+   "executed": 15,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "wave-a health-truth",
+   "registered": 7,
+   "executed": 7,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "wave-b config-manager",
+   "registered": 8,
+   "executed": 8,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "wave-c transport-pool",
+   "registered": 7,
+   "executed": 7,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "wave-d poller-lease",
+   "registered": 5,
+   "executed": 5,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "wave-e c3-c4",
+   "registered": 7,
+   "executed": 7,
+   "failed": 0,
+   "verdict": "PASS"
+  },
+  {
+   "suite": "wave-f battery",
+   "registered": 5,
+   "executed": 5,
+   "failed": 0,
+   "verdict": "PASS"
+  }
+ ],
+ "registered": 202,
+ "executed": 202,
+ "failed": 0,
+ "all_pass": true,
+ "head": "62497413637ef72782e3e3026015db4e95cb5fde"
+}

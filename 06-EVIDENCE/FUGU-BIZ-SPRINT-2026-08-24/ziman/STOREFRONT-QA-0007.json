@@ -1,0 +1,41 @@
+{
+  "stamp": "20260824T072625Z",
+  "sku": "ZM-GALLERY-0007",
+  "product_id": "8688854564964",
+  "title": "Red Balloon Box with White Roses, Cream Teddy & LED",
+  "handle": "باکس-قرمز-بالونی-رز-سفید-خرس-کرمی-led",
+  "variant_price": "75.00",
+  "image_filenames": [
+    "IMG_3984.HEIC",
+    "IMG_3987.jpg",
+    "IMG_3746.HEIC",
+    "IMG_3980.HEIC"
+  ],
+  "result": "ONE_PRODUCT_PASS",
+  "browser_visual_qa": "ari_reverify_PASS",
+  "browser_source": "ari browserUse",
+  "hold_paid_orders": false,
+  "no_image_replace": true,
+  "findings": {
+    "filenames": [
+      "IMG_3984.HEIC",
+      "IMG_3987.jpg",
+      "IMG_3746.HEIC",
+      "IMG_3980.HEIC"
+    ],
+    "observed": [
+      "pink hamper",
+      "Lotso strawberry",
+      "teal tower"
+    ],
+    "expected": "red balloon / white roses / cream teddy / LED",
+    "match_title": false
+  },
+  "storefront_url": "https://ziman-gift.com/products/باکس-قرمز-بالونی-رز-سفید-خرس-کرمی-led",
+  "stamp_reverify": "20260824T073539Z",
+  "image_filenames_live": [
+    "IMG_4447.jpg",
+    "IMG_3740.HEIC"
+  ],
+  "no_further_image_mutate_until_GO": true
+}

@@ -1,0 +1,30 @@
+{
+  "ts_utc": "20260823T035718Z",
+  "bus": "CONNECTED",
+  "actuator_authority": "PERMITTED_SOFTWARE_A0",
+  "acq": "ACTIVE",
+  "obs": 1286312,
+  "audit_tail": [
+    {
+      "event_type": "boot_start",
+      "error": null,
+      "timestamp": "2026-08-23T03:41:53Z"
+    },
+    {
+      "event_type": "boot_gates",
+      "error": null,
+      "timestamp": "2026-08-23T03:41:54Z"
+    },
+    {
+      "event_type": "boot_start",
+      "error": null,
+      "timestamp": "2026-08-23T03:56:57Z"
+    },
+    {
+      "event_type": "boot_gates",
+      "error": null,
+      "timestamp": "2026-08-23T03:56:58Z"
+    }
+  ],
+  "ARMED_expected_false": true
+}

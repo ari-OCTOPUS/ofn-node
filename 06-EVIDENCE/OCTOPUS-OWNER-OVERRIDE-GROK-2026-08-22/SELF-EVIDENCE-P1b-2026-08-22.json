@@ -1,0 +1,129 @@
+{
+  "schema": "self-evidence-p1b/1",
+  "written_at": "2026-08-22T13:49:44+10:00",
+  "written_at_zone": "Australia/Sydney (UTC+10)",
+  "HEAD_before_commit": "b8f56bdad1ea96b633bf8cf08a093fb27dc89b68",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+  "agent_id": "grok-ari-single-writer",
+  "task": "P1 leftover — bind more self_audit probes + poll-health + surface Brier on insight card",
+  "live_send": false,
+  "paid": false,
+  "center_pid_untouched": 26484,
+  "files": [
+    "_ops/cortex/self_audit.py",
+    "_ops/self_insight.py",
+    "_ops/tests/test_self_evidence_p1.py",
+    "06-EVIDENCE/OCTOPUS-OWNER-OVERRIDE-GROK-2026-08-22/SELF-EVIDENCE-P1b-2026-08-22.json"
+  ],
+  "always_true_before": [
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_dashboard",
+      "what": "Done solely if live/server.py exists — never opened heartstate-latest or work-health."
+    },
+    {
+      "where": "_ops/cortex/self_audit.py::_probe_stop_condition",
+      "what": "Partial solely if doctor/calibration.py exists — never read REJECT_FORGET_N/PENDING_* or verified defs."
+    },
+    {
+      "where": "poll-health.json unbound",
+      "what": "telegram/poll-health.json fails/progress counters never read by self_audit or self_insight."
+    },
+    {
+      "where": "_ops/self_insight.py::card()",
+      "what": "Card never surfaced Brier/n from calibration-latest / disk_evidence."
+    }
+  ],
+  "now_evidence_bound": [
+    {
+      "probe": "_probe_dashboard",
+      "reads": [
+        "_ops/state/pulse/heartstate-latest.json",
+        "_ops/state/pulse/work-health.json",
+        "_ops/live/server.py"
+      ],
+      "rule": "Done only if heartstate.v1 AND (server.py OR work-health.month_aud); Missing/Partial on stub/missing."
+    },
+    {
+      "probe": "_probe_stop_condition",
+      "reads": [
+        "_ops/doctor/calibration.py constants+defs"
+      ],
+      "rule": "Done only if REJECT_FORGET_N=3, PENDING_SOFT_CAP=3, PENDING_HARD_CAP=5 AND should_skip_bottleneck+attention_gate defs present."
+    },
+    {
+      "probe": "_probe_poll_health",
+      "reads": [
+        "_ops/state/telegram/poll-health.json"
+      ],
+      "rule": "Done only if consecutive_failures numeric AND counters.started/completed numeric AND last_progress_at>0."
+    },
+    {
+      "insight": "load_disk_evidence.poll_health + card() Brier/n",
+      "reads": [
+        "<root>/state/cortex/calibration-latest.json",
+        "<root>/state/cortex/self-claims.jsonl",
+        "<root>/state/telegram/poll-health.json"
+      ],
+      "rule": "card surfaces Brier/n/claims; poll-health counters attached when readable; run() also attaches disk_evidence."
+    }
+  ],
+  "skipped": {
+    "flag_comment_vs_value_probe": "No small existing helper that compares rem/comment to live @set without pulling flag_drift.probe_all() (same reason as SELF-AWARENESS-WIRE). Skipped — not cheap."
+  },
+  "live_snapshot": {
+    "evidence_bound_n": 5,
+    "probes_done": [
+      "dashboard for system vitals",
+      "self-analysis is trace-based not self-talk",
+      "live calibration evidence (Brier/n + self-claims)",
+      "telegram poll-health counters",
+      "self-analysis loop has stop-condition"
+    ],
+    "calibration_latest": {
+      "n": 420,
+      "brier": 0.212707,
+      "schema": "calibration.v1"
+    },
+    "poll_health": {
+      "consecutive_failures": 0,
+      "poll_started_total": 7821,
+      "poll_completed_total": 2395
+    },
+    "card_surfaces": [
+      "Brier=0.212707",
+      "n=420",
+      "poll-health fails=0"
+    ]
+  },
+  "tests": {
+    "test_self_evidence_p1.py": {
+      "result": "pass",
+      "n": 25
+    },
+    "test_self_audit_probes.py": {
+      "result": "pass",
+      "n": 3
+    },
+    "test_self_insight_journal_epistemics_wire.py": {
+      "result": "pass",
+      "n": 4
+    },
+    "test_self_insight_card_cheap.py": {
+      "result": "pass",
+      "n": 3
+    }
+  },
+  "leftover_next": [
+    "Other self_audit probes still Done via .exists()/_grep only (honest static checklist) — e.g. _probe_regression_suite, _probe_deterministic_routing_tests, _probe_shadow_before_promote.",
+    "Flag comment-vs-value probe still skipped (no cheap helper)."
+  ],
+  "lock": {
+    "released": false,
+    "heartbeat": true,
+    "expires_at_local": "2026-08-22T15:54:07+10:00"
+  },
+  "HEAD": "522aecbe3ba6c6059347cdcdacdddf5152024012",
+  "commit_subject": "fix(self): bind more self_audit probes and surface Brier on insight card",
+  "recorded_final_head_at": "2026-08-22T13:50:15+10:00"
+}

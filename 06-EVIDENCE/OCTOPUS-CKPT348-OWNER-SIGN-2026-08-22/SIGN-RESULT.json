@@ -1,0 +1,46 @@
+﻿{
+    "schema":  "octopus.ckpt348-owner-sign.result.v1",
+    "sequence":  348,
+    "result":  "PASS",
+    "signed_at_local":  "2026-08-22T21:51:45+10:00",
+    "signer":  "sign_checkpoint.py (root-v2 / PyNaCl)",
+    "working_dir":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload",
+    "unsigned_payload":  {
+                             "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\checkpoint.unsigned.json",
+                             "sequence":  348,
+                             "sha256":  "sha256:30c2d77123516caef620228b0809127a16759749f30729b44d8d13ef41b8a086",
+                             "hash_match":  true
+                         },
+    "private_key_path_checked":  "%USERPROFILE%\\.octopus-signing\\octopus-owner-ed25519-private.pem",
+    "private_key_exists":  true,
+    "private_key_used_by_script":  "%USERPROFILE%\\Desktop\\OCTOPUS-ROOT-V2\\private\\root-v2.ed25519.private",
+    "private_key_material_printed":  false,
+    "public_key_fingerprint":  "sha256:a20d836d1f461482c76c4d3ed6c6de301d38b3e8e0ef4707e87d7b45e2223a40",
+    "verify":  {
+                   "method":  "PyNaCl VerifyKey against SIGNED-CHECKPOINT-BUNDLE\\root-v2.ed25519.public",
+                   "result":  "PASS"
+               },
+    "outputs":  [
+                    {
+                        "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\SIGNED-CHECKPOINT-BUNDLE\\checkpoint.json",
+                        "sha256":  "sha256:30c2d77123516caef620228b0809127a16759749f30729b44d8d13ef41b8a086",
+                        "size":  441
+                    },
+                    {
+                        "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\SIGNED-CHECKPOINT-BUNDLE\\checkpoint.json.sig",
+                        "sha256":  "sha256:877f7d61f99addef33ded783d1cda144773407c04f7f6e00f20936921ced091f",
+                        "size":  64
+                    },
+                    {
+                        "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\SIGNED-CHECKPOINT-BUNDLE\\root-v2.ed25519.public",
+                        "sha256":  "sha256:a20d836d1f461482c76c4d3ed6c6de301d38b3e8e0ef4707e87d7b45e2223a40",
+                        "size":  32
+                    },
+                    {
+                        "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\SIGNED-CHECKPOINT-BUNDLE\\manifest.json",
+                        "sha256":  "sha256:eb0727e2ce5bc8d29a1010a1414470eee3868f1abb231dcfd990bc0565a67ef7",
+                        "size":  231
+                    }
+                ],
+    "bundle_dir":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\SIGNED-CHECKPOINT-BUNDLE"
+}

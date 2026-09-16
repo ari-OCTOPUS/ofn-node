@@ -1,0 +1,307 @@
+{
+  "schema": "hc-wm-mc-manifest.v1",
+  "when": "2026-08-20T12:51:37+10:00",
+  "n": 50,
+  "files": [
+    {
+      "path": "06-EVIDENCE\\C-045-DUAL-PERIOD-ARBITER-VS-LEDGER-2026-08-20.md",
+      "size": 1766,
+      "mtime": "2026-08-20T12:46:45+10:00",
+      "sha256": "5c29ab38544c8d1badf89a73522f8142adc99e51e8bbfaf1ea3de56570df69b4"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-BASELINE-2026-08-20\\ARCHITECTURE-MAP.md",
+      "size": 2203,
+      "mtime": "2026-08-20T12:50:40+10:00",
+      "sha256": "c9cacaf84dcd2fe75537e45df2d2d4c062348050d66812789c3d8eb9c24b8795"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-BASELINE-2026-08-20\\MANIFEST.json",
+      "size": 2310,
+      "mtime": "2026-08-20T12:50:17+10:00",
+      "sha256": "216bd8d50a3b9849a5341551119967c93c80782dc39eaf0d07f861a021954fdc"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-BASELINE-2026-08-20\\README.md",
+      "size": 620,
+      "mtime": "2026-08-20T12:50:40+10:00",
+      "sha256": "ccb3a56b56d0e848d51d4a5561ffa312bd5c8171e4875901992d161338f55e6a"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\ARCHITECTURE.md",
+      "size": 142,
+      "mtime": "2026-08-20T12:51:12+10:00",
+      "sha256": "3885a37d2e90ebed57bd2bf3f61376c0bad4c194162bbecef527633a961375e6"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\CONTRACTS.md",
+      "size": 786,
+      "mtime": "2026-08-20T12:50:56+10:00",
+      "sha256": "acc2f8ea42589270ae135d9751ce50747b8263340d5b45e6126095af3bdd0509"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\FAILURE-MODEL.md",
+      "size": 669,
+      "mtime": "2026-08-20T12:50:56+10:00",
+      "sha256": "ca5ff056a7e7c95be9ee2aa1cfaa226372099bebc09a28f2aea5cec07d630fb5"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\MANIFEST-BEFORE.json",
+      "size": 2310,
+      "mtime": "2026-08-20T12:50:17+10:00",
+      "sha256": "216bd8d50a3b9849a5341551119967c93c80782dc39eaf0d07f861a021954fdc"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\MIGRATION-PLAN.md",
+      "size": 563,
+      "mtime": "2026-08-20T12:50:56+10:00",
+      "sha256": "83790e35ab1c464e84443b51c0967b74ab07725817bb7d0edcb28c2ecd504a1d"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\OWNER-VERDICT-DRAFT.md",
+      "size": 384,
+      "mtime": "2026-08-20T12:50:56+10:00",
+      "sha256": "292476f601b2bf988b318755f908f5606f143957de32f845378b00f1477ab6da"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\README.md",
+      "size": 407,
+      "mtime": "2026-08-20T12:50:46+10:00",
+      "sha256": "b58c855d7237bef0b51269f05a225ac9d57c4fa5c637b6df342f73d6dc59b19b"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\REPLAY-RESULTS.json",
+      "size": 8755,
+      "mtime": "2026-08-20T12:50:17+10:00",
+      "sha256": "ce84348b19bbc2d635f7b47defdbe0a474ecb1b19d692a346eac848fa4657e16"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\TELEMETRY-SOURCES.md",
+      "size": 524,
+      "mtime": "2026-08-20T12:50:56+10:00",
+      "sha256": "9feadf0cbb48163c41326fef4d5ba1974a985525858132a15670885ecfe8bd16"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\TEST-RESULTS.txt",
+      "size": 204,
+      "mtime": "2026-08-20T12:50:33+10:00",
+      "sha256": "1c4ad83bb0988402053daf167802b72c7dfb9ee100c281d9abe2aaf5f79e3a79"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\REPLAY-SUMMARY.json",
+      "size": 8755,
+      "mtime": "2026-08-20T12:50:17+10:00",
+      "sha256": "ce84348b19bbc2d635f7b47defdbe0a474ecb1b19d692a346eac848fa4657e16"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\c042.json",
+      "size": 27762,
+      "mtime": "2026-08-20T12:50:17+10:00",
+      "sha256": "1569708dcd4aaa7ea08d996ae9e39942af7409c5fd616425c418e1db7b756511"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\color_empty_reasons.json",
+      "size": 27717,
+      "mtime": "2026-08-20T12:50:17+10:00",
+      "sha256": "358fa6cf1c08633d240920c9a8d16c9181fa11bb46971e18134045c3d16fff51"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\future.json",
+      "size": 29854,
+      "mtime": "2026-08-20T12:50:16+10:00",
+      "sha256": "27cdb01057d8c669161900b2fd3be8ce431fb8b33819b8c2428ac32617a8a6ab"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\healthy.json",
+      "size": 27673,
+      "mtime": "2026-08-20T12:50:15+10:00",
+      "sha256": "4b18c65aab22876440d29cf1dcc2e1275efd8ed45a90e05c6a7ea2f042239d61"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\latest_only.json",
+      "size": 18441,
+      "mtime": "2026-08-20T12:50:16+10:00",
+      "sha256": "9856a1a8b9f4dc0b71dfd70dce8270ebe77fdd9c7fe6d4369730cfa617f31868"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\missing_identity.json",
+      "size": 26613,
+      "mtime": "2026-08-20T12:50:16+10:00",
+      "sha256": "13bdfa6b88a51f0053481516f79c80cb36d248b3a793f55b443fc87252850708"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\period_conflict.json",
+      "size": 30905,
+      "mtime": "2026-08-20T12:50:16+10:00",
+      "sha256": "9c9f2b55cb01541a7d2363b291e5e2cd5775f57f34fe08fe70ccfa16e6d71455"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\restart_hrv.json",
+      "size": 29399,
+      "mtime": "2026-08-20T12:50:16+10:00",
+      "sha256": "c880b4692fe4f2238b0f8256432b68647698cf7ded4db71ba394e8541072766b"
+    },
+    {
+      "path": "06-EVIDENCE\\HC-WM-MC-WAVE0-2026-08-20\\replay\\shadow-ledger.jsonl",
+      "size": 5767,
+      "mtime": "2026-08-20T12:50:17+10:00",
+      "sha256": "9c4c372643f75201e1dc7c00484bb4996fbb10d9adf899eea1231fc1c8e78771"
+    },
+    {
+      "path": "06-EVIDENCE\\T14-PERIOD-PROVENANCE-2026-08-20.md",
+      "size": 5136,
+      "mtime": "2026-08-20T12:46:40+10:00",
+      "sha256": "7276f88beefd81201b033efa92aa18ed63575c7229a92427720098833129d454"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__init__.py",
+      "size": 793,
+      "mtime": "2026-08-20T12:46:54+10:00",
+      "sha256": "480591ce5442570f9f57eb074b9318dc374957cc7777dbca360b146b1a28a0bf"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 929,
+      "mtime": "2026-08-20T12:49:43+10:00",
+      "sha256": "9c76af23b21d100d7cfa8218ac98e29cd0f832208dcb3702f91f96848bb5a475"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\evidence_store.cpython-313.pyc",
+      "size": 7016,
+      "mtime": "2026-08-20T12:49:44+10:00",
+      "sha256": "6e0d63adaee34fd1cf92a1459fffb5df728e16f34a2c016029a291f76e4494db"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\homeostasis.cpython-313.pyc",
+      "size": 14327,
+      "mtime": "2026-08-20T12:49:44+10:00",
+      "sha256": "e0a0a6fd2980e4ee1b8e3c46f286576139eb22ce52e917e77e833fc87c7882b1"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\metacontrol.cpython-313.pyc",
+      "size": 7158,
+      "mtime": "2026-08-20T12:49:44+10:00",
+      "sha256": "fff3acbdfa5765e9eaaacc5fde4a3c387e3c4fa60ae51842cf009c12f4bbb270"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\observation.cpython-313.pyc",
+      "size": 3041,
+      "mtime": "2026-08-20T12:49:43+10:00",
+      "sha256": "ce56f4bca7eafbb6c2ed8469d1e0466e214e92768a8a53e7a68a387d3fc1d5a7"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\pipeline.cpython-313.pyc",
+      "size": 2603,
+      "mtime": "2026-08-20T12:49:44+10:00",
+      "sha256": "fad10d60aef2c352417a2993ea4ce3b9b66ef63cc065a5fd5f5beca6f889d033"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\registry.cpython-313.pyc",
+      "size": 4558,
+      "mtime": "2026-08-20T12:49:43+10:00",
+      "sha256": "dc07f0465717af587c43489d7e00dc8f3de8c1899bfa61c510cbafee563a32cc"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\replay.cpython-313.pyc",
+      "size": 7763,
+      "mtime": "2026-08-20T12:49:44+10:00",
+      "sha256": "323c866e3ee0d85143b44c5378966a0d14c6fa148a4a0c25948d66a5a3ccaf13"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\trust.cpython-313.pyc",
+      "size": 6335,
+      "mtime": "2026-08-20T12:49:43+10:00",
+      "sha256": "e464d1dfe4b00f5a2beeb1ea091fca08a98275e0e6571b45c4ff032480da2d76"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\__pycache__\\world_model.cpython-313.pyc",
+      "size": 4860,
+      "mtime": "2026-08-20T12:49:44+10:00",
+      "sha256": "5d3c0f79ea32034f03c40aba6199e34c4e21896eab68e465e9a3ed04facec1df"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\evidence_store.py",
+      "size": 4052,
+      "mtime": "2026-08-20T12:47:24+10:00",
+      "sha256": "f23e54074337b02f041994baf77970ce046e6e46f77621f4096a44f20e5c9a5d"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\fixtures\\life-currency-42780.post.sanitized.json",
+      "size": 292,
+      "mtime": "2026-08-20T12:50:15+10:00",
+      "sha256": "98edd1e7cf483533c91aebcef6aff29aa6c7cf291874bdc86b22683fe9ce8601"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\homeostasis.py",
+      "size": 10324,
+      "mtime": "2026-08-20T12:49:33+10:00",
+      "sha256": "07e64bf2747e97c50269ce5fb8170def42908cfb3c5c442b13e0827606b5e07e"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\metacontrol.py",
+      "size": 4888,
+      "mtime": "2026-08-20T12:48:07+10:00",
+      "sha256": "dc5ed4f37c0c8fa82c45843ce07a8ec5d66bdb4998625dc9f0023c34fe2bfc33"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\observation.py",
+      "size": 1737,
+      "mtime": "2026-08-20T12:47:08+10:00",
+      "sha256": "b96468b8ae2c6a5e367479c03040aab113b5474866bdc49837520490ad8fd476"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\pipeline.py",
+      "size": 1848,
+      "mtime": "2026-08-20T12:48:25+10:00",
+      "sha256": "e5608583ff79c1f995069e2fdd405163d550d694a59493ac18a0cc7a87454050"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\registry.py",
+      "size": 3101,
+      "mtime": "2026-08-20T12:47:15+10:00",
+      "sha256": "e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\replay.py",
+      "size": 8039,
+      "mtime": "2026-08-20T12:48:25+10:00",
+      "sha256": "2cb089cf87c070a794ca2b8f85aeaa596b0a8f1dec9797d336ae09a1fd6c1754"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\trust.py",
+      "size": 4047,
+      "mtime": "2026-08-20T12:47:24+10:00",
+      "sha256": "c41b983e2a385e492e99d61d43420cb0340103aaa6425b7e3a31331549968dbd"
+    },
+    {
+      "path": "_ops\\shadow_homeostasis\\world_model.py",
+      "size": 3476,
+      "mtime": "2026-08-20T12:48:04+10:00",
+      "sha256": "1236e494afd04a60ccb7e488740c3c831e20eb1152497eaa11d19b6e5d076a8c"
+    },
+    {
+      "path": "_ops\\tests\\test_shadow_homeostasis_arch.py",
+      "size": 560,
+      "mtime": "2026-08-20T12:49:51+10:00",
+      "sha256": "edb365e7db1e129810809a827b8ad0462e3ae8835bf6deac4409631f2a9f7dd5"
+    },
+    {
+      "path": "_ops\\tests\\test_shadow_homeostasis_core.py",
+      "size": 6720,
+      "mtime": "2026-08-20T12:49:38+10:00",
+      "sha256": "3195a6614e29b3a66dbf6f2da7d08b5e7c4cac575efb0ee5b0c325425abc55df"
+    },
+    {
+      "path": "_ops\\tests\\test_shadow_homeostasis_replay.py",
+      "size": 2764,
+      "mtime": "2026-08-20T12:49:00+10:00",
+      "sha256": "452c76f9182fd1c8e8744dd811b00a5e4e0627c383d04f95464d82e7303a2512"
+    },
+    {
+      "path": "_ops\\tests\\test_shadow_homeostasis_trust.py",
+      "size": 3422,
+      "mtime": "2026-08-20T12:48:53+10:00",
+      "sha256": "a814c2c43cb47f0bd522404e15c275d7ad8ddb3a800d054a9ff875eeef743401"
+    }
+  ]
+}

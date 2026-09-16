@@ -1,0 +1,12 @@
+{
+  "schema": "octopus.audit.checkpoint.v1",
+  "board_id": "sensorium-opi5pro-68e44cdf",
+  "sequence": 348,
+  "head_hash": "sha256:be872007d0383c748cae080e94fc39ae773042acba673402b3e8b0f05873040e",
+  "chain_ok": true,
+  "chain_detail": "seq=348 head=sha256:be872007d0383c748cae080e94fc39ae773042acba673402b3e8b0f05873040e",
+  "audit_integrity": "HASH_CHAIN_ONLY",
+  "gap": "GAP-002",
+  "gap_status": "DEFERRED_TO_WAVE1",
+  "signed": false
+}

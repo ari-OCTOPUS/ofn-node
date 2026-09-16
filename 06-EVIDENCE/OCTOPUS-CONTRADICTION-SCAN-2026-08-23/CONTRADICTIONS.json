@@ -1,0 +1,309 @@
+{
+  "schema": "octopus-contradiction-scan/1",
+  "slice": "OCTOPUS-CONTRADICTION-SCAN-2026-08-23",
+  "focus": "REAL Telegram connection to organism capabilities/potentials",
+  "timezone": "Australia/Sydney",
+  "created_at_local": "2026-08-23T08:28:09+10:00",
+  "constraints_honored": {
+    "no_live_send": true,
+    "no_secrets": true,
+    "no_mass_destructive": true,
+    "center_organism_left_running": true,
+    "read_heavy": true,
+    "minimal_fixes": "none applied (scan-only)"
+  },
+  "runtime_snapshot": {
+    "center_pids": [
+      35916
+    ],
+    "organism_pids": [
+      29020
+    ],
+    "miniapp_pids": [
+      12220
+    ],
+    "durable_outbox_counts": {
+      "CONFIRMED": 18,
+      "DEAD_LETTERED": 2,
+      "DRY_RUN_NO_SEND": 1
+    },
+    "writer_lock_agent": "grok-ari-single-writer",
+    "writer_lock_forbids_live_sendMessage": true,
+    "LIVE_TELEGRAM_flag_enabled": true
+  },
+  "capability_map": {
+    "LIVE-TELEGRAM.flag": {
+      "claimed": "live unlock",
+      "actual": "enabled file unlock-only; unread by center.py",
+      "live_send": false
+    },
+    "center_pid": {
+      "claimed_historical_A13": 8828,
+      "actual": [
+        35916
+      ],
+      "poller_unique": true
+    },
+    "organism_pid": [
+      29020
+    ],
+    "miniapp_pid": [
+      12220
+    ],
+    "durable_outbox_counts": {
+      "CONFIRMED": 18,
+      "DEAD_LETTERED": 2,
+      "DRY_RUN_NO_SEND": 1
+    },
+    "SenderBridge": {
+      "in_center": false,
+      "canary_used": true,
+      "default_off": true
+    },
+    "remember_correct": {
+      "local_handlers": true,
+      "center_import_adapter": true,
+      "live_inbound_CLOSED_proven": false,
+      "outbound_canary_CONFIRMED": true
+    },
+    "A18": {
+      "truth_docs": "BLOCKED",
+      "outbound_canary": "PASS_SCOPED",
+      "full_loop": "BLOCKED"
+    },
+    "Wave_contracts": {
+      "Wave1": "PASS_PREFLIGHT_SHADOW",
+      "WaveB": "TYPED_POLLOUTCOME",
+      "A13": "PASS_HISTORICAL",
+      "A18": "PARTIAL_BLOCKED"
+    },
+    "doctor_uniqueness": {
+      "status": "PASS",
+      "dry_run_default": true,
+      "live_send": false
+    },
+    "epistemics": {
+      "wire": "ON_ADVISORY",
+      "live_send": false
+    },
+    "policy_gate_forbidden_live_sendMessage": false,
+    "writer_lock_forbidden_live_sendMessage": true,
+    "writer_lock_send_exceptions_present": false,
+    "live_flag_meta": {
+      "enabled": true,
+      "armed_at": "2026-08-22T12:23:01.504173+10:00",
+      "note": "Unlock only. Does not by itself send. Center restart still required to load HEAD e8d661e."
+    }
+  },
+  "contradictions": [
+    {
+      "id": "C01-A18-TRUTH-BLOCKED-VS-CANARY-PASS",
+      "severity": "critical",
+      "claim": "A18 Full Loop / LIVE-B is BLOCKED (CURRENT-TRUTH, A18-BLOCKER, Wave contracts, INDEX).",
+      "reality": "2026-08-23 07:44+10 owner-chat canary RESULT/VERIFY status=PASS for two outbound DMs (mids 617=/remember text, 618=/correct text) via RateLimitQueue+SenderBridge CONFIRMED; same packs explicitly do NOT claim center durable_loop inbound CLOSED, new memory write by mid 617, or live correct-invalid event. CURRENT-TRUTH human status still says A18 BLOCKED.",
+      "evidence_paths": [
+        "F:/backup/OCTOPUS/CURRENT-TRUTH.md",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-BLOCKER-2026-08-23/BLOCKER.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/A18-LIVE-PASS.md",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/VERIFY.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-WAVE-CONTRACTS-2026-08-23/CONTRACTS.json"
+      ],
+      "suggested_fix": "Split labels: A18_OUTBOUND_OWNER_CANARY=PASS vs A18_FULL_LOOP_INBOUND=BLOCKED until LIVE outbox/events CLOSED for owner inbound /remember+/correct; then update CURRENT-TRUTH only with dual status."
+    },
+    {
+      "id": "C02-LIVE-FLAG-ENABLED-BUT-PATHS-DRY-RUN",
+      "severity": "critical",
+      "claim": "LIVE-TELEGRAM.flag enabled=true arms live Telegram for the organism.",
+      "reality": "Flag enabled (armed 2026-08-22T12:23+10) but (1) center.py has zero LIVE-TELEGRAM references; (2) loops.TelegramOrgan always constructed with live=False in pass2/pass3/closeout; (3) TelegramOrgan checks flag inside its own state_dir not _ops/LIVE-TELEGRAM.flag; (4) durable outbox still has prove-remember-correct DRY_RUN_NO_SEND delivery=skipped_live_tg; (5) flag note itself: Unlock only. Does not by itself send.",
+      "evidence_paths": [
+        "F:/backup/_ops/LIVE-TELEGRAM.flag",
+        "F:/backup/_ops/loops/telegram_organ.py",
+        "F:/backup/_ops/loops/pass3_live.py",
+        "F:/backup/_ops/loops/pass2_shadow.py",
+        "F:/backup/_ops/loops/closeout.py",
+        "F:/backup/_ops/state/telegram/loop/outbox/prove-remember-correct-6ab24aa1.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-POLLER-TELEGRAM-UNIQUE-2026-08-23/RESULT.json"
+      ],
+      "suggested_fix": "Document LIVE-TELEGRAM.flag as unlock token only; wire a single consumer (center or TelegramOrgan) with explicit path+tests, or rename flag to LIVE-TELEGRAM-UNLOCK.flag to stop false LIVE claims."
+    },
+    {
+      "id": "C03-SENDERBRIDGE-DEFAULT-OFF-NOT-IMPORTED-BY-CENTER",
+      "severity": "high",
+      "claim": "SenderBridge is the live Telegram send path for center/organism capabilities.",
+      "reality": "sender_bridge.py docstring: Default-off; live Center does not import this module. center.py SenderBridge hits=0. A18 canary attached SenderBridge explicitly outside center durable_loop.",
+      "evidence_paths": [
+        "F:/backup/_ops/telegram_center/sender_bridge.py",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/RESULT.json"
+      ],
+      "suggested_fix": "Either leave SenderBridge as canary-only and stop advertising it as center path, or add a tested owner-gated import in center/durable_loop with lease send_exceptions."
+    },
+    {
+      "id": "C04-WRITER-LOCK-FORBIDS-LIVE-SENDMESSAGE-NOT-POLICY-GATE",
+      "severity": "high",
+      "claim": "policy_gate forbids live sendMessage (common framing).",
+      "reality": "policy_gate.TALK_DISCOVERY_POLICY.forbidden_actions is empty frozenset(); external_send is approval_actions not hard-forbidden. Actual forbid is octopus-writer.lock forbidden_actions includes live sendMessage; A18 canary temporarily added send_exceptions then rolled back; lock again forbids live sendMessage.",
+      "evidence_paths": [
+        "F:/backup/_ops/policy/policy_gate.py",
+        "F:/backup/_ops/state/locks/octopus-writer.lock",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/VERIFY.json"
+      ],
+      "suggested_fix": "Correct docs/runbooks: writer_lease is the live-send hard gate; policy_gate is approval/provenance for organism side-effects. Optionally add narrow schema field send_exceptions to octopus-writer-lease/1."
+    },
+    {
+      "id": "C05-DUAL-OUTBOX-CANARY-SQLITE-VS-DURABLE-LOOP",
+      "severity": "high",
+      "claim": "Confirmed Telegram sends appear on the organism durable outbox (loop/outbox).",
+      "reality": "Center durable outbox counts CONFIRMED=18 (latest mid 606 ~2026-08-22), DEAD_LETTERED=2, DRY_RUN_NO_SEND=1. Canary mids 617/618 live only in a18-owner-canary-rate-limit.sqlite3 — not in durable loop outbox/events (VERIFY durable_loop hits=[]).",
+      "evidence_paths": [
+        "F:/backup/_ops/state/telegram/loop/outbox",
+        "F:/backup/_ops/state/telegram/a18-owner-canary-rate-limit.sqlite3",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/VERIFY.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-OUTBOX-DEAD-LETTER-2026-08-23/RESULT.json"
+      ],
+      "suggested_fix": "Treat canary sqlite as non-SoT; require durable_loop CONFIRMED+events CLOSED for organism LIVE claims; keep dead-letter journal for the two OWNER_OBSERVED items."
+    },
+    {
+      "id": "C06-REMEMBER-CORRECT-LOCAL-PASS-VS-LIVE-CENTER-ACK",
+      "severity": "high",
+      "claim": "/remember and /correct are LIVE-ready on Telegram center (handlers exist; A13-A17 PASS era).",
+      "reality": "Code path exists: center imports owner_console.telegram_adapter + local_commands firewall. Local prove PARTIAL: memory.jsonl + local-remember/local-correct-invalid + isolated durable CONFIRMED/CLOSED. Live center prove left DRY_RUN_NO_SEND; no fresh LIVE durable CLOSED for owner inbound this season. A18 still blocked for inbound ACK.",
+      "evidence_paths": [
+        "F:/backup/_ops/owner_console/local_commands.py",
+        "F:/backup/_ops/owner_console/telegram_adapter.py",
+        "F:/backup/_ops/telegram_center/center.py",
+        "F:/backup/06-EVIDENCE/OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23/RESULT.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-REMEMBER-CORRECT-PROVE-2026-08-23/A18-BLOCKER-NOTE.md"
+      ],
+      "suggested_fix": "Owner inbound /remember + /correct bad-id on live center; verify durable outbox/events; only then flip A18_FULL_LOOP."
+    },
+    {
+      "id": "C07-LEASE-ACTIVE-VS-FLAG-ENABLED-ORTHOGONAL",
+      "severity": "medium",
+      "claim": "Poll lease ACTIVE + LIVE-TELEGRAM.flag enabled implies live send unlocked.",
+      "reality": "Poll lease proves unique getUpdates consumer (PID 35916) only. Flag unlocks organ potential only if consumer reads it (center does not). Writer lock still forbids live sendMessage. Three independent controls often conflated.",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-POLLER-TELEGRAM-UNIQUE-2026-08-23/RESULT.json",
+        "F:/backup/_ops/LIVE-TELEGRAM.flag",
+        "F:/backup/_ops/state/locks/octopus-writer.lock"
+      ],
+      "suggested_fix": "Publish a 3-axis readiness matrix: poller_unique | unlock_flag | send_authority(lease exceptions). All three required for live send claims."
+    },
+    {
+      "id": "C08-MINIAPP-VS-CENTER-DUAL-SURFACE",
+      "severity": "medium",
+      "claim": "Telegram Mini App and telegram_center are one LIVE control plane.",
+      "reality": "Two live processes: center.py (getUpdates poller) and miniapp_gateway.py (HTTP). Poller uniqueness correctly treats miniapp as non-poller; capabilities diverge (collaborator/miniapp vs slash/durable_loop).",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-POLLER-TELEGRAM-UNIQUE-2026-08-23/RESULT.json",
+        "F:/backup/_ops/telegram_center/miniapp_gateway.py",
+        "F:/backup/_ops/telegram_center/center.py"
+      ],
+      "suggested_fix": "Keep surfaces labeled separately in CURRENT-TRUTH (CENTER-POLLER vs MINIAPP-HTTP); never count miniapp as second poller or as A18 path."
+    },
+    {
+      "id": "C09-PAPER-PROFILE-VS-LIVE-TELEGRAM-FLAG",
+      "severity": "medium",
+      "claim": "LIVE Telegram means OCTOPUS_PROFILE=live / paper-full body is live.",
+      "reality": "wiring.resolve_profile defaults to paper-full; live profile is paper-full + separately capability-gated money effectors. LIVE-TELEGRAM.flag is orthogonal file unlock. Many OCTOPUS_WIRE_* flags intentionally outside PAPER_FULL_FLAGS.",
+      "evidence_paths": [
+        "F:/backup/_ops/wiring.py",
+        "F:/backup/_ops/LIVE-TELEGRAM.flag",
+        "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23/RESULT.json"
+      ],
+      "suggested_fix": "Never equate PAPER_FULL / profile=live with Telegram send authority; keep SoT tables separate."
+    },
+    {
+      "id": "C10-EPISTEMICS-WIRE-ON-BUT-NO-TELEGRAM-PATH",
+      "severity": "medium",
+      "claim": "Epistemics wire-on expands organism Telegram capabilities.",
+      "reality": "OCTOPUS_WIRE_EPISTEMICS=1 ON_ADVISORY; advisory_only metrics; RESULT.txt LIVE_SEND=false; wiring.epistemics_beat publishes advisory only — no sendMessage / no center outbox path.",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23/RESULT.txt",
+        "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23/RESULT.json",
+        "F:/backup/_ops/wiring.py"
+      ],
+      "suggested_fix": "List epistemics as organism advisory potential; optional later digest card via durable_loop under send authority — not claimed LIVE now."
+    },
+    {
+      "id": "C11-WAVE-CONTRACTS-STALE-RELATIVE-TO-CANARY",
+      "severity": "medium",
+      "claim": "Wave contracts A18 local_partial_pass.live_tg_owner_ack=false and preferred SenderBridge path NOT executed (as of CONTRACTS.json).",
+      "reality": "CONTRACTS stamped 03:06+10; canary executed 07:44+10 outbound. Contracts correctly forbade Full Loop PASS but are stale on outbound canary fact; dedicated message schemas still MISSING for Wave-1/B/A18.",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-WAVE-CONTRACTS-2026-08-23/CONTRACTS.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-A18-OWNER-CHAT-CANARY-2026-08-23/RESULT.json"
+      ],
+      "suggested_fix": "Refresh CONTRACTS A18 local_partial_pass: outbound_canary=true inbound_closed=false; add a18-full-loop.schema.json for required receipts."
+    },
+    {
+      "id": "C12-DOCTOR-UNIQUENESS-PASS-BUT-DRY-RUN-DEFAULT",
+      "severity": "low",
+      "claim": "Doctor uniqueness is a live Telegram health effector.",
+      "reality": "poller_uniqueness folded into lab_call_doctor_check with dry_run_default=true; wiring doctor uniqueness heartbeat Never live-sends Telegram. PASS is RO assert (1 center PID + 1 lease + 1 lock).",
+      "evidence_paths": [
+        "F:/backup/06-EVIDENCE/OCTOPUS-DOCTOR-UNIQUENESS-2026-08-23/RESULT.json",
+        "F:/backup/_ops/wiring.py"
+      ],
+      "suggested_fix": "Keep doctor uniqueness labeled RO/fail-closed; do not cite as LIVE send capability."
+    },
+    {
+      "id": "C13-HISTORICAL-CENTER-PID-DRIFT-IN-TRUTH",
+      "severity": "low",
+      "claim": "CURRENT-TRUTH A13 cites Center PID 8828.",
+      "reality": "Live center PID is 35916 since 2026-08-22 ~19:28+10; organism now 29020 after epistemics reload. Historical PID in additive human status is stale context, not crash.",
+      "evidence_paths": [
+        "F:/backup/OCTOPUS/CURRENT-TRUTH.md",
+        "F:/backup/06-EVIDENCE/OCTOPUS-POLLER-TELEGRAM-UNIQUE-2026-08-23/RESULT.json",
+        "F:/backup/06-EVIDENCE/OCTOPUS-EPISTEMICS-WIRE-ON-2026-08-23/RESULT.txt"
+      ],
+      "suggested_fix": "Add current runtime PID line to CURRENT-TRUTH human status; keep A13 historical cite labeled historical."
+    }
+  ],
+  "potentials_not_wired": [
+    {
+      "id": "P01-SENDERBRIDGE-INTO-CENTER",
+      "exists_in": "F:/backup/_ops/telegram_center/sender_bridge.py",
+      "missing_live_tg_path": "center does not import; no durable_loop attach"
+    },
+    {
+      "id": "P02-TELEGRAM-ORGAN-LIVE-TRUE",
+      "exists_in": "F:/backup/_ops/loops/telegram_organ.py",
+      "missing_live_tg_path": "all call sites pass live=False; flag path is state_dir-local"
+    },
+    {
+      "id": "P03-EPISTEMICS-TO-TG-DIGEST",
+      "exists_in": "wiring.epistemics_beat + OCTOPUS_WIRE_EPISTEMICS=1",
+      "missing_live_tg_path": "advisory_only; no outbox/sendMessage"
+    },
+    {
+      "id": "P04-A18-FULL-LOOP-INBOUND",
+      "exists_in": "owner_console local_commands + center adapter + durable_loop.ack_local_result",
+      "missing_live_tg_path": "no LIVE durable CLOSED receipts for owner inbound /remember+/correct this unlock season"
+    },
+    {
+      "id": "P05-WAVE-MESSAGE-JSON-SCHEMAS",
+      "exists_in": "evidence CONTRACTS + PollOutcome dataclass + COMMAND-TABLE",
+      "missing_live_tg_path": "dedicated wave1/A18 message.schema.json MISSING"
+    },
+    {
+      "id": "P06-POLICY-GATE-EXTERNAL-SEND-TO-TG",
+      "exists_in": "policy_gate approval_actions includes external_send",
+      "missing_live_tg_path": "not the mechanism center uses for Bot API; writer lock dominates agent sends"
+    }
+  ],
+  "ranked_top": [
+    "C01-A18-TRUTH-BLOCKED-VS-CANARY-PASS",
+    "C02-LIVE-FLAG-ENABLED-BUT-PATHS-DRY-RUN",
+    "C03-SENDERBRIDGE-DEFAULT-OFF-NOT-IMPORTED-BY-CENTER",
+    "C04-WRITER-LOCK-FORBIDS-LIVE-SENDMESSAGE-NOT-POLICY-GATE",
+    "C05-DUAL-OUTBOX-CANARY-SQLITE-VS-DURABLE-LOOP",
+    "C06-REMEMBER-CORRECT-LOCAL-PASS-VS-LIVE-CENTER-ACK",
+    "C07-LEASE-ACTIVE-VS-FLAG-ENABLED-ORTHOGONAL"
+  ],
+  "compact": {
+    "STATUS": "SCAN_COMPLETE",
+    "TOP": "C01 A18 truth BLOCKED vs outbound canary PASS; C02 LIVE flag vs dry-run paths; C03 SenderBridge not in center; C04 writer-lock (not policy_gate) forbids live sendMessage; C05 dual outbox",
+    "EVIDENCE": "F:\\backup\\06-EVIDENCE\\OCTOPUS-CONTRADICTION-SCAN-2026-08-23\\CONTRADICTIONS.json",
+    "NEXT": "Owner inbound /remember+/correct on live center for durable CLOSED — or refresh CURRENT-TRUTH with dual A18 labels; do not claim Full Loop PASS"
+  }
+}

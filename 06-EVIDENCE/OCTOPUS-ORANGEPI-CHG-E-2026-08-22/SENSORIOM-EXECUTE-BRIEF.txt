@@ -1,0 +1,10 @@
+﻿SENSORIOM EXECUTE BRIEF — CHG-E (auth filed on laptop; you execute Pi side)
+
+authorization_id: OCTOPUS-ORANGEPI-CHG-E-20260822
+laptop_path: F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-2026-08-22
+files: OWNER-AUTHORIZATION.json , OWNER-CHG-GRANT-SENSORIOM.json
+
+Owner authorized CHG-E. Laptop writer does NOT SSH / mutate Pi.
+Forbidden (carry-forward): private keys / make-root-v2, MQTT 1883, legs/PWM, zero-fill, hash rewrite, key export, git add -A.
+Write receipts under board evidence + TO-LAPTOP exchange when done.
+If a detailed CHG-E plan is missing on board, draft/confirm against prior ABD/C patterns before mutating.

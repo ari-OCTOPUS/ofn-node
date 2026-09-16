@@ -1,0 +1,30 @@
+{
+    "staging_path":  "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus-github-readonly.pat",
+    "board":  {
+                  "host":  "192.168.0.138",
+                  "user":  "ari",
+                  "os":  "DietPi"
+              },
+    "forbid":  [
+                   "write repos (push, create, delete, force)",
+                   "paste PAT in chat or evidence plaintext",
+                   "git add of PAT files",
+                   "broad credential for all github beyond ofn/wire HTTPS read"
+               ],
+    "created_utc":  "2026-08-22T10:01:02Z",
+    "scope":  "DietPi Board2 git HTTPS read-only for ofn/wire fetch/clone only",
+    "allow":  [
+                  "scp staging PAT to Board2 /home/ari/.secrets/github-readonly.pat mode 600",
+                  "configure git credential store / ~/.git-credentials for https://github.com (x-access-token + PAT)",
+                  "git fetch / git ls-remote / clone of ofn/wire only"
+              ],
+    "token_id":  "OCTOPUS-BOARD2-GITHUB-READONLY-20260822",
+    "created_sydney":  "2026-08-22 20:01:02 AEST",
+    "documented_ofn_wire_hints":  {
+                                      "repo_url_documented":  "https://github.com/ari322/ofn-node.git",
+                                      "note":  "Confirm via Board2 git remote -v; do not invent if remotes differ",
+                                      "branch":  "ofn/wire",
+                                      "board_repo_path_hint":  "/home/ari/.local/state/ofn-wire/repo",
+                                      "windows_docs":  "F:\\octopus-wire (WIRE-ONBOARDING-WINDOWS.md, MESSAGES-WINDOWS.md)"
+                                  }
+}

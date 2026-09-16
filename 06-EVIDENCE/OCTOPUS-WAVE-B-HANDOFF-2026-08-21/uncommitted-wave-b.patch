@@ -1,0 +1,209 @@
+diff --git a/_ops/telegram_center/center.py b/_ops/telegram_center/center.py
+index bd4ae35..4bd6997 100644
+--- a/_ops/telegram_center/center.py
++++ b/_ops/telegram_center/center.py
+@@ -209,6 +209,17 @@ def _config_manager():
+     return _CONFIG_MANAGER
+ 
+ 
++def _config_cache_reset() -> None:
++    """Forget cached config state — next read reboots from disk.
++
++    Restart semantics for tests/operators: the singleton keeps last-known-good
++    when the file disappears (offset replay safety), so an explicit reset is the
++    only way to make a deleted/moved config visible again.
++    """
++    global _CONFIG_MANAGER
++    _CONFIG_MANAGER = None
++
++
+ def _bounded_read_text(path: Path, timeout_s: float = 3.0) -> str | None:
+     """Read a state file through the capped bounded pool; None on stall."""
+     import bounded_io as _bio
+@@ -5909,10 +5920,15 @@ class Center:
+         n = int(getattr(self, "_poll_fails", 0)) + 1
+         self._poll_fails = n
+         if n == self._POLL_FAIL_LOUD_AFTER:
++            kind = getattr(exc, "kind", None)
++            if kind:
++                label = f"{kind}:{getattr(exc, 'reason', '') or 'scheduled'}"
++            else:
++                label = type(exc).__name__
+             try:
+                 opslib.alert([
+                     f"⚠️ {n} بارِ پیاپی poll ِ تلگرام شکست خورد "
+-                    f"({type(exc).__name__}). تا رفع نشود هیچ پیامی نمی‌رسد — "
++                    f"({label}). تا رفع نشود هیچ پیامی نمی‌رسد — "
+                     "و این از «پیامی نیست» قابلِ تفکیک نبود."])
+             except Exception:  # noqa: BLE001
+                 pass
+@@ -5937,11 +5953,35 @@ class Center:
+                               "است پیام‌های قدیمی دوباره پردازش شوند."])
+             except Exception:  # noqa: BLE001
+                 pass
+-        try:
+-            ups = self._client.poll_updates(offset=offset, timeout_s=POLL_TIMEOUT_S) or []
+-        except Exception as exc:  # noqa: BLE001 — خطای شبکه = دورِ خالی، حلقه زنده می‌ماند
+-            self._poll_failed(exc)          # ساکت تا N ِ پیاپی، بعد بلند
+-            return 0
++        # Wave B (2026-08-21): canonical path consumes the typed outcome —
++        # failures never collapse to [] and never advance the offset. Legacy
++        # fake clients (tests) expose only poll_updates(); they keep the old
++        # list contract and reset the counter as before.
++        self._last_poll_retry_after_s = 0.0
++        self._last_poll_kind = ""
++        typed_fn = getattr(self._client, "poll_updates_typed", None)
++        if typed_fn is not None:
++            try:
++                outcome = typed_fn(offset=offset, timeout_s=POLL_TIMEOUT_S)
++            except Exception as exc:  # noqa: BLE001 — خطای شبکه = دورِ خالی، حلقه زنده می‌ماند
++                self._poll_failed(exc)          # ساکت تا N ِ پیاپی، بعد بلند
++                return 0
++            self._last_poll_kind = str(outcome.kind or "")
++            retry_s = getattr(outcome, "retry_after_s", None)
++            if isinstance(retry_s, (int, float)):
++                self._last_poll_retry_after_s = max(0.0, float(retry_s))
++            if outcome.kind != "OK":
++                self._poll_failed(outcome)      # شکستِ typed = شکستِ poll
++                return 0
++            ups = outcome.updates
++        else:
++            self._last_poll_kind = "LEGACY"
++            try:
++                ups = self._client.poll_updates(offset=offset,
++                                                timeout_s=POLL_TIMEOUT_S) or []
++            except Exception as exc:  # noqa: BLE001 — legacy seam، مثلِ قبل
++                self._poll_failed(exc)
++                return 0
+         self._poll_fails = 0                # موفقیت = ریستِ شمارنده
+         n = 0
+         max_id = offset - 1
+@@ -5958,8 +5998,13 @@ class Center:
+                 if _is_self_bot(u):
+                     n += 1
+                     continue
+-            except Exception:  # noqa: BLE001 — filter must not kill the poller
+-                pass
++            except Exception as exc:  # noqa: BLE001 — filter must not kill the poller
++                try:
++                    opslib.alert([f"⚠️ فیلترِ خود-پاسخ (self_bot_filter) خراب شد "
++                                  f"({type(exc).__name__}) — پاسخِ خودِ بات ممکن "
++                                  "است پردازش شود."])
++                except Exception:  # noqa: BLE001 — alert خودش حلقه را نمی‌کشد
++                    pass
+             # **قبل** از dispatch: اگر پردازش بترکد، ردیفِ «رسید» از قبل نشسته
+             # و کنارِ نامهٔ مرده تصویرِ کامل می‌دهد.
+             self._log_inbound(u)
+@@ -6062,6 +6107,14 @@ class Center:
+             if now - last_beat >= float(beat_every_s):
+                 self.beat()
+                 last_beat = now
++            # typed polling never sleeps in the client; a durable schedule
++            # block is paced here so a waiting loop does not spin on sqlite.
++            retry_s = float(getattr(self, "_last_poll_retry_after_s", 0.0) or 0.0)
++            if retry_s > 0:
++                try:
++                    time.sleep(min(retry_s, 60.0))
++                except Exception:  # noqa: BLE001 — خوابِ پاس‌شده حلقه را نمی‌کشد
++                    pass
+ 
+     # ── نبضِ زنده‌بودن (۲۰۲۶-۰۷-۲۹، رأیِ مالک) ──────────────────────────────
+     # چرا: مرکز تا امروز **هیچ سیگنالِ زنده‌بودنی** نمی‌نوشت. عصرِ همین روز بین
+diff --git a/_ops/telegram_center/tg_api.py b/_ops/telegram_center/tg_api.py
+index 6ddfffa..ca30d94 100644
+--- a/_ops/telegram_center/tg_api.py
++++ b/_ops/telegram_center/tg_api.py
+@@ -885,7 +885,11 @@ class TgClient:
+             }:
+                 kind = "LEASE_DENIED"
+             reason = str(scheduled.get("reason") or "scheduled")
+-            _record_poll(False, "schedule:%s" % reason, started_at=started_at)
++            state = _record_poll(False, "schedule:%s" % reason,
++                                 started_at=started_at)
++            # یک بلاکِ ماندگار (۴۲۹/۴۰۹/وب‌هوک) همان «گوشِ مرده» است — بلاکِ
++            # schedule نباید هشدارِ deaf را خفه کند.
++            self._maybe_alert_deaf(state)
+             return PollOutcome(
+                 kind, reason=reason,
+                 retry_after_s=(float(scheduled["retry_after_s"])
+@@ -896,7 +900,8 @@ class TgClient:
+                 preflight = self._poll_preflight()
+             except Exception as exc:  # noqa: BLE001 — unknown webhook state blocks polling
+                 reason = "preflight-error:%s" % type(exc).__name__
+-                _record_poll(False, reason, started_at=started_at)
++                state = _record_poll(False, reason, started_at=started_at)
++                self._maybe_alert_deaf(state)
+                 stored = schedule_module.record_failure(
+                     self._token, kind="HTTP_5XX", reason=reason)
+                 if not stored.get("ok"):
+@@ -927,7 +932,9 @@ class TgClient:
+                 or str(preflight.get("url") or "").strip()
+             )
+             if webhook_present:
+-                _record_poll(False, "webhook-present", started_at=started_at)
++                state = _record_poll(False, "webhook-present",
++                                     started_at=started_at)
++                self._maybe_alert_deaf(state)
+                 stored = schedule_module.record_failure(
+                     self._token, kind="WEBHOOK_PRESENT",
+                     reason="webhook-present")
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index 1d2b81d..60d086f 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -1275,6 +1275,15 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+     "test_agi_t01_t24.py",
+     "test_agi_pass1_readonly.py",
+     "test_agi_pass2_shadow.py",
++    # 2026-08-21 Wave A/B — typed fail-closed polling ownership + durable
++    # retry schedule. Fake transports; zero network; isolated state.
++    "test_poller_lease_20260821.py",
++    "test_transport_pool_20260821.py",
++    "test_config_manager_20260821.py",
++    "test_wave_e_c3c4_20260821.py",
++    "test_wave_f_battery_20260821.py",
++    "test_typed_poll_outcome.py",
++    "test_poll_schedule.py",
+          ]
+ # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
+ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
+diff --git a/_ops/tests/test_tg_center.py b/_ops/tests/test_tg_center.py
+index b2aeb3d..4bb813f 100644
+--- a/_ops/tests/test_tg_center.py
++++ b/_ops/tests/test_tg_center.py
+@@ -204,6 +204,9 @@ class Clock:
+ def _reset():
+     """state تلگرامِ temp را بینِ تست‌ها پاک کن (config حافظهٔ idempotency است)."""
+     shutil.rmtree(opslib.STATE_DIR / "telegram", ignore_errors=True)
++    # ConfigManager ِ سراسری LKG را نگه می‌دارد (حفظِ offset هنگامِ حذفِ فایل)؛
++    # هر تست یک «ری‌استارت» است و باید از صفر boot کند.
++    center._config_cache_reset()
+     if center.STOP_TG_CENTER.exists():
+         center.STOP_TG_CENTER.unlink()
+ 
+diff --git a/_ops/tests/test_tg_poll_health.py b/_ops/tests/test_tg_poll_health.py
+index 4eac91c..3878645 100644
+--- a/_ops/tests/test_tg_poll_health.py
++++ b/_ops/tests/test_tg_poll_health.py
+@@ -34,10 +34,20 @@ ENV = harness.setup("tg-poll-health")     # قبل از هر importی که state
+ import tg_api  # noqa: E402
+ 
+ 
++_SEQ = 0
++
++
++def _token(label: str) -> str:
++    """هر client یک توکنِ تازه — صفِ retryِ ماندگار بینِ تست‌ها نشت نکند."""
++    global _SEQ
++    _SEQ += 1
++    return f"fake:{label}-{_SEQ}"
++
++
+ def _client(get_fn, alert_sink=None):
+     if alert_sink is not None:
+         tg_api._alert_soft = lambda msg: alert_sink.append(msg)
+-    return tg_api.TgClient(token="fake:token", owner_chat_id=123,
++    return tg_api.TgClient(token=_token("token"), owner_chat_id=123,
+                            center_chat_id=-100, get_fn=get_fn)
+ 
+ 

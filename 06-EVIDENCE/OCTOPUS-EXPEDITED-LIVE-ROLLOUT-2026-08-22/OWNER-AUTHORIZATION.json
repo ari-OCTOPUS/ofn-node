@@ -1,0 +1,47 @@
+{
+  "schema": "octopus-owner-authorization/1",
+  "authorization_id": "OCTOPUS-OWNER-CANARY-20260822-N1",
+  "mode": "EXPEDITED_BOUNDED_LIVE_ROLLOUT",
+  "builder": "grok-ari-single-writer",
+  "independent_verification": false,
+  "verdict_label_required": "BUILDER_VERIFIED_FOR_BOUNDED_OWNER_ROLLOUT",
+  "verdict_labels_forbidden": [
+    "SIG-IV",
+    "INDEPENDENTLY_VERIFIED"
+  ],
+  "repository_root": "F:/backup",
+  "branch": "rescue/octopus-live-tree-20260821",
+  "sections_authorized_this_task": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "sections_deferred": [
+    "RFC_merge",
+    "live_canary_send"
+  ],
+  "owner_order_summary": {
+    "directive": "OWNER OVERRIDE EXPEDITED_BOUNDED_LIVE_ROLLOUT on F:/backup",
+    "executor": "grok-ari-single-writer",
+    "constraints": [
+      "F:/backup only; no E:/germline; no /workspace",
+      "No live Telegram send/getUpdates manual in this task",
+      "No paid, webhook mutation, force push, reset --hard, git clean, secret printing",
+      "Restart Center only if Git HEAD != runtime HEAD",
+      "Keep heartbeat writer lock; extend TTL only if under 2h remaining",
+      "ExternalRead blocked; use ExternalShell/python/git"
+    ],
+    "deliverables": [
+      "OWNER-AUTHORIZATION.json",
+      "PRECHECK.json",
+      "READINESS-SAMPLES.jsonl (10 continuous minutes @ 15s)",
+      "BUILDER-VERIFICATION.json",
+      "ROLLBACK-STATE.json"
+    ]
+  },
+  "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+  "lease_id": "9816664e55684900988901c3c1e5b902",
+  "written_at_local": "2026-08-22T15:05:00+10:00",
+  "written_by": "grok-ari-single-writer"
+}

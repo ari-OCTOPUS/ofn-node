@@ -1,0 +1,113 @@
+{
+  "stamp": "20260822T125836Z",
+  "ziman": {
+    "result": "PASS",
+    "patch_bak": "/home/ari/ofn/ofn/node.py.bak-catalog-activated-20260822T125811Z",
+    "public_catalog": {
+      "status": 200,
+      "ok": true,
+      "count": 2,
+      "activated": true,
+      "skus": [
+        "ZM-0003",
+        "ZM-0006"
+      ]
+    },
+    "rollback": "cp /home/ari/ofn/ofn/node.py.bak-catalog-activated-20260822T125811Z /home/ari/ofn/ofn/node.py && sudo systemctl restart ofn.service && curl -s -H Host:ziman.master-painting.com http://127.0.0.1:8791/api/v1/public/catalog",
+    "note": "No invent products. No paid ads. Hardcoded activated False flipped True under owner GO."
+  },
+  "lead": {
+    "result": "PASS",
+    "campaign": {
+      "campaign_id": "lead:campaign:b0687e052a8c3822",
+      "title": "Master Painting — existing-CRM nurture (owner GO 2026-08-22)",
+      "status": "running",
+      "objective": "Work ONLY existing painting_leads already in CRM (Abbas/Master Painting). No stranger blast. No paid ads. Channels=existing marketing_channels. auto_email/auto_dm remain CLOSED.",
+      "next_step": "Partner reviews existing new/quoted leads in mini-web; manual quote/reply via outbox only. No auto-send.",
+      "channel_ids_json": "[\"lead:email:email-quote-follow-up\", \"lead:facebook:facebook-groups-marketplac\", \"lead:google:google-business-profile\", \"lead:instagram:instagram\", \"lead:telegram:\", \"lead:tiktok:tiktok-reels\", \"lead:website:\"]"
+    },
+    "audience_scope": {
+      "who": "existing painting_leads in CRM only (Master Painting / Abbas)",
+      "lead_status_counts": [
+        {
+          "status": "contacted",
+          "n": 1
+        },
+        {
+          "status": "new",
+          "n": 5
+        },
+        {
+          "status": "quoted",
+          "n": 1
+        },
+        {
+          "status": "review",
+          "n": 1
+        }
+      ],
+      "channels_used": [
+        {
+          "id": "lead:email:email-quote-follow-up",
+          "kind": "email",
+          "title": "Email / quote follow-up",
+          "connection": "planned"
+        },
+        {
+          "id": "lead:facebook:facebook-groups-marketplace",
+          "kind": "facebook",
+          "title": "Facebook Groups/Marketplace",
+          "connection": "planned"
+        },
+        {
+          "id": "lead:google:google-business-profile",
+          "kind": "google",
+          "title": "Google Business Profile",
+          "connection": "planned"
+        },
+        {
+          "id": "lead:instagram:instagram",
+          "kind": "instagram",
+          "title": "Instagram",
+          "connection": "planned"
+        },
+        {
+          "id": "lead:telegram:",
+          "kind": "telegram",
+          "title": "تلگرام — بات لید نقاشی",
+          "connection": "connected"
+        },
+        {
+          "id": "lead:tiktok:tiktok-reels",
+          "kind": "tiktok",
+          "title": "TikTok / Reels",
+          "connection": "planned"
+        },
+        {
+          "id": "lead:website:",
+          "kind": "website",
+          "title": "وب‌سایت / فرم تماس",
+          "connection": "planned"
+        }
+      ],
+      "blast_guards_still_closed": [
+        "auto_email",
+        "auto_dm",
+        "auto_post",
+        "live_sms",
+        "live_dm"
+      ],
+      "paid": false,
+      "invent_leads": false,
+      "automation": "manual quote/reply via outbox only; no auto-send"
+    },
+    "healthz": 200,
+    "rollback": "UPDATE painting_campaigns SET status='paused' WHERE campaign_id='lead:campaign:b0687e052a8c3822'"
+  },
+  "result": {
+    "ziman": "PASS",
+    "lead": "PASS"
+  },
+  "studio": "idle beyond prior publish",
+  "mining": "untouched"
+}

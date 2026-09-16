@@ -1,0 +1,62 @@
+{
+  "schema": "octopus-closed-loop-fixture/1",
+  "written_at": "2026-08-22T11:55:15+10:00",
+  "writer": {
+    "agent_id": "grok-ari-single-writer",
+    "session_id": "sess_830e364e-8cd7-4046-ade3-9862f40ec726",
+    "lease_id": "9816664e55684900988901c3c1e5b902"
+  },
+  "branch": "rescue/octopus-live-tree-20260821",
+  "starting_head": "67e4ecc897b7d9067770b79e624fb2a505b2253e",
+  "head_before_this_session_end": "3718b55a78c256c1ac97ce8771072f37fa21fe2e",
+  "heads": {
+    "isolate_evid_dir": {
+      "sha": "ece5c53f98f7b4ee16ee185c4bb9ee8cea538cae",
+      "short": "ece5c53",
+      "subject": "fix(loop): isolate A18 turn_engine evidence dir for fixture-real close",
+      "committed_at": "2026-08-22T11:54:30+10:00"
+    },
+    "correct_a13_remember": {
+      "sha": "e8d661e82b3c115e8aa92563e591a35d9af04ff9",
+      "short": "e8d661e",
+      "subject": "fix(loop): reject invalid /correct turn_id and drop stale A13 label",
+      "committed_at": "2026-08-22T11:54:45+10:00"
+    }
+  },
+  "HEAD": "e8d661e82b3c115e8aa92563e591a35d9af04ff9",
+  "HEAD_short": "e8d661e",
+  "live_send": false,
+  "pushed": false,
+  "not_a_new_wave": true,
+  "not_a18_live_real": true,
+  "files": [
+    "research/full_loop/turn_engine.py",
+    "research/full_loop/test_turn_engine.py",
+    "_ops/owner_console/local_commands.py",
+    "_ops/owner_console/telegram_adapter.py",
+    "_ops/telegram_center/durable_loop.py",
+    "_ops/tests/test_telegram_closed_loop_20260820.py",
+    "_ops/tests/test_telegram_durable_loop.py"
+  ],
+  "tests": {
+    "research/full_loop/test_turn_engine.py": "7/7 PASS (pytest, tmp evid_dir)",
+    "_ops/tests/test_telegram_closed_loop_20260820.py": "17/17 PASS",
+    "_ops/tests/test_telegram_durable_loop.py": "16/16 PASS",
+    "totals": "40/40 PASS"
+  },
+  "implemented": [
+    "A18 turn_engine evid_dir isolation (OCTOPUS_STATE_DIR or explicit path; tests use tmp)",
+    "CORRECT_ACCEPTED_INVALID_TURN_ID: /correct rejects unknown first-token turn_ids",
+    "STALE_GATE_LABEL_IN_REPLY: dropped A13 phrase from capabilities_text and local-degraded reply",
+    "/remember durable ACK via durable_loop.ack_local_result with injected fake transport"
+  ],
+  "still_blocked": [
+    "A18 live-real / full loop (LIVE-B, center import, live send)",
+    "center PID drift (do not restart or kill PID 35596)",
+    "SIG-IV",
+    "live Telegram send/edit/getUpdates/webhook",
+    "paid cognition / wave1_closeout.run / loops.closeout.run / telegram_cockpit live poll"
+  ],
+  "run_all_registry": "skipped for test_turn_engine (pytest tmp_path, out of _ops/tests; no redesign)",
+  "center_py_import": false
+}

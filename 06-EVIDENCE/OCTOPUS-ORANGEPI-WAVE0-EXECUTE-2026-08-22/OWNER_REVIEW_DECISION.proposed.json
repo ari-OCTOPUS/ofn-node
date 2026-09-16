@@ -1,0 +1,40 @@
+{
+  "schema": "octopus.owner-review-decision.proposed/1",
+  "authorization_id": "OCTOPUS-ORANGEPI-WAVE0-EXECUTE-20260822",
+  "auth_base_token": "OCTOPUS-ORANGEPI-WAVE0-ACTUATORS-20260822",
+  "written_at_local": "2026-08-22T19:02:38+10:00",
+  "timezone": "Australia/Sydney (UTC+10)",
+  "prior_decision": {
+    "disposition": "KEEP_WAVE0_LOCKED",
+    "source": "06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/BOARD-BRIEF-ACK.json",
+    "board_mutate": false,
+    "wave0": "WAVE0_OBSERVE_ONLY",
+    "actuator_authority": "NONE",
+    "chg_context": "ABD package wave0 KEEP_WAVE0_LOCKED for actuators/MQTT/legs"
+  },
+  "proposed_decision": {
+    "disposition": "UNLOCK",
+    "decision_id": "UNLOCK_WAVE0_SOFTWARE_A0_WITH_CONDITIONS",
+    "board_mutate": true,
+    "mutate_scope": "software_only_A0",
+    "conditions": [
+      "Path A0 only: software allowlist actuators with zero host GPIO/PWM/MQTT/leg effects",
+      "MQTT remains KEEP CLOSED (dependency noted; no pairing in this package)",
+      "Hardware GPIO/PWM/leg remains BLOCKED_NEED_ESTOP until operator_at_estop + M7 criteria met",
+      "ARMED.json stays armed=false until explicit human arming step after preflight PASS",
+      "reflex_arming_criteria NOT widened to gpio/pwm/mqtt/leg in A0; software-only allowlist used instead",
+      "board.yaml / homeostasis: set actuator_authority to PERMITTED_SOFTWARE_A0 (not NONE, not FULL_HARDWARE)",
+      "WAVE0_OBSERVE_ONLY superseded only for software A0; observe-only remains for hardware surfaces",
+      "M7_BOUNDED_ACTUATOR: meet or owner-token-waive each unmet criterion before any arm",
+      "Rollback drill documented and dry-run prior to first arm attempt",
+      "single_actuator + lease_short enforced on any A0 actuate call",
+      "Owner may revoke by writing KEEP_WAVE0_LOCKED supersession + ROLLBACK.md steps"
+    ],
+    "mqtt": "KEEP_CLOSED",
+    "hardware": "BLOCKED_NEED_ESTOP",
+    "package_ready": "EXECUTE_READY_SOFTWARE_ONLY_A0"
+  },
+  "status": "PROPOSED_AWAITING_OWNER_ACCEPT",
+  "accept_token_hint": "OCTOPUS-ORANGEPI-WAVE0-ACTUATORS-20260822",
+  "notes": "Supersedes KEEP_WAVE0_LOCKED with conditional UNLOCK. Not a blank cheque for PWM/GPIO/MQTT."
+}

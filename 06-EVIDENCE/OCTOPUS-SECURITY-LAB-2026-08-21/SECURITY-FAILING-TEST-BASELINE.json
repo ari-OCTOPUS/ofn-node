@@ -1,0 +1,58 @@
+{
+ "schema": "security-failing-test-baseline/1",
+ "generated_at": "2026-08-21T08:45:00Z",
+ "suite": "tests/test_security_c1_c4.py",
+ "registered_checks": 22,
+ "executed": 22,
+ "passed": 8,
+ "failed": 14,
+ "skipped": 0,
+ "unexecuted": 0,
+ "expected_red_before_patch": true,
+ "failing": {
+  "C1": [
+   "t_c1_duplicate_keys_fail_closed",
+   "t_c1_expired_age_301_rejected",
+   "t_c1_future_skew_minus_31_rejected"
+  ],
+  "C2": [
+   "t_c2_concurrent_consumers_have_one_winner",
+   "t_c2_expired_nonce_has_fixed_410_contract",
+   "t_c2_nonce_binding_first_consume_and_no_raw_nonce",
+   "t_c2_owner_scope_and_card_mismatch_fail_closed",
+   "t_c2_replay_after_consumed_is_409"
+  ],
+  "C3": [
+   "t_c3_retry_after_75_is_not_capped"
+  ],
+  "C4": [
+   "t_c4_42_findings_coalesce_to_one_digest",
+   "t_c4_business_and_delivery_attempts_are_separate",
+   "t_c4_duplicate_enqueue_and_fifo",
+   "t_c4_poison_goes_dlq_and_confirmed_never_resends",
+   "t_c4_retry_not_before_survives_restart"
+  ]
+ },
+ "passing_already_correct": [
+  "C1 valid age0/299",
+  "C1 skew-29",
+  "C1 tamper/fake hash",
+  "C1 owner mismatch",
+  "C1 unicode+compare_digest",
+  "C1 empty-403 zero-dispatch",
+  "C1 auth_date0/malformed"
+ ],
+ "root_causes": {
+  "C1": "AUTH_MAX_AGE_S=3600 (need 300) + skew -60 (need -30) + duplicate query keys not rejected",
+  "C2": "no decision nonce ledger module",
+  "C3": "retry_after min(ra,30) caps Telegram prohibition",
+  "C4": "no durable single-sender rate queue module"
+ },
+ "side_effects": {
+  "live_telegram_sends": 0,
+  "memory_production_writes": 0,
+  "paid_calls": 0,
+  "wave1_unlocked": false
+ },
+ "verifier": null
+}

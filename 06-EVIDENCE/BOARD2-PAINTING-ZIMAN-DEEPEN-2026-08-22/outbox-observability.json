@@ -1,0 +1,26 @@
+{
+  "generated_at_utc": "2026-08-22T13:00:30Z",
+  "rows_meta_only": true,
+  "agg": [
+    {
+      "tenant": "lead",
+      "status": "manual_completed",
+      "kind": "lead:quote",
+      "n": 1
+    },
+    {
+      "tenant": "lead",
+      "status": "manual_completed",
+      "kind": "lead:reply",
+      "n": 1
+    },
+    {
+      "tenant": "studio",
+      "status": "manual_completed",
+      "kind": "studio:publish",
+      "n": 1
+    }
+  ],
+  "pending_or_approved_waiting": 0,
+  "payloads_omitted": true
+}

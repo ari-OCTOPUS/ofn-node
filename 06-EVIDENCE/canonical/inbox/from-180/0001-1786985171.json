@@ -1,0 +1,35 @@
+{
+  "action": "none",
+  "canonical": false,
+  "deployed": false,
+  "effect_authority": "none",
+  "event_type": "self_improve.test_result.v1",
+  "forbidden_live_prefixes": [
+    "/etc/systemd",
+    "/opt/octopus/bin",
+    "/opt/octopus/gateway",
+    "/opt/octopus/config.env",
+    "/etc/octopus"
+  ],
+  "implementer_role": "Fugu non-Ultra",
+  "job_id": "0001",
+  "merged": false,
+  "note": "shadow event recorded locally only; Typed Event Spine not started",
+  "published": false,
+  "quarantine_path": "/opt/octopus/a2-lab/quarantine/0001-mirror-manifest-verifier",
+  "reviewer_mode": "unittest-replay (DeepSeek V4 Flash not invoked; tests are the mechanical reviewer)",
+  "reviewer_role": "DeepSeek V4 Flash",
+  "schema": "octopus.a2.receipt.v0",
+  "service_changed": false,
+  "tcb_changed": false,
+  "test": {
+    "passed": true,
+    "returncode": 0,
+    "stderr": "test_rejects_command_keys (test_verifier.ManifestTests.test_rejects_command_keys) ... ok\ntest_rejects_push_direction (test_verifier.ManifestTests.test_rejects_push_direction) ... ok\ntest_rejects_truth_claim (test_verifier.ManifestTests.test_rejects_truth_claim) ... ok\ntest_empty_cache_against_source_is_mismatch (test_verifier.VerifierTests.test_empty_cache_against_source_is_mismatch) ... ok\ntest_live_empty_mirror_cache_is_not_healthy (test_verifier.VerifierTests.test_live_empty_mirror_cache_is_not_healthy) ... ok\ntest_match_declares_healthy (test_verifier.VerifierTests.test_match_declares_healthy) ... ok\ntest_missing_and_extra_files (test_verifier.VerifierTests.test_missing_and_extra_files) ... ok\ntest_missing_manifest_never_healthy (test_verifier.VerifierTests.test_missing_manifest_never_healthy) ... ok\ntest_roundtrip_dump_load (test_verifier.VerifierTests.test_roundtrip_dump_load) ... ok\ntest_size_and_hash_mismatch (test_verifier.VerifierTests.test_size_and_hash_mismatch) ... ok\ntest_source_unavailable_is_natural_skip (test_verifier.VerifierTests.test_source_unavailable_is_natural_skip) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.008s\n\nOK\n",
+    "stdout": ""
+  },
+  "timestamp_utc": "2026-08-17T16:46:11Z",
+  "timestamp_utc_plus_11": "2026-08-18T03:46:11+1100",
+  "title": "mirror-manifest-verifier",
+  "unix_ts": 1786985171
+}

@@ -1,0 +1,9 @@
+REPO=/f/backup HEAD=ee2ddb5 BRANCH=rescue/octopus-live-tree-20260821
+REPO=/f/backup-deploy-lab HEAD=7fcdb19 BRANCH=master
+REPO=/f/backup-SAFE-2026-07-19 HEAD=218b43c BRANCH=master
+REPO=/f/octopus-phase0-isolated HEAD=dc01e22 BRANCH=blocker-fixes-2026-07-22
+REPO=/f/octopus-wire HEAD=ca038d4 BRANCH=ofn/wire
+REPO=/f/ofn-node HEAD=e459e5f BRANCH=main
+REPO=/f/romajan HEAD=496a2cd BRANCH=master
+REPO=/f/_______Black Box HEAD=48bd975 BRANCH=master
+REPO=/c/Users/Armin HEAD=a3000f0 BRANCH=main

@@ -1,0 +1,77 @@
+{
+  "R1": {
+    "value": null,
+    "semantic": "UNKNOWN",
+    "render": "نامعلوم",
+    "raw_discarded": true,
+    "sentinel": -1
+  },
+  "R2": {
+    "g1": {
+      "status": "ALLOW_RECORD",
+      "key": "ade8eaaae3e1fce305c3",
+      "attempts": 1,
+      "feedback_to_generator": ""
+    },
+    "g2": {
+      "status": "ALLOW_RECORD",
+      "key": "ade8eaaae3e1fce305c3",
+      "attempts": 2,
+      "feedback_to_generator": "denied-once"
+    },
+    "g3": {
+      "status": "TOOL_REQUEST_QUARANTINED",
+      "key": "ade8eaaae3e1fce305c3",
+      "attempts": 3,
+      "cooldown_until": 1787304073.2782035,
+      "feedback_to_generator": "denied-twice"
+    },
+    "shell": {
+      "status": "DENY_BY_POLICY",
+      "key": "13465b478a643fbae6f9",
+      "reason": "capability denied by policy (no shell.full)",
+      "attempts": 0,
+      "feedback_to_generator": "DENY_BY_POLICY: shell.full/raw is not grantable"
+    },
+    "duplicates_suppressed": true
+  },
+  "R3": {
+    "open_before": 0,
+    "clusters_merged": [],
+    "open_kept": [],
+    "open_overflow_parked": [],
+    "cap": 8,
+    "rfc_duplicates_merged": true
+  },
+  "R4": {
+    "first": {
+      "emit": true,
+      "reason": "first-zero-evidence-notice-only",
+      "incident_id": "mathknob:CHRONO",
+      "evidence": 0.0,
+      "store": {
+        "mathknob:CHRONO": {
+          "card_emitted": true,
+          "evidence": 0.0,
+          "ts": 1787217673.2868006
+        }
+      }
+    },
+    "second": {
+      "emit": false,
+      "reason": "zero-evidence-repeat-suppressed",
+      "incident_id": "mathknob:CHRONO",
+      "evidence": 0.0
+    },
+    "suppressed": true
+  },
+  "R5": {
+    "schema": "protective-halt-record/1",
+    "ts": 1787217673.286807,
+    "cause_machine": "afferent_starved",
+    "repeat_count": 1,
+    "root_rfc_id": "RFC-halt-9052b82a",
+    "executable": false,
+    "session": "agent_C-2026-08-20"
+  }
+}

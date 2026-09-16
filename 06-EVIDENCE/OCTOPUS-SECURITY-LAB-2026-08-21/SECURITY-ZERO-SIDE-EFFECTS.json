@@ -1,0 +1,33 @@
+{
+ "schema": "security-zero-side-effects/3",
+ "generated_at": "2026-08-21T10:00:00Z",
+ "method": "run-local before/after snapshots around the dedicated fixture run + session-baseline drift classified",
+ "run_local": {
+  "memory_unchanged": true,
+  "miniapp_hits_unchanged": true,
+  "send_log_unchanged": true,
+  "send_log_delta_rows": 0
+ },
+ "session_baseline_drift": {
+  "memory_note": "production DB drifted over the session from live organism ingest (self-loop/research), not from fixtures (fixtures use harness-isolated OCTOPUS_STATE_DIR)",
+  "send_log_rows_since_phase0_baseline": {
+   "total": 59,
+   "streams": {
+    "edit": 52,
+    "center-decision": 2,
+    "center-pulse": 1,
+    "center": 2,
+    "summary": 2
+   },
+   "update_id_present": 0,
+   "all_live_center_patterns": true
+  },
+  "miniapp_hits_note": "byte-identical across the entire session"
+ },
+ "verdict": {
+  "ZERO_LIVE_FIXTURE_SENDS": "PASS_WITH_RUNTIME_BACKGROUND_CAVEAT"
+ },
+ "wave1_unlocked": false,
+ "paid_calls": 0,
+ "webhook_activated": false
+}

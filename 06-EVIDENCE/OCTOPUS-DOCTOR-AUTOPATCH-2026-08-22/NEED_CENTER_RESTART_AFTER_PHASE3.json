@@ -1,0 +1,29 @@
+﻿{
+    "schema":  "octopus.need-center-restart.v1",
+    "timestamp":  "2026-08-22T18:54:30+10:00",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "organism":  "laptop",
+    "token":  "OCTOPUS-DOCTOR-AUTOPATCH-20260822",
+    "reason":  "OCTOPUS_DOCTOR_MAY_MERGE=1 is on disk in OCTOPUS-flags.cmd but not in any flags-loaded-*.json; daemon._merge reads os.environ only — no hot-reload of flags.cmd into live Center/Doctor process",
+    "hot_reload":  {
+                       "works":  false,
+                       "evidence":  [
+                                        "daemon.py::_merge uses os.environ.get(\u0027OCTOPUS_DOCTOR_MAY_MERGE\u0027)",
+                                        "findstr MAY_MERGE on F:\\backup\\_ops\\state\\flags-loaded-*.json =\u003e no matches",
+                                        "flags-loaded-center.json mtime 2026-08-22 14:47 +10 (before 18:51 flag append)",
+                                        "owner deferred Center restart until Phase-3 green"
+                                    ]
+                   },
+    "required_action":  "After Phase-3 green: restart Center (or RESTART-ALL / limb that hosts doctor) so OCTOPUS-flags.cmd is re-sourced",
+    "do_not_restart_now":  true,
+    "deferred_until":  "Phase-3 green (owner)",
+    "flag_on_disk":  {
+                         "path":  "F:\\backup\\_ops\\OCTOPUS-flags.cmd",
+                         "line":  "set OCTOPUS_DOCTOR_MAY_MERGE=1",
+                         "present":  true
+                     },
+    "live_loaded":  {
+                        "MAY_MERGE_in_flags_loaded_star":  false,
+                        "process_env_this_shell":  null
+                    }
+}

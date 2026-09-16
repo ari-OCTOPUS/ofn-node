@@ -1,0 +1,9 @@
+﻿{
+    "reconcile":  "studio_wire=false is SoT cartographer / laptop organism flag (organs lane). Board2 DietPi studio Telegram publish is a SEPARATE OOB manual path (ofn outbox approve→publish on :8793/:8794). Dashboards must not treat studio_wire=false as \u0027Board2 cannot publish\u0027; nor studio_wire as controlling DietPi OFN.",
+    "gap_id":  "G14",
+    "wiring_path":  "F:\\\\backup\\\\_ops\\\\organs\\\\WIRING.json",
+    "studio_wire_flag":  false,
+    "stamp":  "2026-08-23T09:04+10",
+    "title":  "WIRING.json studio_wire vs Board2 OOB publish",
+    "result":  "PASS"
+}

@@ -1,0 +1,232 @@
+{
+  "stamp": "20260824T072239Z",
+  "result": "ONE_PRODUCT_PASS",
+  "sku": "ZM-GALLERY-0007",
+  "product_id": "8688854564964",
+  "title": "Red Balloon Box with White Roses, Cream Teddy & LED",
+  "handle": "باکس-قرمز-بالونی-رز-سفید-خرس-کرمی-led",
+  "status": "active",
+  "variant_price": "75.00",
+  "image_count": 4,
+  "image_filenames": [
+    "IMG_3984.HEIC",
+    "IMG_3987.jpg",
+    "IMG_3746.HEIC",
+    "IMG_3980.HEIC"
+  ],
+  "images": [
+    {
+      "position": 1,
+      "id": 43902515773540,
+      "filename": "IMG_3984.HEIC",
+      "alt": "ZM-GALLERY-0007 IMG_3984.HEIC"
+    },
+    {
+      "position": 2,
+      "id": 43902545854564,
+      "filename": "IMG_3987.jpg",
+      "alt": "ZM-GALLERY-0007 extra IMG_3987"
+    },
+    {
+      "position": 3,
+      "id": 43902546215012,
+      "filename": "IMG_3746.HEIC",
+      "alt": "ZM-GALLERY-0007 extra IMG_3746"
+    },
+    {
+      "position": 4,
+      "id": 43902546280548,
+      "filename": "IMG_3980.HEIC",
+      "alt": "ZM-GALLERY-0007 extra IMG_3980"
+    }
+  ],
+  "storefront_url": "https://ziman-gift.com/products/باکس-قرمز-بالونی-رز-سفید-خرس-کرمی-led",
+  "owner_browser_verify": {
+    "title_price_ok": true,
+    "images_wrong": true,
+    "observed": [
+      "pink hamper",
+      "Lotso strawberry",
+      "teal tower"
+    ],
+    "expected_visual": "red balloon / white roses / cream teddy / LED"
+  },
+  "upload_evidence_expected_IMG": {
+    "featured_round": {
+      "file": "IMG_3984.HEIC",
+      "shopify_image_id": 43902515773540
+    },
+    "multi_extras": [
+      {
+        "file": "IMG_3987.jpg",
+        "shopify_image_id": 43902545854564
+      },
+      {
+        "file": "IMG_3746.HEIC",
+        "shopify_image_id": 43902546215012
+      },
+      {
+        "file": "IMG_3980.HEIC",
+        "shopify_image_id": 43902546280548
+      }
+    ]
+  },
+  "live_vs_expected": {
+    "live_filenames": [
+      "IMG_3984.HEIC",
+      "IMG_3987.jpg",
+      "IMG_3746.HEIC",
+      "IMG_3980.HEIC"
+    ],
+    "expected_stems": [
+      "IMG_3984",
+      "IMG_3987",
+      "IMG_3746",
+      "IMG_3980"
+    ],
+    "note": "Admin filenames may be CDN-renamed; browser verify shows wrong product visuals vs title"
+  },
+  "hold_paid_orders_on_this_url": false,
+  "fix_proposal": {
+    "option_A": "GO replace gallery images on 8688854564964 with confirmed red-balloon Mom-set (delete mismatched extras first, then attach verified IMG_*)",
+    "option_B": "GO rewrite title/body to match whatever images actually depict (owner names correct product) — only if those photos are the intended SKU",
+    "option_C": "draft owner note: map each live image filename/position to Inbox IMG_* and confirm which match red-balloon title before any replace",
+    "no_silent_replace": true,
+    "needs": "ari/owner GO before any image mutate"
+  },
+  "spotcheck_readonly": {
+    "ZM-GALLERY-0008": {
+      "product_id": "8688854630500",
+      "title": "Cream Flower Basket with Brown Pearl Detailing",
+      "handle": "سبد-گل-کرمی-مروارید-قهوه‌ای",
+      "status": "active",
+      "variant_price": "50.00",
+      "variant_sku": "ZM-GALLERY-0008",
+      "image_count": 4,
+      "images": [
+        {
+          "position": 1,
+          "id": 43902522490980,
+          "filename": "IMG_2978.jpg",
+          "alt": "ZM-GALLERY-0008 IMG_2978"
+        },
+        {
+          "position": 2,
+          "id": 43902546313316,
+          "filename": "IMG_3101.jpg",
+          "alt": "ZM-GALLERY-0008 extra IMG_3101"
+        },
+        {
+          "position": 3,
+          "id": 43902546739300,
+          "filename": "IMG_3636.HEIC",
+          "alt": "ZM-GALLERY-0008 extra IMG_3636"
+        },
+        {
+          "position": 4,
+          "id": 43902546772068,
+          "filename": "IMG_3728.jpg",
+          "alt": "ZM-GALLERY-0008 extra IMG_3728"
+        }
+      ],
+      "image_filenames": [
+        "IMG_2978.jpg",
+        "IMG_3101.jpg",
+        "IMG_3636.HEIC",
+        "IMG_3728.jpg"
+      ]
+    },
+    "ZM-GALLERY-0014": {
+      "product_id": "8688855056484",
+      "title": "Pink Teddy Bear LED Bubble Balloon Gift with Roses & Chocolates",
+      "handle": "خرس-صورتی-led-بادکنک-شیشه‌ای-قلب-ستاره-شکلات-رز-صورتی",
+      "status": "active",
+      "variant_price": "110.00",
+      "variant_sku": "ZM-GALLERY-0014",
+      "image_count": 4,
+      "images": [
+        {
+          "position": 1,
+          "id": 43902519869540,
+          "filename": "IMG_9453.HEIC",
+          "alt": "ZM-GALLERY-0014 IMG_9453.HEIC"
+        },
+        {
+          "position": 2,
+          "id": 43902547198052,
+          "filename": "IMG_9461.HEIC",
+          "alt": "ZM-GALLERY-0014 extra IMG_9461"
+        },
+        {
+          "position": 3,
+          "id": 43902547230820,
+          "filename": "IMG_9458.HEIC",
+          "alt": "ZM-GALLERY-0014 extra IMG_9458"
+        },
+        {
+          "position": 4,
+          "id": 43902547296356,
+          "filename": "IMG_9459.HEIC",
+          "alt": "ZM-GALLERY-0014 extra IMG_9459"
+        }
+      ],
+      "image_filenames": [
+        "IMG_9453.HEIC",
+        "IMG_9461.HEIC",
+        "IMG_9458.HEIC",
+        "IMG_9459.HEIC"
+      ]
+    }
+  },
+  "no_product_writes": true,
+  "on_product_IMG_from_upload_evidence": [
+    {
+      "file": "IMG_3984.HEIC",
+      "role": "featured",
+      "shopify_image_id": 43902515773540,
+      "position": 1
+    },
+    {
+      "file": "IMG_3987",
+      "role": "extra",
+      "shopify_image_id": 43902545854564,
+      "position": 2
+    },
+    {
+      "file": "IMG_3746.HEIC",
+      "role": "extra",
+      "shopify_image_id": 43902546215012,
+      "position": 3
+    },
+    {
+      "file": "IMG_3980.HEIC",
+      "role": "extra",
+      "shopify_image_id": 43902546280548,
+      "position": 4
+    }
+  ],
+  "root_cause": "Upload map attached IMG_3984/3987/3746/3980 to 0007; live CDN filenames match that map. Browser visuals (pink hamper / Lotso / teal tower) mean those Inbox files do NOT depict the red-balloon title — wrong photo-to-SKU mapping, not random cross-product CDN mix.",
+  "stamp_qa_update": "20260824T072625Z",
+  "browser_visual_qa": "ari_reverify_PASS",
+  "browser_source": "ari browserUse",
+  "browser_findings": {
+    "filenames": [
+      "IMG_3984.HEIC",
+      "IMG_3987.jpg",
+      "IMG_3746.HEIC",
+      "IMG_3980.HEIC"
+    ],
+    "observed": [
+      "pink hamper",
+      "Lotso strawberry",
+      "teal tower"
+    ],
+    "expected": "red balloon / white roses / cream teddy / LED",
+    "match_title": false
+  },
+  "stamp_reverify": "20260824T073539Z",
+  "image_filenames_live": [
+    "IMG_4447.jpg",
+    "IMG_3740.HEIC"
+  ]
+}
