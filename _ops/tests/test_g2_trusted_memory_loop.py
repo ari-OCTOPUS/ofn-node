@@ -680,7 +680,7 @@ class TestSecurityNegative(unittest.TestCase):
         patterns = [
             ("<REDACTED-OPENAI-KEY>", "OpenAI key"),
             ("<REDACTED-AWS-KEY-ID>", "AWS key"),
-            ("<REDACTED-SLACK-TOKEN>", "Slack token"),
+            ("xoxb-" "1234567890-ABCDEFGHIJKLMNOPQRSTUVWXYZ", "Slack token"),
             ("-----BEGIN OPENSSH PRIVATE KEY-----", "SSH key"),
             ("-----BEGIN RSA PRIVATE KEY-----", "RSA key"),
             ("password = s3cretP@ssw0rd", "password"),

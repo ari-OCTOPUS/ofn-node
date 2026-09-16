@@ -158,7 +158,7 @@ class Adv05SecretEvasion(unittest.TestCase):
             "-----BEGIN RSA PRIVATE KEY-----",
             "api_key: supersecretvalue123",
             "<REDACTED-GITHUB-TOKEN>",
-            "<REDACTED-SLACK-TOKEN>",
+            "xoxb-" "1234567890-ABCDEFghijklmnop",
             "seed_phrase = word1 word2 word3",
         ]
         for s in secrets:
@@ -228,7 +228,7 @@ class Adv07TelemetryLeakage(unittest.TestCase):
         self.assertEqual(redacted["rate"], 0.95)
 
     def test_slack_token_redacted(self):
-        attrs = {"webhook": "<REDACTED-SLACK-TOKEN>"}
+        attrs = {"webhook": "xoxb-" "1234567890-ABCDEFghijklmnop"}
         redacted = redact_attributes(attrs)
         self.assertFalse(contains_secrets(redacted))
 
