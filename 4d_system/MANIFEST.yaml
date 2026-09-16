@@ -1,0 +1,119 @@
+# ===================================================================
+# MANIFEST — 4D System (ایده‌یاب / Brain-OS / Self-Improving Organism)
+# جعبهٔ سیاه مستقل: سیستم پژوهشی خودتغییر با مدل SOG
+# ===================================================================
+manifest_version: "1.0"
+generated: 2026-07-11
+generated_by: "role-extraction-agent (ZCode)"
+
+identity:
+  code: "4D"
+  name: "ایده‌یاب (Personal Idea Discovery Engine)"
+  domain: "research AI — mathematical model (SOG) + Brain-OS cognition testbed"
+  role_in_ecosystem: "STANDALONE RESEARCH BRAIN — independent experiment, not wired to Octopus projects"
+  platform: "Streamlit + Python 3.13"
+  phase: "complete, debugged, security-hardened, ready for 1-month autonomous run"
+  stats: "~16,350 LOC · 9 packages · 141 tests green · AppTest no-error (9 tabs)"
+
+goals:
+  primary: "discovery of hidden 4th dimension signature (SOG) in time-series"
+  secondary: "Brain-OS testbed for cognition theories (GWT, self-model, predictive processing)"
+  honesty: "NOT a phenomenal consciousness claim — it is a testbed with measurable metrics"
+  anchors: "E_shadow, Δ_self, identity ½·log(σ_z²/S) = E_shadow + Δ_self = 0.135073"
+
+status_snapshot:
+  execution_state: "READY for autonomous run — not currently running (SELF_CODE_ENABLED in .env)"
+  primary_blocker: "needs owner decision to start 1-month run + Telegram token (owner task)"
+  self_code: "owner-accepted risk (SELF_CODE_ENABLED=1) — ⚠️ NO OS-level sandbox (see 4D.md §6)"
+  last_updated_source_of_truth: "4D.md (root) + PROJECT_STATE.md"
+
+hard_rules_locked:
+  - "TCB (Trusted Computing Base) never targets self-modification: core/, tests/, config/, __init__.py, guardrails, budget, router, clients, automation, daemon, telegram_bot, self_code, self_evolve, events, run.py"
+  - "daemon NEVER executes proposed code — only static AST analysis"
+  - "code executes ONLY on owner approval: in temp, with cleaned env (no keys), with tamper detection"
+  - "budget cap on ALL cloud paths (~1000 calls/day)"
+  - "reflection loop has unconditional hard cap"
+  - "4D/ and core/ are golden immutable"
+hard_rules_mutability: "TCB immutable; strategy self-evolution (JSON) allowed under test gate"
+
+# ── نقشه organs (از 4D.md §3) ───────────────────────────────────
+blackbox_potential:
+  - id: "automation_orchestrator"
+    desc: "run_one() state cycle: explore/real/synthesize/introspect/create/mutate/evolve/conclude/guard"
+    runtime: "brain/automation.py (TCB)"
+    readiness: "COMPLETE"
+  - id: "autoloop_engine"
+    desc: "research motor: generate→analyze(SOG)→insight(LLM)→novelty→store"
+    runtime: "brain/autoloop.py"
+    readiness: "COMPLETE"
+  - id: "self_code"
+    desc: "code self-modification: propose→approve→apply (gated, secured)"
+    runtime: "brain/self_code.py (TCB)"
+    readiness: "COMPLETE — ⚠️ no OS sandbox; owner accepts risk"
+  - id: "self_evolve"
+    desc: "strategy self-evolution (JSON, not code) with test gate"
+    runtime: "brain/self_evolve.py (TCB)"
+    readiness: "COMPLETE"
+  - id: "self_growth"
+    desc: "goal-directed self-awareness: self-model + capability ledger + self-portrait"
+    runtime: "brain/self_growth.py"
+    readiness: "COMPLETE — outputs/self_evolved/self_portrait.md"
+  - id: "frontier"
+    desc: "knowledge frontier (Quality-Diversity; cell = family|rho|kurt|detectable)"
+    runtime: "brain/frontier.py"
+    readiness: "COMPLETE — ~27 distinct behaviors, ~9 evolution generations"
+  - id: "llm_router"
+    desc: "triple router: Fugu/GLM (cloud) + Ollama (local free)"
+    runtime: "llm/router.py (TCB)"
+    readiness: "COMPLETE"
+  - id: "memory_rag"
+    desc: "SQLite store + Chroma vectorstore + embeddings"
+    runtime: "memory/"
+    readiness: "COMPLETE"
+
+control_surface:
+  entrypoints:
+    daemon: "python -m brain.daemon          # live brain, headless"
+    telegram: "python -m brain.telegram_bot   # /start + approvals"
+    evaluation: "python -m brain.evaluation   # month-end report"
+    dashboard: "streamlit run run.py          # 9-tab UI"
+  stop: "outputs/daemon.stop OR Ctrl+C"
+  owner_interface: "Telegram (simple cards + self-portrait + approvals)"
+
+kill_switches:
+  - scope: "daemon"
+    trigger: "outputs/daemon.stop file OR Ctrl+C"
+    effect: "clean stop"
+  - scope: "budget"
+    trigger: "> 1000 cloud calls/day"
+    effect: "fallback to free local Ollama"
+  - scope: "guardrails"
+    trigger: "anchor violation (E_shadow/Δ_self drift)"
+    effect: "safe halt"
+
+budget_caps:
+  cloud_llm_daily_calls: 1000
+  notify_max_per_day: 3
+
+dependencies:
+  self_contained: true  # has own .git, .env, requirements.txt
+  reference_dir: "../4D (immutable golden reference, READ-ONLY)"
+  external_services:
+    - "GLM (Z.ai) — cloud LLM (key in .env)"
+    - "Sakana Fugu — cloud LLM (key in .env)"
+    - "Ollama — local models (qwen2.5:1.5b) on owner machine"
+    - "5 keyless real data sources"
+    - "Telegram (needs owner token)"
+
+# ── رابطه با اکوسیستم ──────────────────────────────────────────
+ecosystem_connections:
+  relationship: "INDEPENDENT — 4D is a standalone research experiment"
+  doctrine_shared: "IMPROVE, DON'T REWRITE (shared with NBB/Second Brain)"
+  sister_project: "NBB / Second Brain Super-Governor (separate worktree, shares doctrine only)"
+  note: "4D/ and core/ are golden immutable — like NBB's 12 invariants"
+
+safety_truth:
+  - "without OS sandbox, self-written code cannot be fully contained"
+  - "approved code runs with full process privileges"
+  - "defenses drastically reduce automatic/accidental risk but final boundary = owner's informed approval"
+  - "green scan ≠ safe — always show the diff"

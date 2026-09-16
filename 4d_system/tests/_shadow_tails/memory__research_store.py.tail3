@@ -1,0 +1,285 @@
+#  CRUD: Architectures
+# ════════════════════════════════════════════════════════════════════════
+
+def save_architecture(a: SavedArchitecture) -> int:
+    """Save a composed architecture."""
+    _ensure_research_tables()
+    with _rconn() as conn:
+        cur = conn.execute(
+            """INSERT INTO architectures
+               (timestamp, name, description, parent_ids, config, note, status)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (datetime.now().isoformat(), a.name, a.description,
+             json.dumps(a.parent_ids), json.dumps(a.config),
+             a.note, a.status)
+        )
+        row_id = cur.lastrowid
+        conn.commit()
+        return row_id
+
+
+def get_architectures(status_filter: str = "", limit: int = 50) -> list[dict]:
+    """Query architectures."""
+    _ensure_research_tables()
+    query = "SELECT * FROM architectures WHERE 1=1"
+    params: list = []
+    if status_filter:
+        query += " AND status = ?"
+        params.append(status_filter)
+    query += " ORDER BY timestamp DESC LIMIT ?"
+    params.append(limit)
+
+    with _rconn(row_factory=sqlite3.Row) as conn:
+        rows = conn.execute(query, params).fetchall()
+    results = []
+    for r in rows:
+        d = dict(r)
+        d["parent_ids"] = json.loads(d.get("parent_ids", "[]"))
+        d["config"] = json.loads(d.get("config", "{}"))
+        results.append(d)
+    return results
+
+
+def update_architecture_status(arch_id: int, status: str):
+    """Update status: draft → testing → validated."""
+    _ensure_research_tables()
+    with _rconn() as conn:
+        conn.execute(
+            "UPDATE architectures SET status = ? WHERE id = ?",
+            (status, arch_id)
+        )
+        conn.commit()
+
+
+def delete_architecture(arch_id: int):
+    _ensure_research_tables()
+    with _rconn() as conn:
+        conn.execute("DELETE FROM architectures WHERE id = ?", (arch_id,))
+        conn.commit()
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  CRUD: Notes
+# ════════════════════════════════════════════════════════════════════════
+
+def save_note(n: ResearchNote) -> int:
+    _ensure_research_tables()
+    with _rconn() as conn:
+        cur = conn.execute(
+            """INSERT INTO notes
+               (timestamp, title, content, linked_pattern_id, linked_arch_id)
+               VALUES (?, ?, ?, ?, ?)""",
+            (datetime.now().isoformat(), n.title, n.content,
+             n.linked_pattern_id, n.linked_arch_id)
+        )
+        row_id = cur.lastrowid
+        conn.commit()
+        return row_id
+
+
+def get_notes(search: str = "", limit: int = 50) -> list[dict]:
+    _ensure_research_tables()
+    query = "SELECT * FROM notes WHERE 1=1"
+    params: list = []
+    if search:
+        query += " AND (title LIKE ? OR content LIKE ?)"
+        params.extend([f"%{search}%", f"%{search}%"])
+    query += " ORDER BY timestamp DESC LIMIT ?"
+    params.append(limit)
+    with _rconn(row_factory=sqlite3.Row) as conn:
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+
+
+def delete_note(note_id: int):
+    _ensure_research_tables()
+    with _rconn() as conn:
+        conn.execute("DELETE FROM notes WHERE id = ?", (note_id,))
+        conn.commit()
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  Utility: all tags
+# ════════════════════════════════════════════════════════════════════════
+
+def get_all_tags() -> list[str]:
+    """Get all unique tags across patterns."""
+    _ensure_research_tables()
+    with _rconn() as conn:
+        rows = conn.execute("SELECT tags FROM patterns WHERE tags != ''").fetchall()
+    tags = set()
+    for (tag_str,) in rows:
+        for t in tag_str.split(","):
+            t = t.strip()
+            if t:
+                tags.add(t)
+    return sorted(tags)
+
+
+def get_research_stats() -> dict:
+    """Summary statistics for the research workspace."""
+    _ensure_research_tables()
+    with _rconn() as conn:
+        return {
+            "patterns": conn.execute("SELECT COUNT(*) FROM patterns").fetchone()[0],
+            "architectures": conn.execute("SELECT COUNT(*) FROM architectures").fetchone()[0],
+            "notes": conn.execute("SELECT COUNT(*) FROM notes").fetchone()[0],
+            "validated": conn.execute(
+                "SELECT COUNT(*) FROM architectures WHERE status='validated'"
+            ).fetchone()[0],
+        }
+
+
+# ════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════
+#  Meta-research: upgrade proposals & research sessions
+# ════════════════════════════════════════════════════════════════════════
+
+@dataclass
+class UpgradeProposal:
+    """A proposal to upgrade the system itself."""
+    title: str
+    description: str = ""
+    rationale: str = ""
+    target_module: str = ""       # e.g. "brain/autoloop.py"
+    priority: str = "medium"      # low|medium|high|critical
+    effort: str = "medium"        # low|medium|high
+    code_sketch: str = ""         # pseudo-code or actual snippet
+    references: list = field(default_factory=list)  # URLs
+    session_id: Optional[int] = None
+    status: str = "proposed"      # proposed|approved|implemented|rejected
+
+
+def save_proposal(p: UpgradeProposal) -> int:
+    """Save an upgrade proposal. Returns its ID."""
+    _ensure_research_tables()
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        cur = conn.execute(
+            """INSERT INTO upgrade_proposals
+               (timestamp, title, description, rationale, target_module,
+                priority, effort, code_sketch, ref_urls, session_id, status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (datetime.now().isoformat(), p.title, p.description,
+             p.rationale, p.target_module, p.priority, p.effort,
+             p.code_sketch, json.dumps(p.references), p.session_id, p.status)
+        )
+        conn.commit()
+        return cur.lastrowid
+    finally:
+        conn.close()
+
+
+def get_proposals(limit: int = 50, status: str = None) -> list[dict]:
+    """Retrieve upgrade proposals."""
+    _ensure_research_tables()
+    with _rconn() as conn:
+        if status:
+            rows = conn.execute(
+                "SELECT * FROM upgrade_proposals WHERE status=? ORDER BY id DESC LIMIT ?",
+                (status, limit)
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM upgrade_proposals ORDER BY id DESC LIMIT ?", (limit,)
+            ).fetchall()
+        cols = [d[0] for d in conn.execute("SELECT * FROM upgrade_proposals LIMIT 0").description]
+    result = []
+    for row in rows:
+        d = dict(zip(cols, row))
+        d["references"] = json.loads(d.get("ref_urls") or "[]")
+        result.append(d)
+    return result
+
+
+def update_proposal_status(proposal_id: int, status: str):
+    """Update the status of a proposal."""
+    _ensure_research_tables()
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        conn.execute("UPDATE upgrade_proposals SET status=? WHERE id=?", (status, proposal_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def save_research_session(topic: str, direction: str, sources_found: int,
+                          insights: str, proposals: list[int]) -> int:
+    """Save a meta-research session."""
+    _ensure_research_tables()
+    with _rconn() as conn:
+        cur = conn.execute(
+            """INSERT INTO research_sessions
+               (timestamp, topic, direction, sources_found, insights, proposals, status)
+               VALUES (?, ?, ?, ?, ?, ?, 'completed')""",
+            (datetime.now().isoformat(), topic, direction,
+             sources_found, insights, json.dumps(proposals))
+        )
+        conn.commit()
+        return cur.lastrowid
+
+
+def get_research_sessions(limit: int = 20) -> list[dict]:
+    """Retrieve meta-research sessions."""
+    _ensure_research_tables()
+    with _rconn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM research_sessions ORDER BY id DESC LIMIT ?", (limit,)
+        ).fetchall()
+        cols = [d[0] for d in conn.execute("SELECT * FROM research_sessions LIMIT 0").description]
+    result = []
+    for row in rows:
+        d = dict(zip(cols, row))
+        d["proposals"] = json.loads(d.get("proposals") or "[]")
+        result.append(d)
+    return result
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  Self-test
+# ════════════════════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    _ensure_research_tables()
+    print(f"✓ Research tables initialized at {DB_PATH}")
+
+    # Test pattern save
+    p = SavedPattern(
+        name="high-memory-config", rho=0.8, lam=0.6, se=0.1, sz=0.05, sd=0.1,
+        delta_self=0.15, e_shadow=0.02, pcai=0.88, sms=0.15,
+        detectable=True, note="حافظه‌ی قوی، نشت متوسط", tags="memory,strong"
+    )
+    pid = save_pattern(p)
+    print(f"✓ Saved pattern #{pid}")
+
+    # Test architecture save
+    a = SavedArchitecture(
+        name="dual-layer-shadow",
+        description="ترکیب لایه‌ی حافظه‌دار با لایه‌ی نشت‌پذیر",
+        parent_ids=[pid],
+        config={"layers": 2, "coupling": "serial"},
+        note="آزمایش ترکیبی"
+    )
+    aid = save_architecture(a)
+    print(f"✓ Saved architecture #{aid}")
+
+    # Test note
+    n = ResearchNote(
+        title="کشف مهم",
+        content="وقتی ρ بالاست و λ متوسط، PCAI بالاترین است",
+        linked_pattern_id=pid
+    )
+    nid = save_note(n)
+    print(f"✓ Saved note #{nid}")
+
+    # Query
+    patterns = get_patterns()
+    print(f"\n✓ Retrieved {len(patterns)} patterns")
+    archs = get_architectures()
+    print(f"✓ Retrieved {len(archs)} architectures")
+    notes = get_notes()
+    print(f"✓ Retrieved {len(notes)} notes")
+
+    stats = get_research_stats()
+    print(f"\n✓ Stats: {stats}")
+    print(f"✓ Tags: {get_all_tags()}")

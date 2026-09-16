@@ -1,0 +1,73 @@
+PATTERN_CATALOG = {
+    "dual-track": {
+        "class": DualTrackEvaluation,
+        "name": "Blind/Informed Dual-Track Evaluator",
+        "sog_concept": "Δ_self = L_b - L_i",
+        "problem": "Distinguishing real private-state value from decorative scratchpads",
+    },
+    "reflection-gate": {
+        "class": ReflectionGate,
+        "name": "Delta-Self Reflection Gate",
+        "sog_concept": "Self-model gain",
+        "problem": "Prevents endless reflection loops",
+    },
+    "shadow-router": {
+        "class": ShadowRouter,
+        "name": "Shadow-Guided Orchestrator",
+        "sog_concept": "E_shadow",
+        "problem": "Context-window explosion in large swarms",
+    },
+    "epistemic-censor": {
+        "class": EpistemicCensor,
+        "name": "Epistemic Censor",
+        "sog_concept": "Blind/informed asymmetry",
+        "problem": "Unsafe tool use when evidence is weak",
+    },
+    "null-rejection": {
+        "class": NullModelRejection,
+        "name": "Null-Model Baseline Rejection",
+        "sog_concept": "L_0 null floor",
+        "problem": "Costly but non-informative outputs",
+    },
+    "counterfactual": {
+        "class": CounterfactualAblation,
+        "name": "Counterfactual Self-Surgery",
+        "sog_concept": "Informed-vs-blind causal gap",
+        "problem": "Separating real reasoning from rationalization",
+    },
+}
+
+
+if __name__ == "__main__":
+    print("=== Pattern Tests ===\n")
+
+    # Dual-track
+    dt = DualTrackEvaluation(blind_score=0.15, informed_score=0.03, null_score=0.17)
+    print(f"1. Dual-Track: {dt.verdict}")
+    print(f"   Δ_self={dt.delta_self:.3f}, leakage={dt.shadow_leakage:.3f}")
+
+    # Reflection gate
+    rg = ReflectionGate(cost_per_reflection=0.02)
+    rg.update(0.05)  # last reflection gained 0.05
+    print(f"\n2. Reflection Gate: should_reflect(1)={rg.should_reflect(1)}")
+    rg.update(0.005)  # now barely helps
+    print(f"   should_reflect(2)={rg.should_reflect(2)}")
+
+    # Shadow router
+    sr = ShadowRouter(shadow_leakage_score=0.013)
+    print(f"\n3. Shadow Router: {sr.routing_strategy}")
+
+    # Epistemic censor
+    ec = EpistemicCensor(public_confidence=0.9, private_uncertainty=0.5,
+                         evidence_completeness=0.3, action_reversible=False)
+    print(f"\n4. Epistemic Censor: {ec.verdict}")
+
+    # Null rejection
+    nr = NullModelRejection(worker_score=0.12, null_score=0.10)
+    print(f"\n5. Null Rejection: {nr.verdict}")
+
+    # Counterfactual
+    cf = CounterfactualAblation(original_score=0.15, removed_score=0.08,
+                                 corrupted_score=0.10, shuffled_score=0.09)
+    print(f"\n6. Counterfactual: {cf.summary()['verdict']}")
+    print(f"   causal_gap={cf.causal_gap:.3f}")

@@ -1,0 +1,18 @@
+        # Action buttons
+        bc1, bc2, bc3, bc4 = st.columns(4)
+        with bc1:
+            if st.button("✅ تأیید", key=f"appr_{pid}"):
+                update_fn(pid, "approved")
+                st.rerun()
+        with bc2:
+            if st.button("🚀 پیاده‌سازی", key=f"impl_{pid}"):
+                update_fn(pid, "implemented")
+                st.rerun()
+        with bc3:
+            if st.button("❌ رد", key=f"rej_{pid}"):
+                update_fn(pid, "rejected")
+                st.rerun()
+        with bc4:
+            if st.button("🔄 باز‌نگری", key=f"rev_{pid}"):
+                update_fn(pid, "proposed")
+                st.rerun()
