@@ -1,8 +1,0 @@
-{
- "n": 12,
- "pass": 12,
- "pass_rate": 1.0,
- "model_calls_total": 9,
- "invalid_all_abstained": true,
- "note": "12/12 pass with 10 model-call slots unused on invalid rows — guard answered them deterministically"
-}

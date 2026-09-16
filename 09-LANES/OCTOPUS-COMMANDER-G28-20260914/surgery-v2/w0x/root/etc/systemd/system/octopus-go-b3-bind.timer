@@ -1,8 +1,0 @@
-[Unit]
-Description=OCTOPUS GO-B3 binder poll every 2 minutes (GO-W24)
-[Timer]
-OnBootSec=2min
-OnUnitActiveSec=2min
-Persistent=true
-[Install]
-WantedBy=timers.target

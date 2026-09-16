@@ -1,7 +1,0 @@
-[Unit]
-Description=OCTOPUS glass runner — six Persian commands
-[Service]
-Type=oneshot
-User=ari
-WorkingDirectory=/home/ari/ofn/ofn/agents
-ExecStart=/usr/bin/python3 /home/ari/ofn/ofn/agents/glass_runner.py

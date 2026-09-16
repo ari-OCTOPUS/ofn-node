@@ -1,9 +1,0 @@
-{
-  "archive_sha256": "9ee88473e37ee959912bea86707e752542af08a7074f2a881ee5b75d1c810602",
-  "elites_checked": 3681,
-  "max_fitness_abs_error": 0.0,
-  "max_descriptor_abs_error": 0.0,
-  "tolerance": 1e-12,
-  "valid": true,
-  "scope": "all primary-run elites, same environment; no held-out or independent audit"
-}
