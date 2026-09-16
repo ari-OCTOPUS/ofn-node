@@ -1,0 +1,91 @@
+{"id":"Ziman","type":"Project","name":"Ziman Galerry","risk":"low","status":"active","path":"03 - Projects/Ziman Galerry"}
+{"id":"ArchitectOps","type":"Brain","name":"Architect/_ops","risk":"critical","status":"canonical-boss","path":"ARCHITECT-ORGANISM-CONTEXT.md"}
+{"id":"Accounting","type":"Project","name":"Accounting","risk":"high","status":"active","path":"03 - Projects/Accounting"}
+{"id":"LeadPainting","type":"Project","name":"Lead-نقاشی","risk":"medium","status":"active","path":"03 - Projects/Lead-نقاشی"}
+{"id":"ProjectF","type":"Project","name":"Project-F","risk":"high","status":"active-contained","path":"03 - Projects/اونلی فنز"}
+{"id":"Mining","type":"Project","name":"Mining","risk":"medium","status":"active","path":"03 - Projects/Mining"}
+{"id":"CryptoEtoro","type":"Project","name":"Crypto-eToro","risk":"critical","status":"active","path":"03 - Projects/Crypto - etoro"}
+{"id":"NBB_CP","type":"Brain","name":"NBB-CP","risk":"critical","status":"role-open","path":"app"}
+{"id":"FourD","type":"Brain","name":"4d_system","risk":"high","status":"active","path":"4d_system"}
+{"id":"VaultScanner","type":"Tool","name":"نقشه اختاپوس","risk":"low","status":"active","path":"نقشه اختاپوس"}
+{"id":"RiskLadder","type":"Document","name":"Risk Ladder","risk":"low","status":"active","path":"RISK-LADDER.md"}
+{"id":"VerdictQueue","type":"Document","name":"Root Verdict Queue","risk":"low","status":"active","path":"VERDICT_QUEUE.md"}
+{"id":"RegistryAlignment","type":"Document","name":"Registry Alignment","risk":"low","status":"active","path":"REGISTRY-ALIGNMENT.md"}
+{"id":"ExecutionBoard","type":"Document","name":"Execution Board","risk":"low","status":"active","path":"EXECUTION-BOARD.md"}
+{"id":"GraphSchema","type":"Document","name":"Graph Schema","risk":"low","status":"active","path":"_memory/graph/SCHEMA.md"}
+{"id":"Acc_MANIFEST","type":"Manifest","name":"Accounting MANIFEST","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/MANIFEST.yaml"}
+{"id":"Acc_ADAPTER","type":"Adapter","name":"Accounting adapter","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/contracts"}
+{"id":"Acc_RUNBOOK","type":"Runbook","name":"Accounting RUNBOOK","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/RUNBOOK.md"}
+{"id":"Acc_REGISTRY","type":"Document","name":"Accounting REGISTRY","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/REGISTRY.md"}
+{"id":"Acc_VERDICT","type":"Question","name":"Accounting Verdict Queue","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/VERDICT_QUEUE.md"}
+{"id":"Lead_MANIFEST","type":"Manifest","name":"Lead-Painting MANIFEST","risk":"low","status":"verified-exists","path":"03 - Projects/Lead-نقاشی/MANIFEST.yaml"}
+{"id":"Lead_ADAPTER","type":"Adapter","name":"Lead-Painting adapter","risk":"low","status":"verified-exists","path":"03 - Projects/Lead-نقاشی/contracts"}
+{"id":"NBB_MANIFEST","type":"Manifest","name":"NBB-CP MANIFEST","risk":"low","status":"verified-exists","path":"app/MANIFEST.yaml"}
+{"id":"GraphSearchProtocol","type":"Document","name":"Graph Search Protocol","risk":"low","status":"active","path":"_memory/protocols/GRAPH-SEARCH-PROTOCOL.md"}
+{"id":"Acc_README","type":"Document","name":"Accounting README","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/README.md"}
+{"id":"Acc_PROJECT","type":"Document","name":"Accounting PROJECT","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/PROJECT.md"}
+{"id":"Acc_DECISIONS","type":"Decision","name":"Accounting DecisionLog","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/DecisionLog.md"}
+{"id":"Acc_QUESTIONS","type":"Question","name":"Accounting OpenQuestions","risk":"low","status":"verified-exists","path":"03 - Projects/Accounting/OpenQuestions.md"}
+{"id":"Acc_DATA","type":"DataFolder","name":"Accounting data","risk":"high","status":"verified-exists-sensitive-local","path":"03 - Projects/Accounting/data"}
+{"id":"Lead_RUNBOOK","type":"Runbook","name":"Lead-Painting RUNBOOK","risk":"low","status":"created","path":"03 - Projects/Lead-نقاشی/RUNBOOK.md"}
+{"id":"Lead_REGISTRY","type":"Document","name":"Lead-Painting REGISTRY","risk":"low","status":"created","path":"03 - Projects/Lead-نقاشی/REGISTRY.md"}
+{"id":"Lead_VERDICT","type":"Question","name":"Lead-Painting Verdict Queue","risk":"low","status":"created","path":"03 - Projects/Lead-نقاشی/VERDICT_QUEUE.md"}
+{"id":"Lead_DATA","type":"DataFolder","name":"Lead-Painting portfolio/data","risk":"medium","status":"verified-exists","path":"03 - Projects/Lead-نقاشی/data"}
+{"id":"Zim_MANIFEST","type":"Manifest","name":"Ziman MANIFEST","risk":"low","status":"verified-exists","path":"03 - Projects/Ziman Galerry/MANIFEST.yaml"}
+{"id":"Zim_ADAPTER","type":"Adapter","name":"Ziman adapter","risk":"low","status":"verified-exists","path":"03 - Projects/Ziman Galerry/contracts"}
+{"id":"Zim_RUNBOOK","type":"Runbook","name":"Ziman RUNBOOK","risk":"low","status":"created","path":"03 - Projects/Ziman Galerry/RUNBOOK.md"}
+{"id":"Zim_REGISTRY","type":"Document","name":"Ziman REGISTRY","risk":"low","status":"created","path":"03 - Projects/Ziman Galerry/REGISTRY.md"}
+{"id":"Zim_VERDICT","type":"Question","name":"Ziman Verdict Queue","risk":"low","status":"created","path":"03 - Projects/Ziman Galerry/VERDICT_QUEUE.md"}
+{"id":"Min_MANIFEST","type":"Manifest","name":"Mining MANIFEST","risk":"low","status":"verified-exists","path":"03 - Projects/Mining/MANIFEST.yaml"}
+{"id":"Min_ADAPTER","type":"Adapter","name":"Mining adapter","risk":"low","status":"verified-exists","path":"03 - Projects/Mining/contracts"}
+{"id":"Min_RUNBOOK","type":"Runbook","name":"Mining RUNBOOK","risk":"low","status":"created","path":"03 - Projects/Mining/RUNBOOK.md"}
+{"id":"Min_REGISTRY","type":"Document","name":"Mining REGISTRY","risk":"low","status":"created","path":"03 - Projects/Mining/REGISTRY.md"}
+{"id":"Min_VERDICT","type":"Question","name":"Mining Verdict Queue","risk":"low","status":"created","path":"03 - Projects/Mining/VERDICT_QUEUE.md"}
+{"id":"Min_DATA","type":"DataFolder","name":"Mining data","risk":"medium","status":"verified-exists","path":"03 - Projects/Mining/data"}
+{"id":"Cry_MANIFEST","type":"Manifest","name":"Crypto-eToro MANIFEST","risk":"low","status":"verified-exists","path":"03 - Projects/Crypto - etoro/MANIFEST.yaml"}
+{"id":"Cry_ADAPTER","type":"Adapter","name":"Crypto-eToro adapter","risk":"low","status":"verified-exists","path":"03 - Projects/Crypto - etoro/contracts"}
+{"id":"Cry_RUNBOOK","type":"Runbook","name":"Crypto-eToro RUNBOOK","risk":"low","status":"created","path":"03 - Projects/Crypto - etoro/RUNBOOK.md"}
+{"id":"Cry_REGISTRY","type":"Document","name":"Crypto-eToro REGISTRY","risk":"low","status":"created","path":"03 - Projects/Crypto - etoro/REGISTRY.md"}
+{"id":"Cry_VERDICT","type":"Question","name":"Crypto-eToro Verdict Queue","risk":"low","status":"created","path":"03 - Projects/Crypto - etoro/VERDICT_QUEUE.md"}
+{"id":"Cry_DATA","type":"DataFolder","name":"Crypto-eToro data","risk":"critical","status":"verified-exists","path":"03 - Projects/Crypto - etoro/data"}
+{"id":"PF_MANIFEST","type":"Manifest","name":"Project-F Control Manifest","risk":"low","status":"verified-exists-contained","path":"03 - Projects/اونلی فنز/PROJECT-F-CONTROL-MANIFEST.json"}
+{"id":"PF_RUNBOOK","type":"Runbook","name":"Project-F RUNBOOK","risk":"low","status":"created-contained","path":"03 - Projects/اونلی فنز/RUNBOOK.md"}
+{"id":"PF_REGISTRY","type":"Document","name":"Project-F REGISTRY","risk":"low","status":"created-contained","path":"03 - Projects/اونلی فنز/REGISTRY.md"}
+{"id":"PF_VERDICT","type":"Question","name":"Project-F Verdict Queue","risk":"low","status":"created-contained","path":"03 - Projects/اونلی فنز/VERDICT_QUEUE.md"}
+{"id":"NBB_RUNBOOK","type":"Runbook","name":"NBB-CP RUNBOOK","risk":"low","status":"created","path":"app/RUNBOOK.md"}
+{"id":"NBB_REGISTRY","type":"Document","name":"NBB-CP REGISTRY","risk":"low","status":"created","path":"app/REGISTRY.md"}
+{"id":"NBB_VERDICT","type":"Question","name":"NBB-CP Verdict Queue","risk":"low","status":"created","path":"app/VERDICT_QUEUE.md"}
+{"id":"FourD_MANIFEST","type":"Manifest","name":"4D MANIFEST","risk":"low","status":"verified-exists","path":"4d_system/MANIFEST.yaml"}
+{"id":"FourD_RUNBOOK","type":"Runbook","name":"4D RUNBOOK","risk":"low","status":"created","path":"4d_system/RUNBOOK.md"}
+{"id":"FourD_REGISTRY","type":"Document","name":"4D REGISTRY","risk":"low","status":"created","path":"4d_system/REGISTRY.md"}
+{"id":"FourD_VERDICT","type":"Question","name":"4D Verdict Queue","risk":"low","status":"created","path":"4d_system/VERDICT_QUEUE.md"}
+{"id":"Map_MANIFEST","type":"Manifest","name":"VaultScanner MANIFEST","risk":"low","status":"verified-exists","path":"نقشه اختاپوس/MANIFEST.yaml"}
+{"id":"Map_RUNBOOK","type":"Runbook","name":"VaultScanner RUNBOOK","risk":"low","status":"created","path":"نقشه اختاپوس/RUNBOOK.md"}
+{"id":"Map_REGISTRY","type":"Document","name":"VaultScanner REGISTRY","risk":"low","status":"created","path":"نقشه اختاپوس/REGISTRY.md"}
+{"id":"Map_VERDICT","type":"Question","name":"VaultScanner Verdict Queue","risk":"low","status":"created","path":"نقشه اختاپوس/VERDICT_QUEUE.md"}
+{"id":"Agent_Orchestrator","type":"Agent","name":"Orchestrator Agent","risk":"low","status":"memory-created","path":"_memory/agents/orchestrator.md"}
+{"id":"Agent_Cartographer","type":"Agent","name":"Cartographer Agent","risk":"low","status":"memory-created","path":"_memory/agents/cartographer.md"}
+{"id":"Agent_RiskGovernor","type":"Agent","name":"Risk Governor Agent","risk":"low","status":"memory-created","path":"_memory/agents/risk-governor.md"}
+{"id":"Agent_AccountingSteward","type":"Agent","name":"Accounting Steward Agent","risk":"low","status":"memory-created","path":"_memory/agents/accounting-steward.md"}
+{"id":"Agent_RevenueSteward","type":"Agent","name":"Revenue Steward Agent","risk":"low","status":"memory-created","path":"_memory/agents/revenue-steward.md"}
+{"id":"Agent_PrivacySteward","type":"Agent","name":"Privacy Steward Agent","risk":"low","status":"memory-created","path":"_memory/agents/privacy-steward.md"}
+{"id":"Agent_SensingSentinel","type":"Agent","name":"Sensing Sentinel Agent","risk":"low","status":"memory-created","path":"_memory/agents/sensing-sentinel.md"}
+{"id":"Agent_BrainIntegrator","type":"Agent","name":"Brain Integrator Agent","risk":"low","status":"memory-created","path":"_memory/agents/brain-integrator.md"}
+{"id":"Agent_HandoffWriter","type":"Agent","name":"Handoff Writer Agent","risk":"low","status":"memory-created","path":"_memory/agents/handoff-writer.md"}
+{"id":"Zim_PMO_PHASE0","type":"Document","name":"Ziman Phase-0 PMO Package","risk":"low","status":"created","path":"03 - Projects/Ziman Galerry/_PMO/ZIMAN-PHASE0-PACKAGE.md"}
+{"id":"Zim_ORGAN_CB","type":"Organ","name":"Ziman control-brain","risk":"medium","status":"built-tested-relocated","path":"_code/ or _launchpad/ziman-live/control-brain/"}
+{"id":"Zim_ORGAN_ZA","type":"Organ","name":"Ziman ziman-agent","risk":"medium","status":"built-tested-relocated","path":"_code/ or _launchpad/ziman-live/ziman-agent/"}
+{"id":"Zim_ORGAN_VE","type":"Organ","name":"Ziman video-engine (Higgsfield)","risk":"low","status":"kit-built-needs-photos","path":"content/higgsfield-video-kit-2026-07-07.md"}
+{"id":"Zim_ORGAN_FT","type":"Organ","name":"Ziman funnel-tracker","risk":"low","status":"template-built-zero-data","path":"content/Ziman-FirstSale-Tracker.xlsx"}
+{"id":"Zim_CONTENT_FSP","type":"Document","name":"Ziman first-sale-pack","risk":"low","status":"ready-to-use","path":"content/first-sale-pack.md"}
+{"id":"Zim_DOC_BUSINESS","type":"Document","name":"Ziman Business-Zeiman","risk":"low","status":"active","path":"docs/Business-Zeiman.md"}
+{"id":"Zim_DOC_SYSMAP","type":"Document","name":"Ziman ZIMAN-SYSTEM-MAP","risk":"low","status":"active","path":"docs/ZIMAN-SYSTEM-MAP.md"}
+{"id":"Zim_DOC_BRAIN","type":"Document","name":"Ziman ZIMAN-BRAIN-SETUP","risk":"low","status":"active","path":"docs/ZIMAN-BRAIN-SETUP.md"}
+{"id":"Zim_DOC_CAPACITY","type":"Document","name":"Ziman Capacity & Channels","risk":"low","status":"active-needs-owner-input","path":"docs/Capacity & Channels.md"}
+{"id":"Zim_DECISIONS","type":"Decision","name":"Ziman DecisionLog","risk":"low","status":"active","path":"DecisionLog.md"}
+{"id":"Zim_STRATEGY","type":"Decision","name":"Ziman Strategy-DecisionLog","risk":"low","status":"active","path":"Strategy-DecisionLog.md"}
+{"id":"Zim_QUESTIONS","type":"Question","name":"Ziman OpenQuestions","risk":"low","status":"active","path":"OpenQuestions.md"}
+{"id":"Zim_TODO","type":"Document","name":"Ziman TODO","risk":"low","status":"active","path":"TODO.md"}
+{"id":"Zim_INDEX","type":"Document","name":"Ziman INDEX","risk":"low","status":"active","path":"INDEX.md"}
+{"id":"Zim_README","type":"Document","name":"Ziman README","risk":"low","status":"active","path":"README.md"}
+{"id":"Zim_PROJECT","type":"Document","name":"Ziman PROJECT","risk":"low","status":"active","path":"PROJECT.md"}

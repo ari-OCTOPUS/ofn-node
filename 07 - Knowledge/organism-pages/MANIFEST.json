@@ -1,0 +1,34 @@
+{
+ "schema": "organism-pages.v1",
+ "grade": "MEASURED",
+ "pages": {
+  "NOVELTY-ARCHIVE": {
+   "sha256": "d21192ef2b01c33ac88c72d5ce3423c198104dc50d0ef8c5bc7f22bd043c5e75",
+   "bytes": 1091
+  },
+  "ECONOMY": {
+   "sha256": "8b7e24fc8ae8593fcc5e8cd6ff9acd001dc990ca5ec528fa373b785169268c26",
+   "bytes": 1103
+  },
+  "DOCTOR-REPORT": {
+   "sha256": "1d11904f01d8088e6fb5b487387d205fa4a9fdb4390f9a29a428c5a467434a0f",
+   "bytes": 1317
+  },
+  "LAB-NOTEBOOK": {
+   "sha256": "31a1b9e3699ff5993da9396cbbd014a6d90f3010b8a09f91a9b3ec4d4102e31d",
+   "bytes": 1136
+  },
+  "MUTATION-LEDGER": {
+   "sha256": "99d1c30cfb090731583c83c4fbb0543d8a31a8c12233af177a056e29e5719df1",
+   "bytes": 894
+  },
+  "RIGHTS-AND-LAWS": {
+   "sha256": "d98a08aa0f5b492cef90858c3aee4c0271d089538a8b8af17e53c89cb8cb3634",
+   "bytes": 1867
+  },
+  "WEEKLY-CAPABILITY": {
+   "sha256": "fcae42bf36e3323409b1edf66a0656d720c809c242ebd1ff90e0ee81f4352d5c",
+   "bytes": 1317
+  }
+ }
+}

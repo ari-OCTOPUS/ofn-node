@@ -1,0 +1,18 @@
+# genome-system schedule for macOS / Linux.
+# Install with:  crontab -e   (paste these lines; fix DIR to your path)
+#
+# The loop is plan-gated -- it idles automatically once plan.yaml is complete,
+# so it is safe to leave these installed.
+
+DIR=/absolute/path/to/genome-system
+# optional, for real ideas instead of the offline stub:
+# ANTHROPIC_API_KEY=sk-ant-...
+
+# loop (cheap: perception + guardian + creativity) 3x/day: 09:00, 15:00, 21:00
+0 9,15,21 * * *  cd $DIR && python3 run.py loop  >> $DIR/ledger/cron.log 2>&1
+
+# full cycle incl. the Opus Doctor pass, weekly: Monday 08:00
+0 8 * * 1        cd $DIR && python3 run.py full  >> $DIR/ledger/cron.log 2>&1
+
+# backup daily: 23:30
+30 23 * * *      cd $DIR && python3 scripts/backup.py >> $DIR/ledger/cron.log 2>&1
