@@ -73,11 +73,15 @@ status: REGISTERED
   `git push https://github.com/ari-OCTOPUS/ofn-node.git` (gh HTTPS credential);
   the SSH remote `autonomy` stays as-is until the owner re-enables SSH keys.
 
-## PUSH-RECEIPT (final)
+## PUSH-RECEIPT (FINAL — 2026-09-16 ~23:55Z)
 
-- `rootfix/phase1-rca-20260916` → remote `bb286c028e2c495ef86097363309e264b61ce53a` ✓ (contains 499b680 RCA + phase-3 scorer + phase-4)
-- `rescue/octopus-live-tree-20260821` (full history) → **BLOCKED at legacy secret commit `6a38af8`** by GitHub Push Protection (GitHub PAT + LangSmith token in `03 - Projects/Mining/02 - Code/Robo-data/scout_all_in_one.py:38,40`). History rewrite is charter-red-line; "allow secret" on a PUBLIC repo is forbidden. Remote ref advanced to `4dcaa821c945` (~first 400 commits, GitHub-verified clean range).
-- `receipts/durability-snapshot-20260916` → orphan snapshot commit `26978d30ca6b7fcd8ac702dab6660c2a57e188c1` = full vault tree at `9c81591` minus `_archive-binaries` (2.53GB, six files >50MB incl two 1GB DietPi images — over GitHub's 100MB file limit; offline copies: E:/germline + S: archive) — push in flight at report time, hash verify pending.
+| شاخه روی GitHub | هش ریموت | محتوا |
+|---|---|---|
+| `rootfix/phase1-rca-20260916` | `bb286c028e2c495ef86097363309e264b61ce53a` | کامیت `499b680` RCA + فاز-۳ scorer + فاز-۴ SHELF/DECISION-O5 |
+| `rescue/octopus-live-tree-20260821` | `4dcaa821c945d2ede9c8be951fe01c690a68c5f2` | فقط ~۴۰۰ کامیت اول تاریخچهٔ والت (بقیه توسط push protection بلاک — پایین) |
+| `receipts/durability-snapshot-20260916` | **`a1ac23e2162761e6ea6705b74579d0fc4a4d6ec6`** (tree `ea9e69d776ca…`) | **کل والتِ فعلی به‌صورت tree-دقیق** منهای `_archive-binaries` (۲.۵۳GB) و ۹ فایل دادهٔ >95MB؛ تأیید: diff دقیقاً ۵۳۲ فایلِ استثنا |
+
+روش (برای تکرار): push تکه‌ای mktree با فیلتر بازگشتی + بایسکشن؛ ۹۱+۱ push، همه سبز. دلایل سه‌گانهٔ شکست push ساده: (۱) بستهٔ gigابایتی → 408؛ (۲) توکن واقعی در تاریخچه و فیکسچرهای تستی → push protection؛ (۳) ریموت SSH والت مرده → HTTPS با gh.
 
 ## SECURITY FINDING (charter absolute-1) — found BY the push
 
