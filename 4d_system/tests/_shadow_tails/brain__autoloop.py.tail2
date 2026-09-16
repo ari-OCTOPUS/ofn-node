@@ -1,0 +1,88 @@
+    def run(self) -> Generator[LoopResult, None, None]:
+        """
+        اجرای لوپِ پژوهش.
+        هر iteration یک LoopResult برمی‌گردونه.
+        """
+        for i in range(self.config.max_iterations):
+            self.iteration = i
+
+            # ۱. انتخاب منبع
+            source_type = self.config.sources[i % len(self.config.sources)]
+
+            # ۲. تولید داده
+            try:
+                series, source_label = self._generate_data(
+                    source_type, n=getattr(self.config, "explore_points", 3000))
+            except Exception as e:
+                logger.warning("run(): data generation failed for %s: %s",
+                               source_type, e)
+                continue
+
+            if series is not None:
+                series = np.asarray(series, dtype=float)
+            if series is None or len(series) < 20 or not np.all(np.isfinite(series)):
+                continue
+
+            # ۳. تحلیل
+            analysis = self._analyze(series, source_label)
+
+            # ۴. insight از Fugu
+            insight = self._get_insight(analysis)
+
+            # ۵. novelty detection
+            novelty = self._compute_novelty(analysis)
+
+            # ۶. تصمیم: با کاربر مشورت کنیم؟
+            needs_user, question = self._should_ask_user(novelty, analysis)
+
+            # ۷. ذخیره (اگه auto_save یا تایید کاربر)
+            pattern_id = None
+            saved = False
+            if self.config.auto_save and novelty > 0.3:
+                pattern_id = self._save_pattern(analysis, insight)
+                saved = pattern_id is not None
+
+            result = LoopResult(
+                iteration=i,
+                source=source_label,
+                series_stats={
+                    "n": len(series),
+                    "mean": float(np.mean(series)),
+                    "var": float(np.var(series)),
+                },
+                scores=analysis,
+                insight=insight,
+                novelty=novelty,
+                needs_user=needs_user,
+                user_question=question,
+                saved=saved,
+                pattern_id=pattern_id,
+            )
+            self.history.append(result)
+
+            yield result
+
+    def status(self) -> dict:
+        """وضعیت موتور."""
+        return {
+            "iteration": self.iteration,
+            "total_discoveries": len([r for r in self.history if r.saved]),
+            "high_novelty": len([r for r in self.history if r.novelty > 0.6]),
+            "sources_explored": list(set(r.source for r in self.history)),
+        }
+
+
+if __name__ == "__main__":
+    engine = AutoLoopEngine(AutoLoopConfig(max_iterations=3))
+    print("=== AutoLoop Engine Test ===\n")
+    for result in engine.run():
+        print(f"#{result.iteration} {result.source}")
+        print(f"  MI={result.scores['temporal_mi']:.4f}  "
+              f"detectable={result.scores['detectable']}  "
+              f"novelty={result.novelty:.2f}")
+        print(f"  insight: {result.insight[:80]}...")
+        if result.needs_user:
+            print(f"  ⚠️ USER: {result.user_question[:80]}")
+        if result.saved:
+            print(f"  💾 saved as #{result.pattern_id}")
+        print()

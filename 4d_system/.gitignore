@@ -1,0 +1,26 @@
+# Secrets — هرگز commit نشود
+.env
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime artifacts
+outputs/
+streamlit*.log
+*.log
+
+# Local caches
+.obsidian/workspace*
+
+# Claude session artifacts (نه کد پروژه)
+.claude/worktrees/
+.pytest_cache/
+.test-venv/
+
+# Cassettes: ضبطِ ترافیک واقعی LLM ممکن است محتوای vault/PII در prompt داشته باشد —
+# فقط دموی سنتتیکِ سبز‌شده commit می‌شود (سخت‌سازی 2026-07-16، یافتهٔ اسکن secret)
+cassettes/*.jsonl
+!cassettes/demo_epoch.jsonl

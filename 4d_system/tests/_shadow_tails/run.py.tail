@@ -1,0 +1,27 @@
+    import importlib
+    try:
+        if "ui.app" in sys.modules:
+            importlib.reload(sys.modules["ui.app"])
+        else:
+            import ui.app  # noqa: F401
+    except Exception:
+        import streamlit as st
+        if st.session_state.get("_self_heal_tried"):
+            raise  # قبلاً ترمیم شده ولی هنوز خطاست ⇒ خطای واقعی است
+        st.session_state["_self_heal_tried"] = True
+        _project_pkgs = {"ui", "brain", "data", "memory", "llm",
+                         "agents", "config", "knowledge", "core"}
+        for _name in [n for n in list(sys.modules)
+                      if n.split(".")[0] in _project_pkgs]:
+            del sys.modules[_name]
+        st.rerun()
+    else:
+        import streamlit as st
+        st.session_state["_self_heal_tried"] = False
+
+
+if __name__ == "__main__":
+    if _is_streamlit():
+        _run_streamlit_app()
+    else:
+        sys.exit(cli_self_test())

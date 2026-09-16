@@ -1,0 +1,9 @@
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    print("telegram configured:", is_configured())
+    pk = send_packet(
+        "summary", "تستِ لایه‌ی پیام‌رسانی",
+        "بررسیِ صحتِ قالب و صف", "هیچ اقدامی لازم نیست", "هیچ",
+    )
+    print("delivered:", pk["delivered"])
+    print("recent:", len(recent_packets()))
