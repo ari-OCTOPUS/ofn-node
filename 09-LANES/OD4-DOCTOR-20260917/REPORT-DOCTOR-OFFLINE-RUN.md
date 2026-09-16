@@ -149,6 +149,15 @@ proves this one cannot.
 ## 5. Findings from building it (each one a real trap, all fixed)
 
 ### 5.1 Two kernel sites read halt without a resolved source — `UNVERIFIED`, lead
+
+> **RESOLVED 2026-09-17 (same day) — see `WIRING-DECISION-NOTE.md` §1.** The source was
+> traced: both functions **receive a parameter** and the kernel contract states it does
+> not read the file (`start_permit.py:125`); neither has **any production caller or
+> importer**; `stale_class` is imported only for its classifier, not for `admit_refresh`.
+> Both are therefore **`TESTED_ONLY`**, **not oracle consumers**, and **out of OD-4
+> scope**. The blocking condition is closed **negative** — nothing feeds them from a live
+> path, so the PRE baseline stands. The doctor now discovers and reports both itself
+> (verified by test), so a future caller would flip them to `WIRED` automatically.
 See §3.2. **This is the one item that blocks a clean POST receipt.** It is a *read*
 task, not a wiring task.
 

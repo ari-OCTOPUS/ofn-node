@@ -253,3 +253,132 @@ def summarise(rows: list[CoverageRow]) -> dict:
         "covered_by_canonical_oracle": by_label.get("WIRED", 0),
         "by_label": by_label,
     }
+
+
+# --------------------------------------------------------------------------- #
+# Kernel start-gate primitives — they RECEIVE a halt value; they do not read it.
+#
+# Discovered by the doctor's own site scan (2026-09-17) as two extra `is_halted`
+# call sites. They are NOT consumers of the canonical oracle in the coverage sense,
+# because the kernel contract is explicit that the kernel does not read the file
+# (`ofn/kernel/start_permit.py:125`). They are reported separately so OD-4's
+# three-approved-consumer scope stays exact and auditable.
+# --------------------------------------------------------------------------- #
+
+KERNEL_PRIMITIVES = (
+    {
+        "primitive_id": "P-1",
+        "file": "ofn/kernel/start_permit.py",
+        "function": "decide_start",
+        "parameter": "halt_raw",
+        "self_doc": "start_permit.py:125 - \"the kernel does not read the file\"",
+    },
+    {
+        "primitive_id": "P-2",
+        "file": "ofn/kernel/stale_class.py",
+        "function": "admit_refresh",
+        "parameter": "halt",
+        "self_doc": "stale_class.py:313-322 - halt is bool or raw flag, supplied by the caller",
+    },
+)
+
+_ORACLE_READERS = ("master_halted", "halt_flag_active")
+_FILE_READ_CALLS = ("read_bytes", "read_text", "open")
+
+
+def _scan_references(repo: Path, defining_file: str, func_name: str) -> dict:
+    """Find production callers + importers of a symbol, by AST. No hardcoding."""
+    callers: list[str] = []
+    importers: list[str] = []
+    imported_names: list[str] = []
+
+    for path in sorted((repo / "ofn").rglob("*.py")):
+        if "__pycache__" in path.parts or path.name.startswith("test_"):
+            continue
+        rel = path.relative_to(repo).as_posix()
+        if rel == defining_file:
+            continue
+        tree, err = _parse(path)
+        if err is not None:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if _dotted(node.func).split(".")[-1] == func_name:
+                    callers.append(f"{rel}:{getattr(node, 'lineno', 0)}")
+            elif isinstance(node, ast.ImportFrom):
+                if (node.module or "").endswith(defining_file.split("/")[-1][:-3]):
+                    importers.append(f"{rel}:{getattr(node, 'lineno', 0)}")
+                    imported_names.extend(a.name for a in node.names)
+    return {"callers": sorted(set(callers)),
+            "importers": sorted(set(importers)),
+            "imported_names": sorted(set(imported_names))}
+
+
+def _parse(path: Path):
+    from .resolver import parse_python
+    return parse_python(path)
+
+
+def analyse_kernel_primitives(repo: Path) -> list[dict]:
+    """Coverage state for the kernel start-gate primitives."""
+    rows: list[dict] = []
+    for spec in KERNEL_PRIMITIVES:
+        path = repo / spec["file"]
+        row = dict(spec)
+        row["path_correctness"] = None          # not an egress consumer
+        row["in_od4_scope"] = False
+        row["effect"] = "none - kernel decision primitive, no egress"
+        row["reads_halt_file"] = None
+        row["coverage"] = "UNVERIFIED"
+        row["production_callers"] = []
+        row["importers"] = []
+        row["imported_names"] = []
+        row["note"] = ""
+
+        if not path.exists():
+            row["note"] = f"file not found: {spec['file']}"
+            rows.append(row)
+            continue
+
+        tree, err = _parse(path)
+        if err is not None:
+            row["note"] = f"unparsable: {err}"
+            rows.append(row)
+            continue
+
+        fn = _find_function(tree, spec["function"])
+        if fn is None:
+            row["note"] = f"function {spec['function']!r} not found"
+            rows.append(row)
+            continue
+
+        # does THIS function read the flag file, or only consume a supplied value?
+        reads = []
+        for node in ast.walk(fn):
+            if isinstance(node, ast.Call):
+                short = _dotted(node.func).split(".")[-1]
+                if short in _ORACLE_READERS or short in _FILE_READ_CALLS:
+                    reads.append(f"{short}@{getattr(node, 'lineno', 0)}")
+        row["reads_halt_file"] = bool(reads)
+        row["reads_evidence"] = sorted(set(reads))
+
+        refs = _scan_references(repo, spec["file"], spec["function"])
+        row["production_callers"] = refs["callers"]
+        row["importers"] = refs["importers"]
+        row["imported_names"] = refs["imported_names"]
+
+        if refs["callers"]:
+            row["coverage"] = "WIRED"
+            row["note"] = "a production caller exists - re-audit before treating this as dormant"
+        else:
+            row["coverage"] = "TESTED_ONLY"
+            if refs["importers"]:
+                row["note"] = ("module is imported only for other names ("
+                               + ", ".join(refs["imported_names"])
+                               + ") - this primitive has no production caller")
+            else:
+                row["note"] = "no production caller and no importer in ofn/"
+        if reads:
+            row["note"] += " | WARNING: this function appears to read the flag itself"
+        rows.append(row)
+    return rows

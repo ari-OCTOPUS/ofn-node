@@ -28,7 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from _ops.halt_oracle_doctor import canon, coverage, doctor, resolver, safety_check  # noqa: E402
+from _ops.halt_oracle_doctor import baseline, canon, coverage, doctor, resolver, safety_check  # noqa: E402
 
 LIVE_REPO = Path("F:/ofn-node")
 PKG = Path(__file__).resolve().parents[1]
@@ -357,6 +357,172 @@ class T6_DeterminismAndShellGuard(unittest.TestCase):
 
     def test_canon_self_test_is_green(self):
         self.assertEqual(canon.self_test(), [])
+
+
+class T7_KernelPrimitives(unittest.TestCase):
+    """The two extra `is_halted` sites: kernel primitives that RECEIVE, never read.
+
+    Reporting them is required (owner deliverable 3); letting them into OD-4 scope is
+    not. Both properties are asserted, plus a positive control proving the caller scan
+    is a real measurement rather than a hardcoded answer.
+    """
+
+    def test_both_primitives_are_discovered_in_the_live_repo(self):
+        rows = coverage.analyse_kernel_primitives(LIVE_REPO)
+        ids = {r["primitive_id"] for r in rows}
+        self.assertEqual(ids, {"P-1", "P-2"}, rows)
+
+    def test_neither_primitive_reads_the_halt_file(self):
+        """The kernel contract says the kernel does not read the file — verify it."""
+        for r in coverage.analyse_kernel_primitives(LIVE_REPO):
+            with self.subTest(p=r["primitive_id"]):
+                self.assertFalse(r["reads_halt_file"], r)
+
+    def test_neither_primitive_has_a_production_caller(self):
+        for r in coverage.analyse_kernel_primitives(LIVE_REPO):
+            with self.subTest(p=r["primitive_id"]):
+                self.assertEqual(r["production_callers"], [], r["production_callers"])
+
+    def test_primitives_are_TESTED_ONLY_and_out_of_OD4_scope(self):
+        for r in coverage.analyse_kernel_primitives(LIVE_REPO):
+            with self.subTest(p=r["primitive_id"]):
+                self.assertEqual(r["coverage"], "TESTED_ONLY")
+                self.assertFalse(r["in_od4_scope"])
+                self.assertIn("no egress", r["effect"])
+
+    def test_the_three_consumer_scope_is_untouched_by_them(self):
+        """Adding primitives must not move the approved 3-consumer invariant."""
+        rows = coverage.analyse_all(LIVE_REPO)
+        self.assertEqual(len(rows), 3)
+        s = coverage.summarise(rows)
+        self.assertEqual(s["consumers_total"], 3)
+        self.assertEqual(s["covered_by_canonical_oracle"], 0)
+        with tempfile.TemporaryDirectory() as td:
+            res = doctor.run(LIVE_REPO, "/home/ari", "F:/ofn-node/HALT", Path(td), "PRE")
+        self.assertEqual(res["mismatch_count"], 4, "primitives must not add coverage_gap rows")
+        self.assertEqual(len(res["coverage"]), 3)
+        self.assertEqual(len(res["kernel_start_primitives"]), 2)
+
+    def test_receipt_carries_the_primitives_out_of_scope(self):
+        with tempfile.TemporaryDirectory() as td:
+            doctor.run(LIVE_REPO, "/home/ari", "F:/ofn-node/HALT", Path(td), "PRE")
+            name = sorted(x.name for x in Path(td).glob("PRE-coverage-*.json"))[0]
+            cov = json.loads((Path(td) / name).read_text(encoding="utf-8"))
+        prims = cov["out_of_scope_consumers"]["kernel_start_primitives"]
+        self.assertEqual({p["primitive_id"] for p in prims}, {"P-1", "P-2"})
+        for p in prims:
+            self.assertEqual(p["coverage"], "TESTED_ONLY")
+            self.assertFalse(p["in_od4_scope"])
+
+    def test_a_caller_flips_the_label_WIRED_positive_control(self):
+        """Proves the caller scan MEASURES rather than reporting a constant."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "ofn" / "kernel").mkdir(parents=True)
+            self._write(repo / "ofn" / "kernel" / "start_permit.py",
+                        "def decide_start(halt_raw=None):",
+                        "    return halt_raw")
+            self._write(repo / "ofn" / "caller.py",
+                        "from ofn.kernel.start_permit import decide_start",
+                        "def go():",
+                        "    return decide_start(halt_raw=None)")
+            rows = {r["primitive_id"]: r for r in coverage.analyse_kernel_primitives(repo)}
+            self.assertTrue(rows["P-1"]["production_callers"], rows["P-1"])
+            self.assertEqual(rows["P-1"]["coverage"], "WIRED")
+            self.assertIn("re-audit", rows["P-1"]["note"])
+
+    def test_a_primitive_that_reads_the_file_is_warned_about(self):
+        """A primitive that starts reading the flag itself must be flagged loudly."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "ofn" / "kernel").mkdir(parents=True)
+            self._write(repo / "ofn" / "kernel" / "start_permit.py",
+                        "import ofn.budget.opslib as o",
+                        "def decide_start(halt_raw=None):",
+                        "    return o.master_halted()")
+            rows = {r["primitive_id"]: r for r in coverage.analyse_kernel_primitives(repo)}
+            self.assertTrue(rows["P-1"]["reads_halt_file"], rows["P-1"])
+            self.assertIn("WARNING", rows["P-1"]["note"])
+
+    @staticmethod
+    def _write(path: Path, *lines: str) -> None:
+        path.write_text(chr(10).join(lines) + chr(10), encoding="utf-8", newline=chr(10))
+
+
+class T8_SourceManifest(unittest.TestCase):
+    """The content-level baseline that replaced HEAD-only pinning.
+
+    A real hole found 2026-09-17: the first PRE receipt pinned `HEAD` but 4 of the 11
+    files it read were either modified or never tracked, so the commit did not describe
+    them. These tests lock the content-level rule and its three verdicts.
+    """
+
+    def _write(self, path: Path, text: str) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8", newline=chr(10))
+
+    def test_manifest_records_a_digest_per_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            self._write(repo / "a" / "one.py", "x = 1" + chr(10))
+            self._write(repo / "b" / "two.py", "y = 2" + chr(10))
+            m = baseline.source_manifest(repo, ["a/one.py", "b/two.py", "missing.py"])
+        self.assertEqual(m["schema"], baseline.MANIFEST_SCHEMA)
+        self.assertEqual(m["file_count"], 3)
+        self.assertEqual(len(m["files"]["a/one.py"]), 64)
+        self.assertIsNone(m["files"]["missing.py"], "an unreadable file must be None, not absent")
+        self.assertFalse(m["tracked_status_claimed"])
+
+    def test_identical_manifests_compare_clean(self):
+        m = {"files": {"a": "1", "b": "2"}}
+        got = baseline.compare(m, dict(m), expected_changed=[])
+        self.assertEqual(got["verdict"], "COMPARABLE")
+        self.assertTrue(got["comparable"])
+
+    def test_an_unexpected_change_is_BASELINE_MOVED(self):
+        """This is the concurrent-lane detector."""
+        prev = {"files": {"a": "1", "b": "2"}}
+        cur = {"files": {"a": "1", "b": "CHANGED"}}
+        got = baseline.compare(prev, cur, expected_changed=["a"])
+        self.assertEqual(got["verdict"], "BASELINE_MOVED")
+        self.assertFalse(got["comparable"])
+        self.assertEqual(got["unexpected_changes"], ["b"])
+
+    def test_an_intended_change_compares_clean(self):
+        prev = {"files": {"a": "1", "b": "2"}}
+        cur = {"files": {"a": "NEW", "b": "2"}}
+        got = baseline.compare(prev, cur, expected_changed=["a"])
+        self.assertEqual(got["verdict"], "COMPARABLE")
+        self.assertEqual(got["intended_changes"], ["a"])
+
+    def test_an_intended_file_that_did_not_change_is_CHANGE_INCOMPLETE(self):
+        prev = {"files": {"a": "1", "b": "2"}}
+        got = baseline.compare(prev, dict(prev), expected_changed=["a", "b"])
+        self.assertEqual(got["verdict"], "CHANGE_INCOMPLETE")
+        self.assertEqual(got["expected_but_unchanged"], ["a", "b"])
+
+    def test_added_and_removed_files_are_detected(self):
+        prev = {"files": {"a": "1"}}
+        cur = {"files": {"b": "1"}}
+        got = baseline.compare(prev, cur, expected_changed=[])
+        self.assertEqual(got["files_added"], ["b"])
+        self.assertEqual(got["files_removed"], ["a"])
+        self.assertEqual(got["verdict"], "BASELINE_MOVED")
+
+    def test_real_receipt_carries_a_manifest_covering_the_analysed_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            res = doctor.run(LIVE_REPO, "/home/ari", "F:/ofn-node/HALT", Path(td), "PRE")
+            name = sorted(x.name for x in Path(td).glob("PRE-coverage-*.json"))[0]
+            cov = json.loads((Path(td) / name).read_text(encoding="utf-8"))
+        man = res["source_manifest"]
+        files = man["files"]
+        for required in ("ofn/node.py", "ofn/adapters/router.py",
+                         "ofn/assistant_update.py", "ofn/budget/opslib.py",
+                         "ofn/kernel/start_permit.py", "ofn/kernel/stale_class.py"):
+            self.assertIn(required, files, required)
+            self.assertIsNotNone(files[required], required)
+        self.assertGreaterEqual(man["file_count"], 11)
+        self.assertEqual(cov["source_manifest"]["file_count"], man["file_count"])
 
 
 if __name__ == "__main__":

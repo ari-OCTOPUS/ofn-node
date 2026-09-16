@@ -28,7 +28,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import canon, coverage, resolver, safety_check
+from . import baseline, canon, coverage, resolver, safety_check
 
 PKG = Path(__file__).resolve().parent
 DEFAULT_RECEIPTS = PKG / "receipts"
@@ -165,6 +165,22 @@ def run(repo: Path, declared_home: str, documented_oracle: str,
     cov_dicts = [r.as_dict() for r in cov_rows]
     summary = coverage.summarise(cov_rows)
 
+    # The two extra `is_halted` sites found by the site scan: kernel start-gate
+    # primitives that RECEIVE a value and do not read the file. Reported here so
+    # the three-approved-consumer scope above stays exact and auditable.
+    primitives = coverage.analyse_kernel_primitives(repo)
+
+    # Content manifest of every file this analysis read. HEAD pinning alone was NOT
+    # enough: 4 of 11 scanned files were uncommitted or never tracked, so the receipt
+    # records digests and the POST rule becomes content-level (see baseline.py).
+    analysed_files = sorted(
+        {s['file'] for s in site_rows}
+        | {c['file'] for c in cov_dicts}
+        | {pr['file'] for pr in primitives}
+        | {'ofn/budget/opslib.py'}
+    )
+    manifest = baseline.source_manifest(repo, analysed_files)
+
     mismatches = _mismatches(canonical, documented_oracle, cov_rows)
 
     # 5. receipts
@@ -197,8 +213,15 @@ def run(repo: Path, declared_home: str, documented_oracle: str,
             "resolved_path_sites": len(consumers_of_oracle),
             "any_label_changed": False,
             "note": "the doctor reports coverage only for the three approved OD-4 consumers",
+            "kernel_start_primitives": [
+                {"primitive_id": p["primitive_id"], "site": f"{p['file']}:{p['function']}",
+                 "coverage": p["coverage"], "reads_halt_file": p["reads_halt_file"],
+                 "production_callers": p["production_callers"], "in_od4_scope": p["in_od4_scope"]}
+                for p in primitives
+            ],
         },
         "summary": summary,
+        "source_manifest": manifest,
         "mutations_performed": 0,
         "node_observation": "NOT_PERFORMED — no live-node access (owner boundary)",
         "generated_by": "halt_oracle_doctor (offline, read-only)",
@@ -214,8 +237,10 @@ def run(repo: Path, declared_home: str, documented_oracle: str,
         "canonical_oracle": canonical,
         "halt_sites": site_rows,
         "parse_failures": parse_failures,
+        "kernel_start_primitives": primitives,
         "coverage": cov_dicts,
         "summary": summary,
+        "source_manifest": manifest,
         "mismatch_count": len(mismatches),
         "mismatches": mismatches,
         "mutations_performed": 0,
@@ -299,7 +324,12 @@ def main(argv: list[str] | None = None) -> int:
                   f"path={row['path_correctness']:6} coverage={row['coverage']}")
             print(f"      evidence: {row['evidence']}")
         print(f"  halt sites    : {len(result['halt_sites'])} (parse failures: {len(result['parse_failures'])})")
+        for pr in result["kernel_start_primitives"]:
+            print(f"    - {pr['primitive_id']:6} {pr['file']}:{pr['line'] if 'line' in pr else pr['function']}"
+                  f"  coverage={pr['coverage']:12} reads_file={pr['reads_halt_file']}"
+                  f"  callers={len(pr['production_callers'])}")
         print(f"  mismatches    : {result['mismatch_count']}")
+        print(f"  source files  : {result['source_manifest']['file_count']} digests (content-level baseline)")
         print(f"  mutations     : {result['mutations_performed']}")
         print(f"  artifacts     : {result['artifacts']['result']}")
     return 0
