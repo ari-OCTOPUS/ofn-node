@@ -1,5 +1,0 @@
-{"hash":"8f268ddaa595a8abff0e8073889db768f6025032b97f4fa17b537ffeaf4cb0cc","obs":"reading-0","prev_hash":"GENESIS","seq":0,"src":"observatory-0"}
-{"hash":"3c4e7dacc4d2bb218a82debfccadbfc616f4017842a375861470acf2bcb87b70","obs":"reading-1","prev_hash":"8f268ddaa595a8abff0e8073889db768f6025032b97f4fa17b537ffeaf4cb0cc","seq":1,"src":"observatory-1"}
-{"hash":"173497604c91a2f286e1801729a52e55049a7d95c149d737b661efddfc9c3232","obs":"reading-2","prev_hash":"3c4e7dacc4d2bb218a82debfccadbfc616f4017842a375861470acf2bcb87b70","seq":2,"src":"observatory-2"}
-{"hash":"e12cf49497964e1961033b08ee3d0ae7383f16a3450fb9f5163ce377d8fb8d5b","obs":"reading-3","prev_hash":"173497604c91a2f286e1801729a52e55049a7d95c149d737b661efddfc9c3232","seq":3,"src":"observatory-3"}
-{"hash":"4928c41837bb516fde6c2b230cb82ad0b9ff496bcfdd828a14e153db0f6aa677","obs":"reading-4","prev_hash":"e12cf49497964e1961033b08ee3d0ae7383f16a3450fb9f5163ce377d8fb8d5b","seq":4,"src":"observatory-4"}
