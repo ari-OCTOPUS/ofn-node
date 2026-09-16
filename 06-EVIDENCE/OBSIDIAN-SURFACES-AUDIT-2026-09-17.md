@@ -101,16 +101,59 @@ It still declared `updated: 2026-09-08` and listed items from early September as
 of its "باز و منتظر مالک" section. The rewrite keeps those 6 links (they are valid and
 still open) and replaces the stale prose with pointers.
 
+### 3.6 ⚠ Two live `CURRENT-TRUTH` surfaces, and the recorded "canonical" claim is wrong
+Discovered while double-checking which file to edit. **Both** are substantial and
+**both** receive agent edits — this is not one file plus a redirect:
+
+| Path | Size | Last modified | Last commit | Has `OCTOPUS-AUTO-*` block? |
+|---|---|---|---|---|
+| `OCTOPUS/CURRENT-TRUTH.md` | 39,610 B | 2026-09-17 08:26 | `b2cffad` (this sync) | **yes** (`type: octopus-auto`) |
+| `06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md` | 92,072 B | had been 2026-09-15 19:19 | `25c637f` (09-15) | no |
+
+The recorded convention says the `06-EVIDENCE/…` copy is canonical and
+`OCTOPUS/CURRENT-TRUTH.md` is "the OLD redirect". **That does not match the disk:**
+
+- `OCTOPUS/CURRENT-TRUTH.md` is **not** a redirect — it is 39 KB with the live
+  organism auto-block (regenerated `2026-09-16T22:08:06Z`) and it took the most recent
+  agent edits (the 09-16 TG-Unify blocks).
+- The 360-byte redirect stubs are a *different* set of six files
+  (`00 - Inbox/…`, `01 - Dashboard/OCTOPUS-OWNER-BOARD/…`, `07-HANDOFF/…`,
+  `agent-prompts/…`, `06-EVIDENCE/FUGU-BIZ-SPRINT-2026-08-24/{cockpit,OWNER-BOARD}/…`).
+- The **rc-layer ruling names the substring `OCTOPUS/CURRENT-TRUTH`** — i.e. the file
+  the charter intends to protect is the `OCTOPUS/` one, not the `06-EVIDENCE/` one.
+
+**Resolution applied here:** the season block was written to **both** files
+(`OCTOPUS/` first, then the 89 KB canonical one, LF-preserved) so neither surface is
+stale, and the ambiguity is reported rather than silently decided. **This lane did not
+declare a winner** — that is an owner/architecture call, and guessing it is exactly the
+failure mode this season's audit documented.
+
+**Why it matters:** with two live copies, "the" current truth depends on which file an
+agent happens to open. Anything read from the stale copy is silently 2 days old. Combined
+with §3.3, the file the rc layer intends to protect is both unscanned **and** ambiguous.
+
+## 3.7 Correction to a recorded claim
+
+My own vault memory asserted that `OCTOPUS/CURRENT-TRUTH.md` is a stale redirect and that
+the `06-EVIDENCE/…` copy is canonical. The disk contradicts this (§3.6). The memory has
+been corrected. Flagged here because a wrong "canonical file" note is exactly the kind of
+declared-vs-actual drift this season has been documenting — and it was in *my* notes.
+
+
+
 ## 4. Disclosure — concurrent writer
 
 `OCTOPUS/CURRENT-TRUTH.md` carried **another writer's uncommitted changes** when this lane
 edited it: the auto-block regeneration (beat `77459 → 77487`, coherence `0.803 → 0.957`,
 HEAD `686550b → 108fad4`) plus two additive "Human status" blocks about the TG-Unify
-permanent owner door. Committing this file **includes** those changes. They are
-**not authored by this lane** and were not reviewed here — they were preserved rather
-than reverted, because reverting another agent's in-flight work would be worse than
-disclosing it. Flagged per the lane-discipline rule ("touching another lane's file is a
-stop condition: log it").
+permanent owner door. Committing this file **includes** those changes. They are **not
+authored by this lane** and were not reviewed here — they were preserved rather than
+reverted, because reverting another agent's in-flight work would be worse than disclosing
+it. Flagged per the lane-discipline rule ("touching another lane's file is a stop
+condition: log it").
+
+The `06-EVIDENCE/…/CURRENT-TRUTH.md` copy was clean at HEAD before this lane appended to
+it (only my additive block is new there).
 
 ## 5. Not done (deliberately)
 
