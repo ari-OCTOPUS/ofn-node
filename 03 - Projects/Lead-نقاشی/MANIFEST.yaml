@@ -1,0 +1,106 @@
+# ===================================================================
+# MANIFEST — Lead-نقاشی (Execution Leg / منبع درآمد اصلی)
+# جعبهٔ سیاه مولتی‌ایجنتی — سه زیرمغز: استراتژی + Brushline + کاریابی
+# ===================================================================
+manifest_version: "1.0"
+generated: 2026-07-11
+generated_by: "role-extraction-agent (ZCode)"
+
+identity:
+  code: "Lead-Painting"
+  domain: "residential/commercial painting business — Sydney NSW"
+  role_in_ecosystem: "PRIMARY INCOME LEG — the only leg that directly generates revenue"
+  tenant_order: "#2 (D-26: Accounting → Lead → Mining)"
+  phase: "infrastructure-complete, leads-zero, experiments-not-started"
+
+status_snapshot:
+  execution_state: "ZERO live leads. Brushline built (8/9 phases DONE). کاریابی bot built (33 tests green). Both OFF until rotation."
+  primary_blocker: "API keys in rotation (Anthropic/Telegram/Tavily/PlanningAlerts/Serper)"
+  security_gate: "closed"
+  pending_human_verdicts: 0
+  last_updated_source_of_truth: "PROJECT.md (Active Context)"
+
+hard_rules_locked:
+  - "propose-only: agent produces drafts; every outreach/publish/spend requires human verdict"
+  - "Spam Act 2003 compliance: consent + ABN + opt-out on every message (5-day unsubscribe)"
+  - "DNCR wash for residential numbers (30-day validity) before any call campaign"
+  - "ACL s.29: no false claims (best/cheapest/guaranteed blocked by Gate)"
+  - "PII hash-ref only (INV-2): customer PII never enters AI memory"
+  - "kill-switch + per-action cap ($5) + per-day cap ($20)"
+  - "read-only until Security Gate opens"
+hard_rules_mutability: "immutable without human verdict"
+
+# ── سه زیرمغز (هرکدام پتانسیل جعبهٔ سیاه مستقل) ─────────────────
+blackbox_potential:
+  - id: "brushline_leadgen"
+    desc: "full lead-gen/marketing system: 6 Workers (A-F), orchestrator, Constitution Gate, Approval Queue, audit hash-chain"
+    runtime: "AiFarm-Lead/ (code relocated to _code/)"
+    readiness: "8/9 phases DONE, tests green. Phase 10 (VPS deploy) pending."
+    invariants: "INV-1 (no publish without approve), INV-2 (PII hash), INV-3 (kill-switch+cap+audit)"
+    model_tiering: "Haiku (research/sentiment) → Sonnet (key copy/gate) → Opus (off in MVP)"
+
+  - id: "kariyabi_tender_bot"
+    desc: "NSW government tender scraping bot: PlanningAlerts + AusTender + NSW eTendering RSS → filtered leads to Telegram"
+    runtime: "کاریابی/ (code relocated to _code/)"
+    readiness: "rebuilt 2026-07-03, 33 tests green, 3 active sources, OFF until rotation"
+    sources: ["PlanningAlerts (DA)", "AusTender (federal OCDS)", "NSW eTendering RSS"]
+
+  - id: "hunter_llm_agent"
+    desc: "autonomous channel discovery: web search → competitor analysis → new tender pages"
+    runtime: "کاریابی/04_hunter_agent_prompt.md"
+    readiness: "PROMPT only — not built"
+
+  - id: "infra_control"
+    desc: "VPS control plane: Docker+Traefik+stackctl+CI gated (multi-project host)"
+    runtime: "AiFarm-Lead/SERVER_ARCHITECTURE.md"
+    readiness: "skeleton complete, e2e deploy not done (P10), needs VPS"
+
+  - id: "crm_sync"
+    desc: "lead sync to ServiceM8/Tradify (consent-gated)"
+    readiness: "P5 DONE — adapter-based, dry-run without keys"
+
+  - id: "portfolio_assets"
+    desc: "159 project photos → social proof / portfolio"
+    runtime: "data/portfolio/ (159 jpgs, 2024-02 to 2026-07)"
+    readiness: "raw — uncategorized"
+
+control_surface:
+  read_state_files:
+    load_order: ["PROJECT.md", "INDEX.md", "docs/Outreach-Compliance.md"]
+    navigation: "INDEX.md"
+    live_status: "PROJECT.md#Active-Context"
+    decisions: "DecisionLog.md"
+    open_questions: "OpenQuestions.md"
+  adapter: "contracts/adapter.yaml"
+
+kill_switches:
+  - scope: "brushline"
+    trigger: "touch KILL_SWITCH file OR /kill in Telegram"
+    effect: "all workers halt"
+  - scope: "budget"
+    trigger: "spend > per-action ($5) or per-day ($20)"
+    effect: "SpendCapExceeded exception"
+  - scope: "capacity"
+    trigger: "outreach volume exceeds what operator can handle"
+    effect: "flag — no auto-send regardless"
+
+budget_caps:
+  anthropic_api_monthly_aud: "15-40 (Haiku-first)"
+  vps_monthly_aud: "35-70"
+  serper: "free tier (2500 queries/mo)"
+
+dependencies:
+  self_contained: ["docs/", "data/", "کاریابی/ (docs)", "AiFarm-Lead/ (docs)"]
+  external_relocated: ["Brushline code → _code/", "کاریابی bot code → _code/"]
+  connectors_needing_auth:
+    - "Anthropic API key (rotation)"
+    - "Telegram bot tokens (Brushline + کاریابی — separate)"
+    - "Tavily / Serper (web search)"
+    - "PlanningAlerts API"
+    - "ServiceM8 / Tradify (CRM sync)"
+
+ecosystem_connections:
+  accounting: "painting income → business income + GST 10% (main source for Accounting)"
+  mining: "none (separate)"
+  crypto: "none (separate)"
+  project_f: "Brushline references LANGAR (Project-F cockpit) — DB must stay separate (Phase 0 constraint)"

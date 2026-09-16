@@ -1,0 +1,12 @@
+# /etc/systemd/system/ofn-assistant-update.timer
+[Unit]
+Description=OFN daily Saba assistant RAG refresh trigger
+Documentation=file:///home/ari/ofn/README.md
+
+[Timer]
+OnCalendar=*-*-* 04:10:00
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

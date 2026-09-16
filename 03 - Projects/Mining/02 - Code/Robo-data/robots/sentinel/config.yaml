@@ -1,0 +1,169 @@
+# ============================================================
+# SENTINEL — config.yaml
+# نسخه ۱.۰ · مه ۲۰۲۶
+# تمام پارامترها را اپراتور می‌تواند اینجا تغییر دهد
+# ============================================================
+
+# -------- تخصیص سرمایه --------
+capital:
+  total_aud: 3500
+  currency: AUD
+
+assets:
+  BTC:
+    name: Bitcoin
+    allocation_pct: 35
+    pole: hedge
+    signals: [price, onchain, social]   # سه سیگنال کامل
+    dca_tranches: 4
+
+  ETH:
+    name: Ethereum
+    allocation_pct: 20
+    pole: hedge
+    signals: [price, onchain, social]
+    dca_tranches: 4
+
+  XMR:
+    name: Monero
+    allocation_pct: 15
+    pole: privacy
+    signals: [price, social]            # on-chain ذاتاً شفاف ندارد
+    dca_tranches: 3
+
+  ZEC:
+    name: Zcash
+    allocation_pct: 10
+    pole: privacy
+    signals: [price, social]
+    dca_tranches: 3
+
+  Midnight:
+    name: Midnight
+    allocation_pct: 5
+    pole: privacy
+    signals: [price]                    # فقط رصد تا تأیید نقدینگی
+    dca_tranches: 2
+    watch_only: true                    # هیچ سیگنال ورودی صادر نمی‌کند
+
+  USDC:
+    name: USD Coin
+    allocation_pct: 10
+    pole: stable
+    signals: []                         # پارکینگ پول
+    watch_regulatory: true
+
+  USDT:
+    name: Tether
+    allocation_pct: 5
+    pole: stable
+    signals: []
+    watch_regulatory: true
+
+# -------- وزن‌دهی امتیازدهی (قابل تنظیم) --------
+scoring_weights:
+  BTC_ETH:
+    drawdown:   0.30
+    ma_position: 0.20
+    fear_greed: 0.15
+    onchain:    0.20
+    social:     0.15
+
+  XMR_ZEC:
+    drawdown:   0.40
+    ma_position: 0.25
+    fear_greed: 0.15
+    social:     0.20
+
+# -------- آستانه‌های تصمیم --------
+thresholds:
+  strong_entry: 70      # پیشنهاد پله بزرگ‌تر
+  moderate_entry: 45    # پله متوسط
+  weak_entry: 25        # پله کوچک یا انتظار
+  # زیر ۲۵ = فقط رصد
+
+# -------- فازبندی زمانی --------
+phases:
+  phase_0:
+    name: calibration
+    min_days: 10
+    max_days: 18
+    min_volatility_samples: 10   # اگر این تعداد نمونه جمع شد، زودتر وارد فاز ۱ می‌شود
+
+  phase_1:
+    name: deployment
+    duration_months: 6
+    # اگر کوینی تا پایان ماه ۶ به ناحیه مساعد نرسید، با DCA ساده وارد می‌شود
+
+  phase_2:
+    name: rebalancing
+    rebalance_alert_pct: 15      # اگر یک دارایی بیش از ۱۵٪ از وزن هدف منحرف شد، هشدار
+
+# -------- مدیریت ریسک --------
+risk:
+  max_drawdown_tolerance: 0.60   # تا ۶۰٪ ریزش، برنامه را رها نمی‌کند
+  price_alert_pct: 5             # هر حرکت ۵٪ → سیگنال اطلاع‌رسانی
+  leverage_allowed: false         # هرگز اهرم نه
+
+# -------- Big Scenarios — ادغام در امتیازدهی --------
+scenarios:
+  # هر سناریو می‌تواند inactive / emerging / active باشد
+  # اپراتور به‌صورت دستی یا ربات به‌صورت خودکار (بر اساس شاخص‌ها) آپدیت می‌کند
+
+  quantum_threat:
+    status: emerging              # inactive | emerging | active
+    # وقتی active: XMR/ZEC امتیاز privacy bonus می‌گیرند؛ QRL/ALGO watch اضافه می‌شود
+    score_modifier:
+      XMR: +8
+      ZEC: +5
+      BTC: -3                    # کلیدهای عمومی‌اش در خطر است
+      ETH: -3
+    alert_message: "⚛️ سناریوی کوانتومی فعال: XMR/ZEC امتیاز بیشتر دارند"
+
+  fiat_erosion:
+    status: active                # همیشه در جریان است
+    # وقتی active: BTC وزن بیشتر می‌گیرد؛ USDC فقط نقدینگی است نه محافظت
+    score_modifier:
+      BTC: +5
+      ETH: +2
+      USDC: 0                    # پارادوکس: به دلار وصل است
+    alert_message: "📉 سناریوی فرسایش فیات: BTC لنگر اصلی"
+
+  regulatory_crackdown:
+    status: emerging
+    # وقتی active: XMR/ZEC نمره منفی می‌گیرند (ریسک delisting)؛ BTC/ETH نسبتاً مصون
+    score_modifier:
+      XMR: -10
+      ZEC: -7
+      BTC: +3
+      ETH: +3
+      USDC: +2
+    alert_message: "⚖️ سناریوی سرکوب رگولاتوری: XMR/ZEC ریسک delisting دارند"
+
+# -------- تلگرام --------
+telegram:
+  chat_id_env_key: TELEGRAM_CHAT_ID   # از .env خوانده می‌شود
+  bot_token_env_key: TELEGRAM_BOT_TOKEN
+  daily_report_hour: 8                 # ساعت گزارش روزانه (UTC+11 سیدنی)
+  signal_cooldown_minutes: 30          # حداقل فاصله بین دو سیگنال یک دارایی
+
+# -------- API --------
+api:
+  coingecko_base: "https://api.coingecko.com/api/v3"
+  cryptoquant_base: "https://api.cryptoquant.com/v1"
+  lunarcrush_base: "https://lunarcrush.com/api4/public"
+  fear_greed_url: "https://api.alternative.me/fng/"
+  request_timeout: 15
+  retry_count: 3
+  retry_delay: 5
+
+# -------- SQLite --------
+database:
+  path: "state.db"
+
+# -------- لاگ --------
+logging:
+  level: INFO
+  file: "sentinel.log"
+  max_bytes: 5242880    # 5MB
+  backup_count: 3

@@ -1,0 +1,79 @@
+# ============================================================================
+# RESEARCH SPEC — blank template
+# Fill every field. The compiler FAILS the spec unless the 5 hard gates pass:
+#   metric -> measurable | failure_condition -> falsifiable | api_contract ->
+#   connectable | mvp -> runnable | decision_rule -> closed.
+# Validate with:  python rsc.py validate <this-file>
+# ============================================================================
+
+idea: >
+  # one or two sentences: the personal idea, concretely.
+
+hypothesis: >
+  # precise, DIRECTIONAL and QUANTIFIED. "If X then metric improves by >= N".
+
+prediction:
+  statement: >
+    # the measurable prediction in words.
+  baseline: 0.0        # current/system baseline number (REQUIRED, numeric)
+  expected: 0.0        # target you predict (REQUIRED, numeric)
+
+metric:
+  name: ""             # e.g. F1, transfer_accuracy, latency_ms  (REQUIRED)
+  dataset: ""          # what it is measured on
+  direction: higher_is_better   # higher_is_better | lower_is_better (REQUIRED)
+  primary: true
+
+experiment:
+  dataset: ""          # concrete data + size
+  n: 0
+  conditions:          # >= 2: baseline first, then treatment(s)
+    - name: baseline
+      description: ""
+    - name: treatment
+      description: ""
+  protocol: >
+    # how each condition is run (same data, same budget, K seeds).
+
+failure_condition:     # THE KILL LINE — makes it falsifiable
+  metric: ""           # which metric (usually the primary)
+  op: "<"              # < <= > >= == !=
+  threshold: 0.0       # numeric; should sit inside [baseline, expected]
+  note: >
+    # plain-language: "if <this>, the hypothesis is rejected."
+
+architecture:
+  pattern: ""          # named pattern, e.g. Debate+Arbiter, Info-Bottleneck
+  topology: ""         # data/control flow in one line
+  tradeoff: ""         # what gets worse in exchange for what gets better
+
+api_contract:          # makes it CONNECTABLE to the system
+  endpoint: ""         # e.g. /extract/debate
+  method: POST
+  request:             # non-empty shape
+    field: "..."
+  response:            # non-empty shape
+    field: "..."
+
+mvp:                   # makes it RUNNABLE
+  stack: ""            # e.g. "Python + async (no framework)"
+  deps: []             # keep minimal
+  effort: ""           # e.g. "< 1 day"
+  notes: >
+    # smallest thing that proves/kills the idea.
+
+evaluation:
+  comparisons: []      # condition names to compare
+  ablation: []         # what you remove to attribute the effect
+  seeds: 5
+
+decision_rule:         # CLOSURE — what you DO with each outcome
+  primary_metric: ""
+  rules:               # >= 2 contiguous bands on the primary metric
+    - max: 0.0
+      verdict: DISCARD
+    - min: 0.0
+      max: 0.0
+      verdict: OPTIMIZE
+    - min: 0.0
+      verdict: INTEGRATE

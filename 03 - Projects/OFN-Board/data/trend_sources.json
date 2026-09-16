@@ -1,0 +1,10 @@
+{
+  "version": "0.3",
+  "sources": [
+    {"id":"google_trends_alpha","status":"alpha_application_required","sends_saba_data":false,"requires":["observed_at","region","term","scaled_value_or_count"],"fallback":"manual_observation"},
+    {"id":"tiktok_creative_center","status":"public_or_region_limited","sends_saba_data":false,"requires":["observed_at","hashtag_or_sound","rank_or_count","region"]},
+    {"id":"youtube_trending","status":"official_or_manual","sends_saba_data":false,"requires":["observed_at","topic","rank_or_count","region"]},
+    {"id":"reddit_subreddit_scan","status":"api_with_rule_check","sends_saba_data":false,"requires":["observed_at","subreddit","term","count","rule_check"]},
+    {"id":"manual_trend_observation","status":"safe_default","sends_saba_data":false,"requires":["observed_at","term","count_or_rank","source_note"]}
+  ]
+}

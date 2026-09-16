@@ -1,0 +1,126 @@
+# H-OWN-02 — Comparison-Driven Metacognition. Scope C0/C1 (functional
+# calibration only; NO phenomenal/introspective claim). No LLM anywhere.
+# World: a Rasch/IRT family — p_success = sigmoid(skill - difficulty). The
+# confound the mechanism must break: "hard for everyone" vs "bad at this".
+# Pilot family 980500 (disjoint from confirmatory 981000+) set the bands, then
+# parameters were FROZEN (see experiments/comparison_metacog.py).
+idea: >
+  Does repeatedly comparing a PREDICTED self-success-probability against an
+  OBSERVED other-agent's outcomes on the same tasks improve an agent's
+  calibration of its OWN capability on heldout tasks — i.e. is social
+  comparison a real metacognition signal, above the agent's own limited direct
+  experience?
+
+hypothesis: >
+  On heldout categories, an agent that fuses another agent's observed outcomes
+  (shifted by an estimated skill gap) into its self-prediction achieves a
+  calibration-error (Brier) reduction of at least +0.015 over a no-comparison
+  baseline that already uses its own limited direct evidence with Bayesian
+  shrinkage; a SHUFFLED-comparison control (difficulty alignment destroyed)
+  yields no positive reduction.
+
+prediction:
+  statement: brier_reduction = err_base - err_comparison (reducible calibration MSE) on heldout.
+  baseline: 0.0     # [EST] if the comparison signal is uninformative, gain ≈ 0 (and the shuffled control is negative)
+  expected: 0.018   # [FACT: pilot family 980500, n=10, 2026-07-14] comparison_gain mean +0.0194 (std 0.0037); rounded down
+
+metric:
+  name: brier_reduction
+  dataset: irt-heldout-categories
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: 5 IRT universes (seeds 981000+, disjoint from pilot 980500+); per universe 60 train + 80 heldout categories.
+  n: 5    # decision replications = the 5 confirmatory universes (seeds 981000..981004; evaluation.seeds). Each universe INTERNALLY averages 80 heldout categories, so 80 is the within-universe scoring set, NOT the number of independent decision samples.
+  conditions:
+    - name: null_control
+      description: zero-point — baseline vs baseline (must be exactly 0; validates the Brier plumbing).
+    - name: shuffled_gain
+      description: discriminating control — comparison with OTHER's heldout rates permuted across categories (content destroyed, must be ≤ ~0).
+    - name: comparison_gain
+      description: primary — calibration-error reduction of the comparison agent over the no-comparison baseline.
+  protocol: >
+    Per universe: on TRAIN, SELF observes its own and OTHER's outcomes on shared
+    categories and estimates the skill gap delta_hat (difficulty cancels in the
+    logit difference) plus a self base rate. On HELDOUT, SELF has only N_S_HELD=3
+    direct attempts per category (noisy) while OTHER has N_O_HELD=15. Baseline =
+    Beta-shrunk posterior of SELF's direct draws toward the base rate. Comparison
+    = baseline + MCMP pseudo-observations at sigmoid(logit(other_rate)+delta_hat).
+    Shuffled = identical but OTHER's rates permuted. Calibration scored as mean
+    squared error of predicted prob vs the true prob (the reducible Brier term;
+    the irreducible p(1-p) cancels in every difference). No learning, no LLM.
+
+failure_condition:
+  metric: brier_reduction
+  op: "<"
+  threshold: 0.005
+  note: >
+    If the comparison agent's calibration gain stays below the SESOI +0.005, the
+    social-comparison signal adds no metacognitive value beyond limited direct
+    self-experience → H-OWN-02 rejected. Genuinely reachable: with a large
+    skill gap and few OTHER samples the gain REVERSES [FACT: probe 2026-07-14,
+    theta_o=3/n_o=2 → −0.018], and the shuffled control is already negative.
+
+architecture:
+  pattern: Skill-gap-corrected social-comparison fusion for self-calibration (vs self-only Bayesian shrinkage)
+  topology: other_outcomes -> logit + delta_hat -> pseudo-observations -> fuse with self prior/evidence -> calibrated self-p
+  tradeoff: >
+    Needs a learnable skill gap and enough OTHER samples; when the gap is large
+    and OTHER is barely observed, the correction is biased and HURTS calibration
+    (the metric goes negative). It also assumes shared task difficulty (same
+    world), so it does not transfer to non-overlapping task distributions.
+
+api_contract:
+  endpoint: /kernel/metacog/calibrate
+  method: POST
+  request:
+    mode: comparison            # comparison | baseline | shuffled
+    self_attempts: 3            # SELF's direct heldout draws per category
+    other_outcomes: [12, 15]    # OTHER's (wins, n) per heldout category
+    skill_gap: 0.34             # delta_hat estimated on shared train tasks
+  response:
+    # shape ([EST] illustrative — real values come from a run):
+    predicted_self_p: [0.41, 0.63]
+    brier_reduction: 0.018
+    shuffled_reduction: -0.022
+
+mvp:
+  stack: Python (stdlib only; deterministic IRT simulator in experiments/comparison_metacog.py)
+  deps: []
+  effort: "< 1 day"
+  notes: No LLM. Three predictors share the same direct self-evidence + prior; only the comparison term differs.
+
+evaluation:
+  comparisons: [null_control, shuffled_gain, comparison_gain]
+  ablation:
+    - sweep N_O_HELD (other-sample budget) — reported, outside the verdict
+    - sweep DIFF_SD (difficulty variance) and skill gap — the falsifiability probe
+    - drop delta_hat (fuse OTHER's difficulty-ALIGNED heldout rate with NO skill-gap shift) — mechanism-attribution probe; reported, outside the verdict. [FACT: probe 2026-07-14, confirmatory seeds 981000-981004] this variant already scores +0.014 of the +0.019, so the skill-gap correction itself contributes only +0.005 and no verdict-level condition isolates delta_hat.
+  seeds: 5
+
+decision_rule:
+  primary_metric: brier_reduction
+  rules:
+    - max: 0.005
+      verdict: DISCARD
+    - min: 0.005
+      max: 0.015
+      verdict: OPTIMIZE
+    - min: 0.015
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓
+# non-strawman: baseline already uses direct self-evidence + Bayesian shrinkage;
+#   shuffled_gain isolates comparison CONTENT from the fusion mechanism (pilot −0.022);
+#   metric REVERSES in adjacent regimes (probe theta_o=3/n_o=2 → −0.018), so it is
+#   not structurally pinned positive.
+# caveats (adversarial review 2026-07-14 — see adr/ADR-010):
+#   (1) ATTRIBUTION: shuffled_gain isolates comparison CONTENT (difficulty alignment),
+#       NOT the skill-gap term. A delta_hat:=0 aligned-fusion variant already recovers
+#       +0.014 of the +0.019 [FACT: probe, confirmatory seeds 981000-981004]; the
+#       skill-gap correction itself adds only +0.005 and no verdict-level condition
+#       isolates delta_hat. Primary is NOT trivially clearable (baseline 0, shuffled
+#       −0.032), but the +0.019 is mostly aligned-fusion, not the skill-gap correction.
+#   (2) SAMPLE ASYMMETRY: OTHER has 5× SELF's heldout samples (N_O_HELD 15 vs N_S_HELD 3);
+#       the shuffled null holds that asymmetry FIXED and still goes negative (−0.032),
+#       so the gain is comparison content, not merely "more observations".

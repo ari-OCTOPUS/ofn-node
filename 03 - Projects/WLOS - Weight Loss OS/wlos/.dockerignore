@@ -1,0 +1,13 @@
+# SECURITY: never bake secrets or host state into the image
+.env
+.env.*
+!.env.example
+node_modules
+**/node_modules
+.git
+backups
+exports
+dist
+coverage
+*.log
+packages/memory/src/generated

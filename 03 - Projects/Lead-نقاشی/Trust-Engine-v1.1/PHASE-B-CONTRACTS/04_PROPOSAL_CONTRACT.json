@@ -1,0 +1,240 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "octopus://trust-engine/contracts/proposal/1.0",
+  "title": "Proposal Contract v1.0 (Proposal Router object)",
+  "description": "The proposal object that live_loop's Proposal Router gathers, dedupes, ranks, and delivers as owner cards. This contract ADOPTS the shape that already exists in code (legs/leg.py Proposal.to_dict + live_loop normalization + callback meta) and ADDS the P0 lead fields (consent snapshot, source_channel, lead linkage) so the ~80%-assembled internal measurement arc is FED, not reinvented. A proposal is propose-only: it carries zero approval authority, zero send capability; every external effect still requires owner verdict -> LANGAR append -> EffectorGate release.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["proposal_id", "leg_id", "kind", "payload"],
+  "properties": {
+    "schema_version": { "const": "1.0", "description": "Optional (existing emitters do not set it); new P0 emitters MUST set it." },
+    "proposal_id": {
+      "type": "string",
+      "pattern": "^P-[0-9a-f]{12}$",
+      "description": "Existing grammar: 'P-'+uuid4.hex[:12] (legs/leg.py:189) and 'P-'+sha[:12] (lead_outcome_recorder.py:60). Correlates verdicts, outcome events, and (later) effect records."
+    },
+    "leg_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$",
+      "description": "Emitting leg. 'lead' for the P0 lead legs (lead_outcome_recorder.py:92)."
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["draft_quote", "first_response", "draft_message", "report", "clarify_request"],
+      "description": "Canonical kinds. 'draft_quote' is the EXISTING code value (lead_leg.py:112) — LEG_P0-2's 'quote_draft' spelling is superseded (code wins). 'first_response' and 'clarify_request' are NEW for P0-1/P0-2. 'report'/'draft_message' are pre-existing leg kinds (leg.py:80)."
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "draft_only": { "const": true, "description": "Structural marker (lead_leg.py:110). Required for all draft kinds via allOf." },
+        "external_send_allowed": { "const": false, "description": "If present, MUST be false. No proposal can carry send permission." },
+        "attribution_id": { "type": "string", "pattern": "^LEAD-[0-9]{8}-[0-9]{3}$", "description": "Money-attribution carrier printed on quotes (attribution.py:64-65; lead_leg.py:98)." },
+        "qt_number": { "type": "string", "pattern": "^QT-[0-9]{8}-[0-9]{3}$", "description": "Quote number (lead_quote.py:56-73)." },
+        "lead_id": { "type": "string", "maxLength": 64, "description": "Lead linkage. The router propagates payload.attribution_id or payload.lead_id into verdict records — never invented (live_loop.py:375-377)." },
+        "title": { "type": "string", "maxLength": 700 },
+        "scope": { "type": "string", "maxLength": 500 },
+        "body": { "type": "string", "maxLength": 4000 },
+        "claim": { "type": "string", "maxLength": 700 },
+        "expected_aud": { "type": "number", "minimum": 0 },
+        "amount_aud": { "type": "number", "minimum": 0 },
+        "total_incl_gst": {
+          "type": ["number", "array"],
+          "description": "Scalar at payload top level (router metric key, live_loop.py:321-324); [lo,hi] inside payload.breakdown (lead_quote.py:145,173)."
+        },
+        "price_range_aud": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0 },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "[lo, hi] rounded to 2dp (lead_leg.py:100). Ranges only — a proposal never fixes a final price; that is the Owner's decision."
+        },
+        "assumptions": { "type": "array", "maxItems": 20, "items": { "type": "string", "maxLength": 300 } },
+        "not_included": { "type": "array", "items": { "type": "string", "maxLength": 300 } },
+        "legal_placeholders": { "type": "array", "items": { "type": "string", "maxLength": 300 } },
+        "intake": {
+          "type": "object",
+          "description": "QuoteIntake.to_dict shape (pricing.py:85-133). Enums enforced fail-soft by the dataclass itself: area_type interior|exterior|both; prep_level minimal|standard|heavy; access_type ladder|scaffold|swing_stage; segment residential|strata|pm|builder|commercial; paint_quality standard|premium|trade; timeline asap|flexible|fixed_date."
+        },
+        "line_items": { "type": "array" },
+        "breakdown": { "type": "object", "description": "labor_aud/material_aud/subtotal_excl_gst/gst/total_incl_gst/max_deposit_nsw (lead_quote.py:168-175)." },
+        "channel": { "type": "string", "enum": ["sms", "email"], "description": "first_response target channel (reply on the channel the lead used — LEG_P0-1)." },
+        "message_draft": { "type": "string", "maxLength": 2000, "description": "first_response draft text. SMS drafts additionally obey the 320-char + STOP-line rule at render time (LEG_P0-1 prompt contract)." },
+        "risk_flags": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "requires_licence_review": { "type": "boolean", "description": "Raised, never auto-cleared (blueprint R4 fail-closed)." }
+      }
+    },
+    "hlc": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "HLC stamp (leg.py:82)."
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{24}$",
+      "description": "sha256 of canonical JSON, first 24 hex (leg.py:90-95). Router dedupe key prefers hash, falls back to proposal_id (live_loop.py:250-251)."
+    },
+    "correlation_id": { "type": ["string", "null"], "maxLength": 128, "description": "Lead correlation (live_loop.py:373; verdict default 'prop_<pid>' at verdict_recorder.py:69 when absent)." },
+    "mission_id": { "type": ["string", "null"], "maxLength": 128 },
+    "lead_id": { "type": ["string", "null"], "maxLength": 64, "description": "Top-level convenience copy; router source of truth is payload.attribution_id || payload.lead_id (live_loop.py:377)." },
+    "source_channel": {
+      "type": ["string", "null"],
+      "enum": ["telegram_manual", "website_form", "missed_call", "meta_lead_ad", "facebook_group", "nsw_da", "domain_listing", "synthetic_test", "other", null],
+      "description": "Origin channel of the underlying candidate, carried so EffectorGate can hard-block synthetic_test BY TYPE without a store lookup. Runtime rule (cannot be expressed in schema): any effect request whose proposal has source_channel=synthetic_test is refused at EffectorGate unconditionally."
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_type", "basis", "outreach_allowed"],
+      "properties": {
+        "candidate_type": { "type": "string", "enum": ["consented_inbound", "public_b2b", "market_signal"] },
+        "basis": { "type": "string", "enum": ["explicit", "inferred_business", "none", "unknown"] },
+        "outreach_allowed": { "type": "boolean" }
+      },
+      "description": "Immutable snapshot copied from the lead candidate at draft time (NEW — zero code today, RUNTIME-TRUTH section 0). Lets the router and gate enforce the firewall locally."
+    },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "draft_quote" } } },
+      "then": {
+        "properties": {
+          "payload": { "required": ["attribution_id", "scope", "price_range_aud", "draft_only"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "first_response" } } },
+      "then": {
+        "required": ["consent"],
+        "properties": {
+          "payload": { "required": ["lead_id", "channel", "message_draft", "draft_only"] },
+          "consent": {
+            "properties": {
+              "candidate_type": { "enum": ["consented_inbound", "public_b2b"] },
+              "outreach_allowed": { "const": true }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "draft_message" } } },
+      "then": {
+        "required": ["consent"],
+        "properties": {
+          "consent": { "properties": { "outreach_allowed": { "const": true } } },
+          "payload": { "required": ["draft_only"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": { "candidate_type": { "const": "market_signal" } },
+            "required": ["candidate_type"]
+          }
+        },
+        "required": ["consent"]
+      },
+      "then": {
+        "properties": { "kind": { "enum": ["report", "clarify_request"] } }
+      }
+    }
+  ],
+  "definitions": {
+    "owner_verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proposal_id", "verdict", "decided_at", "source"],
+      "properties": {
+        "proposal_id": { "type": "string", "pattern": "^P-[0-9a-f]{12}$" },
+        "verdict": {
+          "type": "string",
+          "enum": ["approved", "edited_approved", "rejected", "deferred"],
+          "description": "'deferred' is NOT a decision — the card stays open and single-use is not consumed (live_loop.py:436-446). 'edited_approved' is NEW (no button today; see x-compat)."
+        },
+        "decided_at": { "type": "string", "format": "date-time" },
+        "source": { "type": "string", "maxLength": 40, "description": "Truncated to 40 chars in storage (verdict_recorder.py:79). Known values today: 'tg-proposal-button' (default, verdict_recorder.py:48), 'ari-button' (live_loop.py:452), 'ari' (live_loop.py:412)." },
+        "value_aud_claimed": { "type": "number", "minimum": 0, "description": "CLAIM only, and only meaningful on approved — forced to 0 for rejected/deferred (verdict_recorder.py:71-72); NEVER confirmed revenue (outcome_store.py:142-143 pins confirmed_revenue_aud=0.0)." },
+        "callback_token": { "type": "string", "pattern": "^[0-9a-f]{16}$", "description": "sha256(proposal_id)[:16] (live_loop.py:301-305); scheme 'prop:' deliberately separate from money 'app:' so it can never hit the settle path (live_loop.py:308-315)." },
+        "edited_text": { "type": ["string", "null"], "maxLength": 4000, "description": "Present only for edited_approved; the diff feeds prompt tuning (blueprint section 11 phase 6)." }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "verdict": { "enum": ["rejected", "deferred"] } } },
+          "then": { "properties": { "value_aud_claimed": { "const": 0 } } }
+        }
+      ]
+    },
+    "measurement_event": {
+      "type": "object",
+      "description": "The EXISTING durable record a verdict becomes (outcome_store row). Included for reference so P0 implementers write byte-compatible rows.",
+      "required": ["correlation_id", "proposal_id", "leg_id", "event_type", "idempotency_key"],
+      "properties": {
+        "correlation_id": { "type": "string" },
+        "mission_id": { "type": ["string", "null"] },
+        "proposal_id": { "type": "string" },
+        "leg_id": { "type": "string" },
+        "lead_id": { "type": ["string", "null"] },
+        "event_type": { "type": "string", "enum": ["delivered", "deferred", "accepted-measurement", "rejected", "failed"] },
+        "verdict": { "const": "measurement", "description": "Always 'measurement' — never 'settled'/'delivered' (verdict_recorder.py:77)." },
+        "value_aud_claimed": { "type": "number", "minimum": 0 },
+        "idempotency_key": { "type": "string", "description": "'{correlation_id}|{proposal_id}|{event_type}' (verdict_recorder.py:70; lead_outcome_recorder.py:90)." },
+        "payload": { "type": "object" }
+      }
+    }
+  },
+  "x-invariants": [
+    "Propose-only: this object carries no approval, no send, no settle capability. Approval is a separate human event a leg cannot forge (leg.py:73-77 D5).",
+    "Single-use first-decision-wins: one decisive verdict per proposal; replayed Telegram callbacks are no-ops (live_loop.py:435-446); durable write is additionally idempotent (verdict_recorder.py:14-15,70).",
+    "A verdict may NEVER generate delivered/settled/failed/verified events (verdict_recorder.py:32-33).",
+    "value fields are asking-price CLAIMS for metrics/ranking only (live_loop.py:318-325); confirmed revenue exists only via attribution reconcile (attribution.py:105-120).",
+    "synthetic_test proposals traverse the FULL internal pipeline (card, verdict, outcome) but are hard-blocked at EffectorGate by type — runtime enforcement, declared here via source_channel.",
+    "Consent firewall at draft time: market_signal snapshot => kind restricted to report/clarify_request; first_response/draft_message require outreach_allowed=true; suppression is checked BEFORE drafting (SPEC section 2)."
+  ],
+  "x-compat": {
+    "top_level_shape": "legs/leg.py:84-88 to_dict() = {proposal_id, leg_id, kind, payload, hlc, hash}; router normalization fail-softs unknown shapes (live_loop.py:224-247) — this schema is the STRICT contract for P0 lead legs; non-lead legs keep the loose path.",
+    "proposal_id": "_ops/legs/leg.py:189 ('P-'+uuid4.hex[:12]); _ops/outcomes/lead_outcome_recorder.py:60 ('P-'+sha[:12]).",
+    "hash": "_ops/legs/leg.py:90-95 sha256(canonical json)[:24]; router dedupe key live_loop.py:250-251.",
+    "kind": "'draft_quote' emitted at _ops/legs/lead_leg.py:112. LEG_P0-2 doc spells it 'quote_draft' — code wins; doc to be corrected. Ranking treats any kind containing 'quote' as top priority (live_loop.py:267).",
+    "payload_amount_keys": "expected_aud | amount_aud | total_incl_gst read at live_loop.py:262-267 (ranking) and :318-325 (metric) — metric/ranking only, never settle.",
+    "payload.attribution_id": "_ops/budget/attribution.py:64-65 mint LEAD-YYYYMMDD-NNN; printed on the quote at lead_leg.py:98; card id precedence payload.attribution_id || payload.proposal_id || proposal_id (live_loop.py:288).",
+    "payload_draft_quote_block": "Exactly lead_leg.py:97-111 {attribution_id, scope<=500, price_range_aud[lo,hi], assumptions<=20, not_included, legal_placeholders, next_step, draft_only:true} enriched by lead_quote.py:165-175 {qt_number, intake, line_items, breakdown}; persisted as schema 'lead-quote.v1' (lead_quote.py:180).",
+    "correlation_mission_lead": "Router callback meta live_loop.py:369-377 {proposal_id, amount, kind, leg_id, correlation_id, mission_id, lead_id}; lead_id = payload.attribution_id || payload.lead_id — existing values propagated, never invented.",
+    "consent_snapshot_and_source_channel": "NEW — zero code (RUNTIME-TRUTH section 0). Additive optional fields: existing non-lead emitters remain valid; P0 lead legs must populate them.",
+    "owner_verdict_arc": "Buttons live_loop.py:29-30 (ok->approved, no->rejected, later=deferral); token live_loop.py:301-305; durable measurement verdict_recorder.py:44-96 behind OCTOPUS_WIRE_VERDICT_OUTCOME; mapping approved->accepted-measurement / rejected->rejected / deferred->deferred (verdict_recorder.py:26-31) into outcome_store EVENT_TYPES (outcome_store.py:27).",
+    "edited_approved": "No Edit button exists today; supporting it needs (a) an edit verb in the card keyboard, (b) one mapping line in verdict_recorder._VERDICT_EVENT (:26-31), (c) proposal.owner_edited envelope event. Until Owner approves, record as approved + edited_text in payload.",
+    "metrics_consumer": "proposal_metrics live_loop.py:472-485 (positive set {'approved','sent','paid','accepted','won'} :477) -> ORGANISM-STATE.json -> _ops/cortex/goal_directed.py:196-206. P0 feeds this closed arc.",
+    "effect_linkage": "EffectorGate _ops/chrono.py:344-390: effect_id = uuid4.hex[:16] (:372), pending -> releasable only on human LANGAR append (:380-386), force-closed by STOP/FREEZE/halt (:358-367). The lead path is NOT wired to it today (RUNTIME-TRUTH section 1 row 14) — Phase C wiring target, correlating proposal_id <-> effect_id per REQUIRED TESTS item 14."
+  },
+  "x-flags": {
+    "existing_default_off": ["OCTOPUS_WIRE_PROPOSAL_BUTTONS (live_loop.py:366)", "OCTOPUS_WIRE_VERDICT_OUTCOME (verdict_recorder.py:23)", "OCTOPUS_WIRE_LEAD_DRAFT (RUNTIME-TRUTH section 1 row 9)", "OCTOPUS_WIRE_LEAD_OUTCOME (lead_outcome_recorder.py:26)"],
+    "proposed_new_default_off": ["OCTOPUS_WIRE_LEAD_P0 — enables the P0 lead legs emitting this strict contract; off => nothing new is emitted"]
+  },
+  "examples": [
+    {
+      "schema_version": "1.0",
+      "proposal_id": "P-0a1b2c3d4e5f",
+      "leg_id": "lead",
+      "kind": "first_response",
+      "payload": {
+        "draft_only": true,
+        "lead_id": "LD-0123456789ab",
+        "channel": "sms",
+        "message_draft": "[OWNER] from [BUSINESS] here - thanks for reaching out about interior painting in Mosman. I can swing past for a look this arvo around 5pm, or tomorrow 8am - which suits? Reply STOP to opt out.",
+        "title": "first response draft - Mosman interior",
+        "expected_aud": 0
+      },
+      "correlation_id": "LD-0123456789ab",
+      "lead_id": "LD-0123456789ab",
+      "source_channel": "synthetic_test",
+      "consent": { "candidate_type": "consented_inbound", "basis": "explicit", "outreach_allowed": true },
+      "created_at": "2026-07-21T09:00:03+00:00"
+    }
+  ]
+}

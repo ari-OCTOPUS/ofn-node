@@ -1,0 +1,10 @@
+{
+  "version": "0.3",
+  "gates": {
+    "secret_rotation": {"state":"closed_until_owner_rotates_critical_secrets","agent_may_open":false},
+    "partner_precondition": {"state":"closed_until_owner_records_partner_condition","agent_may_open":false},
+    "wire_publish": {"state":"off_by_default","agent_may_open":false},
+    "owner_release": {"state":"requires_two_step_owner_confirmation","agent_may_open":false},
+    "kill_switch": {"state":"must_block_all_publish_when_active","agent_may_open":false}
+  }
+}

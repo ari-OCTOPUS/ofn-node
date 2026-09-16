@@ -1,0 +1,28 @@
+{
+  "_schema": "personal-shared-ledger.v2",
+  "_note": "قالب — به ledger.json کپی کن و دونه‌دونه پر کن. ledger.json در gitignore است. اختاپوس فقط ترازِ تجمیعی را می‌خواند، هرگز تراکنشِ منفرد را echo نمی‌کند. مالیات = فقط رول‌آپِ داده، نه مشاوره.",
+  "currency": "AUD",
+  "parties": { "armin": "آرمین (مالک)", "abbas": "عباس (همکار — بارضایت، CONSENT.md)" },
+  "default_split": { "armin": 50, "abbas": 50 },
+  "settlement_period": "on-demand",
+  "categories": {
+    "income": ["salary_wages", "business_income", "rental_income", "interest_dividends", "other_income"],
+    "expense": ["rent_mortgage", "utilities", "insurance", "subscriptions", "loan_repayments", "groceries", "dining", "transport", "health_medical", "shopping", "entertainment", "travel", "education", "gifts", "bank_fees", "misc"],
+    "asset": ["cash_bank", "savings", "crypto", "vehicle", "property", "receivables", "other_asset"],
+    "liability": ["credit_card", "personal_loan", "mortgage_owing", "payable", "other_liability"]
+  },
+  "_field_help": {
+    "type": "income | expense | asset | liability",
+    "party": "armin | abbas | joint  (joint = خرجِ مشترک، بینِ آرمین/عباس تقسیم می‌شود)",
+    "paid_by": "armin | abbas  (چه کسی واقعاً پرداخت کرد — برای تسویهٔ مشترک)",
+    "split": "فقط برای party=joint؛ مثل {armin:60, abbas:40}. نبود → default_split",
+    "gst": "اختیاری — مبلغِ GST برای رول‌آپِ ATO (فقط داده، نه محاسبهٔ مالیات)",
+    "account": "اختیاری — برچسبِ حساب مثل joint-account / armin-savings / abbas-personal"
+  },
+  "entries": [
+    { "date": "2026-07-01", "desc": "نمونه — حقوقِ آرمین", "amount": 0, "type": "income", "party": "armin", "category": "salary_wages", "account": "armin-personal" },
+    { "date": "2026-07-01", "desc": "نمونه — اجاره‌ی مشترک (آرمین پرداخت)", "amount": 0, "type": "expense", "party": "joint", "paid_by": "armin", "split": { "armin": 50, "abbas": 50 }, "category": "rent_mortgage", "account": "joint-account" },
+    { "date": "2026-07-02", "desc": "نمونه — پس‌اندازِ آرمین (دارایی)", "amount": 0, "type": "asset", "party": "armin", "category": "savings", "account": "armin-savings" },
+    { "date": "2026-07-02", "desc": "نمونه — بدهیِ کارتِ عباس", "amount": 0, "type": "liability", "party": "abbas", "category": "credit_card" }
+  ]
+}

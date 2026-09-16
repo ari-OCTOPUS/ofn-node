@@ -1,0 +1,22 @@
+# Changelog
+
+## 2026-08-06 (دوم) — جراحی پنل سبا، مرحلهٔ ۲
+- **آپلود چندتایی مقاوم‌تر:** یک عکس بد batch را متوقف نمی‌کند (حذف `break`)،
+  شمارش واقعی خطاها، آزادسازی بهتر حافظه (`bmp.close()` در `finally`،
+  renditions+original موازی). کیفیت حفظ شد.
+- **ضربدر حذف روی هر عکس:** «×» بالای هر عکس با تأیید «مطمئنی؟» → فقط همان
+  عکس حذف؛ `stopPropagation` روی pointer/touch/click.
+- ۶ تست جدید (ضربدر روی عکس، آپلود بدون break، حذف یک عکس).
+- **۱۴۹۶ سبز + ۵ skip.**
+
+## 2026-08-06 (اول) — جراحی پنل سبا، مرحلهٔ ۱
+- چت‌باکس وسط و بالاتر؛ پنل خالی تیرهٔ بالای چت‌باکس حذف؛ دکمه‌ها مرتب.
+- حذف نشت کلمهٔ فنی «RAG» از کپشن پیشنهاد.
+- متن‌ها گرم/دخترانه/غیرفنی بازنویسی (chatbox، suggestionها در
+  `studio_assistant.py`، placeholder، subtitle).
+- گالری: بنر «خوش اومدی سبا جان…» و empty-state گرم.
+- ۲۱ تست جدید برای قراردادهای جراحی.
+- Added non-destructive audit documentation.
+- Added painting CRM foundation and safe owner panel extensions.
+- Added B2B/tender/vendor/source-registry plan for next phase.
+- Outbound/publish remains off.

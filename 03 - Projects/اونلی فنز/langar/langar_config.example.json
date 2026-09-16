@@ -1,0 +1,18 @@
+{
+  "blocklist": [
+    "REAL_SURNAME_HERE",
+    "PHONE_HERE",
+    "ADDRESS_HERE"
+  ],
+  "city_terms": [
+    "Sydney",
+    "سیدنی",
+    "sydney"
+  ],
+  "name_map": {
+    "FIRSTNAME_A": "A",
+    "FIRSTNAME_B": "B"
+  },
+  "project_code": "Project-F",
+  "_note": "blocklist را با نام/شماره/آدرسِ واقعی پر کن. این فایلِ example بدونِ PII و tracked است؛ فایلِ واقعی langar_config.json در gitignore و untracked است."
+}

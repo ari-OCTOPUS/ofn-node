@@ -1,0 +1,126 @@
+# H-OWN-01 / Social Mirror Self-Model.
+# A self/other model is more USEFUL when the agent must DISTINGUISH its own goal
+# from another agent's, not merely read a self-referential cue. Metric = a
+# difference-in-differences on heldout transfer, so the gate is NOT clearable by a
+# trivial "extra feature" baseline (see failure_condition + non-strawman note).
+# Scope: C0 tabular grid-world agents; NO LLM; NO phenomenal/self-awareness claim.
+idea: >
+  A cognitive kernel that must reach the object a SECOND agent is NOT pursuing
+  (self-goal = complement of the other's target) should learn a self/other model
+  that transfers to heldout "confusion" tasks better than an agent that only reads
+  a self-referential cue. The advantage must be specific to NEEDING to distinguish
+  self from other, not a generic effect of observing the other.
+
+hypothesis: >
+  On heldout tasks where a self-referential cue is uninformative (confusion), the
+  social-mirror representation's transfer advantage over the self-only
+  representation is at least +0.10 GREATER in the social family (self-goal defined
+  by the other) than in a control family (the other present but irrelevant). That
+  difference-in-differences (social_specific_advantage) is >= +0.10.
+
+prediction:
+  statement: >
+    social_specific_advantage = [acc(social_mirror|social) - acc(self_only|social)]
+    - [acc(social_mirror|control) - acc(self_only|control)] on heldout confusion tasks.
+  baseline: 0.0     # [FACT] mechanism-inert floor: an agent that ignores the other
+                    # scores exactly 0 (null_control pins the zero-point). Source: design + pilot.
+  expected: 0.40    # [EST] pilot family 979000, 3 seeds: DiD = {0.435, 0.390, 0.460},
+                    # mean +0.428 [FACT: pilot log 2026-07-14]; rounded down for prereg.
+
+metric:
+  name: social_specific_advantage
+  dataset: social-mirror-gridworld-heldout
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: >
+    Deterministic 7x7 grid-world, two objects (A,B), one is the self-goal (+1),
+    the other is a mistake (-1). Two families x two phases, fresh i.i.d. tasks per
+    seed. Confirmatory seed family 980000+ (disjoint from pilot 979000).
+  n: 240   # per seed: 80 train + 40 heldout, x2 families (social, control)
+  conditions:
+    - name: self_only
+      description: >
+        Tabular Q keyed on (cue_bit, dxA_sign, dyA_sign, dxB_sign, dyB_sign,
+        wall_bits) — reads its own self-marker, no other-agent feature.
+    - name: social_mirror
+      description: >
+        Tabular Q keyed on (other_heading_A, dxA_sign, dyA_sign, dxB_sign,
+        dyB_sign, wall_bits) — observes the other's heading; must infer its own
+        goal as the complement. Same key cardinality (6) as self_only.
+    - name: irrelevant_other_control
+      description: >
+        Control family: the other's target is INDEPENDENT of the self-goal, so
+        the other-agent feature is present but irrelevant. Tests that any gain
+        comes from needing to distinguish self/other, not from the extra feature.
+  protocol: >
+    Both conditions train on the same paired suite (own exploration RNG, same
+    episode budget 60000), then evaluate transfer_accuracy on the same heldout
+    confusion suite where cue_bit is randomised. Primary = difference-in-
+    differences across the social vs control families. 5 confirmatory seeds. A
+    null_control (self_only vs an independent self_only on social heldout) pins
+    the zero-point. Neither condition selects a signal at run time: self_only and
+    social_mirror are two FIXED matched-cardinality keyings, and the DiD contrasts
+    the transfer of these hardwired keyings across families, not a learned gate.
+
+failure_condition:
+  metric: social_specific_advantage
+  op: "<"
+  threshold: 0.10
+  note: >
+    If the social family's transfer advantage exceeds the irrelevant-other
+    control's by LESS than +0.10 (SESOI), the social-mirror model confers no
+    task-specific transfer benefit and H-OWN-01 is rejected. The quantity is <= 0
+    whenever the social representation fails to form or transfer; a trivial agent
+    ignoring the other scores exactly 0.
+
+architecture:
+  pattern: Self/other disambiguation as a transferable relational representation
+  topology: "perception -> [fixed goal-signal keying: self-cue in self_only, other-heading in social_mirror] -> value table -> policy"
+  tradeoff: >
+    Keying on the other agent's state helps ONLY when the goal is defined relative
+    to it; when the other is irrelevant the same feature is dead weight and its
+    value table is ambiguous (gain_control <= 0). No free lunch from extra features.
+
+api_contract:
+  endpoint: /kernel/self_model/social_mirror
+  method: POST
+  request:
+    goal_signal: other_heading        # self_cue | other_heading
+    task_family: social               # social | control
+    heldout: confusion
+    seeds: 5
+  response:
+    # response SHAPE ([EST] illustrative — real numbers come from the run):
+    social_specific_advantage: 0.40
+    gain_social: 0.26
+    gain_control: -0.17
+
+mvp:
+  stack: Python (deterministic grid-world; reuses gridworld_wm train/evaluate)
+  deps: []
+  effort: "< 1 day"
+  notes: >
+    No LLM. Two matched-cardinality tabular-Q keyings x two task families;
+    metric = difference-in-differences of heldout transfer accuracy.
+
+evaluation:
+  comparisons: [self_only, social_mirror, irrelevant_other_control]
+  ablation:
+    - null_control (self_only vs independent self_only) -> zero-point ~0
+    - gain_social and gain_control reported separately
+    - episode-budget sensitivity (reported, outside verdict)
+  seeds: 5
+
+decision_rule:
+  primary_metric: social_specific_advantage
+  rules:
+    - max: 0.10
+      verdict: DISCARD
+    - min: 0.10
+      max: 0.25
+      verdict: OPTIMIZE
+    - min: 0.25
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓
