@@ -1,0 +1,10 @@
+{
+  "generated": "2026-07-12T21:11:19Z",
+  "scanner": "security-checklist.py",
+  "files_scanned": 396,
+  "findings_count": 0,
+  "by_confidence": {},
+  "by_type": {},
+  "findings": [],
+  "safe": true
+}
