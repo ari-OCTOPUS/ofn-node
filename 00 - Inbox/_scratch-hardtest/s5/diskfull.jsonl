@@ -1,0 +1,16 @@
+{"ts": "2026-08-11T08:28:39+00:00", "capability": "code_autonomy", "which": "arm", "reason": "missing", "armed_at": 1786436919.8188708}
+{"ts": "2026-08-11T08:28:39+00:00", "capability": "code_autonomy", "which": "arm2", "reason": "missing", "armed_at": 1786436919.8188708}
+{"ts": "2026-08-11T08:28:39+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "missing", "armed_at": 1786436919.8188708}
+{"ts": "2026-08-11T08:28:39+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "missing", "armed_at": 1786436919.8188708}
+{"ts": "2026-08-12T06:31:53+00:00", "capability": "code_autonomy", "which": "arm", "reason": "near-expiry", "armed_at": 1786516313.7539034}
+{"ts": "2026-08-12T06:31:53+00:00", "capability": "code_autonomy", "which": "arm2", "reason": "near-expiry", "armed_at": 1786516313.7539034}
+{"ts": "2026-08-12T06:31:53+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1786516313.7539034}
+{"ts": "2026-08-12T06:31:53+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786516313.7539034}
+{"ts": "2026-08-13T04:33:04+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1786595584.804358}
+{"ts": "2026-08-13T04:33:04+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786595584.804358}
+{"ts": "2026-08-14T02:36:58+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1786675018.0361004}
+{"ts": "2026-08-14T02:36:58+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786675018.0361004}
+{"ts": "2026-08-15T00:40:28+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1786754428.0383563}
+{"ts": "2026-08-15T00:40:28+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786754428.0383563}
+{"ts": "2026-08-15T22:47:37+00:00", "capability": "self_improve_auto", "which": "arm", "reason": "near-expiry", "armed_at": 1786834057.2044792}
+{"ts": "2026-08-15T22:47:37+00:00", "capability": "self_improve_auto", "which": "arm2", "reason": "near-expiry", "armed_at": 1786834057.2044792}

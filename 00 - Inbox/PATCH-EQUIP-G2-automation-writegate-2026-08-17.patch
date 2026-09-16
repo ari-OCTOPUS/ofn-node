@@ -1,0 +1,44 @@
+--- a/4d_system/brain/automation.py
++++ b/4d_system/brain/automation.py
+@@ -22,6 +22,7 @@
+ import logging
+ from datetime import datetime
+ from typing import Optional
++from pathlib import Path
+ 
+ from brain import events
+ from brain import guardrails
+@@ -471,6 +472,33 @@
+             except Exception as e:
+                 logger.warning("readback check failed: %s", e)
+ 
++        # EQUIP G2 (owner-approved 2026-08-17): stamp with the Write Gate —
++        # SHADOW/AUDIT ONLY. Verdict is logged, never blocks creation; a
++        # future owner vote can flip this to enforcing. source="deterministic"
++        # because _creative_idea() is RNG-seeded from an internal counter,
++        # never LLM/network-derived (verified live, HARDTEST S1, 2026-08-16).
++        # importlib-by-path: _ops/memory/ and 4d_system/memory/ are separate
++        # packages sharing the name "memory" -- a plain import would silently
++        # resolve to the wrong one (same class of bug as center.py's
++        # _doctor_ingest package-shadow fix).
++        if hid:
++            try:
++                import importlib.util
++                _wge_path = Path(__file__).resolve().parents[2] / "_ops" / "memory" / "write_gate_enforcer.py"
++                _spec = importlib.util.spec_from_file_location("_write_gate_enforcer_isolated", _wge_path)
++                _wge = importlib.util.module_from_spec(_spec)
++                _spec.loader.exec_module(_wge)
++                from config.settings import OUTPUT_DIR
++                gate = _wge.stamp_hypothesis_with_gate(
++                    hypothesis_id=hid, content=idea, source="deterministic",
++                    writer_agent="automation._job_create",
++                    audit_path=OUTPUT_DIR / "write-gate-audit.jsonl",
++                )
++                if gate.get("verb") != "commit":
++                    logger.warning("write-gate verdict for hypothesis #%s: %s", hid, gate.get("verb"))
++            except Exception as e:
++                logger.warning("write-gate stamp failed (non-blocking): %s", e)
++
+         # نوشتنِ ایده در لاگِ محافظت‌شده (guardrail مسیر را تایید می‌کند)
+         try:
+             from config.settings import OUTPUT_DIR
