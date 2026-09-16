@@ -1,0 +1,22 @@
+# The plan the evolution loop works toward (MUTABLE -- the owner edits this).
+#
+# The loop runs while `status: active` AND at least one milestone is `done: false`.
+# When every milestone is done (or status != active), the loop IDLES: it logs a
+# NOTE and spends nothing. This is what "run several times a day until my plan is
+# finished" means in practice -- automatic, and self-stopping so it never burns
+# budget after the work is done.
+
+status: active
+
+milestones:
+  - { id: phase0_genome,               done: true,  note: "genome + ledger + lock" }
+  - { id: phase1_perception,           done: true,  note: "watcher + incremental indexer" }
+  - { id: phase2_guardian,             done: true,  note: "heartbeat + gates + halt-on-tamper" }
+  - { id: phase3_creativity_doctor,    done: true,  note: "propose-only agents" }
+  - { id: brain_llm_wired,             done: true,  note: "router + LLM client + cost guard" }
+  - { id: phase4_offsite_backup,       done: false, note: "restic/rclone off-site copy #3 + monthly restore drill" }
+  - { id: connect_real_api_key,        done: false, note: "run once with ANTHROPIC_API_KEY for real ideas" }
+  - { id: owner_confirm_budget,        done: false, note: "set gates.yaml owner_confirmed: true" }
+
+# When you finish these, set the milestone done: true (or status: paused) and the
+# loop stops on its own at the next scheduled run.
