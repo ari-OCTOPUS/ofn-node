@@ -1,0 +1,246 @@
+{
+  "schema": "live-organism-map.v1",
+  "decision_id": "MEGA-LIFE-v1",
+  "phase": "GATE-0",
+  "observed_at_local": "2026-08-19T22:46:55+10:00",
+  "repository_head_at_capture": "dae5cb8207c65c769d4c1297657a7e10094e0d43",
+  "evidence_policy": {
+    "VERIFIED": "Enforced or independently reproducible from code/tests/receipts.",
+    "OBSERVED": "Read directly from a current state or ledger source; not necessarily causally validated.",
+    "CLAIMED": "Documented claim without sufficient current evidence.",
+    "UNKNOWN": "Evidence is absent, ambiguous, stale, or contradictory."
+  },
+  "source_hashes_sha256": {
+    "_ops/state/ORGANISM-STATE.json": "8c098caeb92218d49e0f16a5a019578103bf66c56f09b486e3e583293a82c4f9",
+    "_ops/state/labels.json": "88dbdfc644f42b968174f41329dd8ae765842f2d4148433488d77136371f5259",
+    "_ops/state/pulse/life-currency-latest.json": "32bcbfb4e334ad9eccc34660ad9f14e0d4adbfb6f30903b1177dcdddb2e6637a",
+    "_ops/state/pulse/math-control-latest.json": "814e3041f865e9dc9e7c20682bb7a57471b836d69d888e5b988641d5a1a7b50f",
+    "OCTOPUS/CURRENT-TRUTH.md": "ceda2d977735c5876d9f249bd381486216f7714f3dac054409cd4db30059d982"
+  },
+  "runtime": {
+    "status": "OBSERVED",
+    "started": "2026-08-19T15:23:17",
+    "beat": 42066,
+    "halted": null,
+    "frozen": false,
+    "stop_organism": false,
+    "arbiter": {
+      "color": "GREEN",
+      "driver": "consensus",
+      "effective_period_s": 110.0,
+      "n_present": 3,
+      "n_braking": 0,
+      "wire_open": true
+    },
+    "cost": {
+      "month_usd": 0.580666,
+      "month_aud": 0.870999,
+      "today_usd": 0.08722
+    },
+    "germline": {
+      "lag_h": 0.91,
+      "runtime_alert": "ok",
+      "contradicting_flag": "_ops/backup/GITWRITE-FAILED.flag",
+      "flag_detail": "git-write lock TIMEOUT on 2026-08-18 after 40 attempts",
+      "verdict": "DEGRADED_OBSERVED"
+    }
+  },
+  "identity_and_doctor": {
+    "status": "OBSERVED",
+    "identity_health": 0.572,
+    "identity_components": {
+      "learner": 0.6,
+      "earner": 0.0,
+      "guardian": 0.675,
+      "creator": 1.0,
+      "organism": 0.585
+    },
+    "doctor_self_accuracy": {
+      "accuracy": 1.0,
+      "fields_checked": 3,
+      "fields_correct": 3,
+      "confidence": null,
+      "confidence_brier": null,
+      "evidence_grade": "OBSERVED_EASY_THREE_FIELD_CHECK_NOT_CALIBRATION"
+    },
+    "self_model_reality_file": {
+      "requested_path": "SELF-MODEL-REALITY.json",
+      "exists": false,
+      "verdict": "FAILED_ASSUMPTION",
+      "substituted_sources": [
+        "_ops/state/ORGANISM-STATE.json",
+        "_ops/state/pulse/math-control-latest.json",
+        "_ops/state/doctor/self-knowledge-latest.json"
+      ]
+    }
+  },
+  "learning": {
+    "valid_pairs": 30,
+    "wins": 13,
+    "required_wins": 20,
+    "criterion_met": false,
+    "status": "OBSERVED",
+    "brier_delta": null,
+    "brier_status": "UNKNOWN_NOT_COMPUTED",
+    "provenance_coverage": 0.9793,
+    "provenance_threshold": 0.9,
+    "provenance_status": "OBSERVED_ABOVE_THRESHOLD",
+    "variance_tool": {
+      "status": "OBSERVED",
+      "result": "0 VOID in 20 observed",
+      "upper_95_percent_rate_bound_approx": 0.139,
+      "interpretation": "Measurement-tool repair, not a demonstrated cognitive capability or a sub-5-percent rate claim."
+    }
+  },
+  "life_currency": {
+    "status": "OBSERVED_ZERO_ALLOCATION",
+    "schema": "life-currency.v1",
+    "color": "GREEN",
+    "daily_cap": 0.0,
+    "beat_pool": 0.0,
+    "reserve": 0.0,
+    "members": {},
+    "hard_cap": 0.0,
+    "dry_run": false,
+    "interpretation": "The three-dimensional allocator is wired but issued no allocation because the current daily cap is zero. Rent, credit income, sleep, retire, defense, and four-vault accounting are not implemented by this state."
+  },
+  "organs": {
+    "lead_naghshi": {
+      "state": "alive",
+      "propose_only": true,
+      "outward_execution": "UNKNOWN_FROM_THIS_SNAPSHOT",
+      "evidence_grade": "OBSERVED"
+    },
+    "ziman_gallery": {
+      "state": "active",
+      "propose_only": true,
+      "outward_execution": false,
+      "evidence_grade": "OBSERVED"
+    },
+    "vault_cartographer": {
+      "state": "stale",
+      "read_only": true,
+      "map_age_days": 21,
+      "drift_files": 1163,
+      "evidence_grade": "OBSERVED"
+    },
+    "accounting": {
+      "state": "live",
+      "content_scope": "metadata only; no financial values read",
+      "evidence_grade": "OBSERVED"
+    },
+    "mining": {
+      "state": "skeleton",
+      "live": false,
+      "evidence_grade": "OBSERVED"
+    },
+    "crypto": {
+      "state": "stale",
+      "live": false,
+      "age_days": 65.3,
+      "evidence_grade": "OBSERVED"
+    },
+    "knowledge": {
+      "state": "skeleton",
+      "live": false,
+      "evidence_grade": "OBSERVED"
+    },
+    "project_f": {
+      "state": "gated",
+      "propose_only": true,
+      "outward_execution": false,
+      "content_free": true,
+      "evidence_grade": "OBSERVED"
+    }
+  },
+  "survival_backup": {
+    "owner_key": {
+      "claimed": "owner-key.enc exists, is 144 bytes, and belongs to an 11-file healthy manifest",
+      "claim_source": "06-EVIDENCE/GATE-0-MEGA-BUILD-20260819T1230.md",
+      "path_in_claim": null,
+      "checked_paths": [
+        "F:/backup/owner-key.enc",
+        "E:/germline/owner-key.enc",
+        "F:/backup-island/owner-key.enc",
+        "F:/octopus-untracked-safety-2026-07-22/owner-key.enc"
+      ],
+      "found": false,
+      "verdict": "UNKNOWN_CONTRADICTED_NOT_VERIFIED"
+    },
+    "manifests": [
+      {
+        "path": "OCTOPUS-PRIME/phase-0/SAFETY-BACKUP-MANIFEST.json",
+        "generated_for": "OCTOPUS Phase-0 safety backup",
+        "file_count": 459,
+        "total_bytes": 4018400,
+        "evidence_grade": "OBSERVED_OLD"
+      },
+      {
+        "path": "_ops/audit/organism-manifest.json",
+        "observed_at": "2026-08-16T01:24:47+00:00",
+        "evidence_grade": "OBSERVED_STALE_RUNTIME_MANIFEST"
+      },
+      {
+        "path": "TEST-EVIDENCE-MANIFEST.sha256",
+        "bytes": 0,
+        "evidence_grade": "OBSERVED_EMPTY"
+      }
+    ],
+    "external_roots_observed": [
+      "E:/germline",
+      "F:/backup-island",
+      "F:/octopus-untracked-safety-2026-07-22"
+    ],
+    "overall_verdict": "DEGRADED_OWNER_KEY_UNVERIFIED"
+  },
+  "novelty": {
+    "claimed_generated_ideas": 335,
+    "claimed_duplicate_rejections": 358,
+    "claim_found_in_repository_data": false,
+    "verdict": "FAILED_ASSUMPTION",
+    "canonical_cohort": {
+      "source": "_ops/debate/SURVIVORS-QUEUE.md",
+      "queue_entries": 191,
+      "exact_unique_normalized_texts": 176,
+      "exact_repeat_records": 15,
+      "near_duplicate_candidate_pairs_char3_jaccard_ge_0_80": 3,
+      "behaviorally_novel_and_replayable": null,
+      "status": "INCONCLUSIVE_NO_BEHAVIOR_VECTORS_OR_REPLAY_RECEIPTS"
+    }
+  },
+  "assumption_reality_effect": [
+    {
+      "assumption": "SELF-MODEL-REALITY.json is the current source of truth.",
+      "reality": "The file does not exist.",
+      "effect": "Substitute named live state files; do not invent the missing artifact."
+    },
+    {
+      "assumption": "There are 335 generated ideas and 358 duplicate rejections.",
+      "reality": "No supporting cohort or duplicate-rejection counter exists in repository data.",
+      "effect": "Reject the denominator and report the 191-entry canonical queue separately."
+    },
+    {
+      "assumption": "owner-key.enc and its 11-file manifest are healthy.",
+      "reality": "An older evidence note claims this without a path; the key was absent from all explicit repository and backup roots checked.",
+      "effect": "Backup health is not confirmed; owner-key health remains UNKNOWN/contradicted."
+    },
+    {
+      "assumption": "Life Currency already supports Darwinian rent/credit/sleep/retire.",
+      "reality": "Current code allocates token/call/risk shares only; current live allocation is zero.",
+      "effect": "Document extensions as proposed B1 policy, not as implemented capability."
+    },
+    {
+      "assumption": "A hard OS sandbox exists for Lab mutations.",
+      "reality": "Doctor uses a temporary host directory and subprocess timeout; no evidence of network, non-root, mount, CPU/RAM, or PID isolation was found in that path.",
+      "effect": "Do not run untrusted mutation code; Lab remains unverified and phase 3 is blocked."
+    }
+  ],
+  "gate_0_verdict": "COMPLETE_WITH_BLOCKERS",
+  "blockers": [
+    "No evidence-backed 335-item idea cohort.",
+    "owner-key.enc health is contradicted and unverified.",
+    "SELF-MODEL-REALITY.json does not exist.",
+    "Behavioral novelty cannot be scored without versioned characterization and replay receipts.",
+    "Hard Lab sandbox requirements are not verified."
+  ]
+}
