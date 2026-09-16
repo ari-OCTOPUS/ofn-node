@@ -6,6 +6,16 @@ tags: [octopus, checkout1, verified-cash, draft]
 
 # CHECKOUT-1 — آمادهٔ خرید تستی توسط مالک
 
+> ## 🔄 رأی مالک ۲۰۲۶-۰۹-۱۶ — گزینه (ب) [اثرگذار؛ انتخاب محصول زیر را منسوخ می‌کند]
+> منبع: `07-HANDOFF/OWNER-RULINGS-2026-09-16B.md` (ثبت verbatim). هدف = تست مسیر پول، نه محصول خاص.
+> **محصولات مجاز (موجودی واقعی qty=1، تأیید Admin API در `rca/SHELF-1.json`):**
+> 1. https://ziman-gift.com/products/black-and-red-valentine-gift-box — **A$142.50**
+> 2. https://ziman-gift.com/products/black-gift-box-with-teddy — **A$135.00**
+> 3. https://ziman-gift.com/products/black-gift-box-with-pink-teddy — **A$90.00**
+> همان گام‌ها: باز کن → Add to cart → Checkout → پرداخت با کارت خودت → `order_id` + `payout_id` را بفرست.
+> ردیف `REPORTED_NOT_VERIFIED` آماده است؛ هزینهٔ ارسال در payload نیست — عدد checkout را هم گزارش کن.
+> (انتخاب قدیمی $45/`ZM-GALLERY-0013` فقط به‌عنوان سابقه پایین‌تر می‌ماند.)
+
 **هدف:** بستن `CHECKOUT-1` با رسید واقعی (`order_id` + `payout_id`) — نخستین نقطهٔ داده در مسیر `VERIFIED_CASH`.
 **مالکِ عمل:** آری (پرداخت با کارت خودش — `REPORTED_NOT_VERIFIED` تا رسید مستقل).
 **نقش ایجنت:** آماده‌سازی + بستن رسید پس از خرید. صفر ارسال، صفر action.
