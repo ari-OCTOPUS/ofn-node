@@ -1,0 +1,138 @@
+schema_version: 1
+registry_id: octopus-capabilities-v1
+owner: octopus-core
+updated_at: "2026-08-12T00:00:00Z"
+notes: |
+  Control / side-effect inventory. NOT signals.
+  request_protective_halt must never appear in signals-registry.yaml.
+
+capabilities:
+  - id: protective-halt-control
+    kind: control_action
+    not_a_signal: true
+    truth_status: TESTED
+    evidence_level: SHADOW
+    entrypoint: "_ops/wiring.py::request_protective_halt"
+    policy:
+      policy_gate: PROTECTIVE_CONTROL_POLICY
+      policy_version: ADR-033-v1
+      action_name: protective_halt
+    requires:
+      owner_approval: true
+      approval_id: true
+      idempotency_key: true
+      provenance_id: true
+      kill_switch_check: true
+      store_ok: true
+      redis_or_state_availability: true
+    effects:
+      may_set_protective_skip: true
+      may_pause_nonessential: true
+      may_mutate_ledger: false
+      may_trigger_external_send: false
+    rollback:
+      default: deny
+      containment_flags:
+        - OCTOPUS_NEURAL_LEARNED_APPLY=0
+      notes: "Halt is explicit PolicyGate action; neural path cannot invoke it."
+    evidence:
+      adr: ADR-034
+      tests:
+        - test_adr034_neural_demote.py
+      artifacts:
+        - _ops/state/adr-033/reports/ADR-034-A-B-EVIDENCE.md
+    authority:
+      may_gate: true
+      allowed_effect: control_plane_halt
+      production_enabled: false
+      owner_approval_required: true
+
+  - id: neural-learned-apply-capability
+    kind: regulator_capability
+    not_a_signal: false
+    mirrors_signal_id: neural-learned-apply
+    truth_status: TESTED
+    evidence_level: ARMED
+    record: "_ops/capabilities/neural-learned-apply.json"
+    production_apply_enabled: true
+    authority:
+      allowed_effect: gate_internal
+      may_gate: true
+      may_mutate_ledger: false
+      may_trigger_tool: false
+    evidence:
+      adr: ADR-035
+      supersedes_partial: ADR-034
+
+  - id: hypothesis-engine
+    kind: cognitive_capability
+    not_a_signal: true
+    truth_status: TESTING
+    evidence_level: SHADOW
+    entrypoint: "_ops/hypothesis_engine/impl/hypothesis_brain.py::HypothesisBrain.execute"
+    wiring: "_ops/cortex/cortex.py::hypothesis_brain_run (CORTEX_HYPOTHESIS=1, default OFF)"
+    policy:
+      pattern: ADR-034            # neural -> proposal, never action
+      propose_only: true
+    requires:
+      owner_activation: true       # CORTEX_HYPOTHESIS must be set to 1
+      registry_read_only: true
+    effects:
+      may_mutate_ledger: false
+      may_trigger_external_send: false
+      may_trigger_tool: false
+      may_gate: false              # only EVIDENCED hypotheses may_gate (registry-level)
+    rollback:
+      default: deny
+      containment_flags:
+        - CORTEX_HYPOTHESIS=0
+      notes: "Propose-only advisory ranking; no side effects. Disable by unsetting CORTEX_HYPOTHESIS."
+    evidence:
+      adr: ADR-037
+      tests:
+        - _ops/hypothesis_engine/tests/test_hypothesis_brain.py
+        - _ops/hypothesis_engine/tests/test_validate_registry.py
+      artifacts:
+        - _ops/hypothesis_engine/experiments/results.csv
+        - _ops/hypothesis_engine/experiments/RESULTS-DECEPTIVE-3AGENT-2026-08-12.md
+      honest_caveat: "Not superior to novelty search (deceptive-grid P1: B vs C p=0.32, delta=-0.11). Useful to escape deception (97% vs 0%), not a general advantage."
+    authority:
+      may_gate: false
+      may_trigger_tool: false
+      may_mutate_ledger: false
+      production_enabled: false    # OFF by default
+      owner_approval_required: true
+
+  - id: fourd-system-observer
+    kind: observability_capability
+    not_a_signal: true
+    truth_status: TESTING
+    evidence_level: SHADOW
+    entrypoint: "_ops/cortex/fourd_health.py::probe"
+    wiring: "_ops/cortex/cortex.py::fourd_health_tick (OCTOPUS_OBSERVE_4D=1, default OFF)"
+    policy:
+      pattern: read-only observability (autonomy_grant read_only category)
+      propose_only: true
+    requires:
+      owner_activation: true       # OCTOPUS_OBSERVE_4D must be 1
+    effects:
+      may_mutate_ledger: false
+      may_trigger_external_send: false
+      may_trigger_tool: false
+      may_gate: false
+    rollback:
+      default: deny
+      containment_flags:
+        - OCTOPUS_OBSERVE_4D=0
+      notes: "Read-only mtime probe; writes one shadow report in _ops/state. No execution path to 4d_system."
+    evidence:
+      adr: ADR-038
+      tests:
+        - _ops/tests/test_fourd_health.py
+      honest_caveat: "4d_system is DEPRECATED/disconnected; this observes liveness only, never connects it for execution."
+    authority:
+      may_gate: false
+      may_trigger_tool: false
+      may_mutate_ledger: false
+      production_enabled: false    # OFF by default
+      owner_approval_required: true
