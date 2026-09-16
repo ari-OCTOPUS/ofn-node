@@ -1,0 +1,151 @@
+schema: owner_shell_spec.v2
+title: OCTOPUS Owner Shell — Unified Control Plane
+created: "2026-08-29T08:35:00+10:00"
+status: PROPOSED — رأی مالک
+supersedes: v1 (2026-08-28)
+
+# ─── State Ownership ───────────────────────────────────────────
+state_ownership:
+  principle: "هر Aggregate دقیقاً یک مالک نوشتن؛ بقیه فقط می‌خوانند یا event اضافه می‌کنند"
+  reference: "Kubernetes spec/status separation — resource مطلوب vs observed status"
+
+  five_state_types:
+    DESIRED_STATE: "مالک چه می‌خواهد (feature flags, config)"
+    OBSERVED_STATE: "چه چیزی واقعاً دیده شده (heartbeat, probe)"
+    DECISION_STATE: "مالک چه رأیی داده (approval, rejection)"
+    EFFECT_STATE: "پس از تصمیم چه اجرا شد (receipt, ACK)"
+    PROJECTION: "خلاصه‌ی UI از چهار نوع بالا"
+
+  ownership_map:
+    organism_identity: {writer: "191 identity service", readers: [all], source: "identity state"}
+    feature_flags:     {writer: "191 Control Plane",    readers: [agents],  source: "config registry"}
+    node_health:       {writer: "خود نود",               readers: [191],    source: "آخرین heartbeat امضاشده"}
+    proposal:          {writer: "180 producer",          readers: [138,191], source: "proposal ledger"}
+    owner_vote:        {writer: "Approval service",      readers: [UI],     source: "decision ledger"}
+    witness:           {writer: "138 mint",              readers: [182],    source: "witness ledger"}
+    receipt:           {writer: "182 witness",           readers: [138,191],source: "receipt ledger"}
+    effect_ack:        {writer: "executor مربوط",        readers: [191],    source: "effect ledger"}
+    leads_customers:   {writer: "138 Painting service",  readers: [191],    source: "painting DB"}
+    budget_claims:     {writer: "191 Budget service",    readers: [UI],     source: "financial ledger"}
+    trace_telemetry:   {writer: "هر process",            readers: [191],    source: "append-only telemetry"}
+    ui_counters:       {writer: "هیچ‌کس",                readers: [UI],     source: "projection timestamped"}
+
+# ─── Five State Types (نمونه) ─────────────────────────────────
+examples:
+  DESIRED_STATE: "local_reranker_enabled=false"
+  OBSERVED_STATE: "cortex port=8772 status=alive observed_at=2026-08-29T08:00Z"
+  DECISION_STATE: "proposal P-123 approved by owner"
+  EFFECT_STATE: "effect E-456 acknowledged + receipt SHA"
+  PROJECTION: "pending_approvals=4"
+
+# ─── Event Envelope ────────────────────────────────────────────
+event_envelope:
+  required_fields:
+    - event_id
+    - event_type
+    - schema_version
+    - aggregate_type
+    - aggregate_id
+    - aggregate_version
+    - correlation_id
+    - causation_id
+    - run_id
+    - producer
+    - occurred_at
+    - recorded_at
+    - data
+    - integrity.previous_hash
+    - integrity.event_hash
+  note: "hash chain تشخیص تغییر یا حذف؛ schema_version جلوگیری از undefined"
+
+# ─── Approval Lifecycle ────────────────────────────────────────
+lifecycle:
+  stages: [PROPOSED, PENDING_OWNER, APPROVED, ENQUEUED, CLAIMED_BY_EXECUTOR, EFFECT_STARTED, EFFECT_ACKED, RECEIPT_ISSUED, VERIFIED]
+  alt_branches: [REJECTED]
+  ui_display_rule: "مرحله‌ی گمشده دقیقاً نشان داده شود؛ متن مبهم ممنوع"
+  example_stall_display:
+    proposal_id: "P-091b88a78346"
+    decision: "APPROVED"
+    execution: "NOT_ENQUEUED"
+    blocked_for: "17m"
+    expected_next_owner: "work-pump"
+    incident: "EDGE-6"
+
+# ─── Read Models (Projections) ─────────────────────────────────
+projections:
+  - owner_overview
+  - approval_queue
+  - business_pipeline
+  - node_health
+  - money
+  - run_trace
+  - audit
+  example_approval_queue:
+    schema_version: 2
+    projection: approval_queue
+    generated_at: "2026-08-29T08:32:15+10:00"
+    source_event_offset: 18291
+    source_age_ms: 124
+    pending_total: 4
+    groups: {proposal: 4, outbox: 0, manual_action: 0}
+
+# ─── Control Plane API ─────────────────────────────────────────
+api:
+  base: /api/control/v2
+  read:
+    - GET  /overview
+    - GET  /approvals
+    - GET  /proposals/{proposal_id}
+    - GET  /runs/{run_id}
+    - GET  /nodes
+    - GET  /business/leads
+    - GET  /money
+    - GET  /audit/{correlation_id}
+  write:
+    - POST /commands
+    - POST /approvals/{proposal_id}/approve
+    - POST /approvals/{proposal_id}/reject
+  command_envelope:
+    command_id: "cmd_01J..."
+    command_type: APPROVE_PROPOSAL
+    aggregate_type: proposal
+    aggregate_id: P-66f0292283ed
+    expected_version: 7
+    actor: {type: owner, id: owner-primary}
+    idempotency_key: "approve:P-66f0292283ed:v7"
+
+# ─── Information Architecture ──────────────────────────────────
+ia:
+  level_1_owner: [خانه، کار، تأییدها، پول]
+  level_2_operator: [اجراها، سیستم]
+  level_3_engineer: [ممیزی، trace، event JSON، hashes]
+  progressive_disclosure: "صفحه‌ی خانه نباید ۹۳۷ ماژول و ۴۰ کارت راکد را یک‌جا نشان دهد"
+
+# ─── Truth Conflict Display ────────────────────────────────────
+conflict_display:
+  fresh: "Value: 53967 · Authority: organism-state@191 · Observed: 8s ago · Projection: node-health-v2"
+  stale: "⚠️ داده کهنه — آخرین مشاهده ۶ دقیقه پیش"
+  conflict: "🔴 Truth conflict — organism_state: 53967 / telegram_cache: 32787 / canonical: organism_state"
+
+# ─── Migration ─────────────────────────────────────────────────
+phases:
+  - {phase: 0, title: "نقشه‌برداری", action: "فهرست endpointها، queryهای مستقیم DB، source هر کارت، مفاهیم تکراری؛ screenshot قبل از تغییر"}
+  - {phase: 1, title: "Canonical Facade", action: "‏/api/control/v2 فقط read-only؛ تجمیع داده‌های موجود؛ اختلاف‌ها در truth_conflicts[]؛ معیار: approval/beat/lead purple==blue==canonical، truth_conflicts==0"}
+  - {phase: 2, title: "Command Gateway", action: "write مستقیم UI به DB ممنوع؛ authentication و policy در gateway؛ expected_version + idempotency"}
+  - {phase: 3, title: "Owner Shell", action: "یک domain و یک entry point؛ یک header و navigation؛ Telegram Mini App همان shell را باز کند"}
+  - {phase: 4, title: "حذف موازی‌کاری", action: "فقط وقتی: دو هفته شمارنده‌ی متناقض صفر؛ rollback به پنل قبلی تست شده"}
+
+# ─── Definition of Done ────────────────────────────────────────
+dod:
+  - "یک URL اصلی مالک"
+  - "یک API ورودی"
+  - "یک owner برای هر state"
+  - "صفر query مستقیم UI به DB"
+  - "صفر شمارنده‌ی مستقل در frontend"
+  - "یک approval lifecycle"
+  - "یک correlation_id از proposal تا receipt"
+  - "timestamp و authority روی هر metric"
+  - "صفر undefined در schema contract tests"
+  - "اختلاف تمام نماها = صفر"
+  - "legacy panels فقط view، نه control plane"
+  - "rollback و receipt کامل"
