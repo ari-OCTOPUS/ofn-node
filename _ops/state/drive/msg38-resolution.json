@@ -1,8 +1,0 @@
-{
-  "schema": "msg38.resolution.marker.v1",
-  "resolution": "NOT_PAID",
-  "authority": "owner verbatim 2026-09-07 round-1: نمی‌خرم — NOT_PAID ثبت شود",
-  "receipt": "board138:~/octopus-mesh/receipts/MSG38-RESOLVED-NOT-PAID-20260907.json",
-  "supersedes": "REPORTED_NOT_VERIFIED (evening ballot D-3)",
-  "settled_at_utc": "2026-09-07T13:25:00Z"
-}

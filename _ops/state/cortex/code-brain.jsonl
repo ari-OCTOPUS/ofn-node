@@ -1,8 +1,0 @@
-{"ts": "2026-07-28T15:30:20", "event": "skipped", "reason": "flag-off"}
-{"ts": "2026-07-28T15:32:48", "event": "skipped", "reason": "flag-off"}
-{"ts": "2026-07-30T21:35:05", "event": "skipped", "tier": "local", "reason": "target-unreadable"}
-{"ts": "2026-07-30T21:35:05", "event": "skipped", "reason": "no-tier-produced", "had_key": false, "could_spend": true}
-{"ts": "2026-07-30T22:04:41", "event": "drafted", "target": "_ops/cortex/registry.py", "intent": "local-ollama: تابعِ ping() را به _ops/cortex/registry.py اضافه کن که رشتهٔ ok بر"}
-{"ts": "2026-07-30T22:21:47", "event": "drafted", "target": "_ops/cortex/registry.py", "intent": "local-ollama: تابعِ ping() را به _ops/cortex/registry.py اضافه کن که رشتهٔ ok بر"}
-{"ts": "2026-07-30T22:26:31", "event": "drafted", "target": "_ops/cortex/registry.py", "intent": "local-ollama: تابعِ ping() را به _ops/cortex/registry.py اضافه کن که رشتهٔ ok بر"}
-{"ts": "2026-07-30T23:02:31", "event": "shadow-outcome", "task": "task-256057b729", "target": "_ops/cortex/registry.py", "ok": true, "green": true, "base_seconds": 1078.0, "cand_seconds": 1067.4, "changed_bytes": 36, "baseline_fails": ["test_approval_queue_consistency", "test_auto_approve", "test_blackbox_and_bridge", "test_budget_judge", "test_callback_routing", "test_capability_registry"]}

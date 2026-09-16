@@ -1,6 +1,0 @@
-{"schema": "receipt_verdict.v1", "ts": 1786889230.0540514, "action_id": "act:595c00b9b90d1abc35cf", "receipt_status": "EXECUTED", "classification": "A0", "verdict": "PASS", "checks_failed": []}
-{"schema": "receipt_verdict.v1", "ts": 1786932252.4590242, "action_id": "act:cd6e88f930aeca0b6a26", "receipt_status": "EXECUTED", "classification": "A0", "verdict": "PASS", "checks_failed": []}
-{"schema": "receipt_verdict.v1", "ts": 1786977912.3521242, "action_id": "act:08467ac86771d08c2c8d", "receipt_status": "EXECUTED", "classification": "A0", "verdict": "PASS", "checks_failed": []}
-{"schema": "receipt_verdict.v1", "ts": 1787035670.631766, "action_id": "act:3520427ad74e951abc55", "receipt_status": "EXECUTED", "classification": "A0", "verdict": "PASS", "checks_failed": []}
-{"schema": "receipt_verdict.v1", "ts": 1787062757.0571027, "action_id": "act:39e88d42a2ef037969df", "receipt_status": "EXECUTED", "classification": "A0", "verdict": "PASS", "checks_failed": []}
-{"schema": "receipt_verdict.v1", "ts": 1787104964.0974514, "action_id": "act:cc651b8d592803e85a2c", "receipt_status": "EXECUTED", "classification": "A0", "verdict": "PASS", "checks_failed": []}

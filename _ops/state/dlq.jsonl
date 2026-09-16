@@ -1,1 +1,0 @@
-{"dlq_id": "DLQ-474c34ad321f", "ts": "2026-07-16T21:12:23", "source": "test", "record_type": "proposal", "payload": {"test": "payload"}, "reason": "unit-test", "retry_count": 0, "status": "unresolved", "resolved_at": null}

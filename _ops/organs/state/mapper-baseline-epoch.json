@@ -1,9 +1,0 @@
-{
- "epoch_id": "mapper-epoch-20260820T2017",
- "created_at": "2026-08-20T20:17:20+10:00",
- "root_hash": "9056c1b4e66bbbf3ded4b81f16249663",
- "files_count": 116686,
- "python_files_count": 24907,
- "inventory_sha256": "9056c1b4e66bbbf3ded4b81f162496636abd6695da7940affc6f2d0396f8bcb4",
- "label": "MAP_STALENESS_CANDIDATES=1257 (not drift — no prior epoch)"
-}

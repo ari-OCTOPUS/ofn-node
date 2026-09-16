@@ -1,5 +1,0 @@
-{"ts": "2026-08-21T19:57:59", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "8a6d3724256afc214f4730c2", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
-{"ts": "2026-08-21T19:59:32", "sender": "approval_channel._url_json_post", "action": "deleteMyCommands?", "params_sha": "12332482bdfbb9f1bb3a3ca0", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
-{"ts": "2026-08-21T19:59:33", "sender": "approval_channel._url_json_post", "action": "setMyCommands?", "params_sha": "74f91542052978a5f36504e5", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
-{"ts": "2026-08-21T20:03:07", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "63f1eb502bf079ee5aec76d0", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
-{"ts": "2026-08-21T20:03:09", "sender": "tg_api._call_post", "action": "editMessageText", "params_sha": "da0458feb8e3ef3f50c82385", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}

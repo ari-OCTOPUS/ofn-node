@@ -1,5 +1,0 @@
-{"event_id": "tg:223883347", "canary_command": "CANARY-01 STATUS", "message_key": "fbc5e9ad7a4791fdce59a61f41ea30e3ec19cbdb", "message_id": 572, "ok": true, "state": "DELIVERY_CONFIRMED"}
-{"event_id": "tg:223883348", "canary_command": "CANARY-02 LOOPS", "message_key": "ab1fd8cab3af44e5922bd5a3333092e0a9cc1086", "message_id": 574, "ok": true, "state": "DELIVERY_CONFIRMED"}
-{"event_id": "tg:223883349", "canary_command": "CANARY-03 MEMORY-STATUS", "message_key": "f3078ae38218ebb2a26aaf20104c3af87903967d", "message_id": 576, "ok": true, "state": "DELIVERY_CONFIRMED"}
-{"event_id": "tg:223883350", "canary_command": "CANARY-04 RECEIPT-CHECK", "message_key": "13c8cde1aaf36cb19b872e16016eb9c1b99efb7a", "message_id": 578, "ok": true, "state": "DELIVERY_CONFIRMED"}
-{"event_id": "tg:223883351", "canary_command": "CANARY-05 CLOSE", "message_key": "d7170952ea5616c2a130950f5bedd27fd3597c36", "message_id": 580, "ok": true, "state": "DELIVERY_CONFIRMED"}

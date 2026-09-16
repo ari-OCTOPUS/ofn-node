@@ -1,9 +1,0 @@
-{
-  "status": "VERIFIED",
-  "observed_utc": "2026-09-08T00:22:36Z",
-  "evidence": "board138 tick 2026-09-08T00:15:12Z: gate_state.hold_external=false, decision=WOULD_EMIT, transport status=ack; standing/counter.json count=2 date=2026-09-08",
-  "sources": [
-    "state/owner_dialogue/scheduler_tick.receipt.json",
-    "state/owner_dialogue/scheduler_shadow/20260908T001512Z.decided.json"
-  ]
-}

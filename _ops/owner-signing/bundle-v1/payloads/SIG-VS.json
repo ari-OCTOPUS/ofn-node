@@ -1,9 +1,0 @@
-{
-  "authority": "owner order #5",
-  "decision_id": "OWNER-VERDICT-SHADOW-VERTICAL-SLICE-2026-08-20",
-  "owner_verdict": "ACCEPTED_FOR_SHADOW_WITH_CONDITIONS",
-  "payload_file": "02-DECISIONS/OWNER-VERDICT-SHADOW-VERTICAL-SLICE-2026-08-20.json",
-  "payload_sha256": "4c80264d2e3149e41c0600543be98d8cbd339364f360f13aca5318e29ff6a8a8",
-  "purpose": "Owner acceptance of the shadow vertical-slice verdict card (discovered AWAITING_OWNER_SIGNATURE)",
-  "sig_id": "SIG-VS"
-}

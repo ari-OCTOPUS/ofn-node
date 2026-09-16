@@ -1,5 +1,0 @@
-{"message_key": "dd9f649b24b12c95994ff6b0462e94b1b7cc490c", "event_id": "tg:223883342", "attempted_at": "2026-08-20T17:44:48.924+00:00", "message_id": 564, "ok": true, "state": "CONFIRMED"}
-{"message_key": "01647979b15813f45be9ee1e907f05ff7ea29e2a", "event_id": "tg:223883343", "attempted_at": "2026-08-20T17:44:53.308+00:00", "message_id": 566, "ok": true, "state": "CONFIRMED"}
-{"message_key": "3a8e60bf162c3474f74b1b3608ed4f7f622b5cd3", "event_id": "tg:223883344", "attempted_at": "2026-08-20T17:45:03.949+00:00", "message_id": null, "ok": false, "state": "NEEDS_RECONCILIATION"}
-{"message_key": "f080f967c9794bf93c3d8ad70303ae7882293d16", "event_id": "tg:223883345", "attempted_at": "2026-08-20T17:45:45.309+00:00", "message_id": 570, "ok": true, "state": "CONFIRMED"}
-{"message_key": "948643b4748d5cb63d4a36fba53e19cfd7f11b85", "event_id": "tg:223883346", "attempted_at": "2026-08-20T17:45:47.773+00:00", "message_id": null, "ok": false, "state": "NEEDS_RECONCILIATION"}

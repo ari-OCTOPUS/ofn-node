@@ -1,1 +1,0 @@
-{"schema": "octopus-writer-lease/1", "lease_id": "62440c286ef74d60821fcfc13f1d75de", "agent_id": "A", "session_id": "telegram-closed-loop-20260820", "acquired_at": 1787218827.597, "ttl_seconds": 10800, "scope": ["telegram", "owner_console", "spine_emitter", "router_attribution", "evidence", "git"], "renewed_at": 1787222181.059}

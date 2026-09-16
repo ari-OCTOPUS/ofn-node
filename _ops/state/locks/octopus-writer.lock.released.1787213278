@@ -1,1 +1,0 @@
-{"schema": "octopus-writer-lease/1", "lease_id": "c6ff0c01863f46c6a8c210b1f335cc0c", "agent_id": "agent-B-ZCode", "session_id": "sess_1d388c34", "acquired_at": 1787213276.562, "ttl_seconds": 600, "scope": ["evidence", "state", "git"]}

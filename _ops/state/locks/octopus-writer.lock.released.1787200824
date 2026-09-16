@@ -1,1 +1,0 @@
-{"schema": "octopus-writer-lease/1", "lease_id": "8d7b0c413a704534a211db58c107be2d", "agent_id": "agent-B-ZCode", "session_id": "sess_1d388c34", "acquired_at": 1787199748.897, "ttl_seconds": 1800, "scope": ["ledger", "evidence", "budgets", "state", "git"], "renewed_at": 1787200755.148}
