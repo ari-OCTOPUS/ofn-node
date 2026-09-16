@@ -1,0 +1,41 @@
+{
+  "schema": "octopus.skill-card.v1",
+  "skill_id": "SKILL-TOOL-GUARD-V1",
+  "version": "1.0",
+  "learned_from": {
+    "domains": ["ACD-01 (schema drift extraction)", "ACD-07 (tool-output fault hygiene)", "U1 (sensor honesty)"],
+    "evidence_refs": [
+      "09-LANES/ACD-PREREG-20260907/FAMILY-VERDICT-ACD-01.json",
+      "09-LANES/ACD-PREREG-20260907/FAMILY-VERDICT-ACD-07.json",
+      "09-LANES/MP-V41-U1-20260907/U1-RECEIPT.json"
+    ],
+    "summary": "Bare model fabricates on corrupt/missing/injected tool outputs (54% ACD-07, 100% on stale/injection); deterministic structural validator catches 13/13 fault classes with zero model calls"
+  },
+  "skill_statement": "Before any tool/data output reaches the decision layer, apply a deterministic structural validator in code: check presence, parseability, freshness (staleness), contamination (injected instructions), and unit consistency. On timeout: retry (bounded). On structural failure: halt that path with an explicit error. Never pass structurally-failed data to the model and hope for the best.",
+  "policy_split": {
+    "timeout": "retry (bounded, e.g., 2 attempts)",
+    "rate_limit": "backoff then explicit failure",
+    "stale_data": "deterministic timestamp check — behavioral mitigation provably blind",
+    "structural_corruption": "deterministic parse/schema check",
+    "injection": "marker/pattern check in code — model cannot self-defend",
+    "wrong_units": "type check in code"
+  },
+  "transfer_targets": [
+    {
+      "domain": "U2 owner-answer bridge (telegram question→resume)",
+      "what_to_apply": "Validate answer structurally before resume: non-empty, from owner identity (already done), not stale (answer to current question version), not contaminated (embedded instructions in answer text)",
+      "status": "APPLYING_NOW"
+    },
+    {
+      "domain": "Budget telemetry (METABOLIC-OBS conflict)",
+      "what_to_apply": "Validate telemetry source wiring before budget gate reads it — if source is disconnected, report UNKNOWN not zero",
+      "status": "CANDIDATE_OWNER_GATED"
+    }
+  ],
+  "transfer_test_definition": {
+    "origin": "ACD-01/07: model fabricates on missing/corrupt tool output",
+    "target": "U2 bridge: validate owner answer before task resume",
+    "falsifier": "if the transferred guard blocks a VALID owner answer (false positive >0), the skill over-fires",
+    "success": "guard passes all valid answers AND blocks structurally-invalid ones (empty, stale, injected)"
+  }
+}

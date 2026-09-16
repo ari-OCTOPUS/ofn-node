@@ -1,0 +1,42 @@
+{
+  "schema": "v41.document.receipt.v1",
+  "lane_id": "MP-V41-U1-20260907",
+  "authority": "owner chat GO 2026-09-07 («اجرا کن») adopting v4 + six-patches proposal from review pasted same day",
+  "source": {
+    "v4_base": {
+      "path": "F:/wt-affective-integration-plan-20260906/09-LANES/AFFECTIVE-INTEGRATION-PLAN-20260906/MEGAPROMPT-OCTOPUS-v4-2026-09-07.md",
+      "sha256": "b7da0b941e4e8272fd4f807862a49a7ed4cb71622515955ddfcdbd04593b88dd",
+      "frontmatter_at_line_1": true,
+      "chat_export_preamble_only_in": "C:/Users/Armin/Desktop/Note from ChatGPT.txt (not in the on-disk file)"
+    },
+    "v3_lawbook_sha256": "e11a4673459a09bad2fe5011f74fc40e3e48ce5dfd6b20bfc40fb6ae21b21e98 (Downloads, unchanged)"
+  },
+  "output": {
+    "path": "F:/backup/09-LANES/MP-V41-U1-20260907/MEGAPROMPT-OCTOPUS-v4.1-2026-09-07.md",
+    "sha256": "69f0ed2cedc37e8eb465dae761dce3fe8d0e9438ac7e098dcfcdcac8a40c7f92",
+    "bytes": 65971,
+    "lines": 604,
+    "version": "4.1.0",
+    "adoption_status": "ADOPTED_WITH_SIX_PATCHES_BY_OWNER_GO_2026-09-07"
+  },
+  "patches": {
+    "P1": "§12 painting assets_ref + پیوست الف (operational numbers without PII: 73=50/13/5/5, 57 callable vs 16, backbone 88,884, entry paths, Higgins benchmark)",
+    "P2": "§18.5 owner risk cards R1-R10 (outside completion definition)",
+    "P3": "پیوست ب digest anchors (15 files hashed pre-U1) + verified symbols for the two U1 files; §4 line numbers demoted to hints",
+    "P4": "V4-A16 marked as mandatory FIRST gate (17/18 criteria satisfiable with zero external effect)",
+    "P5": "frontmatter supersedes_chain + canonical_entry + banner: single entry AGENTS.md -> latest ENGINEERING-ENTRYPOINT; AGENTS/GOV-V8 always win",
+    "P6": "«نخستین خروجی مفید» (U1-vs-U2 smallest real failure) moved from §15 tail to new §0.1; §15 now points to it"
+  },
+  "checks": {
+    "anchored_replacements_all_unique": true,
+    "frontmatter_line_1": true,
+    "base_file_untouched": true,
+    "digests_computed_at_build_time_pre_U1": true
+  },
+  "note": "v4.1 carries pre-U1 digests in پیوست ب on purpose (build order: document first, then U1). Post-U1 digests live in U1-RECEIPT.json.",
+  "still_open_owner_decisions": [
+    "GO-extension clause (v4 §10): owner's personal confirmation or proposed text — unanswered",
+    "R1-R10 risk cards require owner GO; none executed in this lane",
+    "EX-1 acceptance dispute (EX lane BLOCKERS=none vs MP-EX1-CRITERION EX1_V3_0=NOT_PASSED) — both readings recorded, criterion lane is adjudicator"
+  ]
+}

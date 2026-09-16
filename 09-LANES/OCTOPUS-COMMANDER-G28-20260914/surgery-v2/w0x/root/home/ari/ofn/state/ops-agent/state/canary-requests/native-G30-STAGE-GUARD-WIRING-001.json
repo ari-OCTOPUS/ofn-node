@@ -1,0 +1,42 @@
+{
+ "artifact_sha256": "396e0a11ed8c1b6e43496d6a332a9f32ab7203ceafe9460b09246ac10d27586d",
+ "base_sha256": "a8fb195c73b1300c5f2b0eedc90c227f88103d100018ffba7b5e969e674b0145",
+ "component": "coding-worker",
+ "dependencies": [
+  "native-Z-SUCCESSOR-TRIO-001.json"
+ ],
+ "dependencies_original": [
+  "/home/ari/ofn/state/ops-agent/state/dep-evidence/B8-CAPABILITY-20260914.json"
+ ],
+ "dependency_note": {
+  "at": "2026-09-14T11:20:44+00:00",
+  "old_edge": "/home/ari/ofn/state/ops-agent/state/dep-evidence/B8-CAPABILITY-20260914.json",
+  "why": "deploy-ordering: after TRIO deploys the executor bytes move, so a byte-pin on 109e68c0 would stale-block G30 forever; the name-dep is met exactly when the executor holds TRIO's expected_post (a85db3b0), survives TRIO's retire into executed/, and fails closed if TRIO is rolled back"
+ },
+ "diagnosis": "byte-level guard on the STAGED file inside the worker's staging loop: control bytes (JSON backspace class) and mixed EOLs raise before any test/proposal",
+ "diff_scope": [
+  "state/coding-worker/coding_worker.py"
+ ],
+ "expected_post_sha256": "396e0a11ed8c1b6e43496d6a332a9f32ab7203ceafe9460b09246ac10d27586d",
+ "ordering_note": "deploys AFTER the G8/W24 pair (quota-gated); the dep pin on executor 109e68c0 enforces the executor capability",
+ "patched": "/home/ari/ofn/state/coding-worker/stage/G30-STAGE-GUARD-WIRING-001/coding_worker.py",
+ "provenance": {
+  "class": "REAL_CODE_DEFECT",
+  "source": "G30: 4 literal 0x08 bytes in accepted artifact 69c8ec8f; root cause = JSON \\b decode in files[].replacement at coding_worker.py:406",
+  "source_hash": "396e0a11ed8c1b6e43496d6a332a9f32ab7203ceafe9460b09246ac10d27586d",
+  "source_ts": "2026-09-14T08:00:00Z"
+ },
+ "requested_by": "octopus-commander-editor/2026-09-14",
+ "rollback": {
+  "mechanism": "B4 rollback-requests entry",
+  "pre_image": "/home/ari/ofn/state/coding-worker/stage/G30-STAGE-GUARD-WIRING-001/coding_worker.py.pre-g30guard",
+  "pre_image_sha256": "a8fb195c73b1300c5f2b0eedc90c227f88103d100018ffba7b5e969e674b0145"
+ },
+ "stage_tests": {
+  "at": "2026-09-14T10:15:39+00:00",
+  "path_test": "test-stageguard-wiring.py PASS: backspace replacement -> STAGE_BYTES_DIRTY before proposal; correct \\b text -> staged clean with literal backslash+b -> canary"
+ },
+ "target": "/home/ari/ofn/state/coding-worker/coding_worker.py",
+ "target_sha256": "396e0a11ed8c1b6e43496d6a332a9f32ab7203ceafe9460b09246ac10d27586d",
+ "task_id": "G30-STAGE-GUARD-WIRING-001"
+}

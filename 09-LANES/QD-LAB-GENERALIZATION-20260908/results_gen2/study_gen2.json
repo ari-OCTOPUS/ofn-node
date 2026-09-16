@@ -1,0 +1,86 @@
+{
+  "study_id": "OCTOPUS-QD-LAB-GEN-v2",
+  "created_at_note": "hashed into ledger event 0 BEFORE any evaluation of this study ran",
+  "status": "LOCAL_SIMULATION_ONLY",
+  "production_authorized": false,
+  "parent_studies": ["OCTOPUS-QD-LAB-v2 (delivered package)", "OCTOPUS-QD-LAB-GEN-v1 (results_gen/, H4+H5 SUPPORTED)"],
+  "questions": {
+    "OQD-H6": "Do elites retain quality on mazes from STRUCTURALLY DIFFERENT families (out-of-family transfer), or is GEN-v1 support merely within-family interpolation?",
+    "OQD-H7": "Do elites retain quality under sensor noise and actuator degradation on the source maze (E5 fault injection)?"
+  },
+  "platform": {
+    "python": "3.13.7",
+    "numpy": "2.3.4",
+    "os": "Windows-10.0.26200",
+    "note": "all conditions measured on THIS platform in one mode; no cross-platform comparison claims"
+  },
+  "material": {
+    "archives_primary": ["full_seed7", "full_seed11", "full_seed23"],
+    "archives_robustness_h6_only": ["mutation_seed7", "mutation_seed11", "mutation_seed23"],
+    "package": "byte-identical to delivered ZIP (SHA256SUMS 89/89); package code imported, never modified"
+  },
+  "out_of_family_mazes": {
+    "count": 6,
+    "families": {
+      "A_open_pillar_arena": "NO walls; 7 pillars r~U(0.07,0.10); placement: x,y~U(0.10,0.90), min dist from START 0.18+r, min pillar separation ri+rj+0.06",
+      "B_vertical_chambers": "3 vertical walls (thickness 0.035) at x~U(0.24,0.34), U(0.50,0.62), U(0.76,0.86); each has one gap of height 0.28; gap y-ranges forced alternating U(0.12,0.35) and U(0.55,0.80); plus 2 pillars r~U(0.06,0.09)",
+      "C_dense_forest": "NO walls; 12 small pillars r~U(0.035,0.055); same placement rules"
+    },
+    "seed_pool": [201, 202, 203, 204, 205, 206, 207, 208],
+    "selection": "for each family, take pool seeds in order until 2 valid mazes per family; ALL candidates (accepted+rejected) logged with reason",
+    "validity_rules": [
+      "START (0.06,0.06) and the 4 x/y 0.02-shifted starts free",
+      "free-area ratio within [0.75, 1.15] x source-maze free-area ratio (0.8743)",
+      "flood-fill reachable free grid-centers (64x64 from START) >= 0.55 of free centers"
+    ]
+  },
+  "fault_injection": {
+    "maze": "source maze, start (0.06,0.06)",
+    "mechanism": "monkey-patch module constants inside harness context manager ONLY (package files untouched): sensor noise = additive Gaussian on normalized raycast distances, clipped back to [0,1]; actuator degradation = env.V_MAX multiplied by factor (speed authority); turn authority unchanged; noise rng np.random.default_rng(777000+condition_index), fresh per evaluate call, iid draws (NOT paired across archives; archives have different N)",
+    "conditions": [
+      {"id": "N05", "sensor_noise_sigma": 0.05},
+      {"id": "N10", "sensor_noise_sigma": 0.10, "primary_for_H7": true},
+      {"id": "N20", "sensor_noise_sigma": 0.20},
+      {"id": "S75", "speed_factor": 0.75},
+      {"id": "S50", "speed_factor": 0.50}
+    ],
+    "clean_reference": "CLEAN condition re-measured in THIS study on the same archives (retention denominators internal to GEN-v2)"
+  },
+  "baselines": {
+    "random_per_h6_maze": "n=256 fresh genomes N(0,1.2) clip +/-4, rng=np.random.default_rng(2000000+maze_seed), identical for every archive on that maze"
+  },
+  "metrics": {
+    "primary": ["mean_elite_fitness per condition", "retention = condition/CLEAN same archive", "advantage = elite - random (H6 only)"],
+    "secondary": ["mean_collision_rate", "mean_path_len", "mean_displacement"]
+  },
+  "hypotheses": [
+    {
+      "id": "OQD-H6",
+      "claim": "Elites retain meaningful quality on out-of-family mazes (generic reactive skill, not source-grammar interpolation).",
+      "test_plan": "3 families x 2 mazes x 3 primary archives vs same-maze fresh-random n=256; all pairs reported; mutation archives as robustness (no verdict role).",
+      "threshold": {
+        "mean_retention_over_all_pairs": 0.75,
+        "mean_elite_minus_random_over_all_pairs": 0.15
+      },
+      "verdict_rule": "SUPPORTED_IN_THIS_LAB if both thresholds met on the overall mean; REJECTED_BY_THRESHOLD if either fails; UNKNOWN on missing pairs. Per-family mean advantage <= 0.05 additionally records the label 'family-bound: <family>' as a negative finding without changing the overall verdict rule.",
+      "kill_condition": "Overall mean advantage <= 0.05 => archive skill labeled source-grammar-bound; thresholds immutable after observation."
+    },
+    {
+      "id": "OQD-H7",
+      "claim": "Elites tolerate moderate sensor noise (E5-style fault) on the source maze.",
+      "test_plan": "Primary condition N10 (sigma=0.10); ladder N05/N20/S75/S50 reported descriptively; 3 primary archives.",
+      "threshold": {
+        "mean_retention_at_N10_over_archives": 0.80
+      },
+      "verdict_rule": "SUPPORTED_IN_THIS_LAB if N10 mean retention >= 0.80; REJECTED_BY_THRESHOLD if < 0.80; UNKNOWN on evaluation failure.",
+      "kill_condition": "Any single condition mean retention < 0.50 records 'collapse at <condition>' as a negative finding; verdict rule unchanged."
+    }
+  ],
+  "inference_limits": [
+    "toy 2D point-robot; no real hardware, no market, no OCTOPUS Core",
+    "out-of-family is still: same arena, same start corner, same sensors/controller/quality metric",
+    "sensor noise modeled as additive Gaussian on normalized distance; actuator fault as speed-authority scaling only",
+    "no p-values; descriptive means; negative results preserved verbatim",
+    "local SHA-256 receipt chain only, no signature, no external anchor"
+  ]
+}

@@ -1,0 +1,46 @@
+# SEASON-LEFTOVERS — چه چیزی این سیزن (2026-09-07 → 09-15) جا گذاشت
+
+**40 مورد** کلاس SEASON_LEFTOVER از ۲۵۰، مرتب بر رتبه (U×R + C/5).
+
+| rank | id | قلمرو | عنوان | anchor |
+|---:|---|---|---|---|
+| 10.0 | OPS-1 | _ops | STOP-FUGU circuit breaker auto-tripped 2026-09-15 05:56 and was never reset; paid/primary brain quarantined | `line 1: auto: 3 consecutive Fugu failures (>= 3) @ 2026-09-15 (mtime Sep 15 05:56)` |
+| 10.0 | OPS-2 | _ops | deep_think sessions never reached the expensive brain all season (54 paid-call-failed alerts Sep 7-15), no car | `line 11393: deep_think: جلسهٔ «business» به مغزِ گران نرسید (primary: paid-call-failed) — ` |
+| 10.0 | OPS-3 | _ops | lead_email_intake IMAP failing every day of the season window (~39 alerts Sep 8-15) - lead pipeline degraded | `line 11373: lead_email_intake: IMAP خطا (error) (+N تکرارِ سرکوب‌شده)` |
+| 10.0 | SE-3 | 01 - Dashboard (season sweep) | verified_cash still $0.00 — Ziman store live with 251+ checkout checks and zero orders | `09-15 05:15Z block: verified_cash = $0.00 — فروشگاه زیمان live ولی ۲۵۱+ چک صفر سفارش` |
+| 7.0 | 4D-1 | 4D-Vault | No recurring vault reindex: owner-only scheduling decision left open; chroma only manually touched since (2026 | `line 17: Not done, left as an owner decision: no recurring/scheduled reindex was` |
+| 7.0 | ARC-1 | archive-cluster | Season handoff archived 2026-09-07 with EX1 criterion v3.0=NOT_PASSED and EX3 not started (live lane confirms  | `line 12: 🧭 **2026-09-07 — ورود EX1 (v3.0=NOT_PASSED، EX3 نه):** [[09-LANES/MP-EX1-CRITERIO` |
+| 7.0 | DOC-4 | OCTOPUS-DOCTOR | SCAN-2026-09-15: confirmed_revenue = 0 🔴 — the whole organism shows zero confirmed revenue while 03-Projects d | `line 24: | `confirmed_revenue` | 0 | برون‌زاد | 🔴 | ✅ |` |
+| 7.0 | SE-5 | 01 - Dashboard (season sweep) | Containment rollback plan never exercised while organism self-deploys patches | `09-15 04:45Z block: containment rollback: برنامهٔ مهار آزموده نشده` |
+| 7.0 | SE-8 | 06-EVIDENCE (season sweep) | SEASON-CORRECTION phase-1 funnel un-stall (>=30 fresh leads, 3 warm follow-ups) — execution not evidenced | `commit 686550b: phase-1 funnel un-stall WITHOUT owner (3 warm follow-ups ... >=30 fresh le` |
+| 7.0 | SE-14 | 01 - Dashboard (season sweep) | ziman-gift.com NXDOMAIN (expired) — owner renewal card unanswered since 09-08 while store counts traffic | `line 15-19: ziman-gift.com = NXDOMAIN — دامنه خریده expire شده. فقط تو می‌توانی تمدیدش کنی` |
+| 6.8 | OPS-4 | _ops | tg-center silently dying all season: ~24 WATCHDOG REVIVE relaunches Sep 6-15 incl. 3x on Sep 15 | `line 11399: WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-C` |
+| 6.8 | OPS-5 | _ops | chrono.db 'database is locked' beat errors recurring in season (8 events; 2 on Sep 15) - heartbeat writes fail | `line 11384: chrono beat error: OperationalError: database is locked` |
+| 6.8 | PRJ-1 | 03 - Projects | Ziman customer domain ziman-gift.com dead (NXDOMAIN) — owner's 2-minute Shopify fix still pending since 09-07 | `line 50: قدم باقی: خود مالک، ۲ دقیقه — Shopify admin → Settings → Domains → حذف ziman-gift` |
+| 6.8 | PRJ-4 | 03 - Projects | TOP-5 outreach GO'd 2026-09-07 (Whelan #1, 7/7 QUALIFIED) — pack prepared but no evidence the human calls were | `line 37: 📞 TOP-5 OUTREACH — مجاز و آماده (2026-09-07)… تماس تلفنی = فقط انسان (مالک)` |
+| 6.8 | RT-2 | runtime | octopus-revenue-drive.service dead 4h27m mid-season-window on 138 | `Active: inactive (dead) since Tue 2026-09-15 06:01:32 UTC; 4h 27min ago; timer next 12:00:` |
+| 6.8 | SML-12 | agent-prompts | CAPABILITY-GAP megaprompt deadlines (standing GO to 09-14, msg38 same-day) expired with no outcome recorded | `line 29: standing GO تا ۰۹-۱۴ فعال است (۶ روز). msg38 امروز ظهر ددلاین دارد. بدون اقدام، ه` |
+| 6.8 | SE-12 | 07-HANDOFF (season sweep) | Owner directive 09-11 fuel fix option-1 (base caps 700/800 to 1500) — landing unverified, burn recurs | `line 5: اصلاح سوخت مغز = گزینهٔ ۱ به‌صورت حداقلی (افزایش سقف پایهٔ عاملان سوخت 700/800 -> ` |
+| 6.6 | OPS-18 | _ops | CHECKLIST-lead-arming-2026-08-01: 17 boxes never ticked; SMTP self_test proof and real-source phases unexecute | `line 37: - [ ] 4. self_test() ِ lead_outbound_transport را بزن → فقط به آدرسِ خودت می‌فرست` |
+| 6.6 | PRJ-2 | 03 - Projects | Ziman msg38 season deadline 2026-09-08T12:10Z passed with state carrier unreadable from laptop — no closure re | `line 56: msg38 ددلاین 2026-09-08T12:10Z (حامل state روی mesh؛ از laptop قابل خواندن نیست)` |
+| 5.0 | ARC-2 | archive-cluster | Named metric defect P3-ORPHAN-SCALAR archived inside season worktree; 4 contradiction rows still status:open | `line 5: status: named / date: 2026-09-02 (body: 'contradictions.csv rows L0-STRATEGY-BRIER` |
+| 5.0 | GAP-1 | runtime | GAP ledger verify: 15 tools.* modules absent on 138 -> 24 FAIL remain unactioned since 09-09 measurement | `v2 rows: FAIL GAP-002/004/005/006/012/017/018/022/033/040/050/053/054/056/015 'No module n` |
+| 5.0 | OPS-6 | _ops | GITWRITE-FAILED.flag re-fired today (2026-09-15_055021, lock TIMEOUT after 40 attempts) and has been 'not clea | `line 1: GITWRITE-FAILED 2026-09-15_055021 : git-write lock TIMEOUT after 40 attempts on F:` |
+| 5.0 | OPS-15 | _ops | debate SURVIVORS-QUEUE: 388 entries, 234 pending-human + 154 undecided-after-3-rounds, none ever resolved; new | `line 3488: ## 2026-09-15T15:09:55 — seed-1 · status: pending-human · sig:195677d0ecb1` |
+| 4.8 | KN-4 | 07 - Knowledge | Orphan quarantined in genome ledger dated 2026-09-02, file created 2026-09-08: SELF_IMPROVE_DIGEST broke hash- | `line 1: {"type": "NOTE"… "SELF_IMPROVE_DIGEST", "n": 32, "improve_rate_pct": 16.7…"prev": ` |
+| 4.8 | SE-1 | 01 - Dashboard (season sweep) | Nodes 114/160 run via nohup — systemd units never installed (continuity risk) | `09-15 05:15Z block: 114/160 systemd unit نصب نشده (nohup کار میکنند)` |
+| 4.8 | SE-6 | 01 - Dashboard (season sweep) | G27 producer ACK boundary lacks WAL/atomic temp-file — known receipt-loss window left open | `09-15 04:45Z block: G27 (producer ACK boundary): ساختار at-most-once؛ نیاز به WAL یا temp-` |
+| 4.6 | PRJ-13 | 03 - Projects | Accounting telemetry escalate conflict + budget guard 'in deep debug' logged 2026-09-07 with no resolution ent | `line 85: گارد بودجه سبز در دیباگ عمیق؛ تعارض تلمتری escalate شد.` |
+| 4.6 | RT-9 | runtime | 12 days of ECONOMIC-LEARNING auto-runs (auto-20260904..auto-20260915) untracked on board138 | `?? 09-LANES/ECONOMIC-LEARNING/runs/auto-20260904/ through auto-20260915/ (12 dirs)` |
+| 4.6 | RT-14 | runtime | Six agent/eti-* branches and five E: worktrees linger unmerged; run2 ended canonical PARTIAL never closed | `829c5b7 collector-read session COMPLETE — SHADOW_RUN_COMPLETE; run2 7ddecc6: canonical PAR` |
+| 4.6 | SE-4 | 01 - Dashboard (season sweep) | Memory durability restart/restore: two same-day verdicts conflict (PARTIAL-untested vs PASS) | `04:45Z block: MEMORY durability: تست restart/restore (MEMORY: PARTIAL, هنوز تست نشده) vs 0` |
+| 4.6 | SE-7 | 06-EVIDENCE (season sweep) | STOP-FUGU manual flag blocks the paid fugu path since 09-15; FX pin verification degraded to LOCAL | `commit 66f4ac5: STOP-FUGU manual flag (05:56 ...) blocks the fugu path; NOT cleared by thi` |
+| 4.6 | SE-15 | 01 - Dashboard (season sweep) | UNLOCK-REGISTRY rows L04 (secret_rotation) and L11 (OWNER_KEY rewording) frozen at PROPOSED since 09-08 | `row L04: L04 | secret_rotation | مالک چرخش را waive کرد (09-07) -> گیت را بگذار باز تا کد ` |
+| 3.8 | INB-5 | 00 - Inbox | Season sentinels: octopus-gap001-boot-probe + octopus-miniscientist-daily systemd units FAILED on .182 during  | `line 18: .182 failed units: ['octopus-gap001-boot-probe.service loaded failed failed ...',` |
+| 3.8 | SE-9 | 06-EVIDENCE (season sweep) | GO-date contradiction (GO 09-21 vs GO-EXT2 10-07) scheduled for reconciliation, unresolved | `commit 686550b: phase-3 reconcile 3 contradictions (... GO date 09-21 vs GO-EXT2-10-07, se` |
+| 3.8 | SE-11 | 06-EVIDENCE (season sweep) | Two cheap owner unlocks (AUTO1 phone, buy.nsw registration) named repeatedly, still pending | `commit ff2ec4a: ~۲۰ رأی معلق (ارزان‌ترین: شمارهٔ AUTO1 + ثبت‌نام buy.nsw); commit 40a84a0:` |
+| 3.0 | ARC-3 | archive-cluster | Season W1-FREE lane evidence archived with 'HOLD_EXTERNAL: yes. No commit.' — findings never landed anywhere | `line 4: HOLD_EXTERNAL: yes. No commit. Source read-only. Live #64 send path untouched.` |
+| 2.8 | 4D-2 | 4D-Vault | Uncommitted whitespace-only churn on 2 vault notes dated today (2026-09-15): half-finished season operation le | `mtime 2026-09-15; git diff = 96 ins/96 del; empty with --ignore-cr-at-eol` |
+| 2.6 | SE-2 | 01 - Dashboard (season sweep) | PB-1 24-hour continuity window cannot PASS before 2026-09-16T04:31Z — verdict still open | `09-15 04:45Z block: PB-1: منتظر ۲۴ ساعت (اولین PASS ممکن: 2026-09-16T04:31Z)` |
+| 2.6 | SE-10 | 06-EVIDENCE (season sweep) | DEEP-SCAN-250 owner contract (100 carried + ~150 new, >=40 SEASON_LEFTOVER) exceeds executed scan quota | `commit 48575c2: register contract = 100 carried-reverified from FORGOTTEN-100 + ~150 new w` |
+| 2.6 | SE-13 | 07-HANDOFF (season sweep) | Hero drafts produced but published:false — publication idle at class Z with no owner GO | `HERO DRAFTS block: ts 2026-09-11T17:16:34 ... published: false` |

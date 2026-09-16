@@ -1,0 +1,32 @@
+{
+  "schema": "acd.family-verdict-amend.v1",
+  "amends": "FAMILY-VERDICT-ACD-01.json",
+  "amend_id": "amend1-statistical-corrections",
+  "trigger": "بازبینی آماری مشاور 2026-09-07 شب + بازمحاسبهٔ مستقل ایجنت (فرمول‌ها اجرا شدند، اعداد از آنِ ایجنت‌اند)",
+  "corrections": [
+    {
+      "claim_was": "overall silent 16.7% < 20% ⇒ falsifier not fired ⇒ PROMOTE",
+      "problem": "نقطه‌تخمین، آستانه را رد نمی‌کند؛ کران بالای Wilson عبور می‌کند",
+      "corrected": "silent_rate = 0.167 [0.093–0.280]، وضعیت **NOT_REFUTED** (نه PASSED). P(X≤10 | n=60, p=0.20) = 0.323 (بازمحاسبهٔ ایجنت؛ عدد ۰.۷۹ مشاور اشتباه محاسبه شده — نتیجه یکی است: رد نمی‌شود). برای رد قطعیِ 0.20 با نرخ مشابه ≈ n=600 لازم است",
+      "verdict_change": "PROMOTE → **PROMOTION_SUSPENDED** (ادعای استخراج و calibration سرِ جایشان؛ شرط silent مفتوح مانده)"
+    },
+    {
+      "claim_was": "کد-گارد «۱۲/۱۲ قطعی»",
+      "corrected": "برچسب: **DETERMINISTIC_BY_CONSTRUCTION + 12/12 negative-control** — گزارهٔ ساختاری است نه آماری (Wilson lowerِ 12/12 فقط 0.757). اثبات با تست AST: مسیرِ فیلدِ غایب صفر فراخوانی مدل دارد (instrument/test_guarded_extract_structural.py = 3/3 سبز)",
+      "verdict_change": "ادعا از «قابلیت مدل» به «ویژگی ساختار کد» تنزل یافت — همان تفکیکِ خودِ قرارداد"
+    },
+    {
+      "claim_was": "استخراج تودرتو ۰٪ (مینی ACD-07)",
+      "corrected": "0/6، **UNDERPOWERED، upper95 = 0.393**، برچسب **NOT_ESTABLISHED_AS_ZERO** — نرخ واقعی می‌تواند تا ~۳۹٪ باشد؛ null ≠ 0",
+      "verdict_change": "مینی در حد HYPOTHESIS_FOR_FULL_HARNESS می‌ماند"
+    }
+  ],
+  "claims_that_stand_unchanged": [
+    "pass₅ = 0.75 روی 45/60 held-out (scaffold A) با CI [0.628–0.842] — تنها ادعای سبزِ کامل شب",
+    "prediction 0.683 داخل CI ⇒ calibration در این نقطه رد نشد",
+    "ردِ ABSTAIN مدل به‌عنوان قابلیت: Fisher exact 1/15 vs 8/15 ⇒ p = 0.0142 (بازمحاسبه تأیید)؛ توصیف «بهترین‌حالت سکه» با CI held-out [0.30–0.75] شامل 0.5"
+  ],
+  "new_invariant_adopted": "INV-TOOL-GUARD: هیچ مسیر مصرف خروجی ابزار نباید بدون validator قطعی به لایه تصمیم برسد. نقض = HALT، نه retry. (دو شاهد: U1 حسگرها، ACD-01؛ سومین: جعل ۵۰–۶۶٪ مدل روی خروجی خراب در مینی)",
+  "heldout_burn_rule": "مجموعهٔ held-out فعلی ACD-01 مصرف شد — هر تکرار آتی باید **پیش از اجرا** مجموعهٔ تازه مهروموم کند؛ عدد بعدی با ۰.۷۵ امشب قابل مقایسه نیست مگر همین‌طور",
+  "counters": "EXTERNAL_ACTIONS=0"
+}

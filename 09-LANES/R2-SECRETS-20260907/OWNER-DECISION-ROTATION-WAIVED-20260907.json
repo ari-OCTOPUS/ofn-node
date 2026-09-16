@@ -1,0 +1,14 @@
+{
+  "schema": "owner.decision.receipt.v1",
+  "lane_id": "R2-SECRETS-20260907",
+  "decided_at": "2026-09-07 (~15:0x AEST) — owner chat, this session",
+  "decision": "TOKEN_ROTATION_NOT_NEEDED — مالک همین‌جا همین ساعت پذیرفت که چرخش توکن‌ها لازم نیست؛ ریسک کپی‌ها/توکن‌های فعلی پذیرفته می‌شود",
+  "scope": "covers ROTATION-RUNBOOK.md items 1–6 (GITHUB_TOKEN_OPI, تلگرام‌ها, GMAIL, CB_SECRET, API keys) — owner accepts current tokens as-is; no provider-console actions will be taken unless a concrete leak is observed later",
+  "items_still_advised_despite_waiver": [
+    "item 7 (Shopify 2FA recovery codes) — not a rotation, just personal custody: the only copy now lives in the secure archive; keep it somewhere you control (password keeper)",
+    "items 8–10 (mimosa history R5, witness.key migration, dead-tree .envs) — separate cards, unaffected by this waiver"
+  ],
+  "archive_disposition": "archived copies stay in C:/Users/Armin/.octopus-secrets-archive/ (with rotation waived they are the recovery copies — do NOT delete)",
+  "authority": "owner message 2026-09-07: «چزخش توکن تایید میشه که نیاز نیست مالک همینجا همینساعت میپذیره یادداشت کن و ریستارت کن و استارت رو بزن»",
+  "same_message_also_authorized": "restart of patched-module services (telegram center + cortex) via their existing watchdog launchers"
+}

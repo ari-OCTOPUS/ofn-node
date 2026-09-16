@@ -1,0 +1,116 @@
+{
+  "schema": "go_b3_pending_registry.v1",
+  "design_sha256": "f78ca25473960a5273dc6c1160d0acd258eaaf161ec9851cbb7a1b4b3100aacb",
+  "requests": [
+    {
+      "schema": "decision_request.v1",
+      "request_id": "gob3-whelan",
+      "payload_sha256": "92e28878d98733276190974f3ca0a91cb24ade32d3f5a2f647ad409d993bfbca",
+      "business": "painting",
+      "card": "WHELAN",
+      "blocked_effect": "customer_contact",
+      "can_continue_internally": true,
+      "options": [
+        "ACK_SEEN",
+        "PARK"
+      ],
+      "hold_external": true,
+      "expires_at": "2026-09-27T08:05:32Z",
+      "created_at": "2026-09-13T08:05:32Z",
+      "one_use": true,
+      "status": "pending"
+    },
+    {
+      "schema": "decision_request.v1",
+      "request_id": "gob3-bright-and-duggan",
+      "payload_sha256": "e8e4811c44d8436d350c36ad80c386e8ecb003ae243191854314c74f4bdff59e",
+      "business": "painting",
+      "card": "BRIGHT-AND-DUGGAN",
+      "blocked_effect": "customer_contact",
+      "can_continue_internally": true,
+      "options": [
+        "ACK_SEEN",
+        "PARK"
+      ],
+      "hold_external": true,
+      "expires_at": "2026-09-27T08:05:32Z",
+      "created_at": "2026-09-13T08:05:32Z",
+      "one_use": true,
+      "status": "pending"
+    },
+    {
+      "schema": "decision_request.v1",
+      "request_id": "gob3-smarter-communities",
+      "payload_sha256": "8cb33622ead55943b9c83880fe4fcb7ab6420d95c62fb682bc799a0a64b0a86c",
+      "business": "painting",
+      "card": "SMARTER-COMMUNITIES",
+      "blocked_effect": "customer_contact",
+      "can_continue_internally": true,
+      "options": [
+        "ACK_SEEN",
+        "PARK"
+      ],
+      "hold_external": true,
+      "expires_at": "2026-09-27T08:05:32Z",
+      "created_at": "2026-09-13T08:05:32Z",
+      "one_use": true,
+      "status": "pending"
+    },
+    {
+      "schema": "decision_request.v1",
+      "request_id": "gob3-bcs-pica",
+      "payload_sha256": "1da831a781d7df21eb76de39293d9789f6c9e1f4aca985bb92eb2df83d8b24cb",
+      "business": "painting",
+      "card": "BCS-PICA",
+      "blocked_effect": "customer_contact",
+      "can_continue_internally": true,
+      "options": [
+        "ACK_SEEN",
+        "PARK"
+      ],
+      "hold_external": true,
+      "expires_at": "2026-09-27T08:05:32Z",
+      "created_at": "2026-09-13T08:05:32Z",
+      "one_use": true,
+      "status": "pending"
+    },
+    {
+      "schema": "decision_request.v1",
+      "request_id": "gob3-strata-choice",
+      "payload_sha256": "a03b2ecc88a301f2262f118d2b4b4eebcbdcbeea88acb00afefad0149c73a0e8",
+      "business": "painting",
+      "card": "STRATA-CHOICE",
+      "blocked_effect": "customer_contact",
+      "can_continue_internally": true,
+      "options": [
+        "ACK_SEEN",
+        "PARK"
+      ],
+      "hold_external": true,
+      "expires_at": "2026-09-27T08:05:32Z",
+      "created_at": "2026-09-13T08:05:32Z",
+      "one_use": true,
+      "status": "consumed",
+      "consumed_at": "2026-09-14T05:13:47Z"
+    },
+    {
+      "schema": "decision_request.v1",
+      "request_id": "gob3-INDEX-BATCH",
+      "payload_sha256": "c44c7ac8d838d77f10243630057a847fa1e152b76c3fe9d2924ca14aace30143",
+      "business": "painting",
+      "card": "INDEX",
+      "blocked_effect": "customer_contact",
+      "can_continue_internally": true,
+      "options": [
+        "ACK_BATCH",
+        "PARK"
+      ],
+      "hold_external": true,
+      "expires_at": "2026-09-27T08:05:32Z",
+      "created_at": "2026-09-13T08:05:32Z",
+      "one_use": true,
+      "status": "pending",
+      "note": "batch ACK for pi 4+1 class"
+    }
+  ]
+}

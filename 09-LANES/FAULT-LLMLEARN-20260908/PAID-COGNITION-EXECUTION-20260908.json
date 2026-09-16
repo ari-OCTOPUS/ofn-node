@@ -1,0 +1,35 @@
+{
+  "schema": "lane-receipt.v1",
+  "lane": "FAULT-LLMLEARN-20260908",
+  "gov": "GOV-V8 · LADDER=L2",
+  "action": "owner vote execution — paid cognition ON for organism daemon",
+  "vote": {
+    "verbatim": "روشن (option B of 07-HANDOFF/OWNER-DECISION-PAID-COGNITION-20260908.md) + addition: «و دیپ سیک و کلود و هرچی که نیازه محدودیتی نیست»",
+    "recorded": "07-HANDOFF/OWNER-APPROVALS-2026-09-07.md — دور ششم، R4-1 (فعال‌سازی) + R4-2 (تفسیرِ الحاقه: آزادیِ ارائه‌دهنده/مدل به‌عنوان مجوزِ ایستاده؛ کلیدهای ANTHROPIC/OPENAI/ZAI از قبل در .env حاضرند؛ ادغامِ ارائه‌دهندهٔ جدید فقط وقتِ نیازِ واقعی)",
+    "protections_unchanged": ["organ_gate AU$30/day", "cognition bucket cap (~30/day eligible)", "fugu daily cap", "RCPT-2 fail-closed", "kill-switch HALT/STOP", "GOV-V7 سه قفلِ دائمی"],
+    "ladder_note": "زیرِ L3 رسمی می‌ماند تا شاهدِ L3 بازش کند (متنِ کارت، تأییدِ مالک)"
+  },
+  "change": {
+    "file": "_ops/OCTOPUS-flags.cmd",
+    "pre_image_sha256_16": "731227ea75563a28",
+    "post_image_sha256_16": "56d1e3e031988fbf",
+    "appended": ["set OCTOPUS_PAID_COGNITION=1", "set OCTOPUS_RUN_ID=R-organism-daemon"],
+    "ascii_only_comment": true
+  },
+  "restart": {
+    "protocol": "native P2 RESTART-REQUESTED marker (launcher clears it and re-calls OCTOPUS-flags.cmd with fresh env)",
+    "old_pid": "6956 exited clean ~592s after marker (tick cycle >300s, matches lane finding)",
+    "new_pid": "5260, stable 40s+, marker auto-cleared by launcher (verified absent)"
+  },
+  "verification": {
+    "flags_snapshot": "_ops/state/flags-loaded-organism.json pid=5260: OCTOPUS_PAID_COGNITION=1, OCTOPUS_RUN_ID=R-organism-daemon (345 flags loaded)",
+    "first_daemon_paid_call": {
+      "ts": "2026-09-08T12:08:35",
+      "task": "deep", "tier": "primary", "model": "deepseek-v4-flash",
+      "ok": true, "ms": 12011,
+      "note": "FIRST successful paid call by the daemon ever — all 5 previous ok-rows (09-07 22:59–23:02) were manual FX-1 verification calls from an agent shell"
+    },
+    "fx_gate_context": "pricing_pinned fresh until 16:00 local (anchor-corrected earlier today); after that, daily re-pin per RUNBOOK-FX-DAILY.md — without it the daemon paid path fail-closes again that evening"
+  },
+  "rollback": "remove the two `set` lines from _ops/OCTOPUS-flags.cmd + restart (RESTART-REQUESTED marker or patient script); no code was changed by this execution"
+}

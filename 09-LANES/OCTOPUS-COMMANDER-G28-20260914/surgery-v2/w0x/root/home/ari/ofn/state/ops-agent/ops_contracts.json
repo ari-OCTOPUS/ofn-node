@@ -1,0 +1,176 @@
+{
+ "authority": "STANDING NON-TCB OPERATIONAL AUTHORITY (directive AUTONOMOUS-OPS-BUNDLE-20260913 section 2)",
+ "categories": {
+  "B2_OCTOPUS_OWNED_WORKER_RECOVERY": {
+   "actions": {
+    "note": "<UNIT> substituted from the frozen units list only",
+    "restart_unit": [
+     "sudo",
+     "-n",
+     "systemctl",
+     "restart",
+     "<UNIT>"
+    ]
+   },
+   "armed": false,
+   "observation": {
+    "fixture_guard": true,
+    "method": "systemctl-is-active",
+    "qualifying": "3 consecutive is-active == 'failed' spanning >= 600s (oneshot services read 'inactive' BETWEEN timer fires \u2014 that is HEALTHY and never qualifies; only 'failed' counts)",
+    "units": [
+     "octopus-mesh-consume.service",
+     "octopus-scheduler.service",
+     "octopus-witness.service",
+     "octopus-heartbeat.service"
+    ]
+   },
+   "rollback": "systemctl stop <UNIT> if restart introduces crash-loop; breaker opens",
+   "timeout_s": 60,
+   "verify": {
+    "method": "systemctl-is-active == active within 90s"
+   },
+   "witness_required": true
+  },
+  "B3_OCTOPUS_OWNED_SUPERVISOR_RECOVERY": {
+   "actions": {
+    "restart_supervisor_timer": [
+     "sudo",
+     "-n",
+     "systemctl",
+     "restart",
+     "octopus-autonomy-supervisor.timer"
+    ]
+   },
+   "armed": false,
+   "observation": {
+    "method": "receipts-age",
+    "path": "/home/ari/ofn/state/autonomy/receipts.jsonl",
+    "qualifying": "last receipt older than 1800s (3x supervisor cadence) while timer active, 3 checks over >= 600s"
+   },
+   "rollback": "timer stop + owner task (supervisor TCB itself never modified by this agent)",
+   "timeout_s": 60,
+   "verify": {
+    "method": "new receipt appears within 300s"
+   },
+   "witness_required": true
+  },
+  "B4_NON_TCB_DEPLOYMENT_ROLLBACK": {
+   "actions": {
+    "note": "paths only from the request file validated against pre-image registry; never TCB targets",
+    "restore_preimage": [
+     "cp",
+     "<BACKUP>",
+     "<TARGET>"
+    ]
+   },
+   "armed": true,
+   "observation": {
+    "method": "rollback-request-spool",
+    "path": "state/rollback-requests",
+    "qualifying": "a signed request file naming a deployment whose pre-image exists and hashes match"
+   },
+   "rollback": "the restore itself is the rollback; second restore blocked by breaker",
+   "timeout_s": 30,
+   "verify": {
+    "method": "target hash == pre-image hash"
+   },
+   "witness_required": true
+  },
+  "B5_SAFE_STORAGE_MAINTENANCE": {
+   "actions": {
+    "delete_cache": [
+     "rm",
+     "-rf",
+     "<PATH>"
+    ],
+    "note": "<PATH> must resolve inside a contract root and match a whitelist pattern; caches are reproducible -> no archive required; NOTHING outside the whitelist is ever deletable"
+   },
+   "armed": false,
+   "never_delete": [
+    "state",
+    "queues",
+    "receipts",
+    "ledgers",
+    "evidence",
+    "repositories",
+    "git history",
+    "models",
+    "databases",
+    "secrets",
+    "unknown data",
+    "user files",
+    "only copies"
+   ],
+   "observation": {
+    "method": "whitelist-scan",
+    "patterns": [
+     "__pycache__",
+     "*.pyc",
+     ".pytest_cache"
+    ],
+    "qualifying": "presence of whitelist-matching cache paths under OCTOPUS-owned roots; disk usage report each tick",
+    "roots": [
+     "/home/ari/ofn/state",
+     "/home/ari/wt-*"
+    ]
+   },
+   "rollback": "caches regenerate; no rollback needed (reproducible artifacts only)",
+   "timeout_s": 60,
+   "verify": {
+    "method": "path absent after action"
+   },
+   "witness_required": true
+  },
+  "B6_DERIVED_ARTIFACT_REBUILD": {
+   "actions": {
+    "rebuild_bench_ledger": [
+     "python3",
+     "/home/ari/ofn/state/autonomy/../../ops-agent/rebuild_bench.py"
+    ]
+   },
+   "armed": true,
+   "observation": {
+    "method": "rebuild-request-spool",
+    "path": "state/rebuild-requests",
+    "qualifying": "request naming a derived artifact whose frozen rebuild command exists in this contract"
+   },
+   "rollback": "delete rebuilt artifact (derived; source intact)",
+   "timeout_s": 120,
+   "verify": {
+    "method": "artifact exists + hash matches recorded expectation"
+   },
+   "witness_required": true
+  },
+  "B8_NON_TCB_PATCH_CANARY": {
+   "actions": {
+    "install_patch": [
+     "cp",
+     "<PATCHED>",
+     "<TARGET>"
+    ],
+    "note": "non-TCB targets only; TCB target => CREATE_OWNER_DECISION_TASK, never executed"
+   },
+   "armed": true,
+   "observation": {
+    "method": "canary-request-spool",
+    "path": "state/canary-requests",
+    "qualifying": "request carrying a patch id, tested artifact hash, target component (non-TCB), and rollback bundle hash; all verified present"
+   },
+   "rollback": "restore from the request's rollback bundle; breaker on verify failure",
+   "timeout_s": 60,
+   "verify": {
+    "method": "component health check post-install (frozen per component)"
+   },
+   "witness_required": true
+  }
+ },
+ "class_A_duties": {
+  "goal_engine": "observe workers/supervisor/disk/stores each tick; degraded non-CategoryB conditions become goal receipts (never invented); healthy => STABLE_HEALTH_CYCLE receipt",
+  "prediction_reconciliation": "already autonomous inside the STABLE supervisor (Class A, frozen); ops-agent only observes and receipts the observation"
+ },
+ "lane": "AUTONOMOUS-OPS-BUNDLE-20260913",
+ "note": "Frozen per category. Actions are LITERAL command lists from this file only \u2014 no shell is ever generated dynamically. Any change = new version + full gate re-run.",
+ "producer_authority": "node-138-ops-agent",
+ "schema": "octopus.ops-contracts.v1",
+ "version": 1
+}

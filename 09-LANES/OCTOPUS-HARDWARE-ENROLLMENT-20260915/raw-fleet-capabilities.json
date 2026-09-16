@@ -1,0 +1,86 @@
+[
+ {
+  "DRM[device]": "DRIVER=RKNPU OF_NAME=npu OF_FULLNAME=/npu@fdab0000 OF_COMPATIBLE_0=rockchip,rk3588-rknpu OF_COMPATIBLE_N=1",
+  "RKNPU_MODULE": "0",
+  "MODULES_NPU": "",
+  "MEMINFO_SWAP": "",
+  "SVC": "",
+  "MYIPS": "192.168.0.138",
+  "node": "138",
+  "ip": "192.168.0.138",
+  "role": "commander-router-ledger-owner",
+  "hostname": "DietPi"
+ },
+ {
+  "DRM[device]": "DRIVER=RKNPU OF_NAME=npu OF_FULLNAME=/npu@fdab0000 OF_COMPATIBLE_0=rockchip,rk3588-rknpu OF_COMPATIBLE_N=1",
+  "RKNPU_MODULE": "0",
+  "MODULES_NPU": "",
+  "MEMINFO_SWAP": "",
+  "SVC": "",
+  "MYIPS": "192.168.0.180 172.17.0.1",
+  "node": "180",
+  "ip": "192.168.0.180",
+  "role": "quality-brain",
+  "hostname": "octopus-continuity-180"
+ },
+ {
+  "DRM[device]": "DRIVER=RKNPU OF_NAME=npu OF_FULLNAME=/npu@fdab0000 OF_COMPATIBLE_0=rockchip,rk3588-rknpu OF_COMPATIBLE_N=1",
+  "RKNPU_MODULE": "0",
+  "MODULES_NPU": "",
+  "MEMINFO_SWAP": "",
+  "SVC": "",
+  "MYIPS": "192.168.0.182",
+  "node": "182",
+  "ip": "192.168.0.182",
+  "role": "lab-witness",
+  "hostname": "sensorium-opi5pro"
+ },
+ {
+  "DRM[device]": "DRIVER=RKNPU OF_NAME=npu OF_FULLNAME=/npu@fdab0000 OF_COMPATIBLE_0=rockchip,rk3588-rknpu OF_COMPATIBLE_N=1",
+  "RKNPU_MODULE": "0",
+  "MODULES_NPU": "",
+  "MEMINFO_SWAP": "",
+  "SVC": "",
+  "MYIPS": "192.168.0.100",
+  "node": "100",
+  "ip": "192.168.0.100",
+  "role": "compute-node",
+  "hostname": "octopus-compute-100"
+ },
+ {
+  "DRM[device]": "DRIVER=RKNPU OF_NAME=npu OF_FULLNAME=/npu@fdab0000 OF_COMPATIBLE_0=rockchip,rk3588-rknpu OF_COMPATIBLE_N=1",
+  "RKNPU_MODULE": "0",
+  "MODULES_NPU": "",
+  "MEMINFO_SWAP": "",
+  "SVC": "",
+  "MYIPS": "192.168.0.160",
+  "node": "160",
+  "ip": "192.168.0.160",
+  "role": "compute-node",
+  "hostname": "octopus-compute-160"
+ },
+ {
+  "DRM[device]": "DRIVER=RKNPU OF_NAME=npu OF_FULLNAME=/npu@fdab0000 OF_COMPATIBLE_0=rockchip,rk3588-rknpu OF_COMPATIBLE_N=1",
+  "RKNPU_MODULE": "0",
+  "MODULES_NPU": "",
+  "MEMINFO_SWAP": "",
+  "SVC": "",
+  "MYIPS": "192.168.0.193",
+  "node": "193",
+  "ip": "192.168.0.193",
+  "role": "model-server",
+  "hostname": "octopus-model-plus-193"
+ },
+ {
+  "DRM[device]": "DRIVER=RKNPU OF_NAME=npu OF_FULLNAME=/npu@fdab0000 OF_COMPATIBLE_0=rockchip,rk3588-rknpu OF_COMPATIBLE_N=1",
+  "RKNPU_MODULE": "0",
+  "MODULES_NPU": "",
+  "MEMINFO_SWAP": "",
+  "SVC": "",
+  "MYIPS": "192.168.0.114",
+  "node": "114",
+  "ip": "192.168.0.114",
+  "role": "compute-node",
+  "hostname": "octopus-pro-114"
+ }
+]

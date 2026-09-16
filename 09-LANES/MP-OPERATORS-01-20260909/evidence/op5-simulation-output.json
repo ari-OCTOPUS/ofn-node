@@ -1,0 +1,39 @@
+{
+ "mode": "SIMULATION-ONLY (OP-5 proposal input)",
+ "k": 3,
+ "n_corpus": 323,
+ "per_mission": {
+  "shelf_check_zm_gallery_0013": {
+   "v1_rate": 0.0,
+   "v2_simulated_rate": 0.0,
+   "v1_top1": "سرچِ عمیق: paid-search provider هنوز انتخاب نشده (لِینِ $0 web_researc",
+   "v2_top1": "سرچِ عمیق: paid-search provider هنوز انتخاب نشده (لِینِ $0 web_researc",
+   "corpus_notes_with_mission_domain_tag": 0
+  },
+  "store_order_check": {
+   "v1_rate": 0.0,
+   "v2_simulated_rate": 0.0,
+   "v1_top1": "🔴 ترس: 🚨 هشدارها، 🦿 اعضا بد کار می‌کنند — خودمختاری تنگ شد",
+   "v2_top1": "🔴 ترس: 🚨 هشدارها، 🦿 اعضا بد کار می‌کنند — خودمختاری تنگ شد",
+   "corpus_notes_with_mission_domain_tag": 0
+  },
+  "checkout1_order_check": {
+   "v1_rate": 0.0,
+   "v2_simulated_rate": 0.0,
+   "v1_top1": "پاسخِ مالک روی Q-1 — task-ok (resolver نابت)",
+   "v2_top1": "پاسخِ مالک روی Q-1 — task-ok (resolver نابت)",
+   "corpus_notes_with_mission_domain_tag": 0
+  },
+  "organism_liveness_check": {
+   "v1_rate": 1.0,
+   "v2_simulated_rate": 1.0,
+   "v1_top1": "🔴 نقطهٔ مرده: 🦴 ستونِ فقرات (pacemaker)، ❤️ قلب، 🧠 مغزِ مرکزی، 🪞 خودمد",
+   "v2_top1": "🔴 نقطهٔ مرده: 🦴 ستونِ فقرات (pacemaker)، ❤️ قلب، 🧠 مغزِ مرکزی، 🪞 خودمد",
+   "corpus_notes_with_mission_domain_tag": 104
+  }
+ },
+ "tag_distribution": {
+  "infrastructure/ops": 104,
+  "null": 219
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "capability": "executor holds B8 prefer-patched + base-verify + G22 evidence-enforced deps + retire/dedupe G28 + TCB gate G28-E + G29 dep resolution + PRE-EFFECT integrity (source/target/deps freeze, enforced preconditions)",
+ "evidence": "g28-accept-v2 22/22 PASS on 8e1c43e8 (lane OCTOPUS-COMMANDER-G28-20260914); supersedes the historical expected_post of native-A-B8-DEPLOY-SOURCE-008 which can no longer hold byte-equality after later verified fixes",
+ "expected_post_sha256": "109e68c0f3752f93e9965760457bc3c8d942d2522061d92ee573d2022502855d",
+ "pinned_at": "2026-09-14T09:59:33+00:00",
+ "pinned_by": "octopus-commander-editor/2026-09-14",
+ "repin_history": [
+  {
+   "at": "2026-09-14T09:59:33+00:00",
+   "from": "8e1c43e836132b70",
+   "to": "109e68c0f3752f93",
+   "why": "pre-effect integrity patch 8e1c43e8 -> 109e68c0 (matrix 31/31 PASS)"
+  }
+ ],
+ "rollback": "delete this file; the dependent request then blocks (OPS_B_DEPENDENCY_UNMET) rather than deploying",
+ "schema": "octopus.dependency-evidence.v1",
+ "target": "/home/ari/ofn/state/ops-agent/ops_agent.py"
+}
