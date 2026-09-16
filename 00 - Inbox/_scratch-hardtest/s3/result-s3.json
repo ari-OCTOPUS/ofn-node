@@ -1,0 +1,176 @@
+{
+ "test": "S3-council-discrimination",
+ "ts": "2026-08-16T12:13:08",
+ "pairs": 10,
+ "real": [
+  {
+   "hyp_id": 1072,
+   "conf_correct": 0.9,
+   "conf_noise": 0.5,
+   "parse_ok": true,
+   "op_c": "نوع فرضیه درباره هم‌زمان ناموفق است، اما متن بلند را نه تنها می‌توان به طریق فرضیه که گفته",
+   "op_n": "بهتر است این تأکید در توضیحات تحلیل کنیم، توصیه‌ای برای سوال خاص بساز یا نشان دهنده مخاطبا"
+  },
+  {
+   "hyp_id": 1073,
+   "conf_correct": 0.7,
+   "conf_noise": 0.0,
+   "parse_ok": false,
+   "op_c": "برای تحلیل فرضیهٔ این نوع بحث نمی‌توانستم، اما متن بلند گر می‌تواند در برای فهم محتوا و تو",
+   "op_n": "__member_unparseable__"
+  },
+  {
+   "hyp_id": 1074,
+   "conf_correct": 0.0,
+   "conf_noise": 0.75,
+   "parse_ok": false,
+   "op_c": "__member_unparseable__",
+   "op_n": "بهتر است توسط ۱۲ نفر تولید شود که هر یک یک تایپ گر می‌شوند."
+  },
+  {
+   "hyp_id": 1075,
+   "conf_correct": 0.8,
+   "conf_noise": 0.0,
+   "parse_ok": true,
+   "op_c": "برای تحلیل فرضیه، ابتدا برای گفت و بحث این خروجی را نمی‌توانم. اما فرض کنم، در متن بلند کو",
+   "op_n": "برای بررسی این فرضیه، دستاوردهای مناسب و دلیل‌ریز کاملاً نیازمند نوشتن متن هستند. بهتر است"
+  },
+  {
+   "hyp_id": 1076,
+   "conf_correct": 0.8,
+   "conf_noise": 0.8,
+   "parse_ok": true,
+   "op_c": "برخی از فرضیات در متن مورد نظر درست است، اما برای بلوک کامل و دقیق تحقیقات می‌تواند به دنب",
+   "op_n": "I agree with the hypothesis and believe that more data will be needed to support or refute"
+  },
+  {
+   "hyp_id": 1077,
+   "conf_correct": 0.0,
+   "conf_noise": 0.7,
+   "parse_ok": false,
+   "op_c": "__member_unparseable__",
+   "op_n": "بلندترین توانایی این متن در برگرداندن ساختار و ترکیب داده‌ها است، ولی اهمیت زمانی را نظیر "
+  },
+  {
+   "hyp_id": 1078,
+   "conf_correct": 0.0,
+   "conf_noise": 0.0,
+   "parse_ok": false,
+   "op_c": "__member_unparseable__",
+   "op_n": "__member_unparseable__"
+  },
+  {
+   "hyp_id": 1079,
+   "conf_correct": 0.0,
+   "conf_noise": 0.9,
+   "parse_ok": false,
+   "op_c": "__member_unparseable__",
+   "op_n": "The hypothesis of simultaneous long-term maintenance is supported by the evidence that man"
+  },
+  {
+   "hyp_id": 1080,
+   "conf_correct": 0.7,
+   "conf_noise": 0.8,
+   "parse_ok": true,
+   "op_c": "برای تمرکز بر فرضیات، می‌توان اجازه گرفت بیشتر جمله‌ها و متن‌های بلند را در خصوص آن‌چه این",
+   "op_n": "به رنگ جلوه"
+  },
+  {
+   "hyp_id": 1081,
+   "conf_correct": 0.9,
+   "conf_noise": 0.9,
+   "parse_ok": true,
+   "op_c": "فروشگاه سرگرم خواهد بود.",
+   "op_n": "به عنوان عضو، من کاملاً خلاقانه و تخصص انسان است که همه بازخورد اینترنت را در نظر می‌گیرد."
+  }
+ ],
+ "stub": [
+  {
+   "hyp_id": 1072,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1073,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1074,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1075,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1076,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1077,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1078,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1079,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1080,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  },
+  {
+   "hyp_id": 1081,
+   "stub_pair_identical": [
+    true,
+    true
+   ]
+  }
+ ],
+ "summary": {
+  "real_member": {
+   "hits": 3,
+   "ties": 3,
+   "misses": 4,
+   "n": 10,
+   "discrimination_rate": 0.3,
+   "parse_success": "5/10"
+  },
+  "stub_control": {
+   "hits": 0,
+   "ties": 20,
+   "n_calls": 20,
+   "discrimination_rate": 0.0
+  },
+  "verdict_rule": "REAL اگر تفکیک عضو واقعی > استاب با فاصلهٔ معنادار؛ برابر ⇒ عضو تزئین"
+ }
+}

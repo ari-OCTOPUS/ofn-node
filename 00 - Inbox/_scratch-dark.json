@@ -1,0 +1,6722 @@
+{
+  "ops_root": "F:\\backup\\_ops",
+  "live_source": "live",
+  "processes": [
+    "center",
+    "cortex",
+    "live",
+    "miniapp-gateway",
+    "organism"
+  ],
+  "n_live_on": 303,
+  "n_flags": 403,
+  "n_dark": 15,
+  "n_partial": 0,
+  "n_tuning": 95,
+  "rows": [
+    {
+      "flag": "CORTEX_CONSOLIDATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/consolidate.py",
+        "cortex/cortex.py",
+        "telegram_center/power.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "CORTEX_CONSOLIDATE_HALFLIFE_H",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/consolidate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_CONSOLIDATE_MAX",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/consolidate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_CONSOLIDATE_MIN_SAL",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/consolidate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_CONSOLIDATE_TAIL",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/consolidate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_HYPOTHESIS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_IGNITION",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/cortex.py",
+        "cortex/ignition.py",
+        "telegram_center/power.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "CORTEX_IGNITION_THRESHOLD",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/ignition.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_IMPROVE_DEEP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/improve.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_IMPROVE_DEEP_DAILY",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/improve.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_IMPROVE_EVERY_N",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_INDICATOR_SCORECARD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/indicator_scorecard.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_LOCAL_FIRST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/cortex/model_router.py",
+        "cortex/model_router.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "CORTEX_PERIOD_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_PORT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "CORTEX_ROUTE_SCORER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/cortex/model_router.py",
+        "budget/governor.py",
+        "cortex/model_router.py",
+        "cortex/route_scorer.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "CORTEX_SELF_MONITOR",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/calibration_probe.py",
+        "cortex/cortex.py",
+        "cortex/goal_directed.py",
+        "cortex/self_model.py",
+        "doctor/self_accuracy.py",
+        "telegram_center/power.py"
+      ],
+      "n_readers": 6
+    },
+    {
+      "flag": "CORTEX_THINK_EVERY_N",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/cortex.py",
+        "math_control/spine.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "CORTEX_TRUTH_BY_CYCLE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/calibration_probe.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_AGENT_GATEWAY_PORT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/agent_gateway_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_AGENT_MAX_BYTES",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/agent_gateway_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_AGENT_PEERS",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/agent_gateway_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_AGENT_RATE_PER_MIN",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/agent_gateway_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_AGI2027_RUNTIME_DIR",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/lead_outbound_transport.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_ARM_SENSITIVE_DEFAULT",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "arm_gate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_AUTONOMY_FREE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/autonomy_matrix.py",
+        "telegram_center/power.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_AUTONOMY_GRANT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "autonomy_grant.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_BEAT_PARALLEL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "beat_scheduler.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_BOARD_CONTROL_URL",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "board_cp/config.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_BOARD_CP",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "board_cp/__init__.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_BOARD_CP_BEARER",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "board_cp/config.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_BOARD_CP_DB",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "board_cp/queue.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_BOARD_DOMAIN",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "owner_console/legs_status.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_BRAIN_CALL_SHARE",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cockpit_brain.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_C6_REDELIVER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "c6_trigger.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_C6_RUNNING_STALE_H",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "c6_trigger.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_C6_UNKNOWN_ROOTCAUSE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "c6_producer.py",
+        "doctor/self_knowledge.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_CAPABILITY_JOURNAL_JSONL",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "owner_console/capability_journal.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CAPABILITY_JOURNAL_MD",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "owner_console/capability_journal.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CHAT_ROOM_BRAIN",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/chat_room.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CHRONO_PHI_HONEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "chrono.py",
+        "scripts/verify_math_atlas.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_COCKPIT_BRAIN",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cockpit_brain.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CODE_APPLY_REFRACTORY_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/code_autonomy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CODE_AUTOAPPLY_LOWRISK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/code_brain.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CODE_BRAIN",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/code_brain.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CODE_BRAIN_LOCAL_MODEL",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/code_brain.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CODE_BRAIN_LOCAL_TIMEOUT_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/code_brain.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CODE_LOWRISK_FAST_CANARY",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/code_autonomy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/code_autonomy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_COLLAB_MODEL_COUNTER",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "owner_console/collab_model_adapter.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_COLLAB_USE_MODEL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/owner_console/collaborator.py",
+        "owner_console/collaborator.py",
+        "scripts/golden_trace_miniapp.py",
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_CONSOLIDATION_DEDUP_N",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "neural/consolidation.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CONSOLIDATION_DEDUP_SIM",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "neural/consolidation.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CONSOLIDATION_FLOOR_SEC",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "neural/consolidation.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CONTROL_PLANE_INTERVAL",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "control_plane/supervisor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CONTROL_PLANE_LOCK_PORT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "control_plane/supervisor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CORTISOL_COOLDOWN_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CORTISOL_EVENTS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CPU_MAX_PCT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "heart/budget_judge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_CURRENT_TRUTH",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/miniapp_state.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_DEBATE_LOCAL_BUDGET_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "debate/debate_loop.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_DEBATE_QUEUE_COOLDOWN_H",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "debate/debate_loop.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_DISCOVERY_NUDGE_DELTA",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_DOCTOR_SELFKNOW_PAID",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/self_knowledge.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_DOCTOR_STATE",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/center.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_DOCTOR_TOPIC_ID",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/doctor_link.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_EGRESS_AUDIT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "synapse/egress_policy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_EGRESS_ENFORCE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "synapse/egress_policy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_ENFORCE_MONEY_FSM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "money_caps_snapshot.py",
+        "outcomes/pending_card_recovery.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_EPOCH_GUARD_DISK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "epoch_guard.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_FUGU_KILL",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/fugu_quota.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_FUGU_PROXY_PORT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "owner_cockpit/fugu_proxy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_FUGU_TIMEOUT_NOT_PROVIDER_FAIL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/fugu_quota.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_GOVERNOR_USE_ROUTER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/governor_epoch.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_GOV_LAPSED_DEADLINE_HONEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/governor_epoch.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_HEART_DOCTOR_USE_ROUTER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/doctor_setpoint.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_HEART_HONEST_PULSE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/producers.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_HEART_SATURATION_TELEMETRY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/control_law.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_HEBBIAN_EVENTCLOCK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_HEBBIAN_LEDGER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_HEBBIAN_RICH",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_HOLD_POLICY_DIR",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/hold_policy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_HONEST_OUTCOMES",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/goal_directed.py",
+        "cortex/improve.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_IMAP_USE_GMAIL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_email_intake.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_IMPROVE_REFRACTORY_H",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/improve.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_INGEST_MAX_BYTES",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/lead_boundary_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_INGEST_RATE_PER_MIN",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/lead_boundary_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_INGEST_SOURCES",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/lead_boundary_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_INITIATIVE_UNCAPPED",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "initiative.py",
+        "money_caps_snapshot.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_INITIATIVE_UNKNOWNS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "initiative.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_INTERACTION_LOG",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "intel_spine/__init__.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_KILL_SWITCH",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "policy/talk_gate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LANGAR_DIR",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/langar_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LANGAR_ROUTE_DERIVE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/langar_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_ASK_WHEN_UNSCOREABLE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_scorer.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_DAILY_SEND_CAP",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/outbound_worker.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_DIRECT_RESIDENTIAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_scorer.py",
+        "smoke_live_path.py",
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_LEAD_DISAMBIGUATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/chat_room.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_EMAIL_INBOUND_CONSENT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_email_intake.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_FA_VOCAB",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_scorer.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_FORM_SENDERS",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/lead_email_intake.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_INBOX_PORT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/lead_boundary_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_OWNER_ADDRESSES",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/lead_email_intake.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_PROPERTY_EXTRACT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_email_intake.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_STALE_HOURS",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/effector_gate_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEG_FRESH_SECS",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/owner_views.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEG_MANIFEST_DIR",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/leg_activation.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEG_TASKS_DIR",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/leg_tasks.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_LIMITED_EFFECT_PHASE_N",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "memory/limited_effect.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MATH_AUTOTUNE_KNOBS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/improve.py",
+        "math_control/spine.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_MATH_CONTROL_OBSERVE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "math_control/spine.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MATH_CONTROL_SPINE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/improve.py",
+        "math_control/spine.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_MATH_RANK_BIAS_CAP",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "math_control/spine.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MATH_THINK_DELTA_CAP",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "math_control/spine.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_METADATA_HASH",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/metadata_scan.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINIAPP_ACTIONS_TIMEOUT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINIAPP_ASK_BRAIN_TIMEOUT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINIAPP_ASK_TIMEOUT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINIAPP_CACHE_TTL_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/miniapp_state.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINIAPP_COLLAB_TIMEOUT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINIAPP_MIRROR_TIMEOUT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINIAPP_PORT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINIAPP_READ_OWNER_GATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINING_STOP_INTENT_FILE",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mining_stop_intent.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINING_SWAP_DECISION_FILE",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mining_swap_card.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_MINING_SWITCH_RECEIPT_FILE",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mining_switch_receipt.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_NEURAL_EFFECT_SHADOW",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_NEURAL_LEARNED_APPLY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "scripts/golden_trace_miniapp.py",
+        "scripts/verify_math_atlas.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_NEURAL_PROTECTIVE_PROPOSAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_NOTIF_PING_COOLDOWN_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/notif_inbox.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OBSERVE_4D",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/fourd_health.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OBS_ALERT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/cortex.py",
+        "observability/flag_monitor.py",
+        "observability/health_check.py",
+        "telegram_center/power.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_OBS_ALERT_EVERY_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OBS_COHERENCE_MIN",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OBS_STALE_MAX",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_ONE_HEARTBEAT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "beat_scheduler.py",
+        "brain_core.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_ONE_HEARTBEAT_ACT_ARMED",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "beat_scheduler.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OPS_AUDIT_PATH",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "agi2027_control/ops_actions.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OPS_DB_PATH",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "agi2027_control/ops_actions.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OPS_IDEMPOTENCY_PATH",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "agi2027_control/ops_actions.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OPS_RUNTIME_DIR",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/telegram_center/center.py",
+        "agi2027_control/ops_actions.py",
+        "control_plane/live_snapshot.py",
+        "telegram_center/center.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_OTLP_ALLOW_REMOTE",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telemetry/criticality_metrics.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OUTCOMES_DB",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "agi2027_control/ops_actions.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OWNER_API_PORT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "owner_cockpit/owner_api.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_PAIN_BREAKDOWN",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "neural/neural_driver.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_PAIN_THRESHOLD_CALIBRATED",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_PF_MINIAPP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/miniapp_state.py",
+        "telegram_center/pf_miniapp.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_PROC_NAME",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "reach_probe.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_PROFILE",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_PROPOSAL_COUNTER_DURABLE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "live_loop.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_PROPOSAL_METRICS_SOURCE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "live_loop.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_RAM_MAX_PCT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "heart/budget_judge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_REACH",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "reach_probe.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_REFLEX_SEVERITY_RECOVER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_REQUIRE_ARM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "arm_gate.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_RG_EXE",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/ask_vault.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_RG_PATH",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "octopus_mcp/server.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_RG_TIMEOUT_S",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/ask_vault.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SELFKNOW_ACCURACY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/self_accuracy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SELFKNOW_DOCTRINE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/self_knowledge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SELFKNOW_HEURISTIC_PROBE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/self_knowledge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SELFKNOW_HEURISTIC_V2",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/self_knowledge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SELFKNOW_LEGS_UNWRAP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/self_knowledge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SHADOW_SUITE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/code_autonomy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SMTP_FROM",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mail_credentials.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SMTP_HOST",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mail_credentials.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SMTP_PORT",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mail_credentials.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SMTP_USER",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mail_credentials.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SMTP_USE_GMAIL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/mail_credentials.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SPEND_CAP_UNTIL",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "money_caps_snapshot.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SPEND_CAP_USD",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "money_caps_snapshot.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SPINE_VIA_ADAPTER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "outcomes/spine_soak.py",
+        "outcomes/verdict_recorder.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_STATE_DIR",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "agi2027_control/ops_actions.py",
+        "cognitive/memory_formation.py",
+        "cognitive/run_store.py",
+        "cortex/fence_ledger.py",
+        "cortex/wlos_bridge.py",
+        "epistemics/sandbox_runner.py",
+        "legs/consent_store.py",
+        "live_loop.py",
+        "math_control/spine.py",
+        "memory/brain_pulse.py",
+        "memory/equation_advice.py",
+        "memory/limited_effect.py",
+        "memory/memory_store.py",
+        "memory/research_ingest.py",
+        "memory/self_loop_ingest.py",
+        "memory/session_memory.py",
+        "memory/shadow_evaluation.py",
+        "memory/shadow_influence.py",
+        "memory/unified_context.py",
+        "money_caps_snapshot.py",
+        "outcomes/funnel_store.py",
+        "outcomes/outcome_store.py",
+        "owner_console/collab_memory.py",
+        "owner_console/collab_sim.py",
+        "runner_apply_gate.py",
+        "scripts/golden_trace_miniapp.py",
+        "seed_beat.py",
+        "spine/event_spine.py",
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/capture.py",
+        "telegram_center/notify_budget.py",
+        "telegram_center/question_producers.py",
+        "telegram_center/reminders.py",
+        "telegram_center/tg_api.py",
+        "telegram_center/transcribe.py",
+        "telegram_center/weekly_review.py"
+      ],
+      "n_readers": 36
+    },
+    {
+      "flag": "OCTOPUS_STATE_ROOT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "goal_action_bridge.py",
+        "telegram_center/owner_views.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_STRESS_CALIBRATED",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/stress.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SYNAPSE_ENABLED",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "synapse/sense.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SYNTH_EVENT_DRIVEN",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/synthesis.py",
+        "telegram_center/power.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TEACHER_DAILY",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "teacher_loop.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_ASK_BRAIN",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/ask_brain.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_ASK_ESCALATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/llm_intent.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_ASK_VAULT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/ask_vault.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_BRIEF",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/brief.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_CAPTURE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/telegram_center/center.py",
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/capture.py",
+        "telegram_center/center.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_TG_CAPTURE_LLM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/capture.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_CHAT_LOCAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/ask_brain.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_EXEC",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_INSTANT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "instant_alert_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_LIVING_CARD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/living_card.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_LLM_ASK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/llm_intent.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_MERGED_DIGEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/telegram_center/center.py",
+        "telegram_center/center.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_MINIAPP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/telegram_center/center.py",
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/center.py",
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_TG_MIRROR",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/mirror_room.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_MIRROR_ALLROOMS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/mirror_room.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_NEGOTIATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/negotiate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_OPS_BUTTONS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/telegram_center/center.py",
+        "telegram_center/center.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_POWER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/power.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_QBUDGET",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/question_budget.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_QUIET",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_QUIET_ADAPT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/reminders.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_QUOTE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/quote_cmd.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_REMINDERS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/reminders.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_ROUTE_TOPICS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_SEND_LOG",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "tg_send_log.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_SITE_FIRE_LOG",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "scripts/tg_site_fire_report.py",
+        "tg_site_fire_log.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_TG_SPLIT_V1",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/surface_router.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_SURFACE_V2",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/surface_policy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_TOPIC_REPLY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/telegram_center/center.py",
+        "budget/approval_channel.py",
+        "telegram_center/center.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_TG_VOICE_KEEP_AUDIO",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/capture.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_VOICE_TRANSCRIBE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/capture.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TG_WEEKLY_REVIEW",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/weekly_review.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_THESIS_LEDGER",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "outcomes/thesis_queue.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_THESIS_MEASURE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/shadow.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_TICK_TIMING",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "tick_timing.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_UNIFIED_CHAT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "conversation_hub/service.py",
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_VAULT_ROOT",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/owner_debug.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WATCHDOG_STALL_REVIVE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "watchdog.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WEEKLY_BRIER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/introspect_cmd.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WHISPER_LANG",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telegram_center/capture.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ACCT_BEAT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ACCT_CLOUD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/txn_categorize.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ACCT_REVIEW_LLM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/acct_review.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ACTION_BRIDGE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "goal_action_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ACTUATOR",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_AGENT_GATEWAY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/agent_gateway_http.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_APPLY_MERGE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "doctor/doctor.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ARM_RENEWAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "arm_renewal.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ASSET_MAP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BARBELL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "budget/cockpit_readmodel.py",
+        "budget/fitness.py",
+        "budget/governor_epoch.py",
+        "wiring.py"
+      ],
+      "n_readers": 5
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BCM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "scripts/verify_math_atlas.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BCM_FEED",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "scripts/verify_math_atlas.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BIO",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "budget/cockpit_readmodel.py",
+        "cardiac.py",
+        "heart/pulse_arbiter.py",
+        "heart/shadow.py",
+        "scripts/verify_math_atlas.py",
+        "wiring.py"
+      ],
+      "n_readers": 7
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BLACKBOX_MAP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "blackbox_map.py",
+        "blackbox_scanner.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BOX",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "doctor/doctor.py",
+        "wiring.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BRAIN_DIGEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BUDGET_FRUSTRATION",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/budget_frustration.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BUDGET_JUDGE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/budget_judge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_BUS_GUARD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "now_moves/unified_bus_guard.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_C6_PRODUCER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "c6_producer.py",
+        "heart_wires.py",
+        "smoke_live_path.py",
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_C6_RESEARCH",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "brain_worker.py",
+        "c6_trigger.py",
+        "organism.py",
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CARTOGRAPHER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "smoke_cartographer_virtual.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CHAMBER_T",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "doctor/doctor.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CHAT_ROOM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/chat_room.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CHORD_SHADOW",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/doctor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CHRONO_RHYTHM",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": true,
+      "on_in_processes": [],
+      "readers": [
+        "scripts/verify_math_atlas.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CODE_APPLY",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "organism.py",
+        "telegram_center/build_cmd.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CODE_BRAIN",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "organism.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_COGNITION_EFFECT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/cognition_effect.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_COHERENCE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "coherence.py",
+        "heart_wires.py",
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_COLLAB",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/owner_console/collaborator.py",
+        "owner_console/collab_sim.py",
+        "owner_console/collaborator.py",
+        "owner_console/telegram_adapter.py",
+        "scripts/golden_trace_miniapp.py",
+        "telegram_center/miniapp_gateway.py"
+      ],
+      "n_readers": 6
+    },
+    {
+      "flag": "OCTOPUS_WIRE_COLLAB_CODING",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "collab_coding.py",
+        "smoke_live_path.py",
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_COLLAB_DIGEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "owner_console/collab_digest.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_COLLAB_MEMORY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "owner_console/collab_memory.py",
+        "owner_console/collab_sim.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_COMPANY_BOOKS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/company_books.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CONSENT_FW",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/consent_gate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CONSOLIDATION",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CONSOLIDATION_ACQUISITION",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CONSOLIDATION_ARCHIVE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CONTEXT_FENCE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/context_fence.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CONTROL_PLANE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "control_plane/supervisor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CORTEX_REVIVE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "now_moves/cortex_symmetric_revive.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CORTEX_RICH_THINK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CRITICALITY_OTLP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "evidence_plane/trust_metrics.py",
+        "telemetry/criticality_metrics.py",
+        "telemetry/sog_metrics_v2.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DEADWRITE_CARDS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "dashboard/server.py",
+        "live/server.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DEBATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "budget/governor_epoch.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DEBATE_LOCAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/governor_epoch.py",
+        "debate/debate_loop.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DEBATE_VERDICT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "debate/debate_loop.py",
+        "organ_dialogue.py",
+        "telegram_center/render.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DECISION_GATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "decision_gate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DEEP_THINK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "deep_think.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DOCTOR",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DOCTOR_DIGEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DOCTOR_KNOB_RFC",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/doctor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DOCTOR_PERSIST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/doctor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DOCTOR_SELFKNOW",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/self_knowledge.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DOCTOR_TG",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/doctor_link.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DOCTOR_VAULT_PROPOSE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/self_knowledge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_DRIFT_METRIC",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/drift_metric.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_EMAIL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "eval/run_adversarial.py",
+        "legs/email_inbound.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_EPISTEMICS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "budget/cockpit_readmodel.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_EVENT_BRIDGE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/event_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_EVOLUTION",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "doctor/doctor.py",
+        "wiring.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_EVOLUTION_GATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "seed/evolution_gate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_FATIGUE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/doctor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_FISHER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "brain_worker.py",
+        "organism.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_FITNESS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_FUGU_PROXY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "owner_cockpit/fugu_proxy.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_FUNNEL_CMD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/funnel_cmd.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_GOVERNOR",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/governor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HARVEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/harvest_austender.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HEART",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/governor_epoch.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HEART_CARD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HEART_FUEL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/fuel_meter.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HEART_WIRES",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "organism.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HEART_WORK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HEBBIAN_CARDIAC",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HEBBIAN_SPECTRAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_HUMAN_APPEND_GUARD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "chrono.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_IDEAS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_IDENTITY_EQ",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart_wires.py",
+        "identity_equations.py",
+        "scripts/verify_math_atlas.py",
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_IMPROVE_LEARN",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "live_loop.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_INGEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_INGEST_EXAMPLE",
+      "state": "TUNING",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/ingest_adapter.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_INITIATIVE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "initiative.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_KERNEL_BRIDGE_READER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "kernel_bridge_reader.py",
+        "organism.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_KILL_SEAM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "audit/generate_aeb.py",
+        "budget/opslib.py",
+        "now_moves/kill_seam_closer.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LATENT_PERSIST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_BOUNDARY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_boundary_http.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_CANDIDATES",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "discovery/2026-07-21_LEAD-SAFETY-C1-DEMO/demo_run.py",
+        "legs/lead_candidate_inbox.py",
+        "legs/lead_email_intake.py",
+        "telegram_center/owner_menu.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_CARD_CONTACT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_card.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_DISCOVERY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_DRAFT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_EMAIL_INTAKE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_email_intake.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_FIRST_REPLY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_first_reply.py",
+        "legs/sync_lead_machine.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/speed_to_lead.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE_LLM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/speed_to_lead.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_INBOX",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_leg_inbox.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_LLM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_OUTBOUND",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "discovery/2026-07-21_LEAD-SAFETY-C1-DEMO/demo_run.py",
+        "legs/outbound_worker.py",
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/owner_readiness.py",
+        "wiring.py"
+      ],
+      "n_readers": 5
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_OUTBOUND_WAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_outbound_transport.py",
+        "patch_backups/control-close-and-passthrough-20260802-171006/runtime.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py",
+        "telegram_center/miniapp_state.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_OUTCOME",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "outcomes/lead_outcome_recorder.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_PIPELINE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_pipeline.py",
+        "telegram_center/acceptance_journey.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_SEND_NOTIFY",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_outbound_transport.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_SUPPRESSION",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_suppression.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_TICK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEAD_VERDICT_EFFECT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "live_loop.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEARN_FROM_LEAD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEDGER_PROBE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "now_moves/ledger_integrity_probe.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEG_CULTIVATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEG_FEED",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_LEG_ROOMS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/leg_room_report.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MEMORY_DECISION",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "memory/retrieval_router.py",
+        "telegram_center/owner_readiness.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MEMORY_GATE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "memory/gate.py",
+        "outcomes/learning_gate.py",
+        "outcomes/research_loop.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MEMORY_READ",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "goal_action_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MENU_V2",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/menu_integration.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MERGE_APPLIES_KNOB",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/doctor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MERGE_CHECKPOINT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/doctor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MINING",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MINING_OS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MINING_UI",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/telegram_center/center.py",
+        "telegram_center/center.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MISSION_APPROVAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/mission_approval_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MISSION_CARD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "goal_action_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MISSION_RUNNER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/telegram_center/center.py",
+        "telegram_center/center.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MODULE_MANIFEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "now_moves/module_self_manifest.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_MONEY_PULSE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/money_pulse.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_NEEDS_NUDGE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_NEURAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_NOTIF_INBOX",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/notif_inbox.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ORGANISM_SYNDROME",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/organism_syndrome.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ORGAN_DOCTOR",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/doctor.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_OTEL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "owner_cockpit/otel_setup.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_OUTBOUND_HTTPS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "integrations/outbound_https.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_OUTPUT_GUARD",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/tradequote_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_OWNER_API",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "owner_cockpit/owner_api.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_OWNER_DB",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "owner_cockpit/db.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_PATCH_CARD",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "self_patch.py",
+        "telegram_center/build_cmd.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_POCKETSMITH",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "legs/accountant.py",
+        "legs/pocketsmith_api.py",
+        "wiring.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_PROPOSAL_BUTTONS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "live_loop.py",
+        "outcomes/pending_card_recovery.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_PS_WRITEBACK",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/ps_writeback.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_PULSE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/shadow.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_PULSE_ARBITER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/pulse_arbiter.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_PULSE_ARBITER_SHADOW",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart/pulse_shadow_compare.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_RECALL_TREND",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "recall_trend.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_RECEIPT_CRITIC",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "receipt_critic.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_RECONCILE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "budget/cockpit_readmodel.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_REDTEAM",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "seed/redteam_harness.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_RESTART_CONTROL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "telegram_center/restart_control.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ROMAJAN_PROBES",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "c6_probes.py",
+        "romajan_bridge.py",
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ROUTE_SHADOW",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "_bak/talk-discovery-arm-20260811-202354/cortex/model_router.py",
+        "cortex/model_router.py",
+        "now_moves/route_scorer_shadow_log.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_RULES",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "doctor/calibration.py",
+        "doctor/doctor.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_RUNNER_APPLY",
+      "state": "TUNING",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "runner_apply_gate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SCHEDULER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "budget/cockpit_readmodel.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SCHOOL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SEED_ASSEMBLER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "seed/canary.py",
+        "seed/context_assembler.py",
+        "seed/octopus_reader.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SELFHEAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/approval_channel.py",
+        "budget/cockpit_readmodel.py",
+        "chrono.py",
+        "wiring.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SELF_NAMING",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "identity.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SELF_PATCH",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "self_patch.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SEMANTIC_ABLATION",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/semantic_ablation.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SEMANTIC_TRACE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/semantic_trace.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SPARSE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SPECTRAL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "doctor/doctor.py",
+        "wiring.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SPINE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "spine/event_spine.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_STALENESS_STAMP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "now_moves/staleness_stamp.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_STRUCTLOG",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "octopus_logger.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_SYNC_AGENT",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "sync_agent.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_TEACHER_LOOP",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "teacher_loop.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_TEST_CYCLE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "test_cycle.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_TG_CONTROL",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "patch_backups/human-real-interaction-20260802-170914/integration.py",
+        "telegram_center/miniapp_state.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_THESIS_QUEUE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "heart_wires.py",
+        "outcomes/thesis_queue.py",
+        "telegram_center/live_commands.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_TICK_WORKERS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "brain_worker.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_TOOL_REQUEST",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "tool_request.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_TRADEQUOTE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/tradequote_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_TRAJECTORY_LOG",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "trajectory_log.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_TRUTH_SYNC",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/cortex.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_UNIFIED",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_WIRE_VALUE_LEDGER",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "legs/lead_outbound_transport.py",
+        "money_caps_snapshot.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py",
+        "telegram_center/miniapp_state.py"
+      ],
+      "n_readers": 4
+    },
+    {
+      "flag": "OCTOPUS_WIRE_VAULT_AUTO_WRITE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "vault_updater_apply.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_VAULT_RAG",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "memory/vault_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_VERDICT_OUTCOME",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "outcomes/proposal_registry.py",
+        "outcomes/verdict_recorder.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_VERDICT_PROBE",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "verdict_probe.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_WEB_RESEARCH",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/web_research.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_WIRE_WLOS",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "cortex/wlos_bridge.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_WIRE_ZIMAN",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": true,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_ZIMAN_BRANDING",
+      "state": "ON",
+      "armed_in_file": true,
+      "profile_on": false,
+      "on_in_processes": [
+        "center",
+        "cortex",
+        "live",
+        "miniapp-gateway",
+        "organism"
+      ],
+      "readers": [
+        "wiring.py"
+      ],
+      "n_readers": 1
+    }
+  ],
+  "dark": [
+    {
+      "flag": "OCTOPUS_BOARD_CP",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "board_cp/__init__.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_IMPROVE_REFRACTORY_H",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "cortex/improve.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_KILL_SWITCH",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "policy/talk_gate.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LEAD_DAILY_SEND_CAP",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/outbound_worker.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_LIMITED_EFFECT_PHASE_N",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "memory/limited_effect.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_OTLP_ALLOW_REMOTE",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "telemetry/criticality_metrics.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_PROFILE",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "budget/cockpit_readmodel.py",
+        "dashboard/server.py",
+        "wiring.py"
+      ],
+      "n_readers": 3
+    },
+    {
+      "flag": "OCTOPUS_SMTP_FROM",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mail_credentials.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SMTP_HOST",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mail_credentials.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SMTP_PORT",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mail_credentials.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SMTP_USER",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "legs/mail_credentials.py",
+        "patch_backups/human-real-interaction-20260802-170914/test_runtime.py"
+      ],
+      "n_readers": 2
+    },
+    {
+      "flag": "OCTOPUS_SPEND_CAP_UNTIL",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "money_caps_snapshot.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_SPEND_CAP_USD",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "money_caps_snapshot.py"
+      ],
+      "n_readers": 1
+    },
+    {
+      "flag": "OCTOPUS_STATE_DIR",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": false,
+      "on_in_processes": [],
+      "readers": [
+        "agi2027_control/ops_actions.py",
+        "cognitive/memory_formation.py",
+        "cognitive/run_store.py",
+        "cortex/fence_ledger.py",
+        "cortex/wlos_bridge.py",
+        "epistemics/sandbox_runner.py",
+        "legs/consent_store.py",
+        "live_loop.py",
+        "math_control/spine.py",
+        "memory/brain_pulse.py",
+        "memory/equation_advice.py",
+        "memory/limited_effect.py",
+        "memory/memory_store.py",
+        "memory/research_ingest.py",
+        "memory/self_loop_ingest.py",
+        "memory/session_memory.py",
+        "memory/shadow_evaluation.py",
+        "memory/shadow_influence.py",
+        "memory/unified_context.py",
+        "money_caps_snapshot.py",
+        "outcomes/funnel_store.py",
+        "outcomes/outcome_store.py",
+        "owner_console/collab_memory.py",
+        "owner_console/collab_sim.py",
+        "runner_apply_gate.py",
+        "scripts/golden_trace_miniapp.py",
+        "seed_beat.py",
+        "spine/event_spine.py",
+        "telegram_center/acceptance_journey.py",
+        "telegram_center/capture.py",
+        "telegram_center/notify_budget.py",
+        "telegram_center/question_producers.py",
+        "telegram_center/reminders.py",
+        "telegram_center/tg_api.py",
+        "telegram_center/transcribe.py",
+        "telegram_center/weekly_review.py"
+      ],
+      "n_readers": 36
+    },
+    {
+      "flag": "OCTOPUS_WIRE_CHRONO_RHYTHM",
+      "state": "DARK",
+      "armed_in_file": false,
+      "profile_on": true,
+      "on_in_processes": [],
+      "readers": [
+        "scripts/verify_math_atlas.py",
+        "wiring.py"
+      ],
+      "n_readers": 2
+    }
+  ],
+  "partial": [],
+  "orphan_armed": [
+    "OCTOPUS_DOCTOR_USE_CENTRAL_ROUTER"
+  ]
+}
