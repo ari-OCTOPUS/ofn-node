@@ -1,0 +1,60 @@
+{
+  "schema": "rootfix.rca-summary.v1",
+  "order": "MP-ROOTFIX-EVIDENCE-EXECUTION-2026-09-16 + AMEND-1",
+  "lane": "OCTOPUS-ROOTFIX-20260916",
+  "gov": "GOV_VERSION=V8 LADDER=L2",
+  "at_utc": "2026-09-16T10:05:00Z",
+  "source_head": "0da921b",
+  "worktree": "F:/wt-rootfix-20260916 (branch rootfix/phase1-rca-20260916)",
+  "discovery_inconsistencies_vs_plan": [
+    {
+      "id": "INC-1",
+      "plan_says": "canonical foot order: Ziman -> Painting -> Studio (Ziman has the only end-to-end money path)",
+      "reality": "painting funnel is LIVE and hot since 2026-09-15 (97 leads, 71 staged packets, 10 sends/day, one live customer conversation with Absolute Strata awaiting building address); Ziman CHECKOUT-1 requires the owner's card while owner currently chose 'none' (no owner actions)",
+      "evidence": "board138 ~/ofn/state/revenue-drive/season-meter.json 2026-09-16T06:01:47Z + sent-log 2026-09-16T00:01:22Z x10 + tg-inbox REPLY_DETECTED 00:22:06Z",
+      "disposition": "phases 1-3 are business-agnostic and proceed as ordered; phase-4 ordering needs one owner decision (recommend: painting carries the first VERIFIED_CASH attempt since it needs no owner input; Ziman SHELF-1 runs in parallel; CHECKOUT-1 queued until owner acts)"
+    },
+    {
+      "id": "INC-2",
+      "plan_says": "RCA-2 premise: BUDGET.json = 20 msgs/$5 vs config.py 25/AU$50",
+      "reality": "worse: BUDGET.json currently carries the EXPIRED 2026-09-05 Day-1 boost (250 msgs / AU$500, 'Revert after day' never executed, 11 days stale) plus prior_cache V7 (20/$5) plus config.py 25/50 plus AMEND-1 monthly 500 — four generations coexisting; expires_local_date has zero code consumers",
+      "evidence": "ofn/config.py:32-33 + BUDGET.json fields date/day1_boost.expires_local_date/prior_cache",
+      "disposition": "R-2 scope updated accordingly (see RCA-2)"
+    },
+    {
+      "id": "INC-3",
+      "plan_says": "RCA-1 premise: restore drill 'not run for months' implies missing mechanism",
+      "reality": "tooling EXISTS (octopus_recovery/restore_drill.py + tests + tools/restore_drill.sh); the defect is absence of enforcement (no timer, no CI gate, no ladder consumer) — zero RESTORE_DRILL receipts in any ledger",
+      "evidence": "repo file listing 2026-09-16 + grep restore_drill consumers = 0",
+      "disposition": "R-1 = run the existing drill in fixture + produce RESTORE-DRILL-1.json + wire enforcement"
+    },
+    {
+      "id": "INC-4",
+      "plan_says": "R-3: turn OCTOPUS_WIRE_DUAL_VETO on",
+      "reality": "AGENTS.md §4 forbids agents flipping OCTOPUS_WIRE_* in either direction without an explicit owner vote; live ops-agent unit env carries only OCTOPUS_WIRE_LEAD_OUTBOUND=1; the OCTOPUS-flags.cmd referenced by GOV-V8-ACK does not exist on 138; SIGN-DAY1 claims it was set 2026-09-05 but runtime disagrees",
+      "disposition": "R-3 held for one explicit owner confirmation card (flip + shared EnvironmentFile + DENY drill); everything else proceeds"
+    },
+    {
+      "id": "INC-5",
+      "plan_says": "recipient agent works in 'the Octopus GitHub repo'",
+      "reality": "push is PENDING_OWNER (gh deploy-keys disabled by owner 2026-09-13); F:\\ofn-node has uncommitted parallel-agent WIP (AGENT.md, deploy/install.sh, ofn/adapters/self_model_producer.py modified)",
+      "disposition": "execution is local-worktree-only (lane discipline AGENTS.md §8), zero interference with WIP files, push stays owner-gated"
+    },
+    {
+      "id": "INC-6",
+      "plan_says": "REV-1 SHELF-1: five complete products (image, price, description, stock, shipping cost)",
+      "reality": "ziman-gift.com.au already has 40 products live (prices raised x1.5 on 2026-09-08, receipts on 138)",
+      "disposition": "SHELF-1 re-scoped to: verify 5 products against ALL five fields + external browser load receipt + hash (no rebuilding what exists)"
+    }
+  ],
+  "rcas": [
+    {"id": "RCA-1", "root_class": "absent enforcement (tool exists)", "root_ref": "octopus_recovery/restore_drill.py exists; 0 consumers; 0 RESTORE_DRILL receipts; no timer on 138", "minimal_fix": "R-1 run drill in fixture + RESTORE-DRILL-1.json + monthly timer + CI invariant"},
+    {"id": "RCA-2", "root_class": "absent mechanism (expiry/invariant)", "root_ref": "BUDGET.json expires_local_date has 0 code consumers; no assert canonical==derived", "minimal_fix": "R-2 config.py canonical (25/50 daily + 500/month AMEND-1) + derive_budget.py + CI invariant + auto-revert"},
+    {"id": "RCA-3", "root_class": "flags have no single runtime source", "root_ref": "unit Environment= hand-typed; OCTOPUS-flags.cmd absent on 138; docs/runtime divergence unprobed", "minimal_fix": "R-3 shared octopus-wire.env + DUAL_VETO=1 (owner card) + DENY drill + registry receipt"},
+    {"id": "RCA-4", "root_class": "process liveness mistaken for function", "root_ref": "only deploy/brain-probe.py exists; no PROBE-REGISTRY; 09-02 incident two failed units reported HEALTHY", "minimal_fix": "R-4 payload probes per service + PROBE-REGISTRY.yaml + auto HEALTHY->UNPROBED without probe_id"},
+    {"id": "RCA-5", "root_class": "absent advantage-measurement mechanism", "root_ref": "tools/decision_scorer.py absent; 0 PREREG files; MEMABL 0.258 vs 0.279 lesson un-institutionalized", "minimal_fix": "C-1 scorer + preregistration + auto-disempowerment rule + AMEND-1 two money columns"},
+    {"id": "RCA-6", "root_class": "report template lacks mandatory machine-evidence field", "root_ref": "AGENTS.md no-PASS-without-receipt is prose only; no claim() validator at report generation; 3 historical incidents (09-02 units, season 8-day no-revenue greens, dual-veto claim)", "minimal_fix": "claim(status,evidence_ref) hard validator + tests; reports cannot print PASS/HEALTHY/LIVE/DEPLOYED without receipt ref"}
+  ],
+  "phase1_gate": "PASS — six RCAs, each root points to file:line or a named absent mechanism; zero 'human error' roots",
+  "next": "Phase 2 REPAIR in receipt order R-1 -> R-2 -> R-4 (R-3 gated on owner card INC-4)"
+}
