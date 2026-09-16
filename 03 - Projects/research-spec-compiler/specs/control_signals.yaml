@@ -1,0 +1,107 @@
+# H-OWN-08 / EXP-008 — Social-emotion ANALOGUE as a defined control signal.
+# The analogue is REGRET = value(achieved) − value(best-alternative), a scalar
+# control/credit signal, explicitly NOT an emotion/feeling (no valence, no
+# phenomenology). Scope: C0-C3 functional decision control. Forbidden reading:
+# regret-as-affect. Permitted: regret as a mathematically defined control input.
+idea: >
+  A regret-like control signal — the difference between the value an agent
+  achieved and the value of the best alternative it could have chosen — improves
+  decisions under distribution shift, because it is invariant to additive shifts
+  in the reward level while raw reward is not. Regret is a defined math signal,
+  not a feeling.
+
+hypothesis: >
+  Under an OOD distribution shift (a large zero-mean per-context additive
+  reward-level offset), an agent that assigns credit with the regret signal
+  reaches a higher decision quality than an identical agent that assigns credit
+  with the raw reward signal, by at least +0.06; the in-distribution advantage
+  and the shuffled-counterfactual advantage are both ~0.
+
+prediction:
+  statement: advantage_ood = decision_quality(regret) − decision_quality(reward) under OOD.
+  baseline: 0.0    # [EST] null advantage (reward-vs-reward, and shuffled control); source: env symmetry
+  expected: 0.20   # [EST] preregistered target; pilot family 985000-985004 gave advantage_ood ≈ +0.33 [FACT: pilot log 2026-07-14]
+
+metric:
+  name: advantage_ood              # decision-quality gain under OOD (higher = better)
+  dataset: contextual-choice-ood
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: one deterministic contextual-choice universe per seed — C=40 contexts × A=4 arms (family 985500+, disjoint from pilot 985000-985004). NOTE n below is contexts-per-universe (the decision-quality denominator), NOT the replication count; verdict replication n = 5 seeds (see evaluation.seeds).
+  n: 40
+  conditions:
+    - name: shuffled_null_ood
+      description: control — regret from SHUFFLED (mismatched-context) counterfactuals under OOD (must be ~0).
+    - name: regret_advantage_indist
+      description: control — same regret-vs-reward advantage with NO shift (must be ~0; shows reward_only is a fair baseline).
+    - name: regret_advantage_ood
+      description: primary — regret-signal decision-quality advantage over reward-signal under OOD.
+  protocol: >
+    Per seed, one deterministic universe (C=40 contexts, A=4 arms, zero-centred
+    base qualities with gap 0.12, zero-mean per-context OOD offset ×1.5). Two
+    agents learn online for T=3000 pulls with softmax exploration (temp 0.5) and
+    identical FULL-INFO feedback; the only difference is the credit signal (raw
+    reward vs regret = achieved − best-alternative). Decision quality = fraction
+    of contexts whose final greedy arm equals a*(x). No LLM; no learning
+    difference other than the control signal.
+
+failure_condition:
+  metric: advantage_ood
+  op: "<"
+  threshold: 0.06
+  note: >
+    if the OOD advantage stays below +0.06 the regret signal adds no
+    shift-specific benefit and H-OWN-08 is rejected. The 0.06 kill line sits
+    just under the null / in-distribution control band; the in-distribution
+    advantage itself runs slightly ABOVE it (~0.07 in the confirmatory run), so
+    0.06 is a floor NEAR that control, not exactly equal to it. Disclosure: the
+    gate reads the RAW advantage_ood, NOT the strict shift-specific premium
+    (advantage_ood − advantage_indist); acceptable here only because that premium
+    is large and clean (see ADR-014), but the gated quantity is raw-ood, not the
+    premium.
+
+architecture:
+  pattern: Regret (achieved − best-alternative) as a shift-invariant credit signal vs raw-reward credit
+  topology: context -> softmax policy over arms -> full-info counterfactuals -> regret/reward credit -> preference update
+  tradeoff: the regret signal requires observing counterfactual (best-alternative) values each step; if the environment gives only bandit feedback, regret is unavailable and this advantage cannot be realized.
+
+api_contract:
+  endpoint: /kernel/control/regret_signal
+  method: POST
+  request:
+    signal: regret            # regret | reward
+    contexts: 40
+    arms: 4
+    ood_offset_scale: 1.5
+  response:
+    # response shape ([EST] illustrative — real numbers come from the run):
+    advantage_ood: 0.20
+    advantage_indist: 0.05
+    advantage_shuffled: 0.0
+
+mvp:
+  stack: Python (deterministic contextual-bandit; no dependency)
+  deps: []
+  effort: "< 1 day"
+  notes: no LLM; one online learner, two credit rules; metric = greedy decision accuracy vs a*(x).
+
+evaluation:
+  comparisons: [shuffled_null_ood, regret_advantage_indist, regret_advantage_ood]
+  ablation:
+    - sweep ood_offset_scale (pilot report, outside verdict)
+    - sensitivity to exploration temperature and alpha
+  seeds: 5
+
+decision_rule:
+  primary_metric: advantage_ood
+  rules:
+    - max: 0.06
+      verdict: DISCARD
+    - min: 0.06
+      max: 0.20
+      verdict: OPTIMIZE
+    - min: 0.20
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓

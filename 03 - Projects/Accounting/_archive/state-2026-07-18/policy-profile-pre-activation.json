@@ -1,0 +1,44 @@
+{
+  "_schema": "acct-policy.v1",
+  "_note": "پروفایلِ واقعی (gitignored — هرگز commit نمی‌شود). ABN/نامِ قانونی را خودت پر کن.",
+  "entities": [
+    {
+      "entity_id": "armin-abn",
+      "legal_name": "<نامِ قانونیِ شرکت را این‌جا بنویس>",
+      "entity_type": "company",
+      "_confirmed": "رأیِ مالک 2026-07-16: «شرکتم Pty Ltd، GST registered هستش»",
+      "abn": "<ABN را این‌جا بنویس>",
+      "gst_registered": true,
+      "gst_basis": "unknown",
+      "_gst_basis_note": "cash یا non_cash/accrual؟ از حسابدار بپرس — روی زمان‌بندیِ BAS اثر دارد",
+      "bas_frequency": "unknown",
+      "fy_end": "06-30",
+      "reporting_basis": "cash",
+      "currency": "AUD",
+      "role": "ato-entity"
+    }
+  ],
+  "_ato_note": "اداره مالیات فقط یک طرف‌حساب دارد: خودِ شرکت (armin-abn). رابطهٔ آرمین↔عباس خانوادگی/داخلی است، در حسابِ 2200 ردگیری می‌شود و موضوعِ ATO نیست — RD-003.",
+  "parties": [
+    {"party_id": "armin", "kind": "person", "note": "director/سهامدارِ شرکت"},
+    {"party_id": "abbas", "kind": "person",
+     "note": "رابطهٔ خانوادگی/داخلی؛ از حسابِ آرمین کار می‌کند. تسویه در حسابِ 2200 ردگیری می‌شود — نه موضوعِ مالیات."}
+  ],
+  "bank_accounts": [
+    {"bank_account_id": "anz-main", "entity_id": "armin-abn",
+     "note": "حسابِ اصلی (PocketSmith وصل است) — اگر حسابِ دیگری هست این‌جا اضافه کن"}
+  ],
+  "chart_of_accounts": {},
+  "lock_date": null,
+  "risk_decisions": [
+    {"id": "RD-001", "date": "2026-07-16",
+     "decision": "مبلغِ دقیق در کارتِ تلگرام می‌ماند — مالک ریسک را پذیرفت",
+     "ref": "03 - Projects/Accounting/RISK-DECISIONS.md"},
+    {"id": "RD-002", "date": "2026-07-16",
+     "decision": "GST-registered تأیید شد (Pty Ltd) — کدهای GST مجاز؛ basis/فرکانسِ BAS هنوز نامعلوم؛ تفسیرِ مالیاتی همچنان با agentِ ثبت‌شده",
+     "ref": "03 - Projects/Accounting/RISK-DECISIONS.md"},
+    {"id": "RD-003", "date": "2026-07-16",
+     "decision": "ATO فقط یک طرف‌حساب دارد: خودِ شرکت. رابطهٔ آرمین↔عباس خانوادگی/داخلی (حسابِ 2200)، نه موضوعِ مالیات — تشریفاتِ related-party/Div-7A حذف شد",
+     "ref": "03 - Projects/Accounting/RISK-DECISIONS.md"}
+  ]
+}

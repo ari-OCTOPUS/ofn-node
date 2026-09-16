@@ -1,0 +1,16 @@
+{
+  "rightToLeft": true,
+  "attachmentFolderPath": "attachments",
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "useMarkdownLinks": false,
+  "showUnsupportedFiles": true,
+  "strictLineBreaks": false,
+  "readableLineLength": true,
+  "userIgnoreFilters": [
+    "__pycache__/",
+    ".pytest_cache/",
+    "tests/",
+    "web/"
+  ]
+}

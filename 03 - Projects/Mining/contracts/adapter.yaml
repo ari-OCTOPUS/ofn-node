@@ -1,0 +1,50 @@
+# ===================================================================
+# ADAPTER — رابط Mining به مغز مرکزی
+# فقط INFORM. execution مالی HARD_STOP (D-10).
+# ===================================================================
+adapter_version: "1.0"
+tenant: "Mining"
+autonomy_floor: "read-only / INFORM only — financial execution HARD_STOP (D-10)"
+
+interfaces:
+  status:
+    method: "read"
+    returns: "{ fleet_nodes_active, current_coin_experiment, hashrate_measured, electricity_cost, death_watch_flags }"
+
+  death_watch:
+    method: "read"
+    desc: "وضعیت معیارهای مرگ پروژهٔ کوین فعال (D2)"
+    returns: "{ coin, dev_dead_weeks, chain_stalled, community_dead }"
+
+  report:
+    method: "read"
+    params: "period"
+    desc: "گزارش هفتگی: سکه mined، dev activity، شبکه، نکته"
+    returns: "{ coin_mined, dev_activity, network_health }"
+
+  scout_proposal:
+    method: "read"
+    desc: "پیشنهاد کوین جدید (draft) طبق Coin Scouting Framework"
+    returns: "list[coin_candidate:{algo, launch_age, survival_score, liquidity_score}]"
+
+  fleet_health:
+    method: "read"
+    desc: "سلامت ناوگان: دما، uptime، hashrate per node"
+    returns: "list[node:{id, temp_c, uptime_h, hashrate, status}]"
+
+hard_gated_actions:
+  - "any buy/sell/withdraw (D-10 HARD_STOP — human only)"
+  - "any deploy to a node (D-20 — repo+deploy gate only)"
+  - "wallet access (D-11 — FORBIDDEN)"
+  - "direct SSH to nodes (D-20 — FORBIDDEN)"
+  - "start/stop any mining experiment"
+
+autonomous_allowed: []
+  # هیچ‌چیز — Mining کاملاً INFORM-only است
+
+forbidden:
+  - "ssh_to_node()"
+  - "access_wallet()"
+  - "execute_trade()"
+  - "withdraw()"
+  - "mine above electricity ceiling"

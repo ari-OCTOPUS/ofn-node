@@ -1,0 +1,17 @@
+[Unit]
+Description=Fleet Manager API Server (OPi5+ main)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/ai-bots
+ExecStart=/home/pi/ai-bots/.venv/bin/python -m fleet.manager --host 0.0.0.0 --port 7700
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/fleet-manager.log
+StandardError=append:/var/log/fleet-manager.log
+
+[Install]
+WantedBy=multi-user.target

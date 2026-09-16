@@ -1,0 +1,80 @@
+# ═══════════════════════════════════════════════════════════════════════
+# pack: studio — content production for a brand that is not yet public
+# partner-facing app: dark, calendar-led
+#
+# This pack is deliberately the most locked of the three. A precondition is
+# unresolved, so every outbound path is closed. That is not a bug being
+# worked around — the closed gate below is what keeps it closed, and the
+# gate is listed here precisely so the kernel can escalate on it.
+# ═══════════════════════════════════════════════════════════════════════
+tenant: studio
+
+capacity_units_per_week: 5
+
+required_facts:
+  ops.publication_precondition: owner_confirmed
+  brand.identity: owner_confirmed
+
+# Both of these are answered once and then rarely again. The publication
+# precondition is the one the closed gate is waiting on, so its wording says
+# plainly what it unlocks rather than hiding behind the fact name.
+questions:
+  ops.publication_precondition:
+    label: پیش‌شرط انتشار چیست و چه زمانی برطرف می‌شود؟
+    hint: تا این ثبت نشود، هیچ چیزی از استودیو بیرون نمی‌رود.
+    placeholder: مثلاً — بعد از تأیید نهایی در تاریخ ...
+  brand.identity:
+    label: برند در یک جمله چیست؟
+    hint: همان جمله‌ای که می‌خواهید مخاطب بعد از دیدن صفحه به یاد بیاورد.
+    placeholder: مثلاً — ...
+
+# ── style labels ───────────────────────────────────────────────────────
+# A closed vocabulary she tags each post with, from the first post.
+#
+# This is the `draft_subjects` argument again: the only moment a post's style
+# is known is when she makes it. Added in three months, the first three months
+# are uncomparable for ever — and those are exactly the months a new account
+# is trying to find out what works.
+#
+# Deliberately small and in pairs. Eight tick-boxes is a decision; twenty is a
+# form she abandons. Each pair is an axis she can actually vary on purpose,
+# which is what makes a test a test rather than a guess.
+# The axes are the ones this account can actually vary on purpose. The first
+# set was generic studio-photography vocabulary — subject count, lighting,
+# staging — which describes any photograph and therefore separates none of
+# these. An axis earns its place by answering "if I shot the next ten the
+# other way, would the numbers move?", and for a feet-only account with no
+# face in frame, coverage, angle and nail state are that and lighting is not.
+#
+# Changed while the library held one photo and zero labels, which is the only
+# cheap moment: the comment above is not decoration — a vocabulary swapped
+# after tagging has begun makes everything tagged before it uncomparable, for
+# ever, and those are the months an account is trying to find out what works.
+content_labels:
+  - bare
+  - covered
+  - soles
+  - top
+  - polished
+  - natural
+  - close
+  - wide
+
+gates:
+  - capacity
+  - budget
+  - claim
+  - consent
+  - publish
+  - partner_precondition     # currently CLOSED node-wide
+  - secret_rotation
+
+risk_overrides:
+  publish_post: red
+  publish_story: red
+  send_dm: red
+  ask_partner_question: yellow
+  draft_content: green
+  schedule_draft: green
+
+quota_share: 0.20

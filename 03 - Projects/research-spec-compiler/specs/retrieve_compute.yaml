@@ -1,0 +1,126 @@
+# EXP-005 / retrieve_compute — Always-Retrieve vs Always-Compute vs Learned Scheduler.
+# Claim: WHEN to reuse a cached answer vs recompute is a resource-rational DECISION.
+# A learned per-state scheduler that reads a STALENESS signal and picks retrieve
+# (cheap, wrong on drifted states) vs compute (expensive, correct) should beat the
+# BETTER of the two pure strategies at regret-under-compute-budget. Scope C0-C3. No LLM.
+# Design lineage: control_signals.py (contextual CRC-seeded env) + homeostasis.py
+# (an explicit compute cost is named and paid). Full reuse of the harness only.
+# Methodology note (ADR-008 discipline): the machine-gated quantity is the advantage
+# over the BEST pure baseline (min of the two J's), NOT an inflated "beats one pure"
+# figure a strawman could clear. Controls: no-drift null (exactly 0) + shuffled signal (~0).
+idea: >
+  Is compute allocation — retrieve a cached policy vs recompute fresh — a
+  resource-rational decision rather than a fixed policy? Under a compute budget,
+  a scheduler that reads a noisy STALENESS signal and computes only where the
+  cache has likely drifted should achieve lower regret-under-compute-budget than
+  EITHER always-retrieve (cheap but stale) or always-compute (correct but
+  costly). Remove the drift, or scramble the signal, and the advantage must vanish.
+
+hypothesis: >
+  On heldout states, the learned per-state scheduler beats the BETTER of the two
+  pure strategies by at least the SESOI +0.01 in the combined objective
+  J = regret + PRICE*compute_cost (lower J better), i.e. min(J_retrieve,
+  J_compute) − J_learned >= +0.01. The same advantage is EXACTLY 0 with no drift
+  (nothing to schedule) and ~0 when the staleness signal is shuffled (no
+  information about which caches are stale).
+
+prediction:
+  statement: scheduler_advantage = min(J_always_retrieve, J_always_compute) − J_learned on heldout states.
+  baseline: 0.0    # [EST] no-mechanism floor: an uninformative signal collapses the learned threshold to a pure endpoint -> advantage <= 0. Pilot controls confirm ~0 (shuffled -0.005, no_drift 0.000, family 962000) [FACT: pilot 2026-07-14]
+  expected: 0.029  # [FACT] pilot family 962000-962004 (5 disjoint seeds, SIGMA=0.15, PRICE=0.02): advantage mean +0.0294 ± 0.0093 [FACT: pilot --calibrate 2026-07-14]
+
+metric:
+  name: scheduler_advantage
+  dataset: cache-drift-contextual
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: 5 contextual cache/compute universes (seeds 962500+, disjoint from the 962000 pilot family); 240 states each, 140 train (learn the staleness threshold) / 100 heldout (scored). Per state A=4 arm-values, a cache = pre-drift argmax, a true drift magnitude m~U(0,1), post-drift values, retrieve-regret = value gap of the cached arm, and a noisy staleness signal z = m + N(0,0.15).
+  n: 100
+  conditions:
+    - name: no_drift_null
+      description: null — drift-off universe (cache always optimal, all regret 0); nothing to schedule so advantage is EXACTLY 0. Isolates drift as the cause.
+    - name: shuffled_signal
+      description: discriminating control — drift on, but z permuted across states; a random compute-subset lies on the line between the two pure endpoints and cannot beat their min -> advantage ~0. Isolates signal INFORMATIVENESS from mere compute-mixing.
+    - name: scheduler_advantage
+      description: primary — learned threshold on the TRUE staleness signal; advantage over the better pure baseline on heldout.
+  protocol: >
+    Per universe (CRC-seeded from the seed-index, so every condition shares the
+    identical universe and differs ONLY in its independent variable): build the
+    states; the objective per state is J(choice) = decision_regret(choice) +
+    PRICE*compute_cost(choice), with cost(retrieve)=1 (cheap), cost(compute)=8
+    (expensive), regret(compute)=0 (fresh compute is correct), regret(retrieve)=
+    the cached arm's value gap. Learn tau = the staleness threshold minimizing
+    TRAIN J (compute iff z>=tau; empirical-risk 1-parameter classifier; tie ->
+    higher tau = less compute). Evaluate three strategies on the SAME heldout
+    states: always_retrieve (tau=+inf), always_compute (tau=-inf), learned (tau).
+    scheduler_advantage = min(J_retrieve, J_compute) − J_learned on heldout.
+    No learning at eval, no LLM.
+
+failure_condition:
+  metric: scheduler_advantage
+  op: "<"
+  threshold: 0.01
+  note: >
+    If the learned scheduler cannot beat the BETTER pure strategy by at least the
+    SESOI +0.01 on heldout, the "retrieve-vs-compute is a learned decision" claim
+    is rejected for this instantiation. Genuinely falsifiable: the advantage CAN
+    be <=0 — the staleness signal is only partially correlated with retrieve-regret
+    (a state can drift yet leave the cached arm near-optimal), a train-fit threshold
+    can fail to generalize to heldout, and a PRICE regime where one pure strategy is
+    already near-optimal leaves no room. The no-drift null must sit at exactly 0 and
+    the shuffled-signal control ~0, else the effect is a mechanism artifact.
+
+architecture:
+  pattern: Learned per-state retrieve/compute scheduler (threshold on a staleness signal) vs always-retrieve / always-compute
+  topology: cached policy + noisy staleness signal -> tau on train -> per-state {retrieve cache | compute fresh} -> regret + PRICE*compute objective on heldout
+  tradeoff: >
+    The scheduler spends a little compute to read a staleness signal and only pays
+    for expensive fresh compute where the cache has likely drifted. If the store
+    never drifts, the signal is uninformative, or PRICE sits where one pure
+    strategy is already optimal, the scheduling machinery buys nothing.
+
+api_contract:
+  endpoint: /kernel/compute/schedule
+  method: POST
+  request:
+    mode: learned          # learned | always_retrieve | always_compute
+    price: 0.02            # shadow price of one unit of compute
+    staleness_signal: 0.37 # observed z for the query state
+  response:
+    # shape ([EST] illustrative — real numbers come from the run):
+    action: compute        # compute | retrieve
+    j_learned: 0.086
+    best_pure: 0.112
+    scheduler_advantage: 0.029
+
+mvp:
+  stack: Python (stdlib only; small deterministic contextual env, reuses spec_compiler.harness)
+  deps: []
+  effort: "< 1 day"
+  notes: >
+    No LLM. Cache = pre-drift argmax per state; compute = post-drift argmax
+    (correct); staleness signal = drift magnitude + Gaussian noise; scheduler =
+    a threshold tau learned by empirical-risk minimization on the train split.
+    Objective bundles retrieval AND compute cost via a shadow price PRICE.
+
+evaluation:
+  comparisons: [no_drift_null, shuffled_signal, scheduler_advantage]
+  ablation:
+    - PRICE/SIGMA sweep (pilot, outside the verdict): advantage grows then collapses toward 0 as the signal degrades (SIGMA up) or PRICE leaves the mixed-optimal regime
+    - report the heldout compute fraction the learned tau chooses vs the pure endpoints (0 and 1)
+    - shuffled_signal vs no_drift_null: both must be ~0, pinning the effect to an informative staleness signal on a drifted cache
+  seeds: 5
+
+decision_rule:
+  primary_metric: scheduler_advantage
+  rules:
+    - max: 0.01
+      verdict: DISCARD
+    - min: 0.01
+      max: 0.02
+      verdict: OPTIMIZE
+    - min: 0.02
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓

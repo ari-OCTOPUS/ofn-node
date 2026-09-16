@@ -1,0 +1,29 @@
+# /etc/systemd/system/ofn-backup-alert.service
+#
+# ofn-backup.service names this unit in OnFailure=. It did not exist, so a
+# failed nightly backup produced nothing at all: systemd tried to start a
+# missing unit and gave up, and the one job whose entire purpose is to be
+# there after a disaster failed in silence. A backup nobody is told about is
+# indistinguishable from no backup.
+#
+# It deliberately notifies no human. Every outbound path on this node is shut
+# behind the owner's finger, and a 3am alert is precisely the kind of message
+# that would have to bypass that gate to be useful. So this leaves a durable
+# local mark instead — one the owner's panel and the next boot can read, and
+# one that survives a power cut, which an email would not.
+
+[Unit]
+Description=Record that the nightly OFN backup failed
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+
+# No printf format string here on purpose: systemd expands '%' in unit files,
+# so a format like '%s' is eaten before the shell ever sees it. This is the
+# classic way an alert unit ends up writing empty lines.
+ExecStart=/bin/sh -c 'echo "$(date -Is) ofn-backup FAILED — run: python3 -m ofn.backup_job" | tee -a /home/ari/.local/share/ofn/backup-alerts.log'
+
+# Also fails loudly in the journal, so `systemctl status ofn-backup` shows it.
+StandardOutput=journal+console

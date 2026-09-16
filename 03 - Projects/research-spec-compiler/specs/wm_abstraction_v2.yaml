@@ -1,0 +1,84 @@
+# H-OWN-03 v2 / EXP-001b — نسخهٔ نسبیِ فرضیهٔ تنگنای WM.
+# چرا v2: در v1 آستانهٔ مطلق (۰٫۶۷) یک حدسِ mock سنتتیک بود و فرضیه REJECTED شد،
+# در حالی که اثرِ نسبی (+۰٫۲۵) کاملاً واقعی بود. اینجا خودِ «gain» را پیش‌ثبت
+# می‌کنیم، نه یک آستانهٔ مطلق. متنِ spec قرارداد است؛ v1 دست‌نخورده می‌ماند.
+# مرجع: ADR-001 §Verdict (REJECTED), ADR-004.
+idea: >
+  به‌جای آستانهٔ مطلقِ transfer، برتریِ نسبیِ عاملِ WM-محدود نسبت به عاملِ
+  حافظهٔ نامحدود روی همان جهانِ paired را پیش‌ثبت می‌کنیم.
+
+hypothesis: >
+  در جهان‌های paired، اختلافِ transfer_accuracy بین limited_wm و unlimited_memory
+  دست‌کم +۰٫۲۰ است (اثرِ بزرگ)، و کنترلِ null (نامحدود در برابر نامحدود) ≈۰.
+
+prediction:
+  statement: gain = transfer(limited) − transfer(unlimited) روی جهانِ paired.
+  baseline: 0.0    # [FACT] صفرِ ساختاری: کلیدهای ۱۸-ویژگیِ heldout هرگز در Q نامحدود نیستند (۰/~۲۴۸۰ سلول)، پس دو عاملِ نامحدودِ مستقل fallbackِ یکسانِ قطعی می‌روند — null فقط سلامتِ لوله را چک می‌کند، واریانسِ آموزش را نمی‌سنجد
+  expected: 0.25   # [EST] از اجرای confirmatory v1 (limited 0.520 − unlimited 0.270 = 0.250) [FACT: ADR-001 run log]
+
+metric:
+  name: transfer_gain            # اختلافِ paired، نه مقدار مطلق
+  dataset: gridworld-heldout-tasks
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: ۵ جهانِ paired grid-world (seedهای 994000+، جدا از confirmatory/census/geometry).
+  n: 200
+  conditions:
+    - name: null_gain
+      description: کنترل — اختلافِ دو عاملِ نامحدود روی همان جهان (باید ≈۰).
+    - name: paired_gain
+      description: اختلافِ limited_wm منهای unlimited روی همان جهان.
+  protocol: >
+    در هر seed یک جهان ساخته می‌شود؛ عاملِ نامحدود و عاملِ limited_wm (K=6 + gating)
+    با بودجهٔ episodeِ یکسان روی همان جهان آموزش می‌بینند؛ خروجی = اختلافِ
+    transfer_accuracyِ heldout. null_gain همان اختلاف را بین دو نامحدودِ مستقل می‌سنجد.
+
+failure_condition:
+  metric: transfer_gain
+  op: "<"
+  threshold: 0.10
+  note: اگر gain زیر +۰٫۱۰ بماند (کف SESOI که خودِ v1 هم به‌عنوان فرضیهٔ نسبی داشت)، فرضیه رد می‌شود.
+
+architecture:
+  pattern: Information Bottleneck as inductive bias (relative preregistration)
+  topology: paired (unlimited, limited_wm) per universe -> transfer difference
+  tradeoff: متریکِ نسبی به کیفیتِ baseline حساس است؛ اگر baseline پوشالی باشد gain متورم می‌شود (کنترل oracle_no_taskid در v1 این را رد کرد).
+
+api_contract:
+  endpoint: /kernel/wm/gain
+  method: POST
+  request:
+    capacity_slots: 6
+    seeds: 5
+    seed_family: 994000
+  response:
+    # شکل پاسخ ([EST] illustrative — خروجی واقعی از run):
+    transfer_gain: 0.25
+    null_gain: 0.0
+
+mvp:
+  stack: Python (بازاستفادهٔ کامل از experiments/gridworld_wm.py)
+  deps: []
+  effort: "< 1 day"
+  notes: بدون LLM؛ فقط orchestrationِ paired روی هارنس موجود.
+
+evaluation:
+  comparisons: [null_gain, paired_gain]
+  ablation:
+    - حساسیت به بودجه
+    - گزارشِ per-seed gain برای CI
+  seeds: 5
+
+decision_rule:
+  primary_metric: transfer_gain
+  rules:
+    - max: 0.10
+      verdict: DISCARD
+    - min: 0.10
+      max: 0.20
+      verdict: OPTIMIZE
+    - min: 0.20
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓

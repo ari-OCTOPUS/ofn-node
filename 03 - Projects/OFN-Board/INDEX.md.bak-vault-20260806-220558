@@ -1,0 +1,105 @@
+---
+tags: [ofn, moc, home]
+aliases: [خانه, نقشه, Home]
+updated: 2026-08-05
+---
+
+# 🐙 OFN — نقشهٔ پروژه
+
+> این یادداشتِ خانه است. کل پروژه یک **والت ابسیدین** است که همان مخزن گیت
+> است — پس جابه‌جا کردنش یعنی `git clone`، و هیچ چیز جا نمی‌ماند.
+
+```
+کرنل تصمیم می‌گیرد.   مدل مشورت می‌دهد.   انسان حکم می‌کند.
+```
+
+---
+
+## شروع از اینجا
+
+| ترتیب | یادداشت | چیست |
+|---|---|---|
+| ۱ | [[HANDOFF]] | **وضعیت زنده.** اول هر جلسه بخوان، آخرش تازه کن |
+| ۲ | [[CLAUDE]] | قانون اساسی دستگاه — قوانین سخت، گیت‌ها، درجه‌بندی ریسک |
+| ۳ | [[DECISIONS]] | چه چیزی قفل شده، چه چیزی باز است، چه چیزی برای همیشه رد شد |
+| ۴ | [[README]] | معماری کد و فازهای تحویل‌شده |
+| ۵ | [[CHECKPOINT]] | آخرین وضعیت دروازه‌ها |
+
+## درس‌ها — چه چیزی شکست و چرا
+
+هر دو فایل یک ساختار دارند: علامت · علت واقعی · چطور درست شد · آیا legهای
+دیگر هم دارند. **ستون آخر همان چیزی است که ارزش این فایل‌ها را می‌سازد.**
+
+- [[LESSONS-ZIMAN]] — ۱۴ درس از legی که اولین کاربر واقعی را داشت
+- [[LESSONS-STUDIO]] — ۸ درس، همه از یک شکل: ادعایی که جدا بررسی نشد
+- [[ZIMAN-2026-08-04]] — یادداشت روزی که یک آدم واقعی استفاده کرد
+
+## مگاپرامپت‌ها
+
+- [[MEGAPROMPT]] — دستورکار اصلی پروژه
+- [[MEGAPROMPT-MINING]] — شاخهٔ ماینینگ ([[DECISIONS|D-8]] از اینجا آمد)
+- [[MEGAPROMPT-STUDIO]] — leg چهارم · [[STUDIO-ANSWERS]] · [[STUDIO-BRIEF]]
+- [[DESIGN-DIRECTIVE]] — بودجه‌های پوستهٔ استودیو ([[CLAUDE|§۸-الف]]: اعدادش تست‌اند)
+
+## عملیات
+
+- [[APPLY]] — آیین اعمال فایروال (لایهٔ ۲ از [[DECISIONS|D-8]]) · **آری اجرا می‌کند**
+- [[POWER-CUT-TEST]] — تست قطع برق
+
+---
+
+## وضعیت — اندازه‌گیری ۲۰۲۶-۰۸-۰۴ ۱۴:۳۸
+
+```
+تست‌ها          ۱۲۲۹ سبز
+preflight       ۱۰/۱۰
+سرویس‌ها         ofn · cloudflared · dropbear  →  هر سه active و enabled
+پورت‌ها          ۸۷۹۱–۸۷۹۴ فقط loopback · ۲۲ تنها درِ باز به LAN
+```
+
+## گیت‌های بسته 🔒
+
+| گیت | چرا | باز می‌شود وقتی |
+|---|---|---|
+| `secret_rotation` | چهار راز CRITICAL نچرخیده | آری بچرخاند |
+| `partner_precondition` | پیش‌شرط انتشار استودیو ثبت نشده | ثبت شود |
+| `miner_isolation` | [[DECISIONS|D-8]] | قلم ۱ و ۲ و ۳ انجام + تأیید آری |
+
+## بلاکرهای آری
+
+1. سوییچ مدیریتی هست یا نه؟ → لایهٔ ۴ [[DECISIONS|D-8]]
+2. فایروال روی ۲۲ → [[APPLY]]
+3. توکن‌های بات هنوز خالی‌اند → [[HANDOFF]]
+
+---
+
+## قواعد والت
+
+- **یک منبع حقیقت.** `~/HANDOFF.md`، `~/MEGAPROMPT.md` و
+  `~/MEGAPROMPT-MINING.md` حالا symlink به داخل همین مخزن‌اند. مسیر قدیمی
+  کار می‌کند، ولی فایل واقعی اینجاست و در گیت است.
+- **استثنا: `~/CLAUDE.md`.** عمداً فایل واقعیِ جداست، نه symlink — اگر
+  استقرار بعدی `~/ofn` را پاک کند، قانون اساسی نباید با آن برود. الان
+  بایت‌به‌بایت برابرِ [[CLAUDE]] است. برای بررسی رانش:
+  ```bash
+  diff /home/ari/CLAUDE.md /home/ari/ofn/CLAUDE.md && echo یکسان
+  ```
+- **بعد از پاک شدن مخزن:** `git clone` و بعد symlinkها را دوباره بساز:
+  ```bash
+  cd ~ && for f in HANDOFF.md MEGAPROMPT.md MEGAPROMPT-MINING.md; do
+    ln -sf "ofn/$f" "$f"; done
+  ```
+- `tests/` و `web/` از دید ابسیدین پنهان‌اند (`.obsidian/app.json`) — کدند،
+  نه یادداشت.
+- هیچ راز، هیچ PII و هیچ خروجی خام مدل داخل والت نمی‌رود. والت روی گیت‌هاب
+  می‌رود ([[CLAUDE|آیین پایان جلسه]]).
+
+## Painting lead/pricing operating notes
+- [[docs/prompts/PAINTING-NEXT-AGENT-MEGAPROMPT|Painting Next Agent Mega Prompt]]
+- [[docs/operations/PAINTING-LEAD-PRICING-RUNBOOK|Painting Lead Pricing Runbook]]
+- [[docs/handoffs/2026-08-06-painting-lead-pricing-handoff|Painting Lead Pricing Handoff]]
+
+## Painting phone quote v2
+- [[docs/prompts/PAINTING-NEXT-AGENT-MEGAPROMPT-v2|Painting Next Agent Mega Prompt v2]]
+- [[docs/operations/PAINTING-PHONE-QUOTE-CHECKLIST-v2|Painting Phone Quote Checklist v2]]
+- [[docs/handoffs/2026-08-06-painting-next-agent-v2|Painting Next Agent Handoff v2]]

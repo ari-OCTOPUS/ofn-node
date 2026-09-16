@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "octopus://trust-engine/contracts/event-envelope/1.0",
+  "title": "Trust Engine Event Contract v1.0 (append-only envelope + event-type enum)",
+  "description": "Envelope for EVERY event in the P0 loop, per LEAD_INBOX_SPEC.md section 3. Append-only: events are never updated or deleted; corrections are new events with causation_id pointing at the corrected event. Owner verdicts (proposal.owner_*) are INTERNAL QUALITY signals; customer.replied ... invoice.paid are MARKET OUTCOME signals — the Governor must never conflate the two (the separation is already enforced in code: verdict_recorder.py:33 forbids inferring delivered/settled/failed/verified from any verdict).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "event_type", "occurred_at", "correlation_id", "source_component", "schema_version", "payload"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^(evt_[0-9a-f]{16}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+      "description": "uuid, or the existing 'evt_'+sha(idempotency_key)[:16] mint from outcome_store.py:94."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "lead.candidate.received",
+        "lead.candidate.rejected",
+        "lead.normalized",
+        "lead.duplicate.detected",
+        "lead.qualified",
+        "lead.compliance_blocked",
+        "response.draft.prepared",
+        "quote.draft.prepared",
+        "proposal.routed",
+        "proposal.owner_approved",
+        "proposal.owner_edited",
+        "proposal.owner_rejected",
+        "proposal.owner_deferred",
+        "effect.released",
+        "communication.sent",
+        "communication.failed",
+        "customer.replied",
+        "inspection.booked",
+        "quote.sent",
+        "quote.won",
+        "quote.lost",
+        "invoice.paid",
+        "outcome.recorded"
+      ],
+      "description": "Exactly the SPEC section-3 minimum set (22) plus one reconciliation extension: proposal.owner_deferred (see x-extensions)."
+    },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Store-stamped at append time (outcome_store.py:98 pattern). Producers omit."
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "The lead_id this event belongs to (SPEC section 3). For pre-lead quarantine events (lead.candidate.rejected before a lead exists): the quarantine record id. Existing recorder mints 'corr_'+sha[:12] when absent (lead_outcome_recorder.py:50)."
+    },
+    "causation_id": {
+      "type": ["string", "null"],
+      "maxLength": 128,
+      "description": "event_id of the direct cause. null only for chain roots (lead.candidate.received)."
+    },
+    "source_component": {
+      "type": "string",
+      "enum": ["LeadInboxLeg", "LeadQualificationLeg", "ResponseQuoteLeg", "OutcomeAttributionLeg", "ProposalRouter", "TelegramSurface", "EffectorGate", "OutboundWorker", "Owner", "Governor"]
+    },
+    "schema_version": { "const": "1.0" },
+    "idempotency_key": {
+      "type": "string",
+      "maxLength": 256,
+      "description": "Optional; UNIQUE in storage. When absent the store derives sha256 of the identity tuple (outcome_store.py:53-56 pattern). Duplicate key => INSERT OR IGNORE, no second event."
+    },
+    "payload": { "type": "object" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "event_type": { "const": "lead.candidate.received" } } },
+      "then": { "properties": { "payload": { "required": ["idempotency_key", "source_channel", "candidate_type"] } } }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "lead.candidate.rejected" } } },
+      "then": { "properties": { "payload": { "required": ["reason", "quarantine_ref"] } } }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "lead.duplicate.detected" } } },
+      "then": { "properties": { "payload": { "required": ["duplicate_of"] } } }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "lead.qualified" } } },
+      "then": { "properties": { "payload": { "required": ["score"] } } }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "lead.compliance_blocked" } } },
+      "then": { "properties": { "payload": { "required": ["reason"] } } }
+    },
+    {
+      "if": { "properties": { "event_type": { "enum": ["response.draft.prepared", "quote.draft.prepared", "proposal.routed", "proposal.owner_approved", "proposal.owner_edited", "proposal.owner_rejected", "proposal.owner_deferred"] } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["proposal_id"],
+            "properties": { "proposal_id": { "type": "string", "pattern": "^P-[0-9a-f]{12}$" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "enum": ["proposal.owner_approved", "proposal.owner_edited", "proposal.owner_rejected", "proposal.owner_deferred"] } } },
+      "then": {
+        "properties": {
+          "source_component": { "enum": ["TelegramSurface", "Owner"] },
+          "payload": {
+            "properties": {
+              "measurement_only": { "const": true },
+              "value_aud_claimed": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "effect.released" } } },
+      "then": {
+        "properties": {
+          "source_component": { "const": "EffectorGate" },
+          "payload": {
+            "required": ["effect_id", "langar_ref", "proposal_id"],
+            "properties": { "effect_id": { "type": "string", "pattern": "^[0-9a-f]{16}$" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "enum": ["communication.sent", "communication.failed"] } } },
+      "then": {
+        "properties": {
+          "source_component": { "const": "OutboundWorker" },
+          "payload": {
+            "required": ["effect_id", "channel"],
+            "properties": {
+              "effect_id": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
+              "channel": { "enum": ["sms", "email"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "customer.replied" } } },
+      "then": { "properties": { "payload": { "required": ["channel"] } } }
+    },
+    {
+      "if": { "properties": { "event_type": { "enum": ["quote.sent", "quote.won"] } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["attribution_id"],
+            "properties": { "attribution_id": { "type": "string", "pattern": "^LEAD-[0-9]{8}-[0-9]{3}$" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "quote.lost" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["attribution_id", "lost_reason"],
+            "properties": { "attribution_id": { "type": "string", "pattern": "^LEAD-[0-9]{8}-[0-9]{3}$" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "invoice.paid" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["attribution_id", "amount_aud"],
+            "properties": { "amount_aud": { "type": "number", "minimum": 0 } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "outcome.recorded" } } },
+      "then": { "properties": { "payload": { "required": ["outcome_ref"] } } }
+    }
+  ],
+  "x-event-classes": {
+    "pipeline": ["lead.candidate.received", "lead.candidate.rejected", "lead.normalized", "lead.duplicate.detected", "lead.qualified", "lead.compliance_blocked", "response.draft.prepared", "quote.draft.prepared", "effect.released", "outcome.recorded"],
+    "internal_quality": ["proposal.routed", "proposal.owner_approved", "proposal.owner_edited", "proposal.owner_rejected", "proposal.owner_deferred"],
+    "market_outcome": ["communication.sent", "communication.failed", "customer.replied", "inspection.booked", "quote.sent", "quote.won", "quote.lost", "invoice.paid"],
+    "rule": "internal_quality events may NEVER be aggregated as business success; market_outcome events may NEVER be inferred from verdicts (verdict_recorder.py:33 _FORBIDDEN_EVENT={'delivered','settled','failed','verified'}). 20-real-outcomes gate counts market_outcome events only."
+  },
+  "x-extensions": {
+    "proposal.owner_deferred": "Not in SPEC section 3. Added to reconcile with the LIVE arc: 'later' is a deferral, not a decision — card stays open (live_loop.py:29-30,439-442) and is recorded durably as 'deferred' (verdict_recorder.py:30-31; outcome_store.py:27). Without this type the existing durable deferrals would have no envelope mapping."
+  },
+  "x-compat": {
+    "existing_sink": "_ops/outcomes/outcome_store.py is the ONLY durable event sink wired today. Its vocabulary (outcome_store.py:27) is EVENT_TYPES=('delivered','deferred','accepted-measurement','rejected','failed') with columns event_id/idempotency_key/correlation_id/mission_id/proposal_id/leg_id/lead_id/event_type/verdict/value_aud_claimed/occurred_at/recorded_at/schema_version/payload_json (:31-33). SQLite WAL, INSERT OR IGNORE idempotency (:100-107).",
+    "proposal.routed_maps_to": "outcome_store 'delivered' — _ops/outcomes/lead_outcome_recorder.py:90-96 writes event_type='delivered' with idempotency 'corr|proposal_id|delivered'. CAUTION: 'delivered' there means the decision receipt reached the sandbox/owner surface, NOT communication.sent (RUNTIME-TRUTH section 4.7).",
+    "proposal.owner_approved_maps_to": "outcome_store 'accepted-measurement' via _ops/outcomes/verdict_recorder.py:26-31 _VERDICT_EVENT; idempotency 'corr|pid|event_type' (:70); default correlation 'prop_<pid>' (:69); flag OCTOPUS_WIRE_VERDICT_OUTCOME (:23).",
+    "proposal.owner_rejected_maps_to": "outcome_store 'rejected' (verdict_recorder.py:29).",
+    "proposal.owner_deferred_maps_to": "outcome_store 'deferred' (verdict_recorder.py:30).",
+    "proposal.owner_edited": "NO existing capture — Telegram buttons are ok/no/later only (live_loop.py:29-30,311-315). Until an Edit path is built, edited approvals are recorded as approved and the edit diff must be stored in payload (open owner decision).",
+    "communication.failed_maps_to": "outcome_store 'failed' exists as vocabulary but has ZERO producer today (no outbound worker — RUNTIME-TRUTH section 1 row 15).",
+    "market_outcome_events": "customer.replied / inspection.booked / quote.sent / quote.won / quote.lost / invoice.paid have NO existing sink (RUNTIME-TRUTH section 2 item 4). Do NOT shoehorn them into outcome_store's verdict vocabulary — they need the new funnel store (or event_spine domain='lead', following the dual-write pattern at verdict_recorder.py:83-92).",
+    "quote_lifecycle_ids": "attribution_id 'LEAD-YYYYMMDD-NNN' minted at _ops/budget/attribution.py:64-65; qt_number 'QT-YYYYMMDD-NNN' at _ops/legs/lead_quote.py:56-73; CLAIMED via attribution.claim (:97-102); CONFIRMED only via reconcile actor (:105-120) — invoice.paid here is a market-outcome record, never a money settlement.",
+    "causation_id_and_source_component": "No existing columns — new fields. event_spine dual-write (verdict_recorder.py:83-92: domain/producer/trust) is the closest existing pattern.",
+    "measurement_consumer": "The arc this feeds is ALREADY CLOSED: live_loop.proposal_metrics (live_loop.py:472-485) -> ORGANISM-STATE.json -> _ops/cortex/goal_directed.py:196-206 measure(). P0 must feed it, not reinvent it (RUNTIME-TRUTH section 2 item 7)."
+  },
+  "x-flags": {
+    "existing_default_off": ["OCTOPUS_WIRE_VERDICT_OUTCOME (verdict_recorder.py:23)", "OCTOPUS_WIRE_LEAD_OUTCOME (lead_outcome_recorder.py:26)"],
+    "proposed_new_default_off": ["OCTOPUS_WIRE_LEAD_EVENTS — enables writing this envelope for lead-domain events; off => only the existing measurement writes happen (no behavior change)"]
+  },
+  "examples": [
+    {
+      "event_id": "evt_9a1b2c3d4e5f6071",
+      "event_type": "proposal.routed",
+      "occurred_at": "2026-07-21T09:00:05+00:00",
+      "correlation_id": "LD-0123456789ab",
+      "causation_id": "evt_1111222233334444",
+      "source_component": "ProposalRouter",
+      "schema_version": "1.0",
+      "idempotency_key": "LD-0123456789ab|P-0a1b2c3d4e5f|delivered",
+      "payload": { "proposal_id": "P-0a1b2c3d4e5f", "kind": "first_response", "leg_id": "lead", "buttons": true, "advisory_only": true }
+    }
+  ]
+}
