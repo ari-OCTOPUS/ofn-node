@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "mimosa-finding-history/v1",
+  "runId": "20260820T152155503Z-23404-de916d0fc147",
+  "runStatus": "inconclusive",
+  "errors": [
+    "bash-discovery:.claude/worktrees/telegram-operational-control-de7666/_ops/baseline.py: bash_discovery_incomplete: project enumeration exceeded 5000 reviewable files",
+    "candidate-select:nervous-system/task-summary-data.js: candidate_limit_exceeded: 5 changed reviewable file(s) were not scanned because the limit is 20",
+    "baseline:.claude/worktrees/telegram-operational-control-de7666/_ops/beat_scheduler.py: baseline_partial: baseline exceeded 5000 candidate files",
+    "scan:_ops/tests/test_self_insight_card_cheap.py: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:_ops/self_insight.py: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:_ops/tests/run_all.py: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:OCTOPUS/worlds/graph-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:OCTOPUS/worlds/neural-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/audit-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/audit-trail-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/crypto-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/git-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/graph-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/health-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/ideas-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/live-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/mining-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/neural-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/ops-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/project-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/queue-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/research-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:nervous-system/task-data.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+  ],
+  "target": ".",
+  "revision": "84a8a967da5d2abfe86b69d093becc92bf3717f8",
+  "diffHash": "bf01be186c121d54efb29bd3af5ca42b224f9d2f4db48db8dfeb4f5307c9c20e",
+  "rulesVersion": "unavailable",
+  "recordedAt": "2026-08-20T15:21:55.503Z",
+  "timing": {
+    "startedAt": "2026-08-20T15:21:22.447Z",
+    "completedAt": "2026-08-20T15:21:55.503Z",
+    "durationMs": 33056
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "modelCalls": 0,
+    "measurement": "known-zero"
+  },
+  "findings": {
+    "total": 0,
+    "bySeverity": {},
+    "byStatus": {}
+  },
+  "coverage": {
+    "status": "partial",
+    "reasonCounts": {
+      "bash_discovery_incomplete": 1,
+      "candidate_limit_exceeded": 1,
+      "baseline_partial": 1,
+      "scanner_failed": 20,
+      "project_check_failed": 23
+    }
+  },
+  "evidenceBoundary": "static_only",
+  "immutableReport": ".mimosa/reports/task-review-sess_0827af19-e5c1-44a4-baca-2c562d4cb657-20260820T152155503Z-23404-de916d0fc147.json"
+}

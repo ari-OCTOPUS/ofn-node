@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "pretooluse-1cde2eb91c0abb9e173cc28a9e5a96cc",
+  "runId": null,
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "PreToolUse"
+  },
+  "revision": null,
+  "diffHash": null,
+  "rulesVersion": null,
+  "sessionHash": "aa4826a05dba2c947c167e635c784b3ecbde011fcdc2580c71373c3cff8d1e6b",
+  "reportRef": null,
+  "events": [
+    {
+      "eventId": "hook-706587ca90a7a8979a70898068e1b3a0",
+      "findingId": "mimosa-0980d16c401644bbb4793b69",
+      "type": "finding_blocked",
+      "at": "2026-08-20T16:27:16.397Z",
+      "identity": {
+        "projectRelativeFile": "03 - Projects/OFN-Board/ofn/adapters/sqlite_base.py",
+        "ruleId": "security",
+        "codeEvidenceHash": "aadfcff0d608031878eaccd7cc6e306ebd31681cb47ae010f7d2f337bc22a7ee",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 67,
+      "endLine": 67,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "aadfcff0d608031878eaccd7cc6e306ebd31681cb47ae010f7d2f337bc22a7ee"
+      },
+      "sequence": 0
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-08-20T16:27:16.927Z"
+}
