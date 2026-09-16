@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "repairs_attempted": 0,
+  "checks_total": 18,
+  "blocking_failed": 0,
+  "blocking_failed_ids": [],
+  "unknown": 0,
+  "executed_actions": 0,
+  "actuator_authority": "NONE"
+}

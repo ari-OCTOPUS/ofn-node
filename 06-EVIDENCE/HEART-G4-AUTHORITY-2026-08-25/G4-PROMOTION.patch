@@ -1,0 +1,1184 @@
+diff --git a/07 - Knowledge/genome-system/ledger/ledger.py b/07 - Knowledge/genome-system/ledger/ledger.py
+index 7da85b3..9fe5fb1 100644
+--- a/07 - Knowledge/genome-system/ledger/ledger.py	
++++ b/07 - Knowledge/genome-system/ledger/ledger.py	
+@@ -275,19 +275,27 @@ class Ledger:
+     def tip_path(self) -> Path:
+         return self.path.parent / (self.path.name + ".tip.json")
+ 
+-    def _commit_tip_unlocked(self, tip_hash: str) -> None:
+-        """Write length+hash sidecar. Caller holds the append lock (or seal)."""
+-        prev_n = None
+-        p = self.tip_path()
+-        try:
+-            if p.exists():
+-                prev_n = int(json.loads(p.read_text("utf-8")).get("n"))
+-        except (OSError, ValueError, TypeError, KeyError):
++    def _commit_tip_unlocked(self, tip_hash: str, *, n: "int | None" = None) -> None:
++        """Write length+hash sidecar. Caller holds the append lock (or seal).
++
++        2026-08-25 (G4 rehearsal finding): ``seal_tip`` counts the true length but
++        this helper silently preferred ``prev_n + 1`` whenever a sidecar existed,
++        so a stale count (bulk backfill/reanchor, historical race) could never be
++        repaired — seal just incremented the wrong number. An explicit ``n`` now
++        wins; append() keeps the cheap ``prev_n + 1`` path by passing nothing."""
++        if n is None:
+             prev_n = None
+-        n = (prev_n + 1) if prev_n is not None else sum(
+-            1 for _ in self.iter_events())
++            p = self.tip_path()
++            try:
++                if p.exists():
++                    prev_n = int(json.loads(p.read_text("utf-8")).get("n"))
++            except (OSError, ValueError, TypeError, KeyError):
++                prev_n = None
++            n = (prev_n + 1) if prev_n is not None else sum(
++                1 for _ in self.iter_events())
+         rec = {"schema": "genome-ledger-tip.v1", "n": int(n),
+                "tip_hash": str(tip_hash), "ts": _utcnow()}
++        p = self.tip_path()
+         tmp = p.with_suffix(p.suffix + ".tmp")
+         with open(tmp, "w", encoding="utf-8") as fh:
+             fh.write(json.dumps(rec, ensure_ascii=False, separators=(",", ":")))
+@@ -296,14 +304,18 @@ class Ledger:
+         os.replace(tmp, p)
+ 
+     def seal_tip(self) -> dict[str, Any]:
+-        """One-shot: persist current n+tip without appending. Idempotent."""
++        """One-shot: persist current n+tip without appending. Idempotent.
++
++        2026-08-25: now actually repairs a stale/mismatched sidecar count — it
++        passes the freshly counted true length (and current head hash) through,
++        instead of letting the helper increment the stale number again."""
+         n = 0
+         last = None
+         for rec in self.iter_events():
+             n += 1
+             last = rec.get("hash")
+         if n and last:
+-            self._commit_tip_unlocked(str(last))
++            self._commit_tip_unlocked(str(last), n=n)
+         return {"n": n, "sealed": bool(n and last)}
+ 
+     def verify_tip(self) -> tuple[bool, str]:
+diff --git a/_ops/heart/pulse_arbiter.py b/_ops/heart/pulse_arbiter.py
+index 0b41bf8..911bdc0 100644
+--- a/_ops/heart/pulse_arbiter.py
++++ b/_ops/heart/pulse_arbiter.py
+@@ -11,12 +11,15 @@
+ هر قلب ماژولِ مستقلِ خودش می‌ماند؛ داور فقط *خروجی‌شان* را می‌خواند و رأی‌گیری می‌کند.
+ 
+ خطوطِ قرمز (ADR-001 coupled-not-merged + M-HEART §۴/§۶):
+-  · **advisory مطلق** — هرگز periodِ ارگانیسم (`organism.py:_sleep_s`)، بودجه، ledger، یا
+-    EffectorGate را نمی‌نویسد. تنها سینکِ مجاز: `state/pulse/arbiter-latest.json` (فایلِ نو).
++  · محاسبهٔ candidate **advisory** است؛ عبور به `organism.py:_sleep_s` فقط از seamِ
++    owner-gated و با authority guard + anchor معتبر انجام می‌شود. این ماژول هرگز بودجه،
++    ledger یا EffectorGate را نمی‌نویسد. سینک: `state/pulse/arbiter-latest.json`.
+   · **پشتِ flag، پیش‌فرض خاموش** (`OCTOPUS_WIRE_PULSE_ARBITER`): flag off → `persist()` no-op و
+     seamِ زنده byte-identical با امروز می‌ماند (no regression).
+-  · **سیم‌کشیِ زنده ساختاراً بسته** — `wire_open()` مثلِ `shadow.production_wire_open` تا رأیِ
+-    صریحِ مالک (ACTIVATION-PULSE-ARBITER.flag + تاریخ ≥ 2026-07-21) بسته می‌ماند.
++  · **سیم‌کشیِ زنده owner-gated است** — `wire_open()` به envهای صریح و
++    `ACTIVATION-PULSE-ARBITER.flag` نیاز دارد. G4 حتی پس از بازشدن outer wire، رأیِ
++    control_lawِ shadow را observable-but-ineligible نگه می‌دارد و cadence را با anchor
++    ثابتِ pre-G4 از تسریع ناخواسته محافظت می‌کند.
+   · `chrono.py` دست‌نزدنی؛ هیچ import از chrono/effects/money. $0 · آفلاین · stdlib · fail-soft.
+ 
+ قانونِ آشتی (طراحیِ این ماژول — «ترمز غالب، شتاب اجماعی»):
+@@ -48,6 +51,7 @@ for _p in (str(_OPS / "budget"), str(_OPS), str(_HERE)):
+ import opslib  # noqa: E402
+ 
+ SCHEMA = "pulse-arbiter.v1"
++AUTHORITY_POLICY = "pulse-authority-g4.v1"
+ LATEST = opslib.STATE_DIR / "pulse" / "arbiter-latest.json"
+ SINK = opslib.STATE_DIR / "pulse" / "arbiter-shadow.jsonl"
+ ACT_ARBITER = opslib.OPS / "ACTIVATION-PULSE-ARBITER.flag"
+@@ -114,20 +118,80 @@ def _apply_precision(votes: list[dict]) -> list[dict]:
+     on = flag(FLAG_PRECISION)
+     for v in votes:
+         canonical = v.pop("_canonical_precision", None)   # کلیدِ موقت همیشه پاک می‌شود
+-        if not on or not v.get("present") or not v.get("period_s"):
++        if not on:
+             continue
+-        name = v["heart"]
+-        buf = _period_hist.setdefault(name, deque(maxlen=_PRECISION_WINDOW))
+-        buf.append(float(v["period_s"]))
+         if isinstance(canonical, (int, float)) and math.isfinite(float(canonical)):
+             v["precision"] = _clamp(float(canonical), 0.0, 1.0)
+             v["precision_src"] = "control_law.precision_weight"
+-        else:
++        if not v.get("present") or v.get("eligible_for_live") is not True or not v.get("period_s"):
++            continue
++        name = v["heart"]
++        buf = _period_hist.setdefault(name, deque(maxlen=_PRECISION_WINDOW))
++        buf.append(float(v["period_s"]))
++        if not (isinstance(canonical, (int, float)) and math.isfinite(float(canonical))):
+             v["precision"] = inverse_variance_precision(buf)
+             v["precision_src"] = "inverse-variance"
+     return votes
+ 
+ 
++def _finite_period(value, *, floor_s: float = FLOOR_S,
++                   max_s: float = MAX_S) -> "float | None":
++    try:
++        period = float(value)
++    except (TypeError, ValueError):
++        return None
++    if not math.isfinite(period) or not floor_s <= period <= max_s:
++        return None
++    return period
++
++
++def _authority_vote(vote: dict, *, authority: str,
++                    reasons: list[str]) -> dict:
++    """Keep an observation visible while making it ineligible for live arbitration."""
++    observed = vote.get("period_s")
++    vote.update({
++        "present": False,
++        "period_s": observed,
++        "observed_period_s": observed,
++        "eligible_for_live": False,
++        "authority": authority,
++        "authority_reasons": [str(r) for r in reasons if str(r)],
++    })
++    return vote
++
++
++def _mark_live_authority(vote: dict, authority: str,
++                         reasons: "list[str] | None" = None) -> dict:
++    vote["eligible_for_live"] = bool(vote.get("present"))
++    vote["authority"] = authority
++    vote["authority_reasons"] = list(reasons or [])
++    return vote
++
++
++def _control_authority(rec) -> tuple[bool, str, list[str]]:
++    """G4: control-law observations have no live authority in this gate.
++
++    ``production_wire.open`` belongs to the shadow producer and is useful evidence,
++    but it is not a capability token for the pulse arbiter.  Gate 1 will introduce a
++    committed authority envelope.  Until then control-law remains observable only.
++    """
++    reasons: list[str] = []
++    if not isinstance(rec, dict) or not rec:
++        return False, "ADVISORY_COMPUTE", ["no committed authority envelope"]
++    if rec.get("mode") != "shadow":
++        reasons.append("record provenance is not canonical shadow mode")
++    production = rec.get("production_wire")
++    if not isinstance(production, dict) or production.get("open") is not True:
++        reasons.append("shadow production wire is not open")
++    if rec.get("gate0_live_producer") is not True:
++        reasons.append("Gate-0 live producer is not authoritative")
++    provenance = rec.get("sog_provenance")
++    if provenance not in ("VERIFIED",):
++        reasons.append("SOG provenance is not VERIFIED")
++    reasons.append("G4 grants no control-law live authority before HeartStore Gate 1")
++    return False, "SHADOW_ONLY", reasons
++
++
+ # ════════════════════════════════════════════════════════════════════════════════
+ # هستهٔ خالص — سه رأی → یک period. بدونِ I/O، کاملاً تست‌پذیر.
+ # ════════════════════════════════════════════════════════════════════════════════
+@@ -165,6 +229,9 @@ def _vote(name: str, period, braking: bool, precision: float,
+         "mode": mode if mode in ("LIVE", "HELD", "CONSTANT", "UNKNOWN") else "UNKNOWN",
+         "dof": int(dof) if isinstance(dof, int) else 0,
+         "last_change_ts": last_change_ts,
++        "eligible_for_live": bool(present and p is not None),
++        "authority": "LEGACY_ELIGIBLE" if present and p is not None else "ABSTAIN",
++        "authority_reasons": [],
+     }
+ 
+ 
+@@ -180,7 +247,8 @@ def arbitrate(votes: list[dict], base_period_s: float = BASE_PERIOD_S,
+       ۴) effective = max(اجماع، قوی‌ترین ترمز). سپس clamp سختِ [floor, max].
+       ۵) رنگِ آشتی = بدترین (محافظه‌کارترین) رنگِ حاضرها.
+     """
+-    present = [v for v in votes if v.get("present") and v.get("period_s")]
++    present = [v for v in votes if v.get("present")
++               and v.get("eligible_for_live") is True and v.get("period_s")]
+     if not present:
+         return {
+             "effective_period_s": round(_clamp(base_period_s, floor_s, max_s), 2),
+@@ -188,6 +256,7 @@ def arbitrate(votes: list[dict], base_period_s: float = BASE_PERIOD_S,
+             "brake_s": None, "color": "GREEN", "driver": "abstain",
+             "reasons": ["هیچ قلبی رأی نداد — periodِ پایه (رفتارِ فعلی)"],
+             "votes": votes, "n_present": 0, "n_braking": 0,
++            "n_moving": 0, "n_held": 0, "n_constant": 0, "n_unknown_mode": 0,
+         }
+ 
+     # ترمزها — هر ترمز دستِ‌کم تا brake_period_s بالا می‌برد (شتاب خلعش نمی‌کند)
+@@ -293,9 +362,11 @@ def _cardiac_vote(cardiac_snapshot: dict | None = None) -> dict:
+         _mass = bio.get("mass")
+         _pinned = (_mass is None) or (float(_mass) <= 1.0)
+         _mode = "CONSTANT" if _pinned else "LIVE"
+-        return _vote("cardiac", period, depleted, 1.0, color=color,
+-                     mode=_mode, dof=1 if _pinned else 0,
+-                     note=f"pace={pace}" + (" · بودجه تمام" if depleted else ""))
++        return _mark_live_authority(
++            _vote("cardiac", period, depleted, 1.0, color=color,
++                  mode=_mode, dof=1 if _pinned else 0,
++                  note=f"pace={pace}" + (" · بودجه تمام" if depleted else "")),
++            "CARDIAC_RUNTIME")
+     except Exception as e:  # noqa: BLE001 — قلبِ غایب هرگز داور را نمی‌کشد
+         return _vote("cardiac", None, False, 0.0, present=False,
+                      note=f"err:{type(e).__name__}")
+@@ -306,6 +377,12 @@ def _control_vote(heart_shadow: dict | None = None) -> dict:
+     یا محاسبهٔ خالصِ `heart_step(gather_inputs())`. ترمز = fail_closed_reason غیرِ None."""
+     try:
+         rec = heart_shadow
++        if rec is not None and not isinstance(rec, dict):
++            return _authority_vote(
++                _vote("control_law", None, False, 0.0, present=False,
++                      note="malformed control-law observation"),
++                authority="MALFORMED_INPUT",
++                reasons=["control-law observation is not an object"])
+         if rec is None:
+             from heart import shadow as _sh
+             rec = _sh.read_shadow_latest()
+@@ -342,11 +419,15 @@ def _control_vote(heart_shadow: dict | None = None) -> dict:
+             _mode = "UNKNOWN"
+         vote = _vote("control_law", period, braking, precision, color=color,
+                      mode=_mode, dof=_dof, note=str(note))
+-        # ۲۰۲۷: precisionِ کانونیِ control_law.precision_weight (اگر HEART_PRECISION_WEIGHT
+-        # روشن بوده) برای مسیرِ PULSE_ARBITER_PRECISION نگه داشته می‌شود (بازاستفاده، نه کپی)
++        # Precision is observation metadata, not authority. Keep the canonical value
++        # available for forensic output even when G4 excludes this vote from live math.
+         if isinstance(pi, (int, float)):
+             vote["_canonical_precision"] = float(pi)
+-        return vote
++        allowed, authority, authority_reasons = _control_authority(rec)
++        if not allowed:
++            return _authority_vote(vote, authority=authority,
++                                   reasons=authority_reasons)
++        return _mark_live_authority(vote, authority, authority_reasons)
+     except Exception as e:  # noqa: BLE001
+         return _vote("control_law", None, False, 0.0, present=False,
+                      note=f"err:{type(e).__name__}")
+@@ -380,8 +461,10 @@ def _rhythm_vote(rhythm_state: dict | None = None) -> dict:
+         # تنها قلبِ واقعاً متحرک: `organism.py` هر تیک `rhythm_beat` را تازه صدا
+         # می‌زند، پس این عدد در همان تیک ساخته شده. سنجیده: ۱۰۰٪ حرکتِ اجماع فقط
+         # نویزِ ۱/f همین یکی است.
+-        return _vote("rhythm", t_beat, braking, 0.7, color=color, note=note,
+-                     mode="LIVE", dof=0)
++        return _mark_live_authority(
++            _vote("rhythm", t_beat, braking, 0.7, color=color, note=note,
++                  mode="LIVE", dof=0),
++            "RHYTHM_RUNTIME")
+     except Exception as e:  # noqa: BLE001
+         return _vote("rhythm", None, False, 0.0, present=False,
+                      note=f"err:{type(e).__name__}")
+@@ -399,6 +482,100 @@ def gather_views(cardiac_snapshot: dict | None = None,
+     return _apply_precision(votes)
+ 
+ 
++def _valid_live_baseline(previous) -> tuple["float | None", list[str]]:
++    """Return the fixed pre-G4 non-acceleration anchor.
++
++    The first G4 beat migrates a valid legacy live record by anchoring its applied
++    period. Later beats reuse ``authority_floor_s`` rather than the previous applied
++    period, so a transient slow/braking candidate never ratchets the floor upward.
++    A temporarily closed outer wire preserves the anchor as long as the G4 record
++    itself was durably written.
++    """
++    reasons: list[str] = []
++    if not isinstance(previous, dict):
++        return None, ["previous arbiter record is not an object"]
++    if previous.get("schema") != SCHEMA:
++        reasons.append("previous arbiter schema mismatch")
++    if previous.get("written") is not True:
++        reasons.append("previous arbiter record was not durably written")
++
++    if previous.get("authority_policy") == AUTHORITY_POLICY:
++        period = _finite_period(previous.get("authority_floor_s"))
++        if period is None:
++            reasons.append("G4 authority floor is invalid")
++    else:
++        if previous.get("wire_open") is not True:
++            reasons.append("legacy arbiter wire was not open")
++        period = _finite_period(previous.get("effective_period_s"))
++        if period is None:
++            reasons.append("legacy effective period is invalid")
++    return (period if not reasons else None), reasons
++
++
++def _apply_live_authority(snap: dict, previous=None) -> dict:
++    """Apply G4's fixed non-acceleration anchor to a candidate snapshot.
++
++    The first G4 beat imports the prior valid live period as ``authority_floor_s``.
++    Every later beat reuses that fixed anchor, never the previous applied period.
++    Therefore removing the ineligible shadow vote cannot accelerate the organism,
++    while a transient valid brake can clear back to the pre-G4 cadence instead of
++    ratcheting the organism permanently slower. Gate 1 is required to move the anchor.
++    """
++    out = dict(snap or {})
++    candidate = _finite_period(out.get("candidate_period_s",
++                                       out.get("effective_period_s")))
++    anchor, baseline_reasons = _valid_live_baseline(previous)
++    out["authority_policy"] = AUTHORITY_POLICY
++    out["candidate_period_s"] = candidate
++    out["candidate_driver"] = out.get("driver")
++    out["applied_period_known"] = False
++    out["authority_hold_applied"] = False
++    out["authority_floor_s"] = None if anchor is None else round(anchor, 2)
++    if anchor is None:
++        out["authority_floor_source"] = "INVALID_OR_MISSING"
++    elif (isinstance(previous, dict)
++          and previous.get("authority_policy") == AUTHORITY_POLICY):
++        out["authority_floor_source"] = "G4_FIXED_ANCHOR"
++    else:
++        out["authority_floor_source"] = "LEGACY_LIVE_BASELINE"
++    requested = bool(out.get("wire_requested_open", out.get("wire_open")))
++    out["wire_requested_open"] = requested
++    if not requested:
++        out["wire_open"] = False
++        out["authority_status"] = "WIRE_CLOSED"
++        return out
++
++    if candidate is None or anchor is None:
++        reasons = list(out.get("wire_reasons") or [])
++        if candidate is None:
++            reasons.append("candidate period is invalid")
++        reasons.extend(baseline_reasons)
++        reasons.append("G4 refuses live promotion without a valid prior live baseline")
++        out["wire_open"] = False
++        out["wire_reasons"] = reasons
++        out["wire_reasons_n"] = len(reasons)
++        out["authority_status"] = "NO_VALID_BASELINE"
++        return out
++
++    applied = max(candidate, anchor)
++    held = applied > candidate + 1e-9
++    out["effective_period_s"] = round(applied, 2)
++    out["applied_period_known"] = True
++    out["authority_hold_applied"] = held
++    out["wire_open"] = True
++    if held:
++        out["driver"] = "authority-hold"
++        out["authority_status"] = "HELD_NO_ACCELERATION"
++        reasons = list(out.get("reasons") or [])
++        reasons.append(
++            f"G4 authority hold: candidate {candidate:.2f}s < fixed pre-G4 "
++            f"anchor {anchor:.2f}s; acceleration refused")
++        out["reasons"] = reasons
++    else:
++        out["authority_status"] = "CANDIDATE_SLOWER_OR_EQUAL"
++    return out
++
++
+ # ════════════════════════════════════════════════════════════════════════════════
+ # API عمومی — snapshot / persist / wire_open / read_latest
+ # ════════════════════════════════════════════════════════════════════════════════
+@@ -410,6 +587,13 @@ def arbiter_snapshot(cardiac_snapshot: dict | None = None,
+     همیشه امن است حتی با flag خاموش — فقط محاسبه/گزارش."""
+     views = gather_views(cardiac_snapshot, heart_shadow, rhythm_state)
+     out = arbitrate(views)
++    out["candidate_period_s"] = out["effective_period_s"]
++    out["candidate_driver"] = out["driver"]
++    out["applied_period_known"] = False
++    out["authority_hold_applied"] = False
++    out["authority_floor_s"] = None
++    out["authority_status"] = "ADVISORY_CANDIDATE"
++    out["authority_policy"] = AUTHORITY_POLICY
+     out["ts"] = opslib.now_iso()
+     out["schema"] = SCHEMA
+     out["beat"] = beat
+@@ -417,7 +601,9 @@ def arbiter_snapshot(cardiac_snapshot: dict | None = None,
+     out["precision_mode"] = ("active-inference (inverse-variance)"
+                              if flag(FLAG_PRECISION) else "static")
+     wire, wire_reasons = wire_open()
+-    out["wire_open"] = wire
++    out["wire_requested_open"] = wire
++    out["wire_open"] = False
++    out["wire_reasons"] = list(wire_reasons)
+     out["wire_reasons_n"] = len(wire_reasons)
+     return out
+ 
+@@ -427,44 +613,95 @@ def persist(cardiac_snapshot: dict | None = None,
+             rhythm_state: dict | None = None, beat: int = 0) -> dict:
+     """snapshot را بساز و — **فقط اگر flag روشن بود** — در سینکِ جدا بنویس.
+     flag خاموش → هیچ نوشتنی (`written=False`). هرگز periodِ ارگانیسم را نمی‌نویسد."""
+-    snap = arbiter_snapshot(cardiac_snapshot, heart_shadow, rhythm_state, beat)
+-    snap["written"] = False
++    candidate_snap = arbiter_snapshot(cardiac_snapshot, heart_shadow, rhythm_state, beat)
++    candidate_snap["written"] = False
+     if not flag(FLAG_ENV):
++        return _apply_live_authority(candidate_snap, previous=read_latest())
++    halt_reason = "STOP-ORGANISM" if opslib.STOP_ORGANISM.exists() else opslib.halted()
++    if halt_reason:
++        snap = _apply_live_authority(candidate_snap, previous=read_latest())
++        snap["written"] = False
++        snap["wire_open"] = False
++        snap["applied_period_known"] = False
++        snap["authority_status"] = "HALTED"
++        snap["wire_reasons"] = list(snap.get("wire_reasons") or []) + [
++            f"live use refused under {halt_reason}"]
++        snap["wire_reasons_n"] = len(snap["wire_reasons"])
+         return snap
+-    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+-        return snap
++    snap = candidate_snap
+     try:
+         LATEST.parent.mkdir(parents=True, exist_ok=True)
+-        # written پیش از نوشتن ست می‌شود تا نسخهٔ روی دیسک هم صادق باشد —
+-        # همان الگویِ heartstate.py::persist (قبلاً فایل همیشه written:false حمل می‌کرد).
+-        snap["written"] = True
++        # Single-writer atomicity: read the prior record, apply the hold, and write
++        # under one cross-process lock so two writers cannot both read the same floor
++        # and race the applied period backwards.
+         with opslib.LockedJson(LATEST) as lj:
++            # Re-read every owner gate at the commit point. The activation file can
++            # disappear after arbiter_snapshot(); stale-open must never be committed.
++            gate_open, gate_reasons = wire_open()
++            candidate_snap["wire_requested_open"] = gate_open
++            candidate_snap["wire_reasons"] = list(gate_reasons)
++            candidate_snap["wire_reasons_n"] = len(gate_reasons)
++            snap = _apply_live_authority(candidate_snap, previous=lj.read())
++            # Re-check kill inside the lock: a STOP/HALT that appeared after the
++            # early guard must not be written as a live period (TOCTOU close).
++            halt_reason = ("STOP-ORGANISM" if opslib.STOP_ORGANISM.exists()
++                           else opslib.halted())
++            if halt_reason:
++                snap["wire_open"] = False
++                snap["applied_period_known"] = False
++                snap["authority_status"] = "HALTED"
++                snap["wire_reasons"] = list(snap.get("wire_reasons") or []) + [
++                    f"live use refused under {halt_reason}"]
++                snap["wire_reasons_n"] = len(snap["wire_reasons"])
++                snap["written"] = False
++                return snap
++            # written پیش از نوشتن ست می‌شود تا نسخهٔ روی دیسک هم صادق باشد —
++            # همان الگویِ heartstate.py::persist (قبلاً فایل همیشه written:false حمل می‌کرد).
++            snap["written"] = True
+             lj.write(snap)
+-        opslib.append_jsonl(SINK, {"ts": snap["ts"], "beat": beat,
+-                                   "effective_period_s": snap["effective_period_s"],
+-                                   "driver": snap["driver"], "color": snap["color"],
+-                                   "wire_open": snap["wire_open"]})
++        # LATEST is the commit authority. Once it is durably written the beat is
++        # committed, so a failure in the secondary sink/divergence below is logged
++        # but never downgrades the already-committed live period.
++        try:
++            opslib.append_jsonl(SINK, {"ts": snap["ts"], "beat": beat,
++                                       "effective_period_s": snap["effective_period_s"],
++                                       "candidate_period_s": snap.get("candidate_period_s"),
++                                       "authority_floor_s": snap.get("authority_floor_s"),
++                                       "authority_status": snap.get("authority_status"),
++                                       "driver": snap["driver"], "color": snap["color"],
++                                       "wire_open": snap["wire_open"]})
++            snap["sink_written"] = True
++        except Exception as e:  # noqa: BLE001 — secondary sink never un-commits LATEST
++            snap["sink_written"] = False
++            opslib.alert_throttled(
++                [f"pulse-arbiter secondary sink failed (LATEST committed): {e}"],
++                key="pulse-arbiter-sink-secondary", window_s=3600.0)
+         # Talk Discovery / heart unification: optional shadow divergence vs production
+         # period hint (does NOT change effective period or age_tick).
+         try:
+             from heart.pulse_shadow_compare import record_divergence
+             prod = float(
+-                (heart_shadow or {}).get("period_s")
++                (snap.get("effective_period_s") if snap.get("applied_period_known") else None)
+                 or (cardiac_snapshot or {}).get("effective_period")
+-                or snap.get("effective_period_s")
+                 or BASE_PERIOD_S
+             )
+             record_divergence(
+                 production_period=prod,
+-                shadow_period=float(snap.get("effective_period_s") or prod),
++                shadow_period=float(snap.get("candidate_period_s") or prod),
+                 run_id=str(snap.get("ts") or ""),
+                 tick=int(beat),
+                 inputs={"driver": snap.get("driver"), "color": snap.get("color")},
+             )
+-        except Exception:  # noqa: BLE001 — shadow must never kill tick
++        except Exception:  # noqa: BLE001 — divergence is optional observability
+             pass
+     except Exception as e:  # noqa: BLE001 — سایه نباید tick را بکشد
+         snap["written"] = False                       # fail-soft
++        snap["wire_open"] = False
++        snap["applied_period_known"] = False
++        snap["authority_status"] = "PERSIST_FAILED"
++        snap["wire_reasons"] = list(snap.get("wire_reasons") or []) + [
++            "arbiter state persistence failed; live use refused"]
++        snap["wire_reasons_n"] = len(snap["wire_reasons"])
+         # WinError 5 (os.replace cross-process lock) گذراست و self-healing — تکرارِ
+         # همان پیام هر epoch آلارمِ واقعی (halt/STOP) را زیر نویز می‌برد. throttle:
+         # ۱ alert/saat با همان key؛ پیامِ نو همیشه فوراً عبور می‌کند (alert_throttled
+@@ -497,10 +734,20 @@ def effective_period_if_open(default_s: float,
+                              rhythm_state: dict | None = None) -> tuple[float, dict]:
+     """periodِ داور را **فقط اگر `wire_open()`** برگردان؛ وگرنه `default_s` (سایه).
+     این تنها نقطهٔ عبورِ داور به seamِ زندهٔ organism است — و ساختاراً امروز بسته.
+-    خروجی: (period_s برای مصرف، snapshot برای state). fail-soft: خطا → default."""
++    خروجی: (period_s برای مصرف، snapshot برای state). fail-soft: خطا → default.
++    kill supreme: زیرِ STOP/HALT هرگز period زنده برنمی‌گرداند (هم‌ارزِ persist)."""
+     try:
+-        snap = arbiter_snapshot(cardiac_snapshot, heart_shadow, rhythm_state)
+-        if snap.get("wire_open"):
++        snap = _apply_live_authority(
++            arbiter_snapshot(cardiac_snapshot, heart_shadow, rhythm_state),
++            previous=read_latest())
++        halt_reason = ("STOP-ORGANISM" if opslib.STOP_ORGANISM.exists()
++                       else opslib.halted())
++        if halt_reason:
++            snap["wire_open"] = False
++            snap["applied_period_known"] = False
++            snap["authority_status"] = "HALTED"
++            return float(default_s), snap
++        if snap.get("wire_open") and snap.get("applied_period_known"):
+             return float(snap["effective_period_s"]), snap
+         return float(default_s), snap
+     except Exception:  # noqa: BLE001
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index da6561f..fbf3275 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -931,7 +931,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+     "test_selfmap_memory_surface.py",         # حافظهٔ بلندمدت — بالأخره یک سطح دارد
+     "test_hebbian_cockpit_tab.py",            # تبِ brain/hebbian با هر تپ کرش می‌کرد
+     "test_selfknow_vault_propose.py",         # تشخیصِ پایدار → propose ِ vault، هرگز apply
+-    "test_pulse_arbiter_wire_readiness.py",   # آمادگیِ سیمِ داور — سه‌قلب واقعاً سینک شد
++    "test_pulse_arbiter_wire_readiness.py",   # آمادگیِ سیمِ داور — authority guard + baseline hold
++    "test_pulse_arbiter_authority.py",        # G4: shadow observable، هرگز live-authoritative
+     # ── 2026-08-05: ۵۱ فایلِ ثبت‌نشده، رأیِ مالک «فعالشان کن و تست کن» ──────
+     #
+     # هر ۵۱ تا با **همان محیطِ runner** اجرا شدند (`_isolation_boot` روی
+diff --git a/_ops/tests/test_bounded_read.py b/_ops/tests/test_bounded_read.py
+index 2ef1a71..dbe7f46 100644
+--- a/_ops/tests/test_bounded_read.py
++++ b/_ops/tests/test_bounded_read.py
+@@ -235,6 +235,11 @@ def t_k_100_consecutive_config_stalls_keep_cache_and_workers_bounded():
+     pfile = _fake_config(root, {"last_offset": 1})
+     center._CONFIG_MANAGER = None
+     assert center._load_config().get("last_offset") == 1
++    # Stress the pool, not the production 3s wall-clock budget: 100 serial waits at
++    # 3s are a guaranteed ~300s runner timeout and prove nothing about boundedness.
++    # ConfigManager deliberately supports an injected reader; use the same bounded
++    # worker path with a 50ms test deadline so saturation/recovery is exercised fast.
++    center._CONFIG_MANAGER._reader = lambda path: bio.read_text(path, timeout_s=0.05)
+     real_read = Path.read_text
+ 
+     def stalled(self, *a, **k):
+@@ -244,7 +249,11 @@ def t_k_100_consecutive_config_stalls_keep_cache_and_workers_bounded():
+     Path.read_text = stalled
+     try:
+         for i in range(100):
+-            pfile.write_text(json.dumps({"last_offset": i + 2}), encoding="utf-8")
++            # Bypass the monkeypatched *read* fixture when changing the generation;
++            # Path.write_text itself delegates through Path.open and was sleeping 10s
++            # per iteration in the old test, so the test accidentally stalled writes too.
++            with pfile.open("w", encoding="utf-8") as fh:
++                fh.write(json.dumps({"last_offset": i + 2}))
+             cfg = center._load_config()
+             assert cfg.get("last_offset") == 1, "last-known-good must survive"
+         assert bio.active_worker_count() <= 4
+diff --git a/_ops/tests/test_ledger_tip_commit.py b/_ops/tests/test_ledger_tip_commit.py
+index a2671a7..3156101 100644
+--- a/_ops/tests/test_ledger_tip_commit.py
++++ b/_ops/tests/test_ledger_tip_commit.py
+@@ -79,6 +79,38 @@ def t_unsealed_is_not_a_failure():
+     assert ok2 is True and reason2 == "ok", (ok2, reason2)
+ 
+ 
++def t_seal_repairs_a_stale_count_not_just_increments_it():
++    """۲۰۲۶-۰۸-۲۵ (شاهد زندهٔ G4): sidecar با count کهنه (offset ثابت) و hashِ درست.
++    seal قبلاً فقط prev_n+1 می‌نوشت و mismatch را هرگز ترمیم نمی‌کرد؛ حالا باید
++    شمارش واقعی را بنویسد و verify_tip سبز شود — append همچنان prev_n+1 می‌ماند."""
++    td = Path(tempfile.mkdtemp(prefix="tip-stale-"))
++    p = td / "ledger.jsonl"
++    lg = _Ledger()(p)
++    for i in range(6):
++        lg.append("NOTE", {"i": i}, actor="test")
++    # شبیه‌سازی همان وضعیت زنده: bulk بیرونی ۳ رکیف اضافه کرد بدون عبور از append
++    extra = [lg.append("NOTE", {"bulk": k}, actor="bulk") for k in range(3)]
++    good = json.loads(lg.tip_path().read_text("utf-8"))
++    good["n"] = good["n"] - 3          # count کهنه؛ hash همین head فعلی می‌ماند
++    lg.tip_path().write_text(json.dumps(good), "utf-8")
++    ok_v, _ = lg.verify()
++    ok_t, msg = lg.verify_tip()
++    assert ok_v is True, "verify باید LAW بماند"
++    assert ok_t is False and "length mismatch" in msg, msg
++    lg2 = _Ledger()(p)
++    sealed = lg2.seal_tip()
++    assert sealed["sealed"] is True
++    ok_t2, msg2 = lg2.verify_tip()
++    assert ok_t2 is True and msg2 == "ok", msg2
++    tip2 = json.loads(lg2.tip_path().read_text("utf-8"))
++    assert tip2["n"] == sealed["n"] == 9, tip2          # شمارش واقعی، نه ۷
++    # append بعدی هنوز فقط +1 می‌کند و سازگاری می‌ماند
++    lg2.append("NOTE", {"after": 1}, actor="test")
++    ok_t3, msg3 = lg2.verify_tip()
++    assert ok_t3 is True and msg3 == "ok", msg3
++    assert json.loads(lg2.tip_path().read_text("utf-8"))["n"] == 10
++
++
+ def t_organism_daily_calls_verify_tip():
+     src = (_OPS / "organism.py").read_text("utf-8")
+     assert "verify_tip()" in src
+diff --git a/_ops/tests/test_pulse_arbiter_authority.py b/_ops/tests/test_pulse_arbiter_authority.py
+new file mode 100644
+index 0000000..a2e3574
+--- /dev/null
++++ b/_ops/tests/test_pulse_arbiter_authority.py
+@@ -0,0 +1,474 @@
++#!/usr/bin/env python3
++"""G4: shadow control-law is observable, never live-authoritative.
++
++All state is pinned by harness before importing pulse_arbiter. No test writes the
++live vault. The gate removes authority only and holds the last valid live period
++so removing a slow invalid vote cannot accelerate the organism.
++"""
++from __future__ import annotations
++
++import json
++import math
++import os
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++
++ENV = harness.setup("pulse-arbiter-authority")
++_OPS = harness.SELF_OPS
++for _p in (str(_OPS), str(_OPS / "budget"), str(_OPS / "heart")):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++import opslib  # noqa: E402
++from heart import pulse_arbiter as pa  # noqa: E402
++
++_ROOT = str(Path(ENV["root"]).resolve())
++_FLAG_BIO = "OCTOPUS_WIRE_BIO"
++
++
++def _shadow(period=244.4, *, open_wire=False, gate0=False,
++            provenance="UNVERIFIABLE", ts=None, braking=False):
++    return {
++        "ts": ts or opslib.now_iso(),
++        "beat": 48965,
++        "period_s": period,
++        "mode": "shadow",
++        "gate0_live_producer": gate0,
++        "production_wire": {"open": open_wire, "reasons": []},
++        "sog_provenance": provenance,
++        "telemetry": {"gates": {
++            "precision": 0.8,
++            "fail_closed_reason": "test-brake" if braking else None,
++            "drift_flag": False,
++        }},
++    }
++
++
++def _views(control=244.4, cardiac=42.4264, rhythm=80.3):
++    return {
++        "cardiac_snapshot": {
++            "enabled": True,
++            "bio_rhythm": {"period_s": cardiac, "pace": "mice", "mass": 1.0},
++            "budget": {"depleted": False},
++            "baroreflex_factor": None,
++        },
++        "heart_shadow": _shadow(control),
++        "rhythm_state": {
++            "mode_color": "GREEN", "T_beat": rhythm,
++            "hrv": 0.42, "mode_focus": "STEADY",
++        },
++    }
++
++
++def _previous(period=96.32):
++    return {
++        "schema": pa.SCHEMA,
++        "effective_period_s": period,
++        "wire_open": True,
++        "written": True,
++    }
++
++
++def _candidate(period, driver="consensus"):
++    return {
++        "schema": pa.SCHEMA,
++        "effective_period_s": period,
++        "candidate_period_s": period,
++        "driver": driver,
++        "candidate_driver": driver,
++        "reasons": [],
++        "wire_requested_open": True,
++        "wire_open": False,
++        "wire_reasons": [],
++        "wire_reasons_n": 0,
++    }
++
++
++def _reset_wire():
++    os.environ.pop(pa.FLAG_ENV, None)
++    os.environ.pop(_FLAG_BIO, None)
++    if pa.ACT_ARBITER.exists():
++        pa.ACT_ARBITER.unlink()
++
++
++def _arm_wire():
++    os.environ[pa.FLAG_ENV] = "1"
++    os.environ[_FLAG_BIO] = "1"
++    pa.ACT_ARBITER.parent.mkdir(parents=True, exist_ok=True)
++    pa.ACT_ARBITER.write_text("owner-created test fixture\n", encoding="utf-8")
++
++
++def t_paths_are_sandboxed():
++    for path in (pa.LATEST, pa.SINK, pa.ACT_ARBITER, opslib.STATE_DIR):
++        assert str(Path(path).resolve()).startswith(_ROOT), path
++
++
++def t_closed_shadow_is_observed_but_ineligible():
++    vote = pa._control_vote(_shadow())
++    assert vote["present"] is False
++    assert vote["eligible_for_live"] is False
++    assert vote["authority"] == "SHADOW_ONLY"
++    assert math.isclose(vote["period_s"], 244.4)
++    assert math.isclose(vote["observed_period_s"], 244.4)
++    assert vote["braking"] is False
++    assert vote["authority_reasons"]
++
++
++def t_self_reported_open_shadow_still_grants_no_authority():
++    vote = pa._control_vote(_shadow(open_wire=True, gate0=True,
++                                   provenance="VERIFIED"))
++    assert vote["present"] is False
++    assert vote["eligible_for_live"] is False
++    assert vote["authority"] == "SHADOW_ONLY"
++    assert any("Gate 1" in reason for reason in vote["authority_reasons"])
++
++
++def t_missing_authority_fields_fail_closed():
++    vote = pa._control_vote({
++        "ts": opslib.now_iso(), "period_s": 60.0,
++        "telemetry": {"gates": {}},
++    })
++    assert vote["present"] is False
++    assert vote["authority"] == "SHADOW_ONLY"
++    assert len(vote["authority_reasons"]) >= 4
++
++
++def t_pure_compute_fallback_is_advisory_only():
++    vote = pa._control_vote({})
++    assert vote["present"] is False
++    assert vote["eligible_for_live"] is False
++    assert vote["authority"] == "ADVISORY_COMPUTE"
++    assert vote["period_s"] is None or math.isfinite(vote["period_s"])
++
++
++def t_malformed_control_observation_is_ineligible():
++    for value in ("not-a-record", [], 7):
++        vote = pa._control_vote(value)
++        assert vote["present"] is False
++        assert vote["eligible_for_live"] is False
++        assert vote["authority"] == "MALFORMED_INPUT"
++
++
++def t_invalid_periods_never_become_live_votes():
++    for value in (float("nan"), float("inf"), 0, -1, "bad"):
++        vote = pa._control_vote(_shadow(value))
++        assert vote["present"] is False
++        assert vote["eligible_for_live"] is False
++        assert vote["period_s"] is None
++        assert vote["observed_period_s"] is None
++
++
++def t_stale_shadow_remains_ineligible():
++    vote = pa._control_vote(_shadow(ts="2026-08-03T00:00:00"))
++    assert vote["mode"] in ("HELD", "UNKNOWN")
++    assert vote["present"] is False
++    assert vote["eligible_for_live"] is False
++
++
++def t_shadow_brake_cannot_brake_live_math():
++    control = pa._control_vote(_shadow(900.0, braking=True))
++    assert control["braking"] is True and control["present"] is False
++    result = pa.arbitrate([
++        pa._mark_live_authority(pa._vote("cardiac", 60, False, 1.0),
++                                "CARDIAC_RUNTIME"),
++        control,
++        pa._mark_live_authority(pa._vote("rhythm", 70, False, 0.7),
++                                "RHYTHM_RUNTIME"),
++    ])
++    assert result["n_present"] == 2
++    assert result["n_braking"] == 0
++    assert not result["driver"].startswith("brake")
++    assert result["color"] == "GREEN"
++
++
++def t_valid_brake_still_wins():
++    control = pa._control_vote(_shadow(30.0))
++    cardiac = pa._mark_live_authority(
++        pa._vote("cardiac", 40, True, 1.0, "AMBER"), "CARDIAC_RUNTIME")
++    result = pa.arbitrate([cardiac, control])
++    assert result["driver"].startswith("brake:cardiac")
++    assert result["n_braking"] == 1
++
++
++def t_precision_missing_authority_is_fail_closed():
++    os.environ[pa.FLAG_PRECISION] = "1"
++    pa._period_hist.clear()
++    try:
++        handmade = {
++            "heart": "handmade", "present": True, "period_s": 60.0,
++            "precision": 0.7, "braking": False, "color": "GREEN", "mode": "LIVE",
++        }
++        out = pa._apply_precision([handmade])[0]
++        assert "handmade" not in pa._period_hist
++        assert "precision_src" not in out
++    finally:
++        os.environ.pop(pa.FLAG_PRECISION, None)
++        pa._period_hist.clear()
++
++
++def t_arbitrate_missing_authority_is_fail_closed():
++    legacy = {
++        "heart": "legacy", "present": True, "period_s": 900.0,
++        "braking": True, "precision": 1.0, "color": "RED", "mode": "LIVE",
++    }
++    result = pa.arbitrate([legacy])
++    assert result["n_present"] == 0
++    assert result["n_braking"] == 0
++    assert result["driver"] == "abstain"
++    for key in ("n_moving", "n_held", "n_constant", "n_unknown_mode"):
++        assert result[key] == 0
++
++
++def t_arbitrate_defense_in_depth_excludes_ineligible_present_vote():
++    forged = pa._vote("control_law", 900, True, 1.0, "RED")
++    forged["eligible_for_live"] = False
++    result = pa.arbitrate([forged, pa._vote("rhythm", 60, False, 1.0)])
++    assert result["n_present"] == 1
++    assert result["n_braking"] == 0
++    assert result["color"] == "GREEN"
++
++
++def t_gather_views_has_two_live_votes_not_three():
++    votes = pa.gather_views(**_views())
++    control = next(v for v in votes if v["heart"] == "control_law")
++    assert control["period_s"] == 244.4
++    assert control["present"] is False
++    result = pa.arbitrate(votes)
++    assert result["n_present"] == 2
++    assert result["n_moving"] == 1
++    assert result["driver"] == "solo:rhythm"
++
++
++def t_faster_candidate_is_held_at_previous_live_period():
++    out = pa._apply_live_authority(_candidate(55.0), _previous(96.32))
++    assert out["wire_open"] is True
++    assert out["candidate_period_s"] == 55.0
++    assert out["effective_period_s"] == 96.32
++    assert out["authority_floor_s"] == 96.32
++    assert out["authority_hold_applied"] is True
++    assert out["driver"] == "authority-hold"
++    assert out["authority_status"] == "HELD_NO_ACCELERATION"
++
++
++def t_slower_candidate_is_allowed():
++    out = pa._apply_live_authority(_candidate(120.0), _previous(96.32))
++    assert out["wire_open"] is True
++    assert out["effective_period_s"] == 120.0
++    assert out["authority_floor_s"] == 96.32
++    assert out["authority_hold_applied"] is False
++    assert out["driver"] == "consensus"
++    assert out["authority_status"] == "CANDIDATE_SLOWER_OR_EQUAL"
++
++
++def t_transient_slow_candidate_does_not_ratchet_the_fixed_anchor():
++    first = pa._apply_live_authority(_candidate(120.0), _previous(96.32))
++    assert first["effective_period_s"] == 120.0
++    assert first["authority_floor_s"] == 96.32
++    first["written"] = True
++    second = pa._apply_live_authority(_candidate(70.0), first)
++    assert second["authority_floor_s"] == 96.32
++    assert second["effective_period_s"] == 96.32
++    assert second["effective_period_s"] != 120.0
++    assert second["authority_hold_applied"] is True
++
++
++def t_hold_persists_across_later_beats_and_restart():
++    first = pa._apply_live_authority(_candidate(55.0), _previous(96.32))
++    first["written"] = True
++    second = pa._apply_live_authority(_candidate(60.0), first)
++    assert second["effective_period_s"] == 96.32
++    assert second["authority_floor_s"] == 96.32
++    assert second["authority_hold_applied"] is True
++    second["written"] = True
++    third = pa._apply_live_authority(_candidate(70.0), second)
++    assert third["effective_period_s"] == 96.32
++    assert third["authority_floor_s"] == 96.32
++
++
++def t_temporarily_closed_wire_preserves_fixed_anchor():
++    closed = pa._apply_live_authority(
++        dict(_candidate(55.0), wire_requested_open=False), _previous(96.32))
++    assert closed["wire_open"] is False
++    assert closed["authority_floor_s"] == 96.32
++    closed["written"] = True
++    reopened = pa._apply_live_authority(_candidate(55.0), closed)
++    assert reopened["wire_open"] is True
++    assert reopened["authority_floor_s"] == 96.32
++    assert reopened["effective_period_s"] == 96.32
++
++
++def t_invalid_previous_record_cannot_create_a_floor():
++    invalids = [
++        {},
++        {"schema": "wrong", "effective_period_s": 96.32,
++         "wire_open": True, "written": True},
++        {"schema": pa.SCHEMA, "effective_period_s": float("nan"),
++         "wire_open": True, "written": True},
++        {"schema": pa.SCHEMA, "effective_period_s": 96.32,
++         "wire_open": False, "written": True},
++        {"schema": pa.SCHEMA, "effective_period_s": 96.32,
++         "wire_open": True, "written": False},
++    ]
++    for previous in invalids:
++        out = pa._apply_live_authority(_candidate(55.0), previous)
++        assert out["wire_open"] is False
++        assert out["applied_period_known"] is False
++        assert out["authority_status"] == "NO_VALID_BASELINE"
++        assert out["authority_floor_source"] == "INVALID_OR_MISSING"
++
++
++def t_snapshot_separates_candidate_from_applied_period():
++    _reset_wire()
++    snap = pa.arbiter_snapshot(**_views(), beat=8)
++    assert snap["advisory_only"] is True
++    assert snap["applied_period_known"] is False
++    assert snap["candidate_period_s"] == snap["effective_period_s"]
++    assert snap["wire_open"] is False
++    assert snap["authority_status"] == "ADVISORY_CANDIDATE"
++
++
++def t_live_baseline_fixture_removes_shadow_without_acceleration():
++    _reset_wire()
++    try:
++        _arm_wire()
++        candidate = pa.arbiter_snapshot(**_views(), beat=48968)
++        applied = pa._apply_live_authority(candidate, _previous(96.32))
++        control = next(v for v in applied["votes"] if v["heart"] == "control_law")
++        assert control["period_s"] == 244.4
++        assert control["present"] is False
++        assert applied["n_present"] == 2
++        assert applied["candidate_period_s"] < 96.32
++        assert applied["effective_period_s"] == 96.32
++        assert applied["wire_open"] is True
++    finally:
++        _reset_wire()
++
++
++def t_gate_is_rechecked_at_the_locked_commit_point():
++    _reset_wire()
++    try:
++        _arm_wire()
++        pa.LATEST.parent.mkdir(parents=True, exist_ok=True)
++        pa.LATEST.write_text(json.dumps(_previous(96.32)), encoding="utf-8")
++        original_wire = pa.wire_open
++        calls = [0]
++
++        def _wire_sequence():
++            calls[0] += 1
++            return ((True, []) if calls[0] == 1
++                    else (False, ["activation removed before commit"]))
++
++        pa.wire_open = _wire_sequence
++        try:
++            out = pa.persist(**_views(), beat=48973)
++        finally:
++            pa.wire_open = original_wire
++        assert calls[0] >= 2
++        assert out["written"] is True
++        assert out["wire_open"] is False
++        assert out["authority_status"] == "WIRE_CLOSED"
++        disk = pa.read_latest()
++        assert disk["wire_open"] is False
++        assert disk["wire_requested_open"] is False
++    finally:
++        _reset_wire()
++
++
++def t_primary_write_failure_closes_live_wire_and_preserves_previous():
++    _reset_wire()
++    try:
++        _arm_wire()
++        pa.LATEST.parent.mkdir(parents=True, exist_ok=True)
++        before = _previous(96.32)
++        pa.LATEST.write_text(json.dumps(before), encoding="utf-8")
++        original_write = opslib.LockedJson.write
++        opslib.LockedJson.write = lambda self, data: (_ for _ in ()).throw(
++            OSError("primary-write-failed"))
++        try:
++            out = pa.persist(**_views(), beat=48970)
++        finally:
++            opslib.LockedJson.write = original_write
++        assert out["written"] is False
++        assert out["wire_open"] is False
++        assert out["applied_period_known"] is False
++        assert out["authority_status"] == "PERSIST_FAILED"
++        assert json.loads(pa.LATEST.read_text(encoding="utf-8")) == before
++    finally:
++        _reset_wire()
++
++
++def t_secondary_sink_failure_does_not_uncommit_latest():
++    _reset_wire()
++    try:
++        _arm_wire()
++        pa.LATEST.parent.mkdir(parents=True, exist_ok=True)
++        pa.LATEST.write_text(json.dumps(_previous(96.32)), encoding="utf-8")
++        original_append = opslib.append_jsonl
++        opslib.append_jsonl = lambda *a, **k: (_ for _ in ()).throw(
++            OSError("secondary-sink-failed"))
++        try:
++            out = pa.persist(**_views(), beat=48971)
++        finally:
++            opslib.append_jsonl = original_append
++        assert out["written"] is True
++        assert out["wire_open"] is True
++        assert out["sink_written"] is False
++        disk = pa.read_latest()
++        assert disk["written"] is True and disk["wire_open"] is True
++    finally:
++        _reset_wire()
++
++
++def t_stop_and_halt_close_both_live_entry_points():
++    _reset_wire()
++    try:
++        _arm_wire()
++        pa.LATEST.parent.mkdir(parents=True, exist_ok=True)
++        pa.LATEST.write_text(json.dumps(_previous(96.32)), encoding="utf-8")
++        opslib.STOP_ORGANISM.write_text("stop", encoding="utf-8")
++        try:
++            persisted = pa.persist(**_views(), beat=48972)
++            period, direct = pa.effective_period_if_open(300.0, **_views())
++        finally:
++            opslib.STOP_ORGANISM.unlink()
++        assert persisted["wire_open"] is False
++        assert persisted["authority_status"] == "HALTED"
++        assert period == 300.0
++        assert direct["wire_open"] is False
++        assert direct["authority_status"] == "HALTED"
++    finally:
++        _reset_wire()
++
++
++def t_persist_and_effective_api_share_the_same_hold():
++    _reset_wire()
++    try:
++        _arm_wire()
++        pa.LATEST.parent.mkdir(parents=True, exist_ok=True)
++        pa.LATEST.write_text(json.dumps(_previous(96.32)), encoding="utf-8")
++        persisted = pa.persist(**_views(), beat=48969)
++        assert persisted["written"] is True
++        assert persisted["wire_open"] is True
++        assert persisted["effective_period_s"] == 96.32
++        assert persisted["candidate_period_s"] < 96.32
++        period, snap = pa.effective_period_if_open(300.0, **_views())
++        assert period == 96.32
++        assert snap["effective_period_s"] == 96.32
++        assert snap["authority_hold_applied"] is True
++        disk = pa.read_latest()
++        assert disk["authority_policy"] == pa.AUTHORITY_POLICY
++        assert disk["written"] is True
++    finally:
++        _reset_wire()
++
++
++if __name__ == "__main__":
++    checks = [(name, fn) for name, fn in sorted(globals().items())
++              if name.startswith("t_")]
++    failed = harness.run(checks)
++    print(f"\n{'OK' if not failed else 'FAIL'} test_pulse_arbiter_authority: "
++          f"{len(checks) - failed}/{len(checks)}")
++    sys.exit(1 if failed else 0)
+diff --git a/_ops/tests/test_pulse_arbiter_wire_readiness.py b/_ops/tests/test_pulse_arbiter_wire_readiness.py
+index 2df57e5..0eed5ec 100644
+--- a/_ops/tests/test_pulse_arbiter_wire_readiness.py
++++ b/_ops/tests/test_pulse_arbiter_wire_readiness.py
+@@ -9,9 +9,10 @@
+         بسته بماند — حتی وقتی هر دو envِ OCTOPUS_WIRE_PULSE_ARBITER/OCTOPUS_WIRE_BIO
+         روشن‌اند. گیت واقعاً AND سه‌طرفه است، نه یک flag تنها.
+   (ب) با هر سه شرط حاضر (دو env + فایل)، wire_open() باز می‌شود.
+-  (ج) effective_period_if_open واقعاً periodِ *متفاوت* برمی‌گرداند: بسته → default_s
+-      دست‌نخورده، باز → periodِ اجماعِ سه‌قلبِ pulse_arbiter — یعنی فلیپ یک اثرِ
+-      رفتاریِ اندازه‌گیری‌پذیر دارد، نه فقط تغییرِ یک رشتهٔ وضعیت در JSON.
++  (ج) effective_period_if_open مسیرِ authority را واقعاً اعمال می‌کند: بسته → default_s
++      دست‌نخورده؛ باز بدون baseline معتبر → همچنان بسته؛ باز با baseline معتبر →
++      control_lawِ shadow فقط مشاهده می‌شود و candidateِ دو رأی معتبر با anchor ثابت
++      non-acceleration اعمال می‌شود. این یک اثر رفتاری است، نه فقط تغییرِ رشتهٔ JSON.
+ 
+ ⚠️ همهٔ این تست‌ها داخلِ ops_dir موقتِ harness (تمپ‌فایلِ ویندوز) کار می‌کنند و هیچ
+ فایلِ فعال‌سازیِ واقعی یا envِ زندهٔ this-process-only را در `F:\\backup` نمی‌سازند/
+@@ -118,7 +119,7 @@ def t_all_three_conditions_open_the_wire():
+ 
+ 
+ # ════════════════════════════════════════════════════════════════════════════════
+-# (ج) effective_period_if_open: بسته=default دست‌نخورده، باز=periodِ واقعیِ اجماع
++# (ج) effective_period_if_open: بسته=default؛ باز=authority guard + anchor ثابت
+ # ════════════════════════════════════════════════════════════════════════════════
+ def _fixture_views():
+     """سه قلبِ متحرک و متمایز (cardiac=40s با mass>1 تا LIVE باشد نه CONSTANT،
+@@ -136,32 +137,45 @@ def _fixture_views():
+ 
+ 
+ def t_effective_period_differs_open_vs_closed():
+-    """DoD (ج) — این تست تنها اثباتِ «فلیپ اثرِ واقعی دارد» است: عددِ برگشتی، نه
+-    فقط پرچمِ wire_open، باید بینِ بسته/باز فرق کند و با اجماعِ محاسبه‌شده یکی باشد."""
++    """G4: بازشدنِ outer wire بدون baseline، authority نمی‌سازد؛ با baseline معتبر
++    candidateِ دو قلب محاسبه می‌شود ولی حذفِ رأی shadow حقِ تسریع ندارد."""
+     views = _fixture_views()
+-    default_s = 777.0   # عمداً دور از بازهٔ اجماعِ ~۴۰-۵۰ — هم‌پوشانیِ تصادفی ممکن نیست
++    default_s = 777.0
+ 
+-    # مرجعِ مستقل: همان رأی‌ها را با arbitrate خام حساب کن (بدونِ عبور از wire_open)
+-    expected_consensus = pa.arbitrate(pa.gather_views(**views))["effective_period_s"]
+-    assert expected_consensus < 60.0, expected_consensus   # پیش‌شرطِ فیکسچر
++    expected_candidate = pa.arbitrate(pa.gather_views(**views))["effective_period_s"]
++    assert expected_candidate < 60.0, expected_candidate
+ 
+     _reset()
+     try:
+-        # بسته: هرگز override نمی‌کند — period_closed باید دقیقاً default باشد
+         period_closed, snap_closed = pa.effective_period_if_open(default_s, **views)
+         assert snap_closed["wire_open"] is False, snap_closed
+         assert period_closed == default_s, period_closed
+ 
+-        # باز: period_open باید periodِ *واقعیِ* اجماع باشد — نه default، نه رشتهٔ تنها
+         _arm_all()
+-        period_open, snap_open = pa.effective_period_if_open(default_s, **views)
++        period_no_base, snap_no_base = pa.effective_period_if_open(default_s, **views)
++        assert period_no_base == default_s
++        assert snap_no_base["wire_open"] is False
++        assert snap_no_base["authority_status"] == "NO_VALID_BASELINE"
++
++        previous = {
++            "schema": pa.SCHEMA, "effective_period_s": 98.11,
++            "wire_open": True, "written": True,
++        }
++        original = pa.read_latest
++        pa.read_latest = lambda: previous
++        try:
++            period_open, snap_open = pa.effective_period_if_open(default_s, **views)
++        finally:
++            pa.read_latest = original
+         assert snap_open["wire_open"] is True, snap_open
+-        assert period_open != period_closed, "فلیپ باید اثرِ رفتاریِ اندازه‌گیری‌پذیر داشته باشد"
+-        assert math.isclose(period_open, expected_consensus, rel_tol=1e-9), \
+-            (period_open, expected_consensus)
+-        assert math.isclose(period_open, snap_open["effective_period_s"], rel_tol=1e-9)
+-        assert snap_open["driver"] == "consensus", snap_open  # سه قلبِ واقعاً متحرک، نه برچسبِ تنها
+-        assert snap_open["n_present"] == 3 and snap_open["n_moving"] == 3, snap_open
++        assert snap_open["n_present"] == 2, snap_open
++        control = next(v for v in snap_open["votes"] if v["heart"] == "control_law")
++        assert control["present"] is False and control["eligible_for_live"] is False
++        assert control["authority"] == "SHADOW_ONLY"
++        assert math.isclose(snap_open["candidate_period_s"], expected_candidate, rel_tol=1e-9)
++        assert math.isclose(period_open, 98.11, rel_tol=1e-9), snap_open
++        assert snap_open["driver"] == "authority-hold"
++        assert snap_open["authority_hold_applied"] is True
+     finally:
+         _reset()
+ 

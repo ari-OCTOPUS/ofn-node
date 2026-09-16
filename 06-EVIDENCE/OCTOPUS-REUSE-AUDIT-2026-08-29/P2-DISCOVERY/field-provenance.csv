@@ -1,0 +1,13 @@
+field,type,required,status,canonical_producer,canonical_store,existing_at_owner_decide,claim_or_provenance,minted_or_observed,trust_boundary,signature_required,freshness_required,idempotency_role,pii_class,may_default,missing_behavior
+decision_id,str,yes,MISSING,UNKNOWN,UNKNOWN,UNKNOWN,CLAIM,MINTED,card_assembler,no,no,none,UNKNOWN,no,validate_missing_live_ignore
+run_id,str,yes,MISSING,UNKNOWN,UNKNOWN,UNKNOWN,PROVENANCE_IF_BOUND,UNKNOWN,UNKNOWN,no,no,witness_request_id,UNKNOWN,no,validate_missing
+lane,str,yes,MISSING,UNKNOWN,none_neighbor_tenant,tenant_only,CLAIM_if_mapped,tenant_OBSERVED,registry_vs_leg,no,no,none,UNKNOWN,no,validate_missing
+action,str,yes,AVAILABLE_UNVERIFIED,enqueue_kind,OutboxItem.kind,item.kind,CLAIM_kind_eq_action,OBSERVED,enqueue_to_owner,no,no,none,UNKNOWN,no,validate_missing
+recipient_masked,str,yes,MISSING,UNKNOWN,none,raw_to_sometimes,CLAIM,MINTED_mask,contract_vs_raw_packet,no,no,none,masked_vs_PII,no,validate_missing
+exact_payload,str,yes,DERIVABLE_LOSSY,UNKNOWN_at_decide,payload_dict,payload_dict,CLAIM_first_wins,OBSERVED_dict,owner_exact_bytes,no,no,none,often_PII,no,packet_refuses_until_approved
+payload_sha,str64hex,yes,MISSING,intended_sha256_exact_payload,none_at_decide,UNKNOWN,PROVENANCE_after_bytes,MINTED,executor_send,no,no,fake_approval_also,hash_of_PII,no,validate_missing
+artifact_sha,str64hex,yes,MISSING,UNKNOWN,none,UNKNOWN,PROVENANCE,MINTED,witness_card,no,no,witness_request_id,UNKNOWN,no,validate_missing
+verdict_sha,str64hex,yes,MISSING,UNKNOWN,none,UNKNOWN,CLAIM_if_ledger_reused,UNKNOWN,policy_card,no,no,none,UNKNOWN,no,validate_missing
+idempotency_key,str,yes,AVAILABLE_UNVERIFIED,enqueue_caller,outbox.idem_key_scoped,scoped_key,CLAIM_scoped_vs_unscoped,OBSERVED,item_id_tenant_prefix,no,no,UNIQUE_enqueue,UNKNOWN,no,enqueue_fail_closed
+expires_at,strZ,yes,MISSING,UNKNOWN,none,UNKNOWN,CLAIM_if_reused,UNKNOWN,fake_executor_clock,no,YES_fake_NO_validate_NO_live,none,UNKNOWN,no,format_or_missing
+rollback,str,yes,MISSING,UNKNOWN,none,UNKNOWN,CLAIM,UNKNOWN,owner_card,no,no,none,UNKNOWN,no,validate_missing

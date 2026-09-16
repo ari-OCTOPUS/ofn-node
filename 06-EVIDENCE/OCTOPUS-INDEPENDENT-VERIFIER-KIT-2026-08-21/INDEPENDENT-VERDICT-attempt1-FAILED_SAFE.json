@@ -1,0 +1,33 @@
+{
+ "schema": "kit-independent-verdict/1",
+ "generated_at": "2026-08-21T09:24:28.936367+00:00",
+ "exact_verified_head": "bfbb03f36a6510eafe6d4910625895a127c14e7c",
+ "implementation_head": "fa38d16cca944a80396ae1e1a16c547ab3122f78",
+ "verifier_identity": "sig-iv-0a7b37c5-independent-20260821",
+ "verifier_independent": true,
+ "independence_statement": "F:\\backup\\06-EVIDENCE\\OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21\\INDEPENDENT-SESSION-ATTESTATION.md",
+ "mode": "independent",
+ "confirmed": false,
+ "failed_checks": [
+  "send_log_unchanged_during_run",
+  "send_log_zero_delta_during_run"
+ ],
+ "checks": {
+  "all_receipts_pass": true,
+  "receipts_nonempty": true,
+  "receipts_match_head": true,
+  "registered_equals_executed": true,
+  "executed_equals_163": true,
+  "failed_zero": true,
+  "baseline_was_red": true,
+  "preregistered_experiments": true,
+  "memory_unchanged_during_run": true,
+  "miniapp_hits_unchanged_during_run": true,
+  "send_log_unchanged_during_run": false,
+  "send_log_zero_delta_during_run": false,
+  "provenance_distinct": true,
+  "manifest_hashes_match": true
+ },
+ "terminal_state": "FAILED_SAFE",
+ "note": "Attested independent session; identity recorded verbatim. This JSON alone is not proof of separation; the statement and session record must back it."
+}

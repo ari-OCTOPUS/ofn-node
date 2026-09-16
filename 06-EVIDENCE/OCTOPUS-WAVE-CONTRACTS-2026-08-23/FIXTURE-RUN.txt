@@ -1,0 +1,12 @@
+
+test_a13_is_pass_historical (__main__.WaveMessageContractsFixture.test_a13_is_pass_historical) ... ok
+test_a18_never_pass (__main__.WaveMessageContractsFixture.test_a18_never_pass) ... ok
+test_minimal_schema_shape (__main__.WaveMessageContractsFixture.test_minimal_schema_shape) ... ok
+test_required_waves_present (__main__.WaveMessageContractsFixture.test_required_waves_present) ... ok
+test_schema_const (__main__.WaveMessageContractsFixture.test_schema_const) ... ok
+test_wave_b_pollkinds_nonempty (__main__.WaveMessageContractsFixture.test_wave_b_pollkinds_nonempty) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.030s
+
+OK

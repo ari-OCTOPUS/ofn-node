@@ -1,0 +1,30 @@
+﻿{
+    "forbidden":  [
+                      "secret rotation/export",
+                      "broadcast / setWebhook mutation",
+                      "git add -A",
+                      "Center restart unless runbook says hot-reload safe",
+                      "lead_activation (out of scope)",
+                      "studio_wire (out of scope)",
+                      "Doctor auto-patch",
+                      "private keys"
+                  ],
+    "token":  "OCTOPUS-MONEY-WEBHOOK-WORKPUMP-20260822",
+    "mutate_device":  false,
+    "owner_choice":  "OPEN money/crypto/accounting PAID paths + webhook + work_pump paid on laptop OCTOPUS live tree F:\\backup",
+    "notes":  "Flip existing WIRING.json money-leg flags only. Do not invent new gate systems. Do not rotate/export secrets. Do not broadcast. Thematic evidence commit OK; no git add -A.",
+    "owner":  "Aroma Electronic",
+    "scope":  {
+                  "description":  "full scope for money/crypto/accounting paid + webhook + work_pump paid",
+                  "target":  "F:\\backup laptop OCTOPUS live tree",
+                  "allowed":  [
+                                  "money/crypto/accounting paid paths",
+                                  "webhook (policy authorize; no setWebhook broadcast)",
+                                  "work_pump paid"
+                              ]
+              },
+    "laptop_tree":  "F:\\backup",
+    "schema":  "octopus.owner-authorization.v1",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "timestamp":  "2026-08-22T18:55:18+10:00"
+}

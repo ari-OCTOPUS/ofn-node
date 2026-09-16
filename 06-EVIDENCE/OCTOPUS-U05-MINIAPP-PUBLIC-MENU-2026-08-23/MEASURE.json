@@ -1,0 +1,117 @@
+{
+  "schema": "u05-measure.v1",
+  "ts_utc": "2026-08-23T06:02:43Z",
+  "env_visible": {
+    "OCTOPUS_TG_MINIAPP": "1",
+    "OCTOPUS_MINIAPP_URL": "https://app.master-painting.com",
+    "OCTOPUS_PF_MINIAPP": "1",
+    "TG_CENTER_BOT_TOKEN_set": false,
+    "TELEGRAM_OWNER_CHAT_ID_set": false
+  },
+  "env_loader_keys_reported": [
+    "DEEPSEEK_API_KEY",
+    "FUGU_API_KEY",
+    "GLM_API_KEY",
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_OWNER_CHAT_ID",
+    "ZAI_API_KEY"
+  ],
+  "env_visible_after_loader": {
+    "TG_CENTER_BOT_TOKEN_set": true,
+    "TELEGRAM_OWNER_CHAT_ID_set": true,
+    "TELEGRAM_BOT_TOKEN_set": true
+  },
+  "http": {
+    "local_root": {
+      "ok": false,
+      "status": null,
+      "error": "timed out"
+    },
+    "local_miniapp": {
+      "ok": false,
+      "status": null,
+      "error": "timed out"
+    },
+    "public_root": {
+      "ok": true,
+      "status": 200,
+      "bytes_read": 1200,
+      "looks_miniapp_shell": true,
+      "has_telegram_script": false
+    },
+    "public_miniapp": {
+      "ok": true,
+      "status": 200,
+      "bytes_read": 1200,
+      "looks_miniapp_shell": true,
+      "has_telegram_script": false
+    }
+  },
+  "gateway_pid": 12220,
+  "gateway_cmd": "\"C:\\Program Files\\Python313\\python.exe\" -X utf8 F:\\backup\\_ops\\telegram_center\\miniapp_gateway.py",
+  "cloudflared": [
+    {
+      "pid": 6560,
+      "targets_8774": false,
+      "named_octopus_miniapp": false,
+      "kind_hint": "octopus-cp"
+    },
+    {
+      "pid": 8512,
+      "targets_8774": true,
+      "named_octopus_miniapp": true,
+      "kind_hint": "named-miniapp"
+    }
+  ],
+  "miniapp_url_json": {
+    "url": "https://app.master-painting.com",
+    "kind": "named",
+    "started": "2026-08-22T10:48:15Z",
+    "age_hours": 0.001,
+    "fresh_lt_24h": true
+  },
+  "center_path_sim": {
+    "OCTOPUS_TG_MINIAPP": true,
+    "url_from_json": "https://app.master-painting.com",
+    "url_from_env": "https://app.master-painting.com",
+    "resolved_ops_miniapp_url": "https://app.master-painting.com",
+    "config_needed_for_missing_url": false
+  },
+  "agi2027_ui_sim": {
+    "OCTOPUS_MINIAPP_URL": "https://app.master-painting.com",
+    "status": "OK_URL_PRESENT"
+  },
+  "registration": {
+    "attempted": true,
+    "token_present": true,
+    "owner_chat_set": true,
+    "status": {
+      "schema": "miniapp-registration.v1",
+      "state": "registered",
+      "ok": true,
+      "has_main_web_app": true,
+      "menu_button": "web_app",
+      "menu_matches_live_url": true,
+      "ephemeral_host": false,
+      "why": "تلگرام درِ مینی‌اپ را می‌شناسد"
+    }
+  },
+  "menu_mutate": {
+    "decision": "SKIP_ALREADY_MATCHING",
+    "reason": "miniapp_registration.status: state=registered ok=true menu_button=web_app menu_matches_live_url=true — setChatMenuButton not required"
+  },
+  "local_http_quick": {
+    "/": {
+      "elapsed_ms": 18,
+      "status_line": "HTTP/1.0 200 OK",
+      "body_len": 4889,
+      "looks_shell": true
+    },
+    "/miniapp": {
+      "elapsed_ms": 2,
+      "status_line": "HTTP/1.0 200 OK",
+      "body_len": 4889,
+      "looks_shell": true
+    }
+  }
+}

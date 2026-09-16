@@ -1,0 +1,50 @@
+﻿{
+    "captured_at_utc":  "2026-08-22T22:01:49.7168921Z",
+    "flags_cmd_line":  "set OCTOPUS_WIRE_EPISTEMICS=1",
+    "control_flags":  {
+                          "HALT-ALL":  false,
+                          "STOP-TG-CENTER":  false,
+                          "RESTART-REQUESTED":  false,
+                          "architect_STOP":  false,
+                          "STOP-ORGANISM":  false
+                      },
+    "timezone_note":  "machine local; user Australia/Sydney UTC+10",
+    "flags_loaded_pre":  {
+                             "OCTOPUS_WIRE_EPISTEMICS":  "1",
+                             "path":  "F:\\backup\\_ops\\state\\flags-loaded-organism.json",
+                             "pid_recorded":  26900
+                         },
+    "captured_at_local":  "2026-08-23T08:01:49",
+    "constraints":  {
+                        "method":  "RESTART-REQUESTED",
+                        "secrets":  false,
+                        "center_untouched":  true,
+                        "dead_letter":  false,
+                        "live_tg_send":  false
+                    },
+    "phase":  "PRE",
+    "port_8771":  {
+                      "netstat_sample":  "TCP    127.0.0.1:8771         0.0.0.0:0              LISTENING       26900",
+                      "listening":  true
+                  },
+    "env_flag":  {
+                     "path":  "F:\\backup\\.env",
+                     "full_env_printed":  false,
+                     "mtime":  "2026-08-23T07:58:38",
+                     "line":  "OCTOPUS_WIRE_EPISTEMICS=1"
+                 },
+    "schema":  "octopus-epistemics-wire-on-reload/1",
+    "pids":  {
+                 "organism":  {
+                                  "start_local":  "2026-08-23T03:53:17",
+                                  "pid":  26900,
+                                  "cmdline":  "python -X utf8 organism.py"
+                              },
+                 "center":  {
+                                "start_local":  "2026-08-22T19:28:37",
+                                "must_survive":  true,
+                                "pid":  35916,
+                                "cmdline":  "python -X utf8 telegram_center\\center.py"
+                            }
+             }
+}

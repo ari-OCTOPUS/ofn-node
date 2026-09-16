@@ -1,0 +1,51 @@
+schema: octopus.homeostasis.v1
+profile: WAVE0_IDLE
+version: 2
+readiness_profile: WAVE0_OBSERVE_ONLY
+actuator_authority: NONE
+note: >
+  WAVE0_IDLE uses healthy ranges, not attractive setpoints.
+  CPU is not pulled toward 45 percent. model_skill and prediction_calibration
+  stay UNKNOWN until 50 paired prediction outcomes exist. Missing is never
+  written as 0.0. Mode is advisory; the host is never locked down.
+
+variables:
+  compute_pressure:
+    source: cpu_utilisation
+    healthy: [0.00, 0.70]
+    critical_high: 0.90
+
+  memory_pressure:
+    source: memory_used_ratio
+    healthy: [0.00, 0.75]
+    critical_high: 0.90
+
+  thermal_integrity:
+    source: soc_temperature_celsius
+    healthy: [20, 70]
+    critical_high: 80
+
+  storage_integrity:
+    source: disk_used_ratio
+    healthy: [0.00, 0.80]
+    critical_high: 0.92
+
+  evidence_freshness:
+    source: evidence_age_seconds
+    healthy: [0, 15]
+    critical_high: 60
+
+  sensor_coverage:
+    source: usable_active_over_expected
+    healthy: [0.90, 1.00]
+    critical_low: 0.70
+
+  model_skill:
+    source: world_model_skill
+    healthy: [0.10, 1.00]
+    critical_low: 0.00
+
+  prediction_calibration:
+    source: world_model_calibration_error
+    healthy: [0.00, 0.10]
+    critical_high: 0.25

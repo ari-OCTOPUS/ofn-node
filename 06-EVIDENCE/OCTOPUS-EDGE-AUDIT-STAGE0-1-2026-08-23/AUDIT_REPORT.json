@@ -1,0 +1,272 @@
+{
+  "schema": "octopus.edge.audit.v1",
+  "mission": "edge-senior-audit-stage0-1",
+  "read_only": true,
+  "mutations_performed": false,
+  "window": {
+    "timezone_assumed": "Australia/Sydney UTC+10 (AEST; DST not auto-probed)",
+    "now_utc": "2026-08-23T03:13:44.963273+00:00",
+    "now_local": "2026-08-23T13:13:44.963273+10:00",
+    "window_start_local": "2026-08-23T07:13:44.963273+10:00",
+    "window_end_local": "2026-08-23T13:13:44.963273+10:00",
+    "window_hours": 6
+  },
+  "assumptions_from_owner": {
+    "core": "F:\\backup\\_ops (stated)",
+    "nats_control": "nats://192.168.0.182:4222 (stated)",
+    "evidence_write": "allowed under /var/lib/octopus/evidence and F:\\backup\\06-EVIDENCE"
+  },
+  "node_facts_observed": {
+    "hostname": "sensorium-opi5pro",
+    "machine_id": "3da939da38d14fc98267a5b94c519c51"
+  },
+  "git_info": [],
+  "definitions": {
+    "process_alive": "OS process exists",
+    "service_active": "systemd is-active==active",
+    "functional_health": "component produces expected outputs within SLO",
+    "data_freshness": "last successful artifact age within threshold",
+    "connectivity": "listener or link up",
+    "e2e_success": "Core↔Edge command round-trip proven",
+    "feed_coverage": "LAST_RUN.ok_count / len(ALLOWLIST.feeds)",
+    "homeo_coverage": "same as feed coverage in current snapshot implementation"
+  },
+  "checks": [
+    {
+      "check_id": "S1_SENSORIUM_ACTIVE",
+      "name": "unit octopus-sensorium.service active",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:46.638169+00:00",
+      "command_or_method": "systemctl is-active octopus-sensorium.service",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_S1_SENSORIUM_ACTIVE.txt",
+      "exit_code": 0,
+      "summary": "active | enabled",
+      "risk": "low",
+      "recommended_action": "none"
+    },
+    {
+      "check_id": "S1_NATS_ACTIVE",
+      "name": "unit nats-server.service active",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:46.681826+00:00",
+      "command_or_method": "systemctl is-active nats-server.service",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_S1_NATS_ACTIVE.txt",
+      "exit_code": 0,
+      "summary": "active | enabled",
+      "risk": "low",
+      "recommended_action": "none"
+    },
+    {
+      "check_id": "S1_MOSQUITTO_ACTIVE",
+      "name": "unit mosquitto.service active",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:46.730888+00:00",
+      "command_or_method": "systemctl is-active mosquitto.service",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_S1_MOSQUITTO_ACTIVE.txt",
+      "exit_code": 0,
+      "summary": "active | enabled",
+      "risk": "low",
+      "recommended_action": "none"
+    },
+    {
+      "check_id": "S1_FEEDS_TIMER_ACTIVE",
+      "name": "unit octopus-external-feeds.timer active",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:46.778080+00:00",
+      "command_or_method": "systemctl is-active octopus-external-feeds.timer",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_S1_FEEDS_TIMER_ACTIVE.txt",
+      "exit_code": 0,
+      "summary": "active | enabled",
+      "risk": "low",
+      "recommended_action": "none"
+    },
+    {
+      "check_id": "S1_HOMEO_TIMER_ACTIVE",
+      "name": "unit octopus-homeo-feeds-snapshot.timer active",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:46.814305+00:00",
+      "command_or_method": "systemctl is-active octopus-homeo-feeds-snapshot.timer",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_S1_HOMEO_TIMER_ACTIVE.txt",
+      "exit_code": 0,
+      "summary": "active | enabled",
+      "risk": "low",
+      "recommended_action": "none"
+    },
+    {
+      "check_id": "S1_FEEDS_LAST_RUN",
+      "name": "external feeds last run success+freshness",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:46.824992+00:00",
+      "command_or_method": "read LAST_RUN.json + ALLOWLIST.json",
+      "evidence_path": "/var/lib/octopus/state/external_feeds/LAST_RUN.json",
+      "exit_code": 0,
+      "summary": "ok=7/7 ts=20260823T030751Z age_s=354 fail=[]",
+      "risk": "low",
+      "recommended_action": "inspect feed timer/logs if not PASS"
+    },
+    {
+      "check_id": "S1_HOMEO_SNAPSHOT",
+      "name": "homeostasis feeds snapshot advisory freshness",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:46.908070+00:00",
+      "command_or_method": "read feeds_snapshot.json",
+      "evidence_path": "/var/lib/octopus/state/homeostasis/feeds_snapshot.json",
+      "exit_code": 0,
+      "summary": "mode=normal severity=healthy coverage={'value': 1.0, 'status': 'healthy'} age_s=882 mutates_host=False denom=allowlist_feeds expected=7",
+      "risk": "low",
+      "recommended_action": "none if PASS; else check homeo timer"
+    },
+    {
+      "check_id": "S1_MQTT_LOCAL_ONLY",
+      "name": "MQTT loopback auth + WAN closed",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:47.099042+00:00",
+      "command_or_method": "ss + mosquitto_sub anon + ufw grep",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_ss_1883.txt",
+      "exit_code": 0,
+      "summary": "loopback=True wan_listen=False anon_denied=True ufw=none",
+      "risk": "low",
+      "recommended_action": "harden bind if FAIL"
+    },
+    {
+      "check_id": "S1_NATS_LISTEN",
+      "name": "NATS server listening",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:47.129056+00:00",
+      "command_or_method": "ss -lntp",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_ss_nats.txt",
+      "exit_code": 0,
+      "summary": "LISTEN 0      4096       127.0.0.1:8222      0.0.0.0:*    users:((\"nats-server\",pid=376611,fd=3))\nLISTEN 0      4096   192.168.0.182:4222      0.0.0.0:*    users:((\"nats-server\",pid=376611,fd=6))",
+      "risk": "medium",
+      "recommended_action": "E2E to Core still REQUIRED separately — listen≠round-trip"
+    },
+    {
+      "check_id": "S1_NATS_E2E_TO_CORE",
+      "name": "NATS end-to-end with Octopus Core",
+      "status": "UNKNOWN",
+      "observed_at": "2026-08-23T03:13:47.129383+00:00",
+      "command_or_method": "not executed this stage (pending Core peer + approved command path)",
+      "evidence_path": "",
+      "exit_code": null,
+      "summary": "Process listen on :4222 observed; Core round-trip NOT proven",
+      "risk": "high",
+      "recommended_action": "run collect_diagnostics E2E after Core peer confirmation"
+    },
+    {
+      "check_id": "S1_DOCTOR_FRESHNESS",
+      "name": "doctor report freshness+readonly",
+      "status": "STALE",
+      "observed_at": "2026-08-23T03:13:47.130722+00:00",
+      "command_or_method": "read doctor/latest.json",
+      "evidence_path": "/var/lib/octopus/state/doctor/latest.json",
+      "exit_code": 0,
+      "summary": "status=PASS repairs=0 age_s=51509 blocking=[]",
+      "risk": "medium",
+      "recommended_action": "run readonly doctor rerun when approved (still no repair)"
+    },
+    {
+      "check_id": "S1_ARMED_FALSE",
+      "name": "ARMED false",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:47.131425+00:00",
+      "command_or_method": "read ARMED.json",
+      "evidence_path": "/var/lib/octopus/state/reflex/ARMED.json",
+      "exit_code": 0,
+      "summary": "{\"armed\": false, \"locked\": false, \"owner_approval\": \"required\", \"criteria\": \"/etc/octopus/reflex_arming_criteria.yaml\", \"note\": \"WAVE0 advisory; do not arm\"}",
+      "risk": "low",
+      "recommended_action": "disarm if FAIL"
+    },
+    {
+      "check_id": "S1_SOFT_LATCH_PRESENT",
+      "name": "soft latch file present uncleared live",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:47.131601+00:00",
+      "command_or_method": "read ESTOP_LATCH.json",
+      "evidence_path": "/var/lib/octopus/state/wave0/ESTOP_LATCH.json",
+      "exit_code": 0,
+      "summary": "asserted=False reason=G06_LEAVE_CLEARED_LATCH_LIVE",
+      "risk": "medium",
+      "recommended_action": "not a physical interlock"
+    },
+    {
+      "check_id": "S1_PHYSICAL_INTERLOCK",
+      "name": "physical estop / safety_mcu",
+      "status": "ABSENT",
+      "observed_at": "2026-08-23T03:13:47.131758+00:00",
+      "command_or_method": "board.yaml safety_mcu/estop_channel",
+      "evidence_path": "/etc/octopus/config/board.yaml",
+      "exit_code": 0,
+      "summary": "safety_mcu ABSENT; soft latch ≠ physical",
+      "risk": "high",
+      "recommended_action": "keep actuation BLOCKED"
+    },
+    {
+      "check_id": "S1_ESP32",
+      "name": "ESP32 serial present",
+      "status": "ABSENT",
+      "observed_at": "2026-08-23T03:13:47.131978+00:00",
+      "command_or_method": "ls /dev/ttyUSB* /dev/ttyACM*",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage0_hw_dev.txt",
+      "exit_code": 0,
+      "summary": "no USB serial ESP devices observed in stage0 hw_dev listing (see raw)",
+      "risk": "medium",
+      "recommended_action": "Phase B deferred"
+    },
+    {
+      "check_id": "S1_ACTUATION",
+      "name": "actuator fire / PWM evidence last 6h",
+      "status": "UNKNOWN",
+      "observed_at": "2026-08-23T03:13:47.132211+00:00",
+      "command_or_method": "journal grep pwm/gpio + ARMED false",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_journal_sensorium.txt",
+      "exit_code": 0,
+      "summary": "No dedicated PWM audit tool run; ARMED=false; physical ABSENT — treat actuation as BLOCKED not proven-fired",
+      "risk": "high",
+      "recommended_action": "keep BLOCKED; optional deeper journal scan"
+    },
+    {
+      "check_id": "S1_PWM_GPIO_LOG_HITS",
+      "name": "pwm/gpio keyword hits in journal 6h",
+      "status": "PASS",
+      "observed_at": "2026-08-23T03:13:47.156413+00:00",
+      "command_or_method": "journalctl | rg pwm|gpio|actuator",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_journal_pwm_gpio.txt",
+      "exit_code": 0,
+      "summary": "no keyword hits in 6h journal sample",
+      "risk": "low",
+      "recommended_action": "none"
+    },
+    {
+      "check_id": "S1_METRICS_9101",
+      "name": "metrics :9101 bind",
+      "status": "DEGRADED",
+      "observed_at": "2026-08-23T03:13:47.156754+00:00",
+      "command_or_method": "ss -lntp",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage0_ss.txt",
+      "exit_code": 0,
+      "summary": "0.0.0.0:9101 observed earlier — LAN metrics exposure; not MQTT WAN but not loopback-only",
+      "risk": "medium",
+      "recommended_action": "document allowlist / confirm UFW LAN-only policy"
+    },
+    {
+      "check_id": "S1_TELEGRAM_ON_PI",
+      "name": "live Telegram on Pi OCTOPUS path",
+      "status": "ABSENT",
+      "observed_at": "2026-08-23T03:13:47.163156+00:00",
+      "command_or_method": "rg telegram paths",
+      "evidence_path": "/var/lib/octopus/evidence/session-edge-audit-20260823/raw/stage1_telegram_paths.txt",
+      "exit_code": 0,
+      "summary": "paths=none",
+      "risk": "low",
+      "recommended_action": "keep TG off Pi WAVE0 control"
+    }
+  ],
+  "overall_status": "DEGRADED",
+  "overall_reason": "Doctor STALE and/or NATS E2E UNKNOWN and/or physical interlock ABSENT prevent HEALTHY",
+  "next": [
+    "Approve readonly doctor rerun",
+    "Confirm repo path/branch + repo mutate policy",
+    "Approve E2E collect_diagnostics against Core",
+    "Then Stage2+ AS-IS/TO-BE and Gateway design"
+  ]
+}

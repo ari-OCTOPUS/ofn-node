@@ -1,0 +1,71 @@
+=== .git dirs (root+worktrees+others) ===
+./.git
+./04 - Architect System/architect/_code/ai-farm/AI-sume/.git
+./07 - Knowledge/genome-system/.git
+
+=== bundles/packs ===
+./.claude/worktrees/fugu-ultra-remediation-d10abc/03 - Projects/NBB-Control-Plane/nbb-control-plane-history.bundle
+./.claude/worktrees/great-spence-d84352/03 - Projects/NBB-Control-Plane/nbb-control-plane-history.bundle
+./.claude/worktrees/hybrid-control-plane-megaprompt-bd4b21/app/nbb-control-plane-history.bundle
+./.claude/worktrees/octopus-p0-fixes-418a9a/03 - Projects/NBB-Control-Plane/nbb-control-plane-history.bundle
+./.claude/worktrees/organism-alive-69a5db/03 - Projects/NBB-Control-Plane/nbb-control-plane-history.bundle
+./.claude/worktrees/telegram-operational-control-de7666/app/nbb-control-plane-history.bundle
+./03 - Projects/NBB-Control-Plane/nbb-control-plane-history.bundle
+
+=== root repo facts ===
+1db8894597e755b4c129be79bf92b72c791a049c
+equip/g10-cognition-20260816
+germline	E:/germline/octopus.git (fetch)
+germline	E:/germline/octopus.git (push)
+dirty_files: 411
+worktrees:
+F:/backup                                                           1db8894 [equip/g10-cognition-20260816]
+F:/backup/.claude/worktrees/fugu-ultra-remediation-d10abc           803ce70 [fugu-ultra-remediation-d10abc]
+F:/backup/.claude/worktrees/great-spence-d84352                     38edf53 (detached HEAD)
+F:/backup/.claude/worktrees/hybrid-control-plane-megaprompt-bd4b21  9ffa075 [claude/hybrid-control-plane-megaprompt-bd4b21]
+F:/backup/.claude/worktrees/octopus-p0-fixes-418a9a                 38edf53 (detached HEAD)
+F:/backup/.claude/worktrees/organism-alive-69a5db                   bfc673f [claude/deep-scans-octopus-automation-732592]
+stashes: 3
+
+=== untracked/new in status (top 12) ===
+ M .gitignore
+ M "00 - Inbox/2026-08-16 DAY-INDEX (MOC).md"
+ M "00 - Inbox/2026-08-16 DISCOVERY \342\200\224 Continuous Improve A-C-F.md"
+ M "00 - Inbox/2026-08-16 DISCOVERY \342\200\224 Deep-Seams Ledger.md"
+ M "00 - Inbox/2026-08-16 DISCOVERY \342\200\224 Unwired & Dead Paths Catalog.md"
+ M "00 - Inbox/2026-08-16 DISCOVERY \342\200\224 WebPanel Cards.md"
+ M "00 - Inbox/2026-08-16 MEGAPROMPT \342\200\224 Owner Close.md"
+ M "00 - Inbox/2026-08-16 MEGAPROMPT \342\200\224 Owner Ease.md"
+ M "00 - Inbox/2026-08-16 MEGAPROMPT \342\200\224 Perpetual Perfect.md"
+ M "00 - Inbox/2026-08-16 MEGAPROMPT \342\200\224 Seam Loop Self-Improve.md"
+ M "00 - Inbox/2026-08-16 OWNER-PENDING \342\200\224 All Open Items (Master Checklist).md"
+ M "00 - Inbox/2026-08-17 MORNING-CARDS.md"
+=== last 3 commits ===
+1db8894 2026-08-18 21:04:24 +1000 wire-run cycle-16: heartbeat push stalled again (10h, same beat 1861) — board agent-layer silent ~38h, w004 pending
+03c3bf0 2026-08-18 19:02:06 +1000 docs(watch D+1): n=80 bayes, Brier unchanged 0.0001 (400x vs persistence) — all y=1, calibration untested at >=5.0; recommend >=6.0 upgrade for real test
+9b820e9 2026-08-18 19:00:57 +1000 wire-run cycle-15: heartbeat service alive (beat 1861) but push flaky (2nd fail 10:29) — w004 unanswered, probe-4 pending
+
+=== E:/germline mirror ===
+total 32
+drwxr-xr-x 1 Armin 197121   0 Aug 17 23:10 .
+drwxr-xr-x 1 Armin 197121   0 Aug 18 17:12 ..
+-rw-r--r-- 1 Armin 197121  49 Jul 20 18:30 HEAD
+-rw-r--r-- 1 Armin 197121 113 Jul 21 00:29 config
+
+=== other two repos quick facts ===
+-- 04 - Architect System/architect/_code/ai-farm/AI-sume
+1db8894 2026-08-18 21:04:24 +1000 wire-run cycle-16: heartbeat push stalled again (10h, same beat 1861) — board agent-layer silent ~38h, w004 pending
+411
+germline	E:/germline/octopus.git (fetch)
+germline	E:/germline/octopus.git (push)
+-- 07 - Knowledge/genome-system
+1db8894 2026-08-18 21:04:24 +1000 wire-run cycle-16: heartbeat push stalled again (10h, same beat 1861) — board agent-layer silent ~38h, w004 pending
+411
+germline	E:/germline/octopus.git (fetch)
+germline	E:/germline/octopus.git (push)
+
+=== service-inventory envelope peek ===
+{
+ "schema": "octopus-service-inventory/1"
+}
+keys: ['schema', 'generated_at', 'host', 'host_ipv4', 'canonical', 'continuity_candidate', 'gitwrite_failed', 'gitwrite_failed_path', 'actions', 'counts', 'proposed_first_move', 'live_pids', 'live_ports', 'nats', 'handshake_sidecar_running']

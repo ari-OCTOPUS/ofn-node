@@ -1,0 +1,143 @@
+{
+  "action": "none",
+  "agent_id": "agent://octopus/lab-180/a2-001",
+  "board_id": "octopus-continuity-180",
+  "canonical": false,
+  "effect_authority": "none",
+  "event_time": "2026-08-17T18:08:48Z",
+  "outcome": "BASE_COMMIT_UNAVAILABLE",
+  "payload": {
+    "a2_002_started": false,
+    "a2_003_started": false,
+    "action": "none",
+    "artifacts": {
+      "baseline_log": "/opt/octopus/a2-lab/quarantine/run-20260817T180808Z-a2-001-execute/baseline.log",
+      "denied_path_scan": "/opt/octopus/a2-lab/quarantine/run-20260817T180808Z-a2-001-execute/denied-path-scan.json",
+      "diff_hash": null,
+      "patch": "/opt/octopus/a2-lab/quarantine/run-20260817T180808Z-a2-001-execute/patch.diff",
+      "quarantine_dir": "/opt/octopus/a2-lab/quarantine/run-20260817T180808Z-a2-001-execute",
+      "repeated_run_comparison": "/opt/octopus/a2-lab/quarantine/run-20260817T180808Z-a2-001-execute/repeated-run-comparison.txt",
+      "reviewer_verdict": "/opt/octopus/a2-lab/quarantine/run-20260817T180808Z-a2-001-execute/reviewer-verdict.json",
+      "secret_scan": "/opt/octopus/a2-lab/quarantine/run-20260817T180808Z-a2-001-execute/secret-scan.json",
+      "test_logs": "/opt/octopus/a2-lab/quarantine/run-20260817T180808Z-a2-001-execute/test.log"
+    },
+    "binding_fields": {
+      "allowed_paths": [
+        "schemas/",
+        "octopus_bridge/",
+        "tests/",
+        "docs/"
+      ],
+      "base_commit": "d10887cbb5c80ec2c3e347f070556ba8276d8a79",
+      "branch": "equip/g10-cognition-20260816",
+      "input_manifest_hash": "a002cf6d012d409508acf6e6f113eaf62266b4ca3b379ae9850f06c3dda8a807",
+      "repo_locator": "F:\\backup\\octopus-bridge",
+      "task_id": "A2-001"
+    },
+    "canonical": false,
+    "confidence": "high",
+    "denied_path_scan": {
+      "mutated": false,
+      "paths": {
+        "/etc/systemd/system/octopus-gateway.service": {
+          "expected": "6662ed7a76ca3c4d2274c48e1841f87f01ef67ab63a6c35a9201ddc953655f07",
+          "sha256": "6662ed7a76ca3c4d2274c48e1841f87f01ef67ab63a6c35a9201ddc953655f07",
+          "unchanged": true
+        },
+        "/opt/octopus/a2-lab/POLICY.json": {
+          "expected": "d533df68c8fde797e65909d65289a116e8e779c6fa5d729519f8854ab4886ded",
+          "sha256": "d533df68c8fde797e65909d65289a116e8e779c6fa5d729519f8854ab4886ded",
+          "unchanged": true
+        },
+        "/opt/octopus/bin/mirror-pull.sh": {
+          "expected": "d913d2de071d29b4467bce2a9907e45e59e617659026b4b7cd7d22171f6e19f2",
+          "sha256": "d913d2de071d29b4467bce2a9907e45e59e617659026b4b7cd7d22171f6e19f2",
+          "unchanged": true
+        },
+        "/opt/octopus/config.env": {
+          "expected": "81030d0fc65ef22755067b2f320458cbb4088ee4d78b544ced86feeb2b7ee767",
+          "sha256": "81030d0fc65ef22755067b2f320458cbb4088ee4d78b544ced86feeb2b7ee767",
+          "unchanged": true
+        },
+        "/opt/octopus/gateway/app.py": {
+          "expected": "c870e291c67e2b8aa887e426af953fa8211fb6cbf89d4135d231de5a40aff5f3",
+          "sha256": "c870e291c67e2b8aa887e426af953fa8211fb6cbf89d4135d231de5a40aff5f3",
+          "unchanged": true
+        }
+      },
+      "scan": "denied_live_paths"
+    },
+    "deployed": false,
+    "effect_authority": "none",
+    "finished_at": "2026-08-17T18:08:48Z",
+    "halt_reason": "git object d10887cbb5c80ec2c3e347f070556ba8276d8a79 is absent on .180; fetch and SSH are denied",
+    "local_git": {
+      "existing_a2_001_commit": "b5fb96764fdfa59b03834f746175990067e1d9c0",
+      "existing_a2_001_reused": false,
+      "existing_a2_001_worktree": "/opt/octopus/a2-lab/worktrees/A2-001",
+      "master": "029dd40274a87e5a6024232ccf29d0718fb738ac",
+      "note": "pre-existing sandbox worktree is not the authorized detached worktree from d10887cb",
+      "octopus_bridge_dirs": [
+        "/opt/octopus/a2-lab/worktrees/A2-001/octopus-bridge"
+      ],
+      "remotes": [],
+      "sandbox_repo": "/opt/octopus/a2-lab/sandbox-repo"
+    },
+    "merged": false,
+    "node_id": ".180",
+    "outcome": "BASE_COMMIT_UNAVAILABLE",
+    "phase1": {
+      "ack_path": "/opt/octopus/a2-lab/envelopes/run-20260817T175442Z-a2-001-binding-ack.json",
+      "ack_reused": true,
+      "ack_sha256": "a2f0fce71b9327b57703b3695a06895745547c9541f4ccd8374bee8f4e859ae8",
+      "binding_path": "/opt/octopus/a2-lab/inbox/TO-180-A2-001-binding.json",
+      "expected_sha256": "95527b069a15af1cd45d35894d7e42861fc9b30fffa8b2c269a43392216f7d68",
+      "hash_match": true,
+      "observed_sha256": "95527b069a15af1cd45d35894d7e42861fc9b30fffa8b2c269a43392216f7d68",
+      "worktree_created_in_ack": false
+    },
+    "phase2": {
+      "ack_sha256_match": true,
+      "authorization": "EXECUTION_AUTHORIZATION_A2-001",
+      "base_commit": "d10887cbb5c80ec2c3e347f070556ba8276d8a79",
+      "base_commit_present_locally": false,
+      "baseline": "NOT_RUN",
+      "cloned": false,
+      "deepseek_invoked": false,
+      "execution_authorization_path": "/opt/octopus/a2-lab/inbox/TO-180-A2-001-execution-authorization.json",
+      "execution_authorization_sha256": "9fb65045556362c02482035aed9ed957c318669d064a955b36d42bf1230fb771",
+      "expected_input_manifest_hash": "a002cf6d012d409508acf6e6f113eaf62266b4ca3b379ae9850f06c3dda8a807",
+      "fetched": false,
+      "fresh_worktree_created": false,
+      "from_node": ".191",
+      "fugu_invoked": false,
+      "implemented": false,
+      "packet_hash_match": true,
+      "packet_hash_observed": "a7dc5dfde2c96f655a91a50deb8c581160980784edd8a3d548eb926bea101b11",
+      "packet_hash_recomputed": "a7dc5dfde2c96f655a91a50deb8c581160980784edd8a3d548eb926bea101b11",
+      "source_manifest_verified": false,
+      "ssh": false,
+      "to_node": ".180"
+    },
+    "production": false,
+    "pushed": false,
+    "report_hash": "a8d4c8cdb89cecd2647b2f2c159d888262b7b0ef6f79fec44ace7bc3fbe3e7ed",
+    "reviewer_verdict": "NOT_REQUESTED_HALTED",
+    "run_id": "run-20260817T180808Z-a2-001-execute",
+    "secret_scan": "NOT_RUN_NO_AUTHORIZED_WORKTREE",
+    "started_at": "2026-08-17T18:08:08Z",
+    "task_id": "A2-001",
+    "timestamp_utc": "2026-08-17T18:08:48Z",
+    "timestamp_utc_plus_10": "2026-08-18T04:08:48+1000",
+    "uncertainty": [
+      "repo_locator F:\\backup\\octopus-bridge is not mounted on .180",
+      "source tree for input_manifest_hash a002cf6d012d409508acf6e6f113eaf62266b4ca3b379ae9850f06c3dda8a807 is not present locally",
+      "pre-existing sandbox A2-001 at b5fb96764fdfa59b03834f746175990067e1d9c0 is not canonical and was not reused"
+    ]
+  },
+  "recorded_at": "2026-08-17T18:08:48Z",
+  "schema": "octopus.evidence.envelope.lab-180.v1",
+  "source_hash": "c389e280aa011dcc509da366a3c36614cff53228173e121d06b54114a20c8a77",
+  "timestamp_utc": "2026-08-17T18:08:48Z",
+  "timestamp_utc_plus_10": "2026-08-18T04:08:48+1000"
+}

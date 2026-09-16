@@ -1,0 +1,40 @@
+Aug 24 04:04:20 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 04:04:28 sensorium-opi5pro python[431952]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 04:04:28 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 04:04:28 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 04:19:20 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 04:19:27 sensorium-opi5pro python[432103]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 04:19:27 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 04:19:27 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 04:34:23 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 04:34:30 sensorium-opi5pro python[432232]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 04:34:30 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 04:34:30 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 04:49:27 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 04:49:32 sensorium-opi5pro python[432361]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 04:49:32 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 04:49:32 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 05:04:30 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 05:04:36 sensorium-opi5pro python[432500]: {"ok_count": 6, "fail": [{"name": "timeapi_io_sydney", "error": "<urlopen error [Errno 104] Connection reset by peer>"}], "published_n": 6, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 05:04:36 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 05:04:36 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 05:19:34 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 05:19:41 sensorium-opi5pro python[432661]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 05:19:41 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 05:19:41 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 05:34:37 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 05:34:43 sensorium-opi5pro python[432923]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 05:34:43 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 05:34:43 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 05:49:40 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 05:49:46 sensorium-opi5pro python[433054]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 05:49:46 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 05:49:46 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 06:04:44 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 06:04:50 sensorium-opi5pro python[433209]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 06:04:50 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 06:04:50 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).
+Aug 24 06:19:44 sensorium-opi5pro systemd[1]: Starting octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only)...
+Aug 24 06:19:50 sensorium-opi5pro python[433506]: {"ok_count": 7, "fail": [], "published_n": 7, "sensor_ids": ["OCT-FEED-OPENMETEO", "OCT-FEED-AQI", "OCT-FEED-TIME", "OCT-FEED-FX-AUD", "OCT-FEED-BOM-SYD", "OCT-FEED-NEWS-AU", "OCT-FEED-USGS-QUAKE"]}
+Aug 24 06:19:50 sensorium-opi5pro systemd[1]: octopus-external-feeds.service: Deactivated successfully.
+Aug 24 06:19:50 sensorium-opi5pro systemd[1]: Finished octopus-external-feeds.service - OCTOPUS EXTERNAL_PUBLIC_FEED Phase A ingest (observe-only).

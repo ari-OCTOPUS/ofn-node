@@ -1,0 +1,53 @@
+{
+  "schema": "octopus-u02-measure.v1",
+  "ts_local": "2026-08-23T16:19:30+10:00",
+  "ts_utc": "2026-08-23T06:19:30Z",
+  "id": "U02",
+  "before": {
+    "connector_gap_hook": true,
+    "loader_exists": true,
+    "loader_path": "F:\\backup\\_ops\\evidence_plane\\connector_gap_loader.py",
+    "organism_beat_consumer": false,
+    "organs_enabled_callers_for_hook": [],
+    "wiring_py_organism_py_doctor_readers": 0,
+    "flag_drift": true,
+    "registry": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\CONNECTOR-GAP-REGISTRY.json",
+    "oauth_gaps": [
+      "CG-001 GA4",
+      "CG-002 GSC",
+      "CG-003 Google Ads"
+    ],
+    "oauth_status": "WAITING_OWNER_OAUTH",
+    "who_sets_true": "WIRING.json flags.connector_gap_hook (organ-cartographer-wiring/1)"
+  },
+  "after": {
+    "connector_gap_hook": true,
+    "consumer": "organs.connector_gap.beat",
+    "consumer_path": "F:\\backup\\_ops\\organs\\connector_gap.py",
+    "consumer_fired": true,
+    "flag_drift": false,
+    "live_connectors_claimed": false,
+    "metrics_allowed": false,
+    "oauth_hold_u04": true,
+    "advisory_path": "F:\\backup\\_ops\\state\\organs\\connector-gap-advisory.json",
+    "run_session_wired": true,
+    "gap_ids": [
+      "CG-001",
+      "CG-002",
+      "CG-003"
+    ]
+  },
+  "decision": {
+    "path": "A/C hybrid",
+    "rationale": "Hook was intentionally armed with loader+registry+marks_gap_until_oauth; FLAG_DRIFT was missing beat/session consumer. Safer durable close matching architecture intent: keep hook true, wire minimal advisory consumer (log/state only, no LIVE claims, no OAuth invent). Path B (set false) would disarm designed loader without reconciling the armed hook intent."
+  },
+  "searches": {
+    "connector_gap_hook_defs": [
+      "_ops/organs/WIRING.json (+ baks)"
+    ],
+    "readers_pre_close": "none in *.py (loader-only + WIRING metadata)",
+    "packs": [
+      "CONNECTOR-GAP-REGISTRY.json CG-001/002/003 WAITING_OWNER_OAUTH"
+    ]
+  }
+}

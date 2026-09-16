@@ -1,0 +1,69 @@
+﻿{
+    "timestamp_utc":  "2026-08-22T09:43:04.4272909Z",
+    "timestamp_sydney":  "2026-08-22T19:43:04.4319305",
+    "matching_processes":  [
+                               {
+                                   "pid":  7136,
+                                   "name":  "powershell.exe",
+                                   "ppid":  2432,
+                                   "cmd_snippet":  "\"powershell.exe\" -NoProfile -WindowStyle Hidden -File \"F:\\backup\\04 - Architect System\\scripts\\germline-hourly.ps1\""
+                               },
+                               {
+                                   "pid":  11644,
+                                   "name":  "git.exe",
+                                   "ppid":  7136,
+                                   "cmd_snippet":  "\"C:\\Program Files\\Git\\cmd\\git.exe\" -C F:\\backup push --quiet E:\\germline\\vault.git --all"
+                               },
+                               {
+                                   "pid":  6940,
+                                   "name":  "git.exe",
+                                   "ppid":  11644,
+                                   "cmd_snippet":  "git.exe -C F:\\backup push --quiet E:\\germline\\vault.git --all"
+                               },
+                               {
+                                   "pid":  12788,
+                                   "name":  "sh.exe",
+                                   "ppid":  6940,
+                                   "cmd_snippet":  "\"C:/Program Files/Git/usr/bin/sh.exe\" -c \"git-receive-pack \u0027E:\\\\germline\\\\vault.git\u0027\" \"git-receive-pack \u0027E:\\\\germline\\\\vault.git\u0027\""
+                               },
+                               {
+                                   "pid":  8984,
+                                   "name":  "git-receive-pack.exe",
+                                   "ppid":  12788,
+                                   "cmd_snippet":  "\"C:\\Program Files\\Git\\mingw64\\bin\\git-receive-pack.exe\" E:\\germline\\vault.git"
+                               }
+                           ],
+    "index_lock_exists":  true,
+    "all_git_processes":  [
+                              {
+                                  "pid":  11644,
+                                  "name":  "git.exe",
+                                  "ppid":  7136,
+                                  "cmd_snippet":  "\"C:\\Program Files\\Git\\cmd\\git.exe\" -C F:\\backup push --quiet E:\\germline\\vault.git --all"
+                              },
+                              {
+                                  "pid":  6940,
+                                  "name":  "git.exe",
+                                  "ppid":  11644,
+                                  "cmd_snippet":  "git.exe -C F:\\backup push --quiet E:\\germline\\vault.git --all"
+                              },
+                              {
+                                  "pid":  8984,
+                                  "name":  "git-receive-pack.exe",
+                                  "ppid":  12788,
+                                  "cmd_snippet":  "\"C:\\Program Files\\Git\\mingw64\\bin\\git-receive-pack.exe\" E:\\germline\\vault.git"
+                              },
+                              {
+                                  "pid":  37652,
+                                  "name":  "git.exe",
+                                  "ppid":  6940,
+                                  "cmd_snippet":  "git pack-objects --all-progress-implied --revs --stdout --thin --delta-base-offset -q"
+                              },
+                              {
+                                  "pid":  26512,
+                                  "name":  "git.exe",
+                                  "ppid":  8984,
+                                  "cmd_snippet":  "git unpack-objects --pack_header=2,64 -q"
+                              }
+                          ]
+}

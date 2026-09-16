@@ -1,0 +1,19 @@
+==NODE182==
+  mnt-octopus_main.mount                                                                                                      loaded    active   mounted   /mnt/octopus_main
+  octopus-apply-checkpoint.path                                                                                               loaded    inactive dead      Watch for signed audit checkpoint dropped by laptop agent
+  octopus-apply-registry.path                                                                                                 loaded    inactive dead      Watch for signed Registry v6 dropped by laptop agent
+  nats-server.service                                                                                                         loaded    active   running   NATS Server with JetStream (OCTOPUS Sensorium)
+  octopus-agent-exchange.service                                                                                              loaded    inactive dead      OCTOPUS board-agent typed exchange (TO/FROM-LAPTOP; data-only, no execution)
+  octopus-agent-sentinel.service                                                                                              loaded    inactive dead      OCTOPUS ecosystem sentinel — laptop off/on transitions + node health (D13)
+Sat 2026-08-29 22:27:56 UTC  2min 2s Sat 2026-08-29 22:24:56 UTC      57s ago octopus-witness-worker.timer       octopus-witness-worker.service
+Sat 2026-08-29 22:28:03 UTC  2min 9s Sat 2026-08-29 22:23:03 UTC 2min 50s ago octopus-obs-autoheal.timer         octopus-obs-autoheal.service
+Sat 2026-08-29 22:28:58 UTC  3min 3s Sat 2026-08-29 22:13:58 UTC    11min ago octopus-homeo-feeds-snapshot.timer octopus-homeo-feeds-snapshot.service
+Sat 2026-08-29 22:30:01 UTC  4min 7s Sat 2026-08-29 22:25:01 UTC      52s ago octopus-agent-exchange.timer       octopus-agent-exchange.service
+Sat 2026-08-29 22:30:01 UTC  4min 7s Sat 2026-08-29 22:25:01 UTC      52s ago octopus-agent-sentinel.timer       octopus-agent-sentinel.service
+Sat 2026-08-29 22:30:01 UTC  4min 7s Sat 2026-08-29 22:25:01 UTC      52s ago octopus-crossnode-probe.timer      octopus-crossnode-probe.service
+FILES=23352
+/opt/octopus-agent/exchange/exchange-ledger.jsonl
+/opt/octopus-agent/REPORTS/crossnode-status.json
+/opt/octopus-agent/REPORTS/daily/2026-08-29.md
+/opt/octopus-agent/CHANGELOG.jsonl
+/opt/octopus-agent/REPORTS/daily/2026-08-28.md

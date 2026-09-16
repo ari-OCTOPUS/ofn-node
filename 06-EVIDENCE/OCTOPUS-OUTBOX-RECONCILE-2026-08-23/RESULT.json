@@ -1,0 +1,125 @@
+{
+  "schema": "octopus-evidence/1",
+  "task": "OCTOPUS-OUTBOX-RECONCILE-2026-08-23",
+  "status": "BLOCKED_LEAVE_ITEMS",
+  "timestamp_sydney": "2026-08-23 03:09:47 AEST",
+  "timestamp_utc": "2026-08-22T17:09:47.873394Z",
+  "timezone": "Australia/Sydney",
+  "constraints_honored": {
+    "no_live_telegram_send": true,
+    "no_sendMessage": true,
+    "no_center_restart": true,
+    "center_pid_35916_left_running": true,
+    "no_outbox_delete": true,
+    "no_owner_data_delete": true,
+    "no_secrets_in_evidence": true,
+    "no_mass_commit": true,
+    "reversible": true
+  },
+  "delivery_reconciliation_path": "F:\\\\backup\\\\_ops\\\\telegram_center\\\\delivery_reconciliation.py",
+  "durable_loop_path": "F:\\\\backup\\\\_ops\\\\telegram_center\\\\durable_loop.py",
+  "outbox_path": "F:\\\\backup\\\\_ops\\\\state\\\\telegram\\\\loop\\\\outbox",
+  "reconciliation_queue_path": "F:\\\\backup\\\\_ops\\\\state\\\\telegram\\\\loop\\\\reconciliation-queue.jsonl",
+  "owner_observed_evidence_path": "F:\\\\backup\\\\_ops\\\\state\\\\telegram\\\\loop\\\\owner-observed-evidence.jsonl",
+  "live_sample": {
+    "total_files": 21,
+    "states": {
+      "CONFIRMED": 18,
+      "NEEDS_RECONCILIATION": 2,
+      "DRY_RUN_NO_SEND": 1
+    },
+    "needs_reconciliation_items": [
+      {
+        "message_key": "3a8e60bf162c3474f74b1b3608ed4f7f622b5cd3",
+        "event_id": "tg:223883344",
+        "outbox_state": "NEEDS_RECONCILIATION",
+        "error_code": "UNCERTAIN_SEND_OUTCOME",
+        "event_file_state": "NEEDS_RECONCILIATION",
+        "readback_verified": false,
+        "delivery_message_id": null,
+        "queue_last_status": "resolved",
+        "queue_last_truth": "OWNER_OBSERVED_UNCONFIRMED_API",
+        "payload_text_copied": false
+      },
+      {
+        "message_key": "948643b4748d5cb63d4a36fba53e19cfd7f11b85",
+        "event_id": "tg:223883346",
+        "outbox_state": "NEEDS_RECONCILIATION",
+        "error_code": "UNCERTAIN_SEND_OUTCOME",
+        "event_file_state": "NEEDS_RECONCILIATION",
+        "readback_verified": false,
+        "delivery_message_id": null,
+        "queue_last_status": "resolved",
+        "queue_last_truth": "OWNER_OBSERVED_UNCONFIRMED_API",
+        "payload_text_copied": false
+      }
+    ]
+  },
+  "automated_reconcile_available": true,
+  "automated_reconcile_apis": [
+    "delivery_reconciliation.enqueue_uncertain",
+    "delivery_reconciliation.reconcile"
+  ],
+  "automated_reconcile_safety": {
+    "never_auto_resends": true,
+    "never_calls_sendMessage": true,
+    "append_only_queue": true,
+    "does_not_delete_outbox_or_owner_data": true,
+    "does_not_invent_message_id": true
+  },
+  "actions_taken": [
+    {
+      "action": "delivery_reconciliation.reconcile()",
+      "reason": "safe automated pass; never sendMessage; append-only",
+      "pending_before": 0,
+      "result": {
+        "resolved": {
+          "confirmed": 0,
+          "owner_observed": 0,
+          "dead_lettered": 0
+        },
+        "still_pending": 0
+      },
+      "pending_after": 0,
+      "outbox_mutated": false,
+      "note": "no-op: both target items already queue-resolved; pending() empty"
+    }
+  ],
+  "outbox_after": {
+    "states": {
+      "CONFIRMED": 18,
+      "NEEDS_RECONCILIATION": 2,
+      "DRY_RUN_NO_SEND": 1
+    },
+    "items_left_unchanged": true
+  },
+  "blockers": [
+    {
+      "id": "B1_QUEUE_ALREADY_RESOLVED",
+      "detail": "Both NEEDS_RECONCILIATION message_keys already have last reconciliation-queue row status=resolved truth=OWNER_OBSERVED_UNCONFIRMED_API. pending()=0 so reconcile() cannot touch them again."
+    },
+    {
+      "id": "B2_NO_OUTBOX_SYNC_FROM_QUEUE",
+      "detail": "delivery_reconciliation.reconcile() only appends reconciliation-queue.jsonl. It never mutates outbox/*.json or events/*.json. OWNER_OBSERVED resolution does not clear outbox NEEDS_RECONCILIATION."
+    },
+    {
+      "id": "B3_STATE_MACHINE_ONLY_TO_DEAD_LETTER",
+      "detail": "durable_loop _ALLOWED: NEEDS_RECONCILIATION -> {DEAD_LETTERED} only. No legal transition to CONFIRMED from NEEDS_RECONCILIATION even if transport evidence appeared later."
+    },
+    {
+      "id": "B4_NO_TRANSPORT_MESSAGE_ID",
+      "detail": "Events tg_223883344 / tg_223883346 have delivery_message_id=null and readback_verified=false. Owner-observed notes explicitly say no API message_id exists. Cannot auto-confirm."
+    },
+    {
+      "id": "B5_EVENT_PATH_MISMATCH",
+      "detail": "_search_transport_evidence looks for events/{event_id}.json with colon (tg:223883344.json) but on-disk files use underscore (tg_223883344.json). Transport-evidence confirm path cannot match these events even if fields were present."
+    },
+    {
+      "id": "B6_NO_SAFE_AUTO_DEAD_LETTER_HOOK",
+      "detail": "No sanctioned automated API found that maps OWNER_OBSERVED queue resolution -> outbox/event DEAD_LETTERED without custom mutation. Leaving items per slice rule."
+    }
+  ],
+  "decision": "LEAVE_ITEMS",
+  "decision_reason": "Safe automated reconcile exists and was run (no-op). It cannot clear outbox NEEDS_RECONCILIATION without inventing message_id, live send, delete, or unsanctioned state mutation. Items left as-is.",
+  "next_action": "Owner decide: (a) leave historical OWNER_OBSERVED + outbox NEEDS_RECONCILIATION as permanent quarantine markers; or (b) authorize a small reversible sync helper that, on OWNER_OBSERVED resolution only, transitions outbox+event NEEDS_RECONCILIATION -> DEAD_LETTERED without sendMessage/delete. Do not enable live resend."
+}

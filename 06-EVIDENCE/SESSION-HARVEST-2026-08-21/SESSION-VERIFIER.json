@@ -1,0 +1,48 @@
+{
+ "confirmed": true,
+ "failed_checks": [],
+ "files_created": 25,
+ "files_updated": 3,
+ "links_checked": 14,
+ "learnings_verified": 18,
+ "needs_verified": 13,
+ "secret_findings": 0,
+ "broken_links": [],
+ "loop_accounting": {
+  "closed": 3,
+  "contained": 2,
+  "quarantined_uncertain": 2,
+  "open": 9
+ },
+ "needs_accounting": {
+  "schema": "needs-accounting/1",
+  "total_unique_needs": 13,
+  "self_resolvable": 9,
+  "owner_required": 4,
+  "externally_blocked": 0,
+  "primary_classification_non_overlapping": true,
+  "secondary_tags_note": "earlier labels 'automatic=4 / repairable=8' (council text) were overlapping secondary tags and are DROPPED; primary classes are disjoint",
+  "self_resolvable_ids": [
+   "NEED-20260821-001",
+   "NEED-20260821-002",
+   "NEED-20260821-004",
+   "NEED-20260821-005",
+   "NEED-20260821-006",
+   "NEED-20260821-007",
+   "NEED-20260821-008",
+   "NEED-20260821-009",
+   "NEED-20260821-010"
+  ],
+  "owner_required_ids": [
+   "NEED-20260821-003",
+   "NEED-20260821-011",
+   "NEED-20260821-012",
+   "NEED-20260821-013"
+  ],
+  "reconciliation": "9 + 4 + 0 = 13 = total_unique_needs (NEED-013 approval queue added per owner correction item 5)",
+  "note": "original harvest reported 12; owner correction item 5 adds the approval-queue need -> 13"
+ },
+ "approval_queue_pending": 20,
+ "wave1_unlocked": false,
+ "canonical_entrypoint": "75-SESSION-HARVEST-WAVE0-TELEGRAM-2026-08-21.md"
+}

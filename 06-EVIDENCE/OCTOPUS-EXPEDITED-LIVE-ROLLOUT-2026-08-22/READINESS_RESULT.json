@@ -1,0 +1,19 @@
+{
+  "schema": "octopus-readiness-result/1",
+  "written_at_local": "2026-08-22T15:20:13.133801+10:00",
+  "authorization_id": "OCTOPUS-OWNER-CANARY-20260822-N1",
+  "duration_seconds_target": 600,
+  "interval_seconds": 15,
+  "samples": 62,
+  "sample_ok_count": 62,
+  "failures": [],
+  "first_ts_local": "2026-08-22T15:09:26.390596+10:00",
+  "last_ts_local": "2026-08-22T15:19:31.055120+10:00",
+  "span_seconds": 604.6645104885101,
+  "READINESS_RESULT": "PASS",
+  "source": "LOCAL_STATE_ONLY",
+  "telegram_api_called": false,
+  "live_send": false,
+  "samples_path": "06-EVIDENCE\\OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22\\READINESS-SAMPLES.jsonl",
+  "note": "sample count includes full continuous window; all criteria held"
+}

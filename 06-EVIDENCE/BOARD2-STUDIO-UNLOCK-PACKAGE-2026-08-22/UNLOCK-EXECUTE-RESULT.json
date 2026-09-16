@@ -1,0 +1,47 @@
+{
+  "stamp": "20260822T124209Z",
+  "result": "FAIL",
+  "auth": "OCTOPUS studio unlock EXECUTE ACK via ari",
+  "step0": "owner GO ACK; partner_precondition=Saba/studio accepted; secret_rotation risk accepted",
+  "step1": {
+    "OFN_WIRE_OUTBOUND": "1",
+    "wire_outbound_removed_from_EXTRA": true,
+    "OFN_KEEP_GATES_OPEN": "1",
+    "bak": "/home/ari/.config/ofn/node.env.bak-studio-unlock-20260822T123514Z",
+    "bak_kept": true
+  },
+  "step2": {
+    "ofn": "active",
+    "legs_healthz": {
+      "8791": 200,
+      "8792": 200,
+      "8793": 200,
+      "8794": 200
+    }
+  },
+  "step3": {
+    "dry_run": true,
+    "draft_id": "unlock-shot-0001",
+    "shot": "shot-0001",
+    "media_ref": "studio/shot-0001/0-1600.jpg",
+    "platform": "telegram_channel",
+    "collection": "album-unlock-20260822",
+    "caption": "تست (from existing media note)",
+    "enqueue": {
+      "ok": true,
+      "draft_id": "unlock-shot-0001",
+      "queued": 0,
+      "results": [
+        {
+          "platform": "telegram_channel",
+          "queued": false,
+          "rule": "consent:no_release"
+        }
+      ]
+    },
+    "one_item_queued": false
+  },
+  "step4_schedule_note": "REMAINING library shot-0002.. not queued (no fan-out). Blocked behind consent release for telegram_channel on subject=self before further enqueue.",
+  "blocker": "consent release missing for subject=self / platform=telegram_channel (no forged release written)",
+  "rollback": "restore bak then systemctl restart ofn"
+}

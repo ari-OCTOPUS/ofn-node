@@ -1,0 +1,505 @@
+{
+  "pack_version": "1.0",
+  "node_role": "laptop",
+  "collected_at": "2026-08-23T00:34:00+10:00",
+  "collector": "laptop-agent-concepts-to-code",
+  "collection_method": "mixed",
+  "node": {
+    "node_id": "laptop-center",
+    "hardware": "Windows laptop Center / SoT host",
+    "os": "Microsoft Windows 11 Pro N (10.0.26200)",
+    "hostname": "DESKTOP-KA9RFN5",
+    "ip_or_discovery_method": "hostname + ExternalShell live probe",
+    "repo_paths": [
+      "F:\\backup"
+    ],
+    "canonical_repo_candidates": [
+      {
+        "path": "F:\\backup",
+        "rationale": "Owner SoT single-home",
+        "status": "canonical",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md#SoT"
+        }
+      }
+    ],
+    "current_branch_and_commit": [],
+    "agent_runtime": "Cursor ExternalShell laptop-agent",
+    "services_and_ports": [
+      {
+        "service": "Board2 lead",
+        "port": 8792,
+        "protocol": "https",
+        "status": "closed",
+        "source_locator": {
+          "kind": "command_output",
+          "value": "local listen probe: not listening on laptop"
+        }
+      },
+      {
+        "service": "Board2 ziman",
+        "port": 8791,
+        "protocol": "https",
+        "status": "closed",
+        "source_locator": {
+          "kind": "command_output",
+          "value": "local listen probe: not listening on laptop"
+        }
+      },
+      {
+        "service": "Board2 studio",
+        "port": 8793,
+        "protocol": "https",
+        "status": "closed",
+        "source_locator": {
+          "kind": "command_output",
+          "value": "local listen probe: not listening on laptop"
+        }
+      },
+      {
+        "service": "MQTT",
+        "port": 1883,
+        "protocol": "tcp",
+        "status": "closed",
+        "source_locator": {
+          "kind": "command_output",
+          "value": "local listen probe: not listening on laptop"
+        }
+      }
+    ],
+    "message_transport": [
+      {
+        "name": "Inbox/Outbox default",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "ADR JetStream TRIAL"
+        },
+        "detail": "JetStream not promoted"
+      }
+    ],
+    "event_schemas": [],
+    "data_stores": [
+      {
+        "name": "F:\\backup SoT",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF"
+        },
+        "detail": "canonical"
+      },
+      {
+        "name": "_ops/organs/WIRING.json",
+        "status": "verified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\_ops\\organs\\WIRING.json"
+        },
+        "detail": "organism wiring"
+      }
+    ],
+    "memory_stores": [
+      {
+        "name": "_ops/state",
+        "status": "unverified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\_ops\\state"
+        },
+        "detail": "present; not fully inventoried this pass"
+      }
+    ],
+    "secrets_file_names_only": [
+      ".env"
+    ],
+    "feature_flags": [
+      {
+        "name": "connector_gap_hook",
+        "status": "verified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\_ops\\organs\\WIRING.json"
+        },
+        "detail": "wired true reversible"
+      },
+      {
+        "name": "OCTOPUS_DOCTOR_MAY_MERGE",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH"
+        },
+        "detail": "live flags-loaded"
+      }
+    ],
+    "kill_switches": [
+      {
+        "name": "No external write without owner gate",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "ADR"
+        },
+        "detail": "D1/D7"
+      }
+    ],
+    "test_commands": [
+      {
+        "command": "hostname; Get-NetTCPConnection listen 8791/8792/8793/1883",
+        "purpose": "laptop live facts"
+      },
+      {
+        "command": "python -c import jsonschema; validate node packs",
+        "purpose": "schema validate packs"
+      }
+    ],
+    "last_test_results": [
+      {
+        "command": "hostname",
+        "executed_at": "2026-08-23T00:34:00+10:00",
+        "status": "pass",
+        "summary": "DESKTOP-KA9RFN5",
+        "evidence_ref": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23\\RESULT.json",
+        "source_locator": {
+          "kind": "command_output",
+          "value": "ExternalShell hostname"
+        }
+      },
+      {
+        "command": "Get-Process python",
+        "executed_at": "2026-08-23T00:34:00+10:00",
+        "status": "pass",
+        "summary": "PID 35916 present (center AFTER PID from CURRENT-TRUTH)",
+        "evidence_ref": "OCTOPUS-CENTER-RESTART-AFTER-PHASE3-2026-08-22",
+        "source_locator": {
+          "kind": "command_output",
+          "value": "Get-Process python"
+        }
+      }
+    ],
+    "active_projects": [
+      {
+        "name": "Center process",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OCTOPUS-CENTER-RESTART-AFTER-PHASE3 RESULT PASS"
+        },
+        "detail": "PID 35916 observed among python processes"
+      },
+      {
+        "name": "Laptop agent owner brief",
+        "status": "verified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md"
+        },
+        "detail": "OWNER_BRIEF_ACTIVE"
+      },
+      {
+        "name": "Concepts\u2192Code parallel pass",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-CONCEPTS-TO-CODE-2026-08-23"
+        },
+        "detail": "this evidence package"
+      }
+    ],
+    "owner_decisions": [
+      {
+        "name": "SoT F:\\backup",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md"
+        },
+        "detail": "single-home"
+      },
+      {
+        "name": "JetStream TRIAL Inbox/Outbox first",
+        "status": "verified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md"
+        },
+        "detail": "pass criteria required"
+      },
+      {
+        "name": "Telegram Mini App RO-first",
+        "status": "verified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md"
+        },
+        "detail": "parallel path forbidden"
+      }
+    ],
+    "known_failures": [
+      {
+        "name": "germline index.lock money thematic commit",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH"
+        },
+        "detail": "do not force / do not remove lock"
+      }
+    ],
+    "open_gates": [
+      {
+        "name": "gap002_registry",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH doctor"
+        },
+        "detail": "still blocking"
+      },
+      {
+        "name": "GitHub DietPi PAT",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH deferred"
+        },
+        "detail": "pending owner"
+      }
+    ],
+    "telegram_components": [
+      {
+        "name": "Telegram Mini App",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "ADR ADOPT RO-first"
+        },
+        "detail": "parallel path forbidden"
+      },
+      {
+        "name": "Telegram Payment",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "ADR TRIAL limited"
+        },
+        "detail": "one business + auditable receipt only"
+      }
+    ],
+    "webapp_components": [
+      {
+        "name": "cp.master-painting.com Phase-3",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH Phase-3 PASS"
+        },
+        "detail": "CONTROL_URL"
+      }
+    ],
+    "internet_access_path": [
+      {
+        "name": "connector-first research",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "ADR"
+        },
+        "detail": "Similarweb/Statista/etc; no invent"
+      }
+    ],
+    "handoff_files": [
+      {
+        "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md",
+        "size_bytes": 6734,
+        "modified_at": "2026-08-22T23:07:33+10:00",
+        "sha256": "a6b857016336189c1790ac4b91df718a23422c8f050f1e8e87b49999d9492e70",
+        "status": "verified"
+      },
+      {
+        "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md",
+        "size_bytes": 3014,
+        "modified_at": "2026-08-22T23:09:28+10:00",
+        "sha256": "9f898e6612b6dd44f0d2f76f1d1e6cfc93b2c09496c72cc92e13cbedb3d59ada",
+        "status": "verified"
+      },
+      {
+        "path": "F:\\backup\\_ops\\organs\\WIRING.json",
+        "size_bytes": 1128,
+        "modified_at": "2026-08-23T00:41:05+10:00",
+        "sha256": "4886d2d0591cdeb1f8ec7f6055f18eabc0b9ca76805940866421f7be03360e76",
+        "status": "verified"
+      }
+    ]
+  },
+  "inventory": [
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md",
+      "size_bytes": 6734,
+      "modified_at": "2026-08-22T23:07:33+10:00",
+      "sha256": "a6b857016336189c1790ac4b91df718a23422c8f050f1e8e87b49999d9492e70",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md",
+      "size_bytes": 3014,
+      "modified_at": "2026-08-22T23:09:28+10:00",
+      "sha256": "9f898e6612b6dd44f0d2f76f1d1e6cfc93b2c09496c72cc92e13cbedb3d59ada",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\CONNECTOR-GAP-REGISTRY.json",
+      "size_bytes": 4353,
+      "modified_at": "2026-08-22T23:11:18+10:00",
+      "sha256": "be030013eac43ac8ab72ce049eb185f1470068fb32effcd295f3443a20847905",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-BUSINESS.schema.json",
+      "size_bytes": 16312,
+      "modified_at": "2026-08-22T23:10:01+10:00",
+      "sha256": "d6cc48960b533d029b038598a28b6fea4bbd8472ffea1050060ae611fe1772e5",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-SENSORIUM.schema.json",
+      "size_bytes": 16354,
+      "modified_at": "2026-08-22T23:10:30+10:00",
+      "sha256": "330db20d8f0cf44146d72245138a3bd5b6801f45ef9707b8e0efa17b3b0233fa",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-LAPTOP.schema.json",
+      "size_bytes": 16343,
+      "modified_at": "2026-08-22T23:10:57+10:00",
+      "sha256": "0506c74a2d0b4f6614497a954ff00690eebc2e1c31e91df9e2435c34b3d6e909",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\07 - Knowledge\\octopus\\01-BUSINESS-MAP-CANONICAL.md",
+      "size_bytes": 1501,
+      "modified_at": "2026-08-22T22:27:58+10:00",
+      "sha256": "89c5ee5df0c5a75622a16d84b880aafb7bdfdf3774d74212bdb28278458c8207",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md",
+      "size_bytes": 6517,
+      "modified_at": "2026-08-22T19:35:13+10:00",
+      "sha256": "7354caf879f88a5906be5e5f87fc0b7b6387037d36c594341c7b0df711407cef",
+      "classification": "internal"
+    }
+  ],
+  "inventory_digest": {
+    "algorithm": "sha256",
+    "ordered_by": "path",
+    "digest_sha256": "477333a789801f59483dd8f58d4995182397d4468c0fcc7dda9c2952ac5cc130"
+  },
+  "claims": [
+    {
+      "claim_id": "L-001",
+      "statement": "Laptop hostname DESKTOP-KA9RFN5 running Windows 11 Pro N",
+      "value": {
+        "hostname": "DESKTOP-KA9RFN5"
+      },
+      "status": "verified",
+      "source_id": "runtime",
+      "source_locator": {
+        "kind": "command_output",
+        "value": "hostname / OSVersion"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "laptop",
+      "hash_sha256": "66547a8690711e25daad3001806adc3c35b66f0103daa32e5f6d337335279971",
+      "confidence": 1.0,
+      "limitations": []
+    },
+    {
+      "claim_id": "L-002",
+      "statement": "Center restart after Phase-3 PASS; PID 35916 still observed",
+      "value": null,
+      "status": "verified",
+      "source_id": "CURRENT-TRUTH+runtime",
+      "source_locator": {
+        "kind": "command_output",
+        "value": "Get-Process python includes 35916"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "center",
+      "hash_sha256": "244fd7ad8bd8d33ef63227d05c76d3677427b277aeb280172514f694baffb2f9",
+      "confidence": 0.9,
+      "limitations": []
+    },
+    {
+      "claim_id": "L-003",
+      "statement": "Local ports 8791/8792/8793/1883 not listening on laptop",
+      "value": null,
+      "status": "verified",
+      "source_id": "runtime",
+      "source_locator": {
+        "kind": "command_output",
+        "value": "Get-NetTCPConnection listen probe"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "ports",
+      "hash_sha256": "92c110fbe874e79d81aeda790b5a2f2b75750b05fbbd81bc645ced4c22e7ffb7",
+      "confidence": 1.0,
+      "limitations": []
+    },
+    {
+      "claim_id": "L-004",
+      "statement": "WIRING.json connector_gap_hook wired reversible",
+      "value": null,
+      "status": "verified",
+      "source_id": "runtime",
+      "source_locator": {
+        "kind": "file_line",
+        "value": "F:\\backup\\_ops\\organs\\WIRING.json"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "wiring",
+      "hash_sha256": "dd0003238c68064fac53f732b7c6a270db30ca7b07997ab3d3863f04dff99c4b",
+      "confidence": 1.0,
+      "limitations": []
+    },
+    {
+      "claim_id": "L-005",
+      "statement": "SoT remains F:\\backup",
+      "value": null,
+      "status": "verified",
+      "source_id": "OWNER-BRIEF",
+      "source_locator": {
+        "kind": "owner_statement",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "sot",
+      "hash_sha256": "5093c3dce9efa0d310146b0e8704f59a4645de0851b264919b51508b53811040",
+      "confidence": 1.0,
+      "limitations": []
+    }
+  ],
+  "contradictions": [],
+  "open_questions": [
+    "Full git commit SHA for F:\\backup not captured in this pack (left empty array)",
+    "Unsigned ckpt / sign paths remain laptop responsibility (no key export)"
+  ],
+  "synthesis_lock": {
+    "business_pack_received": true,
+    "sensorium_pack_received": true,
+    "laptop_pack_received": true,
+    "can_synthesize": true,
+    "pending_reasons": [
+      "PACKS_READY_SYNTHESIS_PENDING"
+    ]
+  },
+  "laptop_scope": [
+    "control-plane",
+    "telegram-bot",
+    "miniapp",
+    "self-coding-loop",
+    "policy-gate"
+  ]
+}

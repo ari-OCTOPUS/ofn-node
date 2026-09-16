@@ -1,0 +1,3 @@
+---TIMER---
+Description=OCTOPUS scheduler timer (138) - every 15 minutes
+OnCalendar=*:0/15

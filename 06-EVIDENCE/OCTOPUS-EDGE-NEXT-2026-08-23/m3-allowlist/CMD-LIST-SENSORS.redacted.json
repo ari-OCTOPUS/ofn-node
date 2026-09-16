@@ -1,0 +1,14 @@
+{
+  "sender_id": "octopus-core-e2e",
+  "role": "core",
+  "permission": "diagnostics.read",
+  "timestamp": "2026-08-23T04:13:06.975339Z",
+  "expiry": "2026-08-23T04:28:06.975339Z",
+  "nonce": "f7535a1ceab84bb189a0b4c6df4806f5",
+  "command": "LIST_SENSORS",
+  "request_id": "m3-list-5bf7b711",
+  "params": {
+    "mutates": false
+  },
+  "signature": "b64:tsydSeBT\u2026REDACTED"
+}

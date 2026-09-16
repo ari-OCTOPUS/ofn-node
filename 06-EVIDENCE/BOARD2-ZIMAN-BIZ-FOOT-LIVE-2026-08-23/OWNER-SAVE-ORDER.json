@@ -1,0 +1,25 @@
+{
+    "stamp_local":  "2026-08-23T10:33:30+10:00",
+    "laptop_sot":  "F:\\backup\\06-EVIDENCE\\ZIMAN-MALIHEH-BIZ-IDENTITY-2026-08-23\\PUBLIC-BIZ.json",
+    "action":  "full_save_ziman_biz_identity_public",
+    "obsidian":  "F:\\backup\\07 - Knowledge\\octopus-board2\\79-BOARD2-ZIMAN-BIZ-IDENTITY-PUBLIC-2026-08-23.md",
+    "shopify_ready":  "F:\\backup\\06-EVIDENCE\\ZIMAN-MALIHEH-BIZ-IDENTITY-2026-08-23\\SHOPIFY-READY.json",
+    "fields_to_save":  {
+                           "currency":  "AUD",
+                           "abn":  "21190030795",
+                           "business_email":  "aram@ziman-gift.com",
+                           "bank_account_name":  "Maliheh Khalajijou",
+                           "bank_bsb":  "112879",
+                           "gst_registered":  false,
+                           "paypal_business_email":  "aram@ziman-gift.com",
+                           "bank_account_number":  "463106127"
+                       },
+    "target":  "Board2",
+    "ordered_by":  "owner",
+    "schema":  "board2-owner-save-order/1",
+    "status":  "ORDERED",
+    "never_include":  [
+                          "tfn"
+                      ],
+    "note":  "Owner ordered full save on Board2 for Ziman public biz identity. Marketing owns live Board2 disk; laptop evidence + Obsidian must be complete; this file is the save-instruction receipt."
+}

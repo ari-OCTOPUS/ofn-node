@@ -1,0 +1,12 @@
+﻿{
+  "package": "OCTOPUS-ORANGEPI-TORCH-EXECUTE-2026-08-22",
+  "authorization_id": "OCTOPUS-ORANGEPI-TORCH-20260822",
+  "written_at_local": "2026-08-22T19:12:00+10:00",
+  "mutate_device": true,
+  "EXECUTE_READY": false,
+  "gate": "BLOCKED_NEED_WHEEL_URL",
+  "install": "BLOCKED until OWNER-WHEEL-SUPPLY.json filled (CPU aarch64/arm64 wheel URL+SHA256+Python match)",
+  "precheck_readonly": true,
+  "required_files": ["OWNER-AUTHORIZATION.json","PLAN.md","EXECUTION-ORDER.md","SENSORIOM-EXECUTE-BRIEF.md","ROLLBACK.md"],
+  "required_files_present": true
+}

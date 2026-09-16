@@ -1,0 +1,434 @@
+{
+  "output_hash": "5d8ec779734be1c6599c872edec5da39541779aaa2f90f646824062496bf667f",
+  "homeostatic_assessment": {
+    "schema": "homeostatic-assessment.v1",
+    "assessment_id": "ha-deb7ffdfcde2857f",
+    "decision_time": "2026-08-20T03:12:41.018614+00:00",
+    "boot_id": "2026-08-20T11:47:04",
+    "domain_states": {
+      "cardiac": {
+        "state": "UNKNOWN",
+        "reasons": [
+          "state=UNKNOWN",
+          "HRV observation missing; not coerced to 0"
+        ]
+      },
+      "resource_health": {
+        "state": "UNKNOWN",
+        "reasons": [
+          "state=UNKNOWN",
+          "resource.cpu_pct UNLOCATED in this slice"
+        ]
+      },
+      "telemetry_integrity": {
+        "state": "GREEN",
+        "reasons": [
+          "state=GREEN",
+          "no period conflict; bitemporal ok on eligible set"
+        ]
+      },
+      "identity_integrity": {
+        "state": "GREEN",
+        "reasons": [
+          "state=GREEN",
+          "identity_health VALID (not claimed as improvement)"
+        ]
+      },
+      "life_currency_integrity": {
+        "state": "GREEN",
+        "reasons": [
+          "state=GREEN",
+          "unit=life_credit tokens_min=0.003 no AUD path"
+        ]
+      },
+      "judge_reliability": {
+        "state": "UNKNOWN",
+        "reasons": [
+          "state=UNKNOWN",
+          "judge.rs_ba absent; D6 remains BETWEEN_RUN_VARIANCE"
+        ]
+      }
+    },
+    "global_state": "UNKNOWN",
+    "confidence": 1.0,
+    "evidence_ids": [
+      "live-period",
+      "live-color",
+      "live-cap",
+      "live-tok",
+      "live-unit",
+      "live-id"
+    ],
+    "excluded_evidence": [],
+    "reasons": [
+      "state=UNKNOWN",
+      "HRV observation missing; not coerced to 0",
+      "state=UNKNOWN",
+      "resource.cpu_pct UNLOCATED in this slice",
+      "state=GREEN",
+      "no period conflict; bitemporal ok on eligible set",
+      "state=GREEN",
+      "identity_health VALID (not claimed as improvement)",
+      "state=GREEN",
+      "unit=life_credit tokens_min=0.003 no AUD path",
+      "state=UNKNOWN",
+      "judge.rs_ba absent; D6 remains BETWEEN_RUN_VARIANCE",
+      "global=UNKNOWN"
+    ],
+    "contradictions": [],
+    "setpoints_version": "setpoints.v1",
+    "executable": false
+  },
+  "world_state": {
+    "state_id": "ws-c594f54ba9565ee9",
+    "n_facts": 6,
+    "n_hypotheses": 0
+  },
+  "gate_decisions": [
+    {
+      "schema": "gate-decision.v1",
+      "domain": "telemetry_interpretation",
+      "skill_score": {
+        "domain": "telemetry_interpretation",
+        "evidence_coverage": 1.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.78,
+        "confidence": 1.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=1.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "live-period",
+          "live-color",
+          "live-cap",
+          "live-tok",
+          "live-unit",
+          "live-id"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=1.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-deb7ffdfcde2857f",
+      "world_state_id": "ws-c594f54ba9565ee9"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "homeostasis",
+      "skill_score": {
+        "domain": "homeostasis",
+        "evidence_coverage": 1.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.78,
+        "confidence": 1.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=1.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "live-period",
+          "live-color",
+          "live-cap",
+          "live-tok",
+          "live-unit",
+          "live-id"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=1.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-deb7ffdfcde2857f",
+      "world_state_id": "ws-c594f54ba9565ee9"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "identity_assessment",
+      "skill_score": {
+        "domain": "identity_assessment",
+        "evidence_coverage": 1.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.78,
+        "confidence": 1.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=1.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "live-period",
+          "live-color",
+          "live-cap",
+          "live-tok",
+          "live-unit",
+          "live-id"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=1.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-deb7ffdfcde2857f",
+      "world_state_id": "ws-c594f54ba9565ee9"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "judge_reliability",
+      "skill_score": {
+        "domain": "judge_reliability",
+        "evidence_coverage": 1.0,
+        "freshness": 1.0,
+        "calibration": 0.5,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.735,
+        "confidence": 1.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=1.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "live-period",
+          "live-color",
+          "live-cap",
+          "live-tok",
+          "live-unit",
+          "live-id"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN",
+        "D6_BETWEEN_RUN_VARIANCE_CAP"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=1.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN",
+        "blocker=D6_BETWEEN_RUN_VARIANCE_CAP"
+      ],
+      "assessment_id": "ha-deb7ffdfcde2857f",
+      "world_state_id": "ws-c594f54ba9565ee9"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "life_currency_accounting",
+      "skill_score": {
+        "domain": "life_currency_accounting",
+        "evidence_coverage": 1.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.78,
+        "confidence": 1.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=1.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "live-period",
+          "live-color",
+          "live-cap",
+          "live-tok",
+          "live-unit",
+          "live-id"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=1.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-deb7ffdfcde2857f",
+      "world_state_id": "ws-c594f54ba9565ee9"
+    },
+    {
+      "schema": "gate-decision.v1",
+      "domain": "world_state_estimation",
+      "skill_score": {
+        "domain": "world_state_estimation",
+        "evidence_coverage": 1.0,
+        "freshness": 1.0,
+        "calibration": 0.8,
+        "stability": 0.7,
+        "agreement": 0.8,
+        "restart_readiness": 0.8,
+        "ood_risk": 0.2,
+        "contradiction_penalty": 0.0,
+        "final_score": 0.78,
+        "confidence": 1.0,
+        "reasons": [
+          "weights=skill-weights.v1",
+          "coverage=1.000",
+          "freshness=1.000",
+          "restart_readiness=0.800",
+          "D6=BETWEEN_RUN_VARIANCE",
+          "GAP-001=OPEN"
+        ],
+        "evidence_ids": [
+          "live-period",
+          "live-color",
+          "live-cap",
+          "live-tok",
+          "live-unit",
+          "live-id"
+        ],
+        "weights_version": "skill-weights.v1",
+        "block_flags": {
+          "future": false,
+          "unit_mismatch": false,
+          "conflicting": false,
+          "warmup": false
+        }
+      },
+      "mode": "ADVISORY",
+      "executable": false,
+      "blockers": [
+        "GAP-001_OPEN"
+      ],
+      "reasons": [
+        "weights=skill-weights.v1",
+        "coverage=1.000",
+        "freshness=1.000",
+        "restart_readiness=0.800",
+        "D6=BETWEEN_RUN_VARIANCE",
+        "GAP-001=OPEN",
+        "mode=ADVISORY",
+        "blocker=GAP-001_OPEN"
+      ],
+      "assessment_id": "ha-deb7ffdfcde2857f",
+      "world_state_id": "ws-c594f54ba9565ee9"
+    }
+  ],
+  "executable": false
+}

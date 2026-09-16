@@ -1,0 +1,9 @@
+{
+  "cmd": [
+    "/opt/octopus/venv/bin/python",
+    "/opt/octopus/scripts/evaluate_shadow_candidate.py"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"decision\": \"DENY\",\n  \"usable_pairs\": 127,\n  \"skill\": 0.0043008637535759675,\n  \"lower\": -0.0037242728317090634\n}\n",
+  "stderr": ""
+}

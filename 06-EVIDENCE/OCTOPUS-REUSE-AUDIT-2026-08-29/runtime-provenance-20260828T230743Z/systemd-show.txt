@@ -1,0 +1,7 @@
+MainPID=1351408
+ExecStart={ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 -m ofn.run ; ignore_errors=no ; start_time=[Thu 2026-08-27 11:33:39 AEST] ; stop_time=[n/a] ; pid=1351408 ; code=(null) ; status=0/0 }
+WorkingDirectory=/home/ari/ofn
+ActiveState=active
+SubState=running
+FragmentPath=/etc/systemd/system/ofn.service
+ActiveEnterTimestamp=Thu 2026-08-27 11:33:40 AEST

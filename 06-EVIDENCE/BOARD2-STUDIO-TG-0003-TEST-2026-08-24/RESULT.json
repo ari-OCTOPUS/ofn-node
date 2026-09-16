@@ -1,0 +1,14 @@
+﻿{
+  "stamp": "2026-08-24T08:57+10",
+  "result": "PASS",
+  "shot": "shot-0003",
+  "outbox_id": "studio:77fdf94f0eb48f7ee7bcece8928fb54a8ea5ba114e709943a667ad5bdca92544",
+  "dry_run": "adapter:dry-run OK",
+  "live": "adapter:ok",
+  "external_id": "11",
+  "outbox_status": "manual_completed",
+  "channel": "telegram",
+  "no_of": true,
+  "no_other_shots": true,
+  "source": "marketing report 2026-08-24"
+}

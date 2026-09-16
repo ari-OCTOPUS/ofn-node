@@ -1,0 +1,76 @@
+{
+  "schema": "octopus-owner-chg-authorization/1",
+  "authorization_id": "OCTOPUS-ORANGEPI-CHG-ABD-20260822",
+  "package": [
+    "A",
+    "B",
+    "D"
+  ],
+  "package_excluded": [
+    "C_NATS",
+    "E_compaction_unless_incidental_to_A"
+  ],
+  "board": {
+    "hostname": "sensorium-opi5pro",
+    "ip": "192.168.0.182",
+    "agent_executor": "sensoriom"
+  },
+  "authorizer": {
+    "role": "owner",
+    "via": "ari",
+    "channel": "owner_chat_directive"
+  },
+  "executor": "sensoriom",
+  "laptop_writer": "grok-ari-plans-only",
+  "written_at_local": "2026-08-22T16:53:45+10:00",
+  "timezone": "Australia/Sydney (AEST, UTC+10)",
+  "authority": "OWNER_AUTHORIZED_SEPARATE_PLANS_A_B_D",
+  "bounds": {
+    "allowed": [
+      "CHG-A: WatchdogSec 120-300s and/or defer heavy index load until after READY+watchdog pet",
+      "CHG-A: quarantine TAINTED_WINDOW_sensorium-cpu.yaml (read-only quarantine; no zero-fill)",
+      "CHG-B: raise MemoryMax to evidence-based floor >=128-256M OR temporary mask until ledger fixed",
+      "CHG-D: append-only repair for duplicate seq=9024 / break_seq=9025; quarantine duplicate; new epoch if needed",
+      "CHG-D: re-run verify_all_ledgers.py; never silent hash rewrite",
+      "Write receipts under board evidence + TO-LAPTOP exchange",
+      "Rollback per plan files"
+    ],
+    "forbidden_globally": [
+      "private keys / make-root-v2",
+      "MQTT / PWM / legs / root action_executor",
+      "arm reflex",
+      "planner",
+      "Doctor auto-patch on Pi",
+      "torch WM",
+      "open 9101 to LAN",
+      "zero-fill sensors",
+      "in-place hash rewrite",
+      "truncate observations casually",
+      "unconstrained WM on 3.8Gi",
+      "C NATS MemoryMax/retention changes (out of package)",
+      "E evidence compaction except incidental to A (e.g. quarantine tainted window only)",
+      "SSH/mutate Pi from laptop writer (plans + OWNER-CHG grant only; sensoriom executes)"
+    ],
+    "wave0": "KEEP_WAVE0_LOCKED for actuators/MQTT/legs; CHG A+B+D are service/systemd/ledger repairs only",
+    "separate_plans_required": true,
+    "evidence_refs": [
+      "06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/BOARD-DEEP-DIAGNOSIS-ACK.json",
+      "06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/SENSORIOM-DELTA-1521.json",
+      "06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/BOARD-BRIEF-ACK.json"
+    ]
+  },
+  "p0_baseline_at_auth": {
+    "sensorium_nrestarts": 1411,
+    "wm_nrestarts": 38906,
+    "skill_nrestarts": 35394,
+    "ledger_head_seq": 9024,
+    "ledger_break_seq": 9025,
+    "nats_note": "near-cap observed but C NOT authorized"
+  },
+  "execution_order_file": "EXECUTION-ORDER.md",
+  "plans": {
+    "A": "CHG-A-SENSORIUM-PLAN.md",
+    "B": "CHG-B-WM-SKILL-PLAN.md",
+    "D": "CHG-D-LEDGER-PLAN.md"
+  }
+}

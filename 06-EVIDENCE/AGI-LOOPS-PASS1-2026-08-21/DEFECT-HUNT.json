@@ -1,0 +1,46 @@
+{
+  "schema": "defect-hunt/1",
+  "n": 5,
+  "hunts": [
+    {
+      "hunter": "D14_webhook_plus_polling",
+      "center_mentions_getUpdates": true,
+      "center_mentions_webhook": false,
+      "comment_claims_no_getUpdates": true,
+      "verdict": "NO_DUAL_INGEST_IN_CENTER_SOURCE",
+      "note": "WORKLOCK: center.py not edited. Hunt is source-level."
+    },
+    {
+      "hunter": "D15_self_reply_ingest",
+      "files_with_from_id": [
+        "_ops/telegram_center/center.py",
+        "_ops/intel_spine/telegram_adapter.py"
+      ],
+      "verdict": "NEEDS_EXPLICIT_BOT_ID_FILTER",
+      "note": "Explicit skip when from.id == bot_id must exist before live ingest."
+    },
+    {
+      "hunter": "D17_green_heartbeat_dead_worker",
+      "heartbeat_exists": true,
+      "open_missions": 0,
+      "open_preview": [],
+      "verdict": "NO_OPEN_MISSION_IN_FILE",
+      "read_only": true,
+      "did_not_quarantine_live": true
+    },
+    {
+      "hunter": "D08_constant_0_4",
+      "literal_assign_0_4": false,
+      "ema_present": true,
+      "verdict": "HARDCODE_GONE_EMA_PRESENT"
+    },
+    {
+      "hunter": "D07_calibration_reader",
+      "improve_reads_calibration_latest": true,
+      "verdict": "WIRED_IN_WORKING_TREE"
+    }
+  ],
+  "paid_calls": 0,
+  "memory_writes": 0,
+  "wave1_unlocked": false
+}

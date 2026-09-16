@@ -1,0 +1,68 @@
+{
+  "schema": "octopus-side-effect-accounting/1",
+  "authorization_id": "OCTOPUS-OWNER-CANARY-20260822-N1",
+  "written_at_local": "2026-08-22T16:37:54.950553+10:00",
+  "window": {
+    "start_unix": 1787377073.0335095,
+    "end_unix": 1787380673.0335853,
+    "duration_s": 3600.000075817108
+  },
+  "telegram": {
+    "manual_getUpdates": 0,
+    "webhook_mutations": 0,
+    "paid_calls": 0,
+    "broadcast": 0,
+    "second_canary": 0,
+    "owner_only_outward": true,
+    "closed_durable_loops_after_canary": [
+      {
+        "event_id": "tg:223883352",
+        "message_id": 598,
+        "state": "CLOSED"
+      },
+      {
+        "event_id": "tg:223883353",
+        "message_id": 600,
+        "state": "CLOSED"
+      },
+      {
+        "event_id": "tg:223883354",
+        "message_id": 603,
+        "state": "CLOSED"
+      },
+      {
+        "event_id": "tg:223883355",
+        "message_id": 604,
+        "state": "CLOSED"
+      },
+      {
+        "event_id": "tg:223883356",
+        "message_id": 606,
+        "state": "CLOSED"
+      }
+    ],
+    "duplicate_send_count": 0,
+    "uncertain_count": 2,
+    "output_by_method_last_sample": {
+      "sendMessage": 18,
+      "editMessageText": 0,
+      "answerCallbackQuery": 0,
+      "getUpdates_manual": 0,
+      "setWebhook": 0,
+      "deleteWebhook": 0,
+      "source": "local_state_inference"
+    }
+  },
+  "board_mutations": 0,
+  "center_restart_for_head_drift": false,
+  "writer_lock_agent": "grok-ari-single-writer",
+  "constraints_honored": [
+    "no_second_canary",
+    "no_broadcast",
+    "no_webhook",
+    "no_paid",
+    "no_board_mutate",
+    "writer_lock_grok_ari_heartbeat",
+    "no_restart_for_8c0fc90_vs_2ab0eb8"
+  ]
+}

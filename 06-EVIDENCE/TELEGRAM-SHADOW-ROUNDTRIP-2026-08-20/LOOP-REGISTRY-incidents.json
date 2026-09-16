@@ -1,0 +1,24 @@
+[
+  {
+    "loop_id": "LOOP-TELEGRAM-PROBE-INVALID",
+    "class": "BROKEN_FEEDBACK",
+    "also": "SILENT_SPAM",
+    "severity": "HIGH",
+    "status": "OPEN",
+    "note": "heartbeat spam suppressed; event→response closure unproven",
+    "regression_test": "test_tg_probe_invalid_spam.py",
+    "verified": false,
+    "updated": "2026-08-20T13:47:29Z"
+  },
+  {
+    "loop_id": "LOOP-TELEGRAM-UNOWNED-INSTANT-ALERT",
+    "class": "ORPHAN",
+    "also": "LOST_ACK",
+    "severity": "HIGH",
+    "status": "OPEN",
+    "note": "fear path outbox-only/dry-run; no fabricated task_id; no live send",
+    "regression_test": "test_telegram_shadow_roundtrip.py::t8_sig_fear_cannot_bypass_outbox",
+    "verified": false,
+    "updated": "2026-08-20T13:47:29Z"
+  }
+]

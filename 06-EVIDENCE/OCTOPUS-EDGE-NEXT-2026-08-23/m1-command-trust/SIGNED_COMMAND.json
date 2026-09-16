@@ -1,0 +1,20 @@
+{
+  "sender_id": "octopus-core-e2e",
+  "role": "core",
+  "permission": "diagnostics.read",
+  "timestamp": "2026-08-23T04:08:09.001851Z",
+  "expiry": "2026-08-23T04:18:09.001851Z",
+  "nonce": "242cd79b65a54b4ba1ee379a97410dda",
+  "command": "COLLECT_DIAGNOSTICS",
+  "request_id": "edge-next-m1-9c0a8c31aa85",
+  "params": {
+    "mutates": false,
+    "include": [
+      "systemd",
+      "nats",
+      "doctor",
+      "wave0_soft"
+    ]
+  },
+  "signature": "b64:DQ5FQdrwb0VFpHML...REDACTED_LEN64"
+}

@@ -1,0 +1,14 @@
+
+Name                                       InterfaceDescription                        Status      
+----                                       --------------------                        ------      
+Wi-Fi                                      Intel(R) Wi-Fi 6 AX201 160MHz               Up          
+Ethernet                                   Realtek PCIe GbE Family Controller          Disconnected
+OpenVPN Data Channel Offload for Surfshark OpenVPN Data Channel Offload                Disconnected
+Local Area Connection 4                    TAP-Windows Adapter V9 for OpenVPN Connect  Disconnected
+Local Area Connection 3                    OpenVPN Data Channel Offload for ExpressVPN Disconnected
+Local Area Connection                      ExpressVPN TUN Driver                       Disconnected
+OpenVPN Connect DCO Adapter                OpenVPN Data Channel Offload #2             Disconnected
+Local Area Connection 2                    ExpressVPN TAP Adapter                      Disconnected
+
+
+

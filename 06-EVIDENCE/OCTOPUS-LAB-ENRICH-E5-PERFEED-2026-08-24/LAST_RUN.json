@@ -1,0 +1,51 @@
+{
+  "ts": "20260824T061944Z",
+  "ok_count": 7,
+  "fail": [],
+  "published": [
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-OPENMETEO",
+      "event_id": "1021eb8e-d4a3-4734-830a-5f19565f1638",
+      "sensor_id": "OCT-FEED-OPENMETEO"
+    },
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-AQI",
+      "event_id": "ea4877e1-732e-4ef7-a880-f17a5880ebab",
+      "sensor_id": "OCT-FEED-AQI"
+    },
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-TIME",
+      "event_id": "96988fd6-0f74-472b-a2ea-33c979c80a44",
+      "sensor_id": "OCT-FEED-TIME"
+    },
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-FX-AUD",
+      "event_id": "2dc99b4d-17b2-47a6-a056-03dc276ad968",
+      "sensor_id": "OCT-FEED-FX-AUD"
+    },
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-BOM-SYD",
+      "event_id": "72820557-aff5-4a44-8f2e-7f033c256816",
+      "sensor_id": "OCT-FEED-BOM-SYD"
+    },
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-NEWS-AU",
+      "event_id": "2ffe8884-7d9b-41a2-a61c-809ff1814e28",
+      "sensor_id": "OCT-FEED-NEWS-AU"
+    },
+    {
+      "subject": "octopus.sensor.observation.OCT-FEED-USGS-QUAKE",
+      "event_id": "fc243ba5-1ac4-4a99-a5c0-88e6fb84b935",
+      "sensor_id": "OCT-FEED-USGS-QUAKE"
+    }
+  ],
+  "sensor_ids": [
+    "OCT-FEED-OPENMETEO",
+    "OCT-FEED-AQI",
+    "OCT-FEED-TIME",
+    "OCT-FEED-FX-AUD",
+    "OCT-FEED-BOM-SYD",
+    "OCT-FEED-NEWS-AU",
+    "OCT-FEED-USGS-QUAKE"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "RECEIPT-DOCTOR-LAN9101-EXPECT",
+  "auth": "OCTOPUS-ORANGEPI-DOCTOR-LAN9101-EXPECT-20260822",
+  "result": "PASS",
+  "ts_utc": "20260822T112436Z",
+  "script": "/opt/octopus/current/scripts/octopus_doctor_readonly.py",
+  "backup": "/opt/octopus/current/scripts/octopus_doctor_readonly.py.bak-20260822T112436Z",
+  "sha256_before": "sha256:3d62d6194bac0ea6cda76b8c7417c455497d0549df8aadc2cf3e39d15a922684",
+  "sha256_backup": "sha256:3d62d6194bac0ea6cda76b8c7417c455497d0549df8aadc2cf3e39d15a922684",
+  "sha256_after": "sha256:a43c3ff39dd020cc94809d1017191dc5c1a8b89f4a1bd1bee3cf988004582b49",
+  "ufw_note": "9101/tcp ALLOW IN 192.168.0.0/24 - WAN refuse; do not weaken",
+  "ss_9101_after": [
+    "tcp   LISTEN 0      5            0.0.0.0:9101       0.0.0.0:*    users:((\"python\",pid=377673,fd=3))     "
+  ],
+  "doctor_status_after": "FAIL",
+  "blocking_failed_ids_after": [
+    "checkpoint_unsigned"
+  ],
+  "metrics_bind": {
+    "schema": "octopus.doctor-check.v1",
+    "check_id": "metrics_bind",
+    "category": "runtime",
+    "severity": "blocking",
+    "observed": "0.0.0.0:9101",
+    "expected": "127.0.0.1:9101|0.0.0.0:9101|192.168.0.182:9101",
+    "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T112436Z-f220/ss.txt",
+    "read_only": true,
+    "passed": true,
+    "remediation_owner": "owner",
+    "remediation_type": "none",
+    "source_command": "ss -lntup",
+    "source_digest": "sha256:77a24409b6bc3f159aa3533a51a63a6b000fb040a4f70f6ad2e64d1e47462dbd",
+    "reason": null
+  },
+  "unexpected_listeners": {
+    "schema": "octopus.doctor-check.v1",
+    "check_id": "unexpected_listeners",
+    "category": "runtime",
+    "severity": "blocking",
+    "observed": {
+      "forbidden": [],
+      "lan_9101": true,
+      "lan_9101_allowed": true,
+      "known_nonlocal": [
+        ":22",
+        ":4222"
+      ]
+    },
+    "expected": {
+      "forbidden": [],
+      "lan_9101": true,
+      "ufw_note": "LAN-only 192.168.0.0/24"
+    },
+    "evidence_path": "/var/lib/octopus/evidence/doctor/doctor-2026-08-22T112436Z-f220/ss.txt",
+    "read_only": true,
+    "passed": true,
+    "remediation_owner": "owner",
+    "remediation_type": "none",
+    "source_command": "ss -lntp | grep -vE '127\\.0\\.0\\.1|::1'",
+    "source_digest": "sha256:77a24409b6bc3f159aa3533a51a63a6b000fb040a4f70f6ad2e64d1e47462dbd",
+    "reason": null
+  },
+  "gap002_registry": {
+    "schema": "octopus.doctor-check.v1",
+    "check_id": "gap002_registry",
+    "category": "integrity",
+    "severity": "blocking",
+    "observed": {
+      "status": "EXTERNALLY_CHECKPOINTED",
+      "audit_integrity": "EXTERNALLY_CHECKPOINTED",
+      "pass": true
+    },
+    "expected": {
+      "pass": true,
+      "audit_integrity": "EXTERNALLY_CHECKPOINTED"
+    },
+    "evidence_path": "/opt/octopus/current/manifests/open-gaps.json",
+    "read_only": true,
+    "passed": true,
+    "remediation_owner": "owner",
+    "remediation_type": "registry_close_not_checkpoint_credit",
+    "source_command": "python3 -m json.tool /opt/octopus/current/manifests/open-gaps.json",
+    "source_digest": "sha256:3702d9525406fe1a0adcc0e23a598599c463ac6f7241ab4d7640c1a365d3ba53",
+    "reason": null,
+    "live_gap_file": "CLOSED_BY_SIGNED_CHECKPOINT",
+    "signature_does_not_close_registry": true
+  },
+  "prove": {
+    "metrics_bind_pass": true,
+    "unexpected_listeners_pass": true,
+    "gap002_registry_pass": true,
+    "lan_9101_still_open": true,
+    "mqtt": "CLOSED"
+  },
+  "open_gaps_untouched": true,
+  "WAVE0_hardware": "KEEP_LOCKED",
+  "MQTT": "CLOSED"
+}

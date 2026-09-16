@@ -1,0 +1,760 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "octopus://schemas/node-pack/laptop/v1",
+  "title": "OCTOPUS Laptop Node Pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pack_version",
+    "node_role",
+    "collected_at",
+    "collector",
+    "collection_method",
+    "node",
+    "inventory",
+    "inventory_digest",
+    "claims",
+    "contradictions",
+    "open_questions",
+    "synthesis_lock",
+    "laptop_scope"
+  ],
+  "properties": {
+    "pack_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "node_role": {
+      "type": "string",
+      "const": "laptop"
+    },
+    "collected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "collector": {
+      "type": "string",
+      "minLength": 1
+    },
+    "collection_method": {
+      "type": "string",
+      "enum": [
+        "runtime",
+        "repo",
+        "manifest",
+        "owner-brief",
+        "mixed"
+      ]
+    },
+    "node": {
+      "$ref": "#/$defs/nodePhase0"
+    },
+    "inventory": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/inventoryItem"
+      }
+    },
+    "inventory_digest": {
+      "$ref": "#/$defs/inventoryDigest"
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/contradiction"
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "synthesis_lock": {
+      "$ref": "#/$defs/synthesisLock"
+    },
+    "laptop_scope": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "control-plane",
+          "telegram-bot",
+          "miniapp",
+          "self-coding-loop",
+          "policy-gate"
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "file_line",
+            "command_output",
+            "runtime_metric",
+            "owner_statement",
+            "connector_result",
+            "unknown"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "repoCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "status",
+        "source_locator"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "canonical",
+            "candidate",
+            "rejected",
+            "unknown"
+          ]
+        },
+        "source_locator": {
+          "$ref": "#/$defs/locator"
+        }
+      }
+    },
+    "repoState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo_path",
+        "branch",
+        "commit_sha",
+        "observed_at",
+        "status",
+        "source_locator"
+      ],
+      "properties": {
+        "repo_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,64}$"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "unverified",
+            "stale"
+          ]
+        },
+        "source_locator": {
+          "$ref": "#/$defs/locator"
+        }
+      }
+    },
+    "servicePort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "service",
+        "port",
+        "protocol",
+        "status",
+        "source_locator"
+      ],
+      "properties": {
+        "service": {
+          "type": "string",
+          "minLength": 1
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "protocol": {
+          "type": "string",
+          "enum": [
+            "tcp",
+            "udp",
+            "http",
+            "https",
+            "other"
+          ]
+        },
+        "bind_address": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "closed",
+            "unknown"
+          ]
+        },
+        "source_locator": {
+          "$ref": "#/$defs/locator"
+        }
+      }
+    },
+    "namedStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "status",
+        "source_locator"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "unverified",
+            "stale",
+            "unknown",
+            "missing"
+          ]
+        },
+        "detail": {
+          "type": "string"
+        },
+        "source_locator": {
+          "$ref": "#/$defs/locator"
+        }
+      }
+    },
+    "testCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "purpose"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "testResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "status",
+        "source_locator"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "executed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "fail",
+            "error",
+            "not-run",
+            "unknown"
+          ]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "evidence_ref": {
+          "type": "string"
+        },
+        "source_locator": {
+          "$ref": "#/$defs/locator"
+        }
+      }
+    },
+    "handoffFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "size_bytes",
+        "modified_at",
+        "sha256",
+        "status"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "modified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "unverified",
+            "missing"
+          ]
+        }
+      }
+    },
+    "nodePhase0": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "hardware",
+        "os",
+        "hostname",
+        "ip_or_discovery_method",
+        "repo_paths",
+        "canonical_repo_candidates",
+        "current_branch_and_commit",
+        "agent_runtime",
+        "services_and_ports",
+        "message_transport",
+        "event_schemas",
+        "data_stores",
+        "memory_stores",
+        "secrets_file_names_only",
+        "feature_flags",
+        "kill_switches",
+        "test_commands",
+        "last_test_results",
+        "active_projects",
+        "owner_decisions",
+        "known_failures",
+        "open_gates",
+        "telegram_components",
+        "webapp_components",
+        "internet_access_path",
+        "handoff_files"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hardware": {
+          "type": "string",
+          "minLength": 1
+        },
+        "os": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "ip_or_discovery_method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repo_paths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "canonical_repo_candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/repoCandidate"
+          }
+        },
+        "current_branch_and_commit": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/repoState"
+          }
+        },
+        "agent_runtime": {
+          "type": "string"
+        },
+        "services_and_ports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/servicePort"
+          }
+        },
+        "message_transport": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "event_schemas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "data_stores": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "memory_stores": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "secrets_file_names_only": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "feature_flags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "kill_switches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "test_commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/testCommand"
+          }
+        },
+        "last_test_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/testResult"
+          }
+        },
+        "active_projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "owner_decisions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "known_failures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "open_gates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "telegram_components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "webapp_components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "internet_access_path": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedStatus"
+          }
+        },
+        "handoff_files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/handoffFile"
+          }
+        }
+      }
+    },
+    "inventoryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "size_bytes",
+        "modified_at",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "modified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "confidential",
+            "restricted"
+          ]
+        }
+      }
+    },
+    "inventoryDigest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "ordered_by",
+        "digest_sha256"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "const": "sha256"
+        },
+        "ordered_by": {
+          "type": "string",
+          "enum": [
+            "path",
+            "path_then_modified_at"
+          ]
+        },
+        "digest_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "statement",
+        "status",
+        "source_id",
+        "source_locator",
+        "fetched_at",
+        "scope",
+        "hash_sha256",
+        "confidence"
+      ],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {},
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "unverified",
+            "stale"
+          ]
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_locator": {
+          "$ref": "#/$defs/locator"
+        },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hash_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "contradiction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contradiction_id",
+        "claim",
+        "value_a",
+        "source_a",
+        "value_b",
+        "source_b",
+        "likely_resolution",
+        "status",
+        "requires_owner_decision",
+        "verification_command"
+      ],
+      "properties": {
+        "contradiction_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value_a": {},
+        "source_a": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value_b": {},
+        "source_b": {
+          "type": "string",
+          "minLength": 1
+        },
+        "likely_resolution": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "const": "open"
+        },
+        "requires_owner_decision": {
+          "type": "boolean"
+        },
+        "verification_command": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "synthesisLock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "business_pack_received",
+        "sensorium_pack_received",
+        "laptop_pack_received",
+        "can_synthesize"
+      ],
+      "properties": {
+        "business_pack_received": {
+          "type": "boolean"
+        },
+        "sensorium_pack_received": {
+          "type": "boolean"
+        },
+        "laptop_pack_received": {
+          "type": "boolean"
+        },
+        "can_synthesize": {
+          "type": "boolean"
+        },
+        "pending_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

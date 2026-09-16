@@ -1,0 +1,149 @@
+{
+ "schema": "approval-queue-digest/1",
+ "generated_at": "2026-08-21T07:00:00Z",
+ "loop": "LOOP-APPROVAL-QUEUE",
+ "status": "OPEN / OWNER_DECISION_REQUIRED — pending=20 LOCALLY VERIFIED",
+ "counts_owner_reported": {
+  "pending": 20,
+  "approved": 0,
+  "rejected": 0,
+  "done": 0
+ },
+ "source": "verified at _octopus/queue/pending (20 files, status=pending, untracked; filenames are identifiers)",
+ "local_store_discrepancy": "resolved: earlier harvest inspected the wrong store (state/telegram/approvals); the actual queue is _octopus/queue/pending",
+ "safe_summaries_local": [
+  {
+   "identifier": "20260802T165320Z-mcp-harness-selftest.json",
+   "ts": "20260802T165320Z",
+   "kind": "report",
+   "summary": "mcp-harness-selftest"
+  },
+  {
+   "identifier": "20260802T165414Z-mcp-harness-selftest.json",
+   "ts": "20260802T165414Z",
+   "kind": "report",
+   "summary": "mcp-harness-selftest"
+  },
+  {
+   "identifier": "20260806T144337Z-آرشیوِ-خروجی-های-نهاییِ-گزارشِ-AGI-docx-pdf-ادغا.json",
+   "ts": "20260806T144337Z",
+   "kind": "archive",
+   "summary": "آرشیوِ خروجی‌های نهاییِ گزارشِ AGI (docx + pdf ادغام‌شده) از روت"
+  },
+  {
+   "identifier": "20260806T144346Z-آرشیوِ-toolchain-و-خروجی-های-میانیِ-گزارشِ-AGI-ا.json",
+   "ts": "20260806T144346Z",
+   "kind": "archive",
+   "summary": "آرشیوِ toolchain و خروجی‌های میانیِ گزارشِ AGI (اسکریپت‌ها + node_modules + PDF/"
+  },
+  {
+   "identifier": "20260806T144358Z-آرشیوِ-leaks-txt-روت-نامِ-گمراه-کننده،-صفر-صداکن.json",
+   "ts": "20260806T144358Z",
+   "kind": "archive",
+   "summary": "آرشیوِ leaks.txt (روت) — نامِ گمراه‌کننده، صفر صداکننده"
+  },
+  {
+   "identifier": "20260806T144401Z-آرشیوِ-mixed-examples-txt-روت-دامپِ-grep-بدونِ-ص.json",
+   "ts": "20260806T144401Z",
+   "kind": "archive",
+   "summary": "آرشیوِ mixed_examples.txt (روت) — دامپِ grep بدونِ صداکننده"
+  },
+  {
+   "identifier": "20260806T144407Z-آرشیوِ-lead-naghshi-portable-zip-روت،-۲۳-۸MB-بیل.json",
+   "ts": "20260806T144407Z",
+   "kind": "archive",
+   "summary": "آرشیوِ lead-naghshi-portable.zip (روت، ۲۳.۸MB) — بیلدِ رهاشده"
+  },
+  {
+   "identifier": "20260806T144412Z-آرشیوِ-now-moves-kill-seam-closer-py-جایگزین-شده.json",
+   "ts": "20260806T144412Z",
+   "kind": "archive",
+   "summary": "آرشیوِ now_moves/kill_seam_closer.py — جایگزین‌شده، خودش تأییدِ حذف را نوشته"
+  },
+  {
+   "identifier": "20260806T144425Z-حذفِ-کدیِ-renderStudio-از-میناپِ-تلگرام-جایگزین.json",
+   "ts": "20260806T144425Z",
+   "kind": "report",
+   "summary": "حذفِ کدیِ renderStudio() از میناپِ تلگرام — جایگزین شده، هنوز در باندل است"
+  },
+  {
+   "identifier": "20260806T144430Z-حذفِ-کدیِ-renderNext-از-میناپِ-تلگرام-تکرارِ-ren.json",
+   "ts": "20260806T144430Z",
+   "kind": "report",
+   "summary": "حذفِ کدیِ renderNext() از میناپِ تلگرام — تکرارِ renderTasks، خارج از dispatch m"
+  },
+  {
+   "identifier": "20260806T144436Z-آرشیوِ-03---Projects-octopus-prime-labs-درختِ-خا.json",
+   "ts": "20260806T144436Z",
+   "kind": "archive",
+   "summary": "آرشیوِ 03 - Projects/octopus-prime-labs/ — درختِ خالی، بدونِ PROJECT.md"
+  },
+  {
+   "identifier": "20260806T144442Z-آرشیوِ-03---Projects-octopus-ramanujan-درختِ-خال.json",
+   "ts": "20260806T144442Z",
+   "kind": "archive",
+   "summary": "آرشیوِ 03 - Projects/octopus-ramanujan/ — درختِ خالی، بدونِ PROJECT.md"
+  },
+  {
+   "identifier": "20260806T144443Z-آرشیوِ-07---Knowledge-backups-staging-tar-gz-دوپ.json",
+   "ts": "20260806T144443Z",
+   "kind": "archive",
+   "summary": "آرشیوِ 07 - Knowledge/_backups/ (staging + tar.gz) — دوپلیکیتِ genome-system"
+  },
+  {
+   "identifier": "20260806T144449Z-آرشیوِ-07---Knowledge-audit-ممیزیِ-یک-بارمصرفِ-ق.json",
+   "ts": "20260806T144449Z",
+   "kind": "archive",
+   "summary": "آرشیوِ 07 - Knowledge/_audit/ — ممیزیِ یک‌بارمصرفِ قدیمی، هرگز منتقل نشده"
+  },
+  {
+   "identifier": "20260806T144457Z-آرشیوِ-07---Knowledge-school-memory-کدِ-اجرایی-د.json",
+   "ts": "20260806T144457Z",
+   "kind": "archive",
+   "summary": "آرشیوِ 07 - Knowledge/school-memory/ — کدِ اجرایی داخلِ پوشهٔ دانش"
+  },
+  {
+   "identifier": "20260806T144509Z-آرشیوِ-01---Dashboard-PARALLEL-AGENTS-CONSOLIDAT.json",
+   "ts": "20260806T144509Z",
+   "kind": "archive",
+   "summary": "آرشیوِ 01 - Dashboard/PARALLEL-AGENTS-CONSOLIDATION-2026-07-18.md — اسنپ‌شاتِ یک"
+  },
+  {
+   "identifier": "20260806T144522Z-brain-cockpit-py-کلاسِ-BrainCockpit-پیاده-سازیِ.json",
+   "ts": "20260806T144522Z",
+   "kind": "report",
+   "summary": "brain/cockpit.py (کلاسِ BrainCockpit) — پیاده‌سازیِ موازیِ تست‌شده، صفر صداکننده"
+  },
+  {
+   "identifier": "20260806T144534Z-Crypto---etoro-leg-۴۷-روز-بدونِ-حرکت،-نیازمندِ-ر.json",
+   "ts": "20260806T144534Z",
+   "kind": "report",
+   "summary": "Crypto - etoro leg — ۴۷ روز بدونِ حرکت، نیازمندِ رأیِ صریحِ مالک (فعال/متوقف)"
+  },
+  {
+   "identifier": "20260806T144539Z-آرشیوِ-05---Agents-Vault-Operator-SYSTEM-PROMPT.json",
+   "ts": "20260806T144539Z",
+   "kind": "archive",
+   "summary": "آرشیوِ 05 - Agents/Vault Operator SYSTEM-PROMPT v2.md — ۲۶ روز رکود، احتمالاً جا"
+  },
+  {
+   "identifier": "20260806T144543Z-آرشیوِ-04---Architect-System-intake-photos-پوشهٔ.json",
+   "ts": "20260806T144543Z",
+   "kind": "archive",
+   "summary": "آرشیوِ 04 - Architect System/_intake-photos/ — پوشهٔ placeholder، هرگز استفاده ن"
+  }
+ ],
+ "rules": [
+  "no auto approve/reject/archive/delete",
+  "silence is NOT approval",
+  "money locked",
+  "delete prohibited",
+  "owner digest with approve/reject/defer options required"
+ ],
+ "owner_options": [
+  "approve <id>",
+  "reject <id> <reason>",
+  "defer <id>"
+ ],
+ "reconciliation_ref": "APPROVAL-QUEUE-RECONCILIATION.json"
+}

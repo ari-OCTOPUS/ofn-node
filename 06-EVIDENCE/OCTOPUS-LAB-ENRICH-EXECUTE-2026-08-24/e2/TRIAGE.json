@@ -1,0 +1,48 @@
+{
+  "schema": "octopus.lab-enrich.e2.triage.v1",
+  "id": "LAB-ENRICH-E2-THERMAL-QUARANTINE-TRIAGE-20260824",
+  "captured_at_utc": "20260824T052439Z",
+  "mode": "readonly_report_only",
+  "moved": false,
+  "ARMED": false,
+  "quarantine_files": [
+    "OCT-SENSE-053.THERMAL-RANGE_CHECK.json",
+    "wave01-range.json"
+  ],
+  "homeo_thermal_integrity": {
+    "value": 29.615,
+    "status": "healthy",
+    "stale": false,
+    "source": "soc_temperature_celsius",
+    "stamp": "2026-08-24T05:24:16.523509+00:00",
+    "raw": 29.615
+  },
+  "live_thermal_sensor_id": "OCT-SENSE-053.THERMAL",
+  "findings": [
+    {
+      "file": "OCT-SENSE-053.THERMAL-RANGE_CHECK.json",
+      "likely_stale_residue": true,
+      "recommendation": "CANDIDATE_MOVE_TO_CLEARED_AFTER_OWNER_GO",
+      "reasons": [
+        "thermal_quarantine_present",
+        "live_thermal_value=30.538",
+        "live_temp_in_broad_healthy_band_20_85C",
+        "mentions_range"
+      ],
+      "live_thermal": {
+        "stamp": "2026-08-24T05:24:37.233696+00:00",
+        "value": 30.538,
+        "unit": "Cel"
+      }
+    },
+    {
+      "file": "wave01-range.json",
+      "likely_stale_residue": null,
+      "recommendation": "KEEP_REVIEW_SEPARATELY",
+      "reasons": [
+        "non_thermal_quarantine"
+      ]
+    }
+  ],
+  "ask_owner": "GO move THERMAL (and/or wave01-range) quarantine files to quarantine/.cleared-20260824/ ? Default HOLD keep."
+}

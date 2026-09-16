@@ -1,0 +1,59 @@
+﻿F:\backup\_ops\agi2027_control\runtime.py:599: "summary": "Project-F real adapter; BLOCKED until PROJECTF_API_BASE_URL/TOKEN exist.",
+F:\backup\_ops\budget\approval_channel.py:1897: "(مثال: RFC-xxx [merge])")
+F:\backup\_ops\budget\approval_channel.py:2733: return "🩺 فرمت: <code>/doctor edit RFC-xxxxxxxx متنِ بازنگری</code>"
+F:\backup\_ops\cortex\improve.py:141: # extract RFC ID from text (pattern: up-XXXXXXXX or RFC-XXXXXXXX)
+F:\backup\_ops\cortex\model_router.py:271: note="F18: paid path blocked until fresh FX pin (pricing_pinned.json)")
+F:\backup\_ops\deploy\deploy-to-live.ps1:200: # DEFERRED TO ACTIVATION (2026-07-21 fix): register-tg-center-watchdog.ps1 schedules a task
+F:\backup\_ops\deploy\deploy-to-live.ps1:207: Note "tg-center watchdog registration DEFERRED to activation (would start a poller); skipped."
+F:\backup\_ops\epistemics\contracts.py:53: # minimum samples before a metric is treated as authoritative. TODO(GLM): calibrate.
+F:\backup\_ops\epistemics\metrics.py:1: """Five off-loop epistemic metrics. The MATH is real; DATA ADAPTERS are TODO (readers.py).
+F:\backup\_ops\epistemics\metrics.py:38: return C.make_metric(C.CHANNEL, None, 0, "no paired samples (readers TODO)")
+F:\backup\_ops\epistemics\metrics.py:55: return C.make_metric(C.LEVELS, None, 0, "no topology (readers.read_topology TODO)")
+F:\backup\_ops\epistemics\metrics.py:80: return C.make_metric(C.SELF_REFERENCE, None, 0, "no paired errors (readers.read_self_vs_twin TODO)")
+F:\backup\_ops\implementation_reports\AGI2027-FUGU-FINAL-REPORT-2026-08-02.md:19: > - Project-F remains blocked until PROJECTF_API_* credentials exist
+F:\backup\_ops\implementation_reports\G03-HUMAN-INTERACTION-WIRING-2026-08-02.md:69: - Project-F remains blocked until `PROJECTF_API_BASE_URL` and `PROJECTF_API_TOKEN` are configured and owner approval is 
+F:\backup\_ops\implementation_reports\G03-HUMAN-INTERACTION-WIRING-2026-08-02.md:140: - Project-F remains blocked until `PROJECTF_API_BASE_URL` and `PROJECTF_API_TOKEN` exist.
+F:\backup\_ops\implementation_reports\MINIAPP-UI-COCKPIT-2026-08-02.md:42: - **`BLOCKED_NEEDS_AUTH_CONFIG`** برای actionها. `OCTOPUS_MINIAPP_URL`،
+F:\backup\_ops\legs\ps_writeback.py:518: todo = list(by_tid.values())
+F:\backup\_ops\legs\ps_writeback.py:531: for it in todo:
+F:\backup\_ops\loops\closeout.py:96: leak = telegram_organ.redact("token 123456789:AAThisIsAFakeTelegramBotTokenValueXXXX")
+F:\backup\_ops\telegram_center\GLM-TELBOT-ROLE-AUDIT.md:94: - هیچ ادغامِ مخرب انجام نشد (طبق دستور: «اگر زمان کم است، فقط مستند و TODO دقیق بگذار»).
+F:\backup\_ops\telegram_center\leg_activation.py:161: "todo:", "tbd",
+F:\backup\_ops\telegram_center\miniapp_state.py:231: "projectf_status": "BLOCKED_NEEDS_CREDENTIALS",
+F:\backup\_ops\telegram_center\mission_runner.py:210: todo = [a for a in actions if a in ALLOWLIST]
+F:\backup\_ops\telegram_center\mission_runner.py:215: if not todo:
+F:\backup\_ops\telegram_center\mission_runner.py:223: return {"ok": True, "dry_run": True, "would_run": todo, "skipped": skipped}
+F:\backup\_ops\telegram_center\mission_runner.py:228: "started_at": mission._now_iso(), "actions": todo, "skipped": skipped}
+F:\backup\_ops\telegram_center\mission_runner.py:257: for aid in todo:
+F:\backup\_ops\tests\test_afferent_path_w2.py:131: obs = Observation(source="test", obs_type="status", label="credit card 4532-xxxx")
+F:\backup\_ops\tests\test_decision_receipt.py:105: [{"content_sha256": "a" * 64, "token": "sk-xxx"}],
+F:\backup\_ops\tests\test_miniapp_state.py:40: json.dumps({"ts":"x","bot_token":"123456789:AAGxxxxxxxxxxxxxxxxxxxxxxxx",
+F:\backup\_ops\tests\test_miniapp_state.py:45: assert "AAGxxxx" not in blob, "token leaked!"
+F:\backup\_ops\tests\test_miniapp_state.py:87: meta={"rfc_id": "RFC-1", "token": "123456789:AAGxxxxxxxxxxxxxxxxxxxxxxxx"})
+F:\backup\_ops\tests\test_outbound_owner_transport.py:239: # پیام truncation شد (text=xxxx... ≤ 4003 chars)
+F:\backup\_ops\tests\test_p0_security_fixes.py:42: hag.configure(b"boot-secret-32-bytes-xxxxxxxxxxxx")
+F:\backup\_ops\tests\test_p0_security_fixes.py:58: hag.configure(b"boot-secret-32-bytes-xxxxxxxxxxxx")
+F:\backup\_ops\tests\test_p0_security_fixes.py:73: hag.configure(b"boot-secret-32-bytes-xxxxxxxxxxxx")
+F:\backup\_ops\tests\test_p0_security_fixes.py:87: hag.configure(b"boot-secret-32-bytes-xxxxxxxxxxxx")
+F:\backup\_ops\tests\test_p0_security_fixes.py:124: hag.configure(b"boot-secret-32-bytes-xxxxxxxxxxxx")
+F:\backup\_ops\tests\test_pii_read_guard.py:82: "Statements/ANZ-BE-XXXXXXXXX/ANZ-BE_stmt04.pdf") is True)
+F:\backup\_ops\tests\test_self_scan.py:138: root = build_tree({"a.py": "x = 1\n# TODO: بعداً\ny = 2 # FIXME broken\n"})
+F:\backup\_ops\tests\test_self_scan.py:142: self.assertEqual(set(r["by_marker"]), {"TODO", "FIXME"})
+F:\backup\_ops\tests\test_self_scan.py:145: root = build_tree({"a.py": "x = 1 # noqa: TODO\n"})
+F:\backup\_ops\tests\test_self_scan.py:149: root = build_tree({"tests/test_a.py": "# TODO nope\n"})
+F:\backup\_ops\tests\test_tg_callback_emitter_parity.py:78: "TODO مالک: یا approval_channel.py هندلرِ mr بگیرد یا دکمه مثلِ "
+F:\backup\_ops\tests\test_tg_leg_activation.py:151: "TODO: fill this in",
+F:\backup\_ops\tests\test_tg_orphans_wired.py:319: named = la.guard_send("todo: بعداً پرش کن", leg="crypto")
+F:\backup\_ops\tests\test_tg_orphans_wired.py:320: assert "todo:" in named["reason"], named # **کدام** امضا، نه فقط «امضا»
+F:\backup\_ops\tests\test_tg_probe_invalid_spam.py:159: leaked = to.redact("bot 123456789:AAThisIsAFakeTelegramBotTokenValueXXXX")
+F:\backup\_ops\tests\test_tg_probe_invalid_spam.py:160: assert "AAThisIsAFakeTelegramBotTokenValueXXXX" not in leaked
+F:\backup\_ops\tests\test_tg_wiring_w3.py:505: lt.card_text = lambda leg, paused=False, kpi=None: "TODO: {{fill me}}"
+F:\backup\_ops\tests\test_ziman_leg.py:131: r = leg.memory_candidate("api_key=sk-xxx", "file://x")
+F:\backup\_ops\unified_control\guidance_policy.py:11: """Guidance can steer cognition now, but goal changes are deferred to the next cycle.
+F:\backup\_ops\_agent_reports\SELF-SCAN-2026-07-28.md:31: | **M** | TODO / FIXME / جای‌نگه‌دار در کدِ زنده | «ABN پر شده» از همین جنس بود |
+F:\backup\_ops\_agent_reports\WS-5-capability-2026-07-26.md:22: | **MISSION_RUNNER** | `0` (duplicated key, both 0) | `center.py:1210` `wired = ... == "1" and runner_mod is not None` →
+F:\backup\_ops\REPORT-P1.md:86: - P3 blocked until P1 gate green
+F:\backup\_ops\SELF-GOAL-CHARTER-2026-07-30.md:541: صدا زده می‌شود. **این اولین کارِ مرحلهٔ ۶ است، نه یک TODO.**
+F:\backup\_ops\self_scan.py:30: M نشانهٔ ناتمام TODO / FIXME / جای‌نگه‌دار که در کدِ زنده جا مانده.
+F:\backup\_ops\self_scan.py:68: r"(?:^|\s|#)(TODO|FIXME|XXX|HACK|TBD|NOTIMPL|PLACEHOLDER)\b", re.I)
+F:\backup\_ops\vault_updater.py:61: _TASK_RE = re.compile(r"(todo|\[ \]|باید|task|انجام بده|پیگیری|deadline|مهلت)", re.I)

@@ -1,0 +1,147 @@
+{
+    "hunt_id":  "OCTOPUS-EVIDENCE-ARCHIVE-ROOT-HUNT-2026-08-22",
+    "timezone":  "Australia/Sydney (UTC+10)",
+    "prior_blocked_package":  {
+                                  "EXECUTE_READY":  false,
+                                  "template":  "OWNER-ARCHIVE-SUPPLY.template.json (all REPLACE_ME)",
+                                  "gate":  "BLOCKED_NEED_ARCHIVE_ROOT",
+                                  "path":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-EXECUTE-2026-08-22",
+                                  "superseded_auth_only":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-2026-08-22",
+                                  "auth_id":  "OCTOPUS-ORANGEPI-CHG-E-20260822"
+                              },
+    "how_to_unblock":  "Fill F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-EXECUTE-2026-08-22/OWNER-ARCHIVE-SUPPLY.json from template; flip gate only after owner paths confirmed. No delete/cleanup until then.",
+    "written_at_local":  "2026-08-22T21:47:00+10:00",
+    "laptop_candidates":  [
+                              {
+                                  "preferred_documented":  false,
+                                  "free_GB_on_volume":  58.32,
+                                  "volume":  "F: Armin-Brain",
+                                  "exists":  true,
+                                  "role_guess":  "laptop_side_cold_archive_root_candidate (empty dedicated archive folder under vault)",
+                                  "path":  "F:\\backup\\99-ARCHIVE",
+                                  "notes":  "Exists and empty. Strongest F: structural candidate for laptop-held cold archive copies. NOT a Pi ARCHIVE_ROOT.",
+                                  "child_count":  0
+                              },
+                              {
+                                  "preferred_documented":  false,
+                                  "free_GB_on_volume":  58.32,
+                                  "volume":  "F: Armin-Brain",
+                                  "exists":  true,
+                                  "role_guess":  "legacy laptop archive tree",
+                                  "path":  "F:\\backup-Archive",
+                                  "notes":  "Exists; already holds Apps/Logs/Mining/Venvs/Zips etc (Jul 2026). Possible staging parent, not CHG-E-specific.",
+                                  "child_count":  8
+                              },
+                              {
+                                  "preferred_documented":  false,
+                                  "free_GB_on_volume":  58.32,
+                                  "volume":  "F: Armin-Brain",
+                                  "exists":  true,
+                                  "role_guess":  "vault internal archive of superseded trees",
+                                  "path":  "F:\\backup\\_Archive",
+                                  "notes":  "Busy vault archive; suitable only if owner explicitly wants CHG-E cold copies under vault _Archive.",
+                                  "child_count":  36
+                              },
+                              {
+                                  "free_GB_on_volume":  58.32,
+                                  "preferred_documented":  false,
+                                  "volume":  "F: Armin-Brain",
+                                  "path":  "F:\\backup\\_archive-binaries",
+                                  "notes":  "Exists; mixed personal/binary content — weak fit for Orange Pi evidence cold store.",
+                                  "exists":  true,
+                                  "role_guess":  "binary/media archive"
+                              },
+                              {
+                                  "free_GB_on_volume":  58.32,
+                                  "preferred_documented":  false,
+                                  "volume":  "F: Armin-Brain",
+                                  "path":  "F:\\tmp",
+                                  "notes":  "Exists; scratch — not retention-grade unless owner reclassifies.",
+                                  "exists":  true,
+                                  "role_guess":  "scratch only"
+                              },
+                              {
+                                  "free_GB_on_volume":  54.35,
+                                  "preferred_documented":  false,
+                                  "volume":  "E: Game",
+                                  "path":  "E:\\deploy-snapshots",
+                                  "notes":  "Exists with prior deploy snapshots; free space OK for ~4.7G but Game volume / wrong semantic unless owner chooses.",
+                                  "exists":  true,
+                                  "role_guess":  "deploy snapshot store"
+                              },
+                              {
+                                  "free_GB_on_volume":  80.8,
+                                  "preferred_documented":  false,
+                                  "volume":  "M: backend",
+                                  "path":  "M:\\",
+                                  "notes":  "Most free space on laptop (80.8G). No CHG-E-named archive subdir found; owner must name a concrete subpath if choosing M:.",
+                                  "exists":  true,
+                                  "role_guess":  "largest_free_volume_root (owner must pick subdir)"
+                              },
+                              {
+                                  "free_GB_on_volume":  33.49,
+                                  "preferred_documented":  false,
+                                  "volume":  "D: personal",
+                                  "path":  "D:\\backup",
+                                  "notes":  "Exists; least free of large data drives (~33.5G) — still enough for 4.7G+margin but tighter.",
+                                  "exists":  true,
+                                  "role_guess":  "personal vault mirror"
+                              }
+                          ],
+    "owner_must_confirm":  [
+                               "ARCHIVE_ROOT — absolute path on Pi OR attached volume with free \u003e= ~4.7G + margin (primary gate)",
+                               "HOT_EVIDENCE_ROOT — live evidence store on Pi (observations.jsonl / derived / indexes)",
+                               "HOT_RETENTION_WINDOW — time or size policy for what stays hot",
+                               "DISK_FREE_TARGET — bytes or percent free on evidence filesystem",
+                               "INDEX_REBUILD_COMMAND or confirmed sensoriom rebuild procedure",
+                               "no_casual_truncate_affirmation = true",
+                               "OPTIONAL: if cold archive copies should also land on laptop, pick one laptop_candidates path (suggest F:\\backup\\99-ARCHIVE) and state that explicitly"
+                           ],
+    "documented_preferred_note":  "NO clear documented preferred ARCHIVE_ROOT found. Template still REPLACE_ME. Do not invent.",
+    "cold_payload_class_GB":  4.7,
+    "pi_archive_root_status":  "UNKNOWN_NO_SSH",
+    "drive_free_space_GB":  {
+                                "E:":  {
+                                           "label":  "Game",
+                                           "size_GB":  301.76,
+                                           "free_GB":  54.35
+                                       },
+                                "F:":  {
+                                           "label":  "Armin-Brain",
+                                           "size_GB":  226.56,
+                                           "free_GB":  58.32
+                                       },
+                                "C:":  {
+                                           "label":  "",
+                                           "size_GB":  237.86,
+                                           "free_GB":  49.58
+                                       },
+                                "M:":  {
+                                           "label":  "backend",
+                                           "size_GB":  214.84,
+                                           "free_GB":  80.8
+                                       },
+                                "D:":  {
+                                           "label":  "personal",
+                                           "size_GB":  188.35,
+                                           "free_GB":  33.49
+                                       }
+                            },
+    "schema":  "octopus.archive-root-hunt.v1",
+    "pi_note":  "CHG-E auth requires ARCHIVE_ROOT on Pi or attached volume. Laptop writer did not SSH. No Pi free-space inventory in this hunt.",
+    "documented_pi_evidence_paths_seen":  [
+                                              "/var/lib/octopus/evidence/session-chg-abd-20260822/ (board receipts; HOT/session evidence, NOT declared ARCHIVE_ROOT)",
+                                              "/var/lib/octopus/inbound/TO-LAPTOP/exchange/ (TO-LAPTOP drop, NOT ARCHIVE_ROOT)"
+                                          ],
+    "abd_skeleton_drafted":  false,
+    "constraints_honored":  [
+                                "no_delete",
+                                "no_cleanup",
+                                "no_ssh",
+                                "no_invented_archive_root"
+                            ],
+    "documented_preferred_archive_root":  null,
+    "recommended_free_margin_GB":  6,
+    "abd_skeleton_reason":  "Skipped: no clear documented preferred ARCHIVE_ROOT to pre-fill. Drafting a path would invent.",
+    "purpose":  "Find candidate ARCHIVE_ROOT for CHG-E cold evidence archive (~4.7G) without inventing Pi paths or mutating anything"
+}

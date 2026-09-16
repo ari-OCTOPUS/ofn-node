@@ -1,0 +1,8 @@
+{
+  "schema": "octopus.edge.diagnostics.v1",
+  "request_id": "edge-next-m1-bad-1919706cc9",
+  "status": "FAIL",
+  "error": "command_trust_rejected",
+  "signature_verify": "REJECTED:command_signature_invalid",
+  "checks": []
+}

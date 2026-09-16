@@ -1,0 +1,24 @@
+{
+  "node_id": "board-138",
+  "mapped_identity": "BUSINESS (پای اجرایی/OFN — اثبات‌شده با کد، یونیت‌ها و رانِ زنده)",
+  "ip": "192.168.0.138",
+  "hostname": "DietPi",
+  "hardware": {"board": "Orange Pi 5 Pro (RK3588S)", "cpu": "aarch64", "ram": "4GB (per prior docs)", "mac": "c0:74:2b:f9:72:d5"},
+  "os": {"name": "DietPi / Debian GNU/Linux 13 (trixie)", "arch": "aarch64"},
+  "uptime": "2 weeks, 2 days, 18h (at 2026-09-03 ~11:05 AEST)",
+  "time": {"ntp": "UNKNOWN", "drift_ms": "UNKNOWN — سنجیده نشد (آیتم باز)"},
+  "git": {"repo": "~/ofn (ari-OCTOPUS/ofn-node)", "branch": "main", "head": "58e87774f4428b247601f8b49956948491155f74", "dirty": "فقط untracked (data/state, agi2027_runtime, ...)؛ بدون تغییر tracked", "note": "۴ مرج عقبِ main=825837cb (#121,#88,#82,#83) — C5"},
+  "services": [
+    {"name": "ofn.run", "pid": 2574033, "ports": [8791, 8792, 8793, 8794], "note": "یک پروسه، چهار سطح loopback — نه چهار سرویس"},
+    {"name": "octopus-bridge", "pid": 589802, "port": 8796, "unit": "octopus-bridge.service active", "control_url": "https://cp.master-painting.com", "outbound_enabled": "1", "board_cp_pull": "1"},
+    {"name": "octopus-heartbeat.timer", "note": "آخرین اجرا موفق 2026-09-02T23:00:09Z"},
+    {"name": "mesh daemons", "note": "bridge/control_router/cycle_settler/router/supervisor/verify_dispatcher — 6/6 healthy در self-model"},
+    {"name": "cloudflared / dropbear / backup / imap / quote / scheduler", "note": "per systemctl"}
+  ],
+  "ports_listening": ["127.0.0.1:8791-8794 (ofn.run)", "127.0.0.1:8796 (octopus-bridge)"],
+  "datastores": ["data/state/** (legs: lead-inbox events.jsonl, lead-send-counter.json, consent.db)", "ofn/agi2027_runtime/outbound-effects.sqlite3", "11× sqlite per prior docs"],
+  "network_peers": [{"ip": "192.168.0.180", "mac": "c0:74:2b:f9:72:90", "seen": "ip neigh STALE"}, {"ip": "192.168.0.182", "mac": "c0:74:2b:f9:86:64", "seen": "ip neigh STALE"}, {"ip": "192.168.0.191", "note": "لپ‌تاپ مالک — بدون سرویس 8801"}],
+  "observed_at": "2026-09-03T01:05:00Z",
+  "evidence": ["ssh ari@192.168.0.138 (خواندن مستقیم)", "curl localhost پورت‌ها", "systemctl cat/list", "git rev-parse HEAD (بدون fetch)"],
+  "label": "LIVE_VERIFIED"
+}

@@ -1,0 +1,26 @@
+WAVE0_OUTBOX_INJECT_HOOK_READ
+ts=2026-08-27T12:16+10
+witness=182
+may_authorize=false
+MUTATIONS=0
+180_write=NO
+WAVE0_write=NO
+inbox_drain=NO
+c3f085a8_claim=NO
+
+FILE=F:\backup\06-EVIDENCE\BOARD-180-REPLY-REPAIR-2026-08-27\WAVE0\octopus_reply_outbox.py
+BYTES=23614
+SHA256=0e6dccfb6824e0da41c0a99014ee7b3709df9d9da29047e5387be183b12208ff
+HASH_MATCH=true
+PREVIOUS_WAVE0_SHA=bac40b1e7923cb67656ecc8c0163f9f3df1e2b4479293e3f5ab55285e1cd6a73 (superseded on disk)
+
+HOOK_OBSERVED
+inject_send_failure_once=payload_flag
+inject_send_failure_consumed=first_transmit_fails_freeze_stays_no_fn_wire
+OCTOMESH_REPLY_TRANSMIT=fail|ack|duplicate|timeout
+NOTE=180 disk apply not independently verified. Read only.
+
+B_BLOCKER=isolated --once worker patch already on file
+B_FILE=oracle-182\WITNESS_WORKER_ONCE_PATCH_RESULT.txt
+B_STATUS=ISOLATED_WORKER_PATCH_READY_NOT_PROD
+END

@@ -1,0 +1,4 @@
+cloudflared status snapshot
+PID 6560: octopus-cp tunnel RUNNING (config C:\Users\Armin\.cloudflared\octopus-cp-config.yml run octopus-cp) WS~40MB CPU_sec~9
+PID 7816: octopus-miniapp tunnel RUNNING (--url http://127.0.0.1:8774 octopus-miniapp) WS~21MB CPU_sec~100
+Both tunnels alive; no kill performed.

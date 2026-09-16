@@ -1,0 +1,472 @@
+{
+  "stamp": "2026-08-24T07:56:57Z",
+  "brand": "Nova Soles",
+  "handle": "@novasoles",
+  "email": "novasoles.au@gmail.com",
+  "slogan": "Sexy is an energy, not a body type",
+  "watermark": true,
+  "watermark_text": "© NovaSoles",
+  "wm_placement": "top-right corner (avoid toes)",
+  "source": "Board2 /home/ari/.local/share/ofn/photos/studio/*/0-1600.jpg",
+  "constraints": [
+    "NO FF register by agent",
+    "NO FF upload",
+    "NO OF",
+    "NO face"
+  ],
+  "face_qa": "manual visual; mirror shots 0020/0021 included with owner-QA note (no face seen)",
+  "excluded_face_flags": [],
+  "packs": [
+    {
+      "pack_id": "NS-FF-01",
+      "theme": "Overhead floral rug dark polish",
+      "primary": "shot-0003",
+      "alts": [
+        "shot-0006"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0003",
+          "role": "primary",
+          "source_shot": "shot-0003",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0003/0-1600.jpg",
+          "file": "primary_shot-0003_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-01/primary_shot-0003_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "POV legs/feet, hand+ring only; no face",
+          "width": 1205,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0006",
+          "role": "alt",
+          "source_shot": "shot-0006",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0006/0-1600.jpg",
+          "file": "alt_shot-0006_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-01/alt_shot-0006_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "library no-face; caption feet-only",
+          "width": 1085,
+          "height": 1600,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Overhead floral rug dark polish",
+        "description_en": "Sexy is an energy, not a body type\n\nOverhead floral rug dark polish. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-01"
+    },
+    {
+      "pack_id": "NS-FF-02",
+      "theme": "Warm window light textured fabric",
+      "primary": "shot-0004",
+      "alts": [
+        "shot-0019"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0004",
+          "role": "primary",
+          "source_shot": "shot-0004",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0004/0-1600.jpg",
+          "file": "primary_shot-0004_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-02/primary_shot-0004_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "feet on textured fabric; no face",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0019",
+          "role": "alt",
+          "source_shot": "shot-0019",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0019/0-1600.jpg",
+          "file": "alt_shot-0019_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-02/alt_shot-0019_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "side foot lace bokeh; no face",
+          "width": 1600,
+          "height": 997,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Warm window light textured fabric",
+        "description_en": "Sexy is an energy, not a body type\n\nWarm window light textured fabric. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-02"
+    },
+    {
+      "pack_id": "NS-FF-03",
+      "theme": "Crossed on wood table metallic polish",
+      "primary": "shot-0005",
+      "alts": [
+        "shot-0006"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0005",
+          "role": "primary",
+          "source_shot": "shot-0005",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0005/0-1600.jpg",
+          "file": "primary_shot-0005_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-03/primary_shot-0005_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "crossed ankles on wood table; no face",
+          "width": 1097,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0006",
+          "role": "alt",
+          "source_shot": "shot-0006",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0006/0-1600.jpg",
+          "file": "alt_shot-0006_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-03/alt_shot-0006_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "library no-face; caption feet-only",
+          "width": 1085,
+          "height": 1600,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Crossed on wood table metallic polish",
+        "description_en": "Sexy is an energy, not a body type\n\nCrossed on wood table metallic polish. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-03"
+    },
+    {
+      "pack_id": "NS-FF-04",
+      "theme": "Sheer white lace dark red polish",
+      "primary": "shot-0007",
+      "alts": [
+        "shot-0008",
+        "shot-0009"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0007",
+          "role": "primary",
+          "source_shot": "shot-0007",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0007/0-1600.jpg",
+          "file": "primary_shot-0007_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-04/primary_shot-0007_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "library no-face; caption feet-only",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0008",
+          "role": "alt",
+          "source_shot": "shot-0008",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0008/0-1600.jpg",
+          "file": "alt_shot-0008_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-04/alt_shot-0008_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "close-up burgundy lace; no face",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0009",
+          "role": "alt",
+          "source_shot": "shot-0009",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0009/0-1600.jpg",
+          "file": "alt_shot-0009_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-04/alt_shot-0009_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "library no-face; caption feet-only",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Sheer white lace dark red polish",
+        "description_en": "Sexy is an energy, not a body type\n\nSheer white lace dark red polish. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-04"
+    },
+    {
+      "pack_id": "NS-FF-05",
+      "theme": "Close-up burgundy on lace",
+      "primary": "shot-0008",
+      "alts": [
+        "shot-0011",
+        "shot-0012"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0008",
+          "role": "primary",
+          "source_shot": "shot-0008",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0008/0-1600.jpg",
+          "file": "primary_shot-0008_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-05/primary_shot-0008_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "close-up burgundy lace; no face",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0011",
+          "role": "alt",
+          "source_shot": "shot-0011",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0011/0-1600.jpg",
+          "file": "alt_shot-0011_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-05/alt_shot-0011_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "library no-face; caption feet-only",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0012",
+          "role": "alt",
+          "source_shot": "shot-0012",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0012/0-1600.jpg",
+          "file": "alt_shot-0012_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-05/alt_shot-0012_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "library no-face; caption feet-only",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Close-up burgundy on lace",
+        "description_en": "Sexy is an energy, not a body type\n\nClose-up burgundy on lace. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-05"
+    },
+    {
+      "pack_id": "NS-FF-06",
+      "theme": "Soft pink/rose polish couch lace",
+      "primary": "shot-0010",
+      "alts": [
+        "shot-0017"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0010",
+          "role": "primary",
+          "source_shot": "shot-0010",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0010/0-1600.jpg",
+          "file": "primary_shot-0010_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-06/primary_shot-0010_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "pink/rose polish lace; no face",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0017",
+          "role": "alt",
+          "source_shot": "shot-0017",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0017/0-1600.jpg",
+          "file": "alt_shot-0017_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-06/alt_shot-0017_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "library no-face; caption feet-only",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Soft pink/rose polish couch lace",
+        "description_en": "Sexy is an energy, not a body type\n\nSoft pink/rose polish couch lace. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-06"
+    },
+    {
+      "pack_id": "NS-FF-07",
+      "theme": "Oiled skin against wall strong shadow",
+      "primary": "shot-0014",
+      "alts": [
+        "shot-0015"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0014",
+          "role": "primary",
+          "source_shot": "shot-0014",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0014/0-1600.jpg",
+          "file": "primary_shot-0014_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-07/primary_shot-0014_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "oiled legs vs wall; no face",
+          "width": 1205,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0015",
+          "role": "alt",
+          "source_shot": "shot-0015",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0015/0-1600.jpg",
+          "file": "alt_shot-0015_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-07/alt_shot-0015_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "library no-face; caption feet-only",
+          "width": 1205,
+          "height": 1600,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Oiled skin against wall strong shadow",
+        "description_en": "Sexy is an energy, not a body type\n\nOiled skin against wall strong shadow. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-07"
+    },
+    {
+      "pack_id": "NS-FF-08",
+      "theme": "Teal velvet curtain soles up",
+      "primary": "shot-0013",
+      "alts": [
+        "shot-0022"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0013",
+          "role": "primary",
+          "source_shot": "shot-0013",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0013/0-1600.jpg",
+          "file": "primary_shot-0013_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-08/primary_shot-0013_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "soles up teal curtain; no face",
+          "width": 1205,
+          "height": 1600,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0022",
+          "role": "alt",
+          "source_shot": "shot-0022",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0022/0-1600.jpg",
+          "file": "alt_shot-0022_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-08/alt_shot-0022_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "soles up teal curtain + basket; no face",
+          "width": 1205,
+          "height": 1600,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Teal velvet curtain soles up",
+        "description_en": "Sexy is an energy, not a body type\n\nTeal velvet curtain soles up. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-08"
+    },
+    {
+      "pack_id": "NS-FF-09",
+      "theme": "Couch + mirror ambient",
+      "primary": "shot-0020",
+      "alts": [
+        "shot-0021",
+        "shot-0016"
+      ],
+      "watermark": true,
+      "files": [
+        {
+          "shot": "shot-0020",
+          "role": "primary",
+          "source_shot": "shot-0020",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0020/0-1600.jpg",
+          "file": "primary_shot-0020_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-09/primary_shot-0020_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "couch+mirror; arm/torso in reflection, NO face — owner QA mirror",
+          "width": 1600,
+          "height": 1439,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0021",
+          "role": "alt",
+          "source_shot": "shot-0021",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0021/0-1600.jpg",
+          "file": "alt_shot-0021_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-09/alt_shot-0021_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "couch+mirror; arm/torso in reflection, NO face — owner QA mirror",
+          "width": 1600,
+          "height": 1505,
+          "wm_corner": "top-right"
+        },
+        {
+          "shot": "shot-0016",
+          "role": "alt",
+          "source_shot": "shot-0016",
+          "source_board2": "/home/ari/.local/share/ofn/photos/studio/shot-0016/0-1600.jpg",
+          "file": "alt_shot-0016_1600_wm.jpg",
+          "path": "EXPORT-WATERMARKED/NS-FF-09/alt_shot-0016_1600_wm.jpg",
+          "watermark": true,
+          "face_detected": false,
+          "face_notes": "lace volume; no face",
+          "width": 1200,
+          "height": 1600,
+          "wm_corner": "top-right"
+        }
+      ],
+      "listing": {
+        "title_en": "Nova Soles — Couch + mirror ambient",
+        "description_en": "Sexy is an energy, not a body type\n\nCouch + mirror ambient. Soft lighting, polished details, no face — soles and feet focus.\nBrand: Nova Soles (@novasoles).\nWatermarked preview © NovaSoles.",
+        "slogan": "Sexy is an energy, not a body type"
+      },
+      "dir": "EXPORT-WATERMARKED/NS-FF-09"
+    }
+  ],
+  "result": "PASS"
+}

@@ -1,0 +1,12 @@
+{
+  "ts_utc": "20260823T032955Z",
+  "root_cause": "bus_state_ISOLATED_after_OOM_observations_frozen",
+  "oom_at_utc": "2026-08-22T23:36:15Z",
+  "bus_state": "ISOLATED",
+  "acquisition_state": "ACTIVE",
+  "observations_published": 1283622,
+  "journal_seq": 1300699,
+  "evidence_last_phenomenon": "2026-08-22T23:36:0xZ",
+  "misleading": "snapshot health=healthy while evidence stale and counters frozen",
+  "status": "M1_DIAGNOSE_PASS"
+}

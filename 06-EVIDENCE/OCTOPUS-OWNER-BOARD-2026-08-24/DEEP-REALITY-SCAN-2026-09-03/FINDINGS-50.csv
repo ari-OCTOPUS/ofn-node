@@ -1,0 +1,51 @@
+id,domain,finding,evidence_path,evidence_timestamp,classification,criticality,producer,consumer,gate,safe_next_action,owner_decision_needed
+DRS-01,runtime,۵ پروسهٔ python لپ‌تاپ پورت‌های 8771-8777 را دارند,Get-NetTCPConnection,2026-09-03T07:22Z,VERIFIED_RUNTIME,P2,_ops/organism.py و…,داشبورد/گلاس,none,ثبت CWD هر پروسه در next scan,no
+DRS-02,runtime,pid19176 (8774) همان ORPHANِ ثبت‌شدهٔ watchdog است و هنوز زنده‌است,state/orphan-watchdog/receipts.jsonl,2026-09-03,VERIFIED_RUNTIME,P2,miniapp_gateway.py,none,none,زنجیرهٔ alert به مالک,yes(نگه‌داری/kill)
+DRS-03,runtime,سه‌تای پنج پروسه با مسیر نسبی اجرا می‌شوند (وابسته به CWD),Win32_Process CommandLine,2026-09-03T07:2xZ,GIT_UNTRACKED_RUNTIME,P2,_ops,–,none,next scan: CWD capture,no
+DRS-04,nodes,10 تایمر octopus روی 138 فعال و تازه‌fire,systemctl list-timers,2026-09-03T07:25Z,VERIFIED_RUNTIME,P1,systemd,ارگانیسم 138,none,–,no
+DRS-05,nodes,NTP 138 سینک است (دیروز خاموش بود),timedatectl,2026-09-03T07:23Z,VERIFIED_RUNTIME,P1,timesyncd,–,none,ثبت heal در سند census,no
+DRS-06,mesh,138 outbox=0/inbox=0/state=15 (درین کار می‌کند),find ~/octopus-mesh,2026-09-03T07:2xZ,VERIFIED_RUNTIME,P0,octopus-mesh-drain,182/180,none,۱۵ retry بررسی شود,no
+DRS-07,nodes,journal 138 برای ari نامرئی (بدون گروه systemd-journal),journalctl hint,2026-09-03T07:2xZ,UNVERIFIED,P2,journald,اپراتور,perm,افزودن به گروه یا فایل-رسید,no
+DRS-08,nodes,138 روی main@60dce961 با dirty=5,ssh git status,2026-09-03T07:2xZ,GIT_UNTRACKED_RUNTIME,P1,–,–,none,diff و تصمیم کامیت,yes
+DRS-09,nodes,138 بدون پورت‌های 8090/8081/4222,ss -tlnp,2026-09-03T07:2xZ,VERIFIED_RUNTIME,P2,–,–,none,–,no
+DRS-10,nodes,182/180 از لپ‌تاپ ssh نمیشود (بی‌کلید),ssh Permission denied,2026-09-03T07:2xZ,UNVERIFIED,P1,–,–,none,کلید فقط-خواندنی یا اسکن از 138,yes(توزیع کلید)
+DRS-11,git,checkout لپ‌تاپ fix/demand-harvest@34e63a0 dirty=33,git status,2026-09-03,VERIFIED_REPOSITORY,P2,–,–,none,تصمیم همگرایی,yes
+DRS-12,git,والتن F:\backup روی rescue@8d8be71 با dirty=400,git status,2026-09-03,VERIFIED_REPOSITORY,P0,–,–,none,census+commit انتخابی,yes
+DRS-13,github,main=6e2bfd50 (repair_api #150 مرج),gh api commits/main,2026-09-03T07:5xZ,VERIFIED_REPOSITORY,P1,PR#150,–,protection,–,no
+DRS-14,github,۶ PR kernel-pure MERGEABLE (#125/126/127/134/135/136),gh pr list,2026-09-03T07:5xZ,VERIFIED_REPOSITORY,P1,–,–,human review,بستهٔ ریویو الهه,yes(merge)
+DRS-15,github,#113 PARKED · #71 CONFLICTING,gh pr list,2026-09-03T07:5xZ,BLOCKED_BY_POLICY,P2,–,–,owner/policy,تصمیم,yes
+DRS-16,policy,WAL خروجی disarm می‌ماند (رأی مالک؛ خواندن امشب مبهم),owner ruling 09-02,2026-09-02,BLOCKED_BY_POLICY,P0,–,–,WAL,خواندن مسیر درست فقط-خواندنی,no
+DRS-17,business,sqlite 138: outbox=111/ledger=210/painting_quotes=1,sqlite -readonly,2026-09-03T07:2xZ,VERIFIED_RUNTIME,P0,outbox/ledger,agents,consent+policy,–,no
+DRS-18,business,DET needs_reply هنوز بی‌پاسخ (فیلدهای فقط-مالک),painting_interactions + DRAFT doc,2026-09-02→03,VERIFIED_RUNTIME,P0,imap,مالک,send-authorization,پر کردن جای‌خالی‌ها,yes
+DRS-19,business,payment-receipts خالی → VERIFIED_PAYMENT_COUNT=0,payment-receipts/,2026-09-03,VERIFIED_REPOSITORY,P0,–,learning ledger,receipt-contract,اولین رسید مالک,yes
+DRS-20,learning,لجر اقتصادی ۱۶ ردیف/۰ orphan ولی فیدر ندارد,economic-learning-ledger.jsonl,2026-09-03,VERIFIED_REPOSITORY,P2,learning loop,–,none,فیدر رویداد,no
+DRS-21,doctor,دو دکتر موازی (میراثی 1500L در _ops + ofn/doctor) بدون interlock,_ops/doctor/doctor.py + ofn/doctor,2026-09-03,IMPLEMENTED_NOT_WIRED,P0,هر دو,متفاوت,none,طرح هم‌گرایی,yes
+DRS-22,contracts,BB-×9 فقط در دوقلوی منجمد,find BB-*.yaml,2026-09-03,DOC_ONLY,P2,–,–,none,بازگردانی یا برچسب,yes
+DRS-23,contracts,F:\backup\mesh فایل ۰ بایت,ls -la,2026-09-03,CONTRADICTED,P2,–,–,none,حذف-آرشیو یا تبدیل به پوشه,yes
+DRS-24,deploy,repair_api به 138 نرسیده (deploy lag),main vs 138 HEAD,2026-09-03,DEPLOYED_NOT_INDEPENDENTLY_VERIFIED→SHA_MISMATCH,P0,PR#150,board,deploy policy,deploy هدفمند,yes
+DRS-25,runtime,watchdog ویندوزی اسکریپت غلط را می‌راند (split-brain),MISSING-WIRING-50#3,2026-09-03(WR),REPORTED_WITH_RECEIPT,P1,tسک task,–,owner-gated,بازنشانگی,yes
+DRS-26,runtime,دو تسک Observatory → Desktop حذف‌شده,MISSING-WIRING-50#1,2026-09-03(WR),REPORTED_WITH_RECEIPT,P1,tسک task,–,none,بازنشانگی به _ops,no
+DRS-27,runtime,تیک تجمیع 4d از 08-23 خاموش,MISSING-WIRING-50#2,2026-09-03(WR),REPORTED_WITH_RECEIPT,P1,tسک task,POISONING-WATCH,none,فعال‌سازی,no
+DRS-28,runtime,saba-bridge تولیدکنندهٔ مرده + بی‌صدا زننده,MISSING-WIRING-50#5,2026-09-03(WR),REPORTED_WITH_RECEIPT,P3,saba-bridge,beat,none,وصل یا DEAD-SOURCE,yes
+DRS-29,code,effector_registry به ماژول ناموجود ارجاع دارد,effector_registry.py:95,2026-09-03(WR),CONTRADICTED,P3,registry,–,none,اصلاح provenance,no
+DRS-30,code,self_improve_gauges دو DB ناموجود می‌خواند,self_improve_gauges.py:163,2026-09-03(WR),CONTRADICTED,P3,gauges,–,none,اصلاح مسیر,no
+DRS-31,glass,OWNER-QUEUE.md هیچ‌جا رندر نمیشود,MISSING-WIRING-50#16,2026-09-03(WR),PRODUCER_ONLY,P1,QUEUE.md,هیچ,none,fallback گلاس,no
+DRS-32,witness,FLAG-CLAIMS دست‌نویس و شاهد فقط سن میسنجد,MISSING-WIRING-50#17,2026-09-03(WR),CONSUMED_WITHOUT_RECEIPT,P1,claims,–,none,mود --remeasure,no
+DRS-33,witness,harvest claim خوانده نمیشود توسط شاهد,MISSING-WIRING-50#18,2026-09-03(WR),REPORTED_WITH_RECEIPT,P1,harvest claim,witness,none,check_harvest_claim,no
+DRS-34,code,memory_chain chain_verify هرگز صدا زده نمیشود,MISSING-WIRING-50#20,2026-09-03(WR),IMPLEMENTED_NOT_WIRED,P2,memory_chain,–,none,پروب دکتر,no
+DRS-35,glass,telegram_glass بدون runner,MISSING-WIRING-50#26,2026-09-03(WR),CONSUMER_ONLY,P1,shell,مالک,read-only,poller,no
+DRS-36,transport,board_events قرارداد بی‌transport,board_events.py docstring,2026-09-03,DOCUMENTED_NOT_IMPLEMENTED,P2,–,–,none,برچسب contract-only,no
+DRS-37,code,ShopifyConnector در run.py ثبت نشده,MISSING-WIRING-50#31,2026-09-03(WR),IMPLEMENTED_NOT_WIRED,P2,connector,webhook,flag+secret,ثبت زیر فلگ,yes
+DRS-38,code,BrainPort صفر فراخوان,MISSING-WIRING-50#32,2026-09-03(WR),IMPLEMENTED_NOT_WIRED,P3,BrainPort,–,none,استفاده یا DEAD-SOURCE,yes
+DRS-39,budget,callbudget سراسری است نه per-tenant,MISSING-WIRING-50#33,2026-09-03(WR),IMPLEMENTED_NOT_WIRED,P3,budget,–,none,کلید bucket,no
+DRS-40,transport,NATS یک کلاینت/صفر ترافیک بین‌بردی,MISSING-WIRING-50#42,2026-09-03(WR),OPEN_LOOP,P2,NATS 182,هیچ,none,اولین publisher,yes
+DRS-41,nodes,آینهٔ 180 rsync fail (rc=255/credential),MISSING-WIRING-50#43,2026-09-03(WR),REPORTED_WITH_RECEIPT,P2,rsync,laptop-mirror,cred,credential یا جایگزین,yes
+DRS-42,scheduler,scheduler 138 سبز ولی transport نمیفرستد,MISSING-WIRING-50#45,2026-09-03(WR),CONTRADICTED,P2,scheduler,–,none,وابستگی green به receipt,no
+DRS-43,nodes,182: چهار بدهی عملیاتی (miniscientist/hang/RAM/29MB),MISSING-WIRING-50#46,2026-09-03(WR),REPORTED_WITH_RECEIPT,P2,–,–,none,چهار ترمیم جدا,no
+DRS-44,recovery,restore_drill کد+تست دارد ولی روی live هرگز,restore_drill.py+PRIME report,2026-09-03,TESTED_NOT_DEPLOYED,P1,drill,–,Q7=A boundary,اجرا روی ایزوله,yes
+DRS-45,recovery,POWER-CUT-TEST واقعی هرگز اجرا نشده,deploy/POWER-CUT-TEST.md,2026-09-03,DOCUMENTED_NOT_IMPLEMENTED,P1,doc,–,none,برنامهٔ تست مالک,yes
+DRS-46,evidence,سرشماری ۵۶۵-آیتمی با بازهٔ گم 328-463,continuity/BLINDSPOTS-P0,2026-09-03,CONTRADICTED,P3,prior census,–,none,بازیابی MASTER-BACKUP,yes
+DRS-47,queue,VERDICT_QUEUE: MAP-V1/V2 از 07-2x باز (سن بی‌پایش),نقشه-اختاپوس/VERDICT_QUEUE.md,2026-09-03,VERIFIED_REPOSITORY,P3,مالک,–,none,dashbورد سن,no
+DRS-48,hygiene,wt-* و .obsidian stubها آرتیفکت والت‌شمار,VAULT-SCAN report,2026-09-03,VERIFIED_REPOSITORY,P3,git worktrees,–,none,–,no
+DRS-49,evidence,README دکتر 157/157 کهنه (واقعی 168/168),OCTOPUS-DOCTOR/README,2026-09-03,CONTRADICTED,P3,doc,–,none,به‌روزرسانی با نقل‌قول,no
+DRS-50,hf,صفر ارجاع HF در کل کد → هر integration از صفر و PROPOSAL,grep hf/transformers,2026-09-03,VERIFIED_REPOSITORY,P3,–,–,data-boundary,فاز research فقط,no

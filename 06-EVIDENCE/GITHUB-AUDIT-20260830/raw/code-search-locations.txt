@@ -1,0 +1,45 @@
+==[BEGIN PRIVATE KEY]==
+ari-OCTOPUS/ofn-node	tests/test_cockpit_v2_frontend.py
+==[password]==
+ari-OCTOPUS/langar	deploy.sh
+ari-OCTOPUS/langar	docker-compose.unified.yml
+ari-OCTOPUS/langar	langar-pro/.env.example
+ari-OCTOPUS/langar	langar-pro/docker-compose.yml
+ari-OCTOPUS/langar	langar/README.md
+ari-OCTOPUS/ofn-node	docs/architecture/VENDOR-EVALUATION.md
+ari-OCTOPUS/ofn-node	docs/octopus-mesh/constitutions/owner-20260826/US-PERSISTENT-AUTONOMY-THREE-BOARD-V1.md
+ari-OCTOPUS/ofn-node	docs/octopus-mesh/constitutions/v1/MEGAPROMPT-BOARD-180-EVOLUTIONARY-STEWARD-2026-08-26.md
+ari-OCTOPUS/ofn-node	docs/octopus-mesh/tasks/DEVELOPMENTAL-ASSESSMENT-180-response.txt
+ari-OCTOPUS/ofn-node	ofn/adapters/platforms/bluesky.py
+ari-OCTOPUS/ofn-node	tests/test_owner_api.py
+ari-OCTOPUS/ofn-node	tests/test_studio_marketing_api.py
+==[api_key]==
+ari-OCTOPUS/langar	langar-pro/app/config.py
+ari-OCTOPUS/langar	langar-pro/app/research/brain.py
+ari-OCTOPUS/langar	langar-pro/app/research/search_providers.py
+ari-OCTOPUS/langar	langar/DEPLOYMENT_GUIDE_FA.md
+ari-OCTOPUS/langar	langar/USAGE.md
+ari-OCTOPUS/langar	langar/_verify/config_fresh.py
+ari-OCTOPUS/langar	langar/ai.py
+ari-OCTOPUS/langar	langar/brain/providers.py
+ari-OCTOPUS/langar	langar/config.py
+ari-OCTOPUS/langar	langar/env
+ari-OCTOPUS/langar	langar/researcher/search_providers.py
+ari-OCTOPUS/ofn-node	CHANGELOG.md
+ari-OCTOPUS/ofn-node	HANDOFF.md
+ari-OCTOPUS/ofn-node	MEGAPROMPT-EDGE-DEEP.md
+==[BOT_TOKEN]==
+ari-OCTOPUS/Armin	Documents/Claude/Projects/Ai farm (1)/سیستم-همیشه-روشن-پرامپت-و-دستورالعمل.md
+ari-OCTOPUS/langar	deploy.sh
+ari-OCTOPUS/langar	langar/.env.example
+ari-OCTOPUS/langar	langar/ARCHITECTURE.md
+ari-OCTOPUS/langar	langar/CHECKLIST.md
+ari-OCTOPUS/langar	langar/DEPLOYMENT_GUIDE_FA.md
+ari-OCTOPUS/langar	langar/README.md
+ari-OCTOPUS/langar	langar/USAGE.md
+ari-OCTOPUS/langar	langar/_verify/config_fresh.py
+ari-OCTOPUS/langar	langar/config.py
+ari-OCTOPUS/langar	langar/env
+ari-OCTOPUS/langar	langar/main.py
+ari-OCTOPUS/ofn-node	HANDOFF.md
+ari-OCTOPUS/ofn-node	HANDOFF.md.bak-scan-20260806-231123

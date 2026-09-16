@@ -1,0 +1,22 @@
+{
+  "gap_id": "GAP-002",
+  "title": "audit_head_unsigned",
+  "tested": "hash_chain_and_external_head_file",
+  "untested": [
+    "periodic_ed25519_head_checkpoint",
+    "offline_signer_binding",
+    "tamper_resistance_when_attacker_writes_jsonl_and_head_hash"
+  ],
+  "risk": "an attacker with write access to both sensorium.jsonl and head.hash can rewrite the chain",
+  "status": "DEFERRED_TO_WAVE1",
+  "wave0_signature": null,
+  "planned_checkpoint": {
+    "signer": "offline-signing-host",
+    "interval_policy": "every_100_records_or_daily",
+    "algorithm": "ed25519",
+    "signs": "head_hash plus audit_sequence; later also reflex HEAD.json hash",
+    "does_not_sign": "every_record",
+    "reflex_ledger_head": "/var/lib/octopus/state/reflex/HEAD.json",
+    "note": "Close GAP-002 on Windows with sign-checkpoint.bat against the live unsigned checkpoint. Then optionally re-export including reflex HEAD."
+  }
+}

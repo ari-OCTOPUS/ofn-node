@@ -1,0 +1,32 @@
+server_name: sensorium-opi5pro
+listen: 192.168.0.182:4222
+http: 127.0.0.1:8222
+
+jetstream {
+  store_dir: /var/lib/nats/jetstream
+  max_memory_store: 256MB
+  max_file_store: 8GB
+}
+
+authorization {
+  users = [
+    {
+      user: sensorium
+      password: "$2b$11$cUF4r56IbQ8eJdtd3mLPEOEwJwK1t.1hR3ikfT/VXDxjURDCHHXuy"
+      permissions: {
+        publish: [
+          "octopus.sensor.>",
+          "octopus.sensorium.>",
+          "octopus.world.>",
+          "octopus.audit.>",
+          "octopus.leg.*.response"
+        ]
+        subscribe: [
+          "octopus.command.>",
+          "octopus.leg.>",
+          "_INBOX.>"
+        ]
+      }
+    }
+    ]
+}

@@ -1,0 +1,2 @@
+paid-primary-1787110217124 | before: 29.985215 | cost: 2.1e-05 | after: 29.985194
+paid-secondary-1787110224190 | before: 29.985194 | cost: 2.1e-05 | after: 29.985173

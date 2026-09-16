@@ -1,0 +1,25 @@
+﻿{
+    "abn_status":  "PROVIDED_IN_SOT",
+    "no_invent":  true,
+    "diagnosis":  [
+                      "ABN now in public SoT: 21190030795 (ZIMAN-MALIHEH-BIZ-IDENTITY-2026-08-23/PUBLIC-BIZ.json).",
+                      "Bank BSB/account/account_name STILL MISSING — Shopify payouts remain BLOCKED.",
+                      "PayPal Business setup still incomplete.",
+                      "Marketing owns Shopify UI; laptop foot does not apply ABN/email itself."
+                  ],
+    "blockers_exact":  [
+                           "Owner Maliheh: provide AU bank BSB + account + account name (vault/public SoT — not chat TFN)",
+                           "Owner Maliheh: Complete PayPal Business setup (login/2FA)",
+                           "Marketing: apply ABN+email in Shopify admin when ready (shopify_abn_email_applied OPEN)"
+                       ],
+    "gap_id":  "G01",
+    "evidence_cite":  [
+                          "ZIMAN-MALIHEH-BIZ-IDENTITY-2026-08-23",
+                          "BOARD2-ZIMAN-MONEY-INFRA-2026-08-23",
+                          "79-BOARD2-ZIMAN-BIZ-IDENTITY-PUBLIC-2026-08-23.md"
+                      ],
+    "bank_status":  "MISSING",
+    "stamp":  "2026-08-23T10:29:15+10:00",
+    "title":  "Ziman payouts BLOCKED + PayPal incomplete",
+    "result":  "HOLD"
+}

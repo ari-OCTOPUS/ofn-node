@@ -1,0 +1,35 @@
+{
+ "schema": "incident-center-hang/1",
+ "date": "2026-08-21",
+ "severity": "HIGH",
+ "symptom": "telegram center repeatedly HUNG (alive, silent); watchdog reaped/relaunched (boot_count=7)",
+ "root_causes": [
+  {
+   "class": "A_FILE_LOCK_READ",
+   "evidence": "stall-traceback pid=12208 16:49:55 + earlier sections: main thread blocked in _load_config read_text of center-config.json; third-party byte-range lock (antivirus) on frequently os.replace'd file",
+   "fix": "center.py _load_config: bounded read (3s worker timeout) + write-through cache + stale-cache fail-soft; mission_approval_bridge.sweep card reads time-boxed",
+   "commit": "bcbc3dd",
+   "tests": "test_bounded_read 5/5 (now 7/7)"
+  },
+  {
+   "class": "B_DNS_BLOCK",
+   "evidence": "stall-traceback pid=22684 16:57:58 (+08-06 section): main thread blocked in poll_updates -> _url_json_get -> urllib.urlopen -> socket.getaddrinfo (DNS lookup with no timeout)",
+   "fix": "tg_api default transports (_url_json_get/_url_json_post/_url_bytes_get) run in bounded daemon worker (timeout_s+5, fail-soft TimeoutError)",
+   "commit": "a8f2e1a",
+   "tests": "t_f/t_g bounded http stall -> None/TimeoutError within bound"
+  }
+ ],
+ "live_verification": {
+  "after_fixes": "center relaunches no longer crash instantly; watchdog reaping continues; poll-health remains intermittent (age up to ~29 min) — DNS/environment stalls persist intermittently",
+  "residual_risk": "systemic environmental stalls (DNS resolver hangs; possibly AV/I/O) — the bounded wrapper converts hard freezes into degraded rounds, but full poll health is not yet stable",
+  "watchdog": "bounded restart per design (max attempts, no storm); center PID 19496 running, port 8776 bound"
+ },
+ "committed_fixes": [
+  "bcbc3dd",
+  "a8f2e1a"
+ ],
+ "next_diagnostic": "capture a fresh stall dump from a fixed-code center at the probe threshold to identify the next stall point; verify DNS resolver stability; consider host-level DNS/AV remediation",
+ "wave1_unlocked": false,
+ "paid_calls": 0,
+ "memory_production_writes": 0
+}

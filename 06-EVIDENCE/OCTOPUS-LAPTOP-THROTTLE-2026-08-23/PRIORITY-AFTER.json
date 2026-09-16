@@ -1,0 +1,65 @@
+{
+  "stamp_local": "2026-08-23T13:24:53+10:00",
+  "result": [
+    {
+      "Id": 6560,
+      "Name": "cloudflared",
+      "Priority": "Idle",
+      "WS_MB": 38.4
+    },
+    {
+      "Id": 8512,
+      "Name": "cloudflared",
+      "Priority": "Idle",
+      "WS_MB": 16.4
+    },
+    {
+      "Id": 2296,
+      "Name": "python",
+      "Priority": "BelowNormal",
+      "WS_MB": 39.8
+    },
+    {
+      "Id": 6024,
+      "Name": "python",
+      "Priority": "BelowNormal",
+      "WS_MB": 1.4
+    },
+    {
+      "Id": 12220,
+      "Name": "python",
+      "Priority": "BelowNormal",
+      "WS_MB": 1.4
+    },
+    {
+      "Id": 13644,
+      "Name": "python",
+      "Priority": "BelowNormal",
+      "WS_MB": 63.1
+    },
+    {
+      "Id": 15896,
+      "Name": "python",
+      "Priority": "BelowNormal",
+      "WS_MB": 15.7
+    },
+    {
+      "Id": 24760,
+      "Name": "python",
+      "Priority": "BelowNormal",
+      "WS_MB": 4.8
+    },
+    {
+      "Id": 29020,
+      "Name": "python",
+      "Priority": "BelowNormal",
+      "WS_MB": 539.6
+    },
+    {
+      "Id": 30496,
+      "Name": "python",
+      "Priority": "BelowNormal",
+      "WS_MB": 20.7
+    }
+  ]
+}

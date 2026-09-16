@@ -1,0 +1,48 @@
+{
+ "n_pairs": 4,
+ "flips": 1,
+ "flip_rate": 0.25,
+ "details": [
+  {
+   "pair": 0,
+   "v_order1": "B",
+   "v_order2": "A",
+   "w_content_order1": "یک لاگ حداقلی از بازخورد",
+   "w_content_order2": "یک لاگ حداقلی از بازخورد",
+   "flip": false
+  },
+  {
+   "pair": 1,
+   "v_order1": "B",
+   "v_order2": "B",
+   "w_content_order1": "یک تست واحد برای memory_",
+   "w_content_order2": "معیار یکسانی برای hit/mi",
+   "flip": true
+  },
+  {
+   "pair": 2,
+   "v_order1": "B",
+   "v_order2": "VOID",
+   "w_content_order1": "یک نمونهٔ خطای پیش‌بینی ",
+   "w_content_order2": "TIE",
+   "flip": false
+  },
+  {
+   "pair": 3,
+   "v_order1": "VOID",
+   "v_order2": "VOID",
+   "w_content_order1": "TIE",
+   "w_content_order2": "TIE",
+   "flip": false
+  }
+ ],
+ "claim": {
+  "inconsistent_pairs": 1,
+  "total_pairs": 4,
+  "observed_flip_rate": "25% (pilot)",
+  "direction_on_inconsistent_pair": "RECENCY/B_POSITION (chose B in both orders)",
+  "evidence_status": "OBSERVED_PILOT",
+  "population_rate_claim": "NOT_SUPPORTED",
+  "note": "1/4 فقط می‌گوید در این چهار جفت یک ناسازگاری دیدیم؛ repetition stability هنوز سنجیده نشده؛ جهت bias تابع داور/وظیفه/فاصلهٔ کیفیت است"
+ }
+}

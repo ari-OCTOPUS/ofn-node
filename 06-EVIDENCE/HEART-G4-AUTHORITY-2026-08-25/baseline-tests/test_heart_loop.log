@@ -1,0 +1,21 @@
+  ✅ t_a_interface_validate_and_roundtrip
+  ✅ t_b_governor_flag_off_no_heart_keys
+  ✅ t_c_governor_flag_on_cpi_tightens_epoch
+  ✅ t_d_velocity_pressure_bounded
+  ✅ t_e_heart_beat_flag_off_is_noop
+  ✅ t_f_heart_beat_shadow_writes_sink_never_period
+  ✅ t_g_production_wire_closed_today_and_unforgeable
+  ✅ t_h2_setpoint_seeds_from_first_observation
+  ✅ t_h3_setpoint_cadence_survives_restart
+  ✅ t_h_organism_seam_is_conditional_and_guarded
+  ✅ t_i_setpoint_hysteresis_and_monotonic_seq
+  ✅ t_j_setpoint_epoch_writes_and_llm_gated
+  ✅ t_k_structural_doctor_no_toplevel_money
+  ✅ t_l_cockpit_heart_card_renders_shadow
+  ✅ t_m_doctor_price_not_locked_is_dormant_not_broken
+  ✅ t_n_doctor_budget_cap_gate_denial_is_calm_info
+  ✅ t_o_doctor_non_cap_gate_denial_stays_silent
+  ✅ t_p_doctor_genuine_failure_stays_alarming
+  ✅ t_q_doctor_provider_rate_limit_reads_as_designed
+
+✅ test_heart_loop: 19/19

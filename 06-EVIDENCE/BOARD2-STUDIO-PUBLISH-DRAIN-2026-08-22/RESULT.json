@@ -1,0 +1,30 @@
+{
+  "stamp": "20260822T125456Z",
+  "item": "studio:7b09170c06b8135d6fe79cd590b1f74f5fc68bc6bf41f2fe8ab107c97ff205e1",
+  "decide": {
+    "ok": true,
+    "status": "approved_manual",
+    "delivery_mode": "manual"
+  },
+  "dry_run": {
+    "ok": true,
+    "rule": "adapter:dry-run",
+    "external_id": null,
+    "dry_run": true
+  },
+  "publish": {
+    "ok": true,
+    "rule": "adapter:ok",
+    "external_id": "7",
+    "dry_run": false
+  },
+  "outbox_after": {
+    "status": "manual_completed",
+    "attempts": 0,
+    "approved_at": "2026-08-22T12:54:56Z",
+    "completed_at": "2026-08-22T12:54:58Z",
+    "completion_channel": "telegram",
+    "external_ref_digest": "7"
+  },
+  "result": "PASS"
+}

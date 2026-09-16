@@ -1,0 +1,30 @@
+{
+  "gap": "G16",
+  "stamp_local": "2026-08-23T09:11:30+10:00",
+  "slice": "LAPTOP",
+  "status": "PASS",
+  "verdict": "Stale topology notes refreshed; wire remains ON_ADVISORY_LIVE; no self-aware claims",
+  "refresh_file": "F:\\backup\\06-EVIDENCE\\OCTOPUS-EPISTEMICS-TOPOLOGY-2026-08-23\\STALE-NOTES-REFRESH-2026-08-23.md",
+  "topo_keys_sample": [
+    "schema",
+    "task",
+    "STATUS",
+    "checked_at_local",
+    "checked_at_utc",
+    "constraints_honored",
+    "gap_closed",
+    "topology_meta",
+    "levels_metric",
+    "live_samples",
+    "metrics_preview",
+    "authoritative_metrics",
+    "honesty",
+    "tests",
+    "files_changed",
+    "reversible",
+    "files_sha256",
+    "commit",
+    "NEXT"
+  ],
+  "wire_on_dir_exists": true
+}

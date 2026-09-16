@@ -1,0 +1,65 @@
+﻿{
+  "stamp": "20260823T224141Z",
+  "stamp_local_AEST": "2026-08-24 08:41:41 AEST",
+  "result": "PASS",
+  "goal": "OnlyFans platform adapter scaffold on Board2 DietPi — dry-run only; no live post",
+  "bak": "/home/ari/.local/share/ofn/bak-onlyfans-scaffold-20260823T224141Z",
+  "files_touched": [
+    "/home/ari/ofn/ofn/adapters/platforms/onlyfans.py",
+    "/home/ari/ofn/data/platform_matrix.json",
+    "/home/ari/ofn/tests/test_platforms_contract.py"
+  ],
+  "files_not_touched": [
+    "/home/ari/ofn/ofn/adapters/platforms/__init__.py",
+    "/home/ari/.config/ofn/node.env",
+    "/home/ari/.config/ofn/secrets.env"
+  ],
+  "init_note": "__init__.py uses pkgutil discovery; no explicit register needed; onlyfans appears via module presence as optional/scaffold",
+  "available_platforms": [
+    "bluesky",
+    "email_ses",
+    "onlyfans",
+    "shopify",
+    "telegram_channel"
+  ],
+  "broken_platforms": [],
+  "dry_run_defaults": {
+    "PublishRequest.dry_run": true,
+    "dry_run_rule": "adapter:dry-run",
+    "live_without_OFN_ONLYFANS_LIVE": "wire:disabled",
+    "live_with_LIVE_no_cookie": "onlyfans:no-credentials",
+    "live_with_LIVE_and_cookie": "adapter:real-publish-not-implemented"
+  },
+  "live_post": false,
+  "OFN_ONLYFANS_LIVE_in_node_env": false,
+  "OFN_ONLYFANS_creds_in_secrets_env": false,
+  "matrix_onlyfans": {
+    "display_name": "OnlyFans",
+    "layer": "A",
+    "risk": "RED",
+    "api_mode": "api_cautious",
+    "notes": "Board2 scaffold 2026-08-24; live post forbidden until second owner GO"
+  },
+  "tests": {
+    "TestOnlyFansAdapter": "3 passed"
+  },
+  "inventory": {
+    "eligible": [],
+    "hold_empty": [
+      "shot-0003", "shot-0004", "shot-0005", "shot-0006", "shot-0007",
+      "shot-0008", "shot-0009", "shot-0010", "shot-0011", "shot-0012",
+      "shot-0013", "shot-0014", "shot-0015", "shot-0016", "shot-0017",
+      "shot-0018", "shot-0019", "shot-0020", "shot-0021", "shot-0022"
+    ],
+    "skip_republish": ["shot-0001", "shot-0002"],
+    "note": "caption-gated unchanged; no invent captions; telegram_channel only path"
+  },
+  "how_to_enable_later": [
+    "1) Second explicit owner GO for live OnlyFans",
+    "2) Put OFN_ONLYFANS_SESSION_COOKIE (and optional ACCOUNT_ID/USER_AGENT) in secrets.env vault — never chat",
+    "3) Set OFN_ONLYFANS_LIVE=1 only after HTTP client is implemented in onlyfans.py",
+    "4) Wire real publish behind OwnerRelease; keep dry_run default True",
+    "5) Do not invent captions; reuse caption-gated media_items.note flow"
+  ],
+  "rollback": "cp files from /home/ari/.local/share/ofn/bak-onlyfans-scaffold-20260823T224141Z; rm onlyfans.py if desired; restore platform_matrix.json + test_platforms_contract.py"
+}

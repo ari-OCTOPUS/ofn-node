@@ -1,0 +1,30 @@
+{
+  "schema": "octopus.a2.lab-execute-observed.v1",
+  "task_id": "A2-001",
+  "observer": ".191",
+  "observed_at": "2026-08-18T04:16:12+10:00",
+  "observed_tz": "UTC+10",
+  "envelope_copy": "F:\\backup\\06-EVIDENCE\\canonical\\inbox\\from-180\\run-20260817T180808Z-a2-001-execute.json",
+  "envelope_sha256": "c9e1d18336aed489b910a57cb6920ff9feb8de9169679140af06884814ea5191",
+  "outcome": "BASE_COMMIT_UNAVAILABLE",
+  "implemented": false,
+  "merged": false,
+  "pushed": false,
+  "deployed": false,
+  "canonical": false,
+  "fresh_worktree_created": false,
+  "fetched": false,
+  "ssh_from_180": false,
+  "a2_002_started": false,
+  "a2_003_started": false,
+  "halt_reason": "git object d10887cbb5c80ec2c3e347f070556ba8276d8a79 is absent on .180; fetch and SSH are denied",
+  "preexisting_sandbox_reused": false,
+  "promotion": false,
+  "lab_verdict": "NOT_QUARANTINED_PASS",
+  "uncertainty": [
+    "repo_locator F:\\backup\\octopus-bridge is not mounted on .180",
+    "pre-existing sandbox commit b5fb9676 was not reused",
+    ".191 did not copy git objects or start runner.py"
+  ],
+  "receipt_hash": "35da5a59459e539eb51c441897746cc3b577ad593b1b4070f4607105e693d8e3"
+}

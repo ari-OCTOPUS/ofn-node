@@ -1,0 +1,12 @@
+[Unit]
+Description=OCTOPUS digest
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+EnvironmentFile=/home/ari/.config/ofn/secrets.env
+Environment=OCTOPUS_WIRE_LEAD_OUTBOUND=1
+Environment=PYTHONUNBUFFERED=1
+WorkingDirectory=/home/ari/ofn/ofn/agents
+ExecStart=python3 /home/ari/ofn/ofn/agents/daily_digest.py

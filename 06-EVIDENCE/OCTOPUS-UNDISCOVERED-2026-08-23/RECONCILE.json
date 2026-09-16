@@ -1,0 +1,32 @@
+{
+  "schema": "octopus-undiscovered-reconcile/1",
+  "stamp_local": "2026-08-23T15:53:28+10:00",
+  "lanes": {
+    "IOS": "COMPLETE",
+    "BOARD2": "COMPLETE",
+    "PI": "COMPLETE",
+    "LAPTOP_EXEC": "maybe parallel"
+  },
+  "supersede": {
+    "U14-EDGE-CMD-TRUST-RESIDUAL": "SUPERSEDED_BY_EDGE_NEXT_M1 — RECEIPT overall_pass true; signature_verify VERIFIED for signed; BADSIG/unsigned REJECTED expected"
+  },
+  "p0_still_open": [
+    "U05 MiniApp Telegram public menu not LIVE",
+    "U06 A18 live owner inbound Full Loop"
+  ],
+  "p1_hot": [
+    "U01 lead_activation OFF",
+    "U02 flags with no reader",
+    "U07 outbox leftover surfaces",
+    "U08 arch-loop backlog",
+    "U12 connector OAuth dark",
+    "U13 center bridge queue uninjected",
+    "Board2 health contract /legs client later",
+    "Pi homeo freshness / doctor residual / NATS ACL"
+  ],
+  "owner_holds_known": [
+    "gallery photos",
+    "studio captions",
+    "physical estop"
+  ]
+}

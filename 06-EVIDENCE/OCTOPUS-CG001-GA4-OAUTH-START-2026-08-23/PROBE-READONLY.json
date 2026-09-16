@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "property_count": 2,
+  "properties": [
+    {
+      "account": "Google Ads Account",
+      "property": "www.masterpainting.sydney",
+      "property_resource": "properties/358651346"
+    },
+    {
+      "account": "Ziman Gift",
+      "property": "Ziman Gift",
+      "property_resource": "properties/551101646"
+    }
+  ],
+  "metrics_allowed": false
+}

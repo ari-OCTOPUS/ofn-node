@@ -1,0 +1,41 @@
+{
+    "ts_utc":  "2026-08-23T06:15:00Z",
+    "ts_local":  "2026-08-23T16:15:00+10:00",
+    "schema":  "octopus-u07-measure.v1",
+    "search_note":  "Historical tests/plans/logs may still mention trycloudflare as fixtures or old options; operational env+state+truth+flags have no trycloudflare primary. Tokens redacted from evidence.",
+    "after":  {
+                  "public_https_root":  200,
+                  "User_env_URL":  "https://app.master-painting.com",
+                  "truth_trycloudflare_role":  "SUPERSEDED/stale",
+                  "flags_has_OCTOPUS_MINIAPP_URL":  true,
+                  "OCTOPUS_env_URL":  "https://app.master-painting.com",
+                  "public_https_miniapp":  200,
+                  "config_needed_missing_public_url_claimed":  false,
+                  "Process_env_TG":  "1",
+                  "truth_public_live":  "https://app.master-painting.com",
+                  "truth_localhost_role":  "gateway bind only",
+                  "Process_env_URL":  "https://app.master-painting.com",
+                  "trycloudflare_active_primary":  false
+              },
+    "before":  {
+                   "User_env_URL":  "https://app.master-painting.com",
+                   "miniapp_url_json":  {
+                                            "pid_live":  true,
+                                            "process_name":  "cloudflared",
+                                            "url":  "https://app.master-painting.com",
+                                            "pid":  8512,
+                                            "kind":  "named"
+                                        },
+                   "gateway_8774_pid":  12220,
+                   "public_https_root":  200,
+                   "Process_env_TG":  null,
+                   "Process_env_URL":  "https://qualification-payday-functionality-choice.trycloudflare.com/miniapp",
+                   "truth_doc_claimed":  "still had unset/CONFIG_NEEDED section + U05 close mixed (triple residual in docs)",
+                   "public_https_miniapp":  200,
+                   "Machine_env_URL":  null,
+                   "OCTOPUS_env_TG":  "1",
+                   "User_env_TG":  "1",
+                   "flags_had_OCTOPUS_MINIAPP_URL":  false,
+                   "OCTOPUS_env_URL":  "https://app.master-painting.com"
+               }
+}

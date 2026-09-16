@@ -1,0 +1,59 @@
+{
+  "schema": "octopus.owner-authorization.v1",
+  "token": "OCTOPUS-BOARD2-OFN-GATES-20260822",
+  "owner": "Aroma Electronic",
+  "chose": "Drop fee_payment, auto_payment, live_email_send, live_publish from OFN_EXTRA_CLOSED_GATES only; leave all other gates closed",
+  "supersedes": "Earlier keep-closed default for those four gates (owner late answer)",
+  "board": {
+    "name": "Board2",
+    "hostname": "DietPi",
+    "ip": "192.168.0.138",
+    "ofn_env": "/home/ari/.config/ofn/node.env"
+  },
+  "scope": {
+    "action": "drop_from_OFN_EXTRA_CLOSED_GATES",
+    "drop_only": [
+      "fee_payment",
+      "auto_payment",
+      "live_email_send",
+      "live_publish"
+    ],
+    "leave_closed": [
+      "wire_outbound",
+      "live_sms",
+      "live_dm",
+      "tender_submit",
+      "vendor_submit",
+      "portal_submit",
+      "terms_acceptance",
+      "auto_scrape",
+      "auto_post",
+      "auto_dm",
+      "auto_email"
+    ],
+    "ofn_extra_closed_gates_before": "wire_outbound,live_email_send,live_publish,live_sms,live_dm,tender_submit,vendor_submit,portal_submit,terms_acceptance,fee_payment,auto_payment,auto_scrape,auto_post,auto_dm,auto_email",
+    "ofn_extra_closed_gates_after": "wire_outbound,live_sms,live_dm,tender_submit,vendor_submit,portal_submit,terms_acceptance,auto_scrape,auto_post,auto_dm,auto_email"
+  },
+  "constraints": [
+    "OFN_EXTRA_CLOSED_GATES only - do not open other env gates",
+    "leave OFN_WIRE_OUTBOUND=0 untouched",
+    "webhook_verify remains noop_until_vendor",
+    "Phase-3 CONTROL_URL not modified by this auth",
+    "no money movement invent / no payment endpoints invented",
+    "no WAVE0 unlock",
+    "no GitHub token mint"
+  ],
+  "related_evidence": [
+    "F:\\backup\\06-EVIDENCE\\BOARD2-OFN-GATES-2026-08-22\\README.md",
+    "F:\\backup\\06-EVIDENCE\\BOARD2-MONEY-NA-2026-08-22\\README.md",
+    "F:\\backup\\06-EVIDENCE\\OCTOPUS-BOARD2-PHASE3-2026-08-22\\OWNER-AUTHORIZATION.json"
+  ],
+  "deferred": {
+    "checkpoint_348": "skipped by owner",
+    "chg_e_widget": "deferred - see DEFER-CHECKPOINT-CHGE.json"
+  },
+  "timestamp_australia_sydney": "2026-08-22T18:48:30+10:00",
+  "date_utc": "2026-08-22",
+  "laptop_tree": "F:\\backup",
+  "written_by": "grok-bot-executor"
+}

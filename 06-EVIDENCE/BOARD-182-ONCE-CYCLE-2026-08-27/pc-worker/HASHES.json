@@ -1,0 +1,12 @@
+{
+  "once_cycle.py": {
+    "sha256": "61eb8ece22ba6bbfc9e7d95dd9f20643d78059b95ce212ce63e1f405f5f2bd39",
+    "bytes": 2180
+  },
+  "test_once_cycle.py": {
+    "sha256": "e25e2bcaecc93b74499c83eb15903071da33e5020e53c013ed369f01e2f2327e",
+    "bytes": 1801
+  },
+  "BASE_COMMIT": "3f15b52c897f20508e975af47f83147c22e43ccc",
+  "PATCH_COMMIT": "fa0e221c6a03be89cd673bca69a4d658bde43e7f"
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "octopus.a2.execution-authorization-transfer.v1",
+  "task_id": "A2-001",
+  "authorization": "EXECUTION_AUTHORIZATION_A2-001",
+  "from_node": ".191",
+  "to_node": ".180",
+  "observed_at": "2026-08-18T04:16:12+10:00",
+  "observed_tz": "UTC+10",
+  "delivery_claim": "AUTHORIZATION_DELIVERED_AND_CONSUMED",
+  "source_path": "F:\\backup\\06-EVIDENCE\\canonical\\inbox\\TO-180-A2-001-execution-authorization.json",
+  "source_file_sha256": "9fb65045556362c02482035aed9ed957c318669d064a955b36d42bf1230fb771",
+  "packet_hash": "a7dc5dfde2c96f655a91a50deb8c581160980784edd8a3d548eb926bea101b11",
+  "destination_path": "/opt/octopus/a2-lab/inbox/TO-180-A2-001-execution-authorization.json",
+  "transfer_method": "scp -p via existing OpenSSH config Host root. BatchMode=yes. No IdentityFile added. No authorized_keys/sshd_config/key files edited. Bytes not regenerated.",
+  "destination_stat_observed_from_191": {
+    "bytes": 1549,
+    "mode": "0o100666",
+    "sha256": "9fb65045556362c02482035aed9ed957c318669d064a955b36d42bf1230fb771",
+    "sha256_match_source": true,
+    "observer": ".191-via-ssh"
+  },
+  "independent_180_consume": {
+    "envelope": "/opt/octopus/a2-lab/envelopes/run-20260817T180808Z-a2-001-execute.json",
+    "copy": "F:\\backup\\06-EVIDENCE\\canonical\\inbox\\from-180\\run-20260817T180808Z-a2-001-execute.json",
+    "copy_sha256": "c9e1d18336aed489b910a57cb6920ff9feb8de9169679140af06884814ea5191",
+    "execution_authorization_sha256_match": true,
+    "packet_hash_match": true
+  },
+  "bytes_altered": false,
+  "runner_started_from_191": false,
+  "receipt_hash": "4d4ebb0b238581d39dd997416b6de7296633a3fd2773290252533dd49478ca58"
+}

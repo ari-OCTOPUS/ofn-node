@@ -1,0 +1,5 @@
+==ENV_GATE_GREP==
+tests/test_cockpit_v2_owner_queue.py
+tests/test_cockpit_v2_http.py
+==COLLECT_IGNORE==
+==OCTOPUS_STATE_DIR_IN_TESTS==

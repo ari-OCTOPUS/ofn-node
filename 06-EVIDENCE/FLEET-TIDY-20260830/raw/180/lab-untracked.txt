@@ -1,0 +1,66 @@
+NONRUNTIME_COUNT= 411
+RUNTIME_COUNT= 2
+DIR_SIZE= 405M
+AGENT_HANDOFF_RK35XX_VALIDATION.md
+ARBITER-FEEDBACK-180.md
+BOARD-138-COMMAND-PATH.md
+MEGAPROMPT-QUALITY-BRAIN.md
+QUALITY-DRAFTS-PAINTING.md
+T1_LOCKED_SOAK_ACTIVE
+artifacts/completion-phase3/26_fresh_soak_15min_report.md
+artifacts/concept-tour-phase2/00_OWNER_ANSWER_FA.md
+artifacts/concept-tour-phase2/01_EXECUTIVE_MAP_FA.md
+artifacts/concept-tour-phase2/02_LIVE_SYSTEM_TOUR_FA.md
+artifacts/concept-tour-phase2/03_EVENT_AND_MEMORY_TOUR_FA.md
+artifacts/concept-tour-phase2/04_IDENTITY_AND_CONTINUITY_FA.md
+artifacts/concept-tour-phase2/05_HOMEOSTASIS_AND_SENSES_FA.md
+artifacts/concept-tour-phase2/06_COGNITION_AND_MODELS_FA.md
+artifacts/concept-tour-phase2/07_OFN_L4_FUTURE_FA.md
+artifacts/concept-tour-phase2/08_WBE_CONCEPT_FA.md
+artifacts/concept-tour-phase2/09_ACTIVE_INFERENCE_CONCEPT_FA.md
+artifacts/concept-tour-phase2/10_VLLM_PREFIX_CACHE_FA.md
+artifacts/concept-tour-phase2/11_VLLM_BLOCK_SIZE_FA.md
+artifacts/concept-tour-phase2/12_HYBRID_MAMBA_CACHE_FA.md
+artifacts/concept-tour-phase2/13_LOCAL_PRESENCE_MATRIX.csv
+artifacts/concept-tour-phase2/14_RUNTIME_VS_CONCEPT.md
+artifacts/concept-tour-phase2/15_RISKS_AND_GAPS_FA.md
+artifacts/concept-tour-phase2/16_EVIDENCE_INDEX.md
+artifacts/concept-tour-phase2/17_GLOSSARY_FA.md
+artifacts/concept-tour-phase2/18_NEXT_CONCEPTUAL_LESSONS_FA.md
+artifacts/concept-tour-phase2/19_SCAN_DELTA_FROM_PHASE1.md
+artifacts/prefix-cache/benchmark-report.json
+artifacts/prefix-cache/benchmark-report.md
+artifacts/vllm-block-size/pareto-report.md
+artifacts/vllm-block-size/preflight.json
+artifacts/vllm-block-size/recommendation.md
+artifacts/vllm-block-size/results.csv
+artifacts/vllm-block-size/rollback.md
+artifacts/vllm-block-size/workload-manifest.json
+audit/forbidden_scan.txt
+audit/help.txt
+audit/imports.txt
+audit/machine.txt
+audit/python_version.txt
+audit/source.sha256
+audit/uname.txt
+evidence/AFFERENT-LIVE.json
+evidence/BOARD-LIFE-FIX-LATEST
+evidence/BOARD-SCAN-AFTER.json
+evidence/BOARD-SCAN-AFTER.json.sha256
+evidence/BOARD-SCAN.json
+evidence/BOARD-SCAN.json.sha256
+evidence/FIRST-STAGE-C-DONE
+evidence/FIRST-STAGE-LABEL.json
+TOP_DIRS:
+    271 evidence
+     31 validation_package_20260825T042654Z
+     29 artifacts
+     22 validation_runs
+     21 validation_campaign_20260825T043414Z
+     17 vault
+      7 audit
+      5 smoke
+      1 validation_package_20260825T042654Z.tar.gz.sha256
+      1 octopus_board_validation.py
+REMOTE_LINES= 0
+HAS_GITIGNORE=yes

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "octopus.wave-message-contracts.v1",
+  "title": "Octopus Wave Message Contracts Summary",
+  "type": "object",
+  "required": [
+    "schema",
+    "created_at_local",
+    "waves",
+    "summary"
+  ],
+  "properties": {
+    "schema": {
+      "const": "octopus-wave-message-contracts/1"
+    },
+    "created_at_local": {
+      "type": "string",
+      "minLength": 10
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "waves": {
+      "type": "object",
+      "required": [
+        "Wave-1",
+        "Wave-B",
+        "A13",
+        "A18"
+      ],
+      "properties": {
+        "Wave-1": {
+          "type": "object",
+          "required": [
+            "status",
+            "message_paths"
+          ]
+        },
+        "Wave-B": {
+          "type": "object",
+          "required": [
+            "status",
+            "message_paths"
+          ]
+        },
+        "A13": {
+          "type": "object",
+          "required": [
+            "status",
+            "evidence_paths_only"
+          ]
+        },
+        "A18": {
+          "type": "object",
+          "required": [
+            "status",
+            "pass_claim_forbidden",
+            "do_not_claim",
+            "blockers"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "PARTIAL_BLOCKED",
+                "BLOCKED",
+                "PARTIAL"
+              ]
+            },
+            "do_not_claim": {
+              "const": "PASS"
+            },
+            "pass_claim_forbidden": {
+              "const": true
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object"
+    },
+    "cross_cutting_contracts_found": {
+      "type": "array"
+    },
+    "compact": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

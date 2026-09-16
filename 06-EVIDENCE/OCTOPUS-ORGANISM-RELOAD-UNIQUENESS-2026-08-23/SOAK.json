@@ -1,0 +1,116 @@
+﻿{
+    "schema":  "octopus-organism-reload-uniqueness-soak/1",
+    "captured_at_local":  "2026-08-23T04:20:02+10:00",
+    "captured_at_utc":  "2026-08-22T18:20:02Z",
+    "STATUS":  "SOAK_PARTIAL",
+    "reason":  "18-min RO poll observed no natural advance of poller-uniqueness-latest.json; expected uniqueness cadence ~60 organism beats (~103s each) exceeds soak window; manual invoke already proven pre-soak.",
+    "constraints_honored":  {
+                                "no_restart":  true,
+                                "center_35916_untouched":  true,
+                                "no_DEAD_LETTER":  true,
+                                "no_secrets":  true,
+                                "no_live_send":  true
+                            },
+    "pids":  {
+                 "center_alive":  true,
+                 "organism_cmdline":  "python -X utf8 organism.py",
+                 "organism_start_local":  "2026-08-23T03:53:17+10:00",
+                 "center_unchanged":  true,
+                 "organism":  26900,
+                 "organism_alive":  true,
+                 "center":  35916
+             },
+    "receipt_path":  "F:\\backup\\_ops\\state\\doctor\\poller-uniqueness-latest.json",
+    "t0":  {
+               "source":  "doctor_uniqueness_beat",
+               "live_send":  false,
+               "ok":  true,
+               "checked_at_local":  "2026-08-23T03:54:35+10:00",
+               "dry_run":  true,
+               "center_pids":  [
+                                   35916
+                               ],
+               "mtime_local":  "2026-08-23T03:54:35.2786472+10:00",
+               "beat":  45925
+           },
+    "t1":  {
+               "beat":  45925,
+               "center_pids":  [
+                                   35916
+                               ],
+               "checked_at_local":  "2026-08-23T03:54:35+10:00",
+               "mtime_advanced":  false,
+               "mtime_local":  "2026-08-23T03:54:35.2786472+10:00",
+               "ok":  true,
+               "dry_run":  true,
+               "content_advanced":  false,
+               "live_send":  false
+           },
+    "soak_window":  {
+                        "poll_log":  "SOAK-POLL.log",
+                        "elapsed_min":  18,
+                        "sample_count":  18,
+                        "start_local":  "2026-08-23T04:01:38+10:00",
+                        "end_local":  "2026-08-23T04:19:38+10:00",
+                        "sample_interval_s":  60
+                    },
+    "chrono_observed":  {
+                            "heart_period_shadow_s":  313.36,
+                            "organism_beat_during_soak_end":  45950,
+                            "sleep_s_after_bias":  102.66,
+                            "organism_beat_note":  "ORGANISM-STATE.beat advanced during soak (CHRONO/Pacemaker live) while uniqueness receipt stayed at 45925",
+                            "ts":  "2026-08-23T04:19:26"
+                        },
+    "EXPECTED_CADENCE":  {
+                             "receipt_epoch_at_t0":  765,
+                             "note_code_vs_live":  "organism.py TICK_SECONDS=300 but live sleep_s_after_bias≈103s (schedule_period_bias); use live sleep for ETA",
+                             "estimated_full_cycle_formula":  "60 * sleep_s_after_bias (~103s) ≈ 100+ min",
+                             "estimated_full_cycle_min":  102.7,
+                             "eta_natural_min_approx":  17.1,
+                             "epoch_fire":  "wiring._epoch_fire: fires when beat//every_n increases (durable via epoch_guard)",
+                             "beats_remaining_to_boundary":  10,
+                             "default_every_n_beats":  60,
+                             "observed_beat_sleep_s":  102.66,
+                             "next_epoch_boundary_beat":  45960,
+                             "TICK_SECONDS_code_default":  300,
+                             "organism_epoch_now":  765,
+                             "env":  "CHRONO_DOCTOR_UNIQUENESS_EVERY_N_BEATS"
+                         },
+    "manual_invoke_already_proven":  {
+                                         "from_POST":  true,
+                                         "ok":  true,
+                                         "live_send":  false,
+                                         "method":  "run_uniqueness_heartbeat beat=45950 dry_run=True",
+                                         "evidence":  "POST.json / RESULT.txt in this pack",
+                                         "receipt_mtime_post":  "2026-08-23T03:54:35"
+                                     },
+    "checks_last_receipt":  {
+                                "one_center_pid":  true,
+                                "one_active_lease":  true,
+                                "one_tg_poller_lock":  true,
+                                "pids_agree":  true
+                            },
+    "safety":  {
+                   "no_DEAD_LETTER_touch":  true,
+                   "soak_readonly":  true,
+                   "no_live_sendMessage":  true,
+                   "center_not_restarted":  true
+               },
+    "NEXT":  [
+                 {
+                     "rank":  1,
+                     "gap":  "Natural uniqueness epoch not yet observed post-reload",
+                     "action":  "Wait for beat boundary (~45960 / next epoch) without restart; confirm receipt mtime advances from Pacemaker alone"
+                 },
+                 {
+                     "rank":  2,
+                     "gap":  "Outbox NEEDS_RECONCILIATION still needs owner GO",
+                     "action":  "Owner authorize quarantine reconcile; no DEAD_LETTER invent"
+                 },
+                 {
+                     "rank":  3,
+                     "gap":  "A18 live owner-chat canary BLOCKED",
+                     "action":  "RO re-verify only when owner allows; no live send"
+                 }
+             ]
+}

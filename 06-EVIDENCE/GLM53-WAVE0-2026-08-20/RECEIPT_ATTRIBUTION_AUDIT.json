@@ -1,0 +1,21 @@
+{
+ "schema": "receipt-attribution-audit/1",
+ "date": "2026-08-20",
+ "receipts_today": 144,
+ "receipts_with_task_id": 46,
+ "receipts_without_task_id": 98,
+ "attribution_ratio": 0.3194,
+ "attribution_percentage": "31.9%",
+ "task_breakdown": {
+  "NONE": 98,
+  "synthesize": 19,
+  "deep": 7,
+  "event-time-probe-20260820": 6,
+  "orchestrate": 5,
+  "collab_chat": 5,
+  "summarize": 3,
+  "draft": 1
+ },
+ "gate_95pct": "NOT_MET",
+ "writes_performed": false
+}

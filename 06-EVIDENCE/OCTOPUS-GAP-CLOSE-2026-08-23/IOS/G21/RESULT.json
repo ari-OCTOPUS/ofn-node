@@ -1,0 +1,10 @@
+{
+  "status": "PASS_PROPOSE",
+  "proposal": "Supersede NEXT-AGENT-HANDOFF open checkboxes with pointer to GAP inventory 2026-08-23 + gap-close IOS rollup; do not delete historical handoff",
+  "handoff_exists": true,
+  "suggested_one_liner": "See 06-EVIDENCE/OCTOPUS-GAP-INVENTORY-2026-08-23 and OCTOPUS-GAP-CLOSE-2026-08-23/IOS/ROLLUP.json",
+  "gap_id": "G21",
+  "stamp_local": "2026-08-23T09:05:12+10:00",
+  "timezone": "Australia/Sydney",
+  "agent": "Ios"
+}

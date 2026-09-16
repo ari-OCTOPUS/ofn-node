@@ -1,0 +1,85 @@
+{
+  "schema": "octopus-tech-admission-refresh/audit-1",
+  "stamp_local_date": "2026-08-23",
+  "step": "EXEC-GUIDE-CONSERVATIVE.md step 1 — read-only audit, no code change",
+  "performed_by": "Claude (Sonnet 5), worktree great-spence-d84352, per owner (ari) explicit choice to write directly under this evidence folder on the live tree",
+  "method": "git -C F:\\backup ls-files (index read, not disk walk) + targeted Read of matched files. Recursive Glob/Grep across the full tree timed out repeatedly (20s cap) and a git log --all was killed at 2min, so file discovery went through the git index instead, same pattern _ops/octopus_mcp/server.py itself uses (_git_ls_files) to avoid the recursive-scan-hangs failure mode.",
+
+  "components_located": {
+    "mcp_tool_registry": {
+      "path": "_ops/octopus_mcp/server.py",
+      "note": "There is no separate 'Tool Registry' module. The registry IS the `TOOLS` dict (lines 364-378) + `_tool_defs()` (546-555) + `_handle()` dispatcher (558-593) in this one 411-line file. Any TDR referencing 'Tool Registry' should point here, not go looking for a distinct component.",
+      "current_protocol_state": [
+        "PROTOCOL_VERSION = \"2025-06-18\" (line 43); SUPPORTED_PROTOCOL_VERSIONS also lists 2025-03-26 and 2024-11-05 (line 45) — none of these is the OWNER-REPORT's cited 2026-07-28 revision.",
+        "`initialize` is still a live, functioning method in `_handle()` (lines 561-569), returning protocolVersion/capabilities/serverInfo — this is exactly the handshake the OWNER-REPORT says the 2026-07-28 revision removes. It has NOT been removed here.",
+        "A stateless HTTP transport variant DOES already exist: `_StatelessHTTPHandler` (lines 399-514), explicitly stateless per spec 2025-06-18's 'Streamable HTTP' mode — rejects any `Mcp-Session-Id` header with 400 'stateless-server-no-sessions' (line 490-492), attributed in the docstring to 'مگاپرامپتِ G5' (line 16).",
+        "No `Mcp-Method` / `Mcp-Name` headers exist anywhere in this file — those are specific to the OWNER-REPORT's cited 2026-07-28 revision and are not implemented.",
+        "CONCLUSION: this server already implements an adjacent-but-different statelessness (the optional 2025-06-18 stateless HTTP transport, i.e. no session ID) — it does NOT yet implement the OWNER-REPORT's cited 2026-07-28 full-protocol revision (which additionally drops the initialize handshake entirely in favor of per-request Mcp-Method/Mcp-Name headers). These should not be conflated as 'already done'."
+      ]
+    },
+
+    "policy_gate": {
+      "path": "_ops/policy/policy_gate.py",
+      "note": "This is almost certainly what the owner-report means by 'PolicyGate'. Read lines 1-90 (ADR-033, fail-closed authorization gate).",
+      "finding": "PolicyGate is already a pure function over an explicit, frozen `RequestContext` dataclass (run_id, checkpoint_id, state_version, policy_version, actor, action, trust_level, provenance_id, approval_id, idempotency_key, kill_switch_engaged — all passed in per call, lines 22-33). It holds no session state of its own and was never coupled to MCP's initialize/Mcp-Session-Id handshake — those are two unrelated layers (MCP is the transport bringing a request in; PolicyGate is a separate ADR-033 decision function invoked with an explicit context, regardless of transport). CORRECTION to owner-report framing: the claim that MCP going stateless 'directly affects PolicyGate' does not hold up against the actual code — there is no session dependency in policy_gate.py to remove. The real MCP-layer work is scoped to server.py's initialize handling and headers, not to PolicyGate."
+    },
+
+    "sse_run_events_endpoint_O_E4": {
+      "path": "_ops/telegram_center/miniapp_gateway.py:1090-1138",
+      "finding": "Already implemented and live, not just planned. `GET /api/runs/{run_id}` (JSON summary) and `GET /api/runs/{run_id}/events?after=N` (SSE, `text/event-stream`) both exist, gated by `_owner_initdata_ok()` owner-auth (line 1094). SSE frames use `id: {seq}\\nevent: {et}\\ndata: {payload}\\n` (line 1135) — sequence-numbered, matching the `after=N` resume parameter. CONCLUSION: OWNER-REPORT's 'ADOPT — confirm O-E4 endpoint' is already satisfied in code. Remaining work per the report (heartbeat behavior, resume-after-sequence correctness under real disconnects) is a test-writing task, not a build task."
+    },
+
+    "typed_event_schema": {
+      "real_source": "_ops/cognitive/event_stream.py, _ops/cognitive/run_store.py, _ops/cognitive/truth_layer.py",
+      "NOT_this_one": {
+        "path": "04-SYSTEMS/TYPED-EVENTS.md",
+        "why_not": "This file's own frontmatter says `status: phantom-name`. Body text: 'این نام در گفتگو تولید شد، نه در مخزن. هیچ معادلی تعیین نمی‌شود (رأی مالک NEW-1، 2026-08-15)' — the owner explicitly voted (NEW-1, 2026-08-15) NOT to treat any repo construct as the equivalent of this name. It goes on to note the repo's actual hash-chain ledger system (`src/nbb_cp/kernel/events.py` — canonical_json + LedgerEvent) is unrelated and must not be registered as a match, because doing so would fabricate evidence."
+      },
+      "conclusion": "OWNER-REPORT's bracketed term `[TYPED EVENT CONTRACT]` (used for the proposed OTel-GenAI mapping) must resolve to the real Cognitive-Runtime event types in `_ops/cognitive/event_stream.py` (e.g. RUN_CREATED, MODEL_STARTED, MODEL_FINISHED per 01 - Dashboard/HANDOFF.md's 2026-08-12 entries) — NOT to `04-SYSTEMS/TYPED-EVENTS.md`, and NOT to the nbb_cp ledger system, which is a financial-kernel construct unrelated to chat/run events. A TDR for the OTel mapping should cite event_stream.py directly."
+    },
+
+    "vault_chroma": {
+      "path": "4d_system/memory/vectorstore.py",
+      "finding": "Uses `langchain_chroma.Chroma`, persisted at `4d_system/outputs/chroma_db`. Two collections: `4d_vault` (default singleton, scoped to `4D-Vault/` only) and `vault_whole` (opt-in, whole-vault RAG, explicitly 'not-yet-wired' per this file's own docstring, lines 13-14). Reuses `_ops/octopus_mcp/server.py`'s `_denied()` path-guard for the whole-vault exclusion filter (lines 77-100) — a real, intentional cross-module dependency the report should not disturb.",
+      "cross_check": "Confirmed by prior TDR-QDRANT.md (2026-08-12, see below): 'chromadb 1.5.9 installed but OCTOPUS_WIRE_VAULT_RAG not armed; no benchmark' — consistent with vectorstore.py's own 'not-yet-wired' language a week+ later. Nothing has changed on this axis between 08-12 and today."
+    },
+
+    "conversation_hub": {
+      "path": "_ops/conversation_hub/{__init__,router,schemas,service,shadow_rollout}.py",
+      "note": "ADR-040 façade layer — likely where MCP-adapter/SSE/event wiring for owner-chat actually converges. Located but not deep-read in this audit pass (out of the 'no code change, just locate' scope for step 1)."
+    }
+  },
+
+  "cross_check_against_prior_owner_approved_TDRs": {
+    "found_at": "_ops/state/adr-033/reports/AWARENESS-MEMORY-ASK-2026-08-12/technology-decisions/",
+    "TDR-NATS.md": "decision=DEFER, reason='internal JSONL sufficient; NATS only if multi-process consumers or cross-machine replay proven' — MATCHES new report's DEFER.",
+    "TDR-QDRANT.md": "decision=DEFER, reason='benchmark Chroma first; Qdrant only if recall/latency/hybrid-search proven insufficient' — MATCHES new report's DEFER.",
+    "TDR-TEMPORAL.md": "decision=REJECT, reason='duplication with existing checkpoint/replay [DBOS/journal/checkpoint/replay exists in evidence_plane/event_log + policy_gate]; adds operational burden without measured benefit' — MATCHES new report's REJECT, AND reveals something the new report did not mention:",
+    "important_gap_in_new_report": "TDR-TEMPORAL.md (08-12) states durable checkpoint/replay already exists in `_ops/evidence_plane/event_log.py` + `_ops/policy/policy_gate.py`. The new OWNER-REPORT recommends a fresh 'DBOS-style TRIAL on existing Postgres' for the Run Store as if starting from zero. Before running that trial, it should be checked against what event_log.py already does — the trial may partly duplicate existing checkpoint/replay machinery rather than filling a real gap. This is a concrete open question for the DBOS-runstore TDR, not yet resolved by this audit pass."
+  },
+
+  "scope_clarification_not_a_conflict": {
+    "found": "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-C-NATS-2026-08-22/ — owner-authorized change dated yesterday, executor 'sensoriom'.",
+    "what_it_actually_is": "Per its README.md: a memory-capacity change ('NATS capacity') for an ALREADY-RUNNING NATS instance on the Orange Pi edge device — cgroup/MemoryMax tuning (768M, 1G ceiling), not a decision to adopt NATS as a message bus.",
+    "why_it_matters_here": "This is unrelated to the OWNER-REPORT's chat-event-bus NATS/DEFER recommendation, which is about octopus-unified-chat only (in scope per EXEC-GUIDE). Do not read 'NATS is owner-authorized' (true, for the Pi/sensorium edge subsystem) as contradicting 'NATS is DEFERRED' (true, for the chat event bus) — two different subsystems, two different questions. Pi/PWM/sensorium work is explicit Scope OUT for this track per EXEC-GUIDE-CONSERVATIVE.md."
+  },
+
+  "false_positives_checked": {
+    "4d_system/nbb-cp-kre/src/nbb_cp_kre/adapters/viz/temporal.py": "Filename match only — a time-axis visualization adapter, not the Temporal.io workflow engine. Same pattern as the false positives already logged in _ops/state/migration/MIGRATION-INVENTORY.md §4."
+  },
+
+  "no_new_dependency_adoption_found": "git ls-files shows no requirements.txt/pyproject.toml under _ops or 4d_system pinning temporal, nats, qdrant, or kafka packages. The DEFER/REJECT recommendations for these four are status-quo-preserving (nothing to uninstall or roll back) — confirms the report's own point that these are 'do nothing yet' decisions, not migrations.",
+
+  "not_covered_by_this_audit_pass": [
+    "Did not deep-read _ops/conversation_hub/*.py content (only located it).",
+    "Did not verify SSE heartbeat / resume-after-disconnect behavior against the live running gateway process — that requires a runtime test, which is step 2+ (TDR + owner GO) territory per EXEC-GUIDE, not read-only audit.",
+    "Did not re-verify the OWNER-REPORT's external citations ([1]-[23], e.g. specific Qdrant benchmark numbers, DBOS 7-line-change claim, MCP official migration guide contents) against their original sources — report itself says these are owner-pasted and not yet re-verified; that re-verification is separate from this repo-audit and would need web access, not filesystem access."
+  ],
+
+  "recommendation_for_step_2_TDR_drafting": [
+    "MCP-adapter-headers TDR: scope to _ops/octopus_mcp/server.py only. Measured problem should distinguish 'add Mcp-Method/Mcp-Name header routing' (new work) from 'the initialize handshake is already gone' (false — it is not gone, and removing it needs its own compatibility question about the still-relevant SUPPORTED_PROTOCOL_VERSIONS negotiation).",
+    "SSE-O-E4 TDR: mostly a verification/test-writing TDR, since the endpoint already exists at miniapp_gateway.py:1090-1138 — trial threshold should be about heartbeat/resume correctness, not new implementation.",
+    "OTel-mapping TDR: must cite _ops/cognitive/event_stream.py as the source schema, explicitly not 04-SYSTEMS/TYPED-EVENTS.md (owner-voted phantom, 2026-08-15).",
+    "DBOS-runstore TDR: must first compare against _ops/evidence_plane/event_log.py + _ops/policy/policy_gate.py's existing checkpoint/replay before declaring a gap — per TDR-TEMPORAL.md's own 08-12 finding."
+  ]
+}

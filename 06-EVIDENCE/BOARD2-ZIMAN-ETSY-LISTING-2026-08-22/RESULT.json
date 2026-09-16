@@ -1,0 +1,69 @@
+{
+  "stamp": "20260822T131314Z",
+  "listing_channel": "etsy",
+  "payment_rail": "payid",
+  "pack_bak": "/home/ari/ofn/packs/ziman.yaml.bak-etsy-listing-20260822T131314Z",
+  "platforms_after": "etsy",
+  "etsy_fee_in_pack": false,
+  "note": "etsy fee percent/fixed NOT invented; pack channels still lack etsy until owner sets fees",
+  "listings": [
+    {
+      "sku": "ZM-0003",
+      "name": "ظرف آزمایشی",
+      "price_primary_aud": 22.0,
+      "packet_sha256": "a47ab08689d7e38346bb7a56f26847fe6c7d50b10306c060d4f0a7d137e42c79",
+      "listing_id": "list-etsy-zm-0003-20260822t131314z",
+      "listing": {
+        "ok": true,
+        "listing_id": "list-etsy-zm-0003-20260822t131314z",
+        "tenant_id": "ziman",
+        "sku": "ZM-0003",
+        "environment": "production"
+      }
+    },
+    {
+      "sku": "ZM-0006",
+      "name": "ظرف آزمایشی",
+      "price_primary_aud": 22.0,
+      "packet_sha256": "c5e3320b38f9542ae5907029f4c09cb95974ba5eb2f28d5b172510c910ea6b99",
+      "listing_id": "list-etsy-zm-0006-20260822t131314z",
+      "listing": {
+        "ok": true,
+        "listing_id": "list-etsy-zm-0006-20260822t131314z",
+        "tenant_id": "ziman",
+        "sku": "ZM-0006",
+        "environment": "production"
+      }
+    }
+  ],
+  "db_etsy_events": [
+    {
+      "listing_id": "list-etsy-zm-0003-20260822t131314z",
+      "sku": "ZM-0003",
+      "channel": "etsy",
+      "packet_sha256": "a47ab08689d7e38346bb7a56f26847fe6c7d50b10306c060d4f0a7d137e42c79",
+      "published_at": "2026-08-22T13:13:14Z",
+      "created_by": "owner-via-marketing-agent"
+    },
+    {
+      "listing_id": "list-etsy-zm-0006-20260822t131314z",
+      "sku": "ZM-0006",
+      "channel": "etsy",
+      "packet_sha256": "c5e3320b38f9542ae5907029f4c09cb95974ba5eb2f28d5b172510c910ea6b99",
+      "published_at": "2026-08-22T13:13:14Z",
+      "created_by": "owner-via-marketing-agent"
+    }
+  ],
+  "catalog_after": {
+    "activated": true,
+    "count": 2,
+    "skus": [
+      "ZM-0003",
+      "ZM-0006"
+    ]
+  },
+  "result": "PASS",
+  "rollback_pack": "cp /home/ari/ofn/packs/ziman.yaml.bak-etsy-listing-20260822T131314Z /home/ari/ofn/packs/ziman.yaml && sudo systemctl restart ofn.service",
+  "no_paid_ads": true,
+  "no_invent_products": true
+}

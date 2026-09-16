@@ -1,0 +1,181 @@
+﻿{
+    "not_done":  [
+                     "no blast",
+                     "no setWebhook",
+                     "no key rotate",
+                     "no ofn restart",
+                     "no Studio gate flips",
+                     "no mining",
+                     "no paid spend",
+                     "no SKU invent"
+                 ],
+    "blockers":  [
+
+                 ],
+    "actions":  [
+                    {
+                        "reversible":  true,
+                        "artifact":  "lead-gap-inventory-20260822T130030Z.json",
+                        "action":  "gap inventory refresh JSON under consent-docs + evidence",
+                        "lane":  "Painting+Lead"
+                    },
+                    {
+                        "lead_outbox":  [
+                                            {
+                                                "status":  "manual_completed",
+                                                "n":  1,
+                                                "kind":  "lead:quote"
+                                            },
+                                            {
+                                                "status":  "manual_completed",
+                                                "n":  1,
+                                                "kind":  "lead:reply"
+                                            }
+                                        ],
+                        "reversible":  true,
+                        "artifact":  "outbox-observability-20260822T130030Z.json",
+                        "action":  "outbox observability meta counts (no payloads)",
+                        "lane":  "Painting+Lead"
+                    },
+                    {
+                        "public_catalog":  {
+                                               "skus":  [
+                                                            "ZM-0003",
+                                                            "ZM-0006"
+                                                        ],
+                                               "note":  "shared ZM surface on lead host",
+                                               "http":  200,
+                                               "count":  2,
+                                               "activated":  true
+                                           },
+                        "reversible":  true,
+                        "artifact":  "lead-catalog-shape-20260822T130030Z.md",
+                        "action":  "catalog response-shape + channel health doc",
+                        "lane":  "Painting+Lead"
+                    },
+                    {
+                        "action":  "product catalog health snapshot",
+                        "for_sale":  2,
+                        "reversible":  true,
+                        "lane":  "Ziman",
+                        "in_progress":  3,
+                        "artifact":  "ziman-catalog-health-20260822T130030Z.json",
+                        "products_total":  5
+                    },
+                    {
+                        "commerce_tables_empty":  true,
+                        "reversible":  true,
+                        "ziman_outbox":  0,
+                        "action":  "inventory/outbox counts",
+                        "lane":  "Ziman"
+                    },
+                    {
+                        "action":  "GiftMesh-facing health doc",
+                        "no_sku_invent":  true,
+                        "reversible":  true,
+                        "no_paid_ads":  true,
+                        "lane":  "Ziman",
+                        "artifact":  "ziman-giftmesh-health-20260822T130030Z.md"
+                    }
+                ],
+    "vs_prior_LEAD_GO":  {
+                             "WIRE_OUTBOUND_now":  1,
+                             "catalog_activated_prior":  false,
+                             "outbox_lead_now":  2,
+                             "WIRE_OUTBOUND_prior_report":  0,
+                             "catalog_activated_now":  true,
+                             "outbox_lead_prior":  2
+                         },
+    "lead_scan":  {
+                      "modules_status":  {
+                                             "manual":  3,
+                                             "connected":  2,
+                                             "planned":  7
+                                         },
+                      "channels_connection":  {
+                                                  "planned":  6,
+                                                  "connected":  1
+                                              },
+                      "campaigns":  0,
+                      "interactions":  1,
+                      "sources":  44,
+                      "tenders":  0,
+                      "seed_baseline":  {
+                                            "modules":  12,
+                                            "channels":  7
+                                        },
+                      "leads_by_status":  {
+                                              "quoted":  1,
+                                              "new":  5,
+                                              "review":  1,
+                                              "contacted":  1
+                                          },
+                      "leads_total":  8
+                  },
+    "stamp_sydney":  "2026-08-22 23:00:30 AEST",
+    "legs":  {
+                 "ziman":  {
+                               "port":  8791,
+                               "host":  "ziman.master-painting.com",
+                               "business":  "GiftMesh / Maliheh gifts",
+                               "healthz":  200
+                           },
+                 "lead":  {
+                              "port":  8792,
+                              "host":  "lead.master-painting.com",
+                              "business":  "Master Painting / Abbas lead gen",
+                              "healthz":  200
+                          }
+             },
+    "evidence":  {
+                     "node_consent_docs":  "/home/ari/.local/share/ofn/consent-docs/*-20260822T130030Z.*",
+                     "obsidian":  "F:\\backup\\07 - Knowledge\\octopus-board2\\63-BOARD2-PAINTING-ZIMAN-DEEPEN-2026-08-22.md",
+                     "windows":  "F:\\backup\\06-EVIDENCE\\BOARD2-PAINTING-ZIMAN-DEEPEN-2026-08-22\\"
+                 },
+    "gates":  {
+                  "closed_auto_or_live":  [
+                                              "live_sms",
+                                              "live_dm",
+                                              "tender_submit",
+                                              "vendor_submit",
+                                              "portal_submit",
+                                              "terms_acceptance",
+                                              "auto_scrape",
+                                              "auto_post",
+                                              "auto_dm",
+                                              "auto_email"
+                                          ],
+                  "OFN_WIRE_OUTBOUND":  1,
+                  "OFN_KEEP_GATES_OPEN":  1,
+                  "OFN_PUBLIC_CATALOG":  1
+              },
+    "stamp":  "20260822T130030Z",
+    "result":  "PASS",
+    "ziman_scan":  {
+                       "empty_commerce":  [
+                                              "product_orders",
+                                              "product_inquiries",
+                                              "product_payments",
+                                              "product_photos",
+                                              "product_media",
+                                              "product_sale_events",
+                                              "product_listing_events"
+                                          ],
+                       "marketing_status_all":  "not_started",
+                       "outbox_ziman":  0,
+                       "products_by_state":  {
+                                                 "for_sale":  2,
+                                                 "in_progress":  3
+                                             },
+                       "public_catalog":  {
+                                              "skus":  [
+                                                           "ZM-0003",
+                                                           "ZM-0006"
+                                                       ],
+                                              "http":  200,
+                                              "count":  2,
+                                              "activated":  true
+                                          },
+                       "products_total":  5
+                   }
+}

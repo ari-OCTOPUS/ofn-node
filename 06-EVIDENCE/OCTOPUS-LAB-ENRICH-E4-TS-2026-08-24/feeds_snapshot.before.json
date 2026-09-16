@@ -1,0 +1,35 @@
+{
+  "schema": "octopus.homeostasis-feeds-snapshot.v1",
+  "auth": [
+    "OCTOPUS-HOMEO-FEEDS-SNAPSHOT-20260823"
+  ],
+  "advisory_only": true,
+  "mutates_host": false,
+  "ts_utc": "20260824T061944Z",
+  "expected_feeds": 7,
+  "ok_count": 7,
+  "fail": [],
+  "sensor_ids": [
+    "OCT-FEED-OPENMETEO",
+    "OCT-FEED-AQI",
+    "OCT-FEED-TIME",
+    "OCT-FEED-FX-AUD",
+    "OCT-FEED-BOM-SYD",
+    "OCT-FEED-NEWS-AU",
+    "OCT-FEED-USGS-QUAKE"
+  ],
+  "last_run_ts": "20260824T060444Z",
+  "mode": "conserve",
+  "severity": "watch",
+  "readings": {
+    "evidence_age_s": {
+      "value": 900.680539,
+      "status": "watch"
+    },
+    "sensor_coverage": {
+      "value": 1.0,
+      "status": "healthy"
+    }
+  },
+  "note": "would_lockdown advisory only; Doctor read-only; no feed restart"
+}

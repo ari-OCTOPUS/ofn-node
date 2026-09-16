@@ -1,0 +1,111 @@
+{
+  "schema": "octopus.lab-enrich.execute.receipt.v1",
+  "id": "OCTOPUS-LAB-ENRICH-EXECUTE-2026-08-24",
+  "written_at_utc": "20260824T052456Z",
+  "E1": {
+    "status": "PASS",
+    "detail": {
+      "schema": "octopus.lab-enrich.e1.receipt.v1",
+      "id": "LAB-ENRICH-E1-OBS-AGE-20260824",
+      "captured_at_utc": "20260824T052419Z",
+      "metric_present": true,
+      "labeled_series_count": 4,
+      "sample_lines": [
+        "# HELP octopus_sensor_observation_age_seconds Seconds since evidence phenomenon_time",
+        "# TYPE octopus_sensor_observation_age_seconds gauge",
+        "octopus_sensor_observation_age_seconds{sensor=\"OCT-SENSE-053.CPU\"} 1.634",
+        "octopus_sensor_observation_age_seconds{sensor=\"OCT-SENSE-053.MEMORY\"} 1.624",
+        "octopus_sensor_observation_age_seconds{sensor=\"OCT-SENSE-053.STORAGE\"} 1.618",
+        "octopus_sensor_observation_age_seconds{sensor=\"OCT-SENSE-053.THERMAL\"} 1.436",
+        "# HELP octopus_sensor_observation_age_max_seconds Max observation age across host evidence sources",
+        "# TYPE octopus_sensor_observation_age_max_seconds gauge",
+        "octopus_sensor_observation_age_max_seconds 1.634"
+      ],
+      "ARMED": false,
+      "PWM": false,
+      "pass": true,
+      "rollback": "restore stability_monitor.py.from before + systemctl restart octopus-stability"
+    }
+  },
+  "E2": {
+    "status": "TRIAGE_DONE_NO_MOVE",
+    "detail": {
+      "schema": "octopus.lab-enrich.e2.triage.v1",
+      "id": "LAB-ENRICH-E2-THERMAL-QUARANTINE-TRIAGE-20260824",
+      "captured_at_utc": "20260824T052439Z",
+      "mode": "readonly_report_only",
+      "moved": false,
+      "ARMED": false,
+      "quarantine_files": [
+        "OCT-SENSE-053.THERMAL-RANGE_CHECK.json",
+        "wave01-range.json"
+      ],
+      "homeo_thermal_integrity": {
+        "value": 29.615,
+        "status": "healthy",
+        "stale": false,
+        "source": "soc_temperature_celsius",
+        "stamp": "2026-08-24T05:24:16.523509+00:00",
+        "raw": 29.615
+      },
+      "live_thermal_sensor_id": "OCT-SENSE-053.THERMAL",
+      "findings": [
+        {
+          "file": "OCT-SENSE-053.THERMAL-RANGE_CHECK.json",
+          "likely_stale_residue": true,
+          "recommendation": "CANDIDATE_MOVE_TO_CLEARED_AFTER_OWNER_GO",
+          "reasons": [
+            "thermal_quarantine_present",
+            "live_thermal_value=30.538",
+            "live_temp_in_broad_healthy_band_20_85C",
+            "mentions_range"
+          ],
+          "live_thermal": {
+            "stamp": "2026-08-24T05:24:37.233696+00:00",
+            "value": 30.538,
+            "unit": "Cel"
+          }
+        },
+        {
+          "file": "wave01-range.json",
+          "likely_stale_residue": null,
+          "recommendation": "KEEP_REVIEW_SEPARATELY",
+          "reasons": [
+            "non_thermal_quarantine"
+          ]
+        }
+      ],
+      "ask_owner": "GO move THERMAL (and/or wave01-range) quarantine files to quarantine/.cleared-20260824/ ? Default HOLD keep."
+    }
+  },
+  "E3": "HELD",
+  "ARMED": false,
+  "ask_owner_e2_clear": "GO move THERMAL (and/or wave01-range) quarantine files to quarantine/.cleared-20260824/ ? Default HOLD keep.",
+  "paths": {
+    "laptop": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAB-ENRICH-EXECUTE-2026-08-24\\\\",
+    "pi": "/var/lib/octopus/evidence/session-lab-enrich-e1e2-20260824/"
+  },
+  "updated_at_utc": "20260824T052621Z",
+  "E2_CLEAR": {
+    "status": "PASS",
+    "detail": {
+      "schema": "octopus.lab-enrich.e2.clear.v1",
+      "id": "LAB-ENRICH-E2-THERMAL-CLEARED-20260824",
+      "captured_at_utc": "20260824T052611Z",
+      "moved": true,
+      "from": "/var/lib/octopus/state/quarantine/OCT-SENSE-053.THERMAL-RANGE_CHECK.json",
+      "to": "/var/lib/octopus/state/quarantine/.cleared-20260824/OCT-SENSE-053.THERMAL-RANGE_CHECK.json",
+      "method": "mv_reversible_not_delete",
+      "kept_in_quarantine": [
+        "wave01-range.json"
+      ],
+      "cleared_dir_files": [
+        "OCT-SENSE-053.THERMAL-RANGE_CHECK.json"
+      ],
+      "wave01_range_kept": true,
+      "ARMED": false,
+      "rollback": "mv /var/lib/octopus/state/quarantine/.cleared-20260824/OCT-SENSE-053.THERMAL-RANGE_CHECK.json /var/lib/octopus/state/quarantine/",
+      "pass": true
+    }
+  }
+}

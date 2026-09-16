@@ -1,0 +1,90 @@
+﻿{
+    "schema":  "octopus-owner-chg-authorization/1",
+    "authorization_id":  "OCTOPUS-ORANGEPI-CHG-E-20260822",
+    "token":  "OCTOPUS-ORANGEPI-CHG-E-20260822",
+    "package":  [
+                    "E"
+                ],
+    "package_label":  "E_COMPACTION_OR_EVIDENCE",
+    "package_excluded":  [
+                             "A_already_done",
+                             "B_already_done",
+                             "C_already_done",
+                             "D_already_done",
+                             "Board2_GitHub_creds"
+                         ],
+    "owner_choice":  "Execute CHG-E reversible cold evidence archive (~4.7G); keep hot set; index rebuild; no casual truncate",
+    "mutate_device":  true,
+    "execute":  true,
+    "executor":  "sensoriom",
+    "laptop_writer":  "grok-bot-plans-auth-only",
+    "timezone":  "Australia/Sydney (AEST, UTC+10)",
+    "written_at_local":  "2026-08-22T19:10:00+10:00",
+    "timestamp":  "2026-08-22T19:10:00+10:00",
+    "evidence_dir":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-EXECUTE-2026-08-22",
+    "supersedes":  {
+                       "path":  "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-2026-08-22",
+                       "prior_mutate_device":  false,
+                       "reason":  "Auth-only CHG-E elevated to EXECUTE with PLAN/ROLLBACK"
+                   },
+    "board":  {
+                  "hostname":  "sensorium-opi5pro",
+                  "ip":  "192.168.0.182",
+                  "agent_executor":  "sensoriom"
+              },
+    "authorizer":  {
+                       "role":  "owner",
+                       "via":  "ari",
+                       "channel":  "owner_chat_directive"
+                   },
+    "authority":  "OWNER_AUTHORIZED_CHG_E_EXECUTE",
+    "bounds":  {
+                   "allowed":  [
+                                   "Reversible archive of cold evidence (~4.7G class BOOTING evidence/indexes)",
+                                   "Keep hot set online (current ledgers, active windows, READY-critical paths)",
+                                   "Index rebuild after archive (safe rebuild; no in-place hash rewrite)",
+                                   "Quarantine/archive with sha256 manifests; restore-tested path",
+                                   "Write receipts under board evidence + TO-LAPTOP exchange"
+                               ],
+                   "forbidden_globally":  [
+                                              "Casual truncate of observations",
+                                              "Zero-fill sensors",
+                                              "In-place hash rewrite",
+                                              "Delete without reversible archive+manifest",
+                                              "private keys / make-root-v2",
+                                              "MQTT 1883 / PWM / legs / root action_executor",
+                                              "arm reflex",
+                                              "planner",
+                                              "Doctor auto-patch on Pi",
+                                              "torch WM",
+                                              "open 9101 to LAN (separate package)",
+                                              "SSH/mutate Pi from laptop writer",
+                                              "git add -A",
+                                              "key export"
+                                          ],
+                   "wave0":  "Do not unlock actuators via this auth; CHG-E evidence only",
+                   "separate_plans_required":  true,
+                   "evidence_refs":  [
+                                         "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/OWNER-CHG-AUTHORIZATION.json",
+                                         "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22/PACKAGE-COMPLETE-ACK.json",
+                                         "06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-E-2026-08-22/OWNER-AUTHORIZATION.json"
+                                     ]
+               },
+    "plans":  {
+                  "plan":  "PLAN.md",
+                  "execution_order":  "EXECUTION-ORDER.md",
+                  "brief":  "SENSORIOM-EXECUTE-BRIEF.md",
+                  "rollback":  "ROLLBACK.md"
+              },
+    "notes":  "Reversible cold archive only. Keep hot set. Index rebuild allowed. No casual truncate. EXECUTE_READY=false until ARCHIVE_ROOT + related inputs supplied (do not invent paths). Laptop does not SSH.",
+    "execute_ready":  false,
+    "gate_status":  "BLOCKED_NEED_ARCHIVE_ROOT",
+    "package_status":  "BLOCKED_NEED_ARCHIVE_ROOT",
+    "blocked_inputs_required":  [
+                                    "ARCHIVE_ROOT (absolute path on Pi or attached volume with free space \u003e= cold payload + margin)",
+                                    "HOT_EVIDENCE_ROOT (absolute path of live evidence store containing observations.jsonl / derived / indexes)",
+                                    "HOT_RETENTION_WINDOW (time or size policy for what stays hot)",
+                                    "DISK_FREE_TARGET (bytes or percent free on evidence filesystem)",
+                                    "INDEX_REBUILD_COMMAND or confirmed sensoriom procedure for safe index rebuild"
+                                ]
+}

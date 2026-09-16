@@ -1,0 +1,12 @@
+﻿{
+    "stamp_local":  "2026-08-23T09:10:46+10:00",
+    "note":  "Jul-22 resurrection text claims all paid gates ON; contradicts lock+WIRING",
+    "flags_md_cortex_paid_state":  "RAISED",
+    "wiring_paid_calls":  0,
+    "gap":  "G17",
+    "phase":  "BEFORE",
+    "cortex_paid_flag_text":  "2026-07-22T23:10:00 owner-resurrection (deep-scan + full-revival, all paid gates ON)",
+    "cortex_paid_flag_present":  true,
+    "paid_gate_would_open_if_go_live":  true,
+    "writer_lock_forbids_paid_call":  true
+}

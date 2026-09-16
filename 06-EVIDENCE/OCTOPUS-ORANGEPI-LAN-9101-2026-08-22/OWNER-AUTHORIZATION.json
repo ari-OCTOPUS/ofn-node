@@ -1,0 +1,31 @@
+{
+    "schema": "octopus.owner-authorization.v1",
+    "token": "OCTOPUS-ORANGEPI-LAN-9101-20260822",
+    "owner_choice": "Unlock Orange Pi LAN:9101",
+    "scope": {
+        "description": "unlock LAN:9101 on Orange Pi",
+        "target": "Orange Pi LAN:9101",
+        "allowed": [
+            "LAN:9101"
+        ]
+    },
+    "forbidden": [
+        "private keys export/rewrite",
+        "Doctor auto-patch",
+        "torch",
+        "MQTT 1883",
+        "zero-fill",
+        "hash rewrite",
+        "money/webhook/work_pump",
+        "re-run CHG-C",
+        "WAVE0 actuators"
+    ],
+    "mutate_device": false,
+    "notes": "File owner authorization only. Do not mutate the Orange Pi. Do not git add -A. LAN:9101 unlock for Orange Pi; evidence file only. | SUPERSEDED by OCTOPUS-ORANGEPI-LAN-9101-EXECUTE-2026-08-22 (mutate_device=true).",
+    "timezone": "Australia/Sydney (UTC+10)",
+    "timestamp": "2026-08-22T18:48:14+10:00",
+    "status": "SUPERSEDED",
+    "superseded_by": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-LAN-9101-EXECUTE-2026-08-22",
+    "superseded_at_local": "2026-08-22T19:22:00+10:00",
+    "supersede_reason": "Owner late-answer: execute package with mutate_device=true supersedes auth-only mutate_device=false"
+}

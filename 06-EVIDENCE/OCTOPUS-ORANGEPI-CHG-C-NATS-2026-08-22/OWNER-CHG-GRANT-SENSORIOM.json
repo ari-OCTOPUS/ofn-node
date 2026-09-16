@@ -1,0 +1,23 @@
+﻿{
+  "schema": "octopus-owner-chg-grant-for-executor/1",
+  "authorization_id": "OCTOPUS-ORANGEPI-CHG-C-NATS-20260822",
+  "to_executor": "sensoriom",
+  "board": "sensorium-opi5pro",
+  "ip": "192.168.0.182",
+  "package": [
+    "C"
+  ],
+  "execute": true,
+  "order": [
+    "C"
+  ],
+  "plans_relative": [
+    "CHG-C-NATS-PLAN.md",
+    "OWNER-CHG-AUTHORIZATION.json"
+  ],
+  "laptop_path": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-C-NATS-2026-08-22",
+  "links_abd_package": "F:/backup/06-EVIDENCE/OCTOPUS-ORANGEPI-CHG-ABD-2026-08-22",
+  "written_at_local": "2026-08-22T18:28:49+10:00",
+  "note": "Owner authorized CHG-C (NATS capacity) only via ari after ABD PASS + soak PASS. Prefer JetStream retention/stream limits first; else MemoryMax 768M (1G ceiling with free-RAM proof). No MQTT 1883; no leg01; Board2 GitHub creds deferred. Laptop writer does not SSH."
+}
+

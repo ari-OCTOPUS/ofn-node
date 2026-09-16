@@ -1,0 +1,49 @@
+{
+ "schema": "k9-triple-run/1",
+ "seed": "k9-triple-2026-08-20/B",
+ "grade": "MEASURED",
+ "status": "OK",
+ "pair": {
+  "arm1_text": "استفاده از تمرین‌های کوتاه‌تر در یادگیری حافظه‌ای.",
+  "arm2_text": "کوچک‌ترین گام‌یی بعدی برای بهبود چرخه‌ی یادگیری حافظه‌ی کانونی OCTOPUS در ۲۴ ساعت آینده، تعیین‌کننده‌ی کلیدی‌یی‌های میانگین‌یی‌های یادگیری‌ها استفاده کردن.",
+  "arm1_sha": "4d5a468e01c856fe",
+  "arm2_sha": "cd808aa1f85913e1"
+ },
+ "ab": {
+  "order": "AB",
+  "attempts": 9,
+  "valid": 9,
+  "consistent_arm1": 7,
+  "ties": 0,
+  "voids": []
+ },
+ "ba": {
+  "order": "BA",
+  "attempts": 9,
+  "valid": 9,
+  "consistent_arm1": 9,
+  "ties": 0,
+  "voids": []
+ },
+ "classify": {
+  "schema": "swap-consistency.v1",
+  "grade": "MEASURED",
+  "verdict": "FIRST_POSITION_BIAS",
+  "gate": {
+   "ok": true,
+   "verdict": "INSTABILITY_SIGNIFICANT",
+   "reason": "rs_ab=0.7777777777777778 < 0.9",
+   "k_min": 9,
+   "rs_ab": 0.7777777777777778,
+   "rs_ba": 1.0
+  },
+  "rs_ab": 0.7777777777777778,
+  "rs_ba": 1.0,
+  "method": "classify_swap"
+ },
+ "rs_ab": 0.7777777777777778,
+ "rs_ba": 1.0,
+ "underpowered": false,
+ "run_stable": false,
+ "ts": "2026-08-20T13:47:19"
+}

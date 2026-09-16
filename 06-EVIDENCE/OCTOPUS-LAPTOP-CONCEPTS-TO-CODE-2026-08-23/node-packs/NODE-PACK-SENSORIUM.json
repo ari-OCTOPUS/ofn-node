@@ -1,0 +1,442 @@
+{
+  "pack_version": "1.0",
+  "node_role": "sensorium",
+  "collected_at": "2026-08-23T00:34:00+10:00",
+  "collector": "laptop-agent-concepts-to-code",
+  "collection_method": "mixed",
+  "node": {
+    "node_id": "sensorium-orangepi",
+    "hardware": "Orange Pi + ESP32 Phase A (inet feeds); Phase B hardware deferred",
+    "os": "linux-orangepi",
+    "hostname": "orangepi",
+    "ip_or_discovery_method": "Pi evidence folders + CURRENT-TRUTH + owner-brief",
+    "repo_paths": [
+      "F:\\backup"
+    ],
+    "canonical_repo_candidates": [
+      {
+        "path": "F:\\backup",
+        "rationale": "Owner SoT single-home",
+        "status": "canonical",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md#SoT"
+        }
+      }
+    ],
+    "current_branch_and_commit": [],
+    "agent_runtime": "Cursor ExternalShell laptop-agent",
+    "services_and_ports": [
+      {
+        "service": "MQTT",
+        "port": 1883,
+        "protocol": "tcp",
+        "status": "closed",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md:MQTT CLOSED"
+        }
+      },
+      {
+        "service": "LAN metrics",
+        "port": 9101,
+        "protocol": "http",
+        "status": "open",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md:lan_9101"
+        },
+        "bind_address": "192.168.0.182"
+      }
+    ],
+    "message_transport": [],
+    "event_schemas": [],
+    "data_stores": [],
+    "memory_stores": [],
+    "secrets_file_names_only": [
+      ".env"
+    ],
+    "feature_flags": [
+      {
+        "name": "WAVE0 hardware",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH WAVE0 KEEP_LOCKED"
+        },
+        "detail": "KEEP_LOCKED / BLOCKED_NEED_ESTOP"
+      },
+      {
+        "name": "software_only_a0",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH SOFTWARE_ONLY_A0"
+        },
+        "detail": "overlay enabled; no actuator authority"
+      },
+      {
+        "name": "actuator_authority",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH actuator_authority=NONE"
+        },
+        "detail": "NONE"
+      }
+    ],
+    "kill_switches": [
+      {
+        "name": "WAVE0 hardware lock",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "ADR/OWNER-BRIEF KEEP_LOCKED"
+        },
+        "detail": "do not unlock"
+      },
+      {
+        "name": "MQTT CLOSED",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "CURRENT-TRUTH MQTT CLOSED"
+        },
+        "detail": "no invent PASS"
+      }
+    ],
+    "test_commands": [],
+    "last_test_results": [],
+    "active_projects": [
+      {
+        "name": "Inet feeds Phase A",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Inet feeds Phase A PASS"
+        },
+        "detail": "7/7 expand; timer 15m; ABC skipped 500"
+      },
+      {
+        "name": "ESP32 Phase B",
+        "status": "missing",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:ESP32 Phase B DEFERRED"
+        },
+        "detail": "wait hardware"
+      }
+    ],
+    "owner_decisions": [
+      {
+        "name": "Sensorium shared policy ADOPT",
+        "status": "verified",
+        "source_locator": {
+          "kind": "file_line",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md"
+        },
+        "detail": "shared allowlist; separate namespaces"
+      },
+      {
+        "name": "No WAVE0 unlock this pass",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:non-actions"
+        },
+        "detail": "KEEP_LOCKED"
+      }
+    ],
+    "known_failures": [
+      {
+        "name": "ABC feed 500",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "skipped"
+      }
+    ],
+    "open_gates": [
+      {
+        "name": "Physical e-stop",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "Path H BLOCKED_NEED_ESTOP"
+        },
+        "detail": "LATER"
+      },
+      {
+        "name": "MQTT enable",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "MQTT PARKED/CLOSED"
+        },
+        "detail": "Enable ABD may exist; listener not open"
+      }
+    ],
+    "telegram_components": [],
+    "webapp_components": [],
+    "internet_access_path": [
+      {
+        "name": "OPENMETEO",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "PASS"
+      },
+      {
+        "name": "AQI",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "PASS"
+      },
+      {
+        "name": "TIME",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "PASS"
+      },
+      {
+        "name": "FX-AUD",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "PASS"
+      },
+      {
+        "name": "BOM-SYD",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "PASS"
+      },
+      {
+        "name": "NEWS-AU Guardian",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "PASS"
+      },
+      {
+        "name": "USGS-QUAKE",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "PASS"
+      },
+      {
+        "name": "ABC",
+        "status": "verified",
+        "source_locator": {
+          "kind": "owner_statement",
+          "value": "OWNER-BRIEF Phase A"
+        },
+        "detail": "skipped 500"
+      }
+    ],
+    "handoff_files": [
+      {
+        "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md",
+        "size_bytes": 6517,
+        "modified_at": "2026-08-22T19:35:13+10:00",
+        "sha256": "7354caf879f88a5906be5e5f87fc0b7b6387037d36c594341c7b0df711407cef",
+        "status": "verified"
+      },
+      {
+        "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md",
+        "size_bytes": 6734,
+        "modified_at": "2026-08-22T23:07:33+10:00",
+        "sha256": "a6b857016336189c1790ac4b91df718a23422c8f050f1e8e87b49999d9492e70",
+        "status": "verified"
+      }
+    ]
+  },
+  "inventory": [
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md",
+      "size_bytes": 6734,
+      "modified_at": "2026-08-22T23:07:33+10:00",
+      "sha256": "a6b857016336189c1790ac4b91df718a23422c8f050f1e8e87b49999d9492e70",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\ADR-LAPTOP-AGENT-DECISIONS-2026-08-22.md",
+      "size_bytes": 3014,
+      "modified_at": "2026-08-22T23:09:28+10:00",
+      "sha256": "9f898e6612b6dd44f0d2f76f1d1e6cfc93b2c09496c72cc92e13cbedb3d59ada",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\CONNECTOR-GAP-REGISTRY.json",
+      "size_bytes": 4353,
+      "modified_at": "2026-08-22T23:11:18+10:00",
+      "sha256": "be030013eac43ac8ab72ce049eb185f1470068fb32effcd295f3443a20847905",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-BUSINESS.schema.json",
+      "size_bytes": 16312,
+      "modified_at": "2026-08-22T23:10:01+10:00",
+      "sha256": "d6cc48960b533d029b038598a28b6fea4bbd8472ffea1050060ae611fe1772e5",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-SENSORIUM.schema.json",
+      "size_bytes": 16354,
+      "modified_at": "2026-08-22T23:10:30+10:00",
+      "sha256": "330db20d8f0cf44146d72245138a3bd5b6801f45ef9707b8e0efa17b3b0233fa",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\NODE-PACK-LAPTOP.schema.json",
+      "size_bytes": 16343,
+      "modified_at": "2026-08-22T23:10:57+10:00",
+      "sha256": "0506c74a2d0b4f6614497a954ff00690eebc2e1c31e91df9e2435c34b3d6e909",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\07 - Knowledge\\octopus\\01-BUSINESS-MAP-CANONICAL.md",
+      "size_bytes": 1501,
+      "modified_at": "2026-08-22T22:27:58+10:00",
+      "sha256": "89c5ee5df0c5a75622a16d84b880aafb7bdfdf3774d74212bdb28278458c8207",
+      "classification": "internal"
+    },
+    {
+      "path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md",
+      "size_bytes": 6517,
+      "modified_at": "2026-08-22T19:35:13+10:00",
+      "sha256": "7354caf879f88a5906be5e5f87fc0b7b6387037d36c594341c7b0df711407cef",
+      "classification": "internal"
+    }
+  ],
+  "inventory_digest": {
+    "algorithm": "sha256",
+    "ordered_by": "path",
+    "digest_sha256": "477333a789801f59483dd8f58d4995182397d4468c0fcc7dda9c2952ac5cc130"
+  },
+  "claims": [
+    {
+      "claim_id": "S-001",
+      "statement": "Inet feeds Phase A PASS 7/7 (ABC skipped 500); timer 15m",
+      "value": null,
+      "status": "verified",
+      "source_id": "OWNER-BRIEF",
+      "source_locator": {
+        "kind": "owner_statement",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:Inet feeds"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "sensorium",
+      "hash_sha256": "77968f93d44262ed452fd4b234a139a9d11bb958e72790e86ae1e3b4ee680578",
+      "confidence": 0.95,
+      "limitations": []
+    },
+    {
+      "claim_id": "S-002",
+      "statement": "WAVE0 hardware KEEP_LOCKED / BLOCKED_NEED_ESTOP",
+      "value": null,
+      "status": "verified",
+      "source_id": "CURRENT-TRUTH",
+      "source_locator": {
+        "kind": "file_line",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "wave0",
+      "hash_sha256": "b1f4597b820855d89064b22d697e8a5072d9856a550bb2b664d208129253d212",
+      "confidence": 1.0,
+      "limitations": []
+    },
+    {
+      "claim_id": "S-003",
+      "statement": "MQTT 1883 CLOSED",
+      "value": null,
+      "status": "verified",
+      "source_id": "CURRENT-TRUTH",
+      "source_locator": {
+        "kind": "file_line",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "mqtt",
+      "hash_sha256": "1b45dcb90c8d2b1fad7526e8e7c180e3a132b99674e735af4dd107e4442db5f9",
+      "confidence": 1.0,
+      "limitations": []
+    },
+    {
+      "claim_id": "S-004",
+      "statement": "ESP32 Phase B DEFERRED (no invent UART/pins)",
+      "value": null,
+      "status": "verified",
+      "source_id": "OWNER-BRIEF",
+      "source_locator": {
+        "kind": "owner_statement",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-LAPTOP-AGENT-OWNER-BRIEF-2026-08-22\\OWNER-BRIEF.md:ESP32"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "esp32",
+      "hash_sha256": "10794f406b07c43223cfee63a151222fd57b5d1fc055709381b4c03a53eb1050",
+      "confidence": 0.95,
+      "limitations": []
+    },
+    {
+      "claim_id": "S-005",
+      "statement": "LAN :9101 OPEN on 192.168.0.182 (metrics HTTP 200 claimed)",
+      "value": null,
+      "status": "verified",
+      "source_id": "CURRENT-TRUTH",
+      "source_locator": {
+        "kind": "file_line",
+        "value": "F:\\backup\\06-EVIDENCE\\OCTOPUS-HANDOFF-MERGE-2026-08-22\\merged\\CURRENT-TRUTH.md"
+      },
+      "fetched_at": "2026-08-23T00:34:00+10:00",
+      "scope": "lan9101",
+      "hash_sha256": "8d028ea1ce2e02e0e831b8d7b217842c94bf438c6d8c99e63a592c15c601a5dc",
+      "confidence": 0.9,
+      "limitations": [
+        "laptop firewall verify may still be pending"
+      ]
+    }
+  ],
+  "contradictions": [],
+  "open_questions": [
+    "Laptop firewall verify for LAN:9101 may still be pending",
+    "When physical e-stop arrives, WAVE0 unlock remains owner-gated (not this pass)"
+  ],
+  "synthesis_lock": {
+    "business_pack_received": true,
+    "sensorium_pack_received": true,
+    "laptop_pack_received": true,
+    "can_synthesize": true,
+    "pending_reasons": [
+      "PACKS_READY_SYNTHESIS_PENDING"
+    ]
+  },
+  "sensorium_scope": [
+    "senses",
+    "laboratory",
+    "connector-gateway",
+    "evidence-store",
+    "verifier"
+  ]
+}

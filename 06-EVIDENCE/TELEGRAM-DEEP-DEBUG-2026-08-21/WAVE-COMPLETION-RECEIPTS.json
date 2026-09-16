@@ -1,0 +1,105 @@
+{
+ "schema": "telegram-deep-debug-wave-receipts/1",
+ "generated": "2026-08-21",
+ "owner_order": "OWNER EXECUTION ORDER — WRITE AND REPAIR AUTHORIZED",
+ "plan": "_ops/cortex/plans/TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md",
+ "waves": [
+  {
+   "wave": "W0",
+   "topic": "plan",
+   "commit": "f7dbebcbdd515ca10d32719418825077decb433a",
+   "short": "f7dbebc",
+   "changed_files": [
+    "_ops/cortex/plans/TELEGRAM-DEEP-DEBUG-IMPLEMENTATION-2026-08-21.md"
+   ],
+   "rollback": "git revert f7dbebcbdd515ca10d32719418825077decb433a  (or: git checkout f7dbebcbdd515ca10d32719418825077decb433a -- <path> per file)",
+   "no_secret_diff_scan": "clean (env-var NAMES only in docs; no values)"
+  },
+  {
+   "wave": "W1",
+   "topic": "health truth",
+   "commit": "fc3ef66f0c64610e0447cfee7eaa75bacaf3e20d",
+   "short": "fc3ef66",
+   "changed_files": [
+    "_ops/telegram_center/health_metrics.py",
+    "_ops/tests/test_health_truth_20260821.py"
+   ],
+   "rollback": "git revert fc3ef66f0c64610e0447cfee7eaa75bacaf3e20d  (or: git checkout fc3ef66f0c64610e0447cfee7eaa75bacaf3e20d -- <path> per file)",
+   "no_secret_diff_scan": "clean (env-var NAMES only in docs; no values)"
+  },
+  {
+   "wave": "R",
+   "topic": "organs restore (evidence-integrity fix)",
+   "commit": "94fa59fafba2f368c2b20a764c481d8a83239f92",
+   "short": "94fa59f",
+   "changed_files": [
+    "_ops/organs/__init__.py",
+    "_ops/organs/cognition_inbox.py",
+    "_ops/organs/flags.py"
+   ],
+   "rollback": "git revert 94fa59fafba2f368c2b20a764c481d8a83239f92  (or: git checkout 94fa59fafba2f368c2b20a764c481d8a83239f92 -- <path> per file)",
+   "no_secret_diff_scan": "clean (env-var NAMES only in docs; no values)"
+  },
+  {
+   "wave": "W2",
+   "topic": "ConfigManager",
+   "commit": "b78d1b6be9c3cbde5428314ffb19517f4561d38c",
+   "short": "b78d1b6",
+   "changed_files": [
+    "_ops/telegram_center/center.py",
+    "_ops/telegram_center/config_manager.py",
+    "_ops/telegram_center/mission.py",
+    "_ops/tests/test_config_manager_20260821.py"
+   ],
+   "rollback": "git revert b78d1b6be9c3cbde5428314ffb19517f4561d38c  (or: git checkout b78d1b6be9c3cbde5428314ffb19517f4561d38c -- <path> per file)",
+   "no_secret_diff_scan": "clean (env-var NAMES only in docs; no values)"
+  },
+  {
+   "wave": "W3",
+   "topic": "transport isolation",
+   "commit": "036ef32d8c9cbef3b7d28f087bc5b5211719ba99",
+   "short": "036ef32",
+   "changed_files": [
+    "_ops/telegram_center/tg_api.py",
+    "_ops/telegram_center/transport_pool.py",
+    "_ops/tests/test_transport_pool_20260821.py"
+   ],
+   "rollback": "git revert 036ef32d8c9cbef3b7d28f087bc5b5211719ba99  (or: git checkout 036ef32d8c9cbef3b7d28f087bc5b5211719ba99 -- <path> per file)",
+   "no_secret_diff_scan": "clean (env-var NAMES only in docs; no values)"
+  },
+  {
+   "wave": "W4",
+   "topic": "poller lease evidence",
+   "commit": "2af990451716fa18f88fb8d8e7c3866c25caef09",
+   "short": "2af9904",
+   "changed_files": [
+    "_ops/tests/test_poller_lease_20260821.py"
+   ],
+   "rollback": "git revert 2af990451716fa18f88fb8d8e7c3866c25caef09  (or: git checkout 2af990451716fa18f88fb8d8e7c3866c25caef09 -- <path> per file)",
+   "no_secret_diff_scan": "clean (env-var NAMES only in docs; no values)"
+  },
+  {
+   "wave": "W5",
+   "topic": "C3/C4 wiring evidence",
+   "commit": "ad42c437adac9f81231af8ab2cf419b1658040c9",
+   "short": "ad42c43",
+   "changed_files": [
+    "_ops/tests/test_wave_e_c3c4_20260821.py"
+   ],
+   "rollback": "git revert ad42c437adac9f81231af8ab2cf419b1658040c9  (or: git checkout ad42c437adac9f81231af8ab2cf419b1658040c9 -- <path> per file)",
+   "no_secret_diff_scan": "clean (env-var NAMES only in docs; no values)"
+  },
+  {
+   "wave": "W6",
+   "topic": "test battery",
+   "commit": "62497413637ef72782e3e3026015db4e95cb5fde",
+   "short": "6249741",
+   "changed_files": [
+    "_ops/telegram_center/transport_pool.py",
+    "_ops/tests/test_wave_f_battery_20260821.py"
+   ],
+   "rollback": "git revert 62497413637ef72782e3e3026015db4e95cb5fde  (or: git checkout 62497413637ef72782e3e3026015db4e95cb5fde -- <path> per file)",
+   "no_secret_diff_scan": "clean (env-var NAMES only in docs; no values)"
+  }
+ ]
+}

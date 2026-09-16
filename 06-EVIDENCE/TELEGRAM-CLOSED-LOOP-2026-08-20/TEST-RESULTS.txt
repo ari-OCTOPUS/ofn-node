@@ -1,0 +1,14 @@
+test_telegram_closed_loop_20260820.py
+  ok  test_status_reply_is_dict_not_string
+  ok  test_string_coerce_prevents_fallthrough
+  ok  test_all_firewall_commands_zero_model
+  ok  test_unknown_slash_is_local_help_not_model
+  ok  test_remember_then_recall_zero_model
+  ok  test_quota_unattributed_not_eligible
+  ok  test_quota_overshoot_blocks_before_network
+  ok  test_local_commands_when_quota_exhausted
+  ok  test_free_text_hears_brains_without_model
+  ok  test_unauthorized_silent
+10/10 passed
+registered_in_run_all: false
+paid_calls_from_tests: 0

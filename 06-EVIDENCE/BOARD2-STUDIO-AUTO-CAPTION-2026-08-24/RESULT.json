@@ -1,0 +1,19 @@
+{
+  "stamp": "2026-08-24T08:45+10",
+  "result": "PASS",
+  "filled_n": 20,
+  "empty_n": 0,
+  "eligible_n": 20,
+  "hold_empty": [],
+  "skip_republish": ["shot-0001", "shot-0002"],
+  "lang": "fa",
+  "samples": {
+    "shot-0003": "پاهای برهنه از زاویه بالا روی فرش گل‌دار؛ لاک تیره روی ناخن‌ها، حلقه طلایی روی انگشت.",
+    "shot-0013": "پاها رو به بالا مقابل پرده مخملی فیروزه‌ای؛ پوست براق، لاک قرمز تیره."
+  },
+  "confirm_only": true,
+  "no_further_overwrite": true,
+  "no_tg_publish": true,
+  "no_live_of": true,
+  "standby": true
+}

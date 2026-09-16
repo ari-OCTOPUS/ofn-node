@@ -1,0 +1,68 @@
+==OCT_TOP==
+_pre_release
+bin
+cognition
+core
+current
+docs
+ledger.py
+pyproject.toml
+releases
+requirements.txt
+schemas
+scripts
+shadow_validation
+shared
+src
+tests
+tools
+venv
+==AGENT_TOP==
+AGENT-MISSION.md
+APPROVED-COMMANDS.txt
+ARCHITECTURE-FACTS.md
+CHANGELOG.jsonl
+CURRENT-PHASE.yaml
+DEPLOY-LEGS
+EVENT-SCHEMA.json
+FIXTURES
+INVARIANTS.md
+MEMORY.md
+OCTOPUS-ARCHITECTURE-REFERENCE.md
+OWNER-DECISIONS.md
+PATHS.yaml
+PENDING-CHARTER-V2.md
+PROPOSALS
+RECEIPTS
+REFERENCE
+REPORTS
+ROADMAP.yaml
+RUNS
+SANDBOX
+TEST-GATES.yaml
+exchange
+sentinel
+tools
+==BIGFILES_GT1M==
+     19 octopus/venv/lib
+      8 octopus-agent/SANDBOX/runs
+      6 octopus-agent/RUNS/run-20260817T1100Z-5e7e84f4
+      2 octopus-agent/RUNS/run-20260817T1040Z-965ddc9c
+      1 octopus-agent/tools/pyspy
+      1 octopus-agent/exchange/exchange-ledger.jsonl
+      1 octopus-agent/FIXTURES/tainted.jsonl
+      1 octopus-agent/FIXTURES/clean.jsonl
+==EXT_COUNTS==
+   9313 h
+   6515 py
+   6149 pyc
+     73 txt
+     70 hpp
+     57 cuh
+     55 typed
+     51 pyi
+     44 json
+     42 dist-info/WHEEL
+     42 dist-info/RECORD
+     42 dist-info/METADATA
+==ENVISH==

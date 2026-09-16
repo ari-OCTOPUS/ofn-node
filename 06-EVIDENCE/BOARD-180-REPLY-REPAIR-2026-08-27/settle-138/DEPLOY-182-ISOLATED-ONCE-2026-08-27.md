@@ -1,0 +1,1 @@
+﻿WHEN=2026-08-27 12:16 AEST INSTALLED=182 isolated octopus_witness_worker.py SHA256=673a5fd8fc372489dcaa10d31a3c985aac1018d80eb57d85cc489afa9ae9b818 SIZE=22009 BACKUP=/root/octopus-mesh/backups/octopus_witness_worker.py.bak-20260827T021312Z PREIMAGE=da4070e465e86798fe02914a27c87604ce3d349b3ef1cc5223d3fb31b3afd2a6 NO_TOY=yes NO_EXTRA_UNITS=yes WAIT=first oneshot max_n=1. B OPEN.

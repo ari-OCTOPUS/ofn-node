@@ -1,0 +1,103 @@
+{
+  "schema": "octopus-fleet-detail/1",
+  "captured_at_utc": "2026-08-29T23:21:28.897911Z",
+  "nodes": [
+    {
+      "node": "138",
+      "untracked_source": 4,
+      "untracked_tests": 0,
+      "untracked_runtime": 0,
+      "untracked_unclassified": 35,
+      "branches_raw": "audit/cursor-20260828|origin/audit/cursor-20260828|ahead=0|behind=0|2026-08-28T09:08:40+10:00\naudit/senior-auditor-20260828-138|NO_UPSTREAM|ahead=-|behind=-|2026-08-28T10:14:47+10:00\nbackup/board138-20260830|origin/backup/board138-20260830|ahead=0|behind=0|2026-08-30T07:05:07+10:00\nbackup/board180-20260830|NO_UPSTREAM|ahead=-|behind=-|2026-08-29T22:59:50Z\nbackup/board182-20260830|NO_UPSTREAM|ahead=-|behind=-|2026-08-29T23:01:59Z\ndiscovery/138-body-map-20260828|NO_UPSTREAM|ahead=-|behind=-|2026-08-28T10:22:03+10:00\nintegration/138-business-spine-20260828|NO_UPSTREAM|ahead=-|behind=-|2026-08-29T09:27:18+10:00\nmain|origin/main|ahead=0|behind=88|2026-08-05T17:12:32+10:00\noctopus/reconcile-138-20260827|NO_UPSTREAM|ahead=-|behind=-|2026-08-27T13:00:17+10:00\nofn-v1.0-three-business-owner-center|origin/ofn-v1.0-three-business-owner-center|ahead=0|behind=0|2026-08-26T22:55:19+10:00\nofn/board-snapshot-20260816|NO_UPSTREAM|ahead=-|behind=-|2026-08-16T16:33:00+10:00\nofn/cockpit-v2-20260827|NO_UPSTREAM|ahead=-|behind=-|2026-08-27T11:13:15+10:00\nwork/truth-record-20260830|origin/work/truth-record-20260830|ahead=0|behind=0|2026-08-30T08:05:18+10:00"
+    },
+    {
+      "node": "180",
+      "untracked_source": 47,
+      "untracked_tests": 0,
+      "untracked_runtime": 273,
+      "untracked_unclassified": 50,
+      "branches_raw": "archive/board-life-001-50f31db|NO_UPSTREAM|ahead=-|behind=-|2026-08-25T06:14:02Z\nbackup/board180-20260830|NO_UPSTREAM|ahead=-|behind=-|2026-08-29T22:59:50Z\nexperiment/board-life-001|NO_UPSTREAM|ahead=-|behind=-|2026-08-25T06:14:02Z\nfeat/phase3-completion|NO_UPSTREAM|ahead=-|behind=-|2026-08-25T13:55:52Z\nofn/evolve-20260826-anatomy-180|NO_UPSTREAM|ahead=-|behind=-|2026-08-26T13:29:01Z"
+    },
+    {
+      "node": "182",
+      "untracked_source": 82,
+      "untracked_tests": 0,
+      "untracked_runtime": 202,
+      "untracked_unclassified": 0,
+      "branches_raw": ""
+    }
+  ],
+  "coverage": {
+    "138": {
+      "live_sourceish": 485,
+      "tracked_sourceish": 444,
+      "pct": 91,
+      "note": "canonical repo /home/ari/ofn; llamas/nested none"
+    },
+    "180": {
+      "live_sourceish": 447,
+      "tracked_sourceish": 227,
+      "pct": 50,
+      "note": "lab repo excl nested llama.cpp-src; remainder = evidence/validation docs by policy"
+    },
+    "182": {
+      "live_sourceish": 1014,
+      "tracked_sourceish": 784,
+      "pct": 77,
+      "note": "octopus+octopus-agent excl venv; octopus_cognition 100% covered; remainder RUNS/REPORTS/RECEIPTS/FIXTURES"
+    }
+  },
+  "branch_verification": [
+    {
+      "branch": "backup/board138-20260830",
+      "expected": "c1969bce5384f3371b916470299c991627c3d63c",
+      "remote": "c1969bce5384f3371b916470299c991627c3d63c",
+      "match": true
+    },
+    {
+      "branch": "backup/board180-20260830",
+      "expected": "28209effa84af68a85ab60329c77dca81c6cea00",
+      "remote": "28209effa84af68a85ab60329c77dca81c6cea00",
+      "match": true
+    },
+    {
+      "branch": "backup/board182-20260830",
+      "expected": "294d51c1e01d999f55511d6b3bb038fd41ce9918",
+      "remote": "294d51c1e01d999f55511d6b3bb038fd41ce9918",
+      "match": true
+    },
+    {
+      "branch": "main",
+      "expected": "c1969bce5384f3371b916470299c991627c3d63c",
+      "remote": "c1969bce5384f3371b916470299c991627c3d63c",
+      "match": true
+    }
+  ],
+  "backup_tree_scan": {
+    "secret_ext_env_pem_key": 0,
+    "138": {
+      "db_ext": 500,
+      "note": "all under .tmp-test*/ — historical test sqlite artifacts, tracked long before snapshot; immutable branch, cleanup = future branch"
+    },
+    "180": {
+      "runtime_path_hits": 24,
+      "note": "13 evidence/*.json + 1 inbox/*.txt (historically tracked) + 10 ofn/organism/runtime/*.py (source package named runtime — false positive)"
+    },
+    "182": {
+      "runtime_path_hits": 26,
+      "note": "octopus_sensorium/evidence/*.py source module in releases/_pre_release/shared (false positive)"
+    }
+  },
+  "c055_probe": {
+    "a27eb05_collected": 2136,
+    "c1969bc_collected": 2136,
+    "nodeid_diff_lines": 0,
+    "conclusion": "tree-independent; 08-29 delta (+60) fully attributable to undocumented env/invocation; C-055 stays OPEN until that env is documented"
+  },
+  "evidence_archive_180": {
+    "path": "archives/board180-evidence-20260830.tar.gz",
+    "sha256": "2ba2da1e7a96e82a9c98e9c3a3a7022bc2584f3cad878861af9dd16f4856f522",
+    "entries": 326,
+    "decision": "DONE (hash-tagged archive outside git)"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "run_id": "revenue-cycle-6-20260827",
+  "ts_utc": "2026-08-27T03:49:00Z",
+  "hold_external": true,
+  "may_authorize": false,
+  "kind": "INTERNAL_RUNBOOK",
+  "do_not_start": [
+    "hypno.service",
+    "any new systemd unit"
+  ],
+  "files": {
+    "00-INDEX.md": {
+      "sha256": "59b9f5c6a4f925c0aaf110a1061ed81aa845713970d044a429400c406f8aa502",
+      "bytes": 1479
+    },
+    "01-painting-runbook.md": {
+      "sha256": "b03430831cbbc45d9b830fc860361cdbb7108856be57e55a1742d69c0205160f",
+      "bytes": 1515
+    },
+    "02-ziman-runbook.md": {
+      "sha256": "fecd6ddbf3bdd18dee02be542424b769cfdacbc6b364f1d274fea4c6b244bf4e",
+      "bytes": 1265
+    },
+    "03-studio-runbook.md": {
+      "sha256": "b3b00a87fa76c1792de689c95c56cab2599d5e118a373c3ac9fdb4af4b4216c2",
+      "bytes": 1276
+    },
+    "04-llm-runbook.md": {
+      "sha256": "c373d5a8393648957d19086824bed49800d80725fc859aa852098be6875028ca",
+      "bytes": 1928
+    }
+  }
+}

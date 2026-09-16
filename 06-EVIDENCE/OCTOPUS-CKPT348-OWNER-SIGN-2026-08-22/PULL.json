@@ -1,0 +1,55 @@
+﻿{
+    "schema":  "octopus.ckpt348.pull.v1",
+    "pulled_at_utc":  "2026-08-22T11:50:54Z",
+    "source_host":  "192.168.0.182",
+    "source_hostname":  "sensorium-opi5pro",
+    "ssh_user":  "root",
+    "ssh_ok":  true,
+    "remote_dir":  "/var/lib/octopus/inbound/TO-LAPTOP/OCTOPUS-AUDIT-CHECKPOINT",
+    "land_dir":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload",
+    "signed":  false,
+    "note":  "pull+verify only; owner-authorized SIGN deferred to later task",
+    "files":  [
+                  {
+                      "name":  "checkpoint.unsigned.json",
+                      "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\checkpoint.unsigned.json",
+                      "size":  441,
+                      "sha256":  "30c2d77123516caef620228b0809127a16759749f30729b44d8d13ef41b8a086",
+                      "sequence":  348,
+                      "sequence_ok":  true,
+                      "head_hash":  "sha256:be872007d0383c748cae080e94fc39ae773042acba673402b3e8b0f05873040e",
+                      "head_hash_expected":  "sha256:be872007d0383c748cae080e94fc39ae773042acba673402b3e8b0f05873040e",
+                      "head_hash_ok":  true,
+                      "board_id":  "sensorium-opi5pro-68e44cdf",
+                      "chain_ok":  true,
+                      "signed_field":  false
+                  },
+                  {
+                      "name":  "sign-checkpoint.bat",
+                      "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\sign-checkpoint.bat",
+                      "size":  218,
+                      "sha256":  "ef122b673f4fa22111db64cfc9ba8534465dfdf5f653d7d19e57a0f5b26b7e9c",
+                      "present":  true
+                  },
+                  {
+                      "name":  "sign_checkpoint.py",
+                      "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\sign_checkpoint.py",
+                      "size":  1667,
+                      "sha256":  "a4d864f21febc736f06c513e13e92a2d97b3770b90a2a1af354a1cbd84ff0b1d",
+                      "present":  true
+                  },
+                  {
+                      "name":  "README.txt",
+                      "path":  "F:\\backup\\06-EVIDENCE\\OCTOPUS-CKPT348-OWNER-SIGN-2026-08-22\\payload\\README.txt",
+                      "size":  157,
+                      "sha256":  "f01a723ff4c49c8f3f0209bd98d20de49f659247c66ff68fca4b38e61ab46227",
+                      "present":  true
+                  }
+              ],
+    "verify":  {
+                   "sequence_ok":  true,
+                   "head_hash_ok":  true,
+                   "checkpoint_file_sha256":  "30c2d77123516caef620228b0809127a16759749f30729b44d8d13ef41b8a086",
+                   "overall_ok":  true
+               }
+}

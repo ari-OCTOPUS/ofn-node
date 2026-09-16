@@ -1,0 +1,19 @@
+{
+  "bus": "CONNECTED",
+  "acq": "ACTIVE",
+  "obs_before": 1283622,
+  "obs_after": 1283622,
+  "obs_delta": 0,
+  "journal_delta": 0,
+  "actuator_authority": "NONE",
+  "evidence_ages_s": {
+    "last_OCT-SENSE-053_THERMAL.json": 14465.5,
+    "last_OCT-SENSE-053_MEMORY.json": 11.6,
+    "last_OCT-SENSE-053_STORAGE.json": 11.6,
+    "last_OCT-SENSE-051.json": 11.8,
+    "last_OCT-SENSE-052.json": 11.6,
+    "last_OCT-SENSE-053_CPU.json": 11.6,
+    "last_OCT-SENSE-052_event.json": 14726.2
+  },
+  "memory_hint": "check systemctl"
+}

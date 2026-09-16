@@ -1,0 +1,7 @@
+{
+ "schema": "learning-evaluator.v1",
+ "label": "MEMORY_LIVE_LEARNING_UNVERIFIED",
+ "reasons": [
+  "metrics unavailable (no live window / empty ledger)"
+ ]
+}

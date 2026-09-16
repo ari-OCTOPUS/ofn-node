@@ -1,0 +1,58 @@
+{
+ "schema": "security-artifact-manifest/2",
+ "generated_at": "2026-08-21T10:05:00Z",
+ "code_head": "fa38d16cca944a80396ae1e1a16c547ab3122f78",
+ "artifacts": [
+  {
+   "file": "SECURITY-C1-C4-DEPENDENCY-DAG.json",
+   "sha256": "b957f03bdd905ce04f701d0eda8eb14fd5cdce4e851abe570cd116548c7cbad2",
+   "bytes": 1210
+  },
+  {
+   "file": "SECURITY-EXPERIMENT-PREREGISTRY.jsonl",
+   "sha256": "a2e4ce88a119890487f50e6f0dfe16dc3c5a8610a7c95b6277be3c618d7c82aa",
+   "bytes": 5497
+  },
+  {
+   "file": "SECURITY-FAILING-TEST-BASELINE.json",
+   "sha256": "d0a671a2ca73e7c43fb28f3e5a27b0b26aef65f2503a113c28d189db001c4d22",
+   "bytes": 1680
+  },
+  {
+   "file": "SECURITY-FAILING-TEST-BASELINE.log",
+   "sha256": "2a537eedb7314df8a45180a74f0fc71a254de785d649ec04ad3d4ac2c8f7a432",
+   "bytes": 1503
+  },
+  {
+   "file": "SECURITY-INDEPENDENT-VERIFIER.json",
+   "sha256": "957fb80fd4f4cf614884010d7f363ec00e12e6b2db48dee379fb4867921da4e4",
+   "bytes": 1048
+  },
+  {
+   "file": "SECURITY-REALITY-MAP.json",
+   "sha256": "f76fda5e95d89e2339784e8fefb9b7d3fc3f490e6bdd7b7dda8de41b02768cc7",
+   "bytes": 1900
+  },
+  {
+   "file": "SECURITY-TEST-RECEIPTS.jsonl",
+   "sha256": "fa098fe2772cddde7b83d1c49e4a128ad3fe54d7d35eec164fab563e63999cb2",
+   "bytes": 3345
+  },
+  {
+   "file": "SECURITY-TEST-SUMMARY.json",
+   "sha256": "b150f3df5f78a8f321d02940dade9608fa9a7e57e9661d904791e2626ddf4a4b",
+   "bytes": 250
+  },
+  {
+   "file": "SECURITY-ZERO-SIDE-EFFECTS.json",
+   "sha256": "bdd67543285da28bc807ba6f381dfce7c0c3515443031bbe1fe00c893eb6613c",
+   "bytes": 1053
+  },
+  {
+   "file": "security_verifier.py",
+   "sha256": "d350dd13342136154572b967643970b0e2d02c1731553226d56d570b06da4b1e",
+   "bytes": 4296
+  }
+ ],
+ "count": 10
+}

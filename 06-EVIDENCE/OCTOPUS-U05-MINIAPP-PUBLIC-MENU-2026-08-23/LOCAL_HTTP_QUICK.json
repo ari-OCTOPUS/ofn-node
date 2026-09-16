@@ -1,0 +1,14 @@
+{
+  "/": {
+    "elapsed_ms": 18,
+    "status_line": "HTTP/1.0 200 OK",
+    "body_len": 4889,
+    "looks_shell": true
+  },
+  "/miniapp": {
+    "elapsed_ms": 2,
+    "status_line": "HTTP/1.0 200 OK",
+    "body_len": 4889,
+    "looks_shell": true
+  }
+}

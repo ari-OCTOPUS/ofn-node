@@ -1,0 +1,70 @@
+{
+  "schema": "octopus.gap-001-report.v1",
+  "gap_001": {
+    "status": "OPEN",
+    "result": "TESTED_FAIL",
+    "cryptographically_verified": false,
+    "definition": "cold_boot_unverified: new boot_id AND verifier READY AND empty gates AND SYNCED_NTP/PTP within probe timeout; unit octopus-sensorium.service (not octopus-agent.service)",
+    "probe": "/opt/octopus/scripts/gap001_probe.py",
+    "unit": "octopus-gap001-boot-probe.service",
+    "depends_on": [
+      "octopus-sensorium.service",
+      "nats-server.service",
+      "systemd-timesyncd.service"
+    ],
+    "last_probe": {
+      "path": "/var/lib/octopus/state/gap001/boot_report.json",
+      "digest": "sha256:77aa4baf35b76f2c8cc4271538c8ccdfb99209e2909f4f39b7bcbce9cc2ce7cd",
+      "probe_started": "2026-08-17T01:16:02.075017+00:00",
+      "pre_boot_id": "d7452b88-4b06-4eb9-b37b-e5757c63cabc",
+      "post_boot_id": "063fef44-cd54-4a68-81b5-7ac5fd2c39f0",
+      "gates_failed": [
+        "G8"
+      ],
+      "clock_trust": "SYNCED_NTP",
+      "status": "TESTED_FAIL",
+      "pass": false
+    },
+    "current_boot_id": "063fef44-cd54-4a68-81b5-7ac5fd2c39f0",
+    "current_verifier": {
+      "path": "/var/lib/octopus/state/owner-review-final/GAP_001_CURRENT_VERIFIER.json",
+      "readiness_state": "READY",
+      "gates_failed": [],
+      "note": "This is current-boot readiness, not a new GAP-001 trial. Reboot was not executed."
+    },
+    "evidence": [
+      {
+        "path": "/var/lib/octopus/state/gap001/boot_report.json",
+        "digest": "sha256:77aa4baf35b76f2c8cc4271538c8ccdfb99209e2909f4f39b7bcbce9cc2ce7cd",
+        "role": "last_software_reboot_probe"
+      },
+      {
+        "path": "/var/lib/octopus/state/gaps/GAP-001-cold_boot_unverified.json",
+        "digest": "sha256:28f8b73617ea562d7b3a2bca30548cb6fde2d0730ab42174486c5bd73b5ba3ff",
+        "role": "gap_file"
+      }
+    ],
+    "remaining_blockers": [
+      {
+        "id": "OWNER_MAINTENANCE_WINDOW_REQUIRED",
+        "action": "authorized software reboot with gap001 probe After=octopus-sensorium; PASS only if new boot_id and READY empty gates",
+        "not_executed": true,
+        "reason": "this session forbids reboot/restart"
+      },
+      {
+        "id": "power_loss_recovery",
+        "status": "untested",
+        "not_equivalent_to": "software_reboot"
+      }
+    ]
+  },
+  "host": {
+    "board_id": "sensorium-opi5pro-68e44cdf",
+    "boot_id": "063fef44-cd54-4a68-81b5-7ac5fd2c39f0",
+    "hostname": "DietPi",
+    "registry_sha256": "sha256:19f25383d2611000e3272ad9ad5d55e2e645cb5db757a9419f4e7b6d5f1251c5",
+    "board_sha256": "sha256:b53ec5ba3764f035513535577df5e72f25767e54dda2cedfd5d9b1ca73cd0d5d",
+    "utc": "2026-08-17T04:28:15.589793+00:00"
+  },
+  "written_at": "2026-08-17T04:28:15.589793+00:00"
+}

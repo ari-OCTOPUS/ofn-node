@@ -1,0 +1,66 @@
+{
+ "schema": "controlled-restart-evidence/1",
+ "generated": "2026-08-21T19:16:00Z",
+ "authorization": "OWNER EXECUTION ORDER — WRITE AND REPAIR AUTHORIZED (controlled_service_restart) + owner verbal confirmation",
+ "mode": "polling/read-only (no send initiated, webhook OFF)",
+ "snapshot": "restart-snapshots/2026-08-21T1915Z/MANIFEST.json (center-config, poll-health, pulse, send-log, process-identity + sha256)",
+ "timeline": [
+  {
+   "t": "19:11:46",
+   "action": "killed center python pid 27884 (boot 17:51, pre-wave code)"
+  },
+  {
+   "t": "19:12:56",
+   "action": "launcher respawned center pid 2080 (new wave code); delay = cold start (~70s)"
+  },
+  {
+   "t": "19:13:01-41",
+   "action": "3 boot-time editMessageText receipts (stream=edit) — routine card refresh, pre-existing live behavior, not new sends"
+  },
+  {
+   "t": "19:15-16",
+   "action": "verification window: 5 poll rounds, 0 failures"
+  }
+ ],
+ "pre_restart": {
+  "center_pid": 27884,
+  "send_log_rows": 1315,
+  "last_offset": 223883352
+ },
+ "post_restart": {
+  "center_pid": 2080,
+  "loops": 1,
+  "centers": 1,
+  "pulse": "fresh (pid 2080)",
+  "poll_lease_db": "created 19:13 (sqlite)",
+  "poll_health_counters": {
+   "poll_started_total": 5,
+   "poll_completed_total": 5,
+   "poll_empty_total": 5
+  },
+  "consecutive_failures": 0,
+  "poll_timeout_total": 0,
+  "poll_409_total": 0,
+  "poll_dns_stall_total": 0,
+  "last_offset": 223883352,
+  "offset_preserved": true,
+  "send_log_rows": 1318,
+  "new_rows_classified": "3 x boot-time edit receipts (stream=edit, update_id=None, no new message sends)",
+  "webhook": "OFF",
+  "paid_calls": 0,
+  "watchdog_interventions_during_window": 0
+ },
+ "new_code_confirmed": [
+  "poll-health counters/timestamps (health_metrics Wave A live)",
+  "poll-lease.sqlite3 created (Wave D lease live)",
+  "process identity + pulse from new pid"
+ ],
+ "stop_conditions_checked": [
+  "no 409 / no multi-poller (1+1 proved)",
+  "no offset loss (byte-identical)",
+  "no unknown behavior (all signals within contract)"
+ ],
+ "rollback": "restore files from restart-snapshots/2026-08-21T1915Z/ then relaunch RUN-TG-CENTER.bat (or kill new pid and let loop respawn)",
+ "verdict": "CONTROLLED_RESTART_PASS",
+ "status": "IMPLEMENTATION_COMPLETE_VERIFICATION_PENDING"
+}

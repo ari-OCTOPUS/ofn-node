@@ -1,0 +1,12 @@
+{
+  "latch_reprove": "PASS",
+  "wave0_soft_unlock": "PASS",
+  "mqtt_enable": "PASS",
+  "feeds_timer": "active",
+  "doctor": {
+    "status": "PASS",
+    "blocking_failed_ids": []
+  },
+  "actuator_authority": "PERMITTED_SOFTWARE_A0",
+  "ss_1883": "LISTEN 0      100        127.0.0.1:1883      0.0.0.0:*    users:((\"mosquitto\",pid=382176,fd=5))"
+}

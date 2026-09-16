@@ -1,0 +1,55 @@
+﻿{
+  "stamp_local": "2026-08-24T16:05:00+10:00",
+  "schema": "board2-of-live-path-status/1",
+  "adapter_path": "/home/ari/ofn/ofn/adapters/platforms/onlyfans.py",
+  "live_post": false,
+  "OFN_ONLYFANS_LIVE_set": false,
+  "probe": {
+    "dry_run_default": {"ok": true, "rule": "adapter:dry-run"},
+    "dry_run_false_live_unset": {"ok": false, "rule": "wire:disabled"},
+    "documented_live_no_cookie": {"ok": false, "rule": "onlyfans:no-credentials"},
+    "documented_live_with_cookie": {"ok": false, "rule": "adapter:real-publish-not-implemented"}
+  },
+  "base_rules": {
+    "RULE_DRY_RUN": "adapter:dry-run",
+    "RULE_WIRE_CLOSED": "wire:disabled",
+    "RULE_NOT_IMPLEMENTED": "adapter:real-publish-not-implemented",
+    "PublishRequest.dry_run_default": true
+  },
+  "env_key_names_documented": [
+    "OFN_ONLYFANS_LIVE",
+    "OFN_ONLYFANS_SESSION_COOKIE",
+    "OFN_ONLYFANS_USER_AGENT",
+    "OFN_ONLYFANS_ACCOUNT_ID"
+  ],
+  "env_presence_board2_process": {
+    "OFN_ONLYFANS_LIVE": false,
+    "OFN_ONLYFANS_SESSION_COOKIE": false,
+    "OFN_ONLYFANS_USER_AGENT": false,
+    "OFN_ONLYFANS_ACCOUNT_ID": false,
+    "OFN_WIRE_OUTBOUND": false
+  },
+  "secrets_env_has_OFN_ONLYFANS_keys": false,
+  "platform_matrix_onlyfans": {
+    "layer": "A",
+    "risk": "RED",
+    "api_mode": "api_cautious",
+    "adult_policy": "platform_native_adult",
+    "caption_max": 10000,
+    "max_posts_24h": 24
+  },
+  "tests_TestOnlyFansAdapter": [
+    "test_dry_run_returns_ok",
+    "test_real_publish_returns_wire_closed_not_crash",
+    "test_platform_id_is_onlyfans"
+  ],
+  "available_platforms": ["bluesky", "email_ses", "onlyfans", "shopify", "telegram_channel"],
+  "telegram_contrast": {
+    "http_client": "urllib.request to api.telegram.org sendMessage",
+    "owner_release_at_call_site": true,
+    "node_method": "publish_to_telegram"
+  },
+  "onlyfans_node_publish_path": false,
+  "consent_scope_onlyfans_observed": false,
+  "prior_money_scan": "F:\\backup\\06-EVIDENCE\\BOARD2-MONEY-DEEP-SCAN-2026-08-24\\"
+}

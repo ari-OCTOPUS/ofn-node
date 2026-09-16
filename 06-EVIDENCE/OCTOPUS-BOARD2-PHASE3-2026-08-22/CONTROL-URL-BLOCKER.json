@@ -1,0 +1,80 @@
+{
+  "schema": "octopus.control-url-blocker.v1",
+  "investigation": "Board2 ofn/wire Phase-3 CONTROL_URL blocker",
+  "timestamp_australia_sydney": "2026-08-22T18:48:20+10:00",
+  "date_utc": "2026-08-22",
+  "laptop": {
+    "hostname": "DESKTOP-KA9RFN5",
+    "ipv4": [
+      "192.168.0.191"
+    ],
+    "is_192_168_0_191": true,
+    "adapter": "Wi-Fi",
+    "gateway": "192.168.0.1"
+  },
+  "port_8801": {
+    "listening": false,
+    "netstat_findstr": "empty (exit 1)",
+    "board_cp_process": null,
+    "other_python_running": [
+      "live\\\\server.py",
+      "telegram_center\\\\miniapp_gateway.py",
+      "telegram_center\\\\center.py",
+      "cortex\\\\cortex.py",
+      "octopus_mcp\\\\server.py",
+      "organism.py"
+    ],
+    "note": "None of the running python.exe processes is board_cp/server.py"
+  },
+  "documented_CONTROL_URL_candidates": [
+    {
+      "url": "https://cp.master-painting.com",
+      "role": "intended_phase3_canonical",
+      "sources": [
+        "F:\\\\octopus-wire\\\\MESSAGES-WINDOWS.md (id:cp-rescue-1 / CONTROL_URL new)",
+        "F:\\\\backup\\\\06-EVIDENCE\\\\BOARD2-WIRE-WINDOWS-2026-08-22\\\\AFTER-MESSAGES-WINDOWS.md",
+        "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-BOARD2-PHASE3-2026-08-22\\\\OWNER-AUTHORIZATION.json planned_control_url",
+        "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-BOARD2-PHASE3-2026-08-22\\\\CONTROL-URL-FINDINGS.md"
+      ],
+      "status_observed": "Cloudflare 530 (origin down) per user report; not re-probed from this agent beyond docs"
+    },
+    {
+      "url": "https://192.168.0.191:8801",
+      "role": "legacy_lan_control_url",
+      "sources": [
+        "F:\\\\octopus-wire\\\\WIRE.md (w001/b003 CONTROL_URL)",
+        "marketing CONTROL_URL/OUTBOUND set to this value (user report)"
+      ],
+      "status_observed": "IP is this laptop Wi-Fi; TLS listener on :8801 is DOWN"
+    }
+  ],
+  "canonical_for_phase3": "https://cp.master-painting.com",
+  "blocker_root_cause": "board_cp TLS listener (python -X utf8 board_cp\\\\server.py on port 8801) is not running on the laptop that owns 192.168.0.191; therefore LAN CONTROL_URL is dead and Cloudflare origin for cp.master-painting.com returns 530",
+  "how_to_raise_board_cp": {
+    "documented": true,
+    "script": "F:\\\\backup\\\\_ops\\\\RESTART-BOARDCP.ps1",
+    "exact_command": "powershell -NoProfile -ExecutionPolicy Bypass -File F:\\backup\\_ops\\RESTART-BOARDCP.ps1",
+    "default_port": 8801,
+    "mechanism": "kill existing board_cp/server.py if any; load _ops/OCTOPUS.env + OCTOPUS-flags.cmd; require TLS at _ops/state/board_cp/tls/{cert,key}.pem; Start-Process python -X utf8 board_cp\\\\server.py Hidden; wait up to 30s for 127.0.0.1:8801",
+    "tls_present": true,
+    "tls_path": "F:\\\\backup\\\\_ops\\\\state\\\\board_cp\\\\tls",
+    "nssm": "not found as dedicated board_cp Windows service in quick sc query",
+    "scheduled_task": "not confirmed in this pass (schtasks findstr mangled); primary runbook is RESTART-BOARDCP.ps1",
+    "started_by_this_agent": false
+  },
+  "recommendation": "NEED_OWNER_OR_ARI_START",
+  "recommendation_detail": "Do not invent an alternate API. Owner/Ari should run RESTART-BOARDCP.ps1 on this laptop, verify GET https://127.0.0.1:8801/api/board-cp/pull returns 401 without bearer, then confirm Cloudflare tunnel/origin for cp.master-painting.com points at this host:8801 so Phase-3 CONTROL_URL https://cp.master-painting.com works. Marketing currently pointing OUTBOUND at https://192.168.0.191:8801 is historically correct for LAN but useless while board_cp is down; canonical Phase-3 URL remains https://cp.master-painting.com per wire + OWNER-AUTHORIZATION.",
+  "constraints_honored": [
+    "did not start board_cp",
+    "did not invent API",
+    "did not arm OUTBOUND/CONTROL_URL",
+    "wrote evidence only"
+  ],
+  "searched_paths": [
+    "F:\\\\backup\\\\06-EVIDENCE\\\\BOARD2-WIRE-WINDOWS-2026-08-22",
+    "F:\\\\backup\\\\06-EVIDENCE\\\\OCTOPUS-BOARD2-PHASE3-2026-08-22",
+    "F:\\\\octopus-wire",
+    "F:\\\\backup\\\\_ops\\\\RESTART-BOARDCP.ps1",
+    "F:\\\\backup\\\\_ops\\\\board_cp"
+  ]
+}

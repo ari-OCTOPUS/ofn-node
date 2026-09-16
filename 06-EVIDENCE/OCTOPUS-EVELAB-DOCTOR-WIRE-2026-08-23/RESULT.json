@@ -1,0 +1,54 @@
+{
+    "schema":  "octopus-evelab-doctor-wire/1",
+    "checked_at_unix":  1787417428.182,
+    "checked_at_local":  "2026-08-23T02:50:28.163991+10:00",
+    "status":  "PASS",
+    "goal":  "Make evolutionary-lab ↔ doctor a real reversible path with test+evidence (not RFC-only)",
+    "prior":  {
+                  "plan_stub":  "06-EVIDENCE/OCTOPUS-POLLER-TELEGRAM-UNIQUE-2026-08-23/EVELAB-DOCTOR-WIRE-PLAN-P1.md",
+                  "note":  "lab_bridge already had RFC→SUL→outbox propose-only; this slice adds non-RFC experiment ticket + reverse parse + lab→doctor dry check"
+              },
+    "layout":  {
+                   "octopus_doctor_vault":  "OCTOPUS-DOCTOR/",
+                   "lab_registry":  "_ops/lab",
+                   "doctor":  "_ops/doctor/doctor.py",
+                   "self_upgrade_lab":  "_ops/self_upgrade_lab (no separate evo_lab dir)",
+                   "lab_bridge":  "_ops/doctor/lab_bridge.py"
+               },
+    "wire":  {
+                 "forward":  "Doctor.propose_lab_experiment_ticket / lab_bridge.propose_lab_experiment_ticket → durable outbox kind=evo-lab-experiment-ticket QUEUED live_send=false",
+                 "no_deletes":  true,
+                 "no_secrets":  true,
+                 "no_center_restart":  true,
+                 "dry_run_default":  true,
+                 "rfc_path_preserved":  true,
+                 "reverse_check":  "lab_bridge.lab_call_doctor_check (dry-run roundtrip + doctor._bridge_to_lab presence)",
+                 "reverse_parse":  "lab_bridge.parse_lab_experiment_ticket",
+                 "live_send":  false,
+                 "propose_only_default":  true
+             },
+    "tests":  {
+                  "cases":  [
+                                "t_a_doctor_proposes_lab_experiment_ticket_to_outbox",
+                                "t_b_parse_ticket_is_reverse_of_propose",
+                                "t_c_lab_calls_doctor_check_dry_run",
+                                "t_d_doctor_class_exposes_ticket_hook",
+                                "t_e_not_rfc_only_surface"
+                            ],
+                  "runner":  "python -X utf8 tests/test_evelab_doctor_wire.py",
+                  "result":  "5/5 PASS",
+                  "file":  "_ops/tests/test_evelab_doctor_wire.py",
+                  "log":  "test_evelab_doctor_wire.out.txt"
+              },
+    "files_sha256":  {
+                         "test":  "22232bb423374da83d768dffeb2ee320b43896bf41790335fcad241b44956741",
+                         "doctor":  "0c754584f1db1c1158461c6d6fa3c295aa3d91cbad3565aebae80a4b202eaa1d",
+                         "lab_bridge":  "f4f60e5d7225cd861ba706ece266d3619ddf5b225fc21597f2893c62f08514b4"
+                     },
+    "commit":  {
+                   "worktree_note":  "WORKTREE-NOTE.md",
+                   "reason":  "dirty worktree ~704 files; unsafe to checkpoint-commit only this slice without mass-committing unrelated dirt",
+                   "made":  false
+               },
+    "next_action":  "Add fail-closed doctor uniqueness asserts (single center PID / poll-lease / tg-poller lock) consumable by lab_call_doctor_check; keep dry-run. Optionally stage+commit ONLY the 3 wire files when worktree is clean or via sparse path commit with explicit owner OK."
+}

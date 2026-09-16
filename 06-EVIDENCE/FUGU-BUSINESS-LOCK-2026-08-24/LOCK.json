@@ -1,0 +1,1 @@
+﻿{"corrected_at":"2026-08-24T16:20+10","window_days":3,"period_ends":"2026-08-27","plan":"Max","five_hour_pct_used":0,"weekly_pct_used":0,"allowlist":["ziman","studio","painting","lab"],"split":{"ziman":0.4,"studio":0.25,"painting":0.2,"lab":0.15},"prefer_model":"fugu","ultra":"hard_only","payg":"forbidden","weekly_soft_stop_pct":95}

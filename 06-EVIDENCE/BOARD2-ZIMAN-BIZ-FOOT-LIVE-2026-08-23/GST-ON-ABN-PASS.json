@@ -1,0 +1,13 @@
+﻿{
+    "stamp_local":  "2026-08-23T10:57:38+10:00",
+    "no_tfn":  true,
+    "owner_go":  "Maliheh GST-registered ATO YES; enable AU collecting ON + ABN",
+    "EMAIL_STATUS":  "aram@ziman-gift.com (prior)",
+    "GST_COLLECTING_STATUS":  "ON — Australia Collecting: Taxes",
+    "ABN_TAXES_STATUS":  "PASS — 21190030795 on AU GST registration",
+    "BANK_STATUS":  "HOLD — 2FA still required",
+    "schema":  "board2-ziman-gst-on-abn-pass/1",
+    "overall":  "PASS",
+    "BILLING_TAX_ID_STATUS":  "PASS — ABN 21190030795 consistent",
+    "PAYPAL_STATUS":  "HOLD — Setup incomplete / login"
+}
