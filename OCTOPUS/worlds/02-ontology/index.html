@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>هستی‌شناسی · ontology</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#050a12;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Consolas","Segoe UI",monospace;color:#bae6fd}
+  canvas{position:fixed;inset:0;display:block}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#7dd3fc;display:block}
+  .top span{font-size:11px;color:#3f6b85}
+  .act{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);z-index:6;background:rgba(6,16,26,.72);border:1px solid #164e63;border-radius:8px;padding:9px 12px;text-align:right;pointer-events:none}
+  .act b{color:#a5f3fc;font-size:12.5px}.act span{color:#38bdf8;font-size:11.5px;display:block;margin-top:2px}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#08131f;border:1px solid #164e63;color:#7dd3fc;border-radius:7px;padding:8px 4px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#0e2a3b;border-color:#38bdf8}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#38bdf8;text-decoration:none;font-size:12px}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<canvas id="c"></canvas>
+<div class="top"><b>هستی‌شناسی — life as code</b><span>شیء ‑ رابطه ‑ اکشن (سبکِ Palantir) · اشیاء = هاب‌های واقعیِ والت</span></div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:6;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.3);color:#22d3ee;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">READ-ONLY</div>
+<div class="act"><b id="an"></b><span id="ad"></span></div>
+<div class="tabs">
+  <button data-m="0" class="on">اشیاء</button>
+  <button data-m="1">روابط</button>
+  <button data-m="2">اکشن‌ها</button>
+</div>
+<script src="../graph-data.js"></script>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,DPR;function fit(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);layout();}
+const G=window.OCTOPUS_GRAPH,N=G.nodes.length;
+const OBJ=[...Array(N).keys()].sort((a,b)=>G.nodes[b].d-G.nodes[a].d).slice(0,14);
+const objSet=new Set(OBJ), rel=[];
+for(const e of G.edges){if(objSet.has(e[0])&&objSet.has(e[1]))rel.push(e);}
+let box=[];
+function layout(){ box=[]; const cols=2, pad=18, top=96, bw=(W-pad*3)/2, bh=44, gap=12;
+  OBJ.forEach((idx,i)=>{const c=i%cols,r=Math.floor(i/cols);
+    box.push({idx,x:pad+c*(bw+pad),y:top+r*(bh+gap),w:bw,h:bh});});}
+fit();
+let mode=0,sel=-1;
+function setMode(m){mode=m;sel=-1;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+ if(m===0)an('کارِ بعدی → یک شیء را به‌روز کن','۱۴ شیءِ اصلیِ زندگیت (پرپیوندترین نوت‌ها).');
+ if(m===1)an('کارِ بعدی → یک رابطه را ببند','خطوط = روابطِ واقعیِ [[wikilink]]. یک شیءِ بی‌رابطه را وصل کن.');
+ if(m===2)an('یک شیء را لمس کن','تا اکشنِ ممکنِ آن (kinetics) را ببینی.');}
+function an(a,b){document.getElementById('an').textContent=a;document.getElementById('ad').textContent=b;}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+cv.addEventListener('pointerdown',e=>{ if(mode!==2)return;
+  for(const b of box){if(e.clientX>b.x&&e.clientX<b.x+b.w&&e.clientY>b.y&&e.clientY<b.y+b.h){sel=b.idx;
+    const n=G.nodes[b.idx];an('اکشن روی «'+n.l+'»','نوع: '+n.g+' · '+n.d+' رابطه — اکشن: باز کن، به‌روز کن، یا یک [[لینک]] تازه اضافه کن.');}}});
+function center(b){return{x:b.x+b.w/2,y:b.y+b.h/2};}
+function draw(now){requestAnimationFrame(now2=>{});ctx.clearRect(0,0,W,H);ctx.fillStyle='#050a12';ctx.fillRect(0,0,W,H);
+ // blueprint grid
+ ctx.strokeStyle='rgba(56,189,248,0.06)';ctx.lineWidth=1;
+ for(let x=0;x<W;x+=28){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+ for(let y=0;y<H;y+=28){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+ // relations
+ if(mode!==0){ctx.strokeStyle='rgba(125,211,252,0.35)';ctx.lineWidth=1;
+   const bi={};box.forEach(b=>bi[b.idx]=b);
+   for(const e of rel){const a=center(bi[e[0]]),b=center(bi[e[1]]);
+     ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}}
+ // object boxes
+ box.forEach(b=>{const n=G.nodes[b.idx],on=sel===b.idx;
+   ctx.strokeStyle=on?'#a5f3fc':n.c;ctx.lineWidth=on?2:1.3;ctx.fillStyle='rgba(8,19,31,0.9)';
+   ctx.beginPath();ctx.rect(b.x,b.y,b.w,b.h);ctx.fill();ctx.stroke();
+   // corner ticks (blueprint)
+   ctx.strokeStyle=n.c;ctx.lineWidth=1;[[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]].forEach(p=>{
+     ctx.beginPath();ctx.moveTo(p[0]-4,p[1]);ctx.lineTo(p[0]+4,p[1]);ctx.moveTo(p[0],p[1]-4);ctx.lineTo(p[0],p[1]+4);ctx.stroke();});
+   ctx.fillStyle='#cffafe';ctx.font='11px Consolas,monospace';ctx.textAlign='right';
+   const l=n.l.length>20?n.l.slice(0,19)+'…':n.l;ctx.fillText(l,b.x+b.w-8,b.y+18);
+   ctx.fillStyle=n.c;ctx.font='9px Consolas,monospace';ctx.fillText(n.g.replace(/^\d+ - /,'')+' · '+n.d+'▸',b.x+b.w-8,b.y+34);});
+ requestAnimationFrame(draw);}
+setMode(0);requestAnimationFrame(draw);addEventListener('resize',fit);
+</script>
+<!-- real organism blood + live vitals chip -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>(function(){var L=window.LIVE_DATA;if(!L)return;var s=L.sog||{},ev=L.events||{},fr=L.frontier||{};
+ var d=document.createElement('div');d.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 40px);left:12px;z-index:8;background:rgba(6,16,26,.75);border:1px solid #164e63;border-radius:8px;padding:4px 9px;font:11px Consolas,monospace;color:#bae6fd;direction:ltr;pointer-events:none';
+ d.textContent='ID '+(s.identity_now!=null?s.identity_now.toFixed(6):'-')+(s.healthy?' OK':' !')+' · ev '+(((ev.total_rows)||0).toLocaleString('fa-IR'))+' · gen '+(fr.generation!=null?fr.generation:'?');
+ document.body.appendChild(d);})();</script>
+<script>window.MATHVIZ={type:'spheres',color:0x60a5fa,dist:36,formula:'deg(v) = |edges at v|',value:(window.LIVE_DATA&&window.LIVE_DATA.sog?'identity '+window.LIVE_DATA.sog.identity_now.toFixed(6):'hub -> center'),sizes:[1,0.7,0.55,0.45,0.35,0.28],gap:''};</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>

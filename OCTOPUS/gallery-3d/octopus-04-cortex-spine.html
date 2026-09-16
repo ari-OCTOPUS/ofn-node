@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCTOPUS — مغز + نخاع · ۹ مغزِ توزیع‌شده</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #050216; overflow: hidden; font-family: "Segoe UI", Tahoma, sans-serif; }
+  #app { position: fixed; inset: 0; }
+  #scan { position: fixed; inset: 0; pointer-events: none; z-index: 3; background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(160,120,255,.04) 2px 3px); mix-blend-mode: screen; }
+  #vig  { position: fixed; inset: 0; pointer-events: none; z-index: 3; background: radial-gradient(120% 90% at 50% 45%, transparent 52%, rgba(2,0,10,.92) 100%); }
+  .top { position: fixed; top: 14px; left: 0; right: 0; text-align: center; z-index: 5; pointer-events: none; }
+  .top b { font-size: 15px; font-weight: 800; letter-spacing: 3px; background: linear-gradient(90deg,#c4b5fd,#a855f7,#67e8f9); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 22px #a855f755; }
+  .top span { display: block; font-size: 11px; color: #6b5b85; margin-top: 3px; letter-spacing: 1px; }
+  #bus { position: fixed; top: 16px; left: 16px; z-index: 6; direction: ltr; text-align: left;
+    font: 12px/1.6 ui-monospace, Menlo, monospace; color: #a5b4fc; text-shadow: 0 0 10px rgba(168,85,247,.5); pointer-events: none; }
+  #bus .p { color: #67e8f9; } #bus .h { color: #c4b5fd; font-weight: 700; }
+  #hint { position: fixed; bottom: 14px; left: 0; right: 0; text-align: center; z-index: 5; pointer-events: none; font-size: 11.5px; color: #6b5b85; }
+  #hint b { color: #c4b5fd; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="app"></div>
+<div id="scan"></div><div id="vig"></div>
+<div class="top"><b>CORTEX · UNIFIED BUS</b><span>۹ مغزِ توزیع‌شده = ۸ مغزِ بازو + ۱ کورتکسِ مرکزی · نخاع = UnifiedBus (pub/sub)</span></div>
+<div id="bus"></div>
+<div id="hint">بکش تا بچرخانی · اسکرول = زوم · <b>packet</b>ها روی نخاع منتشر می‌شوند و به ۸ مغزِ بازو می‌رسند</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+const ADD = THREE.AdditiveBlending;
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
+app.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050216);
+scene.fog = new THREE.FogExp2(0x050216, 0.013);
+
+const camera = new THREE.PerspectiveCamera(52, innerWidth/innerHeight, 0.1, 400);
+camera.position.set(0, 3, 34);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.05;
+controls.autoRotate=true; controls.autoRotateSpeed=0.5;
+controls.target.set(0,0,0); controls.minDistance=14; controls.maxDistance=80;
+
+scene.add(new THREE.AmbientLight(0x2a2a55, 0.5));
+const keyPurple = new THREE.PointLight(0xa855f7, 45, 120); keyPurple.position.set(0,2,4); scene.add(keyPurple);
+const blueRim = new THREE.DirectionalLight(0x3b82f6, 1.4); blueRim.position.set(-6,4,6); scene.add(blueRim);
+
+(function(){ const n=900,p=new Float32Array(n*3);
+  for(let i=0;i<n;i++){ const r=90+Math.random()*90,t=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);
+    p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t);}
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x7766bb,size:0.18,transparent:true,opacity:0.5}))); })();
+
+function skin(geo,emis,ei,op){ return new THREE.Mesh(geo,new THREE.MeshStandardMaterial({
+  color:0x1a0b2e, emissive:emis, emissiveIntensity:ei, roughness:0.35, metalness:0.4,
+  transparent:true, opacity:op, flatShading:true })); }
+
+// ---- spine / UnifiedBus (vertical) ----
+const spine=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,30,20,1,true),
+  new THREE.MeshStandardMaterial({color:0x0a1a3a,emissive:0x3b82f6,emissiveIntensity:1.1,transparent:true,opacity:0.55,side:THREE.DoubleSide}));
+scene.add(spine);
+const spineGlow=new THREE.Mesh(new THREE.CylinderGeometry(0.7,0.7,30,20,1,true),
+  new THREE.MeshBasicMaterial({color:0x3b82f6,transparent:true,opacity:0.1,blending:ADD,side:THREE.DoubleSide}));
+scene.add(spineGlow);
+
+// ---- cortex hub (central, purple, faceted) — the 9th brain ----
+const cortex=skin(new THREE.IcosahedronGeometry(4,1),0xa855f7,1.0,0.72); scene.add(cortex);
+const cortexWire=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(4.05,1),18),
+  new THREE.LineBasicMaterial({color:0xc4b5fd,transparent:true,opacity:0.5,blending:ADD})); scene.add(cortexWire);
+const cortexGlow=new THREE.Mesh(new THREE.SphereGeometry(6,24,24),
+  new THREE.MeshBasicMaterial({color:0xa855f7,transparent:true,opacity:0.09,blending:ADD,depthWrite:false})); scene.add(cortexGlow);
+// internal thought sparks
+const TN=60, tPos=new Float32Array(TN*3), tSeed=[];
+for(let i=0;i<TN;i++) tSeed.push({r:Math.random()*3.2,t:Math.random()*6.28,p:Math.acos(2*Math.random()-1),s:0.5+Math.random()});
+const tGeo=new THREE.BufferGeometry(); tGeo.setAttribute('position',new THREE.BufferAttribute(tPos,3));
+cortex.add(new THREE.Points(tGeo,new THREE.PointsMaterial({color:0xd8b4fe,size:0.35,transparent:true,opacity:0.9,blending:ADD,depthWrite:false})));
+
+// ---- 8 arm-brains (satellite nodes) around the hub ----
+const ARM_NAMES = ['Accounting','Lead-نقاشی','Mining','Crypto','Ziman','Project-F','architect','Knowledge'];
+const arms=[]; const R=11;
+for(let i=0;i<8;i++){
+  const ang=(i/8)*Math.PI*2, y=Math.sin(i*1.7)*3;
+  const pos=new THREE.Vector3(Math.cos(ang)*R, y, Math.sin(ang)*R);
+  const node=skin(new THREE.IcosahedronGeometry(1.1,0),0x67e8f9,0.7,0.75); node.position.copy(pos); scene.add(node);
+  const ng=new THREE.Mesh(new THREE.SphereGeometry(1.9,16,16),new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.08,blending:ADD,depthWrite:false})); node.add(ng);
+  // nerve line from spine (at node's y) to node
+  const from=new THREE.Vector3(0,pos.y,0);
+  const mid=from.clone().add(pos).multiplyScalar(0.5); mid.y+=(Math.random()-0.5)*2;
+  const curve=new THREE.CatmullRomCurve3([from,mid,pos]);
+  const line=new THREE.Mesh(new THREE.TubeGeometry(curve,24,0.05,6,false),
+    new THREE.MeshBasicMaterial({color:0x3b82f6,transparent:true,opacity:0.35,blending:ADD}));
+  scene.add(line);
+  arms.push({node,ng,curve,ang,pos,flash:0});
+}
+
+// packets traveling along nerve lines (pub/sub)
+const PK=48, pkPos=new Float32Array(PK*3), pk=[];
+for(let i=0;i<PK;i++) pk.push({a:i%8, t:Math.random(), sp:0.25+Math.random()*0.4, out:Math.random()<0.72});
+const pkGeo=new THREE.BufferGeometry(); pkGeo.setAttribute('position',new THREE.BufferAttribute(pkPos,3));
+scene.add(new THREE.Points(pkGeo,new THREE.PointsMaterial({color:0x67e8f9,size:0.55,transparent:true,opacity:0.95,blending:ADD,depthWrite:false})));
+
+// packets traveling UP/DOWN the spine
+const SP=40, spPos=new Float32Array(SP*3), spd=[];
+for(let i=0;i<SP;i++) spd.push({y:Math.random()*30-15, sp:(4+Math.random()*6)*(Math.random()<0.5?1:-1)});
+const spGeo=new THREE.BufferGeometry(); spGeo.setAttribute('position',new THREE.BufferAttribute(spPos,3));
+scene.add(new THREE.Points(spGeo,new THREE.PointsMaterial({color:0x93c5fd,size:0.5,transparent:true,opacity:0.9,blending:ADD,depthWrite:false})));
+
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.05,0.8,0.12));
+
+const busEl=document.getElementById('bus');
+const EVENTS=['heartbeat','decision','stress','proposal','verdict','telemetry','incident'];
+const clock=new THREE.Clock(); let msgTimer=0, curEvent=0;
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),0.05), t=clock.getElapsedTime();
+
+  cortex.rotation.y+=0.004; cortex.rotation.x+=0.0015;
+  cortexWire.rotation.copy(cortex.rotation);
+  cortex.material.emissiveIntensity=0.9+Math.sin(t*1.8)*0.3;
+  cortexGlow.material.opacity=0.09+Math.sin(t*1.8)*0.03;
+
+  for(let i=0;i<TN;i++){ const s=tSeed[i]; s.t+=0.012*s.s;
+    const r=s.r*(1+Math.sin(t*2+i)*0.06);
+    tPos[i*3]=r*Math.sin(s.p)*Math.cos(s.t); tPos[i*3+1]=r*Math.cos(s.p); tPos[i*3+2]=r*Math.sin(s.p)*Math.sin(s.t); }
+  tGeo.attributes.position.needsUpdate=true;
+
+  spineGlow.material.opacity=0.08+Math.sin(t*3)*0.04;
+
+  arms.forEach((a,i)=>{
+    a.node.rotation.y+=0.01;
+    a.flash=Math.max(0,a.flash-dt*2.5);
+    a.node.material.emissiveIntensity=0.6+a.flash*1.2;
+    a.ng.material.opacity=0.08+a.flash*0.2;
+    a.node.position.y = a.pos.y + Math.sin(t*0.8+i)*0.4;
+  });
+
+  // pub/sub packets
+  for(let i=0;i<PK;i++){ const c=pk[i]; c.t+=c.sp*dt;
+    if(c.t>=1){ c.t=0; if(c.out) arms[c.a].flash=1; c.a=(c.a+1)%8; c.out=Math.random()<0.72; }
+    const tt=c.out? c.t : 1-c.t;
+    const p=arms[c.a].curve.getPoint(tt);
+    pkPos[i*3]=p.x; pkPos[i*3+1]=p.y; pkPos[i*3+2]=p.z; }
+  pkGeo.attributes.position.needsUpdate=true;
+
+  // spine packets
+  for(let i=0;i<SP;i++){ const c=spd[i]; c.y+=c.sp*dt; if(c.y>15)c.y=-15; if(c.y<-15)c.y=15;
+    spPos[i*3]=(Math.random()-0.5)*0.2; spPos[i*3+1]=c.y; spPos[i*3+2]=(Math.random()-0.5)*0.2; }
+  spGeo.attributes.position.needsUpdate=true;
+
+  // HUD event log
+  msgTimer+=dt;
+  if(msgTimer>0.9){ msgTimer=0; curEvent=(curEvent+1)%EVENTS.length; }
+  busEl.innerHTML =
+    `<div class="h">UnifiedBus · pub/sub</div>` +
+    `<div><span class="p">▸ publish</span> ${EVENTS[curEvent]}</div>` +
+    `<div>subscribers: <span class="p">8 arm-brains</span></div>` +
+    `<div style="margin-top:6px" class="h">9 brains = 8 arms + cortex</div>`;
+
+  controls.update();
+  composer.render();
+}
+animate();
+
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight); });
+</script>
+</body>
+</html>

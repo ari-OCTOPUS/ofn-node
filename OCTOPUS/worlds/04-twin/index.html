@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>دوقلوی دیجیتال · twin</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#0a0510;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Segoe UI",Tahoma,sans-serif;color:#fbcfe8}
+  canvas{position:fixed;inset:0;display:block}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#f9a8d4;display:block;text-shadow:0 0 14px #ec4899aa}
+  .top span{font-size:11px;color:#8a6b80}
+  .act{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);z-index:6;background:rgba(24,8,24,.6);border:1px solid #6b2153;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .act b{color:#fbcfe8;font-size:12.5px}.act span{color:#f9a8d4;font-size:11.5px;display:block;margin-top:2px}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#1a0a18;border:1px solid #6b2153;color:#f9a8d4;border-radius:9px;padding:8px 4px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#3b0a34;border-color:#f472b6}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#f472b6;text-decoration:none;font-size:12px}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<canvas id="c"></canvas>
+<div class="top"><b>دوقلوی دیجیتال</b><span>خودمدلِ زنده · گلبرگ‌ها = بودجه/frontier/ticks/سلامت · ضربان از setpoint واقعی</span></div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:6;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.3);color:#22d3ee;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">READ-ONLY</div>
+<div class="act"><b id="an"></b><span id="ad"></span></div>
+<div class="tabs">
+  <button data-m="0" class="on">نبض</button>
+  <button data-m="1">حال</button>
+  <button data-m="2">مراقبت</button>
+</div>
+<!-- real organism blood (read-only extract from F:/backup/4d_system/outputs) -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../../../nervous-system/audit-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,DPR;function fit(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}fit();
+const BAND=[6.40,19.19], MID=12.79;   // real heart setpoint band from the project
+const L=window.LIVE_DATA||null;
+function mkState(){
+ if(!L)return [{k:'انرژی',v:62,a:'۱۰ دقیقه استراحتِ واقعی بدون گوشی.'},{k:'تمرکز',v:48,a:'یک کار را انتخاب کن، ۲۵ دقیقه.'},{k:'حرکت',v:70,a:'کوچک‌ترین قدم را همین حالا بردار.'},{k:'آرامش',v:55,a:'سه نفسِ عمیق و آهسته — الان.'}];
+ const s=L.sog||{},bg=L.budget||{},dm=L.daemon||{},fr=L.frontier||{};
+ const rem=(bg.remaining!=null&&bg.cap?Math.round(bg.remaining/bg.cap*100):60);
+ const foc=Math.min(100,(fr.total_cells||0)*3), mov=Math.min(100,(dm.total_ticks||0)*8), calm=(s.healthy?90:20);
+ return [{k:'انرژی · بودجه',v:rem,a:'مسیرِ ابری زیرِ سقف؛ مصرف را پایین نگه‌دار.'},
+  {k:'تمرکز · frontier',v:foc,a:(fr.total_cells||0)+' رفتارِ کشف‌شده؛ یک ناحیهٔ نو باز کن.'},
+  {k:'حرکت · ticks',v:mov,a:(dm.stopped_at!=null?'daemon متوقف — یک tick بزن.':'حلقه فعال است.')},
+  {k:'آرامش · سلامت',v:calm,a:(s.healthy?'هویت روی لنگر — آرام.':'drift دارد — بررسی کن.')}];
+}
+const STATE=mkState();
+let mode=0,tsel=-1;
+function avg(){return STATE.reduce((s,x)=>s+x.v,0)/STATE.length;}
+function setMode(m){mode=m;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+ if(m===0)an('کارِ بعدی → یک نفس هماهنگ','ضربان در باندِ سالم ['+BAND[0]+'..'+BAND[1]+'] است. با آن نفس بکش.');
+ if(m===1)an('یک گلبرگ را لمس کن','تا حالت را بالا/پایین کنی و موجود واکنش دهد.');
+ if(m===2){
+  const A=window.AUDIT_DATA||null;
+  if(A){
+   const ev=A.events||{},tr=A.traces||{},ap=ev.approvals_pending||0,io=ev.incidents_open||0;
+   const ok=tr.stats?(tr.stats.avg_ms||0):0;
+   const stale=(A.freshness&&A.freshness.traces&&!A.freshness.traces.present)?' (trace غایب)':'';
+   an('مراقبتِ سیستم · '+ap+' تأییدِ معلق · '+io+' incident باز',
+      'traces='+tr.total+' avg='+Math.round(ok)+'ms'+stale+' · delta='+A.delta.changed);
+  }else{
+   const low=STATE.reduce((a,b)=>a.v<b.v?a:b);an('کمترین: «'+low.k+'» ('+low.v+')',low.a);
+  }
+ }
+}
+function an(a,b){document.getElementById('an').textContent=a;document.getElementById('ad').textContent=b;}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+cv.addEventListener('pointerdown',e=>{ if(mode!==1)return; const cx=W/2,cy=H*0.44;
+  for(let i=0;i<4;i++){const ang=-Math.PI/2+i/4*Math.PI*2;const x=cx+Math.cos(ang)*Math.min(W,H)*0.30,y=cy+Math.sin(ang)*Math.min(W,H)*0.30;
+   if((e.clientX-x)**2+(e.clientY-y)**2<1600){STATE[i].v=Math.min(100,STATE[i].v+12);if(STATE[i].v>100)STATE[i].v=30;tsel=i;}}});
+
+function blob(cx,cy,base,amp,t,fill){ctx.beginPath();
+ for(let a=0;a<=Math.PI*2+0.1;a+=0.12){const r=base+Math.sin(a*3+t)*amp+Math.sin(a*5-t*1.3)*amp*0.5;
+  const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;a?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fillStyle=fill;ctx.fill();}
+function draw(now){requestAnimationFrame(draw);const t=now/1000;const cx=W/2,cy=H*0.44;
+ ctx.clearRect(0,0,W,H);ctx.fillStyle='#0a0510';ctx.fillRect(0,0,W,H);
+ const beat=0.5+0.5*Math.sin(t*MID/9);   // pulse scaled by mid cpm
+ const calm=avg()/100;
+ const R=Math.min(W,H)*0.22;
+ // aura layers (calmer avg = smoother, bigger glow)
+ blob(cx,cy,R+26,10*(1.2-calm),t*0.5,'rgba(244,114,182,0.06)');
+ blob(cx,cy,R+12,7*(1.2-calm),t*0.8,'rgba(236,72,153,0.10)');
+ blob(cx,cy,R+beat*10,6*(1.3-calm),t,'rgba(249,168,212,0.16)');
+ // heart core
+ ctx.beginPath();ctx.arc(cx,cy,R*0.34*(0.9+beat*0.2),0,6.283);ctx.fillStyle='rgba(255,228,240,0.9)';
+ ctx.shadowColor='#f472b6';ctx.shadowBlur=30*beat+10;ctx.fill();ctx.shadowBlur=0;
+
+ if(mode===1){ // petals
+   for(let i=0;i<4;i++){const ang=-Math.PI/2+i/4*Math.PI*2;const len=Math.min(W,H)*0.30*(0.5+STATE[i].v/200);
+     const x=cx+Math.cos(ang)*len,y=cy+Math.sin(ang)*len;
+     ctx.strokeStyle=tsel===i?'#fff':'rgba(249,168,212,0.7)';ctx.lineWidth=tsel===i?3:2;
+     ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();
+     blob(x,y,10+STATE[i].v*0.10,3,t+i,'rgba(244,114,182,0.5)');
+     ctx.fillStyle='#fbcfe8';ctx.font='12px Tahoma';ctx.textAlign='center';ctx.fillText(STATE[i].k+' '+STATE[i].v,x,y-16);}
+ }
+ if(mode===0){ // pulse rings
+   const p=(t*MID/9)%1;ctx.strokeStyle='rgba(249,168,212,'+(1-p)+')';ctx.lineWidth=2;
+   ctx.beginPath();ctx.arc(cx,cy,R*0.4+p*R*1.2,0,6.283);ctx.stroke();
+   ctx.fillStyle='#f9a8d4';ctx.font='700 13px Tahoma';ctx.textAlign='center';
+   ctx.fillText('≈ '+MID.toFixed(1)+' cpm · باندِ سالم',cx,cy+R+40);
+ }
+}
+setMode(0);requestAnimationFrame(draw);addEventListener('resize',fit);
+</script>
+<script>window.MATHVIZ={type:'wave',color:0xf472b6,dist:30,formula:'cpm in [6.40 , 19.19]',value:'mid = 12.79',gap:'no real signal / ODE'};</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>

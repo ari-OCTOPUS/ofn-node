@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCTOPUS — رجیستریِ URCP</title>
+<style>
+  html,body{margin:0;height:100%;background:#02040e;overflow:hidden;font-family:"Segoe UI",Tahoma,sans-serif}
+  #app{position:fixed;inset:0}
+  #vig{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(120% 90% at 50% 45%,transparent 54%,rgba(0,1,6,.9) 100%)}
+  .top{position:fixed;top:14px;left:0;right:0;text-align:center;z-index:5;pointer-events:none}
+  .top b{font-size:15px;font-weight:800;letter-spacing:3px;background:linear-gradient(90deg,#67e8f9,#22d3ee,#a5b4fc);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 22px #22d3ee44}
+  .top span{display:block;font-size:11px;color:#5b6b85;margin-top:3px;letter-spacing:1px}
+  #st{position:fixed;top:16px;left:16px;z-index:6;direction:ltr;text-align:left;font:12px/1.7 ui-monospace,Menlo,monospace;color:#67e8f9;pointer-events:none}
+  #st b{color:#fcd34d}
+  .info{position:fixed;bottom:14px;right:14px;z-index:6;max-width:330px;background:rgba(6,10,24,.82);border:1px solid #1c2c44;border-radius:12px;padding:13px 15px;backdrop-filter:blur(6px);direction:rtl;text-align:right;font-size:12px;line-height:1.85;color:#9fb3cc}
+  .info h3{margin:0 0 6px;font-size:13px;color:#e5e7eb}.info .k{color:#fcd34d}.info .b{color:#67e8f9}.info .src{margin-top:7px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#5b6b85;direction:ltr;text-align:left}
+  #hint{position:fixed;bottom:14px;left:14px;z-index:5;pointer-events:none;font-size:11.5px;color:#5b6b85;max-width:40%}#hint b{color:#67e8f9}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app"></div><div id="vig"></div>
+<div class="top"><b>URCP REGISTRY · رجیستری</b><span>«چیزی که نمی‌بینی را نمی‌توانی حکمرانی کنی» · اسکنِ رادار · ۱۳ موجودیت</span></div>
+<div id="st"></div>
+<div class="info">
+  <h3>📡 رجیستریِ URCP</h3>
+  <div class="row">پرتوِ رادار روی کره می‌چرخد؛ گرهی که <span class="b">دیده شود</span> روشن و حلقه‌دار می‌شود و به هابِ حکمرانی وصل می‌گردد؛ گرهِ ندیده تاریک و لرزان می‌ماند.</div>
+  <div class="row"><span class="k">💾 F:\backup:</span> ‏<code>registry_scan.py</code> فرانت‌متر هر پروژه را می‌خواند → owner/risk_tier (۱۳ موجودیت). ندیده = غیرقابلِ حکمرانی.</div>
+  <div class="src">src: registry_scan.py (URCP Phase-0, 13 entities) · 06-Architecture Maps</div>
+</div>
+<div id="hint">بکش تا بچرخانی · اسکرول = زوم · فقط گره‌های <b>ثبت‌شده</b> به هابِ مرکزی لینک می‌شوند</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+const ADD=THREE.AdditiveBlending;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+document.getElementById('app').appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x02040e);scene.fog=new THREE.FogExp2(0x02040e,0.011);
+const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,0.1,400);camera.position.set(0,4,26);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.05;
+controls.autoRotate=true;controls.autoRotateSpeed=0.3;controls.target.set(0,0,0);controls.minDistance=12;controls.maxDistance=60;
+scene.add(new THREE.AmbientLight(0x22344f,0.5));
+const hubL=new THREE.PointLight(0x67e8f9,16,60);scene.add(hubL);
+(function(){const n=600,p=new Float32Array(n*3);for(let i=0;i<n;i++){const r=90+Math.random()*90,t=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x6688bb,size:0.15,transparent:true,opacity:0.5})));})();
+// central governance hub
+const hub=new THREE.Mesh(new THREE.IcosahedronGeometry(1.6,1),new THREE.MeshStandardMaterial({color:0x1a0b2e,emissive:0xa855f7,emissiveIntensity:1,roughness:0.35,metalness:0.4,transparent:true,opacity:0.75,flatShading:true}));scene.add(hub);
+// 13 entity nodes on sphere
+const RISK={low:0x34d399,medium:0xf59e0b,high:0xfb923c,critical:0xef4444};
+const ENT=[['Accounting','high'],['Lead','medium'],['Mining','medium'],['Crypto','critical'],['Ziman','low'],['Project-F','high'],['architect','critical'],['Knowledge','low'],['cortex','critical'],['heart','high'],['budget','high'],['doctor','medium'],['bus','medium']];
+const nodes=[];const R=8;
+ENT.forEach((e,i)=>{const phi=Math.acos(1-2*((i+0.5)/13)),th=Math.PI*(1+Math.sqrt(5))*i;const pos=new THREE.Vector3(R*Math.sin(phi)*Math.cos(th),R*Math.cos(phi),R*Math.sin(phi)*Math.sin(th));
+  const col=RISK[e[1]];const m=new THREE.Mesh(new THREE.IcosahedronGeometry(0.55,0),new THREE.MeshStandardMaterial({color:0x081826,emissive:col,emissiveIntensity:0.2,roughness:0.4,metalness:0.4,transparent:true,opacity:0.5,flatShading:true}));m.position.copy(pos);scene.add(m);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(0.9,0.05,8,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0,blending:ADD}));ring.position.copy(pos);ring.lookAt(0,0,0);scene.add(ring);
+  const link=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),pos]),new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0,blending:ADD}));scene.add(link);
+  nodes.push({m,ring,link,col,pos,seen:false,ang:th});});
+// radar sweep plane
+const radar=new THREE.Mesh(new THREE.CircleGeometry(9,32,0,Math.PI/3),new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.12,blending:ADD,side:THREE.DoubleSide}));scene.add(radar);
+const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.0,0.8,0.14));
+const stEl=document.getElementById('st');const clock=new THREE.Clock();
+function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();
+  hub.rotation.y+=0.006;radar.rotation.y=t*0.8;
+  const sweepAng=(t*0.8)%(Math.PI*2);let seenCount=0;
+  nodes.forEach(n=>{const na=(Math.atan2(n.pos.z,n.pos.x)+Math.PI*2)%(Math.PI*2);let diff=Math.abs(na-sweepAng);if(diff>Math.PI)diff=Math.PI*2-diff;
+    if(diff<0.5)n.seen=true;if(n.seen){seenCount++;n.m.material.emissiveIntensity=0.8;n.m.material.opacity=0.85;n.ring.material.opacity=0.6;n.link.material.opacity=0.3;}else{n.m.material.emissiveIntensity=0.15+Math.abs(Math.sin(t*4+n.ang))*0.15;n.m.material.opacity=0.4;}
+    n.m.rotation.y+=0.02;n.ring.rotation.z+=0.01;});
+  stEl.innerHTML=`<b>📡 URCP</b> · registry scan<br>registered: <span style="color:#67e8f9">${seenCount}/13</span><br>unseen = ungovernable`;
+  controls.update();composer.render();}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

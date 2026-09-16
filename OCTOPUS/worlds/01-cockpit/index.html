@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>اتاق فرمان · cockpit</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#060b10;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Segoe UI",Tahoma,sans-serif;color:#dbeafe}
+  .app{height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 44px) 12px calc(env(safe-area-inset-bottom,0px) + 56px)}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#22d3ee;text-decoration:none;font-size:12px}
+  .h{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:0;right:0;text-align:center;font-size:14px;font-weight:700;color:#5eead4}
+  .hero{background:#0b1620;border:1px solid #164e5b;border-left:4px solid #22d3ee;border-radius:12px;padding:12px 14px;text-align:right}
+  .hero .k{font-size:11px;color:#5b8a95}
+  .hero .v{font-size:17px;font-weight:700;color:#a5f3fc;margin-top:3px;line-height:1.5}
+  .hero .why{margin-top:6px;font-size:11.5px;color:#7dd3fc}
+  .grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .tile{background:#0a141c;border:1px solid #16303b;border-radius:12px;padding:11px;display:flex;flex-direction:column;justify-content:space-between;text-align:right}
+  .tile .k{font-size:11px;color:#5b7a85}
+  .tile .v{font-size:22px;font-weight:700}
+  .tile .s{font-size:10.5px;color:#6b8a95}
+  .bar{height:6px;border-radius:3px;background:#16303b;margin-top:6px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:3px}
+  .sys{display:flex;gap:6px;justify-content:center;margin-top:10px}
+  .dot{width:9px;height:9px;border-radius:50%}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#0a141c;border:1px solid #16303b;color:#5eead4;border-radius:8px;padding:8px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#0e2a30;border-color:#22d3ee}
+  .note{font-size:10px;color:#3f5a63;text-align:center;margin-top:6px}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<div class="h">اتاق فرمان — mission control</div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:7;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.3);color:#22d3ee;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">READ-ONLY</div>
+<div class="app">
+  <div class="hero" id="hero"></div>
+  <div class="grid" id="grid"></div>
+  <div class="sys" id="sys"></div>
+  <div class="note">وصل به دادهٔ زندهٔ ارگانیسم (SOG · events · budget · gate · neural · health) — read-only از 4d_system + _ops؛ اگر خالی بود extract_*.py را اجرا کن</div>
+</div>
+<div class="tabs">
+  <button data-m="0" class="on">کاکپیت</button>
+  <button data-m="1">چرا؟</button>
+</div>
+<!-- real organism blood (read-only extract from F:/backup/4d_system/outputs + _ops) -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../../../nervous-system/neural-data.js"></script>
+<script src="../../../nervous-system/health-data.js"></script>
+<script src="../../../nervous-system/research-data.js"></script>
+<script src="../../../nervous-system/task-summary-data.js"></script>
+<!-- Full task-data.js (~678KB) available on demand: lazy-load if detail needed -->
+<script src="../../../nervous-system/git-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>
+/* Cockpit model — REAL organism vitals from window.LIVE_DATA + window.NEURAL_DATA + window.HEALTH_DATA; graceful fallback if extract not run. */
+const L=window.LIVE_DATA||null;
+const N=window.NEURAL_DATA||null;
+const H=window.HEALTH_DATA||null;
+const hero=document.getElementById('hero'),grid=document.getElementById('grid');
+const fn=n=>(n==null?'—':Number(n).toLocaleString('fa-IR'));
+function model(L){
+ const s=L.sog||{},ev=L.events||{},bg=L.budget||{},dm=L.daemon||{},fr=L.frontier||{},pk=L.packets||[];
+ const st=ev.by_status||{},done=(st.completed||st.ok||st.done||0),total=ev.total_rows||0,rem=bg.remaining,cap=bg.cap;
+ return {healthy:!!s.healthy,
+  identity:(s.identity_now!=null?s.identity_now.toFixed(6):'—'),
+  drift:(s.drift_now!=null?s.drift_now.toExponential(1):'—'),
+  events:total,recent:(ev.recent?ev.recent.length:0),done,rem,cap,
+  budPct:(rem!=null&&cap?Math.max(4,Math.min(100,rem/cap*100)):50),
+  gen:fr.generation,cells:fr.total_cells,packets:pk.length,
+  ticks:dm.total_ticks,paused:(dm.stopped_at!=null)};
+}
+function neuralModel(N){
+ if(!N) return null;
+ const v=N.vitals||{},r=N.rhythm||{},c=N.circadian||{};
+ return {
+  mode_color:v.mode_color||'GREEN',
+  readiness:v.readiness!=null?v.readiness:0.7,
+  stress:v.stress!=null?v.stress:0,
+  protective:!!v.protective,
+  T_beat:r.T_beat!=null?r.T_beat:60,
+  phase:c.phase||'active',
+  hour:c.hour!=null?c.hour:new Date().getHours()
+ };
+}
+function healthModel(H){
+ if(!H) return null;
+ const h=H.overall!=null?H.overall:0;
+ const sub=H.subscores||{};
+ return {
+  overall:h,
+  status:H.status||'نامشخص',
+  emoji:H.status_emoji||'⚪',
+  system:sub.system!=null?sub.system:0,
+  fitness:sub.fitness!=null?sub.fitness:0,
+  telemetry:sub.telemetry!=null?sub.telemetry:0,
+  wires_on:(H.details||{}).system||{},
+  wires_total:(H.details||{}).system||{},
+  cardiac_depleted:((H.details||{}).system||{}).cardiac_depleted,
+  frozen:((H.details||{}).system||{}).frozen,
+  halted:((H.details||{}).system||{}).halted,
+  integrity_alert_count:((H.details||{}).fitness||{}).integrity_alert_count||0
+ };
+}
+function researchModel(R){
+ if(!R) return null;
+ const p=R.pipeline||{}, f=R.fleet||{}, s=R.synthesis||{}, t=R.triage||{}, h=R.health||{};
+ return {
+  digests:p.total_digests||0,
+  findings:p.total_findings||0,
+  sources:p.total_sources||0,
+  scouts:f.active_scouts||0,
+  stale:f.stale_scouts?f.stale_scouts.length:0,
+  coverage24:f.coverage_24h!=null?f.coverage_24h:0,
+  coverage7:f.coverage_7d!=null?f.coverage_7d:0,
+  latestSyn:s.latest_date||'—',
+  synCount:s.count||0,
+  openProps:t.open_proposals||0,
+  topSalience:t.top_salience!=null?t.top_salience:0,
+  health:h.score!=null?h.score:0
+ };
+}
+function taskModel(T){
+ if(!T) return null;
+ const sm=T.summary||{};
+ const bp=sm.by_priority||{};
+ return {
+  open:sm.open_tasks||0,
+  done:sm.done_tasks||0,
+  total:sm.total_tasks||0,
+  critical:bp['بحرانی']||0,
+  high:bp['بالا']||0,
+  medium:bp['متوسط']||0,
+  low:bp['کم']||0,
+  next:sm.next_action||null
+ };
+}
+function gitModel(GD){
+ if(!GD) return null;
+ const sm=GD.summary||{};
+ const r=(GD.repos||[])[0]||{};
+ const st=r.status||{};
+ return {
+  branch:r.branch||'—',
+  short:((r.last_commit||{}).hash_short||'—'),
+  dirty:st.dirty_total||0,
+  modified:st.modified||0,
+  untracked:st.untracked||0,
+  clean:!!st.clean,
+  total_repos:sm.total_repos||0,
+  dirty_repos:sm.dirty_repos||0
+ };
+}
+function renderCockpit(){
+ if(!L){hero.innerHTML='<div class="k">حالتِ نمادین</div><div class="v">live-data.js لود نشد</div><div class="why">«python extract_live_data.py» را اجرا کن تا اعدادِ واقعیِ ارگانیسم بیاید.</div>';grid.innerHTML='';document.getElementById('sys').innerHTML='';return;}
+ const D=model(L);let action,why;
+ const TV=taskModel(window.TASK_SUMMARY_DATA||window.TASK_DATA);
+ if(D.paused){action='دیمِن متوقف است — یک tick بزن';why='حلقهٔ متابولیسم ایستاده؛ تا حرکت نکند، خونی جاری نمی‌شود.';}
+ else if(D.packets>0){action=fn(D.packets)+' تصمیمِ منتظرِ تو (owner gate)';why='اکشن‌های بیرونی پشتِ دروازهٔ مالک صف‌اند؛ فقط تو verdict می‌دهی.';}
+ else if(!D.healthy){action='لنگرِ هویت drift کرد — بررسی کن';why='identity از 0.135073 دور شد (drift '+D.drift+')؛ سیستم fail-closed می‌ایستد.';}
+ else if(TV&&TV.critical>0){action='task بحرانی: '+(TV.next?TV.next.text.slice(0,55):'بررسی شود');why='صندوق کارهای باز: '+fn(TV.open)+' task ('+TV.critical+' بحرانی) در انتظارِ اقدام.';}
+ else{action='سالم — چرخه ادامه دارد';why='هویت روی لنگر، بودجه باز، صفِ تصمیم خالی. کارِ تو: نظارت.';}
+ hero.innerHTML='<div class="k">مهم‌ترین چیزِ همین‌حالا · از دادهٔ زنده</div><div class="v">'+action+'</div><div class="why">'+why+'</div>';
+ const NV=neuralModel(N);
+ const HV=healthModel(H);
+ const RV=researchModel(window.RESEARCH_DATA);
+ const tiles=[
+  {k:'لنگرِ هویت (SOG)',v:D.identity,s:(D.healthy?'✓ سالم · drift '+D.drift:'⚠ drift '+D.drift),c:(D.healthy?'#34d399':'#ef4444'),p:(D.healthy?100:20)},
+  {k:'بودجهٔ ابری (LLM)',v:fn(D.rem)+'/'+fn(D.cap),s:'سوختِ متابولیک · روزانه',c:'#22d3ee',p:D.budPct},
+  {k:'رویدادها (خون)',v:fn(D.events),s:fn(D.recent)+' اخیر · '+fn(D.done)+' کامل',c:'#60a5fa',p:Math.min(100,D.recent/4)},
+  {k:'مرزِ دانش · نسل',v:'gen '+fn(D.gen),s:fn(D.cells)+' سلولِ رفتار',c:'#a855f7',p:Math.min(100,Number(D.cells)||0)},
+ ];
+ if(RV){
+  const rc=RV.health>=0.8?'#34d399':RV.health>=0.5?'#f59e0b':'#ef4444';
+  tiles.push({k:'اسکاوت · سلامتِ ناوگان',v:(RV.health*100).toFixed(0)+'%',s:RV.scouts+' اسکاوت · '+RV.stale+' کهنه · '+RV.coverage7+'x/هفته',c:rc,p:Math.max(4,Math.min(100,RV.health*100))});
+  tiles.push({k:'تحقیق · دیجست‌ها',v:fn(RV.digests),s:RV.findings+' یافته · '+RV.sources+' منبع · سنتز '+RV.latestSyn,c:'#c084fc',p:Math.min(100,RV.digests/2)});
+  tiles.push({k:'تختهٔ تریاژ · باز',v:fn(RV.openProps),s:'top salience '+RV.topSalience.toFixed(2),c:(RV.openProps>0?'#f472b6':'#34d399'),p:Math.min(100,RV.openProps*8)});
+ }
+ if(HV){
+  const hc=HV.overall>=80?'#34d399':HV.overall>=60?'#f59e0b':HV.overall>=40?'#f97316':'#ef4444';
+  tiles.push({k:'health score · '+HV.status,v:HV.emoji+' '+HV.overall+' / 100',s:'system '+Math.round(HV.system)+' · fitness '+Math.round(HV.fitness)+' · telemetry '+Math.round(HV.telemetry),c:hc,p:Math.max(4,Math.min(100,HV.overall))});
+ }
+ if(NV){
+  const nc=NV.mode_color==='GREEN'?'#34d399':NV.mode_color==='AMBER'?'#f59e0b':'#ef4444';
+  tiles.push({k:'ریتم عصبی · '+NV.mode_color,v:NV.phase,s:'readiness '+Math.round(NV.readiness*100)+'% · stress '+Math.round(NV.stress*100)+'% · T_beat '+NV.T_beat+'s',c:nc,p:Math.round(NV.readiness*100)});
+ }
+ if(TV){
+  const tc=TV.critical>0?R:(TV.high>0?Y:G);
+  tiles.push({k:'صندوق کار · باز',v:fn(TV.open),s:TV.critical+' بحرانی · '+TV.high+' بالا · '+TV.medium+' متوسط',c:tc,p:Math.max(4,Math.min(100,TV.open/14))});
+ }
+ const GV=gitModel(window.GIT_DATA);
+ if(GV){
+  const gc=GV.dirty===0?'#34d399':GV.dirty>200?'#ef4444':'#f59e0b';
+  tiles.push({k:'git · '+GV.branch+' · '+GV.short,v:fn(GV.dirty)+' تغییر',s:'modified '+fn(GV.modified)+' · untracked '+fn(GV.untracked),c:gc,p:Math.max(4,Math.min(100,GV.dirty/10))});
+ }
+ grid.innerHTML=tiles.map(t=>'<div class="tile"><div class="k">'+t.k+'</div><div class="v" style="color:'+t.c+'">'+t.v+
+   '</div><div class="s">'+t.s+'</div><div class="bar"><i style="width:'+t.p+'%;background:'+t.c+'"></i></div></div>').join('');
+ const G='#34d399',Y='#f59e0b',R='#ef4444',dot=c=>'<span class="dot" style="background:'+c+'"></span>';
+ const nColor=NV?(NV.protective?R:(NV.mode_color==='GREEN'?G:(NV.mode_color==='AMBER'?Y:R))):G;
+ const hColor=HV?(HV.overall>=80?G:(HV.overall>=60?Y:R)):G;
+ const rColor=RV?(RV.health>=0.8?G:(RV.health>=0.5?Y:R)):G;
+ const tColor=TV?(TV.critical>0?R:(TV.high>0?Y:G)):G;
+ const gColor=GV?(GV.dirty===0?G:(GV.dirty>200?R:Y)):G;
+ const dots=[D.paused?R:G, D.healthy?G:R, (D.rem>0?G:Y), (D.packets>0?Y:G), hColor, nColor, rColor, tColor, gColor];
+ document.getElementById('sys').innerHTML=dots.map(dot).join('')+'<span style="font-size:10px;color:#5b7a85;margin-right:6px">دیمن·قلب·بودجه·گیت·health·عصب·اسکاوت·کار·git</span>';
+}
+function renderWhy(){
+ if(!L){renderCockpit();return;}
+ const D=model(L);
+ const NV=neuralModel(N);
+ const RV=researchModel(window.RESEARCH_DATA);
+ hero.innerHTML='<div class="k">چرا این توصیه؟ (decision intelligence)</div>'+
+   '<div class="v" style="font-size:14px">سیستم فقط وضعیت نشان نمی‌دهد؛ از دادهٔ واقعی یک تصمیم پیشنهاد می‌دهد.</div>';
+ const rows=[
+  ['۱ لنگر','identity = '+D.identity+' — '+(D.healthy?'روی لنگرِ 0.135073 (سالم)':'دور از لنگر (drift '+D.drift+')')+'.'],
+  ['۲ خون','رویدادها: '+fn(D.events)+' کل · '+fn(D.recent)+' اخیر — رگ‌ها پرند، نه خالی.'],
+  ['۳ سوخت','بودجهٔ ابری '+fn(D.rem)+' از '+fn(D.cap)+' باقی — مسیرِ ابری زیرِ سقف.'],
+  ['۴ دروازه',(D.packets>0?fn(D.packets)+' تصمیم منتظرِ verdict توست — مرزِ انسانی.':'صفِ دروازهٔ مالک خالی است.')],
+ ];
+ const HV=healthModel(H);
+ if(HV){
+  rows.push(['۵ health','overall = '+HV.overall+' ('+HV.status+') — system='+Math.round(HV.system)+' fitness='+Math.round(HV.fitness)+' telemetry='+Math.round(HV.telemetry)+'.']);
+ }
+ if(NV){
+  rows.push(['۶ عصب','mode_color = '+NV.mode_color+' · readiness '+Math.round(NV.readiness*100)+'% — '+(NV.protective?'توقفِ حفاظتی فعال':'سیستم در حالتِ advisory پایدار')+'.']);
+ }
+ if(RV){
+  rows.push(['۷ اسکاوت',RV.digests+' دیجست · '+RV.findings+' یافته · '+RV.scouts+' اسکاوت فعال · سلامتِ ناوگان '+Math.round(RV.health*100)+'%'+(RV.stale>0?' ('+RV.stale+' کهنه)':'')+'.']);
+ }
+ grid.innerHTML=rows.map(x=>'<div class="tile"><div class="k">'+x[0]+'</div><div class="s" style="font-size:11.5px;color:#9fd6e2;line-height:1.7">'+x[1]+'</div></div>').join('');
+ document.getElementById('sys').innerHTML='';
+}
+let mode=0;function setMode(m){mode=m;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));m?renderWhy():renderCockpit();}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+setMode(0);
+</script>
+<script>(function(){var L=window.LIVE_DATA,s=L&&L.sog,d=s&&s.default;window.MATHVIZ={type:'bars',color:0x22d3ee,dist:34,formula:'identity = E_shadow + Δ_self = 0.135073',value:(s?'identity '+s.identity_now.toFixed(6)+(s.healthy?' ✓':' ⚠'):'symbolic'),bars:(d?[d.identity*40,d.Eshadow*40,d.Dself*40]:[7.2,3.2,4.0]),gap:(L?'':'run extract_live_data.py')};})();</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>

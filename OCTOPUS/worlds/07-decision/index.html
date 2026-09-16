@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>درخت تصمیم · decision</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#efeadd;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Segoe UI",Tahoma,sans-serif;color:#2b2b28}
+  canvas{position:fixed;inset:0;display:block}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#2b2b28;display:block}
+  .top span{font-size:11px;color:#7a7566}
+  .act{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);z-index:6;background:rgba(255,252,242,.82);border:1.5px solid #2b2b28;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .act b{color:#2b2b28;font-size:12.5px}.act span{color:#6b5b2e;font-size:11.5px;display:block;margin-top:2px}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#e6dfcc;border:1.5px solid #2b2b28;color:#2b2b28;border-radius:9px;padding:8px 4px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#f6ce5b;border-color:#2b2b28}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#8a6d1e;text-decoration:none;font-size:12px}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<canvas id="c"></canvas>
+<div class="top"><b>درختِ تصمیم</b><span>صفِ owner-gate · شاخه = decision packet زنده (context/recommendation)</span></div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:6;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">OWNER VERDICT</div>
+<div class="act"><b id="an"></b><span id="ad"></span></div>
+<div class="tabs">
+  <button data-m="0" class="on">درخت</button>
+  <button data-m="1">گزینه‌ها</button>
+  <button data-m="2">توصیه</button>
+</div>
+<!-- real organism blood (read-only extract from F:/backup/4d_system/outputs) -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../../../nervous-system/task-data.js"></script>
+<script src="../../../nervous-system/ideas-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,DPR;function fit(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}fit();
+const L=window.LIVE_DATA||null;
+function riskOf(t){t=t||'';return /بالا|high|critical/i.test(t)?{r:'ریسکِ بالا',w:90}:/متوسط|medium/i.test(t)?{r:'ریسکِ متوسط',w:60}:{r:'ریسکِ کم',w:30};}
+function mkOpt(){
+ if(!L||!(L.packets||[]).length)return [{k:'تمرکز روی Lead-نقاشی',p:0.8,good:90,bad:-20,r:'ریسکِ کم'},{k:'یادگیریِ مهارتِ نو',p:0.55,good:120,bad:-30,r:'ریسکِ متوسط'},{k:'کارِ ساعتی',p:0.9,good:48,bad:-5,r:'ریسکِ کم · سقفِ کم'}].map(o=>({...o,ev:Math.round(o.p*o.good+(1-o.p)*o.bad)}));
+ return L.packets.slice(-3).map(p=>{const rk=riskOf(p.recommendation);const needs=!/نیاز به تو:\s*هیچ/.test(p.recommendation||'');return {k:(p.context||p.alert_type||'packet').slice(0,20),r:rk.r+(needs?' · نیازِ verdict':' · اطلاعی'),ev:Math.min(100,rk.w+(needs?10:0)),why:(p.why_now||''),rec:(p.recommendation||'')};});
+}
+const OPT=mkOpt();
+const best=OPT.reduce((a,b,i)=>b.ev>OPT[a].ev?i:a,0);
+let mode=0;
+function setMode(m){mode=m;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+ if(m===0)an('کارِ بعدی → یک انتخابِ بزرگ','هر شاخه یک مسیر است. عدد = ارزشِ موردانتظار (نمادین).');
+ if(m===1)an('بالاترین EV: «'+OPT[best].k+'»','۷۲ — چون سریع‌ترین مسیر به پول با ریسکِ کم است.');
+ if(m===2)an('توصیه → همین‌هفته «'+OPT[best].k+'»','یک قدمِ کوچکِ امروز؛ دو گزینهٔ دیگر را موقتاً کنار بگذار.');}
+function an(a,b){document.getElementById('an').textContent=a;document.getElementById('ad').textContent=b;}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+function ink(x1,y1,x2,y2,w){ctx.strokeStyle='#2b2b28';ctx.lineWidth=w||2;ctx.lineCap='round';
+ const seg=6,dx=(x2-x1)/seg,dy=(y2-y1)/seg;ctx.beginPath();ctx.moveTo(x1,y1);
+ for(let i=1;i<=seg;i++){const nx=x1+dx*i+(Math.random()-0.5)*2,ny=y1+dy*i+(Math.random()-0.5)*2;ctx.lineTo(nx,ny);}ctx.stroke();}
+function bubble(x,y,txt,fill){ctx.fillStyle=fill||'#fffdf5';ctx.strokeStyle='#2b2b28';ctx.lineWidth=2;
+ const w=Math.max(90,ctx.measureText(txt).width+22),h=30;
+ ctx.beginPath();ctx.moveTo(x-w/2+6,y-h/2);
+ ctx.lineTo(x+w/2-4+(Math.random()-0.5)*2,y-h/2+(Math.random()-0.5)*2);
+ ctx.lineTo(x+w/2,y+h/2-4);ctx.lineTo(x-w/2+4,y+h/2);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='#2b2b28';ctx.font='12px Tahoma';ctx.textAlign='center';ctx.fillText(txt,x,y+4);return w;}
+let seed=0;
+function draw(){ // static-ish, redraw slowly for subtle jitter
+ requestAnimationFrame(()=>setTimeout(draw,90));
+ ctx.clearRect(0,0,W,H);ctx.fillStyle='#efeadd';ctx.fillRect(0,0,W,H);
+ // paper grain
+ ctx.fillStyle='rgba(120,110,80,0.05)';for(let i=0;i<180;i++)ctx.fillRect(Math.random()*W,Math.random()*H,1,1);
+ if(mode===1){
+   ctx.fillStyle='#2b2b28';ctx.font='13px Tahoma';ctx.textAlign='right';ctx.fillText('ارزشِ موردانتظار (EV)',W-20,90);
+   OPT.forEach((o,i)=>{const y=130+i*54;ctx.fillStyle=i===best?'#f6ce5b':'#d8cfb6';ctx.fillRect(20,y,(W-40)*o.ev/100,30);
+     ctx.strokeStyle='#2b2b28';ctx.lineWidth=2;ctx.strokeRect(20,y,(W-40)*o.ev/100,30);
+     ctx.fillStyle='#2b2b28';ctx.font='12px Tahoma';ctx.textAlign='right';ctx.fillText(o.k+'  ('+o.ev+')',W-24,y-4);
+     ctx.textAlign='left';ctx.fillText(o.r,24,y+46);});
+   return;
+ }
+ const rx=W/2,ry=110; bubble(rx,ry,'تصمیم: درآمد را زیاد کنم؟','#f6ce5b');
+ OPT.forEach((o,i)=>{const ox=W*(0.2+i*0.3),oy=H*0.5;ink(rx,ry+16,ox,oy-16,2.2);
+   const hl=(mode===2&&i===best);bubble(ox,oy,o.k,hl?'#bff3c9':'#fffdf5');
+   ctx.fillStyle='#6b5b2e';ctx.font='11px Tahoma';ctx.textAlign='center';ctx.fillText('EV '+o.ev+' · '+o.r,ox,oy+30);
+   // two outcomes
+   ['خوب','بد'].forEach((t,j)=>{const lx=ox+(j?38:-38),ly=oy+70;ink(ox,oy+16,lx,ly-10,1.6);
+     ctx.beginPath();ctx.arc(lx,ly,4,0,6.283);ctx.fillStyle=j?'#c0392b':'#2e7d4f';ctx.fill();});
+   if(hl){ctx.strokeStyle='#e08a1e';ctx.lineWidth=3;ctx.beginPath();ctx.arc(ox,oy,50,0,6.283);ctx.stroke();}
+ });
+}
+setMode(0);draw();addEventListener('resize',fit);
+</script>
+<script>
+(function(){
+ const O=window.OCTO_DATA; if(!O) return;
+ const d=document.createElement('div');
+ d.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px)+40px);left:0;right:0;z-index:6;display:flex;justify-content:center;gap:6px;pointer-events:none;padding:0 8px;flex-wrap:wrap';
+ const chips=[];
+ const tk=O.tasks?O.tasks():null;
+ if(tk){
+  const tc=tk.by_priority&&tk.by_priority['بحرانی']?tk.by_priority['بحرانی']:0;
+  const tcol=tc>0?'#ef4444':tk.open>0?'#f59e0b':'#34d399';
+  chips.push('<span style="background:rgba(255,252,242,.82);border:1.5px solid #2b2b28;border-radius:999px;padding:3px 10px;font:11px Tahoma;color:'+tcol+'">✓ '+O.nf(tk.open)+' task باز'+(tc>0?' · '+tc+' بحرانی':'')+'</span>');
+ }
+ const ID=window.IDEAS_DATA;
+ if(ID&&ID.summary){
+  const s=ID.summary;
+  chips.push('<span style="background:rgba(255,252,242,.82);border:1.5px solid #2b2b28;border-radius:999px;padding:3px 10px;font:11px Tahoma;color:#8a6d1e">💡 '+O.nf(s.ready_to_build_count||0)+' ایدهٔ آمادهٔ ساخت</span>');
+ }
+ if(chips.length) d.innerHTML=chips.join('');
+ document.body.appendChild(d);
+})();
+</script>
+<script>window.MATHVIZ={type:'balance',color:0xf6ce5b,dist:34,formula:'EV = p*good + (1-p)*bad',value:'EV = 68  (best)',p:0.8,good:90,bad:-20,gap:'no utility / Bayes'};</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>

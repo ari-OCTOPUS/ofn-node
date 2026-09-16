@@ -1,0 +1,69 @@
+# AUTONOMY DECISIONS — مالک رأی داد (2026-08-28 ~۲۱:۴۵ به وقت محلی)
+# همهٔ ردیف‌ها با رأی صریح مالک تأیید شدند؛ هیچ حدسی زده نشد
+
+decisions:
+  - row: 1
+    title: "کلید T2 داور کراس‌وندور"
+    verdict: "BUY_BOTH"
+    keys: [ANTHROPIC_API_KEY, OPENAI_API_KEY]
+    status: KEYS_RECEIVED_AND_VERIFIED
+    openai: WORKS (gpt-4o-mini) | anthropic: BROKEN (400) | github_opi: WORKS (private=True)
+    effect: "T2 از SHADOW_REFUSED به REAL؛ Batch باز می‌شود"
+  - row: 2
+    title: "مسیر خواندن حافظه"
+    verdict: "GO_MAX_10"
+    detail: "قبل از هر proposal، آخرین ۱۰ receipt + خطاها + الگوها به context؛ receipt retrieved_memory_ids ثبت شود"
+    status: GO
+  - row: 3
+    title: "پاکسازی کامل ۱۸۰"
+    verdict: "GO_FULL_CLEANUP"
+    detail: "swap 2GB + حذف لاگ قدیمی + آرشیو تکراری‌ها به PC؛ دیسک <۸۰٪؛ RAM آزاد >۸۰۰MB"
+    status: GO
+  - row: 4
+    title: "poller تلگرام APPROVED"
+    verdict: "GO_APPROVED_ONLY"
+    detail: "poller روی 191: فقط بسته‌های APPROVED → تلگرام؛ سؤال خام گره‌ها فیلتر"
+    status: GO
+  - row: 5
+    title: "تایمر drain ۱۸۰"
+    verdict: "GO_5MIN_TIMER"
+    detail: "systemd timer هر ۵ دقیقه octomesh_process.py — پیش‌نیاز: ردیف ۳ اجرا شده"
+    status: GO_AFTER_ROW3
+  - row: 6
+    title: "زیرساخت اعتماد بوردها"
+    verdict: "GO_CHRONY_RELP"
+    detail: "chrony سه برد + RELP ۱۸۰→۱۸۲:2514 (FSS عمداً رد شد — فقط این دو)"
+    status: GO
+  - row: 7
+    title: "model_router زنده"
+    verdict: "GO_LIVE_WITH_CAPS"
+    detail: "DRAFT→LIVE: T0 واقعی + T1 budgeted ($۵/روز سقف)؛ T2/T3 تا کلید ممنوع؛ watchdog هزینه"
+    status: GO
+  - row: 8
+    title: "کلید GitHub برای PC"
+    verdict: "GO_WILL_PROVIDE_KEY"
+    detail: "read+write برای clone/push/PR واقعی"
+    status: KEY_RECEIVED (OPI token — private repo access verified)
+  - row: 9
+    title: "حلقه یادگیری"
+    verdict: "GO_LESSON_PER_CYCLE"
+    detail: "بعد از هر receipt: lesson (موفق/شکست + دلیل) ثبت؛ چرخه بعدی retrieval می‌کند"
+    status: GO
+  - row: 10
+    title: "watchdog خودتشخیصی"
+    verdict: "GO_ALL_CHECKS"
+    detail: "هر ۱۵ دقیقه: outbox>۱۰, RAM<۳۰۰MB, disk>۹۵٪, proposal stall>۳۰d → diagnosis + گزارش تلگرام"
+    status: GO
+
+execution_order:
+  immediate_no_keys: [row2, row3, row4, row5, row7_T0_only, row9, row10, row6]
+  needs_keys: [row1_T2, row7_T1_pilot, row8_github]
+  first_action_after_GO: "ردیف ۳ پاکسازی ۱۸۰ (بدون آن هیچ چیز دیگر امن نیست)"
+
+
+key_verification_2026_08_28:
+  openai: PASS (gpt-4o-mini-2024-07-18 responded)
+  anthropic: FAIL (all models 400 — key invalid/expired; REPORT)
+  github_opi: PASS (private=True on ari322/ofn-node)
+  github_pc: FAIL (401; ghp_ token invalid)
+  reboot_time: Saturday 08:30 (owner directive)

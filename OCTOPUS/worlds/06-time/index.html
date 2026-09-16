@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>رودخانهٔ زمان · time</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#0d021a;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Segoe UI",Tahoma,sans-serif;color:#fbcfe8}
+  canvas{position:fixed;inset:0;display:block}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#fb7185;display:block;text-shadow:0 0 12px #e11d48aa}
+  .top span{font-size:11px;color:#7a5570}
+  .act{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);z-index:6;background:rgba(20,4,30,.55);border:1px solid #7a1f4b;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .act b{color:#fbcfe8;font-size:12.5px}.act span{color:#fb7185;font-size:11.5px;display:block;margin-top:2px}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#160424;border:1px solid #7a1f4b;color:#fb7185;border-radius:9px;padding:8px 4px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#2e0a3f;border-color:#fb7185}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#fb7185;text-decoration:none;font-size:12px}
+  .circadian{position:fixed;top:calc(env(safe-area-inset-top,0px) + 36px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:center;font-size:11px;color:#c084a0}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<canvas id="c"></canvas>
+<div class="top"><b>رودخانهٔ زمان</b><span>ریتمِ سیستم · «امروز» = چرخهٔ ۹مرحله‌ای · «افق» = مهلت‌های واقعی + chrono</span></div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:6;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.3);color:#22d3ee;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">READ-ONLY</div>
+<div class="circadian" id="circadian"></div>
+<div class="act"><b id="an"></b><span id="ad"></span></div>
+<div class="tabs">
+  <button data-m="0" class="on">امروز</button>
+  <button data-m="1">هفته</button>
+  <button data-m="2">افق</button>
+</div>
+<!-- real organism blood (read-only extract from F:/backup/4d_system/outputs + _ops) -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../../../nervous-system/ops-data.js"></script>
+<script src="../../../nervous-system/neural-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,DPR;function fit(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}fit();
+const L=window.LIVE_DATA||null;
+const N=window.NEURAL_DATA||null;
+const _CYC=(L&&L.cycle)||['explore','real','synthesize','introspect','create','mutate','evolve','conclude','guard'];
+const _cc=['#6366f1','#fb7185','#fbbf24','#34d399','#22d3ee','#a855f7','#f472b6','#60a5fa','#ef4444'];
+const TODAY=(L?_CYC.map((p,i)=>({k:p,v:24/_CYC.length,c:_cc[i%9]})):[{k:'خواب',v:7,c:'#6366f1'},{k:'کارِ درآمدزا',v:4,c:'#fb7185'},{k:'یادگیری',v:2,c:'#fbbf24'},{k:'هدررفت',v:5,c:'#64748b'},{k:'مراقبت',v:2,c:'#34d399'},{k:'آزاد',v:4,c:'#22d3ee'}]);
+const _OT=(window.OPS_DATA&&window.OPS_DATA.time)||null;
+const HORIZON=_OT?[(_OT.deadlines&&_OT.deadlines.length?('مهلت: '+_OT.deadlines[0].label+' → '+_OT.deadlines[0].days_left+' روز'):'بدون مهلتِ نزدیک'),'chrono beat '+(_OT.chrono_beat!=null?_OT.chrono_beat:'?')+' · سنِ متابولیک '+(_OT.metabolic_age!=null?Math.round(_OT.metabolic_age):'?'),'سیستم‌های فعال: '+(_OT.wires_on!=null?_OT.wires_on:'?')+'/'+(_OT.wires_total!=null?_OT.wires_total:'?'),(_OT.epoch_mode||'allostatic')]:(L&&L.daemon)?['tick '+(L.daemon.total_ticks!=null?L.daemon.total_ticks:'?')+' · gen '+(L.daemon.generation!=null?L.daemon.generation:'?'),(L.daemon.stopped_at!=null?'daemon: متوقف':'daemon: فعال'),'چرخهٔ ۹مرحله‌ای','heartbeat هر ۳۰۰ ثانیه']:['هفتهٔ ۱: نمونهٔ کارِ Lead','ماه ۱: ۳ مشتریِ اول','ماه ۳: درآمدِ پایدارِ کوچک','ماه ۶: آزادیِ نسبی'];
+
+// circadian overlay
+function renderCircadian(){
+ const el=document.getElementById('circadian');
+ if(!N||!N.circadian){el.textContent='';return;}
+ const c=N.circadian;
+ const phaseIcon=c.phase==='peak'?'🔥':c.phase==='maintenance'?'🔧':'⚡';
+ const readinessPct=Math.round((c.readiness||0)*100);
+ el.innerHTML=phaseIcon+' ساعتِ '+c.hour+' · phase: <b>'+c.phase+'</b> · readiness '+readinessPct+'% · best: '+c.best_platform;
+}
+renderCircadian();
+
+let mode=0,off=0;
+function setMode(m){mode=m;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+ const c=N&&N.circadian?N.circadian.phase:'active';
+ const r=N&&N.rhythm?N.rhythm.mode_focus:'STEADY';
+ if(m===0)an('کارِ بعدی → یک ساعتِ فردا را رزرو کن','۵ ساعت «هدررفت» داری. فقط ۱ ساعتش را به کارِ درآمدزا بده. · ریتم: '+r);
+ if(m===1)an('کارِ بعدی → یک بلوکِ عمیق بگذار','هفته را نگاه کن: کجا سه ساعتِ بی‌وقفه جا می‌شود؟ · phase: '+c);
+ if(m===2)an('افق → قدمِ همین‌هفته','دورترین نقطه با یک کارِ کوچکِ امروز شروع می‌شود. · readiness: '+(N&&N.circadian?Math.round(N.circadian.readiness*100):'?')+'%');}
+function an(a,b){document.getElementById('an').textContent=a;document.getElementById('ad').textContent=b;}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+function draw(now){requestAnimationFrame(draw);const t=now/1000;off=(off+0.6)%40;
+ // sky
+ const g=ctx.createLinearGradient(0,0,0,H*0.55);g.addColorStop(0,'#2e0a3f');g.addColorStop(0.6,'#7a1f4b');g.addColorStop(1,'#e11d48');
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H*0.55);
+ // sun with scanlines
+ const cx=W/2,sy=H*0.34,R=Math.min(W,H)*0.16;
+ const gs=ctx.createLinearGradient(0,sy-R,0,sy+R);gs.addColorStop(0,'#fde68a');gs.addColorStop(1,'#fb7185');
+ ctx.save();ctx.beginPath();ctx.arc(cx,sy,R,0,6.283);ctx.clip();ctx.fillStyle=gs;ctx.fillRect(cx-R,sy-R,R*2,R*2);
+ ctx.fillStyle='#0d021a';for(let i=0;i<8;i++){const yy=sy+R*0.1+i*6;ctx.fillRect(cx-R,yy,R*2,3+i*0.5);}ctx.restore();
+ // floor grid (perspective, moving)
+ ctx.fillStyle='#0d021a';ctx.fillRect(0,H*0.55,W,H*0.45);
+ ctx.strokeStyle='rgba(251,113,133,0.5)';ctx.lineWidth=1;const hz=H*0.55;
+ for(let i=0;i<14;i++){const yy=hz+((i*i)*1.4)+off*0.0;const y=hz+(H-hz)*(i/14);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+ for(let x=-10;x<=10;x++){ctx.beginPath();ctx.moveTo(cx+x*20,hz);ctx.lineTo(cx+x*160,H);ctx.stroke();}
+ // overlay content
+ if(mode===0){ // today 24h ring/bar on the floor area
+   let x=20;const bw=(W-40);let acc=0;const total=24;
+   TODAY.forEach(s=>{const w=bw*s.v/total;ctx.fillStyle=s.c;ctx.fillRect(x,H*0.62,w,26);x+=w;});
+   ctx.fillStyle='#fbcfe8';ctx.font='11px Tahoma';ctx.textAlign='right';let lx=W-20;
+   TODAY.forEach((s,i)=>{ctx.fillStyle=s.c;ctx.fillRect(lx-10,H*0.72+i*18-9,9,9);ctx.fillStyle='#fbcfe8';ctx.fillText(s.k+' '+s.v+'س',lx-14,H*0.72+i*18);});
+   // circadian readiness arc
+   if(N&&N.circadian){
+    const readiness=N.circadian.readiness||0.7;
+    ctx.strokeStyle='rgba(52,211,153,0.35)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,H*0.55+40,28,-Math.PI/2,-Math.PI/2+readiness*2*Math.PI);ctx.stroke();
+   }
+ } else if(mode===2){
+   ctx.textAlign='center';HORIZON.forEach((h,i)=>{const y=H*0.62+i*22;const s=1-i*0.12;
+     ctx.fillStyle='rgba(251,191,36,'+(0.9-i*0.15)+')';ctx.font=(13*s|0)+'px Tahoma';ctx.fillText('▸ '+h,cx,y);});
+ } else {
+   ctx.textAlign='center';ctx.fillStyle='#fbcfe8';ctx.font='12px Tahoma';
+   ctx.fillText('۷ روز · هر ستون یک روز — بلوک‌های عمیق را پیدا کن',cx,H*0.64);
+   for(let d=0;d<7;d++){const x=W*0.12+d*(W*0.76/6);const hh=30+((d*13)%40);ctx.fillStyle=['#fb7185','#fbbf24','#34d399'][d%3];
+     ctx.fillRect(x-8,H*0.78-hh,16,hh);}
+ }
+}
+setMode(0);requestAnimationFrame(draw);addEventListener('resize',fit);
+</script>
+<script>window.MATHVIZ={type:'ring',color:0xfb7185,dist:32,formula:'Sum hours = 24',value:'waste = 5h',segs:[7,4,2,5,2,4],gap:'no calendar / solver'};</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>
