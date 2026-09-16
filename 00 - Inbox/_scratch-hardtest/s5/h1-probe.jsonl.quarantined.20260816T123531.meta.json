@@ -1,0 +1,7 @@
+{
+  "schema": "StateGuardQuarantineMeta.v1",
+  "ts": "2026-08-16T02:35:31Z",
+  "source_file": "h1-probe.jsonl",
+  "removed_null": 0,
+  "removed_invalid": 1
+}

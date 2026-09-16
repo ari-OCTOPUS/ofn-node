@@ -1,0 +1,22 @@
+{
+  "targets": {
+    "s5-mock-provider-b": {
+      "state": "open",
+      "fail_count": 0,
+      "success_count": 0,
+      "last_fail_ts": "2026-08-16T12:36:38",
+      "last_ok_ts": "2026-08-16T12:36:43",
+      "opened_at_ts": 1786847798.7714124,
+      "half_open_attempts": 0,
+      "consecutive_opens": 1,
+      "recent_outcomes": [
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "opened_at": null
+    }
+  }
+}
