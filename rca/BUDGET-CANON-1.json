@@ -1,0 +1,23 @@
+{
+ "after": {
+  "daily_message_cap": 25,
+  "daily_spend_cap_aud": 50,
+  "monthly_burnable_capital_aud": 500
+ },
+ "at_utc": "2026-09-16T09:43:19Z",
+ "before": {
+  "burnable_capital_aud": null,
+  "daily_message_cap": null,
+  "daily_spend_cap_aud": null,
+  "date": null,
+  "gov_version": null
+ },
+ "before_note": "stale Day-1 boost 250/500 dated 2026-09-05, never reverted (expires had 0 code consumers); prior_cache held V7 20/$5",
+ "budget_json_sha256_after": "ac8690a5af23a8212e26cccaf025be611589eeac6133bae4529e5b93f2063f5c",
+ "budget_json_sha256_before": null,
+ "config_py_sha256": "2e0bca72bec647f5b1a9fc864269cebc0d812e98788e1aef870b9c26ead05988",
+ "id": "BUDGET-CANON-1",
+ "invariant_test": "tests/test_budget_canon.py::test_derived_matches_canonical",
+ "order": "MP-ROOTFIX R-2 + AMEND-1 (monthly 500 AUD)",
+ "schema": "budget-canon-receipt/1"
+}

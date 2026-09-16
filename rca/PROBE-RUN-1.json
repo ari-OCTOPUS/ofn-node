@@ -1,0 +1,51 @@
+{
+ "at_utc": "2026-09-16T09:45:29Z",
+ "id": "PROBE1-RUN-1",
+ "order": "MP-ROOTFIX R-4 (RCA-4/RCA-6)",
+ "results": [
+  {
+   "claim": "HEALTHY (probe_id=PROBE1-ziman-store-product-page, probed_at=2026-09-16T09:45:27Z)",
+   "expect_contains_found": true,
+   "http_status": 200,
+   "ms": 900,
+   "ok": true,
+   "probe": "ziman-store-product-page",
+   "probe_id": "PROBE1-ziman-store-product-page",
+   "probed_at": "2026-09-16T09:45:27Z"
+  },
+  {
+   "claim": "HEALTHY (probe_id=PROBE1-board138-ops-agent-liveness, probed_at=2026-09-16T09:45:28Z)",
+   "match": true,
+   "ms": 1020,
+   "ok": true,
+   "probe": "board138-ops-agent-liveness",
+   "probe_id": "PROBE1-board138-ops-agent-liveness",
+   "probed_at": "2026-09-16T09:45:28Z"
+  },
+  {
+   "claim": "HEALTHY (probe_id=PROBE1-board138-revenue-funnel-meter, probed_at=2026-09-16T09:45:29Z)",
+   "match": true,
+   "ms": 304,
+   "ok": true,
+   "probe": "board138-revenue-funnel-meter",
+   "probe_id": "PROBE1-board138-revenue-funnel-meter",
+   "probed_at": "2026-09-16T09:45:29Z"
+  },
+  {
+   "claim": "HEALTHY (probe_id=PROBE1-board138-reply-alert-cursor, probed_at=2026-09-16T09:45:29Z)",
+   "match": true,
+   "ms": 357,
+   "ok": true,
+   "probe": "board138-reply-alert-cursor",
+   "probe_id": "PROBE1-board138-reply-alert-cursor",
+   "probed_at": "2026-09-16T09:45:29Z"
+  }
+ ],
+ "rule": "services absent from a fresh (<24h) PROBE-RUN report UNPROBED, never HEALTHY",
+ "schema": "probe-run/1",
+ "summary": {
+  "fail": 0,
+  "pass": 4,
+  "probes": 4
+ }
+}

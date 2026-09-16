@@ -34,6 +34,12 @@ D27_DAILY_SPEND_CAP_AUD = 50
 D27_PER_BOARD_BUDGET_DEFAULT = 0
 D27_KILL_SWITCH = "OFN_EXTRA_CLOSED_GATES"
 D27_ROLLBACK_WINDOW_HOURS = 24
+# AMEND-1 (owner input, 2026-09-16): hard monthly burnable ceiling in AUD.
+# CANONICAL source of budget truth; BUDGET.json is a derived read-only cache
+# (tools/derive_budget.py) — hand edits fail tests/test_budget_canon.py.
+# monthly_survival_cost_aud stays unset by owner: runway_days uses the
+# conservative formula (remaining / max(recent-7d-real, floor)) until then.
+MONTHLY_BURNABLE_CAPITAL_AUD = 500
 
 
 def _flag(name: str) -> bool:

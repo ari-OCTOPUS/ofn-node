@@ -1,0 +1,176 @@
+{
+ "at_utc": "2026-09-16T09:41:37Z",
+ "disposable_root": "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus-restore-drill-r1-7bs6t2vk",
+ "fail_condition": "any step not ok, or restored hash/ledger mismatch",
+ "id": "RESTORE-DRILL-1",
+ "module": "octopus_recovery/restore_drill.py (committed, not WIP)",
+ "order": "MP-ROOTFIX-EVIDENCE-EXECUTION-2026-09-16 R-1 (RCA-1)",
+ "protected_roots_armed": [
+  "F:\\backup",
+  "F:\\ofn-node",
+  "F:\\wt-rootfix-20260916",
+  "C:\\Users\\Armin\\.zcode"
+ ],
+ "runner": "tools/run_restore_drill_r1.py",
+ "schema": "restore-drill-receipt/1",
+ "steps": {
+  "backup": {
+   "ms": 62.0,
+   "ok": true,
+   "result": {
+    "entries": [
+     {
+      "bytes": 17,
+      "path": "data-000.txt",
+      "sha256": "c9a6a3312745c7390d5f792d56d839fd1f3891353db1290e3e9398bfdd0414ab"
+     },
+     {
+      "bytes": 18,
+      "path": "data-001.txt",
+      "sha256": "94ecdff6b9ab437459514bc37cdf9d60bd385fcb791f10bb632ce31c707c8462"
+     },
+     {
+      "bytes": 19,
+      "path": "data-002.txt",
+      "sha256": "095820657e3c6076481e4a0604b0afb4d239f46fb74e41c5aad9565abae3f02c"
+     },
+     {
+      "bytes": 20,
+      "path": "data-003.txt",
+      "sha256": "82c3aa2531a116be837a0724e0ef112cce89eee9bb02777e6d3c2e5064247de8"
+     },
+     {
+      "bytes": 21,
+      "path": "data-004.txt",
+      "sha256": "6cef2dbbb0043e2e43b5ecc1405cf64209431f66eab68720f58aac8c7c9005f3"
+     },
+     {
+      "bytes": 22,
+      "path": "data-005.txt",
+      "sha256": "f51da547ae841a535288884bcb3126c0a292ba407a8f7747793cca658b2cb3b7"
+     },
+     {
+      "bytes": 23,
+      "path": "data-006.txt",
+      "sha256": "13b8424bbae08c416fa11b3c16defa9bfb8356de51172456cc8a17d53db1f611"
+     },
+     {
+      "bytes": 24,
+      "path": "data-007.txt",
+      "sha256": "8dfc24ef2944079e2378b83e236a19e278bc3f0d29ff1473489eaf0dc810ef58"
+     },
+     {
+      "bytes": 25,
+      "path": "data-008.txt",
+      "sha256": "b0c142701f667ae043d24eca2a198252a0a10f1e3a527a0245f166f16689f8ac"
+     },
+     {
+      "bytes": 26,
+      "path": "data-009.txt",
+      "sha256": "49979883d316648b48b441076a51f514c30ecc3e15e4c1ab4e5c86db54b2360e"
+     },
+     {
+      "bytes": 27,
+      "path": "data-010.txt",
+      "sha256": "27a5710c390b8c7da167941299d442d8efc0b0715d79c5eb592594f1d0b9ad77"
+     },
+     {
+      "bytes": 28,
+      "path": "data-011.txt",
+      "sha256": "0c49b4c89a077ec766284355c94802779b44ee137a4abf776f9069dcac71f962"
+     },
+     {
+      "bytes": 1785,
+      "path": "ledger.jsonl",
+      "sha256": "11c94c07f0cdce74b9cb68699571234fbe8be0bb4eef405620004b6f71dd43bc"
+     }
+    ],
+    "fixture_sha256_root": null,
+    "schema": "restore-drill/1"
+   }
+  },
+  "build_fixture": {
+   "ms": 8.9,
+   "ok": true,
+   "result": {
+    "files": 12,
+    "ledger_records": 40,
+    "root": "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus-restore-drill-r1-7bs6t2vk\\fixture"
+   }
+  },
+  "copy_backup_for_corruption_proof": {
+   "ms": 17.8,
+   "ok": true,
+   "result": "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus-restore-drill-r1-7bs6t2vk\\bad-backup"
+  },
+  "corrupt_backup_refused": {
+   "ms": 41.3,
+   "ok": true,
+   "result": {
+    "refused_as_expected": "corrupt backup file (hash mismatch): ledger.jsonl"
+   }
+  },
+  "corrupt_disposable_copy": {
+   "ms": 1.5,
+   "ok": true,
+   "result": null
+  },
+  "make_disposable_copy": {
+   "ms": 14.6,
+   "ok": true,
+   "result": "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus-restore-drill-r1-7bs6t2vk\\work"
+  },
+  "protected_root_guard_refused": {
+   "ms": 0.4,
+   "ok": true,
+   "result": {
+    "protected_root_refused": "protected target refused: F:\\backup\\some-restore-target"
+   }
+  },
+  "restore_to_fresh_dest": {
+   "ms": 21.2,
+   "ok": true,
+   "result": {
+    "dest": "C:\\Users\\Armin\\AppData\\Local\\Temp\\octopus-restore-drill-r1-7bs6t2vk\\restored",
+    "restored_files": 13
+   }
+  },
+  "snapshot": {
+   "ms": 2.4,
+   "ok": true,
+   "result": {
+    "data-000.txt": 17,
+    "data-001.txt": 18,
+    "data-002.txt": 19,
+    "data-003.txt": 20,
+    "data-004.txt": 21,
+    "data-005.txt": 22,
+    "data-006.txt": 23,
+    "data-007.txt": 24,
+    "data-008.txt": 25,
+    "data-009.txt": 26,
+    "data-010.txt": 27,
+    "data-011.txt": 28,
+    "ledger.jsonl": 1785
+   }
+  },
+  "verify_backup": {
+   "ms": 4.5,
+   "ok": true,
+   "result": {
+    "total_bytes": 2055,
+    "verified_entries": 13
+   }
+  },
+  "verify_restored": {
+   "ms": 18.5,
+   "ok": true,
+   "result": {
+    "files": 13,
+    "hash_match": true,
+    "ledger_records": 40
+   }
+  }
+ },
+ "verdict": "PASS"
+}
