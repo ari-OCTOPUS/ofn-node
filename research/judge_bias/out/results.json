@@ -1,0 +1,68 @@
+{
+ "schema": "judge-bias-offline/1",
+ "n_pairs": 120,
+ "n_judges": 5,
+ "n_judgments": 600,
+ "summary_by_judge": {
+  "J-neutral": {
+   "n": 120,
+   "valid": 74,
+   "flip_rate": 0.0405,
+   "first_position_rate": 0.5917,
+   "quality_accuracy": 0.9805,
+   "longer_pick_rate": 0.4784,
+   "n_quality_judgments": 154,
+   "n_len_judgments": 232
+  },
+  "J-first": {
+   "n": 120,
+   "valid": 79,
+   "flip_rate": 0.6962,
+   "first_position_rate": 0.8667,
+   "quality_accuracy": 0.6101,
+   "longer_pick_rate": 0.4895,
+   "n_quality_judgments": 159,
+   "n_len_judgments": 239
+  },
+  "J-verbose": {
+   "n": 120,
+   "valid": 69,
+   "flip_rate": 0.2754,
+   "first_position_rate": 0.5917,
+   "quality_accuracy": 0.6242,
+   "longer_pick_rate": 0.8363,
+   "n_quality_judgments": 149,
+   "n_len_judgments": 226
+  },
+  "J-noisy": {
+   "n": 120,
+   "valid": 58,
+   "flip_rate": 0.3448,
+   "first_position_rate": 0.6667,
+   "quality_accuracy": 0.7246,
+   "longer_pick_rate": 0.6337,
+   "n_quality_judgments": 138,
+   "n_len_judgments": 202
+  },
+  "J-shallow": {
+   "n": 120,
+   "valid": 64,
+   "flip_rate": 0.4375,
+   "first_position_rate": 0.6333,
+   "quality_accuracy": 0.5734,
+   "longer_pick_rate": 0.6682,
+   "n_quality_judgments": 143,
+   "n_len_judgments": 220
+  }
+ },
+ "hypotheses": {
+  "H1_J-first_highest_position": true,
+  "H2_J-verbose_highest_longer": true,
+  "H3_J-neutral_stable_accurate": true,
+  "H4_J-noisy_low_quality_acc": true,
+  "H5_position_visible_in_80pct_tasks": true,
+  "H5b_verbosity_visible_in_70pct_tasks": true
+ },
+ "grade": "MEASURED",
+ "executable": false
+}
