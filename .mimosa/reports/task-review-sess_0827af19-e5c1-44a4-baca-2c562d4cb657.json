@@ -1,0 +1,193 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20260820T175650874Z-1608-6d7117b0a8b6",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "bash-discovery",
+      "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/DECISION-LOG-SOT.md",
+      "reason": "bash_discovery_incomplete: project enumeration exceeded 5000 reviewable files"
+    },
+    {
+      "stage": "baseline",
+      "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/DECISION-LOG-SOT.md",
+      "reason": "baseline_partial: baseline exceeded 5000 candidate files"
+    },
+    {
+      "stage": "scan",
+      "target": "_ops/telegram_center/verify_production_canary.py",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": false,
+      "captured_files": 5000,
+      "candidate_limit": 5000,
+      "truncated": true,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 1
+    },
+    "change_tracking": {
+      "touched_observed": 0,
+      "touched_retained": 0,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 1,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 1,
+      "selected_files": 1,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 1,
+      "scanned_files": 0,
+      "skipped_files": 0,
+      "failed_files": 1,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "bash_discovery_incomplete": 1,
+      "baseline_partial": 1,
+      "scanner_failed": 1,
+      "project_check_failed": 3
+    },
+    "reasons": [
+      {
+        "code": "bash_discovery_incomplete",
+        "stage": "bash-discovery",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/DECISION-LOG-SOT.md",
+        "detail": "project enumeration exceeded 5000 reviewable files",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_partial",
+        "stage": "baseline",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/DECISION-LOG-SOT.md",
+        "detail": "baseline exceeded 5000 candidate files",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "_ops/telegram_center/verify_production_canary.py",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "bash-discovery",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/DECISION-LOG-SOT.md",
+        "detail": "bash_discovery_incomplete: project enumeration exceeded 5000 reviewable files",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline",
+        "target": ".claude/worktrees/telegram-operational-control-de7666/_phase1a/DECISION-LOG-SOT.md",
+        "detail": "baseline_partial: baseline exceeded 5000 candidate files",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "_ops/telegram_center/verify_production_canary.py",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-08-20T17:56:50.874Z",
+  "session_id": "sess_0827af19-e5c1-44a4-baca-2c562d4cb657",
+  "target": ".",
+  "revision": "8fd7c723c0c9c7da2bfabcfcd9968e6fd91a7a61",
+  "rules_version": "unavailable",
+  "diff_hash": "f586bcf8eb689af75ca6a92ecd9b021220a05fbec0295719134d09b77981e2db",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 1,
+    "changed_files": [
+      {
+        "file": "_ops/telegram_center/verify_production_canary.py",
+        "ranges": [
+          {
+            "start": 73,
+            "end": 79
+          },
+          {
+            "start": 101,
+            "end": 105
+          }
+        ],
+        "before_hash": "b6c799a41b81df00dd9b66b77486ce68d5255d09aea83c4d3995be63312c22ce",
+        "after_hash": "1e29a003afb5f3257857a71c7c6dacf64f6af8aec28e0ac90165cdcf5d8ba62b"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-08-20T17:56:43.520Z",
+    "completed_at": "2026-08-20T17:56:50.874Z",
+    "duration_ms": 7354,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 7354,
+    "peakMemoryBytes": 112885760,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 0,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_0827af19-e5c1-44a4-baca-2c562d4cb657-20260820T175650874Z-1608-6d7117b0a8b6.json",
+    "latest_report": ".mimosa/reports/task-review-sess_0827af19-e5c1-44a4-baca-2c562d4cb657.json",
+    "history_summary": ".mimosa/history/run-20260820T175650874Z-1608-6d7117b0a8b6.json"
+  }
+}

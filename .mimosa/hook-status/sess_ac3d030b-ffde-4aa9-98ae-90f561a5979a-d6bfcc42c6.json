@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-08-20T11:23:48.183Z",
+  "sessionId": "sess_ac3d030b-ffde-4aa9-98ae-90f561a5979a",
+  "event": "PostToolUse",
+  "toolName": "Write",
+  "file": "06-EVIDENCE/SEAM-HUNT-MINUTELY/LOG-2026-08-20.md",
+  "outcome": "clear",
+  "coverage": "complete",
+  "findingCount": 0,
+  "durationMs": 4,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

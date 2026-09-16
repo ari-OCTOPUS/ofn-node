@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "mimosa-finding-history/v1",
+  "runId": "20260820T175650874Z-1608-6d7117b0a8b6",
+  "runStatus": "inconclusive",
+  "errors": [
+    "bash-discovery:.claude/worktrees/telegram-operational-control-de7666/_phase1a/DECISION-LOG-SOT.md: bash_discovery_incomplete: project enumeration exceeded 5000 reviewable files",
+    "baseline:.claude/worktrees/telegram-operational-control-de7666/_phase1a/DECISION-LOG-SOT.md: baseline_partial: baseline exceeded 5000 candidate files",
+    "scan:_ops/telegram_center/verify_production_canary.py: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+  ],
+  "target": ".",
+  "revision": "8fd7c723c0c9c7da2bfabcfcd9968e6fd91a7a61",
+  "diffHash": "f586bcf8eb689af75ca6a92ecd9b021220a05fbec0295719134d09b77981e2db",
+  "rulesVersion": "unavailable",
+  "recordedAt": "2026-08-20T17:56:50.874Z",
+  "timing": {
+    "startedAt": "2026-08-20T17:56:43.520Z",
+    "completedAt": "2026-08-20T17:56:50.874Z",
+    "durationMs": 7354
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "modelCalls": 0,
+    "measurement": "known-zero"
+  },
+  "findings": {
+    "total": 0,
+    "bySeverity": {},
+    "byStatus": {}
+  },
+  "coverage": {
+    "status": "partial",
+    "reasonCounts": {
+      "bash_discovery_incomplete": 1,
+      "baseline_partial": 1,
+      "scanner_failed": 1,
+      "project_check_failed": 3
+    }
+  },
+  "evidenceBoundary": "static_only",
+  "immutableReport": ".mimosa/reports/task-review-sess_0827af19-e5c1-44a4-baca-2c562d4cb657-20260820T175650874Z-1608-6d7117b0a8b6.json"
+}
