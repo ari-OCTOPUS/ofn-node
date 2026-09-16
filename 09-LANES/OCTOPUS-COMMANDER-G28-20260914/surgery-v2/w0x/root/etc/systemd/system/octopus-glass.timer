@@ -1,7 +1,0 @@
-[Unit]
-Description=OCTOPUS glass timer (5min)
-[Timer]
-OnCalendar=*:2/5
-Persistent=true
-[Install]
-WantedBy=timers.target

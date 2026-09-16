@@ -1,8 +1,0 @@
-[Unit]
-Description=OCTOPUS ops-agent cadence (5min, collector pattern)
-[Timer]
-OnBootSec=4min
-OnUnitActiveSec=5min
-RandomizedDelaySec=45
-[Install]
-WantedBy=timers.target
