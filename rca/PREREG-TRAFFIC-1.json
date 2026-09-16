@@ -1,0 +1,25 @@
+{
+ "analysis_plan": "rate comparison with denominators MANDATORY (scorer rate() refuses n=0); no peeking before post 6; all 12 posts enter the final analysis regardless of direction",
+ "arm_definitions": {
+  "A_octopus": "caption authored by the organism copy engine (luxury Persian-Australian tone) + product photo + ziman-gift.com.au link",
+  "B_baseline": "generic one-line caption ('new gift available at our store') + same product photo + same link",
+  "C_sham": "omitted — no third arm at zero budget (n insufficient)"
+ },
+ "at_utc": "2026-09-16T11:10:00Z",
+ "content_sha256": "14b24ff08ca647752bbcacdb27c34ae9a0a8299436a43d5a66067b2b73ef7ac9",
+ "gate_dependencies": [
+  "SHELF-1 five-product verification",
+  "store session analytics readable"
+ ],
+ "hypothesis": "octopus-written product captions with a product photo and store link posted to the EXISTING zero-cost Telegram channel produce a higher store-session rate per post than generic baseline captions",
+ "id": "PREREG-TRAFFIC-1",
+ "locked": true,
+ "n_target": 12,
+ "n_target_note": "6 per arm, interleaved A/B/A/B over 12 days, 1 post/day",
+ "order": "MP-ROOTFIX C-3 + phase-4 owner vote (هر دو همزمان) — Ziman free-channel traffic experiment",
+ "primary_metric": "store_sessions_from_post / post_impressions (tracked via per-post utm tag; sessions via Shopify analytics)",
+ "schema": "prereg/1",
+ "spend_cap": "0 AUD — free channel only; paid ads remain OWNER-FORBID",
+ "stopping_rule": "stop early only if total add_to_cart >= 3 in either arm (then declare winner) or if any post is reported/removed by the channel",
+ "success_threshold": "arm A session-rate > arm B session-rate with non-overlapping 80% intervals over the full 12 posts"
+}
