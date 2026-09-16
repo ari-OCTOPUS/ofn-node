@@ -1,0 +1,228 @@
+{
+  "schema": "octopus.halt-coverage-consumer-map.v1",
+  "generated_at_utc": "2026-09-17T00:00:00Z",
+  "lane": "OD4-HALT-COVERAGE-WIRING-PREP-20260917",
+  "mode": "READ_ONLY_STATIC",
+  "method": "static call-path trace over F:/ofn-node at working-tree state; the exact command is recorded per claim. No service was started, no file under F:/ofn-node was modified, no node was contacted.",
+  "evidence_rule": "Compliant: every consumer claim below carries a command + observed output. No claim rests on a docstring or a test result alone.",
+  "canonical_oracle": {
+    "code_source_of_truth": "ofn/budget/opslib.py:28 master_halted()",
+    "resolves_to": "HALT_SURVIVAL_LOOP=1 OR file <HOME>/ofn/HALT-ALL",
+    "path_constant": "ofn/budget/opslib.py:20 HALT_FLAG = OFN_ROOT / \"HALT-ALL\"",
+    "self_declared_as_sole_oracle": "opslib.py:6 (Persian: 'نه kill-file-های دیگر')",
+    "documentation_status": "NOT_ALIGNED - AGENTS.md GOV-V7 names F:/ofn-node/HALT which does not exist; canonicalisation is OD-1 clause 1, DECIDED but NOT EXECUTED",
+    "import_note": "neither ofn/node.py nor ofn/adapters/router.py currently imports opslib (verified: grep returned NEITHER imports opslib/master_halted)"
+  },
+
+  "effects": [
+    {
+      "effect_id": "E-A-telegram-send",
+      "description": "Real outbound Telegram channel publish (network send to api.telegram.org)",
+      "egress": "ofn/adapters/platforms/telegram_channel.py:65 urlopen(.../sendMessage)",
+      "consumer_count": 1,
+      "expected_consumer_count_per_owner_instruction": 1,
+      "agrees_with_owner_instruction": true,
+      "consumers": [
+        {
+          "consumer_id": "A-1",
+          "symbol": "Node.publish_to_telegram -> ReleaseContext.kill_switch_active",
+          "path": "ofn/node.py:3513 (def), :3607 (kill input), :3615 (release gate), :3637 (publish call)",
+          "evidence": [
+            {
+              "claim": "TelegramChannelAdapter.publish has exactly one production call site",
+              "command": "grep -rn \"\\.publish(\" --include=*.py ofn/ tools/ ops/ scripts/ | grep -v \"^tests/\"",
+              "observed": "ofn/node.py:3637:        result = adapter.publish(req, token=token)   [single line]"
+            },
+            {
+              "claim": "the only other telegram adapter in use is READ-ONLY, not a send path",
+              "command": "grep -rn \"TelegramChannelAdapter|telegram_channel\" --include=*.py .",
+              "observed": "tools/pilot_daily.py:55 constructs TelegramReadOnlyAdapter (read-only); ofn/adapters/platforms/telegram_readonly.py:27 declares __all_platform__='telegram_channel' and is a read adapter"
+            },
+            {
+              "claim": "the halt-related input on this path is the in-process flag, not the file oracle",
+              "command": "sed -n '3598,3620p' ofn/node.py",
+              "observed": "ctx = ReleaseContext(... kill_switch_active=self.killed, ...) at node.py:3607 - no file read, no opslib call"
+            },
+            {
+              "claim": "self.killed is process-local and resets on restart",
+              "command": "grep -n \"def engage_kill|def release_kill|self.killed\" ofn/node.py",
+              "observed": "node.py:3760 engage_kill / :3770 release_kill mutate an in-memory attribute; no persistence"
+            }
+          ],
+          "budget_gate_on_path": "CallBudget.allows(Rung.REMOTE) at ofn/node.py:3587-3589 (feeds rate_limit_ok)",
+          "halt_input_on_path": "self.killed only",
+          "file_oracle_on_path": false,
+          "verdict": "WIRED",
+          "coverage_verdict": "COVERAGE_GAP - the effect is live and reachable, but the canonical file oracle is not consulted"
+        }
+      ],
+      "single_point_of_change": "ofn/node.py:3607 (one expression in the ReleaseContext construction). No change to release_switch.py is required or permitted.",
+      "scope_leak_check": "PASS - the release gate module (ofn/kernel/release_switch.py) is NOT modified; the change is confined to the caller's context construction, which is the constraint the owner set"
+    },
+
+    {
+      "effect_id": "E-B-text-model-spend",
+      "description": "Billable hosted text-model call (RemoteBrain -> api.sakana.ai)",
+      "egress": "ofn/adapters/remote_brain.py:88 urllib.request.urlopen(POST)",
+      "consumer_count": 2,
+      "expected_consumer_count_per_owner_instruction": 1,
+      "agrees_with_owner_instruction": false,
+      "premise_correction": "The owner named ofn/kernel/callbudget.py as 'the text model budget path'. Trace shows callbudget.CallBudget is NOT consulted on either live model-egress consumer. Wiring the oracle into callbudget.py alone would stop NEITHER of them. This is the DECLARED!=WIRED pattern applied to the instruction itself; implementation is therefore NOT performed in this lane.",
+      "consumers": [
+        {
+          "consumer_id": "B-1",
+          "symbol": "ModelRouter.ask -> _charge -> NodeQuota.check",
+          "path": "ofn/adapters/router.py:130 (def ask), :165 (gate = self._charge), :214 (self._quota.check), :171 (brains[rung].answer)",
+          "evidence": [
+            {
+              "claim": "the router's budget gate is NodeQuota, not CallBudget",
+              "command": "grep -n \"_quota|quota\" ofn/adapters/router.py",
+              "observed": "router.py:28 from ..kernel.quota import NodeQuota; :115 quota: NodeQuota; :123 self._quota = quota; :214 d = self._quota.check(tenant, est, now_epoch_s)"
+            },
+            {
+              "claim": "the router is constructed with node.quota (NodeQuota)",
+              "command": "grep -rn \"ModelRouter(\" --include=*.py ofn/",
+              "observed": "ofn/run.py:548: router = ModelRouter(build_brains(cfg), node.quota, ...)"
+            },
+            {
+              "claim": "router.ask is reached from three callers, including the live worker thread",
+              "command": "grep -rn \"\\.ask(\" --include=*.py ofn/ tools/ ops/",
+              "observed": "ofn/worker.py:223 (live worker loop); ofn/node.py:1277 (marketing cycle); ofn/node.py:1721 (request_studio_reading)"
+            },
+            {
+              "claim": "the worker thread is started by ofn.service",
+              "command": "grep -n \"worker_loop|Thread(\" ofn/run.py",
+              "observed": "run.py:587 threading.Thread(target=worker_loop, ...); run.py:626 arm_node_brain(cfg, node, run_worker_loop=True)"
+            },
+            {
+              "claim": "the worker has no budget reference of its own",
+              "command": "grep -n \"call_budget|CallBudget|master_halted|halt\" ofn/worker.py",
+              "observed": "NONE - worker has no budget/halt reference"
+            }
+          ],
+          "budget_gate_on_path": "NodeQuota.check at router.py:214 (via router.py:165 _charge)",
+          "halt_input_on_path": "none",
+          "file_oracle_on_path": false,
+          "verdict": "WIRED",
+          "coverage_verdict": "COVERAGE_GAP"
+        },
+        {
+          "consumer_id": "B-2",
+          "symbol": "RemoteBrain.answer called DIRECTLY, bypassing ModelRouter entirely",
+          "path": "ofn/assistant_update.py:32",
+          "evidence": [
+            {
+              "claim": "a direct brain call exists outside the router",
+              "command": "grep -rn \"\\.answer(\" --include=*.py ofn/ | grep -v \"^tests/\"",
+              "observed": "ofn/assistant_update.py:32:        rep = rb.answer(\"studio:assistant-daily\", _prompt(node, scope)); ofn/adapters/router.py:171: reply = self._brains[rung].answer(...)"
+            },
+            {
+              "claim": "that path bypasses router.ask, hence skips NodeQuota AND CallBudget AND any halt check",
+              "command": "sed -n '1,45p' ofn/assistant_update.py",
+              "observed": "constructs RemoteBrain(api_key=cfg.remote_api_key, model='fugu-ultra', timeout_s=900, reasoning_effort='high') at :28-31 and calls rb.answer(...) at :32; ofn/adapters/router.py is never imported"
+            },
+            {
+              "claim": "this path is LIVE on a daily timer",
+              "command": "cat deploy/systemd/ofn-assistant-update.timer deploy/systemd/ofn-assistant-update.service",
+              "observed": "OnCalendar=*-*-* 04:10:00 Persistent=true; ExecStart=/usr/bin/python3 -m ofn.assistant_update; EnvironmentFile node.env + secrets.env"
+            }
+          ],
+          "budget_gate_on_path": "none observed on this path",
+          "halt_input_on_path": "none",
+          "file_oracle_on_path": false,
+          "verdict": "WIRED",
+          "coverage_verdict": "COVERAGE_GAP - and additionally ungated by any budget mechanism"
+        }
+      ],
+      "named_target_coverage_check": {
+        "named_target": "ofn/kernel/callbudget.py",
+        "claim_under_test": "wiring the halt oracle into callbudget.py stops text-model spend",
+        "verdict": "REFUTED",
+        "evidence": [
+          {
+            "claim": "every call_budget use site in the node",
+            "command": "grep -n \"call_budget\" ofn/node.py",
+            "observed": "326-327 report() diagnostics; 422 allows() on the owner-ask submit path; 1707+1719-1720 allows()+record() in request_studio_reading; 3587-3588 allows() feeding the telegram publish rate_limit_ok; 3643-3646 record() after a successful telegram send"
+          },
+          {
+            "claim": "callbudget is not imported by the router or the worker",
+            "command": "grep -rn \"callbudget|CallBudget\" --include=*.py ofn/",
+            "observed": "ofn/node.py:42 (import), ofn/run.py:27+580 (construct + attach to node), ofn/kernel/callbudget.py itself, ofn/kernel/envelope.py:265 (docstring mention). The router (ofn/adapters/router.py) and the worker (ofn/worker.py) do not appear."
+          },
+          {
+            "claim": "the module self-declares that it is not a start gate for halt",
+            "command": "grep -n \"HALT\" ofn/kernel/callbudget.py",
+            "observed": "line 28: 'HALT is not a parameter. Layer 3 stops STARTS; an in-flight record still ...'; line 80 (grants_send): 'Structurally False. HALT is not consulted - this is not a start gate.'"
+          }
+        ],
+        "conclusion": "callbudget.py gates (i) the owner-ask submit path, (ii) the studio-reading path, and (iii) the Telegram publish rate-limit slot. It does not gate the live worker's model spend (B-1) nor assistant_update (B-2)."
+      },
+      "single_point_of_change": "ofn/adapters/router.py admission (covers B-1 from all three callers) PLUS ofn/assistant_update.py:32 (covers B-2). Two sites, both on the model-egress boundary. NOT callbudget.py.",
+      "scope_leak_check": "PASS with a caveat - neither site is the ledger, consent, release gate, budget-threshold logic, or an outbound flag. Router change must not alter quota caps or rung policy."
+    }
+  ],
+
+  "cross_checks": {
+    "third_effect_search": {
+      "claim": "no third distinct model-egress or send primitive exists that these two effects miss",
+      "command": "grep -rn \"urlopen|smtplib.SMTP|imaplib|Popen|subprocess.run|socket.(socket|create_connection)\" across ofn/ tools/ ops/ scripts/",
+      "observed": "other egress primitives belong to different effects, not to E-A or E-B: telegram_readonly (read), owner_notify (notify), imap_listener (read), shopify_oauth (token exchange), alert (crash notify), ofn-sync git pull, brainport (NO_ENTRYPOINT_FOUND), plus the 7 harvesters (all NO_ENTRYPOINT_FOUND)",
+      "verdict": "CONFIRMED - E-A and E-B are the only two effects with live, billable/public side effects on the model+send boundary"
+    },
+    "halt_consumer_universe": {
+      "command": "grep -rn \"master_halted\" --include=*.py . | grep -v \"/tests/\"",
+      "observed": "exactly 5 production consumers: capability_token.py:87, followup_worker.py:38, outbound_worker.py:214,451, quote_pipeline.py:79, release_pipeline.py:106,184",
+      "note": "none of these five is a consumer of E-A or E-B"
+    }
+  },
+
+  "unresolved": [
+    {
+      "id": "U-1",
+      "item": "which exact path each running service resolves at runtime (on-node file state, predicate state, legacy files)",
+      "status": "UNVERIFIED",
+      "reason": "requires on-node observation; OD-1 clause 6 forbids live HALT experiments and this lane is forbidden to touch nodes",
+      "resolves_in": "HALT-ORACLE-DOCTOR Half B, which is NOT AUTHORIZED yet"
+    },
+    {
+      "id": "U-2",
+      "item": "deployed env values (OFN_KEEP_GATES_OPEN, OFN_EXTRA_CLOSED_GATES, presence of remote_api_key, OFN_ALERT_TELEGRAM)",
+      "status": "UNVERIFIED",
+      "reason": "lives in node.env/secrets.env on the board; not read, not contacted",
+      "impact": "E-B reachability depends on remote_api_key being present (build_brains wires hosted rungs only if cfg.remote_api_key)"
+    },
+    {
+      "id": "U-3",
+      "item": "whether an out-of-repo octopus-* unit invokes any model or send path",
+      "status": "UNVERIFIED",
+      "reason": "7 octopus-* units are reported live on the board but are not in this repo's deploy/"
+    }
+  ],
+
+  "blocking_questions": [
+    {
+      "id": "BQ-1",
+      "question": "For effect E-B the owner named callbudget.py, but the trace shows callbudget.py gates neither live model-egress consumer. Confirm the corrected target: the model admission point in ofn/adapters/router.py (covers all three router callers including the live worker) plus the direct call in ofn/assistant_update.py:32 (which bypasses the router entirely and is ungated by any budget)?",
+      "recommendation": "Adopt the corrected target. Wiring callbudget.py would produce a change that passes its own tests, appears to satisfy the instruction, and stops nothing - a textbook DECLARED!=WIRED fix.",
+      "status": "OPEN - implementation blocked until answered, per the owner's evidence rule"
+    },
+    {
+      "id": "BQ-2",
+      "question": "For B-2 (assistant_update direct call), is the intended fix to route it through ModelRouter.ask (which would also subject it to NodeQuota), or to add a halt check at the direct call site?",
+      "recommendation": "Add the halt check at the direct site for this lane (minimal, no behaviour change beyond halt); routing it through the router is a larger change and would alter its budget behaviour, which the owner excluded from this scope.",
+      "status": "OPEN"
+    }
+  ],
+
+  "lane_attestations": {
+    "live_changes": 0,
+    "services_restarted": 0,
+    "flags_edited": 0,
+    "halt_files_touched": 0,
+    "files_modified_under_ofn_node": 0,
+    "files_modified_in_ledger_consent_release_gate_budget_thresholds_or_outbound_flags": 0,
+    "nodes_contacted": 0,
+    "automatic_side_effects": 0,
+    "output": "report only"
+  }
+}
