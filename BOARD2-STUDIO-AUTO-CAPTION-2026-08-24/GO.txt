@@ -1,1 +1,0 @@
-﻿owner_go=auto-caption-from-media scope=shot-0003..0022 status=WAITING_BOARD2

@@ -1,9 +1,0 @@
-﻿{
-  "stamp": "2026-08-23T02:32+10",
-  "SHIPPING_STATUS": "PASS",
-  "domestic": [{"name": "Flat rate domestic AUD 20", "price": "20.00 AUD", "transit": "3-5 business days"}],
-  "international": "OFF — zone deleted",
-  "removed": ["Express $15", "Standard $11 (+ free over $100)", "Flat rate AUD (amount TBD) Free"],
-  "GST_STATUS": "OK — prices exclude tax; AU collecting (ABN Missing ID deferred)",
-  "PAYMENTS": "unchanged — bank/PayPal/ABN deferred Sunday noon GO"
-}

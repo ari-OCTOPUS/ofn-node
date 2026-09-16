@@ -1,6 +1,0 @@
-{
-  "sku": "ZM-GALLERY-0016",
-  "before": "owner gallery ingest 2026-08-23 via ari; currency=AUD; photos_binaries=NOT_YET; photo_filenames=IMG_4109.HEIC; photo_binary_uploaded=IMG_4109.HEIC; shopify_image_id=43881836707940; stamp=20260822T160541Z",
-  "after": "owner gallery ingest 2026-08-23 via ari; currency=AUD; photos_binaries=UPLOADED_IMG_4109; photo_filenames=IMG_4109.HEIC; photo_binary_uploaded=IMG_4109.HEIC; shopify_image_id=43881836707940; stamp=20260822T160541Z",
-  "result": "PASS"
-}

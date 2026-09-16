@@ -1,7 +1,0 @@
-﻿# BOARD FETCH PROBE
-captured_at_local: 2026-08-22T17:18:02+10:00 (Australia/Sydney)
-host: ari@192.168.0.138:/home/ari/.local/state/ofn-wire/repo
-local_HEAD_before: fec6c2f788b600785f43f9f7293b2e891a5a8864
-ls-remote origin ofn/wire: FAIL — fatal: could not read Username for 'https://github.com': terminal prompts disabled
-fetch origin ofn/wire: FAIL — same
-implication: laptop pushed ca038d4 with id:w001; board cannot see it until GitHub read creds exist on DietPi (or wire-watch source changes)

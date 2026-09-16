@@ -1,8 +1,0 @@
-{
- "_instruction": "فقط مالک پر می‌کند — ایجنت هرگز خودکار واکشی/به‌روزرسانی/حدس نمی‌زند. fx_hash = sha256canonical({fx_source_id, fx_timestamp_utc, fx_rate_usd_to_aud}) که live4_harness.fx_canonical_hash می‌سازد.",
- "fx_source_id": "",
- "fx_timestamp_utc": "",
- "fx_rate_usd_to_aud": "",
- "fx_hash": "",
- "owner_pin_id": ""
-}

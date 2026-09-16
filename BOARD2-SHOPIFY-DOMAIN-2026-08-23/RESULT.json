@@ -1,9 +1,0 @@
-{
-  "stamp": "20260822T143649Z",
-  "shop_domain": "ziman-gift.myshopify.com",
-  "env_key": "OFN_SHOPIFY_SHOP_DOMAIN",
-  "bak": "/home/ari/.config/ofn/node.env.bak-shopify-domain-20260822T143649Z",
-  "result": "PASS",
-  "next": "Admin API token + webhook secret path (not in chat); register ShopifyConnector; optional wire arm",
-  "ofn": "active check printed above"
-}
