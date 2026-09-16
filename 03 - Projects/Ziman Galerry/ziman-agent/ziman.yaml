@@ -1,0 +1,62 @@
+# پیکربندیِ ایجنتِ مارکتینگِ زیمان — تنها منبعِ حقیقتِ اعداد و قواعد.
+# منبعِ اعداد: Business-Zeiman.md و Strategy-DecisionLog.md در همین vault.
+
+business:
+  name: "Ziman Gift"
+  location: "Sydney, Australia"
+  positioning: "luxury"          # [Belief] جهت‌گیریِ قیمتیِ لوکس
+  products:
+    - "گل‌آراییِ مصنوعی"
+    - "سبدِ هدیه"
+    - "شادوباکسِ گلِ قاب‌شده"
+    - "همپرِ شکلات (فقط تحویلِ محلی)"
+  payment: "PayID"
+
+# قیدِ مقدمِ D4 — سقفِ ظرفیتِ تولید. منبع: Business-Zeiman.md [Measured] «تا ۳۰ واحد در هفته».
+capacity:
+  units_per_week_ceiling: 30
+  source: "Business-Zeiman.md [Measured] — تا ۳۰ واحد در هفته"
+  current_inventory: 20          # [Measured] حدود ۲۰ واحدِ موجود
+
+# پیام‌رسانیِ مناسبتی (Strategy-DecisionLog.md)
+occasions: ["تولد", "نامزدی", "خانه‌تکونی", "سالگرد"]
+calendar_anchors:
+  - {name: "روزِ پدر", month: 9}
+  - {name: "یلدا", month: 12}
+
+audience:
+  warm_first: true
+  segments: ["آشنایان", "جامعهٔ ایرانیانِ سیدنی"]
+
+# تولیدِ محتوا
+generation:
+  model: "claude-haiku-4-5"      # ارزان‌ترین برای سقفِ ۱۵AUD؛ گزینهٔ باکیفیت‌تر: claude-sonnet-5
+  language: "fa"
+  cadence_seconds: 3600          # در حالتِ زنده، هر چند ثانیه یک draftِ تازه
+  max_tokens: 700
+
+# روترِ مدلِ hybrid — اول Ollamaِ محلی (رایگان)، بعد API (با بودجه)، بعد offline
+routing:
+  ollama_enabled: true
+  ollama_host: "http://127.0.0.1:11434"
+  ollama_model: "llama3.1:8b"    # [Unverified — نیازمندِ نصب/تأییدِ محلی]
+
+# بودجهٔ سختِ ماهانهٔ API (fail-closed). قیمت‌ها USD/1M توکن [Unverified — صفحهٔ pricing]
+budget:
+  monthly_cap_aud: 15
+  usd_to_aud: 1.55               # [Unverified — نرخِ تبدیل]
+  state_file: ".budget_state.json"
+  prices_usd_per_mtok:
+    claude-haiku-4-5: {in: 1.0, out: 5.0}
+    claude-sonnet-5:  {in: 3.0, out: 15.0}
+    claude-opus-4-8:  {in: 5.0, out: 25.0}
+
+# مسیرِ vault (read-only) نسبت به همین پوشه — برای خواندنِ manifest/استراتژی
+vault:
+  path: ".."
+  notes: ["PROJECT.md", "Capacity & Channels.md", "Business-Zeiman.md", "Strategy-DecisionLog.md"]
+
+# گیتِ ایمنی — این ایجنت هرگز منتشر یا خرج نمی‌کند
+safety:
+  autonomy: "read-only"          # فقط draftِ محلی می‌نویسد
+  publish_requires_human: true

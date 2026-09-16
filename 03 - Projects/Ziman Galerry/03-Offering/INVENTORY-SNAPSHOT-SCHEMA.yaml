@@ -1,0 +1,30 @@
+# INVENTORY-SNAPSHOT-SCHEMA.yaml — schema_version: inventory_snapshot.v1
+# One snapshot per owner counting session. Append-only; never edit past snapshots.
+
+schema_version: "inventory_snapshot.v1"
+snapshot_id: ""            # ZM-INV-YYYYMMDD-NN
+measured_at: ""            # ISO8601 — REQUIRED
+measured_by: "owner"       # owner | operator (never "agent")
+method: ""                 # physical_count | photo_estimate | partial
+
+totals:
+  physical_units_total: null
+  note: "physical units ≠ SKUs ≠ weekly capacity"
+
+families:
+  C1: {units: null, sku_count: null}
+  C2: {units: null, sku_count: null}
+  C3: {units: null, sku_count: null}
+  C4: {units: null, sku_count: null}
+
+capacity:
+  units_per_week_ceiling: null   # null until owner revalidates (CF-01)
+  evidence_class: "UNVERIFIED"
+  source: ""
+
+conflicts_acknowledged: []        # e.g. ["CF-01", "CF-02"]
+
+governance:
+  canonical: false
+  supersedes: null                # previous snapshot_id
+  updated_at: ""

@@ -1,0 +1,19 @@
+{"ts": "2026-05-31T11:24:13Z", "symbol": "BSB", "reason": "age_too_new", "detail": "age=11d < MIN_AGE_DAYS=14"}
+{"ts": "2026-05-31T11:25:40Z", "symbol": "MANTRA", "reason": "no_detail", "detail": "CoinGecko detail call returned None"}
+{"ts": "2026-05-31T11:26:20Z", "symbol": "ALLO", "reason": "age_too_old", "detail": "age=201d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:26:24Z", "symbol": "GIGGLE", "reason": "age_too_old", "detail": "age=218d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:26:29Z", "symbol": "MET", "reason": "age_too_old", "detail": "age=220d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:26:34Z", "symbol": "ZBT", "reason": "age_too_old", "detail": "age=226d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:27:25Z", "symbol": "SIGN", "reason": "no_detail", "detail": "CoinGecko detail call returned None"}
+{"ts": "2026-05-31T11:27:45Z", "symbol": "AVNT", "reason": "age_too_old", "detail": "age=251d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:27:50Z", "symbol": "HOLO", "reason": "age_too_old", "detail": "age=262d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:27:55Z", "symbol": "OPEN", "reason": "age_too_old", "detail": "age=265d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:27:59Z", "symbol": "PROVE", "reason": "age_too_old", "detail": "age=293d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:28:04Z", "symbol": "SPK", "reason": "age_too_old", "detail": "age=312d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:28:09Z", "symbol": "HYPER", "reason": "age_too_old", "detail": "age=324d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:29:00Z", "symbol": "EUL", "reason": "no_detail", "detail": "CoinGecko detail call returned None"}
+{"ts": "2026-05-31T11:29:20Z", "symbol": "HUMA", "reason": "age_too_old", "detail": "age=370d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:29:25Z", "symbol": "SXT", "reason": "age_too_old", "detail": "age=388d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:29:29Z", "symbol": "NIL", "reason": "age_too_old", "detail": "age=433d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:29:34Z", "symbol": "PLUME", "reason": "age_too_old", "detail": "age=438d > MAX_AGE_DAYS=180"}
+{"ts": "2026-05-31T11:29:39Z", "symbol": "GPS", "reason": "age_too_old", "detail": "age=485d > MAX_AGE_DAYS=180"}

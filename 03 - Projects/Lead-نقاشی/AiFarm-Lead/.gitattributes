@@ -1,0 +1,16 @@
+# Normalise text to LF in the repo; keep shell scripts LF for the VPS.
+* text=auto eol=lf
+*.sh    text eol=lf
+*.py    text eol=lf
+*.md    text eol=lf
+
+# Treat these as binary (no diff/eol munging)
+*.pdf   binary
+*.zip   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.xlsx  binary
+*.docx  binary
+*.pptx  binary

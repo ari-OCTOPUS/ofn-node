@@ -1,0 +1,128 @@
+# H-GEO-02 — associative retrieval = attractor completion (Hopfield energy landscape).
+# SUBSTRATE for GEOMETRY.md section 3 [SPEC -> RUN]: "associative memory = energy
+# system; retrieval = falling to the floor of an attraction basin" [P L59, L539].
+# Scope C0 (functional). Zero LLM. Pure stdlib, integer weights, fully deterministic.
+# Synthetic random bipolar patterns ONLY; probes are flip-noise (never masked/partial).
+# The schema-key application to the kernel store is future work (ADR-019 caveat 3).
+# Seed discipline: pilot family 944000 froze the operating point (M=8, k=14) and the
+# bands; confirmatory family 944500+ is disjoint and was never piloted.
+idea: >
+  GEOMETRY.md section 3 maps associative memory to a Hopfield energy landscape:
+  stored patterns are basin floors and retrieval is descent. Make that geometric
+  claim executable: content-addressable retrieval from NOISY probes must be
+  attractor completion — an exact-key lookup structurally cannot complete a
+  corrupted probe, while energy descent falls back into the stored basin.
+
+hypothesis: >
+  On probes with ~22% corrupted bits, Hopfield basin descent (Hebbian weights,
+  asynchronous sign updates to a fixed point, success = exact recovery of the
+  source pattern) retrieves stored patterns far better than an exact-match
+  lookup with a fair 1/M guess fallback — AND the advantage is basin geometry,
+  not fuzzy matching in general: it must vanish on clean probes, collapse to
+  ~0 or negative under saturating (50%) noise, and collapse when the load is
+  pushed beyond the Hopfield capacity bound (~0.138N).
+
+prediction:
+  statement: >
+    noisy_retrieval_advantage = accuracy(attractor) - accuracy(exact_lookup),
+    paired on identical probes at the frozen operating point (N=64 bits, M=8
+    stored patterns, k=14 flipped bits).
+  baseline: 0.0    # [FACT: pilot 944000] null (same-vs-same) and clean-probe control both = 0.000 exactly
+  expected: 0.69   # [FACT: pilot 944000, 5 pilot seeds] mean +0.685 (range 0.567..0.833); smoke of confirmatory seed 0 gave +0.687
+
+metric:
+  name: noisy_retrieval_advantage
+  dataset: synthetic-bipolar-patterns-N64
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: >
+    Per seed: M=8 distinct random bipolar patterns in {-1,+1}^64 stored by the
+    Hebbian outer-product rule (integer weights, zero diagonal); 150 probes,
+    balanced over sources, each with exactly k bits flipped. Families: pilot
+    944000 (calibration only), confirmatory 944500+ (disjoint, never piloted).
+  n: 150
+  conditions:
+    - name: null_same_vs_same
+      description: null — exact_lookup minus exact_lookup on identical probes and fallback seeds; must be exactly 0.
+    - name: clean_probe_gap
+      description: discriminating control — k=0; exact lookup is perfect, so the attractor advantage must be ~0 (slightly negative only if stored patterns destabilize).
+    - name: saturating_noise_gap
+      description: control — k=32 (50%); probe is as far as a random point, no method works; the advantage collapses (pilot went slightly NEGATIVE, -0.127, because descent lands in spurious minima while exact keeps its 1/M fallback).
+    - name: overload_gap
+      description: capacity ablation — M=24 (load 0.375 >> ~0.138N capacity), same k=14; cross-talk destroys the basins and the advantage must collapse (pilot -0.013, attractor accuracy 0.000).
+    - name: noisy_retrieval_advantage
+      description: PRIMARY — M=8, k=14; attractor completion minus exact lookup, paired.
+  protocol: >
+    All conditions are paired per seed-index: identical stored patterns,
+    identical probes, identical CRC-seeded fallback draws; conditions differ
+    ONLY in corruption level / load. attractor = asynchronous sign updates in
+    fixed index order until a full sweep changes nothing (energy strictly
+    decreases on every flip -> guaranteed fixed point; success iff the fixed
+    point EQUALS the source pattern). exact_lookup = hash hit on the exact
+    probe key, else a CRC-seeded guess among the M stored patterns (expected
+    1/M — the non-strawman fallback: it strictly dominates fail-on-miss).
+
+failure_condition:
+  metric: noisy_retrieval_advantage
+  op: "<="
+  threshold: 0.0
+  note: >
+    If basin descent is no better than exact lookup + guess under moderate
+    corruption, retrieval-as-attractor-completion is rejected. The threshold is
+    genuinely reachable: the same paired delta measured under saturating noise
+    (-0.127) and overload (-0.013) IS negative [FACT: pilot 944000], so the
+    quantity is not structurally positive. Honest caveat (ADR-019): this kill
+    line sits at ZERO, not at a smallest-effect-of-interest — a tiny positive
+    advantage would survive it; the practical SESOI lives in the decision_rule
+    DISCARD band (< 0.10). Immaterial for the recorded verdict (confirmatory
+    +0.612 is ~8 SE above 0), but a v2 should put the SESOI here.
+
+architecture:
+  pattern: Hopfield associative memory (Hebbian storage + energy descent) vs exact-key store
+  topology: probe -> {exact hash lookup | async sign-update descent} -> retrieved pattern == source?
+  tradeoff: >
+    Attractor completion buys noise-robust content-addressability at the price
+    of a hard capacity bound (~0.138N; the overload ablation shows total
+    collapse at load 0.375) and spurious minima under heavy corruption. The
+    exact store has unlimited capacity but zero robustness: any corrupted
+    probe reduces it to guessing.
+
+api_contract:
+  endpoint: /kernel/memory/associative_retrieve
+  method: POST
+  request:
+    probe: bipolar[64]        # possibly corrupted pattern
+    max_sweeps: 60
+  response:
+    # shape illustrative; values [FACT] from confirmatory-family seed 0 smoke:
+    retrieved_is_source: true
+    attractor_accuracy: 0.82
+    exact_accuracy: 0.133
+    noisy_retrieval_advantage: 0.687
+
+mvp:
+  stack: Python stdlib only (experiments/attractor_memory.py; integer Hebbian weights, no numpy, no LLM)
+  deps: []
+  effort: "< 1 day"
+  notes: full 5-seed confirmatory run finishes in well under a minute (pilot sweep took 2.3s).
+
+evaluation:
+  comparisons: [null_same_vs_same, clean_probe_gap, saturating_noise_gap, overload_gap]
+  ablation:
+    - corruption sweep k in {0..32} (pilot) — graceful degradation 0.887 -> -0.127
+    - load sweep M in {8, 24} (pilot) — capacity collapse beyond ~0.138N
+  seeds: 5
+
+decision_rule:
+  primary_metric: noisy_retrieval_advantage
+  rules:
+    - max: 0.10
+      verdict: DISCARD
+    - min: 0.10
+      max: 0.40
+      verdict: OPTIMIZE
+    - min: 0.40
+      verdict: INTEGRATE
+# self-check: metric(ok) falsifiable(ok) api(ok) mvp(ok) decision_rule(ok)

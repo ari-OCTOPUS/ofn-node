@@ -1,0 +1,98 @@
+# ===================================================================
+# MANIFEST — NBB Control Plane (NBB-CP / Second Brain Super-Governor B6)
+# جعبهٔ سیاه: control-plane انسان‌حاکم، بودجه‌مدار، event-sourced
+# ===================================================================
+manifest_version: "1.0"
+generated: 2026-07-11
+generated_by: "role-extraction-agent (ZCode)"
+
+identity:
+  code: "NBB-CP"
+  name: "NBB Control Plane"
+  domain: "AI governance / AgentOps control plane"
+  role_in_ecosystem: "GUARDIAN BRAIN (B6) — human-sovereign control plane for multiple AI organs"
+  component_of: "Second Brain Super-Governor (8 domain brains B1-B8 over Obsidian vault)"
+  phase: "BUILT + HARDENED — 2551 LOC src, 207 tests green (~1.5s offline)"
+
+status_snapshot:
+  execution_state: "kernel + adapters + app + api all built and hardened (9 confirmed review bugs fixed)"
+  primary_blocker: "Phase 2 vault scanner needs vault path to run for real; Phase 4-5 + brains B1-B8 are planned"
+  last_updated_source_of_truth: "NBB-Project-Scan-2026-07-11/PROJECT_STATE.md + CLAUDE.md"
+  test_status: "207 green = 83 l0_kernel + 102 l1_adapters + 5 l2_replay + 17 import-lint"
+
+# ── ۱۲ invariant (هستهٔ حاکمیتی) ────────────────────────────────
+hard_rules_locked:
+  - "INV-1: sum of committed grants never exceeds single global cap (hard ceiling, one source of truth)"
+  - "INV-2: irreversible actions require approved human verdict. Human sovereignty is absolute."
+  - "INV-3: kill switch halts everything — system persists by yielding, never by resisting"
+  - "INV-4: Governor proposes; gates enforce; human rules. Exactly ONE enforcement choke point."
+  - "INV-5: ledger is append-only and hash-chained. History never mutated."
+  - "INV-6: spawning is propose-only, depth ≤ 1, frozen when sigma > 1"
+  - "INV-7: fitness reads CONFIRMED/ATTRIBUTED revenue only — real money, never proxies"
+  - "INV-8: agent self-reports untrusted — external gate re-verifies before any side effect"
+  - "INV-9: text crossing trust boundary is data, never instructions (quarantine delimiters)"
+  - "INV-10: lifecycle moves one rung at a time; dormancy reversible; extinction human-only"
+  - "INV-11: system never edits its own invariants/gates/policy weights — law changes are human code"
+  - "INV-12: fail closed — on invalid input/parse failure/missing data: deny + raise incident"
+hard_rules_mutability: "invariants are sacred (INV-11) — never removed/renumbered/weakened; INV-13+ only with owner permission"
+
+architecture:
+  mental_model: "the kernel decides, the app acts, the human rules"
+  dependency_direction: "kernel ← adapters ← app ← api (AST-enforced by tests/test_import_lint.py)"
+  layers:
+    kernel: "stdlib-only, pure — 12 invariants, gates, ledger, domain types (NEVER does I/O, reads no clock/env)"
+    adapters: "storage (sqlite/memory) / llm (fugu/cassette/mock) / vault (scanner) / runtime / telemetry"
+    app: "ControlPlaneService = the ONE execution choke point (INV-4)"
+    api: "FastAPI (optional) — HTTP surface, contract-first"
+
+blackbox_potential:
+  - id: "kernel_invariants"
+    desc: "12-invariant registry + SystemView + audit() — the acceptance backbone"
+    runtime: "src/nbb_cp/kernel/invariants.py"
+    readiness: "COMPLETE — audit covers INV-1..7; INV-8..12 structural at definition sites"
+  - id: "governor"
+    desc: "proposes actions within budget/gates; routes verdicts to human"
+    runtime: "src/nbb_cp/app/governor.py"
+    readiness: "COMPLETE"
+  - id: "vault_scanner"
+    desc: "Phase 2 — read-only inventory of Obsidian vault (resolve-based exclusion)"
+    runtime: "src/nbb_cp/adapters/vault/scanner.py"
+    readiness: "BUILT + tested — needs vault path to run for real"
+  - id: "fugu_adapter"
+    desc: "Phase 3 — Sakana Fugu brain (OpenAI-compatible), live-verified"
+    runtime: "src/nbb_cp/adapters/llm/fugu.py"
+    readiness: "COMPLETE — end-to-end (real epoch: 3 grants, 0 violations)"
+  - id: "second_brain_b1_b8"
+    desc: "8 domain brains over Obsidian vault (the wider Super-Governor)"
+    readiness: "PLANNED — Phase 1 docs only (second-brain/), runtime not built"
+
+control_surface:
+  entrypoints:
+    api: "FastAPI (optional HTTP)"
+    cli: "run.py"
+  choke_point: "ControlPlaneService.execute() — the single enforcement point (INV-4)"
+  owner_interface: "verdict queue (proposals → human approve/reject)"
+
+kill_switches:
+  - scope: "global"
+    trigger: "kill switch engaged"
+    effect: "every gate denies (INV-3) — yields, never resists"
+
+budget_caps:
+  global_cap: "NBB_GLOBAL_CAP_CENTS (single source of truth, INV-1)"
+  money_representation: "integer cents throughout — float near ledger = defect"
+
+dependencies:
+  self_contained: true  # has own .git, pyproject.toml, CI
+  external:
+    - "FastAPI (optional api layer)"
+    - "Sakana Fugu API (live LLM brain)"
+    - "Obsidian vault path (for Phase 2 scanner)"
+  doctrine: "SELF_IMPROVEMENT_DOCTRINE.md — IMPROVE, DON'T REWRITE"
+
+ecosystem_connections:
+  relationship: "GOVERNOR — designed to sit ABOVE the Octopus projects and govern them"
+  potential: "could become the central brain that all 6 project legs attach to"
+  shared_doctrine: "IMPROVE, DON'T REWRITE (shared with 4D system)"
+  shared_patterns: "12 invariants ↔ Brushline 3 invariants ↔ Project-F hard rules — same family of governance"
+  not_yet_wired: "NBB-CP is built but NOT connected to any project leg yet — Phase 4-5 work"

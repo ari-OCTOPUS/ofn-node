@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>زیمان</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- The web font is an enhancement, never a gate. Loaded as print media and
+     switched to all on load, so a slow or blocked font host costs nothing:
+     the page paints immediately in the local Persian fallback below. As a
+     render-blocking stylesheet this was a white screen for as long as the
+     request took to time out — on the networks these partners are on, that
+     is the difference between an app and a broken link. -->
+<style>
+/* Self-hosted. `fonts.gstatic.com` does not open reliably from Iran, and a
+   font request that never completes is a wasted connection on exactly the
+   network that can least afford one — as a render-blocking stylesheet it was
+   a white screen for as long as the timeout took.
+   One file: Vazirmatn is a variable font, so the whole 100-900 range comes
+   from the same bytes. Downloading 400 and 600 separately gave two identical
+   45 KB files, which is what the first attempt shipped.
+   `swap` so text is readable immediately and simply improves when it lands. */
+@font-face{
+  font-family:'Vazirmatn';
+  src:url('/font/vazirmatn.woff2') format('woff2');
+  font-weight:100 900;
+  font-display:swap;
+}
+:root{
+  --cream:#faf6ef; --cream2:#f3ece0; --card:#fffdfa;
+  --ink:#2e2823; --ink2:#6b5f52; --ink3:#a2958a;
+  --gold:#c9a227; --gold-soft:#f0e4c2; --gold-deep:#8a6d16;
+  --rose:#c98a8a; --rose-soft:#f7e9e6;
+  --green:#5c8a5c; --green-soft:#e6f0e4;
+  --line:#e8ded0;
+  --r:22px;
+  /* Fallbacks that actually exist on the phones this runs on, in the order
+     they are likely to be present. Ending at plain sans-serif would hand
+     Persian to a Latin-first face and give the mojibake-adjacent look that
+     gets reported as "the font is broken". */
+  --fa:'Vazirmatn','Vazir','IRANSans','IRANYekan','Sahel','Noto Naskh Arabic',
+       'Noto Sans Arabic','Segoe UI',Tahoma,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:var(--fa);
+  background:
+    radial-gradient(700px 400px at 80% -5%, #f7ecd8 0%, transparent 60%),
+    radial-gradient(600px 380px at 0% 100%, #f8eeea 0%, transparent 58%),
+    var(--cream);
+  color:var(--ink); min-height:100vh; line-height:1.85;
+  display:flex; justify-content:center; padding:0 0 40px;
+  -webkit-font-smoothing:antialiased;
+}
+.app{inline-size:100%;max-inline-size:440px;padding:0 20px}
+
+/* header */
+header{padding:28px 0 22px;text-align:center}
+.crest{inline-size:60px;block-size:60px;border-radius:50%;margin:0 auto 14px;
+  background:linear-gradient(150deg,#fdf6e4,#f0e0c0);
+  border:1px solid var(--gold-soft);display:grid;place-items:center;font-size:27px;
+  box-shadow:0 6px 22px rgba(201,162,39,.16)}
+.hi{font-size:24px;font-weight:600;letter-spacing:-.01em}
+.hi span{color:var(--gold-deep)}
+.date{font-size:13.5px;color:var(--ink3);margin-top:4px}
+
+/* progress dots */
+.dots{display:flex;gap:7px;justify-content:center;margin:20px 0 24px}
+.dots i{inline-size:8px;block-size:8px;border-radius:50%;background:var(--line);transition:.3s}
+.dots i.on{background:var(--gold);inline-size:24px;border-radius:99px}
+.dots i.done{background:var(--gold-soft)}
+
+/* card */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:28px 24px;box-shadow:0 4px 28px rgba(120,95,50,.07);margin-bottom:16px}
+.eyebrow{font-size:12.5px;color:var(--gold-deep);font-weight:500;letter-spacing:.03em;
+  display:flex;align-items:center;gap:7px;margin-bottom:12px}
+.q{font-size:22px;font-weight:600;line-height:1.6;margin-bottom:10px;letter-spacing:-.01em}
+.hint{font-size:14.5px;color:var(--ink2);line-height:1.85;margin-bottom:22px}
+
+/* choice buttons */
+.choices{display:flex;flex-direction:column;gap:11px}
+.choice{inline-size:100%;text-align:start;font-family:inherit;font-size:17px;font-weight:500;
+  padding:18px 20px;border-radius:16px;border:1.5px solid var(--line);
+  background:#fff;color:var(--ink);cursor:pointer;transition:.18s;
+  display:flex;align-items:center;gap:13px}
+.choice:hover{border-color:var(--gold);background:#fffdf6}
+.choice.pick{border-color:var(--gold);background:linear-gradient(180deg,#fffbee,#fdf6e2);
+  box-shadow:0 3px 14px rgba(201,162,39,.15)}
+.choice .mark{inline-size:24px;block-size:24px;border-radius:50%;border:1.5px solid var(--line);
+  flex:none;display:grid;place-items:center;font-size:13px;color:#fff;transition:.18s}
+.choice.pick .mark{background:var(--gold);border-color:var(--gold)}
+.choice .sub{font-size:12.5px;color:var(--ink3);font-weight:400;display:block;margin-top:-3px}
+
+/* number pad style */
+.numrow{display:flex;align-items:center;justify-content:center;gap:18px;margin:8px 0 22px}
+.nbtn{inline-size:52px;block-size:52px;border-radius:50%;border:1.5px solid var(--line);
+  background:#fff;font-size:26px;color:var(--gold-deep);cursor:pointer;font-family:inherit;
+  display:grid;place-items:center;transition:.15s}
+.nbtn:active{transform:scale(.92)}
+.nval{font-size:52px;font-weight:600;min-inline-size:90px;text-align:center;
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.nunit{font-size:14px;color:var(--ink3);text-align:center;margin-top:-14px;margin-bottom:6px}
+
+/* primary button */
+.go{inline-size:100%;padding:19px;border-radius:16px;border:0;font-family:inherit;
+  font-size:17.5px;font-weight:600;color:#fff;cursor:pointer;margin-top:20px;
+  background:linear-gradient(180deg,#d4ae35,#b8901c);
+  box-shadow:0 5px 18px rgba(184,144,28,.28);transition:.18s}
+.go:hover{transform:translateY(-1px);box-shadow:0 7px 22px rgba(184,144,28,.34)}
+.go:disabled{background:var(--line);color:var(--ink3);box-shadow:none;cursor:default;transform:none}
+.later{inline-size:100%;padding:14px;border:0;background:none;font-family:inherit;
+  font-size:14.5px;color:var(--ink3);cursor:pointer;margin-top:6px}
+
+/* photo confirm */
+.photos{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:6px}
+.ph{aspect-ratio:1;border-radius:15px;position:relative;overflow:hidden;cursor:pointer;
+  border:2px solid transparent;transition:.18s;display:grid;place-items:center;font-size:34px;
+  font-family:inherit;padding:0;inline-size:100%}
+.ph:nth-child(1){background:linear-gradient(140deg,#f6e3d0,#eccdb4)}
+.ph:nth-child(2){background:linear-gradient(140deg,#e8e2f0,#d3c9e4)}
+.ph:nth-child(3){background:linear-gradient(140deg,#dfeade,#c5d9c4)}
+.ph:nth-child(4){background:linear-gradient(140deg,#f7e0e2,#eec3c7)}
+.ph.pick{border-color:var(--gold);box-shadow:0 4px 16px rgba(201,162,39,.24)}
+.ph .tick{position:absolute;inset-block-start:8px;inset-inline-end:8px;inline-size:26px;block-size:26px;
+  border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;
+  font-size:14px;color:var(--gold-deep);opacity:0;transition:.18s}
+.ph.pick .tick{opacity:1}
+.ph .nm{position:absolute;inset-block-end:0;inset-inline:0;padding:8px 10px;font-size:12px;
+  background:linear-gradient(0deg,rgba(0,0,0,.42),transparent);color:#fff;font-weight:500}
+
+/* summary strip */
+.strip{display:flex;gap:10px;margin-bottom:16px}
+.sbox{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:14px 12px;text-align:center}
+.sv{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.3}
+.sl{font-size:11.5px;color:var(--ink3)}
+
+/* done state */
+.done-card{text-align:center;padding:38px 24px}
+.done-ic{font-size:52px;margin-bottom:14px}
+.done-t{font-size:21px;font-weight:600;margin-bottom:8px}
+.done-s{font-size:14.5px;color:var(--ink2);line-height:1.9}
+.thanks{background:var(--green-soft);border:1px solid #cfe0cc;border-radius:14px;
+  padding:14px 16px;font-size:13.5px;color:#3f6b3f;margin-top:20px;line-height:1.8}
+
+footer{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:22px;line-height:1.9}
+.demo{display:inline-block;background:var(--gold-soft);color:var(--gold-deep);
+  padding:3px 11px;border-radius:8px;font-size:11px;font-weight:500;margin-bottom:7px}
+.demo.offline{background:var(--rose-soft);color:#8a4a4a}
+.demo.livebadge{background:var(--green-soft);color:#3f6b3f}
+
+/* connection state — never a silent fallback */
+.state{border-radius:14px;padding:13px 16px;font-size:13px;line-height:1.85;
+  margin-bottom:16px;border:1px solid var(--line);background:var(--card);color:var(--ink2)}
+.state.warn{background:var(--rose-soft);border-color:#e8cfc9;color:#7d4a44}
+.state b{color:var(--ink);font-weight:600}
+.state button{font-family:inherit;font-size:13px;margin-top:9px;padding:9px 16px;
+  border-radius:11px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+
+/* free-text answer */
+.ta{inline-size:100%;font-family:inherit;font-size:16px;line-height:1.9;color:var(--ink);
+  padding:15px 16px;border-radius:16px;border:1.5px solid var(--line);background:#fff;
+  resize:vertical;min-block-size:110px}
+.ta:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+.choice:focus-visible,.nbtn:focus-visible,.go:focus-visible,.later:focus-visible,
+.ph:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.err{font-size:13px;color:#a4423f;margin-top:10px}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important}
+}
+
+/* ── یک کار در هر صفحه ──────────────────────────────────────────────────
+   نوشته‌شده برای ذهنی که نمی‌خواهد هم‌زمان دو انتخاب را نگه دارد: یک سؤال،
+   یک دکمه، و همیشه معلوم که کجاییم و چقدر مانده. */
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:30px 24px 24px;box-shadow:0 4px 28px rgba(120,95,50,.07);margin-bottom:14px}
+.step .where{font-size:12.5px;color:var(--gold-deep);font-weight:500;margin-bottom:14px}
+.step .ask{font-size:26px;font-weight:600;line-height:1.5;margin-bottom:8px;
+  letter-spacing:-.015em}
+.step .why{font-size:15px;color:var(--ink2);line-height:1.8;margin-bottom:24px}
+.step input{inline-size:100%;padding:20px 18px;border-radius:16px;
+  border:2px solid var(--line);background:#fffdf8;font-family:inherit;
+  font-size:24px;font-weight:600;color:var(--ink);text-align:center;
+  font-variant-numeric:tabular-nums}
+.step input:focus{outline:0;border-color:var(--gold);background:#fff}
+.step input::placeholder{font-weight:400;font-size:18px;color:var(--ink3)}
+.unit{text-align:center;font-size:13.5px;color:var(--ink3);margin-top:9px}
+
+/* دکمهٔ اصلی همیشه یکی است و همیشه پایین، در دسترس شست */
+.bar{position:sticky;inset-block-end:0;padding:14px 0 8px;margin-top:6px;
+  background:linear-gradient(0deg,var(--cream) 62%,transparent)}
+.next{inline-size:100%;padding:20px;border-radius:18px;border:0;font-family:inherit;
+  font-size:19px;font-weight:600;color:#fff;cursor:pointer;margin-bottom:2px;
+  background:linear-gradient(180deg,#d4ae35,#b8901c);
+  box-shadow:0 6px 20px rgba(184,144,28,.3)}
+.next:active{transform:scale(.985)}
+.back{inline-size:100%;padding:13px;border:0;background:none;font-family:inherit;
+  font-size:14.5px;color:var(--ink3);cursor:pointer}
+
+/* چقدر مانده، بدون شمردن */
+.pips{display:flex;gap:6px;justify-content:center;margin:2px 0 20px}
+/* Each pip is a button, so the tap target is the 22px row and not the 6px
+   line it draws. A progress bar you can steer with is worth more than one
+   you can only read. */
+.pips button{block-size:22px;flex:1;max-inline-size:44px;border:0;padding:0;
+  background:none;cursor:default;position:relative;font-family:inherit}
+.pips button::after{content:'';position:absolute;inset-inline:0;inset-block-start:8px;
+  block-size:6px;border-radius:99px;background:var(--line);transition:.2s}
+.pips button.done::after{background:var(--gold-soft)}
+.pips button.on::after{background:var(--gold)}
+.pips button.go{cursor:pointer}
+.pips button.go:hover::after{background:var(--gold-deep)}
+.pips button:disabled{cursor:default}
+
+/* نوار هزینه — همیشه بالای صفحه، هرگز باید دنبالش گشت */
+.cost{position:sticky;inset-block-start:0;z-index:5;background:var(--cream2);
+  border:1px solid var(--line);border-radius:14px;padding:12px 15px;margin-bottom:16px;
+  display:flex;justify-content:space-between;align-items:center;font-size:14.5px;
+  font-variant-numeric:tabular-nums}
+.cost b{font-size:19px;font-weight:700}
+.cost.loss{background:var(--rose-soft);border-color:#e8c9c9;color:#8a4a4a}
+.cost.good{background:var(--green-soft);border-color:#cfe0cc;color:#3f6b3f}
+
+/* فهرست — یک ردیف، یک نگاه */
+.row2{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:15px 17px;margin-bottom:9px;display:flex;justify-content:space-between;
+  align-items:center;gap:12px;cursor:pointer}
+.row2 .l{min-inline-size:0}
+.row2 .t{font-size:16.5px;font-weight:600;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.row2 .s{font-size:12.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.row2 .r{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.row2.bad{border-color:#e8c9c9;background:var(--rose-soft)}
+.dot{display:inline-block;inline-size:8px;block-size:8px;border-radius:50%;
+  margin-inline-end:6px;vertical-align:middle}
+.dot.made{background:var(--ink3)} .dot.sale{background:var(--gold)}
+.dot.sold{background:var(--green)} .dot.gift{background:var(--rose)}
+
+/* حالت‌های شکست — هیچ دکمهٔ مرده‌ای. یک پیام، یک کار. */
+.blocked{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:34px 26px;text-align:center;box-shadow:0 4px 28px rgba(120,95,50,.07)}
+.blocked .ic{font-size:46px;margin-bottom:12px}
+.blocked .t{font-size:21px;font-weight:600;margin-bottom:10px}
+.blocked .d{font-size:15px;color:var(--ink2);line-height:1.9;margin-bottom:22px}
+
+.money{background:var(--cream2);border-radius:16px;padding:15px 17px;margin:4px 0 6px}
+.money .ln{display:flex;justify-content:space-between;font-size:14.5px;
+  margin-bottom:7px;font-variant-numeric:tabular-nums}
+.money .ln:last-child{margin-bottom:0}
+.money .ln b{font-weight:600}
+.warn-loss{font-size:14.5px;font-weight:600;color:#8a4a4a;margin-top:12px;
+  background:var(--rose-soft);border:1px solid #e8c9c9;border-radius:14px;padding:13px 15px}
+.guide{font-size:12.5px;color:var(--ink3);margin-top:11px;line-height:1.8;
+  font-variant-numeric:tabular-nums}
+.empty{text-align:center;padding:34px 20px;color:var(--ink3);font-size:14.5px}
+.empty.warm .sub{font-size:12.5px;color:var(--ink3);margin-top:8px;line-height:1.7}
+.saved{font-size:13px;color:var(--ink2);background:var(--cream2);border-radius:13px;
+  padding:12px 14px;margin:10px 0;line-height:1.75}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="crest">🌸</div>
+  <!-- Empty until the session says who this is. The name used to be written
+       here, which meant it was served to anyone who loaded the URL, before
+       the node knew whether they were anybody at all. -->
+  <div class="hi" id="hi">سلام</div>
+  <div class="date">امروز فقط ۲ سؤال</div>
+</header>
+
+<div class="dots" id="dots">
+  <i class="on"></i><i></i><i></i>
+</div>
+
+<!-- وضعیت اتصال — وقتی چیزی سر جایش نیست، پنهانش نمی‌کنیم -->
+<div class="state" id="state" hidden role="status" aria-live="polite"></div>
+
+<!-- محتوای زنده. تا وقتی نود جواب ندهد خالی می‌ماند و نمونهٔ زیر دیده می‌شود. -->
+<div id="live" hidden></div>
+
+<!-- یک صفحه در هر لحظه. هرگز دو کار هم‌زمان جلوی چشم. -->
+<div id="pieces" hidden></div>
+
+
+<!-- مرحله ۱ -->
+<section id="s1">
+  <div class="card">
+    <div class="eyebrow">۱ از ۲</div>
+    <div class="q">این هفته چند تا می‌توانید بسازید؟</div>
+    <div class="hint">هر چه بگویید، همان می‌شود.</div>
+
+    <div class="nval" id="nv">۶</div>
+    <div class="nunit">باکس در هفته</div>
+    <div class="numrow">
+      <button class="nbtn" onclick="bump(-1)">−</button>
+      <button class="nbtn" onclick="bump(1)">+</button>
+    </div>
+
+    <button class="go" onclick="saveCapacity()">ثبت کن</button>
+    <button class="later" onclick="next(1)">بعداً می‌گویم</button>
+  </div>
+
+  <div class="strip">
+    <div class="sbox"><div class="sv">۴</div><div class="sl">آمادهٔ این هفته</div></div>
+    <div class="sbox"><div class="sv">۲</div><div class="sl">در دست ساخت</div></div>
+    <div class="sbox"><div class="sv">۱۹</div><div class="sl">تا امروز ساخته</div></div>
+  </div>
+</section>
+
+<!-- مرحله ۲ -->
+<section id="s2" style="display:none">
+  <div class="card">
+    <div class="eyebrow">۲ از ۲</div>
+    <div class="q">کدام عکس‌ها خوب‌اند؟</div>
+    <div class="hint">هرکدام را پسندیدید بزنید.</div>
+
+    <div class="photos">
+      <button type="button" class="ph" onclick="pick(this)"><span>🎁</span><span class="tick">✓</span><span class="nm">باکس بهاری F1</span></button>
+      <button type="button" class="ph" onclick="pick(this)"><span>🕯️</span><span class="tick">✓</span><span class="nm">ست شمع F2</span></button>
+      <button type="button" class="ph" onclick="pick(this)"><span>🧺</span><span class="tick">✓</span><span class="nm">سبد دست‌بافت F3</span></button>
+      <button type="button" class="ph" onclick="pick(this)"><span>🌷</span><span class="tick">✓</span><span class="nm">باکس ویژه F4</span></button>
+    </div>
+
+    <button class="go" onclick="next(2)">تمام شد</button>
+    <button class="later" onclick="next(2)">بعداً نگاه می‌کنم</button>
+
+  </div>
+</section>
+
+<!-- پایان -->
+<section id="s3" style="display:none">
+  <div class="card done-card">
+    <div class="done-ic">🌿</div>
+    <div class="done-t">ثبت شد</div>
+    <div class="done-s">کار امروز تمام شد.</div>
+    <div class="thanks">
+      ✨ بیشتر از عددی که گفتید، سفارش گرفته نمی‌شود.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="demo">نمونه</span><br>
+  <span id="foot">زیمان</span>
+</footer>
+
+</div>
+
+<script>
+/* ── OFN connector ────────────────────────────────────────────────────────
+   Tries the real API. If it is not there — opened as a plain file, or the
+   node is down — the page keeps working on its sample data instead of
+   showing an error. A design preview and the live app are the same file.   */
+const OFN = (() => {
+  let session = null, live = false, why = '', who = '';
+  const tg = window.Telegram && window.Telegram.WebApp;
+
+
+  async function req(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (session) headers['Authorization'] = 'Bearer ' + session;
+    const r = await fetch(path, { ...opts, headers });
+    if (!r.ok) {
+      const err = new Error('http ' + r.status);
+      err.status = r.status;
+      throw err;
+    }
+    return r.json();
+  }
+
+  return {
+    get live() { return live; },
+    /* Why this page is not live, in words the person holding the phone can
+       act on. "نمونه" alone was the old answer, and it made a node that was
+       down look exactly like a node that was merely being previewed. */
+    get why() { return why; },
+    /* Her given name, from the verified session. Empty until then — the page
+       has no name of its own to fall back on, deliberately. */
+    get who() { return who; },
+    async connect() {
+      if (!tg || !tg.initData) { why = 'no-shell'; return false; }
+      try {
+        const out = await req('/api/v1/auth/session', {
+          method: 'POST',
+          body: JSON.stringify({ init_data: tg.initData }),
+        });
+        session = out.session; who = out.first_name || ''; live = true; why = '';
+        return true;
+      } catch (e) {
+        why = (e && e.status === 401) ? 'rejected'
+            : (e && e.status) ? 'error' : 'unreachable';
+        return false;
+      }
+    },
+    get(path) { return req(path); },
+    post(path, body) {
+      return req(path, { method: 'POST', body: JSON.stringify(body) });
+    },
+    /* Telegram chrome: theme, buttons, haptics. All optional — every call is
+       guarded so the page also runs in a plain browser tab. */
+    shell() {
+      if (!tg) return;
+      tg.ready();
+      tg.expand && tg.expand();
+      const apply = () => {
+        const p = tg.themeParams || {};
+        if (p.bg_color) document.documentElement.style.setProperty('--tg-bg', p.bg_color);
+      };
+      apply();
+      tg.onEvent && tg.onEvent('themeChanged', apply);
+    },
+    tap(style = 'light') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
+      else if (navigator.vibrate) navigator.vibrate(8);
+    },
+    done(kind = 'success') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(kind);
+      else if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
+    },
+  };
+})();
+
+
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const el = (tag, cls, txt) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  /* textContent, never innerHTML: every string below arrives from the node,
+     and one of them is a partner's own previous answer. */
+  if (txt != null) n.textContent = txt;
+  return n;
+};
+
+/* ── sample-mode controls ────────────────────────────────────────────────
+   These drive the hard-coded preview cards only. They never post anything;
+   the live flow below is a separate path so that a preview click can never
+   be mistaken for a recorded answer.                                      */
+let cap = 6;
+function bump(d) {
+  cap = Math.max(1, Math.min(60, cap + d));
+  document.getElementById('nv').textContent = fa(cap);
+  OFN.tap();
+}
+function pick(elm) { elm.classList.toggle('pick'); OFN.tap(); }
+
+function next(step) {
+  const cur = document.getElementById('s' + step);
+  const nxt = document.getElementById('s' + (step + 1));
+  if (cur) cur.style.display = 'none';
+  if (nxt) nxt.style.display = '';
+  const dots = document.querySelectorAll('#dots i');
+  if (dots[step - 1]) { dots[step - 1].classList.remove('on'); dots[step - 1].classList.add('done'); }
+  if (dots[step]) dots[step].classList.add('on');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function saveCapacity() { OFN.done(); next(1); }
+
+/* ── live flow ───────────────────────────────────────────────────────────
+   One question per screen, in the order the kernel ranked them. The card is
+   built from what the node sent — the wording lives in the pack, so nothing
+   here needs editing when a business changes what it asks.                */
+const LIVE = document.getElementById('live');
+let queue = [], at = 0;
+
+function setDots(done, total) {
+  const box = document.getElementById('dots');
+  box.textContent = '';
+  for (let i = 0; i < Math.max(total, 1); i++) {
+    const d = el('i');
+    if (i < done) d.classList.add('done');
+    else if (i === done) d.classList.add('on');
+    box.appendChild(d);
+  }
+}
+
+function card(q) {
+  const wrap = el('div', 'card');
+  const eye = el('div', 'eyebrow', `${fa(at + 1)} از ${fa(queue.length)}`);
+  wrap.append(eye, el('div', 'q', q.label));
+  if (q.hint) wrap.append(el('div', 'hint', q.hint));
+  if (!q.has_label) {
+    /* The pack never said how to ask this. Better to admit it than to show a
+       fact key as though it were a sentence. */
+    wrap.append(el('div', 'hint', 'متن این سؤال هنوز در پک نوشته نشده.'));
+  }
+
+  const err = el('div', 'err');
+  err.hidden = true;
+  let read = () => null;
+
+  if (q.kind === 'number') {
+    const lo = q.min != null ? q.min : 0;
+    const hi = q.max != null ? q.max : 1e9;
+    let val = q.default != null ? q.default : Math.max(lo, 1);
+    const out = el('div', 'nval', fa(val));
+    out.setAttribute('aria-live', 'polite');
+    const row = el('div', 'numrow');
+    const step = (d) => {
+      val = Math.max(lo, Math.min(hi, val + d));
+      out.textContent = fa(val);
+      OFN.tap();
+    };
+    const minus = el('button', 'nbtn', '−');
+    minus.type = 'button';
+    minus.setAttribute('aria-label', 'کمتر');
+    minus.onclick = () => step(-1);
+    const plus = el('button', 'nbtn', '+');
+    plus.type = 'button';
+    plus.setAttribute('aria-label', 'بیشتر');
+    plus.onclick = () => step(1);
+    row.append(minus, plus);
+    wrap.append(out);
+    if (q.unit) wrap.append(el('div', 'nunit', q.unit));
+    wrap.append(row);
+    read = () => val;
+
+  } else if (q.kind === 'choice') {
+    const box = el('div', 'choices');
+    let chosen = null;
+    (q.options || []).forEach(opt => {
+      const b = el('button', 'choice');
+      b.type = 'button';
+      b.append(el('span', 'mark', '✓'), el('span', null, opt));
+      b.onclick = () => {
+        box.querySelectorAll('.choice').forEach(x => {
+          x.classList.remove('pick');
+          x.setAttribute('aria-pressed', 'false');
+        });
+        b.classList.add('pick');
+        b.setAttribute('aria-pressed', 'true');
+        chosen = opt;
+        OFN.tap();
+      };
+      b.setAttribute('aria-pressed', 'false');
+      box.append(b);
+    });
+    wrap.append(box);
+    read = () => chosen;
+
+  } else if (q.kind === 'confirm') {
+    const box = el('div', 'choices');
+    let chosen = null;
+    [['بله', true], ['نه', false]].forEach(([txt, v]) => {
+      const b = el('button', 'choice');
+      b.type = 'button';
+      b.append(el('span', 'mark', '✓'), el('span', null, txt));
+      b.onclick = () => {
+        box.querySelectorAll('.choice').forEach(x => x.classList.remove('pick'));
+        b.classList.add('pick');
+        chosen = v;
+        OFN.tap();
+      };
+      box.append(b);
+    });
+    wrap.append(box);
+    read = () => chosen;
+
+  } else {
+    const ta = el('textarea', 'ta');
+    ta.placeholder = q.placeholder || '';
+    ta.setAttribute('aria-label', q.label);
+    wrap.append(ta);
+    read = () => ta.value.trim() || null;
+  }
+
+  const go = el('button', 'go', 'ثبت کن');
+  go.type = 'button';
+  go.onclick = async () => {
+    const value = read();
+    if (value === null || value === '') {
+      err.textContent = 'اول یک جواب انتخاب کنید.';
+      err.hidden = false;
+      return;
+    }
+    err.hidden = true;
+    go.disabled = true;
+    go.textContent = 'در حال ثبت…';
+    try {
+      const out = await OFN.post('/api/v1/answers', { key: q.key, value });
+      if (!out.ok) {
+        /* The node rejected it — a value outside the range the pack declared,
+           or a question that is no longer being asked. Say which. */
+        err.textContent = out.error || 'ثبت نشد.';
+        err.hidden = false;
+        go.disabled = false;
+        go.textContent = 'دوباره';
+        return;
+      }
+      OFN.done();
+      queue = out.remaining || [];
+      at = 0;
+      if (out.readiness) setDots(out.readiness.done, out.readiness.total);
+      draw();
+    } catch (e) {
+      /* A session lasts an hour. Calling that "not connected" sends a partner
+         looking for a network problem that is not there. */
+      err.textContent = e && e.status === 401
+        ? 'وقت این صفحه تمام شد. جواب شما ثبت نشده — برنامه را ببندید و دوباره باز کنید.'
+        : 'به نود وصل نشد. جواب شما ثبت نشده — دوباره بزنید.';
+      err.hidden = false;
+      go.disabled = false;
+      go.textContent = 'دوباره';
+    }
+  };
+
+  const later = el('button', 'later', 'بعداً می‌گویم');
+  later.type = 'button';
+  later.onclick = () => { at += 1; draw(); };
+
+
+  wrap.append(go, later, err);
+
+  /* Deferring a question used to be one-way: "بعداً" moved forward and
+     nothing came back. A question skipped by accident was then unreachable
+     until the queue was rebuilt, which is the same shape of trap the piece
+     form had. */
+  if (at > 0) {
+    const back = el('button', 'later', 'سؤال قبلی');
+    back.type = 'button';
+    back.onclick = () => { OFN.tap(); at -= 1; draw(); };
+    wrap.append(back);
+  }
+  return wrap;
+}
+
+function draw() {
+  LIVE.textContent = '';
+  if (at >= queue.length) {
+    const done = el('div', 'card done-card');
+    done.append(el('div', 'done-ic', '🌿'),
+                el('div', 'done-t', queue.length ? 'برای امروز کافی است' : 'ثبت شد'),
+                el('div', 'done-s', 'کار امروز تمام شد.'),
+                el('div', 'thanks', '✨ بیشتر از عددی که گفتید، سفارش گرفته نمی‌شود.'));
+    LIVE.append(done);
+    return;
+  }
+  LIVE.append(card(queue[at]));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+/* ── قطعه‌ها ──────────────────────────────────────────────────────────────
+   Rebuilt one-thing-at-a-time. The previous version put two tabs and an
+   eight-field form on one screen: every number correct, none of it usable.
+   Rules now:
+
+     one question per screen      never two decisions competing for attention
+     one action, always at the    thumb reach, same place every time
+       bottom of the screen
+     no disabled controls, ever   a dead grey button invites a tap and then
+                                  refuses it; say what is wrong, offer the move
+     the running cost is pinned   she never has to go looking for the number
+     progress is visible          "how many left" without counting            */
+const PIECES = document.getElementById('pieces');
+const DRAFT_KEY = 'ziman.draft.v1';
+let pieces = [], money = { currency: 'AUD', symbol: '$' };
+// Whether her hours are inside the cost at all. See `money_view`.
+let timeCounted = true;
+let gstKnown = true;
+/* `step` is where she is; `reached` is the furthest she has been. Two
+   numbers, because going back must not un-answer what is already
+   answered. */
+let step = 0, reached = 0, draft = {};
+
+const aud = n => (n == null || isNaN(n)) ? '—'
+  : money.symbol + fa(Number(n).toFixed(2));
+const pct = n => (n == null || isNaN(n)) ? '—' : fa(Math.round(n * 100)) + '٪';
+
+function toLatinDigits(s) {
+  return String(s).replace(/[۰-۹٠-٩]/g, d => '۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(d) % 10);
+}
+
+function num(v) {
+  if (v == null) return null;
+  const t = toLatinDigits(String(v)).replace(/[,٬]/g, '').trim();
+  if (!t) return null;
+  const n = Number(t);
+  return isNaN(n) ? null : n;
+}
+
+const STATE_FA = { in_progress: 'در دست ساخت', for_sale: 'برای فروش',
+                   sold: 'فروخته شد', gifted: 'هدیه داده شد' };
+const STATE_DOT = { in_progress: 'made', for_sale: 'sale',
+                    sold: 'sold', gifted: 'gift' };
+/* Only channels with configured fees in packs/ziman.yaml. Marketplace
+   channels stay absent until Ari sets their percent — unknown fee must
+   not be sold. */
+const CHANNEL_FA = { direct: 'مستقیم', cash: 'نقد', payid: 'PayID' };
+
+const STEPS = [
+  { key: 'name', ask: 'اسم این قطعه چیست؟',
+    why: 'هر چه خودتان صدایش می‌کنید.', ph: 'گوشوارهٔ نقره', kind: 'text' },
+  { key: 'materials_cost_aud', ask: 'مواد چقدر شد؟',
+    why: 'هر چه برای همین یک قطعه خریدید.', unit: 'دلار استرالیا' },
+  /* The two time questions used to sit here: "how many hours did it take"
+     and "what is your hourly rate". They are gone at the owner's decision,
+     after watching the first real session. Cost is now materials plus
+     packaging — see `costNow`. */
+  { key: 'packaging_cost_aud', ask: 'بسته‌بندی چقدر شد؟',
+    why: 'جعبه، روبان، کارت. اگر چیزی نبود صفر بگذارید.',
+    unit: 'دلار استرالیا', skip: true },
+  { key: 'price_primary_aud', ask: 'چند می‌فروشیدش؟',
+    why: 'قیمتی که روی آن می‌گذارید. می‌توانید خالی بگذارید و بعداً تصمیم بگیرید.',
+    unit: 'دلار استرالیا', skip: true },
+  { key: 'price_secondary_aud', ask: 'کمترین قیمتی که می‌پذیرید؟',
+    why: 'کف چانه‌زنی. اگر خالی بماند، همان قیمت اصلی ملاک است.',
+    unit: 'دلار استرالیا', skip: true },
+];
+
+/* What a piece costs: what she bought for it. Her time is deliberately not
+   in here — the two questions that priced it were removed. The consequence is
+   worth stating plainly rather than discovering later: a piece whose materials
+   are cheap will now read as profitable no matter how many evenings it took,
+   and the loss warning below will almost never fire. */
+function costNow() {
+  return (num(draft.materials_cost_aud) || 0)
+       + (num(draft.packaging_cost_aud) || 0);
+}
+function judgedPrice() {
+  const listed = num(draft.price_primary_aud);
+  const floor = num(draft.price_secondary_aud);
+  return floor != null ? floor : listed;
+}
+
+function costBar() {
+  const cogs = costNow();
+  if (!cogs) return null;
+  const price = judgedPrice();
+  const bar = el('div', 'cost');
+  if (price == null) {
+    bar.append(el('span', null, 'خرجش تا اینجا'), el('b', null, aud(cogs)));
+    return bar;
+  }
+  const gain = price - cogs;
+  /* When her hours are not in `cogs`, this number is still arithmetic — but
+     calling it "your profit" would be the system stating, with the same
+     confidence as every other figure on the screen, something it has no
+     basis for. It says what it actually knows instead: the money spent came
+     back. The green class is withheld for the same reason; a green mark
+     means "you are fine", and nobody has counted the evenings. */
+  bar.className = 'cost ' + (gain < 0 ? 'loss' : (timeCounted ? 'good' : ''));
+  bar.append(
+    el('span', null, gain < 0 ? 'ضرر روی هر دانه'
+                   : (timeCounted ? 'سود شما' : 'بیشتر از خرج مواد')),
+    el('b', null, aud(Math.abs(gain))));
+  if (gain >= 0 && !timeCounted) {
+    bar.append(el('div', 'guide', 'وقت شما در این عدد نیست.'));
+  }
+  return bar;
+}
+
+function refreshCost() {
+  const old = PIECES.querySelector('.cost');
+  const fresh = costBar();
+  if (old && fresh) old.replaceWith(fresh);
+  else if (old && !fresh) old.remove();
+  else if (fresh) PIECES.prepend(fresh);
+}
+
+function drawStep() {
+  PIECES.textContent = '';
+  if (step >= STEPS.length) return drawSummary();
+
+  const bar = costBar();
+  if (bar) PIECES.append(bar);
+
+  /* The pips were decoration. They are now the fastest way back: any step
+     already reached can be tapped. Steps not yet reached stay inert rather
+     than disappearing, so the row still says how long this is. */
+  const pips = el('div', 'pips');
+  for (let i = 0; i < STEPS.length; i++) {
+    const d = el('button', null, '');
+    d.type = 'button';
+    if (i < step) d.classList.add('done');
+    else if (i === step) d.classList.add('on');
+    const label = STEPS[i].ask;
+    d.setAttribute('aria-label', label);
+    d.title = label;
+    if (i <= reached) {
+      d.classList.add('go');
+      d.onclick = () => { OFN.tap(); step = i; drawStep(); };
+    } else {
+      d.disabled = true;
+    }
+    pips.append(d);
+  }
+  PIECES.append(pips);
+
+  const q = STEPS[step];
+  const box = el('div', 'step');
+  box.append(el('div', 'where', 'قطعهٔ تازه'),
+             el('div', 'ask', q.ask), el('div', 'why', q.why));
+
+  const inp = el('input');
+  inp.id = 'stepbox';
+  inp.type = 'text';
+  inp.inputMode = q.kind === 'text' ? 'text' : 'decimal';
+  inp.placeholder = q.ph || '';
+  inp.value = draft[q.key] != null ? draft[q.key] : '';
+  inp.oninput = () => { draft[q.key] = inp.value; saveDraft(); refreshCost(); priceNote(); };
+  inp.onkeydown = e => { if (e.key === 'Enter') forward(); };
+  box.append(inp);
+  if (q.unit) box.append(el('div', 'unit', q.unit));
+  const note = el('div');
+  note.id = 'pricenote';
+  box.append(note);
+  PIECES.append(box);
+
+  /* One button, one job. This used to be a single "back" whose meaning
+     changed per step: on the optional ones it read "ندارم، رد کن" and moved
+     *forward*, which meant half the form had no way back at all. Somebody
+     who mistyped the materials cost had to abandon the piece and start it
+     again. Skipping is a different intention from going back and now has its
+     own control. */
+  const bottom = el('div', 'bar');
+  const go = el('button', 'next', step === STEPS.length - 1 ? 'ببینمش' : 'بعدی');
+  go.type = 'button';
+  go.onclick = forward;
+  bottom.append(go);
+
+  const back = el('button', 'back', step === 0 ? 'بی‌خیال' : 'قبلی');
+  back.type = 'button';
+  back.onclick = () => {
+    OFN.tap();
+    if (step === 0) { clearDraft(); draft = {}; home(); return; }
+    step--; drawStep();
+  };
+  bottom.append(back);
+  PIECES.append(bottom);
+
+  if (q.skip) {
+    const skip = el('button', 'later', 'ندارم، رد کن');
+    skip.type = 'button';
+    skip.onclick = () => {
+      OFN.tap();
+      draft[q.key] = '';
+      step++;
+      if (step > reached) reached = step;
+      saveDraft();
+      drawStep();
+    };
+    PIECES.append(skip);
+  }
+  priceNote();
+  window.scrollTo({ top: 0 });
+  setTimeout(() => { try { inp.focus(); } catch (_) {} }, 60);
+}
+
+function forward() {
+  const q = STEPS[step];
+  const v = String(draft[q.key] || '').trim();
+  if (q.key === 'name' && !v) { OFN.tap('rigid'); return; }
+  OFN.tap();
+  step++;
+  /* How far she has been, which is not the same as where she is. Going back
+     to fix the materials cost must not lock the five steps she already
+     answered — otherwise "back" costs more than it gives. */
+  if (step > reached) reached = step;
+  saveDraft();
+  drawStep();
+}
+
+function priceNote() {
+  const slot = document.getElementById('pricenote');
+  if (!slot) return;
+  slot.textContent = '';
+  const q = STEPS[step];
+  if (!q || q.key.indexOf('price') !== 0) return;
+  const cogs = costNow();
+  const listed = num(draft.price_primary_aud);
+  const floor = num(draft.price_secondary_aud);
+  const price = floor != null ? floor : listed;
+  if (!cogs) return;
+  if (price != null && price < cogs) {
+    slot.append(el('div', 'warn-loss',
+      (floor != null && listed != null && listed >= cogs)
+        ? 'قیمت اصلی خوب است، ولی با کمترین قیمتی که می‌پذیرید روی هر دانه '
+          + aud(cogs - price) + ' ضرر می‌کنید.'
+        : 'این قیمت ضرر می‌دهد — روی هر دانه ' + aud(cogs - price)
+          + ' از جیب خودتان می‌رود.'));
+  }
+  /* The 2x/2.5x rule of thumb assumes the cost it multiplies includes
+     labour. Against materials alone it is a much weaker guide, and offering
+     it unqualified would turn a missing input into a recommendation. */
+  slot.append(el('div', 'guide',
+    'برای مقایسه: ' + aud(cogs * 2) + ' یا ' + aud(cogs * 2.5)
+    + '. تصمیم با خودتان است.'
+    + (timeCounted ? '' : ' این نسبت‌ها وقتی معنی دارند که وقت هم در خرج'
+                        + ' حساب شده باشد — اینجا نشده.')));
+  if (!gstKnown) {
+    slot.append(el('div', 'guide',
+      'بدون احتساب GST — تا وقتی نگفته‌اید ثبت‌نام کرده‌اید یا نه، این سود نهایی نیست.'));
+  }
+}
+
+function drawSummary() {
+  PIECES.textContent = '';
+  const bar = costBar();
+  if (bar) PIECES.append(bar);
+  const box = el('div', 'step');
+  box.append(el('div', 'where', 'یک نگاه آخر'),
+             el('div', 'ask', draft.name || 'بی‌نام'));
+  const t = el('div', 'money');
+  const line = (k, v) => {
+    const ln = el('div', 'ln');
+    ln.append(el('span', null, k), el('b', null, v));
+    t.append(ln);
+  };
+  line('مواد', aud(num(draft.materials_cost_aud) || 0));
+  line('بسته‌بندی', aud(num(draft.packaging_cost_aud) || 0));
+  line('خرج کل', aud(costNow()));
+  line('قیمت', num(draft.price_primary_aud) != null
+       ? aud(num(draft.price_primary_aud)) : 'نگذاشتید');
+  if (num(draft.price_secondary_aud) != null) {
+    line('کمترین قیمت', aud(num(draft.price_secondary_aud)));
+  }
+  box.append(t);
+  PIECES.append(box);
+
+  const bottom = el('div', 'bar');
+  const save = el('button', 'next', 'ذخیره کن');
+  save.type = 'button';
+  save.onclick = submitPiece;
+  bottom.append(save);
+  const back = el('button', 'back', 'برگرد و عوض کن');
+  back.type = 'button';
+  /* From the summary every step is behind her, so all of them are open. */
+  back.onclick = () => {
+    OFN.tap(); reached = STEPS.length; step = STEPS.length - 1; drawStep();
+  };
+  bottom.append(back);
+  PIECES.append(bottom);
+  window.scrollTo({ top: 0 });
+}
+
+async function submitPiece() {
+  const body = {};
+  STEPS.forEach(q => {
+    let v = draft[q.key] != null ? draft[q.key] : '';
+    if (typeof v === 'string') v = toLatinDigits(v);
+    body[q.key] = v;
+  });
+  const sku = draft.__sku;
+  try {
+    const out = sku
+      ? await OFN.post('/api/v1/products/' + encodeURIComponent(sku), body)
+      : await OFN.post('/api/v1/products', body);
+    if (!out.ok) { blocked('🌾', 'ذخیره نشد', out.error, 'برگرد', drawSummary); return; }
+    OFN.done();
+    clearDraft();
+    draft = {}; step = 0; reached = 0;
+    await load();
+  } catch (_) {
+    blocked('🌾', 'نرسید', 'به دستگاه وصل نشد. چیزی از دست نرفت.',
+            'دوباره', submitPiece);
+  }
+}
+
+function home() {
+  PIECES.hidden = false;
+  LIVE.hidden = true;
+  PIECES.textContent = '';
+  const go = el('button', 'next', '＋  قطعهٔ تازه');
+  go.type = 'button';
+  go.onclick = () => {
+    OFN.tap(); draft = {}; step = 0; reached = 0; clearDraft(); drawStep();
+  };
+  PIECES.append(go);
+
+  if (hasDraft()) {
+    const r = el('div', 'saved',
+      'یک قطعهٔ نیمه‌تمام دارید — روی همین گوشی نگه داشته شده. بزنید تا ادامه دهید.');
+    r.style.cursor = 'pointer';
+    r.onclick = () => {
+      OFN.tap();
+      const d = readDraft();
+      draft = d.draft || {}; step = d.step || 0;
+      drawStep();
+    };
+    PIECES.append(r);
+  }
+  if (!gstKnown) {
+    PIECES.append(el('div', 'saved',
+      'عددها بدون احتساب GST هستند — تا وقتی نگفته‌اید کسب‌وکار ثبت‌نام کرده یا نه.'));
+  }
+  if (queue.length) {
+    const n = el('div', 'saved',
+      'وقتی فرصت داشتید، ' + fa(queue.length) + ' سؤال کوتاه هم هست.');
+    n.style.cursor = 'pointer';
+    n.onclick = () => { OFN.tap(); PIECES.hidden = true; LIVE.hidden = false; draw(); };
+    PIECES.append(n);
+  }
+  if (!pieces.length) {
+    const empty = el('div', 'empty warm');
+    empty.append(el('div', '', 'هنوز قطعه‌ای ثبت نشده.'));
+    empty.append(el('div', 'sub', 'اولین قطعه‌ای که بسازی اینجا می‌نشیند. بالای همین صفحه «قطعهٔ تازه» را بزن.'));
+    PIECES.append(empty);
+    return;
+  }
+  pieces.forEach(p => PIECES.append(pieceRow(p)));
+}
+
+function pieceRow(p) {
+  const box = el('div', 'row2' + (p.loses_money ? ' bad' : ''));
+  const l = el('div', 'l');
+  const t = el('div', 't');
+  t.append(el('span', 'dot ' + (STATE_DOT[p.state] || 'made')), p.name);
+  l.append(t);
+  const bits = [aud(p.cogs_aud) + ' خرج'];
+  if (p.price_primary_aud != null) bits.push(aud(p.price_primary_aud));
+  if (p.days_on_sale != null) bits.push(fa(p.days_on_sale) + ' روز');
+  if (p.verdicts && p.verdicts.indexOf('stale') >= 0) bits.push('⏳ خواب‌رفته');
+  if (p.verdicts && p.verdicts.indexOf('quick_sale') >= 0) bits.push('⚡ زود فروخت');
+  l.append(el('div', 's', bits.join(' · ')));
+  box.append(l);
+  /* A bare number in this column is read as profit — it sits where profit
+     has always sat. With her hours outside `cogs_aud` it is not profit, so
+     it carries a mark that the detail screen explains. */
+  const marginCell = p.loses_money ? '🔴 ضررده'
+    : (p.gross_margin_aud != null
+        ? aud(p.gross_margin_aud) + (p.time_counted === false ? '*' : '')
+        : STATE_FA[p.state]);
+  box.append(el('div', 'r', marginCell));
+  box.onclick = () => { OFN.tap(); openPiece(p); };
+  return box;
+}
+
+
+/* ── photos of a piece ───────────────────────────────────────────────────
+   The original stays on her phone (D-A). Two renditions are built here and
+   sent; nothing else leaves. A failed upload does not touch the piece —
+   it is already saved, which is the whole reason recording is one step. */
+const EDGES = [1600, 320];
+let uploading = false;
+
+async function renditionsOf(file) {
+  let bmp;
+  try {
+    /* Without `from-image` a portrait photo from a phone lands sideways —
+       and only real photos, because a synthetic file has no EXIF at all. */
+    bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch (_) {
+    bmp = await createImageBitmap(file);
+  }
+  const out = {};
+  for (const edge of EDGES) {
+    const scale = Math.min(1, edge / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(bmp.width * scale));
+    c.height = Math.max(1, Math.round(bmp.height * scale));
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    out[String(edge)] = c.toDataURL('image/jpeg', 0.82);
+  }
+  bmp.close && bmp.close();
+  return out;
+}
+
+async function addPhoto(piece, file, say) {
+  if (uploading || !file) return;
+  uploading = true;
+  /* Resizing a 12MP photo is not instant on this hardware, and a silent
+     wait is the failure that reads as a broken app. */
+  say('در حال آماده کردن عکس…');
+  try {
+    const renditions = await renditionsOf(file);
+    say('در حال فرستادن…');
+    const out = await OFN.post(
+      '/api/v1/products/' + encodeURIComponent(piece.sku) + '/photos',
+      { position: (piece.photos || []).length, renditions });
+    if (!out.ok) { say(out.error || 'عکس ذخیره نشد.'); uploading = false; return; }
+    OFN.done();
+    await load();
+  } catch (e) {
+    say(e && e.status === 401
+        ? 'وقت این صفحه تمام شد. ببندید و دوباره باز کنید.'
+        : 'به دستگاه وصل نشد. قطعه سر جایش است.');
+  }
+  uploading = false;
+}
+
+function openPiece(p) {
+  PIECES.textContent = '';
+  const box = el('div', 'step');
+  box.append(el('div', 'where', p.sku), el('div', 'ask', p.name));
+  const t = el('div', 'money');
+  const line = (k, v) => {
+    const ln = el('div', 'ln');
+    ln.append(el('span', null, k), el('b', null, v));
+    t.append(ln);
+  };
+  line('خرجش', aud(p.cogs_aud));
+  line('قیمت', p.price_primary_aud == null ? 'نگذاشتید' : aud(p.price_primary_aud));
+  if (p.price_secondary_aud != null) line('کمترین قیمت', aud(p.price_secondary_aud));
+  if (p.gross_margin_aud != null) {
+    line(p.time_counted === false ? 'بیشتر از خرج مواد' : 'سود',
+         aud(p.gross_margin_aud));
+  }
+  line('حالا', STATE_FA[p.state] + (p.channel ? ' · ' + CHANNEL_FA[p.channel] : ''));
+  box.append(t);
+  if (p.loses_money && p.judged_price_aud != null) {
+    box.append(el('div', 'warn-loss',
+      'این قیمت ضرر می‌دهد — روی هر دانه ' + aud(p.cogs_aud - p.judged_price_aud)
+      + ' از جیب خودتان می‌رود.'));
+  }
+  if (p.time_counted === false && p.gross_margin_aud != null) {
+    box.append(el('div', 'guide',
+      'این عدد فقط مواد و بسته‌بندی را پوشش می‌دهد. وقتی که روی این قطعه '
+      + 'گذاشته‌اید در آن حساب نشده.'));
+  }
+  /* One action, on the piece it belongs to. The original is not asked for
+     and not sent — it stays on her phone, which is where it is already
+     backed up. */
+  const shot = el('div', 'guide');
+  const pick = el('input');
+  pick.type = 'file';
+  pick.accept = 'image/*';
+  pick.hidden = true;
+  pick.onchange = ev => {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    addPhoto(p, file, t => { shot.textContent = t; });
+  };
+  const shotBtn = el('button', 'later',
+    (p.photos && p.photos.length)
+      ? 'عکس دیگر  ·  ' + fa(p.photos.length) + ' عکس دارد'
+      : '＋  عکس این قطعه');
+  shotBtn.type = 'button';
+  shotBtn.onclick = () => { OFN.tap(); pick.click(); };
+  box.append(shotBtn, pick, shot);
+
+  if (p.net_margin_blocked) {
+    box.append(el('div', 'guide',
+      'سود خالص این فروش حساب نشد: کارمزد این کانال هنوز ثبت نشده. تا وقتی مالک حداقل یک کانال را با کارمزدش تأیید کند، عدد سود نمایش داده نمی‌شود.'));
+  }
+  PIECES.append(box);
+
+  const bottom = el('div', 'bar');
+  const act = (label, fn) => {
+    const b = el('button', 'next', label);
+    b.type = 'button';
+    b.onclick = () => { OFN.tap(); fn(); };
+    bottom.append(b);
+  };
+  if (p.state === 'in_progress') act('آماده‌اش کردم', () => save(p, { state: 'for_sale' }));
+  else if (p.state === 'for_sale') act('رسید فروش ثبت کن', () => saleForm(p));
+  act('بستهٔ آگهی', () => listingPacket(p));
+  act('قیمتش را عوض کن', () => editPrice(p));
+  const back = el('button', 'back', 'برگرد');
+  back.type = 'button';
+  back.onclick = () => { OFN.tap(); home(); };
+  bottom.append(back);
+  PIECES.append(bottom);
+  window.scrollTo({ top: 0 });
+}
+
+async function save(p, changes) {
+  try {
+    const out = await OFN.post('/api/v1/products/' + encodeURIComponent(p.sku), changes);
+    if (!out.ok) { blocked('🌾', 'نشد', out.error, 'برگرد', home); return; }
+    OFN.done();
+    await load();
+  } catch (_) { blocked('🌾', 'نرسید', 'به دستگاه وصل نشد.', 'دوباره', home); }
+}
+
+function editPrice(p) {
+  draft = {
+    name: p.name,
+    materials_cost_aud: String(p.materials_cost_aud),
+    packaging_cost_aud: String(p.packaging_cost_aud),
+    price_primary_aud: p.price_primary_aud == null ? '' : String(p.price_primary_aud),
+    price_secondary_aud: p.price_secondary_aud == null ? '' : String(p.price_secondary_aud),
+    __sku: p.sku,
+  };
+  /* Found by key, not by counting. This was `step = 5` and would have opened
+     the wrong question the moment a step was added or removed — which then
+     happened. */
+  step = STEPS.findIndex(q => q.key === 'price_primary_aud');
+  reached = STEPS.length;      // everything is already answered; let her roam
+  drawStep();
+}
+
+async function listingPacket(p) {
+  PIECES.textContent = '';
+  PIECES.append(el('div', 'saved', 'در حال گرفتن بستهٔ آگهی…'));
+  try {
+    const out = await OFN.get('/api/v1/products/' + encodeURIComponent(p.sku)
+                              + '/listing-packet');
+    if (!out.ok || !out.packet) {
+      blocked('🌾', 'بسته آماده نشد', out.error || 'بسته‌ای نیامد.',
+              'برگرد', () => openPiece(p));
+      return;
+    }
+    const packet = out.packet;
+    PIECES.textContent = '';
+    const box = el('div', 'step');
+    box.append(el('div', 'where', 'بستهٔ آگهی'),
+               el('div', 'ask', packet.name || 'بی‌نام'));
+    const lines = el('div', 'money');
+    const line = (label, value) => {
+      const row = el('div', 'ln');
+      row.append(el('span', null, label), el('b', null, value));
+      lines.append(row);
+    };
+    line('نام', packet.name || '—');
+    line('متن آگهی', packet.caption || '—');
+    line('کد قطعه', packet.sku || '—');
+    line('قیمت', packet.price_primary_aud == null
+      ? '—' : aud(packet.price_primary_aud));
+    line('کمترین قیمت', packet.price_secondary_aud == null
+      ? '—' : aud(packet.price_secondary_aud));
+    line('هش بسته', packet.sha256 || '—');
+    box.append(lines);
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      const copy = el('button', 'later', 'کپی بسته');
+      copy.type = 'button';
+      copy.onclick = async () => {
+        const text = [packet.name || '', packet.caption || '', packet.sku || '',
+          packet.price_primary_aud == null ? '' : String(packet.price_primary_aud),
+          packet.price_secondary_aud == null ? '' : String(packet.price_secondary_aud),
+          packet.sha256 || ''].join('\n');
+        try {
+          await navigator.clipboard.writeText(text);
+          copy.textContent = 'کپی شد';
+          OFN.done();
+        } catch (_) {
+          copy.textContent = 'کپی نشد';
+        }
+      };
+      box.append(copy);
+    }
+    PIECES.append(box);
+    const back = el('button', 'back', 'برگرد');
+    back.type = 'button';
+    back.onclick = () => { OFN.tap(); openPiece(p); };
+    PIECES.append(back);
+  } catch (_) {
+    blocked('🌾', 'بسته آماده نشد',
+            'به دستگاه وصل نشد. بستهٔ ساختگی نشان داده نمی‌شود.',
+            'دوباره', () => listingPacket(p));
+  }
+}
+
+/* Convert a plain AUD decimal to cents without binary floating-point. This
+   accepts Persian/Arabic digits, at most two decimal places, and no exponent. */
+function audCents(value) {
+  let text = toLatinDigits(String(value || '')).trim().replace(/[,٬]/g, '');
+  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) return null;
+  const parts = text.split('.');
+  const dollars = Number(parts[0]);
+  const cents = Number((parts[1] || '').padEnd(2, '0'));
+  const total = dollars * 100 + cents;
+  if (!Number.isSafeInteger(dollars) || !Number.isSafeInteger(total)) return null;
+  return total;
+}
+
+function saleEventId() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  const random = Math.random().toString(36).slice(2, 14);
+  return 'sale-' + Date.now().toString(36) + '-' + random;
+}
+
+function saleForm(p) {
+  PIECES.textContent = '';
+  const box = el('div', 'step');
+  box.append(el('div', 'where', p.sku),
+             el('div', 'ask', 'رسید فروش واقعی'));
+  const explain = el('div', 'why',
+    'فقط فروش واقعی را ثبت کنید. این رسید تأیید پرداخت نیست.');
+  box.append(explain);
+
+  let channel = '';
+  const channels = el('div', 'choices');
+  Object.keys(CHANNEL_FA).forEach(k => {
+    const b = el('button', 'choice', CHANNEL_FA[k]);
+    b.type = 'button';
+    b.setAttribute('aria-pressed', 'false');
+    b.onclick = () => {
+      channel = k;
+      channels.querySelectorAll('.choice').forEach(x => {
+        x.classList.remove('pick');
+        x.setAttribute('aria-pressed', 'false');
+      });
+      b.classList.add('pick');
+      b.setAttribute('aria-pressed', 'true');
+      OFN.tap();
+    };
+    channels.append(b);
+  });
+  box.append(el('div', 'guide', 'کانال فروش'), channels);
+
+  const field = (label, type, value = '') => {
+    const wrap = el('label', 'guide', label);
+    const input = el('input');
+    input.type = type;
+    input.value = value;
+    if (type === 'text') input.inputMode = 'decimal';
+    wrap.append(input);
+    box.append(wrap);
+    return input;
+  };
+  const gross = field('مبلغ کل فروش، دلار استرالیا', 'text');
+  const amountUnknown = el('input');
+  amountUnknown.type = 'checkbox';
+  const amountUnknownLabel = el('label', 'saved');
+  amountUnknownLabel.append(amountUnknown,
+    document.createTextNode(' مبلغ فروش را نمی‌دانم'));
+  box.append(amountUnknownLabel);
+
+  const fee = field('کارمزد، دلار استرالیا', 'text');
+  const feeUnknown = el('input');
+  feeUnknown.type = 'checkbox';
+  const feeUnknownLabel = el('label', 'saved');
+  feeUnknownLabel.append(feeUnknown,
+    document.createTextNode(' کارمزد را نمی‌دانم'));
+  box.append(feeUnknownLabel);
+
+  const soldAt = field('زمان فروش، ISO', 'text', new Date().toISOString());
+  soldAt.inputMode = 'text';
+  const evidence = field('مرجع یا مدرک اختیاری (فقط هش آن نگه داشته می‌شود)', 'text');
+  evidence.inputMode = 'text';
+  const confirmed = el('input');
+  confirmed.type = 'checkbox';
+  const confirmedLabel = el('label', 'saved');
+  confirmedLabel.append(confirmed,
+    document.createTextNode(' واقعی است، آزمایشی نیست'));
+  box.append(confirmedLabel);
+
+  const err = el('div', 'err');
+  err.hidden = true;
+  const submit = el('button', 'next', 'رسید فروش را ثبت کن');
+  submit.type = 'button';
+  submit.onclick = async () => {
+    err.hidden = true;
+    const grossCents = audCents(gross.value);
+    const feeCents = audCents(fee.value);
+    if (!channel) { err.textContent = 'کانال فروش را انتخاب کنید.'; err.hidden = false; return; }
+    if (!amountUnknown.checked && grossCents == null) {
+      err.textContent = 'مبلغ را درست بنویسید یا «نمی‌دانم» را بزنید.';
+      err.hidden = false; return;
+    }
+    if (!feeUnknown.checked && feeCents == null) {
+      err.textContent = 'کارمزد را درست بنویسید یا «نمی‌دانم» را بزنید.';
+      err.hidden = false; return;
+    }
+    if (!confirmed.checked) {
+      err.textContent = 'تأیید کنید که فروش واقعی است، نه آزمایشی.';
+      err.hidden = false; return;
+    }
+    const payload = {
+      event_id: saleEventId(), channel, sold_at: soldAt.value.trim(),
+      production_confirmed: true,
+    };
+    if (amountUnknown.checked) payload.amount_unknown = true;
+    else payload.gross_cents = grossCents;
+    if (feeUnknown.checked) payload.fee_unknown = true;
+    else payload.fee_cents = feeCents;
+    if (evidence.value.trim()) payload.reference = evidence.value.trim();
+
+    submit.disabled = true;
+    submit.textContent = 'در حال ثبت…';
+    try {
+      const out = await OFN.post('/api/v1/products/' + encodeURIComponent(p.sku)
+                                 + '/sales', payload);
+      if (!out.ok) {
+        err.textContent = out.error || 'رسید ثبت نشد.';
+        err.hidden = false;
+        submit.disabled = false;
+        submit.textContent = 'دوباره';
+        return;
+      }
+      OFN.done();
+      PIECES.textContent = '';
+      const done = el('div', 'card done-card');
+      done.append(el('div', 'done-t', 'رسید فروش ثبت شد'),
+                  el('div', 'done-s',
+                    'این رسید به معنی «پرداخت تأیید شد» نیست.'));
+      const back = el('button', 'next', 'برگرد به قطعه‌ها');
+      back.type = 'button';
+      back.onclick = async () => { await load(); };
+      done.append(back);
+      PIECES.append(done);
+    } catch (_) {
+      err.textContent = 'به دستگاه وصل نشد. رسید ثبت نشده است.';
+      err.hidden = false;
+      submit.disabled = false;
+      submit.textContent = 'دوباره';
+    }
+  };
+  box.append(submit, err);
+  PIECES.append(box);
+  const back = el('button', 'back', 'برگرد');
+  back.type = 'button';
+  back.onclick = () => { OFN.tap(); openPiece(p); };
+  PIECES.append(back);
+}
+
+function blocked(ic, title, detail, label, fn) {
+  PIECES.hidden = false;
+  LIVE.hidden = true;
+  PIECES.textContent = '';
+  const b = el('div', 'blocked');
+  b.append(el('div', 'ic', ic), el('div', 't', title), el('div', 'd', detail));
+  const go = el('button', 'next', label);
+  go.type = 'button';
+  go.onclick = () => { OFN.tap(); fn(); };
+  b.append(go);
+  PIECES.append(b);
+}
+
+function saveDraft() {
+  try { localStorage.setItem(DRAFT_KEY,
+    JSON.stringify({ step, reached, draft })); } catch (_) {}
+}
+function readDraft() {
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}') || {}; }
+  catch (_) { return {}; }
+}
+function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (_) {} }
+function hasDraft() {
+  const d = readDraft().draft || {};
+  return Object.keys(d).some(k => k !== '__sku' && String(d[k] || '').trim());
+}
+
+async function load() {
+  const data = await OFN.get('/api/v1/products');
+  pieces = data.products || [];
+  money = { currency: data.currency || 'AUD', symbol: data.symbol || '$' };
+  gstKnown = data.gst_known !== false;
+  /* Same shape as `gstKnown`: a gap the screen labels rather than papers
+     over. Absent means the node is old, and the safe reading of an absent
+     answer is the one that claims less. */
+  timeCounted = data.time_counted !== false;
+  home();
+}
+
+/* ── boot ────────────────────────────────────────────────────────────────
+   Three outcomes, three different screens. The one thing that never happens
+   is sample data quietly standing in for real data.                       */
+/* Four ways in can fail. Each gets the whole screen, one sentence she can
+   act on, and one button. The old version left the sample cards up with
+   every control greyed out — which reads as "broken, and also lying", and
+   is the only screen the first real user ever saw. */
+const REASONS = {
+  'no-shell': ['🌱', 'این را از داخل تلگرام باز کنید',
+    'روی دکمهٔ منوی پایین چت بزنید. اینجا فقط پیش‌نمایش است و چیزی ثبت نمی‌شود.'],
+  'unreachable': ['🌾', 'به دستگاه نرسیدیم',
+    'اینترنت یا خودِ دستگاه. چیزی از دست نرفته — دوباره بزنید.'],
+  'rejected': ['🌾', 'هنوز شما را نمی‌شناسد',
+    'دستگاه این ورود را نپذیرفت. به آری بگویید؛ کار شما نیست.'],
+  'error': ['🌾', 'یک جای کار می‌لنگد',
+    'دستگاه جواب داد ولی با خطا. به آری بگویید.'],
+};
+
+function showState(kind) {
+  const [ic, title, detail] = REASONS[kind] || REASONS['error'];
+  /* Remove the sample cards rather than greying them out. A disabled control
+     still invites a tap and then refuses it; an absent one asks nothing. */
+  ['s1', 's2', 's3'].forEach(id => {
+    const n = document.getElementById(id);
+    if (n) n.remove();
+  });
+  const badge = document.querySelector('.demo');
+  if (badge) { badge.textContent = 'وارد نشدید'; badge.classList.add('offline'); }
+  const head = document.querySelector('.date');
+  if (head) head.textContent = '';
+  const st = document.getElementById('state');
+  if (st) st.hidden = true;
+  blocked(ic, title, detail, 'دوباره', () => location.reload());
+  if (kind === 'no-shell') {
+    const b = PIECES.querySelector('.blocked .next');
+    if (b) b.remove();
+  }
+}
+
+/* The header and footer ship with no name in them. This is the only thing
+   that ever puts one there, and it runs after the session exists. */
+function greet(name) {
+  const hi = document.getElementById('hi');
+  if (hi) hi.textContent = name ? `سلام ${name} جان` : 'سلام';
+  const foot = document.getElementById('foot');
+  if (foot && name) foot.textContent = `زیمان · برای ${name}`;
+}
+
+async function boot() {
+  OFN.shell();
+  const connected = await OFN.connect();
+  if (!connected) { showState(OFN.why); return; }
+
+  const badge = document.querySelector('.demo');
+  if (badge) { badge.textContent = 'زنده'; badge.classList.add('livebadge'); }
+
+  /* Now, and only now, does the page know whose it is. */
+  greet(OFN.who);
+
+  let status, qs;
+  try {
+    [status, qs] = await Promise.all([
+      OFN.get('/api/v1/status'), OFN.get('/api/v1/questions'),
+    ]);
+  } catch (_) { showState('unreachable'); return; }
+
+  ['s1', 's2', 's3'].forEach(id => {
+    const s = document.getElementById(id);
+    if (s) s.style.display = 'none';
+  });
+  LIVE.hidden = false;
+
+  queue = qs.questions || [];
+  at = 0;
+
+  /* Her work first. The questions are the kernel's need, not hers, so they
+     get one line on the home screen instead of half the navigation. */
+  const saved = readDraft();
+  if (saved.draft && Object.keys(saved.draft).length) {
+    draft = saved.draft;
+    step = saved.step || 0;
+    // An older draft has no `reached`; trust where it left off.
+    reached = Math.max(saved.reached || 0, step);
+  }
+  try { await load(); } catch (_) { showState('unreachable'); return; }
+  const head = document.querySelector('.date');
+  if (head) {
+    head.textContent = queue.length
+      ? `امروز فقط ${fa(queue.length)} سؤال` : 'امروز سؤالی نیست';
+  }
+  if (status.readiness) setDots(status.readiness.done, status.readiness.total);
+  if (status.safe_mode) {
+    const box = document.getElementById('state');
+    box.hidden = false;
+    box.className = 'state warn';
+    box.textContent = 'دستگاه در حالت ایمن است. جواب‌ها ثبت می‌شوند ولی هیچ کاری بیرون نمی‌رود.';
+  }
+  draw();
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

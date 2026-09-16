@@ -1,0 +1,114 @@
+# H-OWN-06 / EXP-003b — Memory as a Decision Policy (resource-rational retention).
+# Claim: writing / retrieving / forgetting are resource-rational DECISIONS, not
+# indiscriminate database ops. Under a BOUNDED store the retention rule must
+# matter; under an unbounded store it must not. Scope C0/C1. No LLM.
+# Fully reuses experiments/gridworld_wm.py (improve-not-rewrite).
+idea: >
+  Is episodic memory a decision policy rather than a database? Under a BOUNDED
+  capacity C, an agent that GATES retention by utility (keep the entries with the
+  highest retention need-probability) should transfer better, at EQUAL capacity,
+  than one that writes everything and forgets blindly (append-all / random
+  eviction). Remove the capacity pressure and the write policy should stop
+  mattering — proving the advantage is a resource-rational effect, not an
+  artifact of the gate.
+
+hypothesis: >
+  At EQUAL bounded capacity C=60 entries, heldout success of the utility-gated
+  memory exceeds that of the append-all (capacity-blind) memory by at least
+  +0.10 (success-per-unit-stored, storage matched); the same gap collapses to
+  ~0 when capacity is unbounded (no decision to make).
+
+prediction:
+  statement: gated_success_advantage = success(gated) − success(append_all) on heldout, at equal bounded capacity C.
+  baseline: 0.0     # [EST] no-pressure floor. Source: env structure — at unbounded capacity both policies keep the whole pool, so the delta is EXACTLY 0 (pilot null: 0.0000 ± 0.0, family 983500) [FACT: pilot 2026-07-14]
+  expected: 0.14    # [FACT] pilot family 983500 (5 disjoint seeds, C=60): gated−append_all mean +0.143 ± 0.011 [FACT: pilot log 2026-07-14]
+
+metric:
+  name: gated_success_advantage
+  dataset: gridworld-heldout-tasks
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: 5 grid-world universes (seeds 983000+, disjoint from all other families); per universe one ~830-key episodic pool (pilot magnitude; per-seed pool size varies, always >> the C=60 bound) consolidated from a base greedy policy, compressed by three retention rules and evaluated on the SAME 60 heldout tasks.
+  n: 60
+  conditions:
+    - name: null_unbounded
+      description: control — gated−append_all at capacity >= pool size (no pressure -> must be ~0).
+    - name: gated_vs_recency
+      description: discriminating control — gated−recency (FIFO evict-oldest) at bounded C; isolates UTILITY vs mere determinism, outside the verdict.
+    - name: gated_advantage
+      description: primary — gated−append_all at EQUAL bounded capacity C=60.
+  protocol: >
+    Per universe: (1) train a base tabular-Q policy on the minimal-sufficient
+    abstract representation (6 slots) over the train tasks; (2) roll out the base
+    greedy policy and consolidate winning trajectories into an episodic pool
+    {key -> majority winning action} with a retention weight = visitation count
+    on winning trajectories (need-probability); (3) compress the pool to capacity
+    C by: append_all = uniformly random C-subset (capacity-blind write/forget),
+    recency = the C most-recently-discovered keys (FIFO), gated = top-C by
+    retention weight; (4) evaluate each compressed memory AS A POLICY on the same
+    heldout tasks (hit -> stored action, miss -> CRC-seeded random fallback) with
+    gridworld's frozen evaluate(). Everything is CRC-seeded from the seed-index,
+    so all three conditions share the identical universe, base policy and pool;
+    they differ ONLY in the retention rule. No learning at eval, no LLM.
+
+failure_condition:
+  metric: gated_success_advantage
+  op: "<"
+  threshold: 0.05
+  note: >
+    If the gated advantage at equal bounded capacity stays below the SESOI +0.05
+    (and it CAN be <=0: success is a trajectory-level property, so retaining the
+    individually-most-needed keys does NOT guarantee whole successful paths
+    survive), then retention utility does not add value and "memory is a decision
+    policy" is rejected for this instantiation. The null (unbounded) must sit ~0.
+
+architecture:
+  pattern: Resource-rational episodic retention (utility-gated write/forget) vs capacity-blind append-all
+  topology: base greedy policy -> consolidated episodic pool (key->action, need-weight) -> capacity-C retention rule -> memory-lookup policy on heldout
+  tradeoff: >
+    Gating spends compute to estimate per-entry retention utility and needs a
+    faithful need-probability estimate; if the store is unbounded, or the
+    representation is so compact that a random subset already covers the visited
+    states, the gate buys nothing and its bookkeeping is wasted.
+
+api_contract:
+  endpoint: /kernel/memory/retain
+  method: POST
+  request:
+    mode: gated            # gated | append_all | recency
+    capacity: 60
+  response:
+    # shape ([EST] illustrative — real numbers come from the run):
+    gated_success: 0.50
+    append_all_success: 0.35
+    gated_success_advantage: 0.14
+
+mvp:
+  stack: Python (full reuse of experiments/gridworld_wm.py; stdlib only)
+  deps: []
+  effort: "< 1 day"
+  notes: >
+    No LLM. Memory = a dict {abstract-key -> action}; retention utility =
+    winning-trajectory visitation count. append_all = random C-subset;
+    gated = top-C by utility; recency = FIFO. Eval reuses gridworld.evaluate().
+
+evaluation:
+  comparisons: [null_unbounded, gated_vs_recency, gated_advantage]
+  ablation:
+    - capacity sweep C in {20,40,60,80,120,200} (pilot, outside the verdict): advantage grows with pressure, exactly 0 at C >= pool
+    - gated_vs_recency: gated beats a deterministic FIFO policy -> effect is utility-specific, not "any structure beats random"
+  seeds: 5
+
+decision_rule:
+  primary_metric: gated_success_advantage
+  rules:
+    - max: 0.05
+      verdict: DISCARD
+    - min: 0.05
+      max: 0.10
+      verdict: OPTIMIZE
+    - min: 0.10
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓

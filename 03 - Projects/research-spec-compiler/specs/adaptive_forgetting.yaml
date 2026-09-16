@@ -1,0 +1,142 @@
+# EXP-004 / H-OWN-09 — Adaptive Forgetting under task-distribution DRIFT.
+# Claim: forgetting is a resource-rational DECISION. Under a BOUNDED store whose
+# task distribution DRIFTS over time, adaptively forgetting rules that STOPPED
+# PAYING OFF (recency-decayed utility) transfers better on post-drift heldout than
+# a store that keeps stale rules (cumulative-utility retention that never
+# down-weights old evidence). Remove the drift OR the capacity pressure and the
+# advantage must vanish. Scope C0/C1. No LLM. Fully reuses gridworld_wm.
+#
+# METHODOLOGY NOTE (why the primary is adaptive-vs-CUMULATIVE, not adaptive-vs-random):
+# adaptive-vs-random pilots POSITIVE even with NO drift (+0.039), because utility
+# gating beats blind eviction regardless of drift (the H-OWN-06 effect). Gating on
+# it would clear WITHOUT the drift mechanism — the ADR-008 failure mode. The
+# adaptive-vs-cumulative contrast is the ONLY one that is drift-specific: both arms
+# run the identical eviction algorithm and differ ONLY in the decay constant
+# (0.98 vs 1.0), so it isolates adaptive forgetting; it is +0.064 under drift and
+# -0.049 without drift (sign flips). That is the mechanism-specific quantity gated.
+idea: >
+  Is forgetting a resource-rational decision? Under a bounded episodic/schema store
+  whose task distribution DRIFTS over time (early tasks favour one cue modality,
+  later tasks another), an agent that adaptively FORGETS rules that stopped paying
+  off (recency-decayed retention utility) should keep a store better matched to the
+  CURRENT regime and transfer better on post-drift heldout, at EQUAL capacity and
+  compute, than one that KEEPS STALE RULES (cumulative-utility retention that never
+  down-weights old evidence). Remove the drift, or the capacity pressure, and the
+  advantage should collapse — proving it is a drift-driven, resource-rational effect.
+
+hypothesis: >
+  At EQUAL bounded capacity C=90 and equal compute, post-drift heldout success of a
+  recency-decayed (adaptive-forget) store exceeds that of a cumulative-utility
+  (keeps-stale-rules) store by at least the SESOI +0.03; the same contrast collapses
+  to <= ~0 when the stream is stationary (no drift) and to EXACTLY 0 when capacity is
+  unbounded (no forgetting occurs). Adaptive forgetting also beats blind (random) and
+  FIFO eviction, but those are reported controls, not the gate.
+
+prediction:
+  statement: adaptive_advantage = success(adaptive_forget) − success(cumulative_utility) on post-drift heldout, at equal bounded capacity C.
+  baseline: 0.0     # [EST] no-effect floor. Sources: (a) at UNBOUNDED capacity both arms keep the whole pool -> identical store -> delta EXACTLY 0 (pilot null 0.000 ± 0.000, family 960000); (b) with NO drift the contrast is -0.049 ± 0.044, i.e. not > 0 [FACT: pilot 2026-07-14]
+  expected: 0.064   # [FACT] pilot family 960000 (5 disjoint seeds, C=90, drift): adaptive−cumulative mean +0.064 ± 0.032 [FACT: pilot log 2026-07-14]
+
+metric:
+  name: adaptive_advantage
+  dataset: gridworld-drift-heldout
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: 5 grid-world universes (seeds 965000+, disjoint from all other families; pilot 960000). Per universe a ~550-key context-tagged schema pool is streamed from a fixed base policy under a temporal modality drift, compressed online to capacity C=90 by three eviction rules, and evaluated on the SAME 60 post-drift (90% shape) heldout tasks.
+  n: 60
+  conditions:
+    - name: null_unbounded
+      description: control — adaptive−cumulative at capacity >= pool size (no eviction -> identical store -> exactly 0).
+    - name: null_nodrift
+      description: control — adaptive−cumulative on a STATIONARY stream (no stale rules -> decay only discards evidence -> <= ~0). Isolates drift-necessity.
+    - name: adaptive_vs_random
+      description: reported control — adaptive−random(blind) at bounded C; adaptive beats blind eviction too. Outside the verdict.
+    - name: adaptive_vs_fifo
+      description: reported control — adaptive−FIFO(evict-oldest) at bounded C; adaptive beats recency too (edge is utility, not mere recency). Outside the verdict.
+    - name: adaptive_advantage
+      description: primary — adaptive−cumulative at EQUAL bounded capacity C=90 under drift.
+  protocol: >
+    Per universe: (1) train a fixed base tabular-Q cortex on a CONTEXT-TAGGED
+    abstract key = (cue_type,) + minimal_sufficient over BOTH modalities' train
+    tasks (shared by every arm; the experiment isolates the STORE, not the cortex).
+    (2) Roll the base greedy policy over a temporal STREAM whose modality mix drifts
+    (early 85% color / 15% shape, over STREAM_EARLY=300 ticks; late 15% color / 85%
+    shape, over STREAM_LATE=120 ticks); for each learned key on a WINNING trajectory
+    emit a store event. (3) Stream the events into a bounded store of capacity C=90,
+    evicting online when full by: adaptive = lowest recency-DECAYED utility
+    (decay 0.98/tick, refreshed on winning re-use); cumulative = lowest utility with
+    decay=1.0 (never down-weights stale rules); random = uniform; fifo = oldest.
+    (4) Evaluate each final store AS A POLICY on the SAME post-drift heldout (hit ->
+    stored action, miss -> CRC-seeded random fallback) with gridworld's frozen
+    evaluate(). Events + key->action are precomputed ONCE per universe and shared
+    verbatim; arms differ ONLY in the eviction rule. Everything is CRC-seeded from
+    the seed-index. No learning at eval, no LLM.
+
+failure_condition:
+  metric: adaptive_advantage
+  op: "<"
+  threshold: 0.03
+  note: >
+    If the adaptive (recency-decayed) store does not beat the cumulative
+    (keeps-stale-rules) store by at least the SESOI +0.03 at equal bounded capacity
+    under drift, then adaptive forgetting adds no value and the resource-rational
+    claim is rejected for this instantiation. It CAN be <= 0: post-drift success is
+    a TRAJECTORY-level property, so preferentially retaining recently-useful keys
+    does NOT guarantee whole successful paths survive, and decay can discard a
+    stale-but-still-needed rule. The null (unbounded) must be exactly 0 and the
+    no-drift contrast must be <= ~0, else the effect is not drift-and-pressure driven.
+
+architecture:
+  pattern: Adaptive (recency-decayed) episodic forgetting vs cumulative-utility retention under distribution drift
+  topology: fixed base cortex -> context-tagged schema events streamed under drift -> capacity-C online eviction rule -> memory-lookup policy on post-drift heldout
+  tradeoff: >
+    Adaptive forgetting spends bookkeeping to decay per-entry utility; it pays off
+    only under genuine drift AND capacity pressure. If the store is unbounded, the
+    stream is stationary, or the representation is minimal enough to absorb the
+    drifting context (drop cue_type), the decay buys nothing and can even hurt by
+    discarding still-valid old evidence (pilot no-drift: -0.049).
+
+api_contract:
+  endpoint: /kernel/memory/forget
+  method: POST
+  request:
+    mode: adaptive          # adaptive | cumulative | random | fifo
+    capacity: 90
+    decay: 0.98
+  response:
+    # shape ([EST] illustrative — real numbers come from the run):
+    adaptive_success: 0.62
+    cumulative_success: 0.56
+    adaptive_advantage: 0.064
+
+mvp:
+  stack: Python (full reuse of experiments/gridworld_wm.py; stdlib only)
+  deps: []
+  effort: "< 1 day"
+  notes: >
+    No LLM. Store = a bounded dict of context-tagged keys -> action; retention
+    utility = recency-decayed winning-trajectory re-use count. adaptive evicts
+    lowest decayed utility; cumulative uses decay=1.0 (keeps stale rules); random =
+    blind; fifo = evict-oldest. Eval reuses gridworld.evaluate() verbatim.
+
+evaluation:
+  comparisons: [null_unbounded, null_nodrift, adaptive_vs_random, adaptive_vs_fifo, adaptive_advantage]
+  ablation:
+    - capacity sweep C in {40,60,90,120,160,220} (pilot, outside the verdict): adaptive−cumulative stays +0.05..+0.066, exactly 0 at C >= pool
+    - drift-necessity: no-drift stream drives the same contrast to -0.049 (sign flips) -> the advantage is drift-caused, not a gating artifact
+    - reported controls: adaptive also beats random (+0.031) and FIFO (+0.041) at C=90
+  seeds: 5
+
+decision_rule:
+  primary_metric: adaptive_advantage
+  rules:
+    - max: 0.03
+      verdict: DISCARD
+    - min: 0.03
+      max: 0.06
+      verdict: OPTIMIZE
+    - min: 0.06
+      verdict: INTEGRATE
+# self-check: metric✓ falsifiable✓ api✓ mvp✓ decision_rule✓

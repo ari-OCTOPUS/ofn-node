@@ -1,0 +1,71 @@
+# Drake × Multiverse × سایر آگاهی‌ها — نسخهٔ خام و صادقانه.
+# این spec عمداً همان‌طوری نوشته شده که این ایده در گفتمان عمومی مطرح می‌شود؛
+# انتظار: FAIL از گیت falsifiability (و همین نکتهٔ آموزشی آن است).
+# N_c = N_universes × f_physics × f_habitable × f_life × f_consciousness × f_contactable
+# هر جملهٔ بعد از N_universes یک [EST] بدون هیچ نقطه‌دادهٔ مستقل است؛ برای
+# جهان‌های علّیتاً منفصل، هیچ observation channel تعریف‌شده‌ای وجود ندارد.
+idea: >
+  تعمیم معادلهٔ دریک از کهکشان به مولتی‌ورس: شمارش «آگاهی‌های دیگر» در جهان‌های
+  موازی با ضرب زنجیره‌ای از کسرها (f_physics × f_habitable × f_life ×
+  f_consciousness × ...).
+
+hypothesis: >
+  اگر مولتی‌ورس از نوع inflationary/branching واقعی باشد، تعداد آگاهی‌های
+  مستقل N_c بزرگ‌تر از صفر است. # open_question: هیچ کمّی‌سازی قابل‌دفاعی برای
+  هیچ‌یک از fها وجود ندارد؛ همهٔ مقادیر پایین [EST] بدون منبع مستقل‌اند.
+
+prediction:
+  statement: N_c > 0 در مولتی‌ورس.  # [EST] — قابل‌مشاهده نیست
+  baseline: 0        # [EST] بدون منبع
+  expected: 1        # [EST] بدون منبع؛ «دست‌کم یکی» — عملاً tautology برای جهان خودمان
+
+metric:
+  name: N_c_detected   # تعداد آگاهی‌های تأییدشده از جهان‌های دیگر
+  dataset: ""          # هیچ کانال مشاهده‌ای برای جهان‌های علّیتاً منفصل تعریف نشده
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: ""          # observable نیست
+  n: 0
+  conditions:
+    - name: our_universe
+      description: تنها نقطه‌دادهٔ موجود (n=1، خود-گزینشی کامل — anthropic bias).
+  protocol: >
+    وجود ندارد: جهان‌های موازیِ منفصل، per definition، برهم‌کنش علّی با ما ندارند؛
+    هیچ اندازه‌گیری مستقلی از f_consciousness در دسترس نیست.
+
+failure_condition:
+  metric: N_c_detected
+  note: >
+    نمی‌توان predicate عددی نوشت: عدم مشاهده، فرضیه را رد نمی‌کند (همیشه
+    می‌توان گفت «کانال نداریم») و مشاهده هم تعریف عملیاتی ندارد. ایده در شکل
+    فعلی‌اش ابطال‌ناپذیر است.
+
+architecture:
+  pattern: Drake-style factor chain (epistemic scaffold)
+  topology: N = Π f_i — زنجیرهٔ کسرهای شرطی
+  tradeoff: شفافیت ساختاری ↑ در ازای این توهم که ضربِ چند [EST] بدون منبع، عدد معنادار می‌سازد.
+
+api_contract:
+  endpoint: /multiverse/census
+  method: POST
+  request:
+    factors: [f_physics, f_habitable, f_life, f_consciousness]
+  response:
+    N_c: "unknowable"   # [EST] — هیچ مقدار عددی قابل‌دفاعی وجود ندارد
+
+mvp:
+  stack: "—"
+  deps: []
+  effort: "∞"
+  notes: کوچک‌ترین آزمایشی که بتواند ایده را بکشد وجود ندارد — دقیقاً مشکل همین است.
+
+evaluation:
+  comparisons: [our_universe]
+  ablation: []
+  seeds: 1
+
+decision_rule:
+  primary_metric: N_c_detected
+  rules: []   # هیچ باند تصمیمی قابل‌تعریف نیست — closure ندارد

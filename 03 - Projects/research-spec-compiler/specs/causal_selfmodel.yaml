@@ -1,0 +1,147 @@
+# H-OWN-07 / EXP-007 — Self-Model Requires Causal Access.
+# A genuine self-model must PREDICT its own error/failure states from causal
+# access to its internal computation, not merely DESCRIBE the situation from
+# the outside. Deterministic grid-world + tabular Q, zero LLM. Reuses
+# gridworld_wm (improve-not-rewrite). Pilot family 984500 -> bands FROZEN ->
+# confirmatory family 984000 (disjoint).
+idea: >
+  Test whether an agent's own INTERNAL signals (value confidence, representational
+  coverage, an imagined self-rollout) predict its own next-episode failures better
+  than a purely EXTERNAL, descriptive account of task difficulty. If a self-model
+  only needs description (not causal access to its computation), the introspective
+  advantage collapses to zero.
+
+hypothesis: >
+  A self-model with CAUSAL access to the agent's own internal computation predicts
+  the agent's own heldout-episode failures with AUC at least +0.05 higher than a
+  competitive DESCRIPTIVE (task-geometry) self-model on the same episodes, same
+  classifier, same split.
+
+prediction:
+  statement: >
+    causal_advantage = AUC(causal self-model) - AUC(status/descriptive self-model)
+    is positive and beyond a minimal 0.02 AUC effect.
+  baseline: 0.00      # [EST] null: a paired AUC difference carries 0 advantage when
+                      # the introspective signals add nothing beyond description.
+                      # Empirically the shuffled-internal-signals control sits at
+                      # chance (causal AUC ~0.40 shuffled vs ~0.67 real) [FACT: pilot 984500].
+  expected: 0.05      # [EST] H-OWN-07's preregistered minimal claim: causal access
+                      # buys >= +0.05 AUC over description.
+
+metric:
+  name: causal_advantage
+  dataset: gridworld-heldout-self-prediction
+  direction: higher_is_better
+  primary: true
+
+experiment:
+  dataset: >
+    Deterministic 7x7 grid-world task family (gridworld_wm). One tabular Q agent
+    per seed, trained on 140 train tasks with the abstract minimal-sufficient K=6
+    representation (a FIXED 6-slot state keying, not a learned or selected one).
+    Self-model dataset = the 60 heldout tasks split into a FIT half (30 tasks)
+    and a disjoint TEST half (30 tasks), 5 starts each -> 150 fit / 150 test
+    episodes; label = agent FAILS that episode (reaches the distractor object or
+    times out under the eps-greedy eval policy). The AUC verdict is scored on the
+    150-episode TEST split; the FIT split only trains each self-model classifier.
+  n: 150            # scored heldout TEST episodes per seed (30 tasks x 5 starts).
+                    # The FIT split is a separate 150 episodes used only to train
+                    # each classifier. The PRIMARY metric is the paired causal-status
+                    # AUC difference over 5 seeds, so the inferential n for the
+                    # headline number is 5 seeds, not 150 episodes.
+  conditions:
+    - name: status_auc
+      description: >
+        Descriptive baseline self-model: predicts failure from EXTERNAL task
+        geometry only (BFS distance to target, BFS distance to the distractor,
+        their difference, local wall count, Manhattan geometry). Competitive, not
+        a strawman.
+    - name: causal_auc
+      description: >
+        Self-model with causal access: predicts failure from the agent's OWN
+        internal computation (max-Q and Q-gap at the start key, start/neighbour
+        representational-bin coverage, local value landscape, and a short imagined
+        greedy self-rollout measuring novelty / low-confidence ahead).
+    - name: shuffled_causal_auc
+      description: >
+        Null control: identical causal features with FIT-split labels permuted
+        before fitting, scored on the real test labels -> collapses to ~chance.
+    - name: causal_advantage
+      description: PRIMARY = AUC(causal) - AUC(status), paired per seed.
+  protocol: >
+    For each of 5 confirmatory seeds (family 984000, disjoint from pilot 984500):
+    train the agent, build the paired FIT/TEST episode datasets, fit a
+    deterministic standardized L2 logistic regression on the FIT split for each
+    feature set, score AUC (Mann-Whitney) on the untouched TEST split. All four
+    conditions reuse an identical agent + identical episodes per seed (cached), so
+    causal_advantage is a genuine paired difference. Controls: same learner, same
+    classifier + hyperparameters, same episodes, same split. The causal vector is
+    WIDER (7 features vs the status model's 5); this capacity gap is neutralized
+    because both self-models are FIT on one split and SCORED on a disjoint TEST
+    split (added noise features test at ~0.5) AND the shuffled-label control
+    collapses toward chance, so extra width alone cannot buy test-set AUC.
+
+failure_condition:
+  metric: causal_advantage
+  op: "<"
+  threshold: 0.02
+  note: >
+    If the causal self-model fails to beat the descriptive self-model by at least
+    a minimal 0.02 AUC (SESOI) on heldout, then causal access to internal state
+    adds nothing beyond description -> H-OWN-07 is rejected in this C0 setting.
+    [FACT: pilot family 984500, 3 seeds] status AUC ~0.74, causal AUC ~0.67,
+    shuffled ~0.40, causal_advantage ~ -0.08 (range [-0.19, -0.004]) -> the
+    honest pre-registered anticipation is DISCARD; the confirmatory seeds decide.
+
+architecture:
+  pattern: Predictive self-model (introspective probe) vs descriptive world-model
+  topology: agent Q + transition model -> [start-state internal probes | task geometry] -> failure classifier
+  tradeoff: >
+    Causal access needs read-out of the agent's own value table + a self-rollout
+    (compute + wiring cost); if geometry alone predicts failures as well, that
+    cost buys nothing.
+
+api_contract:
+  endpoint: /kernel/selfmodel/predict_failure
+  method: POST
+  request:
+    agent_id: gridworld-k6
+    task_suite: gridworld-heldout-self-prediction
+    self_model: causal        # or "status"
+    seeds: 5
+  response:
+    # response SHAPE only ([EST] illustrative, from pilot) — not results.
+    causal_auc: 0.67
+    status_auc: 0.74
+    shuffled_causal_auc: 0.40
+    causal_advantage: -0.08
+
+mvp:
+  stack: Python (stdlib only, no framework)
+  deps: []
+  effort: "< 1 day"
+  notes: >
+    No LLM; reuses gridworld_wm; pure-Python logistic regression + Mann-Whitney
+    AUC; fully deterministic given seeds. Cached per-seed agent so the 4 conditions
+    share one training pass.
+
+evaluation:
+  comparisons: [status_auc, causal_auc, shuffled_causal_auc, causal_advantage]
+  ablation:
+    - shuffled internal signals (labels permuted) -> chance
+    - status-only vs causal-only self-models on identical episodes
+    - imagined-rollout horizon H (self-simulation depth)
+  seeds: 5
+
+decision_rule:
+  primary_metric: causal_advantage
+  rules:
+    - max: 0.02
+      verdict: DISCARD
+    - min: 0.02
+      max: 0.05
+      verdict: OPTIMIZE
+    - min: 0.05
+      verdict: INTEGRATE
+# self-check: metric OK  falsifiable OK  api OK  mvp OK  decision_rule OK
+# DISCARD band (< 0.02) lines up with failure_condition.threshold 0.02, inside [baseline 0.00, expected 0.05].

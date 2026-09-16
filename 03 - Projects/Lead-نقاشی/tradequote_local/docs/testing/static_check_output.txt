@@ -1,0 +1,4 @@
+Checked 48 Dart files.
+PART   lib/data/db/database.dart -> database.g.dart (generated later by build_runner)
+
+RESULT: PASS (no unresolved imports, no unbalanced delimiters, router/providers consistent)

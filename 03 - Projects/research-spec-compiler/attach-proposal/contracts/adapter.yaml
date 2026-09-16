@@ -1,0 +1,47 @@
+# adapter.yaml — the single bounded integration contract (PROPOSAL)
+# Depth-1 state-file handoff (SPEC-OCTOPUS-2027-v0.md:53-58): producers write a
+# versioned schema:X.v1 file; consumers read fail-soft. No chained coupling.
+adapter:
+  name: research-spec-compiler
+  status: proposed
+  enabled: false                 # off-flag; owner activates via ORANGE verdict
+
+  # ---- AFFERENT: broadband, read-only. The organ's senses. ----
+  reads:
+    - id: organism_events
+      path: "F:/backup/4d_system/outputs/4d_experiments.db"
+      table: dashboard_events
+      connection: "file:{path}?mode=ro&immutable=1"
+      cadence: on-demand-snapshot     # one read -> local snapshot; body untouched
+      note: "4d research daemon stopped since 2026-07-11; snapshot is a stable static read"
+    - id: heart_signals
+      schema: heart-signals.v1
+      access: read-fail-soft
+    - id: cortex_state
+      schema: cortex-state.v1
+      access: read-fail-soft
+
+  # ---- EFFERENT: propose-only. The organ has no hands. ----
+  writes:
+    - id: cortex_proposal
+      schema: cortex-state.v1          # the organ MAY propose a cortex-state, gated
+      target: local-kernel-dir-only    # never writes into _ops or 4d_system
+      gate: owner-telegram-verdict      # nothing reaches the body without it
+      mode: propose_only
+  effects:
+    outward: none
+    money: 0                            # paper-mode
+    production_merge: unwired           # apply_merge intentionally not connected
+
+  # ---- SUBORDINATION (structural, per Octopus_Heart_Design_v1.md:199-203) ----
+  subordination:
+    tick_source: organism.py            # organ does not self-pace the body
+    kill_switch: out-of-band-always-wins
+    ring0_1_write: forbidden
+    revoke: supervisory                 # dissolves organ to baseline on command
+
+  # ---- HEALTH / OBSERVABILITY ----
+  health:
+    verdict_ref: adr/ADR-008-hybrid-cortex-organism-attach.md
+    self_report: bottleneck_advantage=0.036 (OPTIMIZE, shadow-only)
+    degraded_policy: auto-lock-to-L1     # observability-degraded -> propose-only

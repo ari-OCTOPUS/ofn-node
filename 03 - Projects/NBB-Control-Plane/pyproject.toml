@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nbb-control-plane"
+version = "0.2.0"
+description = "NBB Control Plane — human-sovereign, budget-governed multi-agent control plane (v0.2 skeleton)"
+readme = "README.md"
+requires-python = ">=3.11"
+# Runtime is intentionally dependency-free in v0.2: the kernel is stdlib-only
+# by invariant, and the baseline adapters (sqlite/mock-LLM/noop-telemetry)
+# stay stdlib-only so the skeleton runs anywhere. Extras arrive per phase.
+dependencies = []
+
+[project.optional-dependencies]
+api = ["fastapi>=0.110", "httpx>=0.27", "uvicorn>=0.29"]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "l0: kernel-only unit tests (pure, no I/O)",
+    "l1: adapter/integration tests (sqlite, api, filesystem)",
+    "l2: replay tests (cassette-driven end-to-end epochs)",
+]
+addopts = "-q"
