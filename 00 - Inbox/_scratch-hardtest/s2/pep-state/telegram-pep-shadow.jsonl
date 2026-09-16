@@ -1,1 +1,0 @@
-{"ts": "2026-08-16T12:11:05", "sender": "s2-test", "action": "editMessageText", "params_sha": "77f5b88edc89f7fa09b8ae37", "mode": "shadow", "verdict": "deny", "reason": "no-lease (deny-by-default)", "lease": null}
