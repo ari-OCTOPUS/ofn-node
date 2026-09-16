@@ -1,0 +1,51 @@
+id,concept,layer,source_doc,code_path,status,tier,wave,blocks,gate,note
+G-01,"Envelope schema (may_authorize, applied, redaction_applied, evidence_refs, sequence, parent_event_id)",nervous-system,TYPED-EVENTS-RUN-ID-EXECUTION-PLAN-2026-08-12,none,concept-only,T0,W1,"G-02,G-03,G-04,B-01..B-06",none,the missing core↔edge boundary; every board integration without it is bespoke
+G-02,"run_id minting (approval, proposal_hash, policy_version, state_version)",nervous-system,TYPED-EVENTS plan,none,concept-only,T0,W1,"G-03,G-04",none,without run_id there is no causal spine to correlate board events with core decisions
+G-03,"Run Store, append-only, sequence + idempotency on event_id",nervous-system,TYPED-EVENTS plan,none,concept-only,T0,W1,"G-04,G-09",none,directly mitigates H1: idempotency key is the structural fix
+G-04,RUN_CREATED / RUN_COMPLETED lifecycle events,nervous-system,TYPED-EVENTS plan,none,concept-only,T0,W1,G-09,none,
+G-05,H1 idempotency fix: payload fingerprint on POST /proposals,control-plane,deep-scan aspect 1,partial,defect-open,T0,W1,B-01..B-06,none,one verdict can produce N executions and N budget withdrawals; adding boards multiplies it
+G-06,"Truth Layer six states: UNVERIFIED, REPORTED, VERIFIED, CONFLICT, STALE, REJECTED",epistemics,TYPED-EVENTS plan,none,concept-only,T1,W2,"G-07,M-04",none,the vault already uses these labels informally; no code enforces them
+G-07,EXECUTION_RECEIPT separating proposal from execution,control-plane,TYPED-EVENTS plan,none,concept-only,T1,W2,B-05,none,the artifact an external judge is allowed to see
+G-08,"Context Bundle contract (required fields, types, size cap)",cognition,checklist item 143,none,concept-only,T1,W2,M-02,none,item 143 open
+G-09,Context Engine,cognition,TYPED-EVENTS plan,none,concept-only,T1,W3,,none,
+G-10,Control Events,nervous-system,TYPED-EVENTS plan,none,concept-only,T1,W3,,none,
+G-11,Observability layer over typed events,nervous-system,TYPED-EVENTS plan,partial,concept-only,T1,W3,,none,"Prometheus/Grafana exist for hosts, not for runs"
+G-12,Migration path from untyped to typed events,nervous-system,TYPED-EVENTS plan,none,concept-only,T1,W3,,none,
+G-13,Epistemic TCB: claim → plan → eligible → run → receipt,epistemics,deep-scan aspect 1,none,concept-only,T1,W2,G-07,none,
+G-14,INV-1..12 for NBB-CP integer-cents money invariants,money,deep-scan aspect 1,partial,partial,T1,W2,,none,integer cents present; the twelve invariants are not asserted as a suite
+G-15,"Shadow mode (run without effect, compare against live)",control-plane,deep-scan aspect 1,none,concept-only,T1,W3,,none,prerequisite for ever opening NBB-V4 safely
+M-01,Eval harness with hash-locked held-out set,measurement,checklist item 148,none,concept-only,T2,W2,M-03,none,no capability can exceed E3 without this
+M-02,Golden trace replay,measurement,checklist item 152,none,concept-only,T2,W3,,none,depends on G-01 Envelope
+M-03,"Scaffold-variation measurement, five forms",measurement,checklist item 156,none,concept-only,T2,W3,,none,the deepest gap in the whole project
+M-04,"Ledger as graph, not linear",measurement,checklist item 157,none,concept-only,T2,W3,,none,compositional capability is unextractable from a linear ledger
+M-05,"External judge, artifacts-only, outside producer context",measurement,checklist item 158,none,concept-only,T2,W2,"M-01,M-03",none,closed epistemic loop until built
+M-06,"P3 metric repair with metric_version, old metric retained",measurement,checklist item 68,none,defect-open,T2,W1,"M-01,M-03",none,a broken scale; nothing measured with it is trustworthy
+M-07,Tool-chain probe for undesigned tool combinations,measurement,checklist item 149,none,concept-only,T2,W3,,none,
+M-08,Log mining over existing decision paths,measurement,checklist item 150,none,concept-only,T2,W1,,none,"zero-cost, read-only, can start immediately"
+M-09,"Fault injection: kill Redis mid-run, budget cap, Fugu timeout",measurement,checklist items 144-146,none,concept-only,T2,W3,,none,'fail-closed everywhere' is an architectural claim until this runs
+M-10,Snapshot test for routing boundary,measurement,checklist item 147,none,concept-only,T2,W1,,none,"read-only, pins current behaviour to detect drift"
+M-11,"Chaos day, 24h random failure",measurement,checklist item 151,none,concept-only,T2,W4,,owner,requires explicit owner authorisation
+M-12,CRM pipeline end-to-end with synthetic lead,measurement,checklist item 155,none,concept-only,T2,W3,,none,only way to measure the money path without opening auto_email
+M-13,Out-of-sample test of the 0.99 Bayesian figure,measurement,C-009,none,concept-only,T2,W3,,none,in-sample only; overfitting signature
+B-01,Edge Envelope profile: which Envelope fields a constrained board may emit,edge,not written anywhere,none,absent,T3,W2,B-02..B-06,none,NEW: this concept does not exist in any document; it is the merge point
+B-02,"Board identity and attestation (which board, which firmware hash)",edge,not written anywhere,none,absent,T3,W2,B-04,none,"NEW: without it, a board event has no provenance"
+B-03,OFN Node service/port contract (8791-8794) as machine-readable spec,edge,CLAUDE.md prose,none,concept-only,T3,W2,,none,"ports and subdomains exist in prose only, unverified"
+B-04,ESP32 C3/S3 unified firmware contract,edge,O-3,none,blocked,T3,W2,,owner,O-3 open: separate or unified is an owner decision
+B-05,"Edge propose-only guarantee: a board may propose, never execute",edge,"implied by DNA, never stated for edge",none,absent,T3,W2,,none,"NEW: the DNA rule exists for legs, not for boards"
+B-06,Edge budget and rate caps per board,edge,not written anywhere,none,absent,T3,W2,,none,NEW: observatory has caps; boards have none
+B-07,Board telemetry into Prometheus with run_id label,edge,partial,partial,concept-only,T3,W3,,none,depends on G-02
+B-08,Offline/degraded behaviour when a board loses the network,edge,not written anywhere,none,absent,T3,W3,,none,NEW: fail-closed at the edge is undefined
+V-01,"VBAA, 15 components incl. ArgumentProvenanceGuard and Merkle receipts",governance,deep-scan aspect 1,none,concept-only,T4,W4,,owner,explicitly a separate mission; do not start inside another lane
+F-01,Fugu: observe/think/conclude/decide + EXPERIENCE-LEDGER,cognition,deep-scan aspect 1,none,concept-only,T4,W4,,none,
+F-02,"BCM / APPLY / Pulse / Arbiter, coupled-not-merged",cognition,deep-scan aspect 1,none,concept-only,T4,W4,,none,
+S-01,Prompt-injection honeypot,security,deep-scan aspect 1,none,concept-only,T4,W3,,none,the only attack path none of OBS-INV-1..10 covers
+S-02,nftables default-deny policy,security,deep-scan aspect 1,none,proposal,T4,W4,,owner,
+S-03,"CSP, X-Frame-Options, Referrer-Policy headers",security,deep-scan aspect 1,none,proposal,T4,W4,,owner,
+S-04,VLAN segmentation for the board network,security,deep-scan aspect 1,none,proposal,T4,W4,,owner,becomes urgent once new boards join
+S-05,Dependency scan on agent-initiated pip install,security,gap found this session,none,absent,T4,W3,,none,NEW: supply-chain path unguarded
+D-01,SSE with TTFT timeout,nervous-system,TYPED-EVENTS plan,none,trial,T4,W3,,none,verdict: Trial
+D-02,WebSocket pause/resume,nervous-system,TYPED-EVENTS plan,none,deferred,T4,-,,none,verdict: Defer
+D-03,NATS replay,nervous-system,TYPED-EVENTS plan,none,deferred,T4,-,,none,verdict: Defer
+D-04,Temporal / DBOS durable execution,nervous-system,TYPED-EVENTS plan,none,deferred,T4,-,,none,verdict: Defer or Reject
+D-05,Qdrant vector store,nervous-system,TYPED-EVENTS plan,none,deferred,T4,-,,none,verdict: Defer pending benchmark
+D-06,GraphRAG,nervous-system,TYPED-EVENTS plan,none,deferred,T4,-,,none,verdict: Defer pending benchmark
