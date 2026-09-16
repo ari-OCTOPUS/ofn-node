@@ -265,3 +265,45 @@ Two runs over the same fixture tree must produce byte-identical receipts except
 errors" is not a result. Tier 1 and Tier 3 must run with **no** `ofn` import at all —
 asserted by checking `sys.modules` for any `ofn*` key before and after.
 
+---
+
+## 9. AS-BUILT — 2026-09-17 (status: BUILT + RUN ONCE OFFLINE)
+
+This spec is now implemented. Half A is live; **Half B (on-node) is still NOT
+authorized and NOT performed.**
+
+| Spec section | As built | Where |
+|---|---|---|
+| §3 Half A — static/offline | **implemented** | `_ops/halt_oracle_doctor/{resolver,coverage,doctor}.py` |
+| §3 Half B — on-node | **not built, not run** — receipts carry `node_observation: NOT_PERFORMED` | — |
+| §4 coverage amendment | **implemented** — coverage rows are the primary output; `out_of_scope_consumers.any_label_changed` is asserted false | `coverage.py`, `doctor.py` |
+| §5 receipt format | **implemented** — `octopus.halt-doctor.v1` mismatch rows + `octopus.halt-coverage-receipt.v1` coverage receipt; `mutations_performed: 0` on every row | `receipts/` |
+| §6 acceptance criteria | **7 of 7 met** — see the offline run report §4 | `09-LANES/OD4-DOCTOR-20260917/REPORT-DOCTOR-OFFLINE-RUN.md` |
+| §8 fixture harness | **implemented** — 36 tests / 6 tiers, all green | `_ops/halt_oracle_doctor/tests/test_doctor.py` |
+
+### Deviations from this spec, with reasons
+
+1. **§8.1's "no `ofn` import" gained exactly one bounded exception** — `ofn.kernel.halt`
+   — because testing a reimplementation proves nothing. It is verified at runtime
+   (no transport module may appear in `sys.modules`) rather than trusted. Any second
+   `ofn` import remains a stop condition.
+2. **§2 clause 6 ("no env read") is enforced as `os.environ`/`os.getenv`/`os.putenv`
+   specifically**, not as "no `os` module" — the tool legitimately needs `os.path`.
+   `pathlib.Path.expanduser` is deliberately NOT used: the declared HOME is a parameter,
+   so configuration is never inherited.
+3. **§5 gained a `rule_exemptions` field.** R5 cannot scan its own definition file.
+   Recorded in the receipt rather than hidden.
+4. **A new guard not in this spec:** `_require_posix_absolute()` refuses a
+   shell-rewritten `--declared-home` (Git-Bash turned `/home/ari` into
+   `C:/Program Files/Git/home/ari` on the first run and produced a plausible but WRONG
+   oracle path). Emitting a silently wrong answer was judged worse than failing.
+
+### Verification commands
+
+```bash
+# harness (36 tests, 6 tiers)
+python _ops/halt_oracle_doctor/tests/test_doctor.py
+
+# the canonical offline run (Git-Bash needs MSYS_NO_PATHCONV=1)
+MSYS_NO_PATHCONV=1 python -m _ops.halt_oracle_doctor.doctor     --repo F:/ofn-node --declared-home /home/ari     --documented-oracle F:/ofn-node/HALT --phase PRE
+```
