@@ -1,6 +1,0 @@
-artifacts/
-__pycache__/
-*.pyc
-octopus_bridge/__pycache__/
-tests/__pycache__/
-tests/fixtures/tmp-*/
