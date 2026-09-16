@@ -1,0 +1,18 @@
+{
+  "schema": "shelf-verify-receipt/1",
+  "id": "SHELF-1",
+  "at_utc": "2026-09-16T11:25:00Z",
+  "order": "MP-ROOTFIX REV-1 step 1 (re-scoped per INC-6: 40 products already live; verify 5 against ALL fields + real Admin-API read)",
+  "method": "Shopify Admin API products.json?limit=5 read from board138 with OFN_SHOPIFY_ADMIN_TOKEN (name only; token never printed), shop domain from OFN_SHOPIFY_SHOP_DOMAIN in node.env",
+  "external_load": "PROBE1-ziman-store-product-page PASS 2026-09-16 (HTTP 200, storefront loads, see PROBE-RUN-1.json)",
+  "products": [
+    {"handle": "black-and-gold-gift-box-with-flowers-balloons-and-chocolates", "price_aud": "120.00", "images": 4, "desc_chars": 361, "inventory_qty": 0, "status": "active", "field_verdict": "FAIL_INVENTORY_ZERO"},
+    {"handle": "black-and-red-valentine-gift-box", "price_aud": "142.50", "images": 1, "desc_chars": 235, "inventory_qty": 1, "status": "active", "field_verdict": "PASS"},
+    {"handle": "black-gift-box-with-pink-teddy", "price_aud": "90.00", "images": 1, "desc_chars": 155, "inventory_qty": 1, "status": "active", "field_verdict": "PASS"},
+    {"handle": "black-gift-box-with-teddy", "price_aud": "135.00", "images": 1, "desc_chars": 195, "inventory_qty": 1, "status": "active", "field_verdict": "PASS"},
+    {"handle": "blue-roses-in-a-blue-basket", "price_aud": "75.00", "images": 1, "desc_chars": 559, "inventory_qty": 0, "status": "active", "field_verdict": "FAIL_INVENTORY_ZERO"}
+  ],
+  "shipping_cost": "NOT IN PRODUCT PAYLOAD — requires shipping_zones read; open gap, no fabrication",
+  "verdict": "PARTIAL 3/5 — two hero products (incl. the $120 flagship) have inventory_qty=0: the storefront cannot accept an order on them. Real stock availability is an owner question (cannot be fabricated); queued into the CHECKOUT-1 owner card.",
+  "next": "owner answers real stock for the two zero-inventory products (or picks 5 in-stock ones); then CHECKOUT-1 minimal real test order (owner card) and TRAFFIC-1 first post per PREREG"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "decision-receipt/1",
+  "id": "DECISION-O5",
+  "at_utc": "2026-09-16T11:25:00Z",
+  "order": "MP-ROOTFIX REV-2 (painting): close the O-5 payment-method decision",
+  "decision": "PAYPAL_INVOICE — one payment rail for both feet (Ziman + painting), one ledger",
+  "proposal_by": "senior-agent per megaprompt REV-2 ('same PayPal Invoice as Ziman: one money path, one ledger')",
+  "owner_status": "PROPOSED — payment-rail choice + account wiring is owner-RED (money identity); silence is never approval. Card queued together with CHECKOUT-1.",
+  "rationale": [
+    "single rail = single VERIFIED_CASH ledger = single six-condition row shape",
+    "PayPal invoice carries payout_id natively (D-1 anti-wireheading requirement)",
+    "deposit flow for painting quotes (25-40% upfront) maps to invoice partials"
+  ],
+  "painting_funnel_today": "already live end-to-end (97 leads, 71 staged, 10 sends/day, one warm conversation with Absolute Strata awaiting building address); O-5 only gates the DEPOSIT step when a quote is accepted",
+  "lead_form_5field": "PARKED-ON-GROK-P6 — the landing-page copy deliverable of the Grok team megaprompt covers the form; intake rows land in leads_master via the same schema"
+}
