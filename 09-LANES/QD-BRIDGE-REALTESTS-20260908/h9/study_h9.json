@@ -1,0 +1,42 @@
+{
+  "study_id": "OCTOPUS-H9-ARCHIVE-SEEDED-RESUME",
+  "created_at": "2026-09-08T05:0xZ (before any wiring; baseline read from pre-intervention receipts only)",
+  "authority": "owner GO «GO FOR ALL» (2026-09-08, this session) on the QD-BRIDGE decision card; composes with MP-CONNECT-ALL-01 no-mess rules (§0: extend three_role only, no new flags/daemons, idempotent, rollback = revert one commit)",
+  "mode": "LIVE_ORGANISM_EXPERIMENT / MEASURE_ONLY / NO_NEW_OUTBOUND",
+  "question": "Does seeding the three-role Director's context with top-salience relevant semantic-memory notes (the organism's skill archive) improve mission decision quality versus unseeded runs?",
+  "wiring_point": "_ops/three_role.py ONLY (additive block): archive_seed() + deterministic per-run coin; NO changes to organism.py, drive_loops.py, flags, gates, or any executor logic; live daemon untouched (three_role is CLI-invoked, re-imported per invocation)",
+  "intervention": {
+    "arm_T": "ctx += 'ELITE MEMORY' digest: top-k=3 notes from state/semantic_memory.jsonl ranked by (token-overlap with context, salience); gist + next_action included",
+    "arm_R": "ctx unchanged (current behavior)",
+    "coin": "arm = T if int(sha256(f'{mission_key}:{YYYY-MM-DDTH}').hexdigest()[:8],16) % 2 == 0 else R — deterministic, no stored randomness, no flags",
+    "seeding_scope": "director_pick prompt context ONLY (v1 minimal-diff); evaluator/director_final prompts unchanged"
+  },
+  "baseline_pre_intervention": {
+    "source": "09-LANES/MP-CAPABILITY-GAP-01-20260907/evidence/three-role-receipts.jsonl (5 runs, 2026-09-07T11:48Z..2026-09-08T04:16Z)",
+    "runs": 5,
+    "pick_valid_rate": 1.0,
+    "fallback_rate": 0.0,
+    "final_call_dist": {"no": 4, "unclear": 1},
+    "decisiveness_rate": 0.8,
+    "note": "n=5 UNDERPOWERED; pick_valid is ceiling-saturated (1.0) and therefore NOT usable as primary"
+  },
+  "metrics": {
+    "primary": "decisiveness_rate = (final_call in {yes,no}) / runs, per arm",
+    "guard": "pick_valid_rate (arm T must stay >= 0.7; seeding must not confuse the small local brain)",
+    "covariates": "brain_ok rate per arm (local brain availability), mission mix per arm, duration_ms"
+  },
+  "thresholds_locked": {
+    "supported_if": "T_decisiveness >= R_decisiveness + 0.10 (absolute) AND T pick_valid_rate >= 0.7",
+    "rejected_if": "T_decisiveness <= R_decisiveness at verdict time",
+    "kill_label": "if T_decisiveness < R_decisiveness - 0.10: 'archive_consumption_harmful_for_this_loop' recorded + rollback proposal to owner (wiring stays until owner decides)",
+    "verdict_window": "evaluate when (>=30 runs per arm) OR at 2026-09-22T23:59Z, whichever first; otherwise verdict = PENDING_CONTINUE",
+    "immutable": "no threshold may change after observing post-intervention data"
+  },
+  "receipt_contract": "every run appends h9 = {arm, coin_key, n_store, seeded:[{ts,salience,gist<=120ch}], digest_chars, seed_error?} into the existing three-role receipt row; analysis script reads the receipts file only",
+  "rollback": "git revert the single three_role.py wiring commit; zero other state to undo (no flags, no daemon restart needed)",
+  "inference_limits": [
+    "one mission registry, one small local brain, cadence ~7 runs/day; decisiveness is a proxy for decision quality, not revenue",
+    "coin balances arms only in expectation; short windows can be imbalanced — n>=30/arm required before verdict",
+    "positive result licenses NOTHING beyond keeping the wiring; no autonomy/production claim (GOV-V8 L2)"
+  ]
+}

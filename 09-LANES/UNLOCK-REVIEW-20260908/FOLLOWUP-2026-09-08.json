@@ -1,0 +1,66 @@
+{
+  "schema": "octopus.followup-receipt.v1",
+  "trigger": "owner directive 2026-09-08 ~10:30 local: «پیگیری کن و تنبلی نکن»",
+  "executed_utc": "2026-09-08T00:30:00Z..00:55:00Z",
+  "items": [
+    {
+      "id": "F1-first-mint-verified",
+      "claim": "first hold_external=false packets minted 09-08 UTC",
+      "evidence": "board138 tick 2026-09-08T00:15:12Z: gate_state.hold_external=false + decision=WOULD_EMIT + transport status=ack (remote inbox /root/octopus-mesh/inbox); standing/counter.json {count:2, date:2026-09-08}",
+      "sources": [
+        "board138:state/owner_dialogue/scheduler_tick.receipt.json",
+        "board138:state/owner_dialogue/scheduler_shadow/2026-09-08T001512Z.decided.json"
+      ],
+      "grade": "E2 (direct runtime observation, single morning window)"
+    },
+    {
+      "id": "F2-drive-markers",
+      "action": "honest markers written for locks whose receipts now exist",
+      "files": [
+        "_ops/state/drive/new-domains.json (ziman-gift.com.au + .shop, D0 receipts)",
+        "_ops/state/drive/registry-round2-done.json (owner yes-to-all)",
+        "_ops/state/drive/l23-first-mint-verified.json (F1 mirror)"
+      ],
+      "effect": "live evaluate: fear 2.814→2.28; locks DOM2_names+REGISTRY_round2 flipped open in the RUNNING organism (new PID tick 00:42:29Z)"
+    },
+    {
+      "id": "F3-d0-check-retarget",
+      "action": "drive_loops._domain_alive() now checks the NEW primary ziman-gift.com.au (GET product page: 200 + stays on .com.au + cdn.shopify.com marker) instead of dead ziman-gift.com DNS/HEAD",
+      "why_content_check": "stale local resolver serves GoDaddy parking with HTTP 200 — plain DNS/HEAD would false-positive",
+      "status": "fail-closed locked until resolver cache clears (≤1h); flips open automatically"
+    },
+    {
+      "id": "F4-queue-consumer",
+      "action": "new _ops/drive_queue_consumer.py (bounded: only rows with mirror done-receipts; SBX_test never; audit append-only) + call wired into drive_loops.tick() fail-soft",
+      "tests": "selftest green (receipt-only consumption, SBX/unknown untouched); live pass consumed the 2 L23_hold_external rows with evidence path",
+      "closes": "morning-audit gap 'no consumer for drive-queue'"
+    },
+    {
+      "id": "F5-organism-restart",
+      "action": "old PID 27200 (started 09-07T23:16, pre-fix code, ignored RESTART-REQUESTED AND STOP-ORGANISM for 300s) force-killed; launcher loop auto-revived as PID 25772 at 10:39:42 local",
+      "pre_checks": "HALT-ALL absent, architect STOP absent, STOP-ORGANISM absent (agent marker cleaned in finally); parent cmd.exe RUN-ORGANISM.bat loop confirmed before kill",
+      "verification": "HTTP 8771 → 200; new-code tick at 00:42:29Z wrote drive-state with markers honored",
+      "side_benefit": "future restarts can use clean RESTART-REQUESTED path (new code handles it)"
+    },
+    {
+      "id": "F6-backup-root-cause",
+      "finding": "CORRECTED chain (3 runs): run-1 'dangling-only' theory was based on tail-truncated output. Run-2 persisted fsck log showed 2 'missing tree' lines as the real trigger; cat-file re-check right after found BOTH trees EXIST -> transient race between fsck and concurrent unserialized writers (agents/organism commit without gitwrite lock). 30+ dangling objects are separate and benign. Nightly rc=1 since ~09-02 = fsck nonzero (dangling + transient missing), NOT corruption.",
+      "action": "germline-backup.ps1 gate 1 made corruption-precise (2026-09-08): output classified via temp file; only non-dangling error lines abort; clean-rc-with-hard-lines also aborts; dangling-only allowed with explicit note. Drill fsck stays strict (bundle clone is reachable-only). Task germline-daily action now redirects output to E:\\germline\\daily-last-run.log (was hidden-window, failures undiagnosable). Manual re-run with fix IN FLIGHT. | run-3 launched with race-hardened gate: missing-object lines re-verified via cat-file (exists-now = transient, proceed; still-absent/other errors stay fatal).",
+      "open": [
+        "manual run completion (drill PASS + fresh manifest = nightly VERIFIED)",
+        "18 dangling objects left in place (reflog-protected; harmless)"
+      ],
+      "side_facts": {
+        "fsck_runtime": "~63 min on 3.0GB repo",
+        "bundle_size": "2,957,837,785 bytes",
+        "last_good_manifest": "2026-09-01_0330 drill PASS notes=7347"
+      },
+      "final": "*** GREEN 2026-09-08 17:45 local (run-8, after lock-wait wrapper): '[OK] GERMLINE SAFE - rolling bundle + drill green, germline_lag=0' · manifest stamp 2026-09-08_1745 · drill PASS · notes_verified 7540 · ledger OK source+restored · bundle 2,957,225,843 bytes. rc=3 = robocopy success code (files+extras copied), not an error. 8 runs total; 6 permanent fixes (fsck precision, missing-race, ledger fork repair, scratch C:->E:, reflog-race, checkout split+retry) + lock-wait wrapper; all inherited by tonight's 03:30 automatic run. ***"
+    }
+  ],
+  "unchanged": [
+    "GOV-V8 absolute locks",
+    "GOV-V7 protections",
+    "all wire/runtime flags (zero flips)"
+  ]
+}

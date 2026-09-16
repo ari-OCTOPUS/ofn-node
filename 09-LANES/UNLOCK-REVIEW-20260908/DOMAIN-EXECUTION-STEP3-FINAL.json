@@ -1,0 +1,29 @@
+{
+  "schema": "octopus.domain-execution-step.v1",
+  "step": "4_primary_domain_changed_verified",
+  "observed_utc": "2026-09-07T23:44:00Z (approx)",
+  "agent": "ZCode session (continuation after Codex usage exhaustion at step 2)",
+  "authority": "OWNER-DECISION-D0-PRIMARY-20260908.json",
+  "primary_change": {
+    "new_primary": "ziman-gift.com.au",
+    "old_primary": "ziman-gift.com (badge removed; now plain Connected row)",
+    "admin_readback": "domains table first row: 'ziman-gift.com.au Primary Connected' (badge observed in admin UI)",
+    "type_after": "Primary domain (detail page Type row)",
+    "mechanism_note": "selected PRIMARY radio in 'Change domain type for ziman-gift.com.au' modal after neutralizing an invisible closed-modal overlay that swallowed pointer events; final state verified by readback, not by observed submit click"
+  },
+  "acceptance_verification": [
+    { "criterion": "selected domain connected to same shop", "result": "PASS", "evidence": "admin domains table row status Connected; detail page 'TLS certificate provisioned'" },
+    { "criterion": "valid HTTPS", "result": "PASS", "evidence": "edge 23.227.38.32 cert CN=ziman-gift.com.au issuer Let's Encrypt YE1 valid 2026-09-07..2026-12-06; GET / 200 server:cloudflare" },
+    { "criterion": "primary readback equals selected root domain", "result": "PASS", "evidence": "admin table Primary badge on ziman-gift.com.au" },
+    { "criterion": "product page opens without redirect to dead ziman-gift.com", "result": "PASS", "evidence": "GET /products/black-and-gold-gift-box-with-flowers-balloons-and-chocolates = 200, num_redirects=0, final URL on ziman-gift.com.au, 0 occurrences of ziman-gift.com/products in HTML; page content real (theme Balance, store Ziman Gift)" }
+  ],
+  "tls_poll": "TLS-POLL-LOG.jsonl in this lane: first 200 at 2026-09-07T23:40:59Z (iter 15) root via edge .32",
+  "caveats": [
+    "local/ISP resolver caches still serve old GoDaddy parking IPs (13.248.243.5 / 76.223.105.230) until TTL expiry (record TTL 1h); authoritative ns73.domaincontrol.com + 1.1.1.1 already serve 23.227.38.32",
+    "www.ziman-gift.com.au admin-status Connected but external www HTTPS not yet observed in poll window (www_code stayed 000); expect propagation",
+    "www.ziman-gift.com (old dead .com) now shows 'Invalid DNS' in admin — pre-existing dead zone, not caused by this change",
+    "ziman-gift.shop second purchased domain untouched (decision scope: other_purchased_domain_change=false)"
+  ],
+  "external_effects": "Shopify admin setting change only (primary domain). No DNS writes by this agent (automatic connect did them). No code, gates, flags, or sends changed.",
+  "rollback": "set primary back to ziman-gift.com in same admin UI (owner action); DNS records at GoDaddy captured in STEP1/STEP2"
+}

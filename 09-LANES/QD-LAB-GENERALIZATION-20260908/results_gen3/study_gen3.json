@@ -1,0 +1,71 @@
+{
+  "study_id": "OCTOPUS-QD-LAB-GEN-v3",
+  "created_at_note": "hashed into ledger event 0 BEFORE any run of this study",
+  "status": "LOCAL_SIMULATION_ONLY",
+  "production_authorized": false,
+  "parent_studies": ["OCTOPUS-QD-LAB-v2", "OCTOPUS-QD-LAB-GEN-v1", "OCTOPUS-QD-LAB-GEN-v2"],
+  "question": "Does archive-based parent selection (skill-memory consumption) accelerate coverage/QD growth in a NEW environment vs fresh sampling, and does local accumulation matter beyond pure consumption?",
+  "environment": {
+    "maze": "B1 (vertical chambers) regenerated from GEN-v2 generator, seed 201",
+    "walls_sha256": "a95eb40568568416b98cb937602bf35942b956d8e8985247b25fa52c0a462d0f",
+    "walls_sha256_note": "first 16 hex shown here are prefix of full digest recorded in ledger; full digest equals ledger event 0 of GEN-v2",
+    "pillars_sha256": "8ac04f77174437c6",
+    "start": [0.06, 0.06],
+    "prechecks": "package SHA256SUMS 89/89, GEN-v1 ledger 94 events VALID, GEN-v2 ledger 76 events VALID, B1 hashes match GEN-v2 ledger event 0 (fail-closed)"
+  },
+  "config": {
+    "grid": 64,
+    "batch": 96,
+    "generations": 150,
+    "initial": 256,
+    "init_sigma": 1.2,
+    "clip": 4.0,
+    "sigma_mut": 0.18,
+    "mut_rate": 0.30,
+    "variation_mode": "mutation-only (package's best-known operator policy per rejected H2), identical rng call order in all arms: two integers draws + one choice draw + gaussian_mutation(p1, sigma_mut*1.5, 0.5)",
+    "evaluations_per_run": 14656
+  },
+  "seeds": [7, 11, 23],
+  "arms": {
+    "T_transfer_seed": {
+      "gen0": "256 elites sampled UNIFORMLY WITHOUT replacement (rng=default_rng(seed).choice) from frozen source archive full_seed{seed}, evaluated on B1, inserted into local archive as immigrants with their source ids recorded as parents",
+      "gen1_plus": "variation parents drawn from local (growing) archive",
+      "pairing": "T run with seed s consumes full_seed{s}"
+    },
+    "R_random_seed": {
+      "gen0": "256 random genomes N(0,1.2) clip +/-4, rng=default_rng(seed).normal — identical to package initial populations",
+      "gen1_plus": "variation parents drawn from local (growing) archive"
+    },
+    "F_frozen_parents": {
+      "gen0": "identical to R (same rng call: normal(0,1.2,(256,74)))",
+      "gen1_plus": "variation parents ALWAYS drawn from frozen source archive full_seed{seed}; local archive accumulates children for measurement only (consumption without accumulation)",
+      "role": "descriptive only, no verdict"
+    }
+  },
+  "budget_fairness": "all arms: 256 gen-0 evals + 96/generation x 151 batches = 14,656 evaluations on B1, same seeds, same code path for evaluation and archive admission",
+  "metrics": {
+    "per_generation": ["coverage = filled/4096", "qd_score = sum of elite fitness on B1", "n_elites", "admitted", "new_cells", "migrant_parent_count (arm T: parents[:,0] < 256, i.e. gen-0 immigrant ids)"],
+    "checkpoints": [50, 150]
+  },
+  "hypothesis": {
+    "id": "OQD-H8",
+    "claim": "Archive parent selection accelerates diversity/quality growth in a new environment relative to fresh random initialization.",
+    "test_plan": "3 arms x 3 seeds on maze B1; means over seeds at checkpoints 50 and 150; all seeds reported, none dropped.",
+    "threshold": {
+      "T_qd_at_50_ge_R": 1.10,
+      "T_qd_at_150_ge_R": 1.10,
+      "T_cov_minus_R_cov_at_50_min": 0.05
+    },
+    "verdict_rule": "SUPPORTED_IN_THIS_LAB if mean_T_qd(50) >= 1.10*mean_R_qd(50) AND mean_T_qd(150) >= 1.10*mean_R_qd(150) AND mean_T_cov(50) - mean_R_cov(50) >= 0.05; REJECTED_BY_THRESHOLD if any of the three fails; UNKNOWN on execution failure.",
+    "kill_condition": "If mean_T_qd <= mean_R_qd at BOTH checkpoints, record label 'archive_consumption_worthless' as a negative finding. No threshold may change after observing results.",
+    "descriptive": "Arm F curves and final values; migrant-parent share trajectory in arm T; gen-0 baseline state (recorded, not part of verdict)."
+  },
+  "ledger_plan": "new receipts_gen3.jsonl ('x' mode, no resume); event 0 = this file's sha256 + arm specs + B1 hashes; one event per generation per run with unique selected_parent_ids (consumption evidence) and candidate weights hash; integrity_gen3.json with head/count",
+  "stop_conditions": "NaN/Inf in evaluation or hash mismatch in prechecks => STOP/BLOCKED, no interpretation",
+  "inference_limits": [
+    "one held-out maze (B1) of one structural family; one operator policy (mutation-only); 3 seeds; no p-values",
+    "acceleration claim bounded to coverage/QD under this metric; no mission-level value claim",
+    "T advantage at gen 0 is partly structural (diverse immigrants start ahead); verdict checkpoints 50/150 test persistence, and this caveat is recorded, not hidden",
+    "local simulation; propose-only; no Core/hardware/money; production_authorized=false"
+  ]
+}

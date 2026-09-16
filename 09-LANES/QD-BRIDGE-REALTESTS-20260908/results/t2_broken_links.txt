@@ -1,0 +1,112 @@
+find_broken_links index_start
+بررسی شد: 5083 نوت
+لینک شکسته — لایهٔ دست‌چین (§۱۱): 47
+  ✗ [[architecture/SPECTRAL-DEF-2026-08-12]]  در  00 - Inbox/2026-08-12 RECONCILIATION-REPORT — Math Atlas Runtime Truth.md
+  ✗ [[_ops/capabilities/*.json]]  در  00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md
+  ✗ [[_ops/dark_capabilities]]  در  00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery.md
+  ✗ [[_ops/orphan_scan]]  در  00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery.md
+  ✗ [[_ops/effector_registry]]  در  00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery.md
+  ✗ [[_ops/capability_registry]]  در  00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery.md
+  ✗ [[agent-prompts/MEGAPROMPT-DEBT-SWEEP-2026-08-16]]  در  00 - Inbox/2026-08-15 REPORT — Forgotten Gaps for Next Agent.md
+  ✗ [[03 - Projects/research-spec-compiler/adr]]  در  00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents.md
+  ✗ [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16]]  در  00 - Inbox/2026-08-16 DAY-INDEX (MOC).md
+  ✗ [[../agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16]]  در  00 - Inbox/2026-08-16 DAY-INDEX (MOC).md
+  ✗ [[../agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16]]  در  00 - Inbox/2026-08-16 DAY-INDEX (MOC).md
+  ✗ [[../agent-prompts/MEGAPROMPT-OWNER-CLOSE-2026-08-16]]  در  00 - Inbox/2026-08-16 DAY-INDEX (MOC).md
+  ✗ [[../agent-prompts/MEGAPROMPT-CLAUDE-COWORK-2026-08-16]]  در  00 - Inbox/2026-08-16 DAY-INDEX (MOC).md
+  ✗ [[../agent-prompts/MEGAPROMPT-EQUIP-00-SHARED-CONTRACT-2026-08-16]]  در  00 - Inbox/2026-08-16 DAY-INDEX (MOC).md
+  ✗ [[../agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16]]  در  00 - Inbox/2026-08-16 DAY-INDEX (MOC).md
+  ✗ [[../agent-prompts/MEGAPROMPT-CLAUDE-COWORK-2026-08-16]]  در  00 - Inbox/2026-08-16 DAY-INDEX (MOC).md
+  ✗ [[../agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16]]  در  00 - Inbox/2026-08-16 DISCOVERY — Laptop to Arm1 Migration.md
+  ✗ [[../agent-prompts/MEGAPROMPT-EQUIP-00-SHARED-CONTRACT-2026-08-16]]  در  00 - Inbox/2026-08-16 MEGAPROMPT — Equip Octopus Sequential.md
+  ✗ [[../agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16]]  در  00 - Inbox/2026-08-16 MEGAPROMPT — Migrate Close Gaps.md
+  ✗ [[../agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16]]  در  00 - Inbox/2026-08-16 MEGAPROMPT — Owner Ease.md
+  ✗ [[../agent-prompts/MEGAPROMPT-PERPETUAL-PERFECT-2026-08-16]]  در  00 - Inbox/2026-08-16 MEGAPROMPT — Perpetual Perfect.md
+  ✗ [[../agent-prompts/MEGAPROMPT-SEAM-LOOP-SELFIMPROVE-2026-08-16]]  در  00 - Inbox/2026-08-16 MEGAPROMPT — Seam Loop Self-Improve.md
+  ✗ [[../agent-prompts/MEGAPROMPT-VERIFIER-00-SHARED-CONTRACT-2026-08-18]]  در  00 - Inbox/2026-08-18 MEGAPROMPT — Verifier Pattern Three Nodes.md
+  ✗ [[../octopus-research-sprint/00-inputs/PROJECT-EVIDENCE-MANIFEST]]  در  00 - Inbox/2026-08-19 DAY-INDEX (MOC).md
+  ✗ [[../../agent-prompts/MEGAPROMPT-VIBEGUARD-IMPLEMENT-2026-08-17]]  در  03 - Projects/VibeGuard/PROJECT.md
+  ✗ [[OCTOPUS-BODY-v1]]  در  07 - Knowledge/FPGA-Reflex-Layer.md
+  ✗ [[Arm-3-Sensor-Reflex]]  در  07 - Knowledge/FPGA-Reflex-Layer.md
+  ✗ [[PolicyGate]]  در  07 - Knowledge/FPGA-Reflex-Layer.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-DEBT-SWEEP-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-DEBT-SWEEP-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/48-SECOND-COUNCIL-TCB-ATTRIBUTION-2026-08-15.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/52-OWNER-EASE-2026-08-16.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-OWNER-CLOSE-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/53-OWNER-CLOSE-2026-08-16.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-CLAUDE-COWORK-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-CLAUDE-COWORK-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/54-GROK-SESSION-SOT-2026-08-16.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-EQUIP-00-SHARED-CONTRACT-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/55-EQUIP-SEQUENTIAL-MEGAPROMPTS-2026-08-16.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/57-LAPTOP-TO-ARM1-MIGRATION-2026-08-16.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-MIGRATE-CLOSE-GAPS-2026-08-16]]  در  07 - Knowledge/شناخت-اختاپوس/59-MIGRATE-CLOSE-GAPS-2026-08-16.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-VERIFIER-00-SHARED-CONTRACT-2026-08-18]]  در  07 - Knowledge/شناخت-اختاپوس/66-VERIFIER-EVIDENCE-ENVELOPE-2026-08-18.md
+  ✗ [[../../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21]]  در  07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md
+  ✗ [[../../06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21]]  در  07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md
+  ✗ [[../../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21]]  در  07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md
+  ✗ [[../../06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21]]  در  07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md
+  ✗ [[../../06-EVIDENCE/OCTOPUS-PRESERVATION-2026-08-21T2138/SOURCE-MANIFEST]]  در  07 - Knowledge/شناخت-اختاپوس/81B-OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21.md
+  ✗ [[../../06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/POST-ACTIVATION-SUMMARY]]  در  07 - Knowledge/شناخت-اختاپوس/82-EXPEDITED-BOUNDED-LIVE-ROLLOUT-2026-08-22.md
+  ✗ [[../../06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/POST-SOAK-PRIORITY]]  در  07 - Knowledge/شناخت-اختاپوس/82-EXPEDITED-BOUNDED-LIVE-ROLLOUT-2026-08-22.md
+  ✗ [[../../06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/SIDE-EFFECT-ACCOUNTING]]  در  07 - Knowledge/شناخت-اختاپوس/82-EXPEDITED-BOUNDED-LIVE-ROLLOUT-2026-08-22.md
+لینک شکسته — لایهٔ عملیاتی/بستهٔ سند: 57
+  ✗ [[../06-EVIDENCE/K9-THREE-SEED-2026-08-20]]  در  02-DECISIONS/OWNER-RULINGS-2026-08-20-CHAT.md
+  ✗ [[../MANIFEST]]  در  03 - Projects/Accounting/obsidian/00-MOC-Accounting-System.md
+  ✗ [[../MANIFEST]]  در  03 - Projects/Accounting/obsidian/00-MOC-Accounting-System.md
+  ✗ [[WAVE6-CI-DRIFT-GATE-SPEC]]  در  03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md
+  ✗ [[C-045 در CONTRADICTIONS]]  در  06-EVIDENCE/C-043-INCONSISTENT-ROUNDING-2026-08-20.md
+  ✗ [[../agent-prompts/MEGAPROMPT-OWNER-CLOSE-2026-08-16]]  در  06-EVIDENCE/OWNER-CLOSE-2026-08-16.md
+  ✗ [[../agent-prompts/MEGAPROMPT-OWNER-EASE-2026-08-16]]  در  06-EVIDENCE/OWNER-EASE-2026-08-16.md
+  ✗ [[C-045]]  در  06-EVIDENCE/T14-PERIOD-PROVENANCE-2026-08-20.md
+  ✗ [[BITEMPORAL-SPINE-SPEC-2026-08-20]]  در  06-EVIDENCE/T37-T38-T39-DIRECTIVE-6-2026-08-20.md
+  ✗ [[HC-WM-MC-WAVE0-2026-08-20]]  در  06-EVIDENCE/BITEMPORAL-SPINE-SPEC-2026-08-20/README.md
+  ✗ [[../BOARD2-ZIMAN-GALLERY-PHOTOS-2026-08-23]]  در  06-EVIDENCE/BOARD2-ZIMAN-PHOTO-MATCH-2026-08-24/OWNER-BRIEF-FA-REMAINING.md
+  ✗ [[GOV-V8-ACK]]  در  06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEASON-GOV-V8-ZIMAN-DASHBOARD.md
+  ✗ [[06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/owner_decision.p2]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/07-P2-12-FIELDS.md
+  ✗ [[06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/settle-138/obs182_extract]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/02-RUNTIME-PROVENANCE.md
+  ✗ [[06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/witness_mint.p2]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/03-WITNESS-CONTRACT.md
+  ✗ [[06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/oracle-182/isolated-once/octopus_witness_worker]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/03-WITNESS-CONTRACT.md
+  ✗ [[06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/owner_decision.p2]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/06-P2-FIELD-OWNERSHIP.md
+  ✗ [[06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/field-provenance]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/06-P2-FIELD-OWNERSHIP.md
+  ✗ [[06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/test_witness_mint.p2]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/07-TEST-CENSUS.md
+  ✗ [[06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/test_owner_decision_fake.p2]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/07-TEST-CENSUS.md
+  ✗ [[06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/oracle-182/isolated-once/test_182_once_independent]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/07-TEST-CENSUS.md
+  ✗ [[06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/owner_decision.p2]]  در  06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/03-OWNER-DECIDE-12-FIELDS.md
+  ✗ [[../../agent-prompts/MEGAPROMPT-DEBT-SWEEP-2026-08-16]]  در  07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/README.md
+  ✗ [[09-LANES/U-WHY-NOT-LIVE-20260905/LAYER2-COMPLETE]]  در  07-HANDOFF/U-LAYER4-CHANNEL-SELECTION-2026-09-05.md
+  ✗ [[09-LANES/U-WHY-NOT-LIVE-20260905/LAYER3-RECEIPT]]  در  07-HANDOFF/U-LAYER4-CHANNEL-SELECTION-2026-09-05.md
+  ✗ [[06-REALITY-MANIFEST]]  در  docs/octopus-surgery/20-SEASON-2026-0901-RECONCILIATION.md
+  ✗ [[06-REALITY-MANIFEST]]  در  docs/octopus-surgery/20-SEASON-2026-0901-RECONCILIATION.md
+  ✗ [[old_ts, huge_aud]]  در  docs/octopus-surgery/specs/DRAWDOWN-ENFORCER-BACKLOG-CONTRACT.md
+  ✗ [[06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21]]  در  OCTOPUS/CURRENT-TRUTH.md
+  ✗ [[01-REPOSITORY-BASELINES]]  در  OCTOPUS/Operations/2026-08-28-L191-Complete-v4/00-MOC.md
+  ✗ [[04-T0-REALITY-LOCK]]  در  OCTOPUS/Operations/2026-08-28-L191-Complete-v4/00-MOC.md
+  ✗ [[05-RUNTIME-PATH]]  در  OCTOPUS/Operations/2026-08-28-L191-Complete-v4/00-MOC.md
+  ✗ [[07-SAFETY-COST-GUARDS]]  در  OCTOPUS/Operations/2026-08-28-L191-Complete-v4/00-MOC.md
+  ✗ [[Kaduk et al., 2025, Psychophysiology]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[Frontiers in Psychology, recommendations]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[ClinicalTrials.gov NCT05680337]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[Phys.org, May 2025]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[IJQF 2025]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[arXiv 2508.20348]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[MintMCP, AI agent security 2026]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[Microsoft Open Source Blog]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[Stanford Law CodeX]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[Strata.io, HITL 2026 Guide]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [["1", "2", "3", "4", "5"]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [["بله", "خیر"]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [["خانه", "کار", "جای دیگر"]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[InlineKeyboardButton("E — مستحکم", callback_data="tag:E"),
+        InlineKeyboardButton("S — حدس", callback_data="tag:S"),
+        InlineKeyboardButton("P — استعاره", callback_data="tag:P"),]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [["۱", "۲", "۳", "۴", "۵"]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [["بله", "خیر"]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [["خانه", "محل کار", "جای دیگر"]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[InlineKeyboardButton("E — مستحکم (فیزیولوژی)", callback_data="tag:E"),
+        InlineKeyboardButton("S — حدس/گمانه", callback_data="tag:S"),
+        InlineKeyboardButton("P — استعاره/چارچوب", callback_data="tag:P"),]]  در  _archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md
+  ✗ [[receipts/COGNITION-AUTHORITY-TESTS-20260830T071344Z.log]]  در  _github-export/ofn-node/docs/octopus-surgery/INDEX.md
+  ✗ [[receipts/COGNITION-AUTHORITY-TESTS-20260830T071344Z.log]]  در  _github-export/ofn-node-20260830-193052/docs/octopus-surgery/INDEX.md
+  ✗ [[06-EVIDENCE/INCIDENT-CENTER-HANG-2026-08-21]]  در  _ops/cortex/plans/OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md
+  ✗ [[06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21]]  در  _ops/cortex/plans/OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md
+  ✗ [[06-EVIDENCE/INCIDENT-CENTER-HANG-2026-08-21]]  در  _worktrees/ign2-pathology-slice-guard/_ops/cortex/plans/OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md
+  ✗ [[06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21]]  در  _worktrees/ign2-pathology-slice-guard/_ops/cortex/plans/OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md

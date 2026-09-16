@@ -1,0 +1,17 @@
+{
+  "schema": "restart.receipt.v1",
+  "lane_id": "U2-RESUME-20260907 (+U1 activation)",
+  "authority": "same owner message 2026-09-07 («… ریستارت کن و استارت رو بزن») — service restart via EXISTING watchdog launchers per v4.1 §14 (no ad-hoc boot)",
+  "prechecks": "STOP-TG-CENTER / STOP-CORTEX / HALT-ALL / STOP / architect-STOP all ABSENT (verified before kill)",
+  "actions": [
+    {"service": "telegram_center/center.py", "old_pid": 2108, "killed_at": "2026-09-07T14:59:15+10:00", "revived_by": "OCTOPUS-TG-Center-Watchdog -> RUN-TG-CENTER.bat", "new_pid": 764, "new_started": "2026-09-07T14:59:23 (8s downtime)"},
+    {"service": "cortex/cortex.py", "old_pid": 10312 (running since 2026-09-04 21:04 with pre-U1 modules), "killed_at": "2026-09-07T14:59:15+10:00", "revived_by": "OCTOPUS-Cortex-Watchdog (2-consecutive-probe rule) -> RUN-CORTEX.bat", "new_pid": 19728, "new_started": "2026-09-07T15:07:04"}
+  ],
+  "loaded_revision_proof": {
+    "u1": "state/cortex/stress-latest.json written by new cortex at 15:07:05 with schema=stress.v2, data_quality=ok — the patched sensor-honesty code is LIVE in production (first v2 artifact ever written)",
+    "u2": "center PID 764 runs the patched answer branch (owner-gated + take_resume + natural wake). Runtime proof awaits the first real owner reply to a blocked-task question — unit tests 5/5 green meanwhile"
+  },
+  "untouched": "organism.py / live server / miniapp / mcp server — none import the patched behavior-critical modules directly; no restart needed",
+  "counters": "EXTERNAL_ACTIONS=0 · NEW_LAN_LISTENERS=0",
+  "rollback": "watchdogs keep services alive as before; code rollback via git checkout (see U2-RECEIPT)"
+}

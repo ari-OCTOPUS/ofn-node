@@ -1,0 +1,64 @@
+{
+ "artifact_sha256": "9e157b4db282b5f28503284ad8861ab9fe2e3823dfa3c988fd9f5f84d36368a9",
+ "base_sha256": "109e68c0f3752f93e9965760457bc3c8d942d2522061d92ee573d2022502855d",
+ "component": "ops-agent",
+ "dependencies": [
+  "/home/ari/ofn/state/ops-agent/state/dep-evidence/B8-CAPABILITY-20260914.json",
+  "native-A3-W24-BINDER-006.json"
+ ],
+ "diff_scope": [
+  "state/ops-agent/ops_agent.py"
+ ],
+ "edge_note": {
+  "at": "2026-09-14T11:47:04+00:00",
+  "protection_binding": "G8/W24 deploys run under the LIVE executor 109e68c0: pre-effect drift-block+verify YES; the S4a in-memory copy and S4b precondition-freeze are staged in TRIO and protect deploys AFTER it",
+  "why": "ROUND30 contradiction resolved: TRIO was 'independent' yet expected to run last only by filename. The explicit ordering edge is consumed by G29: TRIO passes only when the binder holds W24's expected_post (b9c504f8), making G8->W24->TRIO->G30 fully edge-driven with no manual repin (G8/W24 finish before TRIO can pass, so the executor pin never goes stale under them)"
+ },
+ "expected_post_sha256": "9e157b4db282b5f28503284ad8861ab9fe2e3823dfa3c988fd9f5f84d36368a9",
+ "patched": "/home/ari/ofn/state/coding-worker/stage/SUCCESSOR-TRIO-20260914/ops_agent.py",
+ "post_deploy_note": "executor bytes move to d0b86a35 -> G30-wiring request dep pin (109e68c0) blocks until repinned to d0b86a35 with provenance (fail-closed, expected)",
+ "priority": 9,
+ "provenance": {
+  "class": "REAL_CODE_DEFECT",
+  "source": "superseded trio deltas (B5 paths-absent unfalsifiable; CATSCOPE budget suffix scoping; G3 filename-order priority)",
+  "source_hash": "d0b86a359917e04de348c25aa66113e1ce32a2a36437d2db0476b5a23d1202bf",
+  "source_ts": "2026-09-14T10:30:00Z"
+ },
+ "requested_by": "octopus-commander-editor/2026-09-14",
+ "rollback": {
+  "mechanism": "B4 rollback-requests entry",
+  "pre_image": "/home/ari/ofn/state/coding-worker/stage/SUCCESSOR-TRIO-20260914/ops_agent.py.baseline-109e68c0",
+  "pre_image_sha256": "109e68c0f3752f93e9965760457bc3c8d942d2522061d92ee573d2022502855d"
+ },
+ "stage_tests": {
+  "at": "2026-09-14T11:52:22+00:00",
+  "battery": "round31-battery 26/26 PASS under the kernel fence (uid nobody; production write probe rejected)",
+  "matrix": "g28-accept-v2 32/32"
+ },
+ "supersedes": {
+  "artifact": "db03333d7f03ce03",
+  "at": "2026-09-14T11:52:22+00:00",
+  "by": "octopus-commander-editor/2026-09-14",
+  "lineage": "d0b86a35->9126c388->aa867bfb->ae293073->a85db3b0->b70f75b3->db03333d->v3d",
+  "previous_supersede": {
+   "artifact": "d0b86a359917e04d...",
+   "at": "2026-09-14T11:20:44+00:00",
+   "by": "octopus-commander-editor/2026-09-14",
+   "lineage": "d0b86a35 -> 9126c388 -> aa867bfb -> ae293073 -> a85db3b0",
+   "previous_supersede": {
+    "at": "2026-09-14T10:39:57+00:00",
+    "reason": "their bases died under later verified fixes; deltas rebuilt onto 109e68c0 as ONE combined successor (saves quota slots); B5 delta REPAIRED: the old artifact set cache-bytes-freed only on action_spec while the executed action-record still verified paths-absent - both are connected now",
+    "requests": [
+     "native-B5-MEASURED-RECOVERY-001 (superseded-tasks)",
+     "native-TASK-OPS-BUDGET-CATSCOPE-005 (superseded-tasks)",
+     "native-A4-AB-COMPOSITE-011 (superseded-tasks)"
+    ]
+   },
+   "reason": "owner-mission ROUND30: B5 same-scope measurement (frozen set, one rule, measurement-first verdict, quarantine-mv with unique names, no rm -rf), G3 no-starvation + safe priority parse, CATSCOPE verdicts, malformed-ledger tolerance, S4a internal byte-copy, S4b precondition freeze+re-check"
+  },
+  "reason": "ROUND31: B5 measurement completeness (os.walk onerror - rglob swallowed PermissionError making unreadable dirs read as ZERO, the exact false-VERIFIED vector) + decision consumer in the tick + tick results merge fix"
+ },
+ "target": "/home/ari/ofn/state/ops-agent/ops_agent.py",
+ "target_sha256": "9e157b4db282b5f28503284ad8861ab9fe2e3823dfa3c988fd9f5f84d36368a9",
+ "task_id": "SUCCESSOR-TRIO-001"
+}

@@ -1,0 +1,20 @@
+{
+ "total_notes": 323,
+ "megaprompt_said": 322,
+ "note": "1 net new note since megaprompt — both numbers reported",
+ "taggable_single_domain": 135,
+ "taggable_ambiguous_multi": 1,
+ "untaggable_no_signal": 187,
+ "taggable_at_all": 136,
+ "single_domain_breakdown": {
+  "infrastructure/ops": 104,
+  "painting/leads": 31
+ },
+ "top_ambiguous_pairs": {
+  "painting/leads+ziman/store": 1
+ },
+ "cost_estimate_for_OP5": {
+  "auto_taggable_clean": 135,
+  "needs_human_or_rule_review": 188
+ }
+}

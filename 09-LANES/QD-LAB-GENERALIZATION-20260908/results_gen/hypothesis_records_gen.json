@@ -1,0 +1,372 @@
+[
+ {
+  "id": "OQD-H4",
+  "claim": "Elites retain meaningful quality on unseen mazes (transferable skill, not pure memorization).",
+  "threshold": {
+   "mean_retention_over_mazes_and_archives": 0.75,
+   "mean_elite_minus_random_over_mazes_and_archives": 0.15
+  },
+  "measured_delta": {
+   "mean_retention": 0.9665403617784851,
+   "mean_advantage": 0.4666818849679606,
+   "n_pairs": 18,
+   "retention_range": [
+    0.9450281604441328,
+    0.9890779842941295
+   ],
+   "advantage_range": [
+    0.42497955796369946,
+    0.5050699799610632
+   ],
+   "robustness_mutation_archives_mean_retention": 0.9517931720249521
+  },
+  "verdict": "SUPPORTED_IN_THIS_LAB",
+  "kill_condition_triggered": false,
+  "paired_results": [
+   {
+    "archive": "full_seed7",
+    "maze": "m1",
+    "elite": 0.8393570414283587,
+    "random": 0.38374922533178546,
+    "retention": 0.9695328520289126,
+    "advantage": 0.4556078160965732
+   },
+   {
+    "archive": "full_seed7",
+    "maze": "m2",
+    "elite": 0.8253865103030702,
+    "random": 0.40040695233937074,
+    "retention": 0.9533956324456827,
+    "advantage": 0.42497955796369946
+   },
+   {
+    "archive": "full_seed7",
+    "maze": "m3",
+    "elite": 0.8562779166293665,
+    "random": 0.36238335779847713,
+    "retention": 0.9890779842941295,
+    "advantage": 0.49389455883088934
+   },
+   {
+    "archive": "full_seed7",
+    "maze": "m4",
+    "elite": 0.8388994302178957,
+    "random": 0.3656792247114128,
+    "retention": 0.9690042699355932,
+    "advantage": 0.4732202055064829
+   },
+   {
+    "archive": "full_seed7",
+    "maze": "m5",
+    "elite": 0.8505026287818405,
+    "random": 0.3554963709188716,
+    "retention": 0.9824070075563025,
+    "advantage": 0.49500625786296887
+   },
+   {
+    "archive": "full_seed7",
+    "maze": "m6",
+    "elite": 0.8302962005755595,
+    "random": 0.3857631063982354,
+    "retention": 0.9590667661557958,
+    "advantage": 0.4445330941773241
+   },
+   {
+    "archive": "full_seed11",
+    "maze": "m1",
+    "elite": 0.8393981282334891,
+    "random": 0.38374922533178546,
+    "retention": 0.9636626651153133,
+    "advantage": 0.4556489029017037
+   },
+   {
+    "archive": "full_seed11",
+    "maze": "m2",
+    "elite": 0.8265956555556894,
+    "random": 0.40040695233937074,
+    "retention": 0.9489649138030507,
+    "advantage": 0.42618870321631863
+   },
+   {
+    "archive": "full_seed11",
+    "maze": "m3",
+    "elite": 0.8603271141597728,
+    "random": 0.36238335779847713,
+    "retention": 0.9876899790650453,
+    "advantage": 0.4979437563612957
+   },
+   {
+    "archive": "full_seed11",
+    "maze": "m4",
+    "elite": 0.8408634923633832,
+    "random": 0.3656792247114128,
+    "retention": 0.9653449618172966,
+    "advantage": 0.4751842676519704
+   },
+   {
+    "archive": "full_seed11",
+    "maze": "m5",
+    "elite": 0.8523662396991428,
+    "random": 0.3554963709188716,
+    "retention": 0.9785505763890779,
+    "advantage": 0.49686986878027123
+   },
+   {
+    "archive": "full_seed11",
+    "maze": "m6",
+    "elite": 0.8289888294902035,
+    "random": 0.3857631063982354,
+    "retention": 0.9517123733151083,
+    "advantage": 0.44322572309196806
+   },
+   {
+    "archive": "full_seed23",
+    "maze": "m1",
+    "elite": 0.8460704717074814,
+    "random": 0.38374922533178546,
+    "retention": 0.964164013986546,
+    "advantage": 0.46232124637569594
+   },
+   {
+    "archive": "full_seed23",
+    "maze": "m2",
+    "elite": 0.8301327486249223,
+    "random": 0.40040695233937074,
+    "retention": 0.9460017218667484,
+    "advantage": 0.4297257962855515
+   },
+   {
+    "archive": "full_seed23",
+    "maze": "m3",
+    "elite": 0.8674533377595404,
+    "random": 0.36238335779847713,
+    "retention": 0.9885314758620123,
+    "advantage": 0.5050699799610632
+   },
+   {
+    "archive": "full_seed23",
+    "maze": "m4",
+    "elite": 0.842354973488232,
+    "random": 0.3656792247114128,
+    "retention": 0.9599299108038623,
+    "advantage": 0.4766757487768192
+   },
+   {
+    "archive": "full_seed23",
+    "maze": "m5",
+    "elite": 0.8561594911339614,
+    "random": 0.3554963709188716,
+    "retention": 0.975661247128121,
+    "advantage": 0.5006631202150897
+   },
+   {
+    "archive": "full_seed23",
+    "maze": "m6",
+    "elite": 0.8292784317658406,
+    "random": 0.3857631063982354,
+    "retention": 0.9450281604441328,
+    "advantage": 0.4435153253676052
+   }
+  ],
+  "robustness_results": [
+   {
+    "archive": "mutation_seed7",
+    "maze": "m1",
+    "elite": 0.8420199031271597,
+    "retention": 0.9504127965034401
+   },
+   {
+    "archive": "mutation_seed7",
+    "maze": "m2",
+    "elite": 0.827360809937186,
+    "retention": 0.9338666439705309
+   },
+   {
+    "archive": "mutation_seed7",
+    "maze": "m3",
+    "elite": 0.8609817136462558,
+    "retention": 0.9718155534873221
+   },
+   {
+    "archive": "mutation_seed7",
+    "maze": "m4",
+    "elite": 0.8406228988392601,
+    "retention": 0.9488359563989973
+   },
+   {
+    "archive": "mutation_seed7",
+    "maze": "m5",
+    "elite": 0.8549540614889529,
+    "retention": 0.9650119640212106
+   },
+   {
+    "archive": "mutation_seed7",
+    "maze": "m6",
+    "elite": 0.8261070195545831,
+    "retention": 0.9324514536414981
+   },
+   {
+    "archive": "mutation_seed11",
+    "maze": "m1",
+    "elite": 0.846871109718958,
+    "retention": 0.9613161692386971
+   },
+   {
+    "archive": "mutation_seed11",
+    "maze": "m2",
+    "elite": 0.8260235032637498,
+    "retention": 0.937651244381398
+   },
+   {
+    "archive": "mutation_seed11",
+    "maze": "m3",
+    "elite": 0.8522415486649207,
+    "retention": 0.967412362313906
+   },
+   {
+    "archive": "mutation_seed11",
+    "maze": "m4",
+    "elite": 0.8363660882063165,
+    "retention": 0.9493915127916802
+   },
+   {
+    "archive": "mutation_seed11",
+    "maze": "m5",
+    "elite": 0.844175601474709,
+    "retention": 0.9582563935186674
+   },
+   {
+    "archive": "mutation_seed11",
+    "maze": "m6",
+    "elite": 0.828811906306595,
+    "retention": 0.9408164685821988
+   },
+   {
+    "archive": "mutation_seed23",
+    "maze": "m1",
+    "elite": 0.8591601710010642,
+    "retention": 0.9606475150692044
+   },
+   {
+    "archive": "mutation_seed23",
+    "maze": "m2",
+    "elite": 0.8371151611856936,
+    "retention": 0.9359984628742724
+   },
+   {
+    "archive": "mutation_seed23",
+    "maze": "m3",
+    "elite": 0.8721588352736296,
+    "retention": 0.9751816321688241
+   },
+   {
+    "archive": "mutation_seed23",
+    "maze": "m4",
+    "elite": 0.8460406289991497,
+    "retention": 0.9459782416922735
+   },
+   {
+    "archive": "mutation_seed23",
+    "maze": "m5",
+    "elite": 0.8595578955639352,
+    "retention": 0.9610922204057645
+   },
+   {
+    "archive": "mutation_seed23",
+    "maze": "m6",
+    "elite": 0.8372421976580158,
+    "retention": 0.9361405053892521
+   }
+  ],
+  "inference_limit": "Toy 2D point-robot mazes from one grammar; 3 archives; same platform/mode for all conditions; no p-values; local lab only."
+ },
+ {
+  "id": "OQD-H5",
+  "claim": "On the SAME maze, elites tolerate small start perturbations.",
+  "threshold": {
+   "mean_retention_over_shifts_and_archives": 0.9,
+   "min_single_retention": 0.8
+  },
+  "measured_delta": {
+   "mean_retention": 0.9913925030263674,
+   "min_retention": 0.9889222460865881,
+   "n_pairs": 12
+  },
+  "verdict": "SUPPORTED_IN_THIS_LAB",
+  "paired_results": [
+   {
+    "archive": "full_seed7",
+    "shift": "s(0.04,0.06)",
+    "elite": 0.8583557280349474,
+    "retention": 0.9914780432900044
+   },
+   {
+    "archive": "full_seed7",
+    "shift": "s(0.08,0.06)",
+    "elite": 0.8567483149483568,
+    "retention": 0.9896213366475263
+   },
+   {
+    "archive": "full_seed7",
+    "shift": "s(0.06,0.04)",
+    "elite": 0.8602749132533601,
+    "retention": 0.9936948747771306
+   },
+   {
+    "archive": "full_seed7",
+    "shift": "s(0.06,0.08)",
+    "elite": 0.8583037323271088,
+    "retention": 0.9914179835723563
+   },
+   {
+    "archive": "full_seed11",
+    "shift": "s(0.04,0.06)",
+    "elite": 0.8624156556522153,
+    "retention": 0.990087708334524
+   },
+   {
+    "archive": "full_seed11",
+    "shift": "s(0.08,0.06)",
+    "elite": 0.8614004800468316,
+    "retention": 0.9889222460865881
+   },
+   {
+    "archive": "full_seed11",
+    "shift": "s(0.06,0.04)",
+    "elite": 0.8636728658558948,
+    "retention": 0.9915310359936379
+   },
+   {
+    "archive": "full_seed11",
+    "shift": "s(0.06,0.08)",
+    "elite": 0.8630979687788706,
+    "retention": 0.9908710311273202
+   },
+   {
+    "archive": "full_seed23",
+    "shift": "s(0.04,0.06)",
+    "elite": 0.8711788141299691,
+    "retention": 0.9927769499347282
+   },
+   {
+    "archive": "full_seed23",
+    "shift": "s(0.08,0.06)",
+    "elite": 0.8698286186920055,
+    "retention": 0.9912382957721427
+   },
+   {
+    "archive": "full_seed23",
+    "shift": "s(0.06,0.04)",
+    "elite": 0.87135741391065,
+    "retention": 0.9929804784671575
+   },
+   {
+    "archive": "full_seed23",
+    "shift": "s(0.06,0.08)",
+    "elite": 0.8705760496768756,
+    "retention": 0.9920900523132923
+   }
+  ],
+  "inference_limit": "0.02-unit start shifts on the source maze only; no claim about large relocations."
+ }
+]
