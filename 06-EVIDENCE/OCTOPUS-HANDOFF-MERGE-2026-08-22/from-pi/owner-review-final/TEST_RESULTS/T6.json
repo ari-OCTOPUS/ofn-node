@@ -1,9 +1,0 @@
-{
-  "transition": "T6",
-  "ready_for_owner_decision": false,
-  "ready_for_bounded_transition": false,
-  "authority_changed": false,
-  "oa_t7_created": false,
-  "executed_actions": 0,
-  "decision": "KEEP_WAVE0_LOCKED"
-}

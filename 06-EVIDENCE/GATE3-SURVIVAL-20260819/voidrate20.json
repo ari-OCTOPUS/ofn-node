@@ -1,8 +1,0 @@
-{
- "n": 20,
- "first_line": 2,
- "fallback_rescue": 18,
- "void": 0,
- "void_rate": 0.0,
- "criterion": "final VOID after fallback <5% = replayable capability"
-}

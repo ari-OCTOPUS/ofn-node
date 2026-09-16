@@ -1,9 +1,0 @@
-{
-  "ts_utc": "20260822T094830Z",
-  "laptop_bearer_sha256": "c2dcaee74cd5bd608f4676d93946a3db785640c30cec89ad7ed6e397973a8e95",
-  "laptop_bearer_len": 43,
-  "board_key_sha256": "c2dcaee74cd5bd608f4676d93946a3db785640c30cec89ad7ed6e397973a8e95",
-  "board_env_bak": "octopus-bridge.env.bak-keyrotate-20260822-supersede",
-  "laptop_env_bak": "OCTOPUS.env.bak-keyrotate-20260822T094830Z",
-  "hashes_match_sides": true
-}

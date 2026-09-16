@@ -1,8 +1,0 @@
-﻿{
-  "stamp": "2026-08-23T02:47+10",
-  "result": "PASS",
-  "SHIPPING_STATUS": "PASS — domestic ONLY Flat rate domestic AUD 20 = $20.00; TBD Free deleted; international OFF",
-  "removed_this_pass": ["Flat rate AUD (amount TBD) Free $0"],
-  "kept": ["Flat rate domestic AUD 20"],
-  "note": "Stale browser had re-added TBD Free; regression cleaned"
-}

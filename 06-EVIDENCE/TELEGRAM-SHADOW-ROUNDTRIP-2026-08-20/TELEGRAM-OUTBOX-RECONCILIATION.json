@@ -1,8 +1,0 @@
-{
-  "schema": "telegram-outbox-reconciliation/1",
-  "outbox_count": 1,
-  "delivery_ok": true,
-  "readback": true,
-  "orphan_outbox": 0,
-  "unreceipted_sends": 0
-}

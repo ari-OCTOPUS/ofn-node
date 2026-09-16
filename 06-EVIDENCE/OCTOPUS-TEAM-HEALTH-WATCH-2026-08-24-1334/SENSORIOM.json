@@ -1,9 +1,0 @@
-﻿{
-  "stamp": "2026-08-24T13:35+10",
-  "color": "YELLOW",
-  "vs_morning": "SAME",
-  "new": [],
-  "gaps": ["estop ABSENT HOLD", "THERMAL quarantine", "observation_age MISSING"],
-  "doctor": "PASS",
-  "user_notify": false
-}

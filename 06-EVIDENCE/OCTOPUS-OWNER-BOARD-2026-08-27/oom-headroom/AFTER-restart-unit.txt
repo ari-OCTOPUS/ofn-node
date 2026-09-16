@@ -1,6 +1,0 @@
-Result=success
-NRestarts=0
-MemoryCurrent=1182355456
-MemoryMax=2147483648
-ActiveState=active
-SubState=running

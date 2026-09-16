@@ -1,3 +1,0 @@
-baseline coverage: {'admitted': 482, 'provenance': 1.0, 'timestamp': 1.0, 'confidence': 0.917, 'expiry': 1.0, 'coverage': 0.9793}
-holdout: 146 / 485 sha: d2d4f11cce270a24
-label: MEMORY_LIVE_LEARNING_UNVERIFIED | ['metrics unavailable (no live window / empty ledger)']

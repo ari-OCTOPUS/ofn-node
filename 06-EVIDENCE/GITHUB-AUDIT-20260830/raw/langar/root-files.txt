@@ -1,6 +1,0 @@
-.gitignore
-README.md
-deploy.sh
-docker-compose.unified.yml
-langar-pro
-langar

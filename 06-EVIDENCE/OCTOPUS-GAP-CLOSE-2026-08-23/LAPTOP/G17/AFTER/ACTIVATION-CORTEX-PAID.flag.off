@@ -1,4 +1,0 @@
-G17 reconcile 2026-08-23T09:11:00+10:00 - PAID FORBIDDEN / paper-advisory OFF.
-Supersedes 2026-07-22 owner-resurrection claim ("all paid gates ON").
-Authoritative: octopus-writer.lock forbidden_actions includes "paid call"; organs/WIRING.json paid_calls=0.
-Do NOT re-raise without explicit owner GO + lock exception. No money unlock.

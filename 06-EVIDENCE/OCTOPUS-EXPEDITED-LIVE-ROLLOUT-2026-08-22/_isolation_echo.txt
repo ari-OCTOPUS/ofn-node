@@ -1,1 +1,0 @@
-armed	block	f:\backup\_ops\state|f:\backup\_ops\agi2027_runtime

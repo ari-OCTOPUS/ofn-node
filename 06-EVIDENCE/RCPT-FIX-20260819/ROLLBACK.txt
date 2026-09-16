@@ -1,2 +1,0 @@
-rollback: git checkout -- _ops/cortex/model_router.py _ops/cortex/cost_receipt.py _ops/cortex/live4_reservation.py
-note: receipts already written remain valid (schema unchanged)

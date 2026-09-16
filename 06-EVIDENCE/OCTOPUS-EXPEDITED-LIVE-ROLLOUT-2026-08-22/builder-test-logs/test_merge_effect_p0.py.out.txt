@@ -1,9 +1,0 @@
-PASS t_lab_bridge_unit_merge_and_reject
-PASS t_legacy_merge_without_lab_proofs_still_applies
-PASS t_merge_with_proofs_calls_apply_merge_and_gate
-PASS t_merge_without_proofs_refuses_promote
-PASS t_reject_does_not_promote_or_apply_merge
-PASS t_self_audit_probe_evidence_bound_done
-RESULT failed=0 passed=6
-
----STDERR---

@@ -1,9 +1,0 @@
-eb9162521ccb5fe1f333e4e9c217dbd35fba927ade0a72b7e264efe6a7966236  README-FIRST.md
-237de386d1c83940ce20ff14e9df6e6715830be111c6d3781b50a51338c53cf7  DELTA-SINCE-360d436.md
-031620c9335064ff1dd2537209e5d0d76945d2c8f464747432ccdce381d45f37  CURRENT-TRUTH.json
-
-# reproducibility-defect files hashed as observed during this delta pass (not part of this folder, cited for traceability):
-6a7716990ec9720c5556be2a755864e9e0e09acd8ae4c48db1e7d54c201249a8  ../../_ops/telegram_center/poll_lease.py
-a9438ccfe0e464e4d04c3c3cac56aacb229831f8d0226ab3a53c933933ca377b  ../../_ops/telegram_center/transport_subprocess.py
-f48b67a04dcb41a2b090fc474c07d42fe84dd287325bba2e1777f1120e1a7142  ../../_ops/nervous_recovery/wave1_readonly.py
-5114a62c2d48dd6acc8c7a2b9d552702075de0acac2a1baaf306e4f6c893341c  ../../_ops/tests/test_wave1_preflight.py

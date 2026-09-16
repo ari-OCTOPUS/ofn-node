@@ -1,7 +1,0 @@
-   4 /tmp/fleet-out-138/untracked-largest.txt
-   0 /tmp/fleet-out-138/untracked-runtime.txt
-   4 /tmp/fleet-out-138/untracked-source-nontest.txt
-   4 /tmp/fleet-out-138/untracked-source.txt
-   0 /tmp/fleet-out-138/untracked-tests.txt
-  35 /tmp/fleet-out-138/untracked-unclassified.txt
-  47 total

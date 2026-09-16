@@ -1,1 +1,0 @@
-﻿owner_go=telegram enqueue one test shot-0003 only; dry_run then live if PASS; no OF; no other shots

@@ -1,6 +1,0 @@
-PASS test_r19_may_authorize_true
-PASS test_r20_malformed_json
-PASS test_real_experiment_manifest_accepted
-failures: 0
-SCRATCH_UNTRACKED=10 (branch دست‌نخورده)
-22

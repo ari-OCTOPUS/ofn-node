@@ -1,6 +1,0 @@
-{
-  "ack": true,
-  "result": "PASS",
-  "receipt": "/var/lib/octopus/inbound/TO-LAPTOP/exchange/RECEIPT-ESP32-INET-PHASE-A.json",
-  "ts_utc": "20260822T125104Z"
-}

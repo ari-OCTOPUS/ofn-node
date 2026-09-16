@@ -1,9 +1,0 @@
-{
-  "status": "PASS_PROPOSE",
-  "sample": "F:/backup/06-EVIDENCE/OCTOPUS-GAP-INVENTORY-2026-08-23/TODO-SAMPLE-TOP80.txt",
-  "proposal": "Triage TOP80 in weekly hygiene; no mass edits this slice",
-  "gap_id": "G23",
-  "stamp_local": "2026-08-23T09:05:12+10:00",
-  "timezone": "Australia/Sydney",
-  "agent": "Ios"
-}

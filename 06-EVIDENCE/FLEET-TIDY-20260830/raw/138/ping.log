@@ -1,9 +1,0 @@
-
-Pinging 192.168.0.138 with 32 bytes of data:
-Reply from 192.168.0.138: bytes=32 time=2ms TTL=64
-Reply from 192.168.0.138: bytes=32 time=1ms TTL=64
-
-Ping statistics for 192.168.0.138:
-    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
-Approximate round trip times in milli-seconds:
-    Minimum = 1ms, Maximum = 2ms, Average = 1ms

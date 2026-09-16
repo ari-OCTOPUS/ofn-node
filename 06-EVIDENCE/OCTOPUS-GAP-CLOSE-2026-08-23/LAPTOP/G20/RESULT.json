@@ -1,9 +1,0 @@
-﻿{
-    "gap":  "G20",
-    "abn_status":  "PROVIDED_IN_SOT",
-    "verdict":  "ABN PROVIDED in SoT; GST confirm still OPEN; 0016 drift fixed earlier",
-    "stamp_local":  "2026-08-23T10:29:15+10:00",
-    "reason":  "ABN empty closed on laptop SoT; GST confirm + marketing Shopify apply remain OPEN",
-    "slice":  "BOARD2",
-    "status":  "HOLD"
-}
