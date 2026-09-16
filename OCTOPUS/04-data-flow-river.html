@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>fBackup · Data Flow River</title>
+<style>
+  html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e5e7eb}
+  #bar{position:fixed;top:0;left:0;right:0;height:44px;display:flex;align-items:center;gap:22px;padding:0 18px;z-index:10;background:linear-gradient(#0b0b0bcc,#0b0b0b00);font-size:13px}
+  #bar .stat{display:flex;align-items:center;gap:7px}
+  #bar b{font-weight:600;color:#fff}
+  #bar .sdot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e}
+  #fly{margin-left:auto;pointer-events:auto;background:#151515;border:1px solid #333;color:#e5e7eb;border-radius:7px;padding:6px 12px;font-size:12px;cursor:pointer}
+  #fly:hover{background:#1e1e1e}
+  .lbl{background:rgba(15,15,15,.85);border:1px solid #333;border-radius:5px;padding:1px 7px;font-size:11px;color:#cbd5e1;white-space:nowrap}
+  #css{position:fixed;inset:0;pointer-events:none;z-index:5}
+</style>
+</head>
+<body>
+<div id="bar">
+  <div class="stat"><span class="sdot"></span><b id="thru">2.40 GB/s</b></div>
+  <div class="stat">streams <b>5 active</b></div>
+  <div class="stat">queue <b id="q">12 chunks</b></div>
+  <button id="fly">▶ fly through</button>
+</div>
+
+<!-- deps: jsDelivr primary, unpkg auto-fallback -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js">\x3C/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>(window.THREE&&THREE.OrbitControls)||document.write('<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js">\x3C/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+<script>(window.THREE&&THREE.CSS2DRenderer)||document.write('<script src="https://unpkg.com/three@0.128.0/examples/js/renderers/CSS2DRenderer.js">\x3C/script>');</script>
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+camera.position.set(0, 60, 120);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x050505,1);
+document.body.appendChild(renderer.domElement);
+
+const labelRenderer = new THREE.CSS2DRenderer();
+labelRenderer.setSize(innerWidth,innerHeight);
+labelRenderer.domElement.id='css';
+document.body.appendChild(labelRenderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.target.set(2,0,0);
+
+scene.add(new THREE.AmbientLight(0xffffff,0.5));
+const dl=new THREE.DirectionalLight(0xffffff,0.6); dl.position.set(0,50,60); scene.add(dl);
+
+// ---- River paths ----
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const PATHS=[
+  { color:0x3b82f6, pts:[V(-30,0,-40),V(-15,5,-20),V(0,0,0),V(15,-5,20),V(30,0,40)] },
+  { color:0x22c55e, pts:[V(-30,8,-40),V(-10,12,-20),V(5,8,0),V(20,4,20),V(35,8,40)] },
+  { color:0xa855f7, pts:[V(-30,-8,-40),V(-10,-12,-20),V(5,-8,0),V(20,-4,20),V(35,-8,40)] },
+  { color:0xf59e0b, pts:[V(-30,4,-40),V(-12,2,-20),V(2,-2,0),V(18,2,20),V(33,4,40)] },
+  { color:0xef4444, pts:[V(-30,-4,-40),V(-12,-2,-20),V(2,2,0),V(18,-2,20),V(33,-4,40)] },
+];
+
+const rivers=[];
+PATHS.forEach(P=>{
+  const curve=new THREE.CatmullRomCurve3(P.pts);
+  const tube=new THREE.Mesh(
+    new THREE.TubeGeometry(curve,100,1.5,12,false),
+    new THREE.MeshPhysicalMaterial({ color:P.color, emissive:P.color, emissiveIntensity:0.5, transparent:true, opacity:0.6, roughness:0.2, metalness:0.8 })
+  );
+  scene.add(tube);
+
+  // source (box) + sink (disc)
+  const src=new THREE.Mesh(new THREE.BoxGeometry(6,6,6),
+    new THREE.MeshStandardMaterial({ color:P.color, emissive:P.color, emissiveIntensity:0.4 }));
+  src.position.copy(curve.getPointAt(0)); scene.add(src);
+  const sink=new THREE.Mesh(new THREE.CylinderGeometry(4,4,2,24),
+    new THREE.MeshStandardMaterial({ color:P.color, emissive:P.color, emissiveIntensity:0.4 }));
+  sink.position.copy(curve.getPointAt(1)); scene.add(sink);
+
+  // particles
+  const parts=[];
+  for(let i=0;i<20;i++){
+    const s=new THREE.Mesh(new THREE.SphereGeometry(0.6,10,10), new THREE.MeshBasicMaterial({ color:0xffffff }));
+    s.userData.t=i/20; scene.add(s); parts.push(s);
+  }
+  const lead=new THREE.PointLight(P.color,0.8,30); scene.add(lead);
+  rivers.push({ curve, parts, lead, src, sink });
+});
+
+// labels on first & last river
+function label(text,obj){
+  const el=document.createElement('div'); el.className='lbl'; el.textContent=text;
+  const l=new THREE.CSS2DObject(el); l.position.set(0,5,0); obj.add(l);
+}
+label('source', rivers[0].src);
+label('telegram storage', rivers[0].sink);
+
+// ---- Ground + walls ----
+const grid=new THREE.GridHelper(200,40,0x222222,0x222222); grid.position.y=-15; scene.add(grid);
+[-50,50].forEach(z=>{
+  const wall=new THREE.Mesh(new THREE.PlaneGeometry(140,45),
+    new THREE.MeshBasicMaterial({ color:0x111111, transparent:true, opacity:0.3, side:THREE.DoubleSide }));
+  wall.position.set(2,5,z); scene.add(wall);
+});
+
+// ---- easing (fast middle, slow ends) ----
+const smooth=t=>t*t*(3-2*t);
+
+// ---- intro + fly-through camera ----
+let intro=0;                      // 0..1 over 2s
+const introFrom=V(0,60,120), introTo=V(0,20,80);
+let flying=false, flyT=0;
+const flyCurve=new THREE.CatmullRomCurve3([
+  V(-40,12,-46),V(-18,16,-22),V(0,10,0),V(22,16,22),V(42,12,46)
+]);
+document.getElementById('fly').onclick=()=>{ flying=true; flyT=0; controls.enabled=false; };
+
+// ---- animate ----
+const clock=new THREE.Clock();
+let acc=0;
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=clock.getDelta();
+
+  if(intro<1){
+    intro=Math.min(1,intro+dt/2);
+    camera.position.lerpVectors(introFrom,introTo,smooth(intro));
+    camera.lookAt(2,0,0);
+  }
+
+  rivers.forEach(r=>{
+    let leadPos=null,leadT=-1;
+    r.parts.forEach(p=>{
+      p.userData.t=(p.userData.t+dt*0.12)%1;
+      p.position.copy(r.curve.getPointAt(smooth(p.userData.t)));
+      if(p.userData.t>leadT){ leadT=p.userData.t; leadPos=p.position; }
+    });
+    if(leadPos) r.lead.position.copy(leadPos);
+    const s=1+Math.sin(clock.elapsedTime*3)*0.12; r.src.scale.setScalar(s); r.sink.scale.setScalar(s);
+  });
+
+  if(flying){
+    flyT+=dt/9;
+    if(flyT>=1){ flying=false; controls.enabled=true; }
+    else{
+      camera.position.copy(flyCurve.getPointAt(flyT));
+      camera.lookAt(flyCurve.getPointAt(Math.min(1,flyT+0.05)));
+    }
+  }
+
+  // throughput counter flicker
+  acc+=dt;
+  if(acc>0.4){ acc=0;
+    document.getElementById('thru').textContent=(2.1+Math.random()*0.7).toFixed(2)+' GB/s';
+    document.getElementById('q').textContent=(9+Math.floor(Math.random()*7))+' chunks';
+  }
+
+  if(!flying) controls.update();
+  renderer.render(scene,camera);
+  labelRenderer.render(scene,camera);
+}
+animate();
+
+addEventListener('resize', ()=>{
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight); labelRenderer.setSize(innerWidth,innerHeight);
+});
+</script>
+</body>
+</html>

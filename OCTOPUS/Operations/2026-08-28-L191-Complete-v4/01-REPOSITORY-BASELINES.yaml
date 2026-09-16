@@ -1,0 +1,63 @@
+schema: repository_baselines.v1
+observed_at_utc: "2026-08-28T10:46:20Z"
+mission_id: OCTOPUS-L191-PARALLEL-v3
+lane_id: L1
+clean_reference:
+  branch: integration/pc-spine-20260828
+  full_sha: 7154675dc66afda88feb102afcf0a057e8b1a540
+  prefix_check: PASS (7154675)
+  source: E:/germline/octopus.git (bare, local) — cloned --shared into OCTOPUS-EXECUTION-v2
+repositories:
+  - name: ari322/ofn-node
+    accessible: true
+    access_path: LIVE_GIT via ssh ari@192.168.0.138 /home/ari/ofn
+    default_branch_local: integration/138-business-spine-20260828
+    head_full_sha: 68813370c726a1a650a7cb2fb99207c300358db9
+    dirty: false
+    dirty_count: 0
+    remotes:
+      origin: https://github.com/ari322/ofn-node.git
+      germline: /mnt/octopus-germline/octopus.git
+    branches_full_sha:
+      audit/cursor-20260828: d94c42cb15d660f30348fc0400e13eeef4636523
+      audit/senior-auditor-20260828-138: f09681ad315f575458506c0148ff12b825f8072f
+      audit/zcode-20260828: 678975bb43c3ab688a1adea4a1f0cb6f99fd4b6a  # per owner GitHub probe; NOT present in 138 local listing this pass → verify in L2 census (possible local-only prune)
+      discovery/138-body-map-20260828: 56e936944deef210adc2ddb109a549abd1bceacc
+      integration/138-business-spine-20260828: 68813370c726a1a650a7cb2fb99207c300358db9
+      main_local: 2533aa3c1b231e76ffd3113a264565369be13b7f
+      main_origin: 388594e048cc7d0d2829f4aa067e525e4c3be7e8
+      octopus/reconcile-138-20260827: d3fb20c14179ee8572612beda715f8339b0fdcbd
+      ofn-v1.0-three-business-owner-center: 859edfc8433cfd6f8abec448794f31e12b96df44
+      ofn/board-snapshot-20260816: 32a81d034acb833b22204d969bf41ce2870b1d05
+      ofn/cockpit-v2-20260827: 6070f519b94de93b6cc94671d7fbfb7f0c8f2333
+      ofn/heartbeat@origin: cb095faacf6abd44247002c94d2162e11d04b9ab   # CONCURRENT_DRIFT: 1e4bf752→03db1b9f→cb095faa within today
+      ofn/wire@origin: ca038d42a1f2add43140b1a6fa3dd9d58949cc0d
+      ofn/evolve-20260826-anatomy-180@origin: 36e579ef10206cd578b6b5060e7c860b18a48126 (+quarantine twin)
+    tags: 0
+    ahead_of_local_main: 86 ; behind: 0
+    notes:
+      - audit/zcode-20260828 seen by owner via GitHub but ABSENT from this 138 local+origin listing → CTR candidate in Wave 4 (maybe fetched/pruned since)
+      - main_local (2533aa3c) != main_origin (388594e0) → local main drifted; canonical main = origin
+  - name: ari322/langar
+    accessible: false
+    reason_code: PRIVATE_REPOSITORY_AUTH_UNAVAILABLE
+    probe: git ls-remote https://github.com/ari322/langar.git → returned a HEAD sha (4ff00f31…) — PUBLIC-READ reachable, no write/auth
+    correction: repo is READ-accessible without auth; full census deferred to L2 (clone read-only) — lane PARTIAL only for depth, not access
+  - name: ari322/Armin
+    accessible: false
+    reason_code: PRIVATE_REPOSITORY_AUTH_UNAVAILABLE
+    probe: git ls-remote https://github.com/ari322/Armin.git → returned HEAD sha (fcaca746…) — PUBLIC-READ reachable
+    correction: same as langar — L2 may clone read-only; depth census deferred
+excluded_sources:
+  - path: F:\backup
+    head: c803dee…
+    reason: DIRTY_UNTRACKED (~1183)
+    policy: NO_CLEAN_NO_RESET_NO_CHECKOUT_NO_COMMIT_NO_DELETE
+    modified: false
+lane_complete_update_2026-08-28T11:25Z:
+  langar: {accessible: true, method: "read-only public clone (depth1)", head: 4ff00f3150f303018ffceabb95adfdea7deb0f8c, top_level: "docker-compose.unified.yml (3 services), langar/, langar-pro/, ARCHITECTURE.md, deploy.sh"}
+  Armin: {accessible: true, method: "read-only public clone (depth1)", head: fcaca746b332a8011123ea6fa63fdafec022e15f, content: "Documents/ only, 31 files"}
+  note: "PRIVATE_REPOSITORY_AUTH_UNAVAILABLE upgrade → PUBLIC_READ (write still needs auth)"
+lane_status: READY
+why_partial: ofn-node baseline FULL; langar/Armin ls-remote-HEAD only (shallow) — full inventory in L2; no write access anywhere (by design)
+evidence_refs: [evidence/commands.ndjson#CMD-L1-10, CMD-L1-20, CMD-L1-30]

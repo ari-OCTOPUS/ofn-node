@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>ردِ بستهٔ دیتا · Packet Trace</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#04070c;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:-apple-system,"Segoe UI",Tahoma,sans-serif;color:#dbeafe}
+  canvas{display:block;position:fixed;inset:0}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#7dd3fc;display:block;text-shadow:0 0 10px #0ea5e9aa}
+  .top span{font-size:11px;color:#5b7a95}
+  .cap{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 52px);z-index:6;background:rgba(8,18,34,.72);border:1px solid #1e3a5b;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .cap b{font-size:13px;color:#bfdbfe}.cap span{font-size:11.5px;color:#93c5fd;display:block;margin-top:2px}
+  .foot{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:12px;right:12px;z-index:6;display:flex;gap:12px;align-items:center;font-size:10.5px;color:#4b6480;direction:ltr}
+  .foot a{color:#38bdf8;text-decoration:none;font-size:12px;pointer-events:auto}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="top"><b>ردِ بستهٔ دیتا — دوربین دنبالِ داده</b><span>مسیرِ واقعیِ [[wikilink]] از ورودی تا خروجی</span></div>
+<div class="cap"><b id="cn"></b><span id="cd"></span></div>
+<div class="foot"><a href="index.html">‹ hub</a><span id="st"></span></div>
+<script src="../../nervous-system/graph-data.js"></script>
+<script src="octo-core.js"></script>
+<script>
+const cv=document.getElementById('c'); let S=OCTO.fit(cv),ctx=S.ctx,W=S.w,H=S.h;
+const G=OCTO.G, adj=OCTO.adjacency();
+let P=OCTO.forceLayout(W,H,110);
+
+function bfsPath(src,dst){
+  const par=new Array(G.nodes.length).fill(-2); par[src]=-1; const q=[src];
+  for(let h=0;h<q.length;h++){const u=q[h]; if(u===dst)break; for(const v of adj[u]) if(par[v]===-2){par[v]=u;q.push(v);}}
+  if(par[dst]===-2) return null; const path=[]; let u=dst; while(u!==-1){path.push(u);u=par[u];} return path.reverse();
+}
+const inputs=G.nodes.map((n,i)=>i).filter(i=>G.nodes[i].g==='00 - Inbox').sort((a,b)=>G.nodes[b].d-G.nodes[a].d);
+const outs=G.nodes.map((n,i)=>i).filter(i=>['_memory','01 - Dashboard','03 - Projects'].includes(G.nodes[i].g)).sort((a,b)=>G.nodes[b].d-G.nodes[a].d);
+const hubs=G.nodes.map((n,i)=>i).sort((a,b)=>G.nodes[b].d-G.nodes[a].d);
+
+let path=null, seg=0, segT=0;
+function newRoute(){
+  for(let tries=0;tries<40;tries++){
+    const s=(inputs.length?inputs:hubs)[Math.floor(Math.random()*Math.min(6,(inputs.length||hubs.length)))];
+    const d=(outs.length?outs:hubs)[Math.floor(Math.random()*Math.min(8,(outs.length||hubs.length)))];
+    if(s===d) continue; const pth=bfsPath(s,d); if(pth&&pth.length>=3){ path=pth; seg=0; segT=0; return; }
+  }
+  path=bfsPath(hubs[0],hubs[1])||[hubs[0],hubs[1]]; seg=0; segT=0;
+}
+newRoute();
+
+let cam={x:W/2,y:H/2,s:1};
+function draw(now){
+  requestAnimationFrame(draw);
+  const dt=Math.min(0.05,(now-(draw._l||now))/1000); draw._l=now;
+  segT+=dt*0.8;
+  if(segT>=1){ segT=0; seg++; if(seg>=path.length-1){ newRoute(); } }
+  const a=P[path[seg]], b=P[path[Math.min(seg+1,path.length-1)]];
+  const px=a.x+(b.x-a.x)*segT, py=a.y+(b.y-a.y)*segT;
+  cam.x+=((px)-cam.x)*Math.min(1,dt*2.5); cam.y+=((py)-cam.y)*Math.min(1,dt*2.5); cam.s+= (1.5-cam.s)*0.02;
+
+  ctx.setTransform(S.dpr,0,0,S.dpr,0,0);
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#04070c'; ctx.fillRect(0,0,W,H);
+  ctx.save();
+  ctx.translate(W/2,H/2); ctx.scale(cam.s,cam.s); ctx.translate(-cam.x,-cam.y);
+
+  // faint whole graph
+  ctx.lineWidth=0.5/cam.s; ctx.strokeStyle='rgba(100,130,170,0.07)';
+  for(const e of G.edges){const u=P[e[0]],v=P[e[1]];ctx.beginPath();ctx.moveTo(u.x,u.y);ctx.lineTo(v.x,v.y);ctx.stroke();}
+  for(let i=0;i<G.nodes.length;i++){const p=P[i];ctx.beginPath();ctx.arc(p.x,p.y,OCTO.radius(G.nodes[i].d),0,6.283);ctx.fillStyle=G.nodes[i].c;ctx.globalAlpha=0.28;ctx.fill();ctx.globalAlpha=1;}
+
+  // active path highlighted
+  ctx.lineWidth=2.2/cam.s; ctx.strokeStyle='rgba(125,211,252,0.85)';
+  ctx.beginPath(); for(let i=0;i<path.length;i++){const p=P[path[i]]; i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);} ctx.stroke();
+  for(let i=0;i<path.length;i++){const p=P[path[i]],done=i<=seg; ctx.beginPath();ctx.arc(p.x,p.y,OCTO.radius(G.nodes[path[i]].d)+1.5,0,6.283);
+    ctx.fillStyle=done?'#e0f2fe':G.nodes[path[i]].c; ctx.fill();}
+  // packet
+  ctx.beginPath();ctx.arc(px,py,11/cam.s,0,6.283);ctx.fillStyle='rgba(125,211,252,0.25)';ctx.fill();
+  ctx.beginPath();ctx.arc(px,py,5/cam.s,0,6.283);ctx.fillStyle='#f0f9ff';ctx.fill();
+  ctx.restore();
+
+  const cur=G.nodes[path[Math.min(seg+1,path.length-1)]];
+  document.getElementById('cn').textContent='الان در: '+cur.l;
+  document.getElementById('cd').textContent='اتاق: '+cur.g+'  ·  گام '+(seg+1)+' از '+(path.length-1)+'  ·  '+cur.d+' پیوند';
+  document.getElementById('st').textContent='ورودی '+G.nodes[path[0]].g+' → خروجی '+G.nodes[path[path.length-1]].g;
+}
+requestAnimationFrame(draw);
+cv.addEventListener('pointerdown',newRoute);
+addEventListener('resize',()=>{S=OCTO.fit(cv);ctx=S.ctx;W=S.w;H=S.h;P=OCTO.forceLayout(W,H,90);newRoute();});
+</script>
+</body>
+</html>

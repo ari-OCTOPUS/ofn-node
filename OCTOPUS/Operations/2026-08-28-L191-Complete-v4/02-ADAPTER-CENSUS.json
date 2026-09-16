@@ -1,0 +1,3679 @@
+{
+ "counts": {
+  "DEAD_CANDIDATE": 23,
+  "DORMANT": 110,
+  "LIVE_CANONICAL": 4,
+  "SHADOW": 90,
+  "UNKNOWN": 1
+ },
+ "drift_check": {
+  "head_after": "a3000f0a889cc2642c34906de4bd06452b4870cb",
+  "head_before": "a3000f0a889cc2642c34906de4bd06452b4870cb",
+  "worktree_mutated_by_scanner": false
+ },
+ "excluded_patterns": [
+  ".bak*",
+  ".orig",
+  "__pycache__"
+ ],
+ "generated_at_utc": "2026-08-28T11:06:18Z",
+ "live_entrypoints": [
+  "ofn.run"
+ ],
+ "parse_errors": [
+  "ofn.helpers.brainport"
+ ],
+ "records": [
+  {
+   "component": "deploy.brain-probe",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "372420b62e155ee473b2d5f7b24baa44ddaee39def0c1c6036c60f8a57735fe1",
+   "path": "deploy\\brain-probe.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "ofn",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "04eb38a7a3c9496dadd8471e1aaeb70d0979aaa54beb5166e3e392c6f911f45c",
+   "path": "ofn\\__init__.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "deploy.brain-probe",
+    "tests.test_gate_enforcement",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_schema_drift",
+    "tests.test_web_serving",
+    "tools.pilot_daily",
+    "tools.pilot_report",
+    "tools.seed_pilot"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters",
+   "dynamic_registry_refs": [
+    "tests.test_board_events",
+    "tests.test_cockpit_v2_purity",
+    "tests.test_command_surface_absent",
+    "tests.test_http_api",
+    "tests.test_no_public_surface",
+    "tests.test_panel_coverage",
+    "tests.test_phase_a_security",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "5aae70d044eef1e89124234eabac9755865c534aa10c54977b65377caef9b62c",
+   "path": "ofn\\adapters\\__init__.py",
+   "reachable_from_entrypoints": true,
+   "runtime_evidence": [
+    "systemd ofn.service \u2192 python3 -m ofn.run (2026-08-28 L3)"
+   ],
+   "static_importers": [
+    "ofn.config",
+    "ofn.node",
+    "tests.test_alert",
+    "tests.test_brain_wire",
+    "tests.test_photos_and_media",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_schema_drift",
+    "tests.test_sysmetrics"
+   ],
+   "status": "LIVE_CANONICAL",
+   "why": "entry_anchored(ofn.run L3 systemd)"
+  },
+  {
+   "component": "ofn.adapters.advisor",
+   "dynamic_registry_refs": [
+    "tests.test_brain_wire"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "bae79e914f96402c96fd33653a3051b204e1b3e1edb427613e3a99b7e89b9b8b",
+   "path": "ofn\\adapters\\advisor.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_advisor"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.alert",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c05893c5f6f70a0d570de20d3fcc4136d641789cdabbd88d04701adfd75da200",
+   "path": "ofn\\adapters\\alert.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "ofn.adapters.audience_store",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "2942d05874ae4865869c989e6f382648fe0d08768afb05c3c6525c2a7b423d16",
+   "path": "ofn\\adapters\\audience_store.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_audience",
+    "tests.test_gate_enforcement"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.backup",
+   "dynamic_registry_refs": [
+    "tests.test_phase_d_backup"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "0ce3f3a73d29abfd77cd30872f69675e7f007de357a171b1091e3230fe28ba69",
+   "path": "ofn\\adapters\\backup.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_phase_d_backup",
+    "tests.test_photos_and_media",
+    "tests.test_survival"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.board_events",
+   "dynamic_registry_refs": [
+    "tests.test_board_events"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "2efad4ba733d851d46aa2733655c529f07d9feab897a00c5e5f048dd49a6f33f",
+   "path": "ofn\\adapters\\board_events.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_board_events"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.boot",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "ab410bbff6b70c4c064433589d0619eec5c9b52907a1a7c648a3681ba8a0f065",
+   "path": "ofn\\adapters\\boot.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_media_description",
+    "tests.test_node",
+    "tests.test_schema_drift",
+    "tests.test_survival"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.business_source_export",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "36d2637426dbabf7db2b3beca597df534cabdabbe733abe193b6cf3c7505c153",
+   "path": "ofn\\adapters\\business_source_export.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_business_source_export"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.cockpit_v2_read_model",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "64d063e112c4743146684f76f48ae86ea73546321f50056f753635d8f5fdc2b3",
+   "path": "ofn\\adapters\\cockpit_v2_read_model.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_cockpit_v2_business_truth",
+    "tests.test_cockpit_v2_read_model"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.commerce_connector",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "d97cbc4475d65d27836c8de4b5c0dd2085067ae9717374e9aa5cd69f01d1c378",
+   "path": "ofn\\adapters\\commerce_connector.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_commerce_connector",
+    "tests.test_commerce_integration"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.connector_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "a7ca4bc3a66b14b465a4466f0f193a6f97bf8e2930822a3beca6c8fc455b2878",
+   "path": "ofn\\adapters\\connector_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.commerce_connector",
+    "ofn.adapters.shopify_connector",
+    "tests.test_connector_infra",
+    "tests.test_phase_b_inbox"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.connector_metrics",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "5830c7372fa38e7f154a53521280ce6968b969ae6f5eca245ad85e615cd9aae7",
+   "path": "ofn\\adapters\\connector_metrics.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_phase_b_inbox"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.consent_store",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "5cd8abab3a0107cabb2d91f0ebbdf0e6e207a7e50a637c8dc8e2597942bd3527",
+   "path": "ofn\\adapters\\consent_store.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_consent",
+    "tests.test_gate_enforcement",
+    "tests.test_sender_dryrun",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.content_router",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "8c47bc35439394e7922caab7ae8968cc319e07467c49f12f1f38eaa489be7cad",
+   "path": "ofn\\adapters\\content_router.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_marketing_adapters_contract",
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.correlation",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "85da5e63a658747239c244b6754efd7c539698a81b0360a0c6bffd1c70184f05",
+   "path": "ofn\\adapters\\correlation.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_connector_infra"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.cycle_parsing",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "2d7234bd26ff24ffa09969e38ca8a5c55405dc69efa2668406aa41045c218e05",
+   "path": "ofn\\adapters\\cycle_parsing.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_cycle_parsing"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.export_csv",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "e196175c8e5f81143a7cc2052f292477cd85761737bfd8239b7ce57f49cdeb05",
+   "path": "ofn\\adapters\\export_csv.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_export_csv"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.facts",
+   "dynamic_registry_refs": [
+    "ofn.adapters.boot",
+    "ofn.config",
+    "ofn.node",
+    "tests.test_gate_enforcement",
+    "tests.test_survival",
+    "tests.test_tenancy"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "d01c42357339f0ea0a35d704542c8d8f882d067923e4564c1e5cec85e0afa7df",
+   "path": "ofn\\adapters\\facts.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_kill_switch",
+    "tests.test_manual_dispatch",
+    "tests.test_media_description",
+    "tests.test_no_public_surface",
+    "tests.test_node",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_painting_outbox",
+    "tests.test_persistence",
+    "tests.test_phase_a_security",
+    "tests.test_phase_b_inbox",
+    "tests.test_phase_l_unify",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_survival"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.fake_executor",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "b50e8edd7d3ecd10f4d2abba83c370b62086c6e9f21efac3d5bee7dde015a7a0",
+   "path": "ofn\\adapters\\fake_executor.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_executor_fake"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.http_api",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "052864bed63976191022cfc921a43d5df8c66249f2b2ebe31dbf8cf55b284268",
+   "path": "ofn\\adapters\\http_api.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.shopify_oauth",
+    "tests.test_cockpit_v2_http",
+    "tests.test_command_surface_absent",
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_gate_enforcement",
+    "tests.test_handler_failure",
+    "tests.test_http_api",
+    "tests.test_kill_switch",
+    "tests.test_manual_dispatch",
+    "tests.test_no_public_surface",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_painting_outbox",
+    "tests.test_painting_owner_api",
+    "tests.test_partner_allowlist",
+    "tests.test_phase_a_security",
+    "tests.test_phase_i_p2",
+    "tests.test_phase_l_unify",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_boot_order",
+    "tests.test_shell_contract",
+    "tests.test_stranger",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_web_serving"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.inbound_rate",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "671f4bcd459515c3f0178da48c8e82991031e10eb7e5bf288926c87ffc8bb911",
+   "path": "ofn\\adapters\\inbound_rate.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_phase_b_inbox"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.inbox_processor",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "4d8d1c395122ee66811ee21f275f49a7b84716c335ab632ff6ac6a146ff594bc",
+   "path": "ofn\\adapters\\inbox_processor.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_phase_b_inbox"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.lead_store",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "588523bd6cf66a3de1948a517e759810d0740a686389c068592f371f301bc52a",
+   "path": "ofn\\adapters\\lead_store.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_business_source_export",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_lead_contact_policy",
+    "tests.test_lead_followups",
+    "tests.test_manual_dispatch",
+    "tests.test_painting_outbox",
+    "tests.test_painting_store",
+    "tests.test_phase_i_p2",
+    "tests.test_revenue_stage_wiring",
+    "tools.pilot_report",
+    "tools.seed_pilot"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.ledger",
+   "dynamic_registry_refs": [
+    "ofn.adapters.boot",
+    "ofn.adapters.cockpit_v2_read_model",
+    "ofn.config",
+    "ofn.node",
+    "tests.test_gate_enforcement",
+    "tests.test_phase_d_backup",
+    "tests.test_survival"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "368e11a05b474166fcd91c4f63b984e1c24ba39ed50861c5522891e62bb60b51",
+   "path": "ofn\\adapters\\ledger.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "deploy.brain-probe",
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_kill_switch",
+    "tests.test_manual_dispatch",
+    "tests.test_media_description",
+    "tests.test_no_public_surface",
+    "tests.test_node",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_painting_outbox",
+    "tests.test_persistence",
+    "tests.test_phase_a_security",
+    "tests.test_phase_b_inbox",
+    "tests.test_phase_l_unify",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_survival",
+    "tests.test_worker"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.manual_dispatch",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "e98e2600497ea8f4d55dc8c7ece0fca8a7138e9e8d900b81297542d649fd789b",
+   "path": "ofn\\adapters\\manual_dispatch.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_manual_dispatch"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.marketing_inbox",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "cd5e797b5422495f84526f4e8e99bd28aeabcfb691cfa4d7e52918a454d9921b",
+   "path": "ofn\\adapters\\marketing_inbox.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_phase_b_inbox"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.marketing_store",
+   "dynamic_registry_refs": [
+    "ofn.node"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "c0f97bb5f6411757c481839db5283603b5a47f8e9da7f50765291ec2a1da4a21",
+   "path": "ofn\\adapters\\marketing_store.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.weekly_cycle",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_kill_switch",
+    "tests.test_marketing_store_contract",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_weekly_cycle_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.media",
+   "dynamic_registry_refs": [
+    "ofn.adapters.backup",
+    "ofn.adapters.http_api",
+    "ofn.adapters.studio_store",
+    "ofn.node",
+    "tests.test_advisor",
+    "tests.test_phase_d_backup",
+    "tests.test_photos_and_media",
+    "tests.test_product_photos",
+    "tests.test_studio_api",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "71d194827ddcebbe6d88cbceac7dad2a8b6973efb945089962865efe154dcbf4",
+   "path": "ofn\\adapters\\media.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_gate_enforcement",
+    "tests.test_media_description",
+    "tests.test_phase_i_p2",
+    "tests.test_photos_and_media",
+    "tests.test_product_photos",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.outbox",
+   "dynamic_registry_refs": [
+    "ofn.adapters.boot",
+    "ofn.adapters.cockpit_v2_read_model",
+    "ofn.config",
+    "tests.test_cockpit_v2_business_truth",
+    "tests.test_cockpit_v2_read_model",
+    "tests.test_gate_enforcement",
+    "tests.test_survival"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "7e3ca0eb3f4eb410c8e3a7740ecb5aa21c04cfefb808fcc39032851aaebf109c",
+   "path": "ofn\\adapters\\outbox.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_kill_switch",
+    "tests.test_manual_dispatch",
+    "tests.test_media_description",
+    "tests.test_no_public_surface",
+    "tests.test_node",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_painting_outbox",
+    "tests.test_persistence",
+    "tests.test_phase_a_security",
+    "tests.test_phase_b_inbox",
+    "tests.test_phase_l_unify",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_survival"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.owner_decision",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "6cc5d87827c9a5dfe3c0d9ea8931992142123e05081084ac2cf06cafaa5b44a3",
+   "path": "ofn\\adapters\\owner_decision.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.fake_executor",
+    "tests.test_executor_fake",
+    "tests.test_owner_decision_fake"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.owner_reads",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8817b325f7310b7dcbaba2299663a5200e92ec64b720b3c90642a748411ae224",
+   "path": "ofn\\adapters\\owner_reads.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "ofn.adapters.packloader",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "8015ebeb0e257ff171477cc6a9afe8c4f3d73419dc76144b86b1efec0fc9072c",
+   "path": "ofn\\adapters\\packloader.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "deploy.brain-probe",
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_locale",
+    "tests.test_media_description",
+    "tests.test_packs",
+    "tests.test_painting_outbox",
+    "tests.test_panel_coverage",
+    "tests.test_phase_a_security",
+    "tests.test_phase_b_inbox",
+    "tests.test_portfolio_map",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_products",
+    "tests.test_shell_contract",
+    "tests.test_stale_facts",
+    "tests.test_studio_api",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_time_is_not_claimed",
+    "tests.test_time_is_not_costed",
+    "tests.test_two_prices",
+    "tools.repo_baseline"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.pilot",
+   "dynamic_registry_refs": [
+    "ofn.node"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "c66d15f73be5de26add346e936278747c1ea8ea987cffbdff72cc65009cb35a0",
+   "path": "ofn\\adapters\\pilot.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_phase_m_vendor",
+    "tests.test_pilot_harness",
+    "tools.pilot_daily"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.pilot_thresholds",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "80f03d1c09ebce3e8075b14346c9ae1071f65c58f7765aae7e7af1c2f2a7787b",
+   "path": "ofn\\adapters\\pilot_thresholds.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tools.pilot_report"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platform_matrix_loader",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "a772c1742e549611bf46c7eb68bacb7052ddb3d30d9fdec8cf31750e053a657d",
+   "path": "ofn\\adapters\\platform_matrix_loader.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platforms",
+   "dynamic_registry_refs": [
+    "ofn.adapters.http_api",
+    "ofn.adapters.packloader",
+    "ofn.adapters.platform_matrix_loader",
+    "ofn.node",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "7c54f0b3524112b89908d49e8eedeb2326461852b558846d56f58e49d0113b2f",
+   "path": "ofn\\adapters\\platforms\\__init__.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_onlyfans_http_scaffold",
+    "tests.test_phase_a_security",
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platforms.base",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "f5d8149684bcd2479052e0ca8c1a569709aabd281a8b652a43169de274d9364e",
+   "path": "ofn\\adapters\\platforms\\base.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.platforms.bluesky",
+    "ofn.adapters.platforms.email_ses",
+    "ofn.adapters.platforms.onlyfans",
+    "ofn.adapters.platforms.shopify",
+    "ofn.adapters.platforms.telegram_channel",
+    "ofn.adapters.platforms.telegram_readonly",
+    "tests.test_onlyfans_http_scaffold",
+    "tests.test_phase_m_vendor",
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platforms.bluesky",
+   "dynamic_registry_refs": [
+    "ofn.node",
+    "tests.test_platforms_contract",
+    "tests.test_sender_dryrun",
+    "tests.test_studio_marketing_actions"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "208985b2a470d4c1482099d0d72a9090a8f8069186a3748c13419cf9367f05a7",
+   "path": "ofn\\adapters\\platforms\\bluesky.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platforms.email_ses",
+   "dynamic_registry_refs": [
+    "tests.test_platforms_contract"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "336300f4a7ddca45cb33fddd9869def892fafee541c84d05e2f6594fa4cca4e2",
+   "path": "ofn\\adapters\\platforms\\email_ses.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platforms.onlyfans",
+   "dynamic_registry_refs": [
+    "tests.test_kernel_purity",
+    "tests.test_marketing_adapters_contract",
+    "tests.test_onlyfans_http_scaffold",
+    "tests.test_platform_matrix_contract",
+    "tests.test_platforms_contract"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "273c59f17560112b52f72b4321d4c7f04743f789c54e7deaf324b3a8d739ff1f",
+   "path": "ofn\\adapters\\platforms\\onlyfans.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_onlyfans_http_scaffold",
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platforms.shopify",
+   "dynamic_registry_refs": [
+    "ofn.adapters.products",
+    "ofn.adapters.shopify_connector",
+    "tests.test_locale",
+    "tests.test_platforms_contract",
+    "tests.test_products",
+    "tests.test_schema_drift"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "49ac2dfc28f91a368b24a63875545afc0276bdc4cb03b50015339aaaef3a20f0",
+   "path": "ofn\\adapters\\platforms\\shopify.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platforms.telegram_channel",
+   "dynamic_registry_refs": [
+    "ofn.adapters.platforms.telegram_readonly",
+    "ofn.node",
+    "scripts.studio_auto_slice",
+    "tests.test_platforms_contract",
+    "tests.test_sender_dryrun",
+    "tests.test_studio_marketing_actions"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "aab6648154ef8dbb1a4717a3abab8571a9a2e80ac5dd2748cd62274ac39b7d38",
+   "path": "ofn\\adapters\\platforms\\telegram_channel.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_platforms_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.platforms.telegram_readonly",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "37056fb8522ffa45a2a1dc802fc20b61d4385a73ef82c5cb9fccbee480ec5ca9",
+   "path": "ofn\\adapters\\platforms\\telegram_readonly.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_phase_m_vendor",
+    "tools.pilot_daily"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.products",
+   "dynamic_registry_refs": [
+    "ofn.adapters.boot",
+    "ofn.adapters.business_source_export",
+    "ofn.adapters.http_api",
+    "ofn.config",
+    "ofn.node",
+    "tests.test_business_source_export",
+    "tests.test_gate_enforcement",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_schema_drift",
+    "tests.test_web_serving"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "22b2b08e2411bf0de1f822d97253a3ffb0d6c62d86e0b3cf5eeeadbd852ded00",
+   "path": "ofn\\adapters\\products.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_business_source_export",
+    "tests.test_commerce_integration",
+    "tests.test_deleting_a_piece",
+    "tests.test_export_csv",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_no_public_surface",
+    "tests.test_owner_workboard",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_products",
+    "tests.test_time_is_not_claimed",
+    "tests.test_time_is_not_costed",
+    "tests.test_two_prices",
+    "tests.test_ziman_commerce",
+    "tests.test_ziman_sales",
+    "tools.pilot_report",
+    "tools.seed_pilot"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.rate_limit",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "6a8a983f23ea580d57b60fb5fac4c36600980429259bf350a168490b7d2ff35c",
+   "path": "ofn\\adapters\\rate_limit.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_marketing_adapters_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.remote_brain",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "0db7fbb079d6397aff9d3aa32a829d9258512f141d6cd3a94c57e5f35fea1c78",
+   "path": "ofn\\adapters\\remote_brain.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_model_provenance",
+    "tests.test_routing"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.router",
+   "dynamic_registry_refs": [
+    "tests.test_brain_wire",
+    "tests.test_http_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "493fdd4ff2eae5a33abdf9dbd432773228cbdb42cb4f23ca2f6735109f47422d",
+   "path": "ofn\\adapters\\router.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "deploy.brain-probe",
+    "ofn.adapters.remote_brain",
+    "tests.test_model_provenance",
+    "tests.test_routing",
+    "tests.test_worker"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.sender_dryrun",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "6d2961bfeef6f947c15a8b337502be7b0beb842cd7a050130a2dd2ce7bbc7523",
+   "path": "ofn\\adapters\\sender_dryrun.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_sender_dryrun"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.shopify_connector",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "dabaa6254b098de4c116007affb269f9d5a7e8f74dbfbcbcd1fd64e665140190",
+   "path": "ofn\\adapters\\shopify_connector.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "ofn.adapters.shopify_oauth",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "5803d9c07e8fab21c059f59d566363b45b19c6867ee45de5c8dc9db6c3992773",
+   "path": "ofn\\adapters\\shopify_oauth.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.http_api"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.sqlite_base",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "e1f2a2a646bed98ee45eabeed8e8b4a65928b2c4e77cde3af66fd8bf52afbc30",
+   "path": "ofn\\adapters\\sqlite_base.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.audience_store",
+    "ofn.adapters.backup",
+    "ofn.adapters.boot",
+    "ofn.adapters.business_source_export",
+    "ofn.adapters.consent_store",
+    "ofn.adapters.facts",
+    "ofn.adapters.lead_store",
+    "ofn.adapters.ledger",
+    "ofn.adapters.marketing_inbox",
+    "ofn.adapters.marketing_store",
+    "ofn.adapters.outbox",
+    "ofn.adapters.products",
+    "ofn.adapters.studio_assistant",
+    "ofn.adapters.studio_store",
+    "tests.test_media_description",
+    "tests.test_persistence",
+    "tests.test_phase_d_backup",
+    "tests.test_schema_drift"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.studio_assistant",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "7f77f471c43d32217433ef32a82d262158dec623f89b1a1d2761a70a3c102ee1",
+   "path": "ofn\\adapters\\studio_assistant.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_assistant_shared_memory",
+    "tests.test_gate_enforcement",
+    "tests.test_studio_api",
+    "tests.test_studio_assistant"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.studio_store",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "9577847856f8a124d2e69f996bcd223a75d1da2b57ecf2f027e42085915bf64a",
+   "path": "ofn\\adapters\\studio_store.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_media_description",
+    "tests.test_owner_workboard",
+    "tests.test_sender_dryrun",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_studio_store",
+    "tools.pilot_report",
+    "tools.seed_pilot"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.sysmetrics",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "462b7e968684625587a2ecbd7f40a9eba8d547f21ccc3974de22284d5d1800c5",
+   "path": "ofn\\adapters\\sysmetrics.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "ofn.adapters.trend_sources",
+   "dynamic_registry_refs": [
+    "ofn.node",
+    "tests.test_studio_marketing_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "2d6a8946c5ec3736e0eec4cdf3c455af90aa06d7fd7b738abc9bcb4676b641f9",
+   "path": "ofn\\adapters\\trend_sources.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.weekly_cycle",
+    "tests.test_weekly_cycle_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.watchdog",
+   "dynamic_registry_refs": [
+    "ofn.node",
+    "tests.test_owner_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "cbdd1883b63d504cf81bf8dc4596bf0ff29b91ad33bb4bc63965a6e6b57129d8",
+   "path": "ofn\\adapters\\watchdog.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_survival"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.webhook_verify",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "3c3af23b2a43b6bb629b045ef04a2ccdc9df933a4eaba3faa9837c1eb18d66dd",
+   "path": "ofn\\adapters\\webhook_verify.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.commerce_connector",
+    "ofn.adapters.connector_contract",
+    "ofn.adapters.shopify_connector",
+    "tests.test_connector_infra"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.weekly_cycle",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "ddbdda54ae042b25c3ff65675e2222759728e2948bfd6a78da9dbf72e96f6411",
+   "path": "ofn\\adapters\\weekly_cycle.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_weekly_cycle_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.adapters.witness_mint",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "dcbb3b9eed126e721968ad0d750bad277460c13cf90c4846da723d5e1d3d9d4e",
+   "path": "ofn\\adapters\\witness_mint.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_witness_mint"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.assistant_update",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "b06c047a773e6b25c4d09ea3ec7f90f71f9fdc2338c3ca338c6ee8003c73b8b3",
+   "path": "ofn\\assistant_update.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "ofn.backup_job",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "4b883b1cdc3ecaa036be4908897459d6c9e610132dca81be31278aebdbc90ea0",
+   "path": "ofn\\backup_job.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "ofn.config",
+   "dynamic_registry_refs": [
+    "ofn.adapters.cockpit_v2_read_model",
+    "tests.test_cockpit_v2_business_truth",
+    "tests.test_cockpit_v2_http",
+    "tests.test_cockpit_v2_read_model"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "30e2a3e837421d8e693b2911da1751e97dc936008796700e0698731b1cf682b9",
+   "path": "ofn\\config.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.helpers.brainport",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "da8f3b10fd04b0611300dabbb6b6427040d9ae8b127b5368b162a64da99f1661",
+   "path": "ofn\\helpers\\brainport.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "UNKNOWN",
+   "why": "parse_error"
+  },
+  {
+   "component": "ofn.kernel",
+   "dynamic_registry_refs": [
+    "tests.test_kernel_purity"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "c47616bf2d7141a2aa72d5c6735cb0c2da585dcb802b7b4e762206dbff8b726e",
+   "path": "ofn\\kernel\\__init__.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "deploy.brain-probe",
+    "tests.test_kernel_purity",
+    "tests.test_outreach",
+    "tests.test_routing",
+    "tests.test_stale_facts"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.advisor",
+   "dynamic_registry_refs": [
+    "tests.test_brain_wire"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "b39558b6fd453f989d5e0973a953dc05e4b5435e9f050b6ecdc20d7dc2604dba",
+   "path": "ofn\\kernel\\advisor.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_advisor"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.advisor_gate",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "caf831401777c9df84a23d43a906811720dd428a7366e7690db9d7277a826be7",
+   "path": "ofn\\kernel\\advisor_gate.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_studio_store"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.allocation",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "41a863b97b1645e80e5d390e64202795aaf25dadbf6486c8b1252fec3781b315",
+   "path": "ofn\\kernel\\allocation.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_fleet",
+    "tests.test_scout"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.audience",
+   "dynamic_registry_refs": [
+    "ofn.adapters.boot",
+    "ofn.config",
+    "tests.test_gate_enforcement",
+    "tests.test_outreach"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "cc5d087e60c7265772779fd5e14aca5421658361ac6f6dde0a3c41653ff0c1db",
+   "path": "ofn\\kernel\\audience.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.kernel.outreach",
+    "tests.test_audience",
+    "tests.test_outreach"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.auth",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "c430da449cd0b41b626680d41ad4501b105a24935a1068ac4dcc2f1d49c6665b",
+   "path": "ofn\\kernel\\auth.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "scripts.studio_auto_slice",
+    "tests.test_auth",
+    "tests.test_cockpit_v2_http",
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_greeting_name",
+    "tests.test_http_api",
+    "tests.test_kill_switch",
+    "tests.test_manual_dispatch",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_painting_outbox",
+    "tests.test_painting_owner_api",
+    "tests.test_partner_allowlist",
+    "tests.test_phase_a_security",
+    "tests.test_phase_l_unify",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.callbudget",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "200e1449d2893fc21a7fd986ccf9875d76d426e1a5f230fceed4ffd7d0a174c5",
+   "path": "ofn\\kernel\\callbudget.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_brain_wire",
+    "tests.test_sender_dryrun"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.consent",
+   "dynamic_registry_refs": [
+    "ofn.adapters.boot",
+    "ofn.adapters.lead_store",
+    "ofn.config",
+    "ofn.node",
+    "tests.test_gate_enforcement",
+    "tests.test_packs"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "c934b414d1e0dfd1359dd6242627b27cefbe1abdad9b25a8da606f4084f9e242",
+   "path": "ofn\\kernel\\consent.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_consent"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.domain",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "2df42e1ee2898273821088b9d233c9c33cc69702f65d971a2ef5372b79f184b1",
+   "path": "ofn\\kernel\\domain.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.kernel",
+    "ofn.kernel.gates",
+    "ofn.kernel.ports",
+    "ofn.kernel.questions",
+    "ofn.kernel.quota",
+    "ofn.kernel.risk",
+    "ofn.kernel.tenancy",
+    "tests.test_cockpit_v2_http",
+    "tests.test_command_surface_absent",
+    "tests.test_e2e",
+    "tests.test_gate_enforcement",
+    "tests.test_gates",
+    "tests.test_growth_workbench",
+    "tests.test_handler_failure",
+    "tests.test_http_api",
+    "tests.test_kill_switch",
+    "tests.test_locale",
+    "tests.test_manual_dispatch",
+    "tests.test_no_public_surface",
+    "tests.test_node",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_packs",
+    "tests.test_painting_outbox",
+    "tests.test_painting_owner_api",
+    "tests.test_partner_allowlist",
+    "tests.test_persistence",
+    "tests.test_phase_a_security",
+    "tests.test_phase_i_p2",
+    "tests.test_phase_l_unify",
+    "tests.test_quota",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_risk",
+    "tests.test_routing",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract",
+    "tests.test_stranger",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_survival",
+    "tests.test_tenancy",
+    "tests.test_web_serving",
+    "tests.test_worker"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.edge",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "d9fb7edceb55a5ef20f53df9f500fb1c0ea8264d8d8a76abc8bf2d9b71a6d61c",
+   "path": "ofn\\kernel\\edge.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "ofn.kernel.errors",
+   "dynamic_registry_refs": [
+    "ofn.adapters.inbox_processor",
+    "scripts.shopify_apply_copy",
+    "tests.test_phase_b_inbox"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "8880e866101442efb65a26e4cac2a30deb40d1b6ba9541309b1eaa0f28b1097e",
+   "path": "ofn\\kernel\\errors.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.kernel",
+    "ofn.kernel.advisor",
+    "ofn.kernel.advisor_gate",
+    "ofn.kernel.allocation",
+    "ofn.kernel.callbudget",
+    "ofn.kernel.consent",
+    "ofn.kernel.fleet",
+    "ofn.kernel.marketing_scout",
+    "ofn.kernel.photos",
+    "ofn.kernel.quota",
+    "ofn.kernel.scout",
+    "ofn.kernel.tenancy",
+    "tests.test_advisor",
+    "tests.test_brain_wire",
+    "tests.test_consent",
+    "tests.test_fleet",
+    "tests.test_locale",
+    "tests.test_packs",
+    "tests.test_photos_and_media",
+    "tests.test_photos_external",
+    "tests.test_product_photos",
+    "tests.test_quota",
+    "tests.test_routing",
+    "tests.test_scout",
+    "tests.test_studio_store",
+    "tests.test_tenancy"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.fleet",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "ff43e01c6ff10d814ce79c8108e7a10be2346ef26b7a8ddb8b8acfd684cd215c",
+   "path": "ofn\\kernel\\fleet.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_fleet"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.gates",
+   "dynamic_registry_refs": [
+    "ofn.adapters.packloader",
+    "ofn.node",
+    "tests.test_packs",
+    "tests.test_shell_contract",
+    "tests.test_studio_marketing_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "606f8a8376a8fd529dbd9b18668d11e26d7b4155082df75884c4e2b2372169d1",
+   "path": "ofn\\kernel\\gates.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.kernel",
+    "tests.test_gates",
+    "tests.test_kill_switch"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.marketing_scout",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "c28feccf571d01dad5c82b2db7ab97a0022955bc6cbe8476721f20fcd50b342d",
+   "path": "ofn\\kernel\\marketing_scout.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_marketing_scout_contract",
+    "tests.test_marketing_store_contract",
+    "tests.test_studio_marketing_api",
+    "tests.test_weekly_cycle_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.outreach",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "bc931f21c758b0aae1c4a56c5c5d6bd3a8b35cdfaf8a0d9c9ad474299ffdebb4",
+   "path": "ofn\\kernel\\outreach.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_outreach"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.painting_math",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "29702e033e9a2c15804dd2dfa0116bacb15fce3a91a1fe63e77beac0c2c168d5",
+   "path": "ofn\\kernel\\painting_math.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_painting_math"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.photos",
+   "dynamic_registry_refs": [
+    "ofn.config",
+    "ofn.node",
+    "tests.test_advisor",
+    "tests.test_gate_enforcement",
+    "tests.test_phase_d_backup",
+    "tests.test_phase_i_p2",
+    "tests.test_product_photos",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "4e851bec77932aeb91d80520145572e223c575237957bc34f18a949591c1c6bd",
+   "path": "ofn\\kernel\\photos.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_photos_and_media",
+    "tests.test_photos_external",
+    "tests.test_photos_golden",
+    "tests.test_product_photos"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.platform_matrix",
+   "dynamic_registry_refs": [
+    "ofn.node",
+    "tests.test_studio_marketing_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "adabf3172f1cb24954470bab27c449ba412b54db182b769df661c08c3bf43a50",
+   "path": "ofn\\kernel\\platform_matrix.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.adapters.content_router",
+    "ofn.adapters.platform_matrix_loader",
+    "tests.test_marketing_adapters_contract",
+    "tests.test_platform_matrix_contract"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.ports",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "59df587034aa2e684cf9d79078c2fb9dcbd34ef113b5943774a2af55d5d0fff1",
+   "path": "ofn\\kernel\\ports.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "ofn.kernel.probe",
+   "dynamic_registry_refs": [
+    "deploy.brain-probe"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "749bc282690a41b3760ecb6658b061c519dec1fca9ad53d27256e9e3a0635eef",
+   "path": "ofn\\kernel\\probe.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_brain_wire"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.questions",
+   "dynamic_registry_refs": [
+    "ofn.adapters.http_api",
+    "ofn.adapters.packloader",
+    "tests.test_e2e",
+    "tests.test_http_api",
+    "tests.test_shell_contract"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "2627b61717dc566822b7a92821a5e4ab634a60fc577fcb1852fab133d1810960",
+   "path": "ofn\\kernel\\questions.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_node",
+    "tests.test_stale_facts"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.quota",
+   "dynamic_registry_refs": [
+    "ofn.kernel.gates",
+    "ofn.node",
+    "tests.test_owner_api",
+    "tests.test_shell_contract"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "48e2cb3180023e2bccb12438814dd30e8b51f94e914bdeef857aba853749cd17",
+   "path": "ofn\\kernel\\quota.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "deploy.brain-probe",
+    "ofn.kernel",
+    "ofn.kernel.gates",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_gate_enforcement",
+    "tests.test_gates",
+    "tests.test_growth_workbench",
+    "tests.test_kill_switch",
+    "tests.test_manual_dispatch",
+    "tests.test_no_public_surface",
+    "tests.test_node",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_packs",
+    "tests.test_phase_a_security",
+    "tests.test_phase_b_inbox",
+    "tests.test_phase_l_unify",
+    "tests.test_quota",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_routing",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract",
+    "tests.test_studio_draft_workflow",
+    "tests.test_worker"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.release_switch",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "b72824f9d5a6a9d7f0c5dd88530a0d3e354db0297225bab7db5f48577fcb9087",
+   "path": "ofn\\kernel\\release_switch.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_phase_a_security",
+    "tests.test_release_switch_contract",
+    "tests.test_sender_dryrun"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.risk",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "5971014124cc81e3f777049ecfd2e0d3ff153739b444092d3d2d6a0f11ee7a0a",
+   "path": "ofn\\kernel\\risk.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.kernel",
+    "ofn.kernel.gates",
+    "tests.test_risk"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.routing",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "77b66cdb9d05a37c95dd67d406a3af21e11d26a7461ad356a52acf0b66bcac5a",
+   "path": "ofn\\kernel\\routing.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "deploy.brain-probe",
+    "ofn.kernel",
+    "ofn.kernel.callbudget",
+    "tests.test_advisor",
+    "tests.test_brain_wire",
+    "tests.test_routing",
+    "tests.test_worker"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.safety",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "78c79038be5331f14d10f0cd149e056da7b4f76871e43cb8263a6549a96cad48",
+   "path": "ofn\\kernel\\safety.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "ofn.kernel.scout",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "30e3b64c334f36df60a8f18b49118d77bd0151bf1f9df1223d0abda0ae59333c",
+   "path": "ofn\\kernel\\scout.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_scout"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.scrub",
+   "dynamic_registry_refs": [
+    "ofn.kernel"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "1a05ff14d77c2406c535bfa688670388ed3b784a19fd56d369b0cb9cac9b63fd",
+   "path": "ofn\\kernel\\scrub.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "ofn.kernel",
+    "tests.test_phase_a_security",
+    "tests.test_routing"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.kernel.tenancy",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "37c2fb5a18701653c4b64542cf3de2d55362ba66cedfcfbc2d3e0dbb57128e74",
+   "path": "ofn\\kernel\\tenancy.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "deploy.brain-probe",
+    "ofn.adapters.shopify_connector",
+    "ofn.kernel",
+    "tests.test_cockpit_v2_http",
+    "tests.test_command_surface_absent",
+    "tests.test_commerce_connector",
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_handler_failure",
+    "tests.test_http_api",
+    "tests.test_kill_switch",
+    "tests.test_manual_dispatch",
+    "tests.test_media_description",
+    "tests.test_no_public_surface",
+    "tests.test_node",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_packs",
+    "tests.test_painting_outbox",
+    "tests.test_painting_owner_api",
+    "tests.test_partner_allowlist",
+    "tests.test_persistence",
+    "tests.test_phase_a_security",
+    "tests.test_phase_b_inbox",
+    "tests.test_phase_i_p2",
+    "tests.test_phase_l_unify",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract",
+    "tests.test_stranger",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_survival",
+    "tests.test_tenancy",
+    "tests.test_web_serving",
+    "tests.test_worker"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.marketing_run",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "e294200adbd580feef6378408564de1739ddfc640a07849f3a81f84a4f1979ca",
+   "path": "ofn\\marketing_run.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "ofn.node",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "1aa457c588a8f13c00e040a07d323d6db606275e031752fccf14f18b0619c5d1",
+   "path": "ofn\\node.py",
+   "reachable_from_entrypoints": true,
+   "runtime_evidence": [
+    "systemd ofn.service \u2192 python3 -m ofn.run (2026-08-28 L3)"
+   ],
+   "static_importers": [
+    "ofn.adapters.owner_reads",
+    "ofn.run",
+    "tests.test_brain_wire",
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_e2e",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_kill_switch",
+    "tests.test_manual_dispatch",
+    "tests.test_media_description",
+    "tests.test_no_public_surface",
+    "tests.test_node",
+    "tests.test_owner_api",
+    "tests.test_owner_workboard",
+    "tests.test_painting_outbox",
+    "tests.test_phase_a_security",
+    "tests.test_phase_b_inbox",
+    "tests.test_phase_l_unify",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_sender_dryrun",
+    "tests.test_shell_contract",
+    "tests.test_stale_facts",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_time_is_not_costed"
+   ],
+   "status": "LIVE_CANONICAL",
+   "why": "entry_anchored(ofn.run L3 systemd)"
+  },
+  {
+   "component": "ofn.preflight",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "f10136c01dce08c991671e530ce96e17d475176015b6bf1afb91e3ec0888529e",
+   "path": "ofn\\preflight.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_preflight"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "ofn.restore_job",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "352d3f39fdca6acbd175330edf491636707d873056a6e212f99c4eae359172b1",
+   "path": "ofn\\restore_job.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "ofn.run",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "e6564dbdaccecac54722e8bd81e38ab9f8a034b8cfbe9b95a8f4cc6da5c4f5d7",
+   "path": "ofn\\run.py",
+   "reachable_from_entrypoints": true,
+   "runtime_evidence": [
+    "systemd ofn.service \u2192 python3 -m ofn.run (2026-08-28 L3)"
+   ],
+   "static_importers": [
+    "ofn.assistant_update",
+    "ofn.marketing_run",
+    "tests.test_cockpit_v2_http"
+   ],
+   "status": "LIVE_CANONICAL",
+   "why": "entry_anchored(ofn.run L3 systemd)"
+  },
+  {
+   "component": "ofn.worker",
+   "dynamic_registry_refs": [
+    "ofn.adapters.cockpit_v2_read_model",
+    "ofn.node",
+    "tests.test_brain_wire",
+    "tests.test_owner_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "65397bd75a927be1ae7cec1367c32ccb349da1a81f2435739a855fd0d8db4377",
+   "path": "ofn\\worker.py",
+   "reachable_from_entrypoints": true,
+   "runtime_evidence": [
+    "systemd ofn.service \u2192 python3 -m ofn.run (2026-08-28 L3)"
+   ],
+   "static_importers": [
+    "deploy.brain-probe",
+    "ofn.node",
+    "ofn.run",
+    "tests.test_worker"
+   ],
+   "status": "LIVE_CANONICAL",
+   "why": "entry_anchored(ofn.run L3 systemd)"
+  },
+  {
+   "component": "scripts.shopify_apply_copy",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "a2c61070bc772651524220449da3d04cc11c0a005709146035a514e6ab905d89",
+   "path": "scripts\\shopify_apply_copy.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "scripts.studio_auto_slice",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "22b5aa59b50c0384db341adb8e4a28092da2b7f69141da1b6e52318008b0695e",
+   "path": "scripts\\studio_auto_slice.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests",
+   "dynamic_registry_refs": [
+    "tests.test_cockpit_v2_frontend",
+    "tests.test_tmpdir",
+    "tools.capture_golden"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "path": "tests\\__init__.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "tests.fixtures.renditions",
+   "dynamic_registry_refs": [
+    "ofn.node",
+    "tests.test_media_description",
+    "tests.test_product_photos",
+    "tests.test_studio_api"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "917de3e392fae0e55f0e881362d46ac54e2a1f12e4706f443ed24dc6da577280",
+   "path": "tests\\fixtures\\renditions.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_media_description",
+    "tests.test_product_photos",
+    "tests.test_studio_api"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "tests.test_advisor",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "7781b7a9a376f4aad92f614db68effe8819ff3e0a6e8d06bedc1e6f07afada45",
+   "path": "tests\\test_advisor.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_alert",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "7b404e42a2dfbb4076049c35345a496f3d1f824f2c2210bf746aaf8876be6215",
+   "path": "tests\\test_alert.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_assistant_shared_memory",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "5ad392c5d3e39d5b1a459c3decc62b4f9b9a96474dd0a634a736d28d0fe181e5",
+   "path": "tests\\test_assistant_shared_memory.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_audience",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "57273ee20d58210d2dbdcd60fe56ca284792f08ce991aaff5b592de114590be8",
+   "path": "tests\\test_audience.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_auth",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "de1d0cd9004ca4e174015fde5dd1363cd4c4c9ce8c9edf2a902cccffd295d379",
+   "path": "tests\\test_auth.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_greeting_name"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "tests.test_board_events",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "4364b7baf77895af371a686ac4932eafe4c6716b67e4914d7193939e07b2b324",
+   "path": "tests\\test_board_events.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_brain_probe",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "2ac6349c1bedebf90b6a68c57edd1803eb3663d22f7b1920f355eb4a9ff55b2c",
+   "path": "tests\\test_brain_probe.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_brain_wire",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "45db2959a4fc7886dc56a93b19421797ae81e81ff5ec8277b791ec355565651b",
+   "path": "tests\\test_brain_wire.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_business_source_export",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "e225b9e771e95c3df589ece8676bab29b3b00998f4a4584b648663f3b5dcfec5",
+   "path": "tests\\test_business_source_export.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_cockpit_v2_business_truth",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "59e074b2e5fb4a910073ceeaafb848341b181ddf6f45d0588496a9f6e26156c5",
+   "path": "tests\\test_cockpit_v2_business_truth.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_cockpit_v2_frontend",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "a6cf2aca8914f2d7389a795b881588b73d8455ee28ae7ca56438f43dc19f45cf",
+   "path": "tests\\test_cockpit_v2_frontend.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_cockpit_v2_http",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "9ea05355b1a36f9dbe4ebca5b1e5360931d336c66e00621d381a60cba4b9f825",
+   "path": "tests\\test_cockpit_v2_http.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_cockpit_v2_purity",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "6684f19a94a14ea93c9d0ef359fbe7d7ee4fbb8bf09f813369b2c97753d903d5",
+   "path": "tests\\test_cockpit_v2_purity.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_cockpit_v2_read_model",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "346b341f0aedd43907472a7357f12b3af3eed1b52c26394727333c0df86fe4c5",
+   "path": "tests\\test_cockpit_v2_read_model.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_command_surface_absent",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c00272988d67e1a628f7a10de623eeee2e7a440e8483adaa6b3db7910dc50557",
+   "path": "tests\\test_command_surface_absent.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_commerce_connector",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "f71875c59b3414fb161d78ad144d901ed6f9e57e8396f54f67af111b43ef9989",
+   "path": "tests\\test_commerce_connector.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_commerce_integration",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "6165c8d71076099758f7dc4408ac929ea398f33618a596bc86f9f9138495701c",
+   "path": "tests\\test_commerce_integration.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_connector_infra",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "26b7376f31e37cf92632d4bb610a9c3a5b013ac6cd7460fdf3b8e834a5490022",
+   "path": "tests\\test_connector_infra.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_consent",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "608a75ff8442c545a5c2e8d3546a8126a4d5f58e8b2addc5dc91b32c12233b78",
+   "path": "tests\\test_consent.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_cycle_parsing",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "6894da745f05b387761bfde170239b12c897168012fbd546f3e1a41360d02196",
+   "path": "tests\\test_cycle_parsing.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_deleting_a_piece",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "22a0ec635cda832919c6c54d799df2aedb1a60038458fe8ec324de01d6dd50df",
+   "path": "tests\\test_deleting_a_piece.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_e2e",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "00901114b25f3593872ff0ed55d841f1d1b365923d4be3811418a1f7ba14657a",
+   "path": "tests\\test_e2e.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_executor_fake",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c67badabb7a0658c04d43a01a5efc253851cef045fc40e67712fc8478f367f9a",
+   "path": "tests\\test_executor_fake.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_export_csv",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "07dcb0856a08f5f460d983c1b7ff244c3347f53c8aae8ad0d48cf8ea39cda422",
+   "path": "tests\\test_export_csv.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_fleet",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "f6a5bc12649c770424ab7a40e80edc521add27964f1b0f8d2ea556189cab847c",
+   "path": "tests\\test_fleet.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_gate_enforcement",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c897c703875a594d537f27c8a3a9c03d2a685314f1fd9c3232987484020444e6",
+   "path": "tests\\test_gate_enforcement.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_gates",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "00743b131ee31bfb1bb118637189f77e886a19745c35fa684bf7307b64dbf9bb",
+   "path": "tests\\test_gates.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_greeting_name",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "5ce17f074807343df24bd6771fe63efa3c6bc3fefb51ee68ed2f6dd088b66eec",
+   "path": "tests\\test_greeting_name.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_growth_workbench",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8bfeee5b32062a2cfcf48829abe01e0d4cccf457667f314139056d61d768c545",
+   "path": "tests\\test_growth_workbench.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_handler_failure",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "534f32058c4f48f5721df2f3021ce79a11c28bf535382c0f0045ebf6984e4445",
+   "path": "tests\\test_handler_failure.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_http_api",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "35900f7fcb498321190ae70858bd01b19c5e3c4862b286fed6aa230a5affcf67",
+   "path": "tests\\test_http_api.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_kernel_purity",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "1d832789466c270061f55bb39af71d32971a91b2cfc82a02521d7f5a8e8ef80e",
+   "path": "tests\\test_kernel_purity.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_kill_switch",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "cacfb6f92e537fb671b6ce89509fae919ef1dd1b9ca7d8b6018015df373a7f14",
+   "path": "tests\\test_kill_switch.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_lead_contact_policy",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "5f67547e552a7838691c3e8a3d5f79cdfee5eedafb4e6aba488d05562dc67b4d",
+   "path": "tests\\test_lead_contact_policy.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_lead_followups",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c26fe0409890b947d4eb45f37ff3c6185c0b148eef8923460deb7919fd5b5977",
+   "path": "tests\\test_lead_followups.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_locale",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "e9eeb3df01c7c90649d8a689eeb8129a7d7536cdf2a04a7ea4f4848895ab17e0",
+   "path": "tests\\test_locale.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_manual_dispatch",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "d58fb39f893c40bd613d8fe25fb77b643748409089b3c2f286333a85b0f8910d",
+   "path": "tests\\test_manual_dispatch.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_marketing_adapters_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "76cee66ba459fc379381b2abd7c23be38492115741410ff23af9bdc958a311ae",
+   "path": "tests\\test_marketing_adapters_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_marketing_scout_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "443f74966cd890b79e892785e5af30b493bf4afbe86511904d82b6f81755ab69",
+   "path": "tests\\test_marketing_scout_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_marketing_store_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "a5e94fb9c3d8f1793cac23716a57c76d469d40d43f4227f452b43879de93608e",
+   "path": "tests\\test_marketing_store_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_media_description",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "14e0c2a95c3d60e9ca57f97a5f3ddad790e0dd06979b3704cfb01c0b4c8bf99a",
+   "path": "tests\\test_media_description.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_model_provenance",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "2b4c6a01a6233085527f436cd358775a6339b2bfcb0ce4f8aa91c90c66c51b97",
+   "path": "tests\\test_model_provenance.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_mutation_ledger_pair",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "4aef9b1eaebdfcd1bda1e193f3c2c7f96ef022afc1e12c3ae21a3c4b887fb24c",
+   "path": "tests\\test_mutation_ledger_pair.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_no_public_surface",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "5c0c8c07f925b68110a4b688f707390f6ab80bc4ece148fe61b12a9fd11e2713",
+   "path": "tests\\test_no_public_surface.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_node",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "cba9ef73d4407698354bafe4aa1ebd4372d860e0eb178784d0a53809f96c0dc2",
+   "path": "tests\\test_node.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_octopus_wire_drift",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "abf0bb0d42c85fab02eccb2066f30edaa69cda3e941b7ba5a7c6c8ebbd40dba0",
+   "path": "tests\\test_octopus_wire_drift.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_onlyfans_http_scaffold",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "fc7ca6b1ba9cda8d94d9123e57bf27584d8ff2b51d75f02832a267945041898f",
+   "path": "tests\\test_onlyfans_http_scaffold.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_outreach",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "55e6a3c95cfe88b86023c5ec7d89be0b8ef81028ff8bc24ae135631ea4911950",
+   "path": "tests\\test_outreach.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_owner_api",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "6f1a03d7716e8c82b4fd806904839770c935bc48d4dcb5ba7bd751d63814c849",
+   "path": "tests\\test_owner_api.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_owner_decision_fake",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8d0fe55a2043024a0392044f6a04392d6af748b5445ce8063df59a2b90a548ff",
+   "path": "tests\\test_owner_decision_fake.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_owner_workboard",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "f7fbb595d7789055239ca65af23fc419e6ecb818f2d8c9dc0cc618819c2c3fb3",
+   "path": "tests\\test_owner_workboard.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_packs",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "fcc8b3cea759c54875a4360476108f814c109407b580a250f6e233e70059b447",
+   "path": "tests\\test_packs.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_painting_math",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "b2396e88072c614585467bbba0dd5ca25b082102b58c1ce37f616e8d1ca217e1",
+   "path": "tests\\test_painting_math.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_painting_outbox",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "471144ba4e9accdcc87012e883e5b9e9b7e302a591f4e22af3a29bc9842042cb",
+   "path": "tests\\test_painting_outbox.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_painting_owner_api",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "404944ff7a1761263dfe022d7a71316d543f01308af9e186e025ba28a07b8706",
+   "path": "tests\\test_painting_owner_api.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_painting_store",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "79db91e900960444c12a26ed20b6215ea94e659038734e5db49198b325ed67be",
+   "path": "tests\\test_painting_store.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_panel_coverage",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8d1e036e27f01bf6914f131949dfda076d5d8b17f146a07bdf1c26119cbaf3d2",
+   "path": "tests\\test_panel_coverage.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_partner_allowlist",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c695996712fc89eb97a224a0490fee9136395144e85448f0ee742cac80689cc6",
+   "path": "tests\\test_partner_allowlist.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_persistence",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c011447e60ceddfb1d41cbc9c829d6c872987cd68680e8954b7f4da0e79bcda3",
+   "path": "tests\\test_persistence.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_phase_a_security",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "5b730f87fb6c102d0b6d2841b7b5fddf0e72944ae235d6e53a89dd0a6b66076e",
+   "path": "tests\\test_phase_a_security.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_phase_b_inbox",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "0b905d5338dac36389c4dca58725e8bdcf0f5ef5688288e768f013ba94edfc23",
+   "path": "tests\\test_phase_b_inbox.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_phase_d_backup",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "51f92e9f3f11ad1390a89c5a424a00970380df3af834f3eca27284d261054db0",
+   "path": "tests\\test_phase_d_backup.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_phase_i_p2",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "959fe6fb49dfae9cea85e2b283ae29bee9f322d63ef4a52d1eaabd16a0a5847f",
+   "path": "tests\\test_phase_i_p2.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_phase_l_unify",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "76870d5a699b83f35facf7a0cb02c626fb3d6d602b5ad9cdf0314da92b439808",
+   "path": "tests\\test_phase_l_unify.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_phase_m_vendor",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c5197c04cca0da17bded7e80cb3939ac7fe89bf017b109f9e3ede1d6b2e6d46e",
+   "path": "tests\\test_phase_m_vendor.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_photos_and_media",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "3b6f43544979ffbbfd487f57279055508fc804f0d421f4889d40cfc4206bbd25",
+   "path": "tests\\test_photos_and_media.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_photos_external",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "f46f9c49beb9455a5b1ff1714a527b91b46d43e570ac570ac69e0838884c8821",
+   "path": "tests\\test_photos_external.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_photos_golden",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "9332e85e1c4f26043348c32aaa4123f84f5fa0fddb4372f39e0c1fe7759a117e",
+   "path": "tests\\test_photos_golden.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_pilot_harness",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "51da8093e17683e2dc56d644489f0051002939bf4a94c74489f9146b56f6f3e6",
+   "path": "tests\\test_pilot_harness.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_pilot_report",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "0d4131aedbb0dff59851d35457eb105ba2b7747cc22a4be3fd103496ba51b607",
+   "path": "tests\\test_pilot_report.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_platform_matrix_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "fc933e1011ad3e2ca660d07df2817d7046a7d2c0db326e2bce3692142e668ba1",
+   "path": "tests\\test_platform_matrix_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_platforms_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c6252dc5bdaff79a69c405daf15f72e84709285787a10853d80689849757d984",
+   "path": "tests\\test_platforms_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_portfolio_map",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "96672f61d42b2106af322f61d56ee242283912e1c8c4fed54f987cb440ef5f17",
+   "path": "tests\\test_portfolio_map.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_preflight",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8ed37d6ed23850806fb22c30f2500bc86ac5a2502845321caabf3e64e8e8e681",
+   "path": "tests\\test_preflight.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_product_api",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "b5fef4efc657bf35c62acc7cadba2bf62d17a31aa005539ad296b8674325974a",
+   "path": "tests\\test_product_api.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_product_photos",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "0d6675e1d4b208f40f74fd0c36729fc6923a10086836b50eff65f301150083d3",
+   "path": "tests\\test_product_photos.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_products",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "4eff4bd659635ba82114468ea016311726267f9095b7f79ec277661537966769",
+   "path": "tests\\test_products.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_quota",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "e2a74b15c5e134db2e31e3b5d49c627e04ab2105bdff538b45389aa51617f123",
+   "path": "tests\\test_quota.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_release_switch_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "6322aaa2806104b7e4adb022b002add9575466ad728c70570c0caadb8212ab37",
+   "path": "tests\\test_release_switch_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_revenue_stage_wiring",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "0b7ece4ef4257bc073bacd4686f3f71ce1b59ec8fc505e8798b07cc961a3fce4",
+   "path": "tests\\test_revenue_stage_wiring.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_risk",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "734abcb417ef7fc667e29b8e7ccfed044bb157b4e6c48f065009ac859f478713",
+   "path": "tests\\test_risk.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_rotation_reader",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "9e749a2ca08d43c881491ae6d363a62a73edb461379fa9e8c5e5f4a8e51cd944",
+   "path": "tests\\test_rotation_reader.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_routing",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "4cb6a777c9b26088cd3502ae86d522812b2ed73f894b9e0ef6e2f069e6d11473",
+   "path": "tests\\test_routing.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_runbook_coverage",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "674b45d627e02c6abddee4532973369e7c26e2aa9c497c9de71445466cb2a270",
+   "path": "tests\\test_runbook_coverage.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_schema_drift",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "890b6cb911669d92df1de3dc723a34dbadabc5177390e77c59f2a8ae22558806",
+   "path": "tests\\test_schema_drift.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_scout",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "50778c37e2b68925f33871364460b5c96d726aa5d1ca4cacfcb5d1382665b5f8",
+   "path": "tests\\test_scout.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_security_headers",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "5b0c822e8c915376de9f24a2d85aeedd451ab7a411aba42ef0d9317920bfdf8d",
+   "path": "tests\\test_security_headers.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_sender_dryrun",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "ccf367ed193d0af0ace8e5fefad72575d233efd52cf66a7e93d86f0fea9559eb",
+   "path": "tests\\test_sender_dryrun.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_shell_boot_order",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "df3b6f20b819ca6b455274200e0e28a88e5f87f497ba65ac27ceb848966b5605",
+   "path": "tests\\test_shell_boot_order.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_shell_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "bcc89a197884551e272c705d720a008c5838c34993ddd378121e88c6f70a7e42",
+   "path": "tests\\test_shell_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_shell_navigation",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "7ae367b977d252f67b5366e406a8fdca3efd23bb2fe63c6c1a702136598a0144",
+   "path": "tests\\test_shell_navigation.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_shell_reachability",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "f0bda6a2cf715756dd66ff9fd9e364fffe6827e849b86f37b48d48ccce624450",
+   "path": "tests\\test_shell_reachability.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_stale_facts",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "d9e8487aebf672c30edc1ebe0d43dc99938cc0f919fb5ec6afd40167e5c88739",
+   "path": "tests\\test_stale_facts.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_stranger",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8da58869cd556f46ee5975eefa9fd0eea364395fb52980d7f400d13f81ef9f31",
+   "path": "tests\\test_stranger.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_studio_api",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8f2e071cbe9eb0e8cb076d2afe368150d7949b6d7ebf221a526aab6127d12bb7",
+   "path": "tests\\test_studio_api.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_studio_assistant",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "f505a488a6e9bc4fbcabbd3af4c04915d36985f14b1b1daecff2a6da0b2c3263",
+   "path": "tests\\test_studio_assistant.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_studio_draft_workflow",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "64b8125bc308a100ee17350883f7a28f10f093c8976d9c267fa72a2dd46032d3",
+   "path": "tests\\test_studio_draft_workflow.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_studio_marketing_actions",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "9de8b3048c00eaafc16dccc1bc9c7747d2d8fa880e23d59d01bee0c690e92487",
+   "path": "tests\\test_studio_marketing_actions.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_studio_marketing_api",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "e310f81a740c9bee563c5c776c7fd8ec88b2fbcfd52a4928602155547d16833b",
+   "path": "tests\\test_studio_marketing_api.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_studio_marketing_ui",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "119f14fa86287e4e7adcbab804041a4cd3bcc326222385d15627c759f06b32d8",
+   "path": "tests\\test_studio_marketing_ui.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_studio_shell",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "9ca898b6429dff5fffef6b2be78c20979c85ba269cdd30016cc403d3cf400921",
+   "path": "tests\\test_studio_shell.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_studio_store",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "aaf8915e5d7df13826327002cb95bbc8b2a870f50b462d0f1c0e81046a31c767",
+   "path": "tests\\test_studio_store.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_survival",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "958fce2f8c799fddb65545724ca929395ecf8b38877bca43372b5f23830f05c9",
+   "path": "tests\\test_survival.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_sysmetrics",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "f1fe2a66435786530cd8d8be8538a452d66eb8d8ae2802eebabde2a2b1966de6",
+   "path": "tests\\test_sysmetrics.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_tenancy",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "107afb2e9f9cf777123fc7b0185f9daef42acd00903814e48f5648465dff2a17",
+   "path": "tests\\test_tenancy.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_time_is_not_claimed",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "7b9d5fb8c4e566f16b64585a6cd60bce322d6a0d11043da611624c70b182b6d7",
+   "path": "tests\\test_time_is_not_claimed.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_time_is_not_costed",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "06314cdc912d61aee19c86538e169334318c0d8d1903075768aa29c50a55eeff",
+   "path": "tests\\test_time_is_not_costed.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_tmpdir",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "1b5d12050f509393071eac1a3881dd7e70f3801b404d054446c903dcae9314a1",
+   "path": "tests\\test_tmpdir.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_two_prices",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "043265fadd708d8b2b23547067d13468d773234d931da37f059d1f198eca4aff",
+   "path": "tests\\test_two_prices.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_units",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "fb82e8692b0c3d8fc7012ab2ea3f78f35dd9711438209aeef4839a636c181379",
+   "path": "tests\\test_units.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.test_web_serving",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "22c10e9e195170e3761d0a2fb118f9fecab1743f6e74f66eca99a8c871ece102",
+   "path": "tests\\test_web_serving.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_weekly_cycle_contract",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "c37273e91e8b17cb55b645b0ef29e355cb00e32305b524b367aaa84c34e15107",
+   "path": "tests\\test_weekly_cycle_contract.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_witness_mint",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "08c11663adbfba633699b80d7eb8af010f974356b470a03d3b57bb3da9748284",
+   "path": "tests\\test_witness_mint.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_worker",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "82bafbedb640d338bceed506f2321423998c69f17ab1186d2ee53ecd1c5ad789",
+   "path": "tests\\test_worker.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_ziman_commerce",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8c057d6fbd5d760dbbb9c0147cb38caa5e6cb90be6ce998abbd54d9b2559c363",
+   "path": "tests\\test_ziman_commerce.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_ziman_sales",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "d6f53ff71e53276cc4dc8cc8e8c50d430f96b2176c332d3c708eaec8e67c834a",
+   "path": "tests\\test_ziman_sales.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tests.test_ziman_shell_pieces",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "6ff98583449680d8f817bbe151deacfcb64e12b689b93507ca314d2f9e54ae95",
+   "path": "tests\\test_ziman_shell_pieces.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tests.tmpdir",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "17b8e3459b2473b38b29cdc8d9e4d281b84d873b6b3c4e4ad1adab6fdeb36bfc",
+   "path": "tests\\tmpdir.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_assistant_shared_memory",
+    "tests.test_audience",
+    "tests.test_business_source_export",
+    "tests.test_cockpit_v2_business_truth",
+    "tests.test_cockpit_v2_read_model",
+    "tests.test_commerce_integration",
+    "tests.test_connector_infra",
+    "tests.test_consent",
+    "tests.test_deleting_a_piece",
+    "tests.test_executor_fake",
+    "tests.test_gate_enforcement",
+    "tests.test_growth_workbench",
+    "tests.test_lead_followups",
+    "tests.test_manual_dispatch",
+    "tests.test_media_description",
+    "tests.test_no_public_surface",
+    "tests.test_owner_workboard",
+    "tests.test_painting_outbox",
+    "tests.test_phase_a_security",
+    "tests.test_phase_b_inbox",
+    "tests.test_phase_d_backup",
+    "tests.test_phase_i_p2",
+    "tests.test_phase_l_unify",
+    "tests.test_photos_and_media",
+    "tests.test_product_api",
+    "tests.test_product_photos",
+    "tests.test_products",
+    "tests.test_revenue_stage_wiring",
+    "tests.test_sender_dryrun",
+    "tests.test_studio_api",
+    "tests.test_studio_draft_workflow",
+    "tests.test_studio_marketing_actions",
+    "tests.test_studio_marketing_api",
+    "tests.test_studio_store",
+    "tests.test_tmpdir",
+    "tests.test_two_prices",
+    "tests.test_witness_mint",
+    "tests.test_ziman_commerce",
+    "tests.test_ziman_sales"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "tools.capture_golden",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8c34c1afd2727d2396477a47c77ea82048af3204da79a6fdf292b2c9a847d7b6",
+   "path": "tools\\capture_golden.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tools.check_rotation",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "8be758a116c21c6d2b209cab14f9977ca5bc35642081be59270617eb4863d306",
+   "path": "tools\\check_rotation.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DEAD_CANDIDATE",
+   "why": "zero_refs_all_passes"
+  },
+  {
+   "component": "tools.pilot_daily",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L1_STATIC_GIT",
+   "file_sha256": "d00296f281c965c1d81cd6a4e3251a3d29c83d14cf002df5bd743d648cddb28b",
+   "path": "tools\\pilot_daily.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "DORMANT",
+   "why": "imports_others_none_import_it"
+  },
+  {
+   "component": "tools.pilot_report",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "2603f4ef0b4222176a29b4fadcc66c962b5e4b981140eda27e122b6c7e1a6969",
+   "path": "tools\\pilot_report.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_pilot_report"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "tools.repo_baseline",
+   "dynamic_registry_refs": [],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "522158b2fcee19de6867b4c971a7940713a9c5181519a1a1ec776b826bf50bbd",
+   "path": "tools\\repo_baseline.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [
+    "tests.test_portfolio_map"
+   ],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  },
+  {
+   "component": "tools.seed_pilot",
+   "dynamic_registry_refs": [
+    "tests.test_pilot_report",
+    "tools.pilot_report"
+   ],
+   "evidence_level": "L2_IMPORT_GRAPH",
+   "file_sha256": "ed7f73c2f16de6d77b53afce63d12a083cdc98fdcf0f00e2f775786caed71779",
+   "path": "tools\\seed_pilot.py",
+   "reachable_from_entrypoints": false,
+   "runtime_evidence": [],
+   "static_importers": [],
+   "status": "SHADOW",
+   "why": "referenced_not_reachable"
+  }
+ ],
+ "repo_head": "a3000f0a889cc2642c34906de4bd06452b4870cb",
+ "repository": "C:\\Users\\Armin\\AppData\\Local\\Temp\\ofn-spine",
+ "schema": "adapter_census.v2",
+ "total": 228
+}

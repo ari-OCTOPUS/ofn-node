@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCTOPUS — سه‌قلب · قانون ۳-۲-۱ بکاپ</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #01020a; overflow: hidden; font-family: "Segoe UI", Tahoma, sans-serif; }
+  #app { position: fixed; inset: 0; }
+  #scan { position: fixed; inset: 0; pointer-events: none; z-index: 3; background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(120,180,255,.045) 2px 3px); mix-blend-mode: screen; }
+  #vig  { position: fixed; inset: 0; pointer-events: none; z-index: 3; background: radial-gradient(120% 90% at 50% 45%, transparent 54%, rgba(0,0,4,.9) 100%); }
+  .top { position: fixed; top: 14px; left: 0; right: 0; text-align: center; z-index: 5; pointer-events: none; }
+  .top b { font-size: 15px; font-weight: 800; letter-spacing: 3px; background: linear-gradient(90deg,#7dd3fc,#a5b4fc,#67e8f9); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 22px #38bdf855; }
+  .top span { display: block; font-size: 11px; color: #5b6b85; margin-top: 3px; letter-spacing: 1px; }
+  #lease { position: fixed; top: 16px; left: 16px; z-index: 6; direction: ltr; text-align: left;
+    font: 12px/1.6 ui-monospace, Menlo, monospace; color: #7dd3fc; text-shadow: 0 0 10px rgba(56,189,248,.5); pointer-events: none; }
+  #lease .h { color: #fcd34d; font-weight: 700; }
+  #lease .dim { color: #3a4a63; }
+  #hint { position: fixed; bottom: 14px; left: 0; right: 0; text-align: center; z-index: 5; pointer-events: none; font-size: 11.5px; color: #5b6b85; }
+  #hint b { color: #bae6fd; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="app"></div>
+<div id="scan"></div><div id="vig"></div>
+<div class="top"><b>۳ HEARTS · 3-2-1</b><span>سه قلبِ اختاپوس = قانونِ طلاییِ بکاپ · single-writer lease · خونِ آبیِ hemocyanin</span></div>
+<div id="lease"></div>
+<div id="hint">بکش تا بچرخانی · اسکرول = زوم · <b>lease</b> فقط روی یک قلب — بقیه در انتظار (standby copies)</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+const ADD = THREE.AdditiveBlending;
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+app.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x01020a);
+scene.fog = new THREE.FogExp2(0x02030e, 0.014);
+
+const camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 400);
+camera.position.set(0, 3, 40);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.05;
+controls.autoRotate = true; controls.autoRotateSpeed = 0.45;
+controls.target.set(0, 0, 0); controls.minDistance = 16; controls.maxDistance = 90;
+
+scene.add(new THREE.AmbientLight(0x2a3a55, 0.5));
+const key = new THREE.PointLight(0x8fd0ff, 40, 200); key.position.set(6, 10, 14); scene.add(key);
+const gold = new THREE.PointLight(0xfcd34d, 12, 120); scene.add(gold);
+
+// starfield
+(function(){ const n=1000, p=new Float32Array(n*3);
+  for(let i=0;i<n;i++){ const r=90+Math.random()*90, t=Math.random()*6.28, ph=Math.acos(2*Math.random()-1);
+    p[i*3]=r*Math.sin(ph)*Math.cos(t); p[i*3+1]=r*Math.cos(ph); p[i*3+2]=r*Math.sin(ph)*Math.sin(t); }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x6688bb,size:0.18,transparent:true,opacity:0.5}))); })();
+
+// canonical skin
+function skin(geo){ return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+  color:0x081826, emissive:0x2a8fd6, emissiveIntensity:0.6, roughness:0.35, metalness:0.45,
+  transparent:true, opacity:0.6, flatShading:true })); }
+function wire(geo,col,op){ return new THREE.LineSegments(new THREE.EdgesGeometry(geo,18),
+  new THREE.LineBasicMaterial({color:col,transparent:true,opacity:op,blending:ADD})); }
+function glow(r,col,op){ return new THREE.Mesh(new THREE.SphereGeometry(r,20,20),
+  new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,blending:ADD,depthWrite:false})); }
+
+// ---- three hearts: 1 systemic (center, big) + 2 branchial/gill (flanks) ----
+const HPOS = [ new THREE.Vector3(0,1,0), new THREE.Vector3(-15,-3,2), new THREE.Vector3(15,-3,-2) ];
+const HSIZE = [7.5, 4.6, 4.6];
+const HNAME = ['systemic','gill-L','gill-R'];
+const HLABEL = ['copy 1 · primary', 'copy 2 · mirror', 'copy 3 · off-site'];
+const hearts = [];
+for (let hi=0; hi<3; hi++){
+  const size=HSIZE[hi], grp=new THREE.Group(); grp.position.copy(HPOS[hi]);
+  const body=skin(new THREE.IcosahedronGeometry(size,2)); grp.add(body);
+  const w=wire(new THREE.IcosahedronGeometry(size*1.03,1),0xbfe9ff,0.5); grp.add(w);
+  const g=glow(size*1.9,0x38bdf8,0.1); grp.add(g);
+  const li=new THREE.PointLight(0x9fd8ff,0.6,120); grp.add(li);
+  // ecg-ish bands
+  const bands=[]; const nb=hi===0?6:3;
+  for(let b=0;b<nb;b++){ const y=size*0.7-b*(size*1.4/nb); const rr=Math.sqrt(Math.max(0.2,1-Math.pow(y/(size*1.15),2)))*size;
+    const tor=new THREE.Mesh(new THREE.TorusGeometry(rr,size*0.03,6,30),
+      new THREE.MeshBasicMaterial({color:0xcdeeff,transparent:true,opacity:0.4,blending:ADD,depthWrite:false}));
+    tor.rotation.x=Math.PI/2; tor.position.y=y; grp.add(tor); bands.push(tor); }
+  scene.add(grp);
+  hearts.push({grp,body,glow:g,light:li,bands,size,pos:HPOS[hi]});
+}
+
+// vessels (branchial -> systemic) + gill filaments
+function vessel(a,b,r){ const mid=a.clone().add(b).multiplyScalar(0.5); mid.y+=5;
+  const c=new THREE.CatmullRomCurve3([a,mid,b]);
+  const mesh=new THREE.Mesh(new THREE.TubeGeometry(c,24,r,8,false),
+    new THREE.MeshBasicMaterial({color:0x7fc7ff,transparent:true,opacity:0.3,blending:ADD,depthWrite:false}));
+  return {mesh,curve:c}; }
+const gillL=new THREE.Vector3(-24,11,6), gillR=new THREE.Vector3(24,11,-6);
+const vessels=[ vessel(HPOS[1],HPOS[0],0.9), vessel(HPOS[2],HPOS[0],0.9), vessel(HPOS[1],gillL,0.7), vessel(HPOS[2],gillR,0.7) ];
+vessels.forEach(v=>scene.add(v.mesh));
+[gillL,gillR].forEach((gp,gi)=>{ for(let f=0;f<7;f++){ const pts=[];
+  for(let s=0;s<6;s++) pts.push(new THREE.Vector3(gp.x+(gi?-1:1)*s*1.5, gp.y+s*1.3, gp.z+Math.sin(s*0.9+f)*2));
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.28,blending:ADD}))); }});
+
+// blue blood particles flowing along vessels
+const BB = 240, bbPos=new Float32Array(BB*3), bb=[];
+for(let i=0;i<BB;i++) bb.push({ v:i%vessels.length, t:Math.random(), sp:0.15+Math.random()*0.25 });
+const bbGeo=new THREE.BufferGeometry(); bbGeo.setAttribute('position',new THREE.BufferAttribute(bbPos,3));
+scene.add(new THREE.Points(bbGeo,new THREE.PointsMaterial({color:0x00ffff,size:0.5,transparent:true,opacity:0.9,blending:ADD,depthWrite:false})));
+
+// lease / fencing token — hops between hearts (single-writer pacemaker)
+const lease=new THREE.Mesh(new THREE.SphereGeometry(1.5,16,16),
+  new THREE.MeshBasicMaterial({color:0xfff7d6,blending:ADD,depthWrite:false})); scene.add(lease);
+const leaseRing=new THREE.Mesh(new THREE.TorusGeometry(2.4,0.12,10,64),
+  new THREE.MeshBasicMaterial({color:0xfcd34d,transparent:true,opacity:0.9,blending:ADD,depthWrite:false})); scene.add(leaseRing);
+let leaseIdx=0, leaseT=0, leaseHold=4.0;
+
+// standby dashed rings around the two inactive hearts
+const standbyRings = hearts.map((h,i)=>{
+  const r=new THREE.Mesh(new THREE.TorusGeometry(h.size*1.35,0.04,8,80),
+    new THREE.MeshBasicMaterial({color:0x2a4a66,transparent:true,opacity:0.5,blending:ADD}));
+  r.rotation.x=Math.PI/2.4; h.grp.add(r); return r; });
+
+// bloom
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.0,0.75,0.15));
+
+function beat(t){ const p=(t%1.3)/1.3;
+  const g=(c,w)=>Math.exp(-((p-c)*(p-c))/(2*w*w));
+  return Math.min(1,g(0.10,0.045)*1.0+g(0.27,0.055)*0.65); }
+
+const leaseEl=document.getElementById('lease');
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),0.05), t=clock.getElapsedTime();
+  const b=beat(t);
+
+  // lease hop
+  leaseT+=dt;
+  if(leaseT>leaseHold){ leaseT=0; leaseIdx=(leaseIdx+1)%3; }
+  const active=hearts[leaseIdx];
+  const lp=active.pos;
+  lease.position.lerp(lp, 0.12);
+  leaseRing.position.copy(lease.position);
+  leaseRing.rotation.z+=0.03; leaseRing.rotation.x=Math.PI/2.5;
+  gold.position.copy(lease.position);
+
+  hearts.forEach((h,i)=>{
+    const on = i===leaseIdx;
+    const hs = on ? 1+b*0.13 : 1;
+    h.body.scale.setScalar(hs);
+    h.body.material.emissiveIntensity = on ? (0.8+b*0.9) : 0.18;
+    h.body.material.opacity = on ? 0.62 : 0.3;
+    h.glow.material.opacity = on ? 0.16 : 0.04;
+    h.light.intensity = on ? 1.5+b*2 : 0.2;
+    h.bands.forEach(bd=>bd.material.opacity = on ? 0.4 : 0.08);
+    standbyRings[i].material.opacity = on ? 0 : 0.45;
+    standbyRings[i].rotation.z += on?0:0.004;
+    h.grp.rotation.y += on?0.004:0.001;
+  });
+
+  // blood flow
+  vessels.forEach(()=>{});
+  for(let i=0;i<BB;i++){ const c=bb[i]; c.t=(c.t+c.sp*dt)%1;
+    const p=vessels[c.v].curve.getPoint(c.t);
+    bbPos[i*3]=p.x; bbPos[i*3+1]=p.y; bbPos[i*3+2]=p.z; }
+  bbGeo.attributes.position.needsUpdate=true;
+
+  // HUD
+  leaseEl.innerHTML = hearts.map((h,i)=>{
+    const on=i===leaseIdx;
+    return `<div class="${on?'':'dim'}">${on?'● <span class="h">LEASE</span>':'○'} ${HNAME[i].padEnd(9)} <span class="${on?'h':'dim'}">${HLABEL[i]}</span></div>`;
+  }).join('') + `<div class="dim" style="margin-top:6px">fencing → next in ${(leaseHold-leaseT).toFixed(1)}s</div>`;
+
+  controls.update();
+  composer.render();
+}
+animate();
+
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight); });
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+schema: preflight.v1
+mission_id: OCTOPUS-L191-PARALLEL-v3
+emitted_at_utc: "2026-08-28T10:55:00Z"
+lane_id: L0
+preflight_workspace_selection:
+  status: PASS
+  clean_reference:
+    branch: integration/pc-spine-20260828
+    full_sha: 7154675dc66afda88feb102afcf0a057e8b1a540   # prefix 7154675 MATCH
+  execution_workspace: C:/Users/Armin/.zcode/tmp/OCTOPUS-EXECUTION-v2
+  workspace_kind: standalone git clone --shared from E:/germline/octopus.git (NOT a worktree of F:\backup; own object store; sparse-checkout artifacts/evidence/handoff/schemas only)
+  excluded_dirty_source:
+    path: F:\backup
+    head: c803dee…
+    policy: NO_CLEAN_NO_RESET_NO_CHECKOUT_NO_COMMIT_NO_DELETE
+    modified_by_this_mission: false
+auth:
+  AUTH_AVAILABLE: true          # board SSH (138 ari@, 180 root@, 182 root@) + germline local + GitHub PUBLIC-READ (ls-remote) ; NO GitHub write creds
+  note: no secret/token/scope recorded per protocol
+wave_barrier_1:
+  opened_lanes: [L1, L3, L6]
+  completed: true
+  lane_verdicts: {L1: PARTIAL, L3: READY, L4-L5-L2-L7: NOT_STARTED (wave 2)}
+invariants_held:
+  HOLD_EXTERNAL: true
+  money_flag: OFF
+  paid_api_calls: 0
+  external_effects: 0
+  runtime_changes_on_138_180_182: 0
+  new_business_runs: 0
+  merge: none (local branches only; push withheld pending GO)
+  F_backup_git_ops: 0

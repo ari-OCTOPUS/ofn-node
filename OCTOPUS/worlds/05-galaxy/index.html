@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>کهکشان دانش · galaxy</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#020207;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Segoe UI",Tahoma,sans-serif;color:#e9d5ff}
+  #g{position:fixed;inset:0}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#d8b4fe;display:block;text-shadow:0 0 12px #a855f7aa}
+  .top span{font-size:11px;color:#6b5b85}
+  .act{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);z-index:6;background:rgba(20,10,30,.66);border:1px solid #4c1d95;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .act b{color:#f0abfc;font-size:12.5px}.act span{color:#c4b5fd;font-size:11.5px;display:block;margin-top:2px}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#160f22;border:1px solid #3b2760;color:#d8b4fe;border-radius:9px;padding:8px 4px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#2e1065;border-color:#a855f7;color:#f5d0fe}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#c084fc;text-decoration:none;font-size:12px}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<div id="g"></div>
+<div class="top"><b>کهکشان دانش</b><span>گرافِ واقعیِ والت به‌شکلِ یک کهکشان · هر ستاره یک نوت</span></div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:6;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.3);color:#22d3ee;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">READ-ONLY</div>
+<div class="act"><b id="an">—</b><span id="ad"></span></div>
+<div class="tabs">
+  <button data-m="0" class="on">کهکشان</button>
+  <button data-m="1">صورت‌فلکی</button>
+  <button data-m="2">کشفِ پیوند</button>
+</div>
+<script src="../graph-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js">\x3C/script>');</script>
+<script>
+const G=window.OCTOPUS_GRAPH,N=G.nodes.length;
+const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x020207,0.0032);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,3000); camera.position.set(0,90,180);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x020207,1); document.getElementById('g').appendChild(renderer.domElement);
+scene.add(new THREE.AmbientLight(0xffffff,0.7));
+
+const groups=G.groups.map(g=>g.name), gi={}; groups.forEach((g,i)=>gi[g]=i);
+const maxD=Math.max(...G.nodes.map(n=>n.d));
+const P=new Array(N), pos=[], col=[];
+for(let i=0;i<N;i++){ const n=G.nodes[i];
+  const arm=gi[n.g]/groups.length*Math.PI*2;
+  const rad=14+(1-n.d/maxD)*120 + (i%7)*2;
+  const ang=arm + rad*0.03 + (i*0.6);
+  const p=new THREE.Vector3(Math.cos(ang)*rad, (Math.random()-0.5)*10, Math.sin(ang)*rad);
+  P[i]=p; pos.push(p.x,p.y,p.z); const c=new THREE.Color(n.c); col.push(c.r,c.g,c.b);
+}
+const pg=new THREE.BufferGeometry();
+pg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+pg.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+const stars=new THREE.Points(pg,new THREE.PointsMaterial({size:2.4,vertexColors:true,transparent:true,opacity:0.95}));
+scene.add(stars);
+// background starfield
+const bg=[]; for(let i=0;i<600;i++){bg.push((Math.random()-0.5)*1200,(Math.random()-0.5)*1200,(Math.random()-0.5)*1200);}
+const bgg=new THREE.BufferGeometry(); bgg.setAttribute('position',new THREE.Float32BufferAttribute(bg,3));
+scene.add(new THREE.Points(bgg,new THREE.PointsMaterial({color:0x6b6b8b,size:1,transparent:true,opacity:0.5})));
+
+const eg=new THREE.BufferGeometry();
+const ep=[]; for(const e of G.edges){const a=P[e[0]],b=P[e[1]];ep.push(a.x,a.y,a.z,b.x,b.y,b.z);}
+eg.setAttribute('position',new THREE.Float32BufferAttribute(ep,3));
+const edges=new THREE.LineSegments(eg,new THREE.LineBasicMaterial({color:0x7c3aed,transparent:true,opacity:0.06}));
+scene.add(edges);
+
+// hub constellation lines
+const hubs=[...Array(N).keys()].sort((a,b)=>G.nodes[b].d-G.nodes[a].d).slice(0,26);
+const hubSet=new Set(hubs);
+const hp=[]; for(const e of G.edges){if(hubSet.has(e[0])&&hubSet.has(e[1])){const a=P[e[0]],b=P[e[1]];hp.push(a.x,a.y,a.z,b.x,b.y,b.z);}}
+const hg=new THREE.BufferGeometry(); hg.setAttribute('position',new THREE.Float32BufferAttribute(hp,3));
+const cons=new THREE.LineSegments(hg,new THREE.LineBasicMaterial({color:0xf0abfc,transparent:true,opacity:0.55})); cons.visible=false; scene.add(cons);
+
+// discovery highlight (a surprising cross-folder edge)
+let disc=new THREE.Line(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute([0,0,0,0,0,0],3)),
+  new THREE.LineBasicMaterial({color:0xfde68a,transparent:true,opacity:0.9})); scene.add(disc);
+const crossEdges=G.edges.filter(e=>G.nodes[e[0]].g!==G.nodes[e[1]].g);
+function newDiscovery(){
+  const e=crossEdges[Math.floor(Math.random()*crossEdges.length)]; const a=P[e[0]],b=P[e[1]];
+  disc.geometry.setAttribute('position',new THREE.Float32BufferAttribute([a.x,a.y,a.z,b.x,b.y,b.z],3));
+  document.getElementById('an').textContent='پیوندِ پنهان: «'+G.nodes[e[0]].l+'» ↔ «'+G.nodes[e[1]].l+'»';
+  document.getElementById('ad').textContent='دو پوشهٔ متفاوت ('+G.nodes[e[0]].g+' / '+G.nodes[e[1]].g+') — کارِ بعدی: یک یادداشتِ کوتاه بنویس که چرا این‌ها به هم ربط دارند.';
+}
+let mode=0;
+function setMode(m){ mode=m;
+  edges.visible=(m===0); cons.visible=(m===1); disc.visible=(m===2);
+  const an=document.getElementById('an'), ad=document.getElementById('ad');
+  if(m===0){an.textContent='کارِ بعدی → یک پیوندِ تازه بساز';ad.textContent='یک نوتِ تنها را پیدا کن و به یکی از هاب‌ها [[لینک]] بده.';}
+  if(m===1){an.textContent='کارِ بعدی → ستون‌فقراتت را ببین';ad.textContent='۲۶ هابِ اصلی. اگر یکی‌شان قدیمی است، امروز به‌روزش کن.';}
+  if(m===2){newDiscovery();}
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ setMode(+b.dataset.m); });
+setMode(0);
+document.getElementById('g').addEventListener('pointerdown',()=>{ if(mode===2) newDiscovery(); });
+
+let a=0; const clock=new THREE.Clock();
+function animate(){ requestAnimationFrame(animate); const t=clock.getElapsedTime();
+  a+=0.0016; camera.position.set(Math.sin(a)*180,90+Math.sin(t*0.3)*14,Math.cos(a)*180); camera.lookAt(0,0,0);
+  if(disc.visible){ disc.material.opacity=0.5+0.5*Math.sin(t*4); }
+  renderer.render(scene,camera);
+}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+</script>
+<!-- real organism blood + live vitals chip -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>(function(){var L=window.LIVE_DATA;if(!L)return;var s=L.sog||{},ev=L.events||{},fr=L.frontier||{};
+ var d=document.createElement('div');d.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 40px);left:12px;z-index:8;background:rgba(20,10,30,.7);border:1px solid #4c1d95;border-radius:8px;padding:4px 9px;font:11px Tahoma;color:#e9d5ff;direction:ltr;pointer-events:none';
+ d.innerHTML='❤ '+(s.identity_now!=null?s.identity_now.toFixed(6):'—')+(s.healthy?' ✓':' ⚠')+' · 📡 '+(((ev.total_rows)||0).toLocaleString('fa-IR'))+' · gen '+(fr.generation!=null?fr.generation:'?');
+ document.body.appendChild(d);})();</script>
+<script>window.MATHVIZ={type:'galaxy',color:0xc084fc,dist:34,formula:'r = 14 + (1 - deg/max)*120',value:(window.LIVE_DATA&&window.LIVE_DATA.sog?'identity '+window.LIVE_DATA.sog.identity_now.toFixed(6):'240 stars'),gap:''};</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>

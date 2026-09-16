@@ -1,0 +1,65 @@
+schema: t0_reality_lock.v1
+observed_at_utc: "2026-08-28T10:46:16Z"
+mission_id: OCTOPUS-L191-PARALLEL-v3
+lane_id: L3
+node: "180"
+identity:
+  hostname: octopus-continuity-180
+  kernel: Linux 6.1.115-vendor-rk35xx
+  note: kernel string says rk35xx (Rockchip) — earlier "x86" classification from registry is WRONG for host CPU; registry correction queued to Wave-4 CTR (does not affect T0 lock)
+process:
+  llama_server_count: 1
+  pid: 170941
+  binary: /opt/octopus/runtime/llama.cpp-f280b26/bin/llama-server.f280b26
+  ollama_process_count: 0
+listeners:
+  "8081": 1   # llama-server pid 170941
+  "8080": 0
+  "11434": 0
+unit: octopus-llama-lab.service
+  ExecStartPre: /usr/bin/sha256sum --check /opt/octopus/runtime/model.sha256   # integrity gate at boot — PROVEN
+  User: root
+memory_cgroup:
+  MemoryCurrent: 1966682112   # ~1875 MB
+  MemoryHigh: 1887436800      # ~1800 MB — throttle point
+  MemoryMax: 2411724800       # ~2300 MB — hard cap
+  note: MemoryHigh < MemoryCurrent → unit is THROTTLING RIGHT NOW; this, not physical RAM, is the plausible pressure mechanism on 180 (cgroup, per council B0 hypothesis)
+model:
+  path: /opt/octopus/models/qwen3-0.6b-q4_0.gguf
+  size_bytes: 428970080
+  sha256: da2572f16c06133561ce56accaa822216f2391ef4d37fba427801cd6736417d4
+  hash_match_expected: true
+  provenance: VERIFIED_BYTE_IDENTICAL vs ggml-org/Qwen3-0.6B-GGUF LFS oid (prior 3-way receipt)
+flags:
+  port: 8081                # cmdline PROVEN
+  threads: 4                # PROVEN
+  threads_batch: 4          # PROVEN
+  ctx_size: 2048            # PROVEN
+  cache_type_k: q8_0        # PROVEN
+  cache_type_v: q8_0        # PROVEN
+  parallel: 1               # PROVEN (slot-local cache risk = none, single slot)
+  offline: true             # PROVEN
+  flash_attn: "NOT-EXPLICIT in cmdline; build default = auto (--help: '-fa,--flash-attn [on|off|auto] default: auto')" # → flags_verified PARTIAL on FA: auto ≠ forced-on; quantized-V with FA=auto is runtime-decided. No change made; proposal-only.
+resources:
+  mem_total_mb: 3910
+  mem_free_mb: 204
+  mem_available_mb: 1134   # better than the ~50MB earlier snapshot — earlier figure was a momentary floor
+  disk_root_pct: 90         # 5.8G free
+  inodes_used_pct: 4        # NOT inode exhaustion
+  swap: none reported in free -m head (verify in Wave-3 if needed)
+diagnostics:
+  dmesg_oom_killed_enospc: EMPTY   # negative FACT: no OOM/kill/ENOSPC events in ring buffer → OOM hypothesis WEAKENED; cgroup-throttle + drain-stop remain
+pass_fail:
+  listener_count_8081: 1
+  llama_process_count: 1
+  ollama_process_count_on_180: 0
+  model_hash_match: true
+  flags_verified: partial   # all explicit flags PROVEN; flash_attn=auto default (not forced) — recorded, no action
+  health_probe: not-run (read-only pass; metrics endpoint observed in earlier probes)
+  changes_made: 0
+fail_stop_codes_hit: []
+new_facts_for_wave3:
+  - cgroup MemoryHigh is being exceeded NOW (throttle) — B0 diagnostic already narrowed: disk 90% + cgroup-throttle alive; OOM dead
+  - ExecStartPre sha256 gate exists — model swap without updating model.sha256 will FAIL-CLOSED at restart (good guard, must be in any repair plan)
+lane_status: READY   # lock proven read-only; FA 'auto' noted, not a stop-code
+evidence_refs: [evidence/commands.ndjson#CMD-L3-10..40]
