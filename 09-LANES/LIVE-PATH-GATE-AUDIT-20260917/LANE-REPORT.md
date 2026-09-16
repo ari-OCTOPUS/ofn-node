@@ -62,6 +62,9 @@ is a successful outcome.
 - **HALT-oracle doctor: spec written, NOT BUILT.** Owner clause 3 authorizes a
   read-only build. The static/offline half needs no further authorization; the
   on-node half needs a separate approved plan. **Not built in this lane.**
+- **OD-4 (halt coverage) registered** at `07-HANDOFF/OPEN-DECISION-HALT-COVERAGE-2026-09-17.md`
+  — `status: open, requires: owner_decision`, options A/B/C. It is deliberately kept
+  **separate from OD-1**: OD-1 asks which path is read, OD-4 asks whether it is read.
 - **P3/P4 (`_ops/probe_harness_v0/`, preregistered runs) deliberately NOT started** —
   the owner's point 7 gates them on this report being complete.
 - Deployed env values (`OFN_KEEP_GATES_OPEN`, `OFN_EXTRA_CLOSED_GATES`, token/key

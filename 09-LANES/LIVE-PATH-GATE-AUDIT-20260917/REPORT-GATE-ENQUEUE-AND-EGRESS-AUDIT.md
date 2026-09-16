@@ -230,6 +230,12 @@ change would be needed.
 
 **No patch is applied by this lane. This section is a proposal only.**
 
+**E.6 — D-9 is a separate decision, registered as OD-4.** The coverage gap is not an
+OD-1 sub-item: OD-1 asks *which path is read*, OD-4 asks *whether it is read at all*.
+Registered at `07-HANDOFF/OPEN-DECISION-HALT-COVERAGE-2026-09-17.md`
+(`status: open, requires: owner_decision`), with options A/B/C and a recommendation
+of **B, and only after the doctor exists and has run once offline.**
+
 ---
 
 ## F. Limits and honesty
