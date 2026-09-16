@@ -1,0 +1,123 @@
+---
+type: truth-note
+section: service-status
+created: 2026-08-15
+verified_at: 2026-08-15
+verification_source: "netstat/curl از همین ماشین (دسکتاپ لاب) + فایل‌های وضعیت runtime"
+status: partial — سرویس‌های میدانی unverified
+---
+
+# SERVICE-STATUS — وضعیت سرویس‌ها و پورت‌ها
+
+## بررسی زنده در همین ماشین (دسکتاپ — 2026-08-15)
+
+| پورت | ادعای مگاپرامپت | نتیجهٔ زنده | فرمان |
+|------|------------------|-------------|-------|
+| 8791 | سرویس OCTOPUS | **گوش نمی‌دهد** (netstat خالی + curl بی‌پاسخ) | `netstat -an \| grep 879x` · `curl -m 2 http://127.0.0.1:8791/healthz` |
+| 8792 | سرویس | گوش نمی‌دهد | همان |
+| 8793 | سرویس | گوش نمی‌دهد | همان |
+| 8794 | سرویس | گوش نمی‌دهد | همان |
+| 8599 | داشبورد nbb-cp-kre (طبق DR 2026-08-03، موقت اجرا شده بود) | اجرا نشد/بررسی شد در جلسهٔ DR، الان زنده نیست | — |
+
+**تفسیر محتاط:** پورت‌های ۸۷۹x به نود میدانی اورنج‌پای تعلق دارند (طبق معماری). از این دسکتاپ نه دسترسی به برد داریم نه سرویس محلی بالا است → ادعای سرویس‌های میدانی `unverified` می‌ماند. ساب‌دامنه‌ها هم از همین‌جا curl نشدند (ارسال ترافیک بی‌دلیل به بیرون لازم نبود؛ ممنوعیت خروجی ۶-۷).
+
+## ارگانیسم (منبع: بلوک auto فایل زنده)
+
+- beat زنده (36563 در auto 2026-08-15T04:10Z) · halted=False — یعنی پروسهٔ ارگانیسم تا آن لحظه ضربان داشته است.
+- جزئیات کامل: [[CURRENT-TRUTH]]
+
+## دکتر (OCTOPUS-DOCTOR)
+
+- حالت: **outbox** · `dry_run: true` · `may_poll: false` · outbox_pending=1
+- منبع: `OCTOPUS-DOCTOR/90-_meta/state/doctor-vitals.json` — فایل 2026-08-15
+
+## فلگ‌های سیمی (وضعیت مستند؛ طبق قاعدهٔ ۶-۶ هیچ‌کدام روشن نشده)
+
+| فلگ | وضعیت مستند | منبع |
+|-----|-------------|------|
+| `OCTOPUS_UNIFIED_CHAT` | **0** (خاموش) | CURRENT-TRUTH بخش ADR-040 |
+| `OCTOPUS_WIRE_*` / `OFN_WIRE_*` / `OBSERVATORY` | مطابق مگاپرامپت باید ۰ بمانند — وضعیت لحظه‌ای runtime از این ماشین قابل‌تأیید نیست | مگاپرامپت §۶-۶ |
+
+## کارهای باز این یادداشت
+
+- [ ] تأیید پورت‌ها/سرویس‌ها از خود نود میدانی (نیازمند دسترسی به اورنج‌پای)
+- [ ] تعیین اینکه آیا سرویس 879x اصلاً باید روی دسکتاپ بالا باشد یا فقط روی برد — نیازمند رأی/اطلاعات مالک
+
+## 🔌 ری‌استارت کنترل‌شده و فلگ‌های طبقهٔ A — 2026-08-15 ~17:31 (سطح A)
+
+- **روال رسمی:** `_ops/RESTART-ALL.ps1` (پره‌فلایت → ترتیب cortex→center→gateway→live→organism → گیت پذیرش) + یک تلاش مجدد برای cortex
+- **هر ۵ عضو با PID جدید:** organism 7100 · center 22372 · gateway 21820 · live 5836 · cortex 26168
+- **فلگ‌های اثبات‌شده در پروسه‌ها (flags-loaded-*.json):** `OCTOPUS_UNIFIED_CHAT=1` + `CORTEX_HYPOTHESIS=1` در هر ۴ عضو، برابر (336)
+- state تازه: بوت 17:31:08 · beat در حال پیشروی (36749→36753) · stop=False · halted=None · frozen=False
+- پورت‌ها: 8771–8774 + 8776 گوش می‌دهند
+- فلگ‌فایل: `_ops/OCTOPUS-flags.cmd` (1482 خط CRLF) + بکاپ `.prev-20260815-*`
+- `OBSERVATORY` عمداً اضافه نشد — هیچ خواننده‌ای در ارگانیسم ندارد (آداپتور فاز ۳ = طبقهٔ B)
+- **دو نکتهٔ صادقانه:** (۱) shortfall=4 در همهٔ اعضا **قبلاً موجود بود** (حسابداری loader؛ برابر و بی‌تغییر) — برای نشست بعد ثبت شد؛ (۲) گیت پذیرش خودکار اسکریپت FAIL گفت چون بوت ارگانیسم ~۳ دقیقه طول کشید و از پنجرهٔ ۱۲۰ثانیه‌ای‌اش بیرون بود (false-negative مستندشدهٔ 2026-08-03) — گیت دستی بعداً PASS کامل داد
+- گیت‌های عمدیِ بازمانده: `STOP-CODE-AUTONOMY` (خودمختاری کد خاموش — تصمیم قبلی مالک) · `STOP-FUGU.cleared-20260726`
+- کلید امضای مالک متولد شد: عمومی در `_ops/owner-signing/` (fingerprint `2413e974…44ab6b2`)، خصوصی در `C:\Users\Armin\.octopus-signing\` بیرون از همهٔ repoها + پکیج ممیزی D1 در `_ops/D1-AUDIT-PACKAGE-2026-08-15/`
+
+## افزودنی 2026-08-15 (عصر) — رصدخانه (مخزن کاری Desktop)
+
+- **تسک زمان‌بندی‌شدهٔ «OCTOPUS Observatory Hourly»** ساخته شد (17:0x): هر ساعت یک سیکل کامل run_observatory.py — اولین اجرای خودکار 18:06 · Logon Mode: Interactive only · قابل حذف: `schtasks /delete /tn "OCTOPUS Observatory Hourly"`
+- بودجه با `EvidenceStore.begin_epoch()` هر روز UTC ریست می‌شود (کامیت `e3e9d36`) — سقف USGS از مادام‌العمر به 100/روز تبدیل شد
+- راستی‌آزما: **PASS 27/27** — هر دو زنجیرهٔ hash مستقل تأیید شدند
+- دیتابیس‌های زنده: `_ops/observatory/data/{evidence.db, predictions.db}` (gitignored از کامیت `d964f5f`) — شواهد ۳ ردیف + پیش‌بینی‌ها ۳ رویداد (پس از سیکل دستی 17:05)
+- کلید کشتن: `_ops/observatory/data/kill.switch` — **absent = normal** (تأیید موتور sync)
+- فلگ `OBSERVATORY` همچنان خاموش؛ تسک فقط runner را می‌کشد که خودش gateway داخلی allowlistدار دارد
+
+## 💊 صدای دکتر وصل شد — 2026-08-15 ~17:50 (سطح A در سطح env)
+
+- سه متغیر به `.env` اضافه شد (کپی بی‌صدا از توکن اصلی/چت مالک — صفر چاپ راز): `OCTOPUS_DOCTOR_BOT_TOKEN` · `OCTOPUS_DOCTOR_CHAT_ID` · `OCTOPUS_DOCTOR_TG_MODE=direct`
+- اثبات در پروسه: `flags-loaded-organism.json` → mode=direct · token/chat ست ✅ (شمارش فلگ 336→339)
+- ری‌استارت دوم کامل: همهٔ PIDهای جدید · فلگ‌ها برابر (339) · state تازه 17:50:54 · beat پیشرونده
+- `doctor-vitals.json` هنوز رکورد قدیمی (outbox) را نشان می‌دهد — در سیکل بعدی دکتر refresh می‌شود؛ نخستین کارت = نخستین پیام واقعی
+- برگشت‌پذیر: حذف سه خط از .env + ری‌استارت = بازگشت به outbox · dry_run مربوط به merge دست‌نخورده ماند (حفاظ)
+- نکتهٔ کشف: `OCTOPUS_WIRE_VAULT_RAG` از قبل =1 بود (flags.cmd:1217 + پروسه) — ارگانیسم همین الان به حافظهٔ RAG والت وصل است؛ نیازی به تغییر نبود
+
+## 🧪 تست‌های فعال‌سازی — 2026-08-15 شب ✅
+
+- چت یکپارچه: `POST /api/octopus/chat` → `owner_auth_required` (نه feature_disabled) → فلگ زنده ✅
+- صدای دکتر: ارسال واقعی موفق (`ok:true`، fingerprint `tg:4cb748aa889f`، رسید در outbox) — پیام آزمایشی به تلگرام مالک رسید
+- زنجیرهٔ شاهد با ۴ ردیف: PASS 27/27 — ردیف چهارم 17:36:31 (مبدأ نامشخص، ثبت برای بررسی)
+- تسک ساعتی: همچنان در انتظار اولین اجرای خودکار (18:06)
+- لاگ کامل نشست: [[../00 - Inbox/2026-08-15 NIGHT — Activation & Test Session (all gates)]]
+
+
+## 🧹 جاروی بدهی — 2026-08-16 (~00:0x)
+
+- تسک‌های ویندوز: `OCTOPUS-Observatory` قدیمی (سری :36) **Disabled** — C-014 containment با اثبات ۲۳:۴۲ (ردیف :36 غایب) · `OCTOPUS Observatory Hourly` (سری :06، ساخته‌شده 08-15) **Ready** — تنها چشمِ ساعتی
+- پروسه‌ها: ۶ عضو سالم (beat 37123، coherence 0.951، halted=False) — راستی‌آزمایی ایجنت جارو + state
+- مرز اعتماد TCB فعال در حالت سایه (`OCTOPUS_TCB_MANIFEST_ENFORCE` خاموش تا امضای مالک)
+
+## 🔐 مرز اعتماد LIVE — 2026-08-16 ~00:3x
+
+- امضاها (00:21، وریفای دوباره سبز): `trust-boundary.json.sig` · `AEB-20260816-000508.txt.sig`
+- `OCTOPUS_TCB_MANIFEST_ENFORCE=1` در هر ۴ عضو (339 فلگ) — بوت 00:33:50، beat 37153، stop=False
+- رویداد بازیابی: ری‌استارت مالک در انتظارِ cortex (300s) از کنسول بریده شد؛ cortex قدیمی (4176) نشانگر را نادیده گرفت و پورت را نگه داشت → کشتنِ اجباری طبق طراحی + ری‌استارت کامل توسط معمار ارشد؛ نشانگر جامانده پاک شد (پس از تأیید پایین‌بودن واقعی)
+- درس ثبت: «پایین است» را از پورت تأیید کن نه فقط از grep cmdline
+
+## 🗳️ پنج کارت کاشف — اجرا و اثبات (2026-08-16 ~00:5x-01:0x)
+
+| کارت | اجرا | اثبات سطح A |
+|------|------|-------------|
+| ۱ Chrono Rhythm | `=1` در flags.cmd | chrono: 1 در organism+cortex |
+| ۲ Output Critic سایه | هوک log-only در model_router | **`kind:critic_shadow` در paid-calls با ۴ نمره** (repetition/actionability/novelty/self_answer) |
+| ۳ Criticality OTLP | `=1` (قبلاً توسط ایجنت موازی) + ALLOW_REMOTE فقط کامنت | criticality: 1 · ALLOW_REMOTE تنظیم نیست |
+| ۴ manifest هاب | `_ops/conversation_hub/capability-manifest.json` (اسکیمای v1) | فایل موجود + ایندکس‌شده |
+| ۵ پاک‌سازی یتیم | خط DOCTOR_USE_CENTRAL_ROUTER حذف (بکاپ .prev) | orphan False در هر دو limb → C-017 resolved |
+
+ری‌استارت: بوت 00:54:27 · beat 37175 · stop=False · فلگ‌ها برابر 339 (cortex با تلاش دوم — الگوی شناخته‌شده) · CRLF سالم 1500 (پس از یک اصلاح خودم که شکستش — درس: نوشتن flags.cmd همیشه با newline='' و تبدیل دستی CRLF).
+
+
+## تسک‌های زمان‌بندی‌شده — وضعیت 2026-08-16 ~14:0x [A]
+
+| تسک | کادنس | لانچر | وضعیت |
+|---|---|---|---|
+| OCTOPUS Observatory Hourly | ساعتی (:06) | python.exe مطلق | Ready — شلیک 10:06 ✓ |
+| OCTOPUS-Observatory (قدیمی) | — | — | Disabled (C-014 contained) |
+| OCTOPUS 4d Poisoning Watch | ۶ساعته | python.exe مطلق (تعمیر 13:04 — py per-user نامرئی بود) | Ready — Result=0 ✓ |
+| OCTOPUS 4d Consolidation Tick | ۶ساعته | python.exe مطلق (تعمیر 13:12 — همان باگ) | Ready — **اولین تیک موفق: سیکل ۵** ✓ |
+| Recall keep-warm (ایجنت recall) | ۶ساعته | بررسی کنید هنگام مرور | نوسان:؟ — اگر py است، همان تعمیر لازم است |
+| http.server :8765 | آویزان از 14-08 | pid 5780 | اعلان‌نشده — kill = رأی مالک (کارت ۲ UNWIRED) |
+
+**درس قفل‌شده:** تسک ویندوزی همیشه با `C:\Program Files\Python313\python.exe` مطلق — `py` per-user در زمینهٔ زمان‌بند نامرئی است (FILE_NOT_FOUND).
