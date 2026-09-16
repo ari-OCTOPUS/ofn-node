@@ -1,0 +1,39 @@
+{
+  "approved_scope": [
+    "offline_and_readonly_laptop_shadow",
+    "append_only_evidence_capture",
+    "deterministic_replay",
+    "advisory_homeostatic_assessment",
+    "policy_free_world_model",
+    "domain_skill_scores"
+  ],
+  "autonomy": "L2_ARMED",
+  "canonicalization": "utf-8-no-bom; lf; json.dumps sort_keys indent=2 ensure_ascii=True trailing-newline",
+  "commits": {
+    "3eb2b95": "3eb2b9560078e3000b22d81a9b804037f1cb645d",
+    "a6ca994": "a6ca9947a52034e06bdae61a05004da4864df4b4"
+  },
+  "created": "2026-08-20",
+  "decision_id": "OWNER-VERDICT-SHADOW-VERTICAL-SLICE-2026-08-20",
+  "executable": false,
+  "invariants": {
+    "D6": "BETWEEN_RUN_VARIANCE",
+    "GAP-001": "OPEN",
+    "live_spine": "NOT_VERIFIED_BITEMPORAL"
+  },
+  "owner_verdict": "ACCEPTED_FOR_SHADOW_WITH_CONDITIONS",
+  "package": "_ops/shadow_homeostasis",
+  "prohibited_scope": [
+    "live_spine_write_or_wiring",
+    "organism_py_integration",
+    "scheduler_or_daemon",
+    "Orange_Pi_deployment",
+    "planner_or_actuator_authority",
+    "executable_true",
+    "model_calls_during_soak",
+    "AUD_spending_during_soak",
+    "closing_GAP_001"
+  ],
+  "schema": "owner-verdict-shadow-vertical-slice/1",
+  "wave": "WAVE0_OBSERVE_ONLY"
+}

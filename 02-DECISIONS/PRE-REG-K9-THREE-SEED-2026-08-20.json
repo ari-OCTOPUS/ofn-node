@@ -1,0 +1,20 @@
+{
+  "D6_before_run": "BETWEEN_RUN_VARIANCE",
+  "budget_semantics": "fresh_reservation_not_cap_increase",
+  "canonicalization": "utf-8-no-bom; lf; json.dumps sort_keys indent=2 ensure_ascii=True trailing-newline",
+  "created": "2026-08-20",
+  "decision_id": "PRE-REG-K9-THREE-SEED-2026-08-20",
+  "execution_condition": "ONLY_AFTER_4H_SOAK_PASS",
+  "fisher": "two_sided",
+  "historical_5_of_9_vs_9_of_9": "VOID",
+  "max_calls": 80,
+  "max_cost_aud": 2.0,
+  "schema": "pre-reg-k9-three-seed/1",
+  "seeds": {
+    "A": "k9-triple-2026-08-20/A",
+    "B": "k9-triple-2026-08-20/B",
+    "C": "k9-triple-2026-08-20/C",
+    "master": "k9-triple-2026-08-20"
+  },
+  "temperature": 0
+}
