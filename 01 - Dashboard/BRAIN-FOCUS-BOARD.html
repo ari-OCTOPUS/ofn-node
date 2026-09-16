@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<!-- model-hash: ddeacc51def9d11bca5f301147124442ef1bb917b224e3b2ce104fae5b2c54d8 -->
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تابلوی تمرکز مغزها</title>
+<style>
+:root{color-scheme:light;
+ --bg:#f6f6f3;--card:#ffffff;--ink:#20242a;--mut:#6b7280;--line:#e4e4de;
+ --crit:#c0392b;--high:#d35400;--med:#b7950b;--low:#1e8449;--acc:#2c5f8a;
+ --grey:#9ca3af}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Segoe UI","Vazirmatn",Tahoma,sans-serif;
+ font-size:14px;line-height:1.7;padding:16px;max-width:1100px;margin:0 auto}
+h1{font-size:20px}h2{font-size:15px;margin:26px 0 10px;color:var(--acc);
+ border-bottom:1px solid var(--line);padding-bottom:4px}
+small,.mut{color:var(--mut)}
+.hdr{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ring{width:64px;height:64px;flex:none}
+.banner{background:#fdecea;border:1px solid var(--crit);color:var(--crit);
+ border-radius:8px;padding:8px 14px;margin:14px 0;font-weight:600}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:20px;
+ padding:2px 12px;font-size:12px}
+.chip.bad{border-color:var(--crit);color:var(--crit)}
+.chip.ok{border-color:var(--low);color:var(--low)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.bar select,.bar input{border:1px solid var(--line);border-radius:6px;padding:4px 8px;
+ background:var(--card);font-family:inherit;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+ padding:12px;border-inline-start:4px solid var(--mut);position:relative}
+.card.r-critical{border-inline-start-color:var(--crit)}
+.card.r-high{border-inline-start-color:var(--high)}
+.card.r-medium{border-inline-start-color:var(--med)}
+.card.r-low{border-inline-start-color:var(--low)}
+.card h3{font-size:14px;display:flex;align-items:center;gap:8px}
+.kit{width:26px;height:26px;flex:none}
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin:5px 0}
+.b{font-size:10.5px;border-radius:10px;padding:0 8px;border:1px solid var(--line);color:var(--mut)}
+.b.st-active{color:var(--low);border-color:var(--low)}
+.b.st-paused,.b.st-gated{color:var(--high);border-color:var(--high)}
+.b.stale{color:#fff;background:var(--high);border-color:var(--high)}
+.focus{margin:4px 0;font-size:13px}
+.next{padding-inline-start:16px;font-size:12.5px;color:#374151}
+.blk{font-size:12px;margin-top:4px}
+.blk b{color:var(--crit)}
+a{color:var(--acc);text-decoration:none;font-size:12px}
+table{width:100%;border-collapse:collapse;background:var(--card);font-size:12.5px}
+th,td{border:1px solid var(--line);padding:5px 9px;text-align:right;vertical-align:top}
+th{background:#eef0ea}
+tr.sup td{color:var(--grey);text-decoration:line-through #c9c9c9}
+tr.sup td:last-child{text-decoration:none}
+.sev{font-weight:700}.sev.CRITICAL{color:var(--crit)}.sev.HIGH{color:var(--high)}
+.sev.MEDIUM{color:var(--med)}.sev.LOW{color:var(--mut)}
+button{border:1px solid var(--line);background:var(--card);border-radius:6px;
+ padding:2px 10px;font-family:inherit;font-size:11.5px;cursor:pointer}
+button:disabled{color:var(--grey);cursor:not-allowed}
+button.on{background:#fdf3e7;border-color:var(--high);color:var(--high)}
+.road{display:flex;gap:8px;flex-wrap:wrap}
+.step{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:12.5px}
+.step.done{border-color:var(--low);color:var(--low)}
+.step.gated{border-color:var(--crit);color:var(--crit)}
+.step.partial{border-color:var(--med);color:var(--med)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.cols{grid-template-columns:1fr}}
+.log{font-size:12px;padding-inline-start:16px}
+.k{font-weight:700;font-size:11px;border-radius:4px;padding:0 5px}
+.k.suppress{background:#fdf3e7;color:var(--high)}
+.k.tune{background:#eaf3fb;color:var(--acc)}
+.k.observe{background:#f0f0ec;color:var(--mut)}
+.k.regress{background:#fdecea;color:var(--crit)}
+.k.user-fp{background:#fdf3e7;color:var(--high)}
+.foot{margin-top:26px;font-size:11.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:8px}
+</style>
+</head>
+<body>
+<div id="FROZEN-COCKPIT-BANNER" style="background:#7c2d12;color:#fff;padding:8px 14px;font:13px sans-serif;text-align:center;margin:0 0 12px">⚠️ اسنپ‌شات ثابت ۲۰۲۶-۰۷-۰۶ — دادهٔ زندهٔ ارگانیسم نیست · زنده: CURRENT-TRUTH / admin-telegram (برچسب WEBPANEL 2026-08-16)</div>
+<div class="hdr">
+ <svg class="ring" viewBox="0 0 40 40" id="hring"></svg>
+ <div>
+  <h1>🧠 تابلوی تمرکز مغزها</h1>
+  <small id="gen"></small> · <small>hash: <span id="hsh"></span></small>
+ </div>
+</div>
+<div id="gatebar"></div>
+<h2>مغزها (۸)</h2>
+<div class="bar">
+ <select id="f-status"><option value="">وضعیت: همه</option><option value="active">active</option><option value="paused">paused</option></select>
+ <select id="f-risk"><option value="">ریسک: همه</option><option>critical</option><option>high</option><option>medium</option><option>low</option></select>
+ <select id="sort"><option value="risk">مرتب: ریسک</option><option value="kit">کیت</option><option value="blockers">بلاکر</option><option value="name">نام</option></select>
+ <input id="q" placeholder="جستجو…">
+</div>
+<div class="grid" id="cards"></div>
+<h2>ناوگان ایجنت‌ها</h2>
+<div class="panel" id="fleet"></div>
+<h2>متریک‌های vault (اجرای زندهٔ validatorها)</h2>
+<div class="panel" id="mets"></div>
+<h2>دادهٔ خام دایرکتوری‌ها <small>(مطابق .agentignore — بدون _code/.git)</small></h2>
+<table id="rawtbl"><thead><tr><th>پوشه</th><th>md</th><th>غیر-md</th><th>حجم (MB)</th><th>آخرین تغییر</th></tr></thead><tbody></tbody></table>
+<h2>نقشهٔ راه مغز زنده</h2>
+<div class="road" id="road"></div>
+<h2>🩺 Doctor</h2>
+<div class="panel" id="docsum" style="margin-bottom:8px"></div>
+<table id="doctbl"><thead><tr><th>شدت</th><th>چک</th><th>مسیر</th><th>پیام</th><th>FP?</th></tr></thead><tbody></tbody></table>
+<h2>⚙️ خودبهبودی (حافظهٔ تجربه)</h2>
+<div class="cols">
+ <div class="panel">
+  <b>پارامترها</b>
+  <div id="params" style="font-size:12.5px"></div>
+  <b style="display:block;margin-top:10px">روند سلامت</b>
+  <svg id="trend" viewBox="0 0 260 70" style="width:100%;max-width:320px"></svg>
+ </div>
+ <div class="panel">
+  <b>لاگ یادگیری</b>
+  <ul class="log" id="silog"></ul>
+  <b>صف pending</b>
+  <div id="pend" class="mut" style="font-size:12px"></div>
+  <div style="margin-top:8px"><button id="copyd">کپی deltaها</button> <span id="copymsg" class="mut" style="font-size:11px"></span></div>
+ </div>
+</div>
+<h2>🔁 چرخهٔ خودبهبودی (بسته)</h2>
+<div class="panel" id="circle"></div>
+<h2>تغییرات از نسخهٔ قبل</h2>
+<div class="panel" id="diff">دگرگونی v18 نسبت به f1924099…: <ul class="log" style="margin-top:6px"><li><b>fleet (یافتهٔ اصلی):</b> صف one-timeِ GO-LIVE تخلیه شد (۱۰:۱۳–۱۰:۴۴) — همهٔ تسک‌ها پس از فایر self-disable؛ صفر تسک تکرارشوندهٔ enabled (پیش‌بینی fleet-selection ردیف ۹۱ محقق شد). §۳.۳ اقدام نکرد: حاضر≠غایب + cron مبهم + مالک فعال → re-arm تکرارشونده منتظر verdict آری. بدون re-arm این تابلو هم اجرای بعدی ندارد.</li><li><b>doctor:</b> eff ۴→۰ صرفاً تابع فرمول (NSV گذرا ۶→۱۰)؛ مؤثر همان ۳۰ MEDIUM dup-basename (ریشهٔ replication-kit/seed در SKIP_DIRS همچنان pending). verify ده‌گانه: ۹ stale-view FP · DecisionLog فیوژن real·persists.</li><li><b>یافتهٔ نو:</b> نقطهٔ کور دکتر — نویسهٔ جایگزین literal (UTF-8 معتبر) در ۲ فایل که چک utf8-corrupt نمی‌گیرد → پیشنهاد tune در ledger (pending).</li><li><b>metrics:</b> notes ۵۱۵→533 · فرانت‌متر ۲۹۵/۳۳→302/34 · لینک 533/1 (همان placeholder) · inbox_open ۳۶→۳۹ · دیجست امروز ۱۵→۲۱.</li><li><b>چرخه:</b> ۵۳→۵۵ ردیف (fleet-selection ردیف ۹۱ + نقطهٔ کور این اجرا) · applied ۳۸ · pending ۱۶ · شاخص استقلال ۴/۳۸ (~۱۰٪).</li></ul></div>
+<div class="foot">فقط‌خواندنی · مشتق از اسکن vault · بدون ارجاع خارجی · قاعدهٔ Project-F برقرار (فقط state ژنریک) · بازتولید با پرامپت «Brain Focus Board»</div>
+<script type="application/json" id="model">{"generated":"2026-07-06T10:45:00+10:00","model_hash":"ddeacc51def9d11bca5f301147124442ef1bb917b224e3b2ce104fae5b2c54d8","gates":{"rotation_critical_open":0,"rotation_critical_total":4,"gitleaks_done":false,"git_init":true,"brain_overwrite_ratified":true},"brains":[{"name":"Accounting","status":"active","risk":"high","autonomy":"read-only","updated":"2026-07-04","kit":{"project":1,"index":1,"decisionlog":1,"openquestions":1},"blockers_n":2,"focus":"تمرکز فعلی: تبدیل به tenant #1 — اول تکمیل رجیستر انطباق و انتخاب حسابدار","next":["تکمیل رجیستر انطباق (مالک)","انتخاب حسابدار و جلسه اول","پایلوت گردش‌کار رسید"],"path":"03 - Projects/Accounting/PROJECT","stale":false,"signal":"نرم‌افزار؛ چرخهٔ BAS","raw":{"md":12,"other":21,"size_mb":0.9,"modified":"2026-07-04"},"blockers":["ردیف‌های `[To measure]` رجیستر — فقط مالک.","حسابدار انتخاب نشده → هیچ قاعدهٔ مالیاتی تأییدشده نیست."]},{"name":"Crypto - etoro","status":"active","risk":"critical","autonomy":"read-only","updated":"2026-07-04","kit":{"project":1,"index":1,"decisionlog":1,"openquestions":1},"blockers_n":0,"focus":"تمرکز فعلی: ساخت رجیستری پوزیشن‌ها با exit_rules","next":["ورود پوزیشن‌ها به رجیستری (مالک)","exit_rules برای هر پوزیشن","چرخش کلیدها → فعال‌سازی مجدد اسکرپرها"],"path":"03 - Projects/Crypto - etoro/PROJECT","stale":false,"signal":"اجرای خودکار یا alert-only؟","raw":{"md":23,"other":78,"size_mb":162.9,"modified":"2026-07-04"}},{"name":"Lead-نقاشی / AiFarm","status":"active","risk":"medium","autonomy":"read-only","updated":"2026-07-04","kit":{"project":1,"index":1,"decisionlog":1,"openquestions":1},"blockers_n":0,"focus":"تمرکز فعلی: rotation کلیدها → روشن کردن ربات → آزمایش #۱ (SEGMENT-DISCOVERY)","next":["rotation کلیدها (مالک): Anthropic + Telegram (revoke در BotFather) + Tavily + PlanningAlerts + Serper → مقادیر جدید در `کاریابی/bot/.env`","شروع آزمایش #۱","[x] تعمیر symlink (2026-07-03)"],"path":"03 - Projects/Lead-نقاشی/PROJECT","stale":false,"signal":"کانال آزمایش#۱ (letterbox/آنلاین/ارجاع؟)","raw":{"md":69,"other":271,"size_mb":23.5,"modified":"2026-07-04"}},{"name":"Mining","status":"active","risk":"medium","autonomy":"read-only","updated":"2026-07-04","kit":{"project":1,"index":1,"decisionlog":1,"openquestions":1},"blockers_n":0,"focus":"تمرکز فعلی: بازسازی پایه (رجیستری + چارچوب) پیش از آزمایش کوین بعدی","next":["چرخش Monero عبارتِ‌بازیابی + کلیدها (مالک)","تکمیل رجیستری سخت‌افزار","آزمایش کوین #۱ طبق چارچوب"],"path":"03 - Projects/Mining/PROJECT","stale":false,"signal":"کدام نودها سالم‌اند؟","raw":{"md":23,"other":255,"size_mb":39.5,"modified":"2026-07-04"}},{"name":"Ziman Galerry","status":"active","risk":"low","autonomy":"read-only","updated":"2026-07-04","kit":{"project":1,"index":1,"decisionlog":1,"openquestions":1},"blockers_n":0,"focus":"تمرکز فعلی: گرفتن عدد ظرفیت از production owner","next":["ثبت units/week از production owner → تگ [Estimate]","بعد از اولین هفته تولید پایدار → ارتقا به [Measured]","آزمایش کانال #۱"],"path":"03 - Projects/Ziman Galerry/PROJECT","stale":false,"signal":"کانال اول (IG محلی/مارکت‌پلیس؟)","raw":{"md":18,"other":49,"size_mb":0.2,"modified":"2026-07-04"}},{"name":"Project-F","status":"active","risk":"high","autonomy":"read-only","updated":"2026-07-04","kit":{"project":1,"index":1,"decisionlog":1,"openquestions":1},"blockers_n":0,"generic_only":true,"focus":"فاز validation · Track B/C","next":[],"stale":false,"raw":{"md":29,"other":8,"size_mb":1.2,"modified":"2026-07-04"}},{"name":"فیوژن (هیپنوتیزم)","status":"active","risk":"low","autonomy":"read-only","updated":"2026-07-04","kit":{"project":1,"index":1,"decisionlog":1,"openquestions":1},"blockers_n":0,"focus":"تمرکز فعلی: تفکیک معرفت‌شناختی محتوا (تمرین vs تئوری vs داستان)","next":["بازبینی برچسب‌های epistemic_status (مالک)","اولین لاگ تمرین با قالب ایندکس","تأیید/رد جایگزینی `PROJECT.md` با این نسخه و پذیرش `MAP.md` (مالک)"],"path":"07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT","stale":false,"signal":"O-04 (HRV فقط لپ‌تاپ)؛ n-of-1","raw":{"md":78,"other":30,"size_mb":63.7,"modified":"2026-07-04"}},{"name":"brushline","status":"paused","risk":"medium","autonomy":"read-only","updated":"","kit":{"project":1,"index":0,"decisionlog":0,"openquestions":0},"focus":"مغز کامل مستقل (governance/KB/specs/ops) — خاموش تا rotation","blockers_n":1,"next":["احیا بعد از rotation"],"path":"03 - Projects/Lead-نقاشی/AiFarm-Lead/Ai farm- sister Painting/brushline/00_governance/PROJECT_FULL_CONTEXT","stale":false,"raw":{"md":45,"other":41,"size_mb":0.5,"modified":"2026-07-04"},"blockers":["احیا بعد از rotation"]}],"fleet":{"tasks_n":1,"scouts_daily":0,"digests_today":21,"last_synthesis":"2026-07-06","selfimprove_runs_day":0,"note":"زمین‌سنجی v18 (~۱۰:۴۵ AEST، زمان از زمان‌بند): پیش‌بینی ردیف ۹۱ ledger محقق شد — کل ناوگان GO-LIVE با fireAt یک‌باره ساخته شده بود؛ صف ۱۰:۱۳–۱۰:۴۴ تخلیه شد و هر تسک پس از فایر self-disable شد. در لحظهٔ list فقط ۳ تسک one-time هنوز enabled بودند (experience-review · learning-engine-loop · doctor-research — در صف فایر؛ پس از اجرا آن‌ها هم خاموش می‌شوند) → صفر تسک تکرارشوندهٔ enabled. ratified ۶/۶ «حاضر» ولی present-but-disabled (system-dashboard هم حاضر-خاموش، verdict باز). §۳.۳ عمداً اقدام نکرد: حاضر≠غایب (سابقهٔ ۶۰/۶۲/۹۱) + مرجع cron دوگانه (جدول ratified کهنه در برابر verdict throttle، sync هنوز pending) + مالک همین صبح فعالانه در حال جراحی ناوگان. re-arm تکرارشونده با کادنس throttle منتظر verdict آری (ledger ردیف ۹۱). بدون re-arm، خودِ این تابلو هم اجرای بعدی ندارد — این اجرا از فایر one-time ساعت ۱۰:۳۵ بود. دیجست‌های امروز: ۲۱ فایل 2026-07-06 (اسکات‌ها امروز اجرا شدند و بعد خاموش)."},"roadmap":[{"step":1,"state":"partial","label":"تو: چرخش ۴ ردیف CRITICAL + اجرای gitleaks از ویندوز (REVIEW)"},{"step":2,"state":"done","label":"verdict روی Tier A → اعمال با پروتکل LINK-DISCOVERY-PROMPT (رگ‌ها وصل می‌شوند)"},{"step":3,"state":"done","label":"کیت ۴فایلی برای ۶ پروژهٔ فاقد آن (یک جلسهٔ ایجنتی، propose-only)"},{"step":4,"state":"pending","label":"ساخت memory-layer با BUILD-PROMPT اصلاح‌شده → گفتگوی معنایی با hub"},{"step":5,"state":"partial","label":"سنجش: Δorphan واقعی + هر پروژه ≥۳ لینک به hub + پاسخ درست به ۱۰ پرسش cross-project"}],"metrics":{"notes":533,"frontmatter_checked":302,"frontmatter_errors":34,"links_checked":533,"broken_links":1,"tierA_links":66,"inbox_open":39,"decisions_open_system":5,"decisions_open_project":7},"doctor":{"generated":"2026-07-06","detection_env":"sandbox-mount (اوراکلِ نهایی = Windows-side)","single_source":"dashboard_doctor.py (SUPPRESS_RULES + VERIFY_RULES) — تابلو هیچ سرکوب محلی ندارد؛ از ۱۰ needs_source_verify این اجرا ۹ مورد (ROTATION_CHECKLIST · HEARTBEAT · HANDOFF · fleet-eval · _TRIAGE-BOARD · _Mycorrhizal Map · دیجست ai-watch 07-06 · دو نوت _doctor-research) با شمارش خط Windows-side ده‌ها خط فراتر از offset بریدگی و با پایان کامل تأیید شدند → کلاس stale-view (دُم‌بریدهٔ مِنت)، از جدول حذف نه از score؛ فقط DecisionLog فیوژن real·persists","raw_score":0,"effective_score":0,"health_score":0,"counts":{"CRITICAL":0,"HIGH":0,"MEDIUM":31,"LOW":0},"counts_raw":{"CRITICAL":12,"HIGH":0,"MEDIUM":31,"LOW":0},"findings":[{"severity":"CRITICAL","check":"utf8-suspect","path":"07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/DecisionLog.md","msg":"بایت خراب UTF-8: invalid start byte @ 4697 — verify ویندوزی 2026-07-06 (v18): خرابیِ واقعی پابرجاست؛ نویسهٔ جایگزین ابتدای بند «تصمیم ۹». خارج از گیت CRITICAL طبق طراحی؛ score دست‌نخورده","proposed_fix":"باز و ذخیره در Obsidian یا تعمیر دستی بایت","raw_check":"utf8-corrupt","needs_source_verify":false,"ledger_ref":"2026-07-04·row-27","note":"اقدام مالک همچنان باز","verified_at_source":"real·persists·2026-07-06·v18"},{"severity":"MEDIUM","check":"dup-basename","path":"00 - Inbox/replication-kit/seed/CLAUDE.md","msg":"wikilink بدون‌مسیر «[[CLAUDE]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"00 - Inbox/replication-kit/seed/ROTATION_CHECKLIST.md","msg":"wikilink بدون‌مسیر «[[ROTATION_CHECKLIST]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"00 - Inbox/replication-kit/seed/_PROJECT_INSTRUCTIONS.md","msg":"wikilink بدون‌مسیر «[[_PROJECT_INSTRUCTIONS]]» مبهم است (3 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"00 - Inbox/replication-kit/seed/00 - Inbox/AGENT_QUESTIONS.md","msg":"wikilink بدون‌مسیر «[[AGENT_QUESTIONS]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"01 - Dashboard/Brain.md","msg":"wikilink بدون‌مسیر «[[Brain]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"01 - Dashboard/Home.md","msg":"wikilink بدون‌مسیر «[[Home]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"02 - Life OS/Weekly Review.md","msg":"wikilink بدون‌مسیر «[[Weekly Review]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"03 - Projects/_Index - Projects.md","msg":"wikilink بدون‌مسیر «[[_Index - Projects]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"04 - Architect System/architect/01-Project/BACKLOG.md","msg":"wikilink بدون‌مسیر «[[BACKLOG]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"04 - Architect System/architect/01-Project/CHANGELOG.md","msg":"wikilink بدون‌مسیر «[[CHANGELOG]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"04 - Architect System/architect/01-Project/DECISIONS.md","msg":"wikilink بدون‌مسیر «[[DECISIONS]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"04 - Architect System/architect/01-Project/GAPS.md","msg":"wikilink بدون‌مسیر «[[GAPS]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v1.md","msg":"wikilink بدون‌مسیر «[[SYSTEM-BLUEPRINT-v1]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"05 - Agents/AGENT_REGISTRY.md","msg":"wikilink بدون‌مسیر «[[AGENT_REGISTRY]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"05 - Agents/RATIFIED-TASKS.md","msg":"wikilink بدون‌مسیر «[[RATIFIED-TASKS]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"06 - Architecture Maps/ECOSYSTEM.md","msg":"wikilink بدون‌مسیر «[[ECOSYSTEM]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"06 - Architecture Maps/Property Schema.md","msg":"wikilink بدون‌مسیر «[[Property Schema]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"06 - Architecture Maps/SYSTEM_MAP.md","msg":"wikilink بدون‌مسیر «[[SYSTEM_MAP]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"10 - Telegram processing/ROUTING.md","msg":"wikilink بدون‌مسیر «[[ROUTING]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"10 - Telegram processing/SOP.md","msg":"wikilink بدون‌مسیر «[[SOP]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_memory/EXPERIENCE-LEDGER.md","msg":"wikilink بدون‌مسیر «[[EXPERIENCE-LEDGER]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_memory/HEARTBEAT.md","msg":"wikilink بدون‌مسیر «[[HEARTBEAT]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_Templates/agent.md","msg":"wikilink بدون‌مسیر «[[agent]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_Templates/handoff.md","msg":"wikilink بدون‌مسیر «[[handoff]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_Templates/knowledge.md","msg":"wikilink بدون‌مسیر «[[knowledge]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_Templates/log.md","msg":"wikilink بدون‌مسیر «[[log]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_Templates/person.md","msg":"wikilink بدون‌مسیر «[[person]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_Templates/project.md","msg":"wikilink بدون‌مسیر «[[project]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_memory/پروژه‌اف-project-memory-2026-07-05.md","msg":"wikilink بدون‌مسیر «[[پروژه‌اف-project-memory-2026-07-05]]» مبهم است (2 فایل) — نام پلتفرم طبق قاعدهٔ Project-F ماسک شد","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"07 - Knowledge/هیپنوتیزم  و خودآگاهی/MAP.md","msg":"wikilink بدون‌مسیر «[[MAP]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"},{"severity":"MEDIUM","check":"dup-basename","path":"_launchpad/second-brain-live/INVENTORY.md","msg":"wikilink بدون‌مسیر «[[INVENTORY]]» مبهم است (2 فایل)","proposed_fix":"rename با verdict یا همیشه لینک مسیردار"}]},"self_improve":{"params":{"stale_days":14,"suppression_home":"dashboard_doctor.py — SUPPRESS_RULES + VERIFY_RULES (تک‌خانه، هر قاعده با ledger_ref)","dismissed_flags":[],"hash_formula":"sha256( json.dumps(model منهای model_hash·generated·self_improve.log·self_improve.health_trend, sort_keys=True, separators=(',',':'), ensure_ascii=False) ) — v12: log/trend از هش مستثنی تا append نسخه idempotency را نشکند (بدون تغییرِ محتوای پایدار = هیچ نوشتنی)"},"health_trend":[51,51,51,51,51,51,51,51,93,92,90,88,90,90,5,4,0],"log":[{"date":"2026-07-04","kind":"suppress","note":"بذر اولیه از حلقهٔ بهبود SYSTEM-DASHBOARD: «MOVED - » و «index-drift-after-windows-edit» (هر دو FP شناخته‌شده)"},{"date":"2026-07-04","kind":"observe","note":"نخستین اجرای واقعی؛ حافظهٔ HTML نمونه (hash=SAMPLE) کنار گذاشته شد؛ پایهٔ سلامت=51"},{"date":"2026-07-04","kind":"observe","note":"ناهم‌خوانی شمار تسک: رجیستری=۲۲ ولی HANDOFF جلسهٔ ۹ج=۲۴ (brain-pulse و system-dashboard در رجیستری ثبت نشده‌اند)"},{"date":"2026-07-04","kind":"tune","note":"واژه‌های انگلیسیِ هم‌الگو با گارد فاز ۵ در متن کارت‌ها (قدم Mining) به معادل فارسی نویسه‌گردانی شدند تا گارد بدون FP بماند"},{"date":"2026-07-04","kind":"tune","note":"گسترش منابع اسکن (v2): گیت‌ها از خودِ ROTATION_CHECKLIST، ناوگان از رجیستری+دیجست‌ها، سیگنال هر مغز از جدول Brain.md، متریک‌ها از اجرای زندهٔ هر دو validator، roadmap از بلوپرینت، تصمیم‌های باز و Inbox"},{"date":"2026-07-04","kind":"tune","note":"v3: دادهٔ خام دایرکتوری (شمار md/غیر-md، حجم، آخرین تغییر) برای پوشه‌های سطح‌بالا و پوشهٔ هر مغز به مدل افزوده شد — مستقیم از فایل‌سیستم"},{"date":"2026-07-04","kind":"tune","note":"v4 (تعمیرات): تشخیص کیت فیوژن اصلاح شد — کیت ۴فایلی در 00_Knowledge_Base زندگی می‌کند (فاز ۱.۲ پرامپت)؛ ۱/۴ → ۴/۴"},{"date":"2026-07-04","kind":"tune","note":"v4: آمار خام دایرکتوری‌ها حالا .agentignore را رعایت می‌کند (**/_code/ و .git شمرده نمی‌شوند) و metrics.notes = کل md خارج از محدودهٔ منفی (۴۱۳)"},{"date":"2026-07-04","kind":"observe","note":"v4: ناهم‌خوانی رجیستری پابرجاست — brain-pulse و system-dashboard هنوز ثبت نشده‌اند (رجیستری=۲۲، واقعی=۲۴)؛ roadmap حالا با برچسب کامل از بلوپرینت"},{"date":"2026-07-04","kind":"tune","note":"v5: verdict آری — brain-pulse (`0 */3 * * *`) و system-dashboard (`20 */6 * * *`، cron تأیید زندهٔ همین جلسه) در AGENT_REGISTRY ثبت شدند؛ ۲۲→۲۴؛ مشاهدهٔ ناهم‌خوانی v3/v4 بسته شد"},{"date":"2026-07-04","kind":"suppress","note":"v5: utf8-corrupt روی AGENT_REGISTRY بعد از ویرایش ویندوزی = FP (sync سندباکس دُم‌بریده و mtime منجمد؛ تأیید مستقیم سمت ویندوز: فایل کامل و سالم) — الگوی utf8-corrupt-after-windows-edit به سرکوب افزوده شد؛ هم‌خانوادهٔ index-drift-after-windows-edit"},{"date":"2026-07-04","kind":"tune","note":"v6 (بهبود): متن بلاکرهای باز از بخش Open blockers هر PROJECT.md وارد مدل و روی کارت‌ها رندر شد (تا الان فقط شمار بود)"},{"date":"2026-07-04","kind":"observe","note":"v6: stale-view سندباکس روی AGENT_REGISTRY پس از ~۲۰ دقیقه هنوز پابرجاست (دُم‌بریده، mtime منجمد) — سرکوب v5 کار می‌کند؛ منبع حقیقت = سمت ویندوز؛ اجرای زمان‌بندی system-dashboard هم باید این را FP بشمارد"},{"date":"2026-07-05","kind":"regress","note":"v7 (شکار خطای خودم): منبع fleet ناقص بود — scale-up 10x ساعت ۱۹:۲۲ (۶ لاین selfimprove + cron های نو) در runbook Inbox ثبت بود ولی v5 فقط رجیستری را خواند و ۲۴ گزارش کرد؛ واقعی=۳۰. درس: fleet از این پس رجیستری + runbookهای ops در Inbox، هر دو"},{"date":"2026-07-05","kind":"tune","note":"v7: رجیستری با واقعیت 10x سینک شد (۶ لاین + cron general */3 + consolidator 0 */3) → ۳۰ تسک؛ فیلد نو fleet.selfimprove_runs_day=1008"},{"date":"2026-07-05","kind":"tune","note":"v7: حلقهٔ یادگیری خود تابلو زمان‌بندی شد — brain-focus-board هر ۳ ساعت دقیقهٔ ۵۰ (ضدتصادم؛ طبق قرارداد در اجرای زمان‌بندی فقط پارامترهای نمایشی خودکار وفق می‌یابند، بقیه propose-only)"},{"date":"2026-07-05","kind":"tune","note":"v8 (دستور آری: consistent circle): چرخه بسته شد — EXPERIENCE-LEDGER در _memory (حافظهٔ canonical انباشتی، بذر=۱۰ درس) + تسک هفتگی experience-review (بازوی verdict) + این تابلو حالا هر اجرا درس‌های قابل‌اقدام نو را به ledger append و آمار چرخه را رندر می‌کند"},{"date":"2026-07-05","kind":"observe","note":"v8: گارد فاز ۵ حین ساخت همین نسخه یک واژهٔ انگلیسی هم‌الگو را در متن diff گرفت → نویسه‌گردانی شد؛ قاعدهٔ ردیف ۳ ledger روی هر متن نو هم اعمال می‌شود — گارد زنده و مؤثر است"},{"date":"2026-07-05","kind":"tune","note":"v9: دو تسک چرخه (brain-focus-board و experience-review) بلافاصله در AGENT_REGISTRY ثبت شدند → ۳۲؛ قاعدهٔ «هر تسک نو = ثبت هم‌زمان در رجیستری» از این پس بخشی از خود چرخه است"},{"date":"2026-07-05","kind":"tune","note":"v10 (verdict آری «self-improve live prompt · self run»): سرکوب تک‌خانه شد — تابلو effective_score/suppressed/needs_source_verify را مستقیم از دکتر مصرف می‌کند؛ suppressed_patterns محلی حذف و به قواعد خود دکتر مهاجرت کرد؛ قاعدهٔ fresh-inode داخل پرامپت زندهٔ تسک رفت"},{"date":"2026-07-05","kind":"regress","note":"v10: ناوگان تاریک کشف شد — زمان‌بند ۰ تسک داشت درحالی‌که رجیستری ۳۲ ادعا می‌کرد؛ سکوت خودکار از 2026-07-04 21:29. قاعدهٔ نو: منبع حقیقت fleet = خروجی زندهٔ زمان‌بند؛ رجیستری فقط سند است و هر ردیفش باید taskId زنده داشته باشد. دو تسک هسته re-arm شدند؛ بقیه pending-verdict"},{"date":"2026-07-05","kind":"observe","note":"v10: بعد از remount سندباکس، ۲ utf8-corrupt و ۶ index-drift دیشب خودبه‌خود محو شدند (raw ۲۳→۶۶) — تأیید تجربی کلاس stale-view و درستی طراحی needs_source_verify (هیچ‌کدام سرکوب دائمی نشده بودند)"},{"date":"2026-07-05","kind":"observe","note":"v11 (اولین اجرای خودکار زمان‌بندی‌شده): تطبیق زمان‌بند↔جدول ratified = ۶/۶ زنده، restore لازم نشد؛ دکتر fresh-inode: raw=۴۱ → effective=۹۲؛ validatorها سبز (فرانت‌متر ۱۶۶/۰ · لینک ۴۱۹/۰)؛ HEARTBEAT اولین beat خودکار"},{"date":"2026-07-05","kind":"regress","note":"v11: annotation v10 روی DecisionLog فیوژن («verify ویندوزی: تمیز») نادرست بود — خواندن مستقیم ویندوزی این اجرا نویسهٔ جایگزین در بند «تصمیم ۹» نشان داد → خرابی UTF-8 واقعی و پابرجا. قاعدهٔ سفت‌شده: verify یعنی جست‌وجوی صریح نویسهٔ جایگزین/متن بریده، نه فقط موفقیتِ خواندن"},{"date":"2026-07-05","kind":"tune","note":"v11: شاخص استقلال §۷ به بخش چرخه آمد (داخل arms، بدون تغییر template) · فیلد suppressed:true به یافتهٔ مسکوت اضافه شد تا رندر dim/مسکوت مطابق طراحی کار کند · فرمول hash تثبیت و در params مستند شد"},{"date":"2026-07-05","kind":"regress","note":"v12 (اجرای خودکار): زمان‌بندِ زنده ۳ تسک ratified دارد ولی جدول ۶ تاست → ۳ غایب (brain-pulse · mycelial-consolidator · fleet-selection) = reset سوم. restore §۳.۳ به propose-only تنزل کرد: git-init باز (vault هنوز git repo نیست، create بازگشت‌ناپذیر) و git-init پشت گیت rotation است + Security Gate هنوز lift نشده (row-49). درس pending + گزارش به آری"},{"date":"2026-07-05","kind":"observe","note":"v12: verify ویندوزی — DecisionLog فیوژن @4697 خرابیِ واقعی پابرجا؛ EXPERIENCE-LEDGER utf8 که v11 needs_verify بود این اجرا پاک شد (stale-view خودترمیم، کلاس row-27). متریک نو: frontmatter ۲۱۰/۳۰ خطا · لینک ۴۷۵/۱ (placeholder پرنشده). دکتر raw ۴۱→۶۳ · eff ۹۲→۹۰. یافتهٔ dup-basename نو در _memory (پلتفرم Project-F ماسک شد)"},{"date":"2026-07-05","kind":"regress","note":"v13 (اجرای خودکار): «۳/۶ reset سوم» v12 خطای مثبت بود — لیستِ زندهٔ زمان‌بند این اجرا ۶/۶ ratified نشان داد (brain-pulse·mycelial-consolidator·fleet-selection همه حاضر و فعال؛ system-dashboard عمداً disabled). beat هم‌زمان brain-pulse (~۱۵:۱۰) هم ۶/۶ دیده بود و lastRunAtها تازه. درس: لیست زمان‌بند («منبعِ حقیقت») می‌تواند گذرا ناقص برگردد؛ قبل از اعلام reset با beatهای خواهرِ HEARTBEAT کراس‌چک و در ناهم‌خوانی re-list کن."},{"date":"2026-07-05","kind":"observe","note":"v13: verify سه‌گانهٔ utf8 (Windows-side) — DecisionLog فیوژن @4697 خرابیِ واقعی پابرجا (نویسهٔ جایگزین بند «تصمیم ۹»)؛ هیپنوتیزم PROJECT.md @16757 و EXPERIENCE-LEDGER @13054 هر دو stale-view و پاک (۱۵۵/۵۶ خط، پایانِ سالم). raw ۶۳→۱۳ فقط از دو FP گذرای mount؛ effective ثابت ~۸۸–۹۰ — تأییدِ دوبارهٔ درستیِ two-score."},{"date":"2026-07-05","kind":"observe","note":"v14 (اجرای خودکار ~۲۰:۰۸): زمان‌بند ۶/۶ ratified، restore لازم نشد؛ ولی system-dashboard این‌بار enabled است (v13: disabled، description هنوز «بازنشسته») و build-planner-loop از لیست زنده غایب (غیر-ratified → طبق طراحی restore نمی‌شود) → state-drift دو‌طرفه، verdict آری لازم. دو CRITICAL گذرای v13 (PROJECT هیپنوتیزم · LEDGER) این اجرا از raw محو شدند (raw ۱۳→۶۳ · eff ۸۸→۹۰) — تأیید سومِ کلاس stale-view. DecisionLog فیوژن @4697 با خواندن ویندوزی دوباره real·persists"},{"date":"2026-07-05","kind":"tune","note":"v14: قاعدهٔ fresh-inode بیش‌تعمیم شد — کپی validate_frontmatter به temp دامنه‌اش را شکست (ROOT از مسیر خود اسکریپت مشتق می‌شود؛ ۸ نوت به‌جای ۲۱۸). قاعدهٔ سفت‌شده: fresh-inode فقط برای فایلِ همین‌جا-ویرایش‌شده؛ اسکریپتِ ROOT-نسبی in-place اجرا شود. اجرای in-place: فرانت‌متر ۲۱۸/۳۰ · لینک ۴۸۴/۱ (همان placeholder دیجست 1206)"},{"date":"2026-07-05","kind":"observe","note":"v15 (اجرای خودکار ~۲۱:۵۶): stale-view سندباکس روی EXPERIENCE-LEDGER دوباره شکار شد — مِنت آخرین ردیف را بریده نشان داد (۳۹ ردیف، ردیفِ ۶۴ بی‌status) و ردیفِ ۶۵ را اصلاً ندید؛ خواندنِ Windows-side ۴۰ ردیفِ کامل داد (هر دو ردیفِ تحقیقِ پیوسته = pending). circle از منبعِ Windows شمرده شد، نه مِنت. درسِ نو نبود (کلاسِ stale-view از پیش در ledger). fleet ۶/۶ ratified، system-dashboard disabled پایدار (تأیید brain-pulse ~۲۱:۱۰)؛ restore لازم نشد. دکتر raw=۶۳ · eff=۹۰ (بی‌تغییر از v14)؛ DecisionLog فیوژن @4697 real·persists (verify ویندوزی). validatorها in-place: فرانت‌متر ۲۲۲/۳۱ · لینک ۴۸۸/۱."},{"date":"2026-07-06","kind":"regress","note":"v16 (اجرای خودکار ~۰۶:۱۵ سیدنی): دکتر raw ۶۳→۰ · effective ۹۰→۵ — سقوط بزرگ ولی علتش واقعی و بی‌خطر است، نه رگرسیون امنیتی: «00 - Inbox/replication-kit/seed/» (افزودهٔ additive امروز ~۰۲:۰۰ سیدنی، گزارش replication-kit-final-report) کل اسکلت vault را آینه می‌کند و dashboard_doctor.py آن را در SKIP_DIRS ندارد → ۲۸+ ردیف dup-basename تازه (AGENT_REGISTRY/HEARTBEAT/EXPERIENCE-LEDGER/ECOSYSTEM/Property Schema/… هرکدام حالا ۲ نسخه می‌بینند) + دوتایی «_PROJECT_INSTRUCTIONS» (ریشه+فیوژن) به سه‌تایی رشد کرد (ریشه+فیوژن+seed). جدا از آن، پروژهٔ نوِ Time-Architecture (امروز ساخته شد) یک MAP.md دوم آورد که با MAP.md هیپنوتیزم تصادم basename دارد — این یکی واقعاً نو و بی‌ربط به replication-kit است. قاعدهٔ تک‌منبع سرکوب رعایت شد: تابلو خودش سرکوب محلی نساخت؛ راه‌حل واقعی (افزودن «00 - Inbox/replication-kit» به SKIP_DIRS یا SUPPRESS_RULES دکتر) به‌عنوان پیشنهاد pending در ledger ثبت شد چون تغییر اسکریپت canonical = verdict انسانی. جانبی: Brain.md امروز needs_source_verify زد (CRITICAL utf8) ولی خواندنِ Windows-side این اجرا کاملاً تمیز بود (بدون نویسهٔ جایگزین) → کلاس stale-view شناخته‌شده (v10/v13)، از جدول حذف شد نه از score (فرمول دکتر جدا از annotation ماست). DecisionLog فیوژن @4697 دوباره verify شد: real·persists (بدون تغییر). gate rotation_critical_open از رجیستری مستقیمِ ROTATION_CHECKLIST این‌بار ۰ خوانده شد (هر ۴ ردیف CRITICAL ستون‌شان ROTATED است) — ولی تناقض چندسندی charter/ledger/learning-state دربارهٔ lift رسمی هنوز حل‌نشده (رجوع Brain.md دفتر تصمیم #۱)؛ این تابلو فقط منبع مستقیم چک‌لیست را می‌خواند، verdict نمی‌دهد. brain_overwrite_ratified هم به true رفت چون منشور §۳.۱ از ۲۰۲۶-۰۷-۰۵ صریحاً Brain.md را overwrite-مجاز کرده. fleet: GO-LIVE این‌بار در تابلو منعکس شد — ۱۹ اسکات ۰→enabled، digests_today ۰→۹. inbox_open ۸→۳۴ (بک‌لاگ Inbox واقعاً رشد کرده، صرفاً re-count نیست). ۲ ردیف نو در ledger append شد (پیشنهاد اسکریپت + یادداشت روش گیت)."},{"date":"2026-07-06","kind":"observe","note":"v17 (اجرای خودکار ~۰۹:۰۰ سیدنی، اولین اجرا با cron توسری‌خوردهٔ «50 */6»): روز پرتحول مالک در مدل منعکس شد — Security Gate رسماً LIFTED (ledger ردیف ۷۹؛ ریشهٔ تناقض چندسندی v16: دو خط diff-مانند §۲ charter، بسته شد) + git init واقعی (repo با ۳ commit، fsck سبز، ردیف ۸۵؛ درس همراه: git ops هرگز روی مِنت سندباکس) + NONMD-TRIAGE (کد→_code، دیتا→_Duplicates، تصویر→Assets؛ توضیحِ notes ۵۶۲→۵۱۵ و محو ۲ dup-basename کهنه: SETUP_GUIDE و MOVED-pointer) + throttle دستی ناوگان (ردیف ۸۱). دکتر raw ۰ · eff ۵→۴ (۳۰ MEDIUM dup-basename؛ ریشهٔ replication-kit/seed در SKIP_DIRS هنوز pending-verdict). verify شش‌گانهٔ utf8: ۵ stale-view FP · DecisionLog real·persists. یافتهٔ نو: ردیف ۷۸ ledger وسط جمله بریده (append قطع‌شده) → درس append-اتمی + پیشنهاد sync جدول ratified با throttle (هر دو append شد). خودِ همین رندر هم stale-view مِنت را شکار کرد: نمای سندباکسِ BRAIN-FOCUS-BOARD دُم‌بریده بود (بدون تگ بستهٔ model)، بازسازی از prefix+circle و نوشتن Windows-side. ledger اکنون ۵۳ ردیف: applied ۳۶ · pending ۱۵ · info ۱ · بی‌status ۱ (ردیف ۷۸)"},{"date":"2026-07-06","kind":"observe","note":"v18 (اجرای خودکار ~۱۰:۴۵ سیدنی، از فایر one-time): تخلیهٔ صف ناوگان مطابق پیش‌بینی ردیف ۹۱ — صفر تسک تکرارشوندهٔ enabled؛ §۳.۳ اقدام نکرد (حاضر≠غایب + cron مبهم + مالک فعال)؛ re-arm منتظر verdict آری. دکتر raw ۰ · eff ۴→۰ (تابع فرمول با رشد NSV گذرا به ۱۰؛ شمار مؤثر همان ۳۰ MEDIUM). verify ده‌گانهٔ utf8: ۹ stale-view FP · DecisionLog real·persists. یافتهٔ نو: دو فایل با نویسهٔ جایگزین literal (Lead-نقاشی.md · هیپنوتیزم و خودآگاهی.md) که چون UTF-8 معتبرند از چک utf8-corrupt رد می‌شوند — نقطهٔ کور دکتر؛ پیشنهاد tune append شد. خودگیری همین اجرا: validatorها اول از کپی temp اجرا شدند (تکرار خطای ردیف ۶۳) → گرفته و in-place تکرار شد (فرانت‌متر 302/34 · لینک 533/1). رندر: نمای مِنت دوباره دُم‌بریده (44302B، بدون اسکریپت رندر) → بازسازی از prefix + اسکریپت رندرِ خوانده‌شده از سمت ویندوز."}],"pending":[]},"regress":false,"raw_dirs":[{"md":168,"other":16,"size_mb":1.5,"modified":"2026-07-06","dir":"00 - Inbox"},{"md":4,"other":6,"size_mb":0.2,"modified":"2026-07-06","dir":"01 - Dashboard"},{"md":2,"other":0,"size_mb":0.0,"modified":"2026-07-03","dir":"02 - Life OS"},{"md":118,"other":260,"size_mb":190.8,"modified":"2026-07-06","dir":"03 - Projects"},{"md":91,"other":16,"size_mb":3.0,"modified":"2026-07-06","dir":"04 - Architect System"},{"md":5,"other":0,"size_mb":0.1,"modified":"2026-07-06","dir":"05 - Agents"},{"md":4,"other":0,"size_mb":0.0,"modified":"2026-07-06","dir":"06 - Architecture Maps"},{"md":106,"other":30,"size_mb":64.0,"modified":"2026-07-06","dir":"07 - Knowledge"},{"md":0,"other":693,"size_mb":99.2,"modified":"2026-07-03","dir":"08 - Assets"},{"md":4,"other":0,"size_mb":0.0,"modified":"2026-07-03","dir":"10 - Telegram processing"},{"md":6,"other":0,"size_mb":0.0,"modified":"2026-07-03","dir":"_Templates"},{"md":13,"other":0,"size_mb":0.1,"modified":"2026-07-06","dir":"_memory"}],"circle":{"ledger":"_memory/EXPERIENCE-LEDGER","lessons_total":55,"applied":38,"pending_verdict":16,"info":1,"rejected":0,"arms":"مشاهده: تابلو (⚠ این اجرا از فایر one-time بود — بدون re-arm اجرای بعدی ندارد) · انباشت: EXPERIENCE-LEDGER (append-only، ۵۴+۱ ردیف Windows-side؛ ردیف ۷۸ دوپاره ولی وضعیت‌دار — درس append-اتمی قبلاً ثبت) · verdict: experience-review یکشنبه ۲۱:۳۰ (تسکش هم اکنون one-time) · اعمال: تعاملی + self-verdict §۳.۴ · شاخص استقلال §۷: applied بدون لمس انسانی ۴/۳۸ (~۱۰٪) · ۱۶ pending در صف verdict (شامل re-arm ناوگان ردیف ۹۱ + نقطهٔ کور U+FFFD این اجرا) · خودترمیمی این اجرا = ۰ (حاضر≠غایب) · resetها: ۲ واقعی + سومی self-disable طراحی‌شده در جریان (ردیف ۹۱) · نقض invariant = ۰"}}</script>
+<script>
+const M = JSON.parse(document.getElementById('model').textContent);
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cut = (s,n) => s.length<=n ? s : s.slice(0,n).replace(/\s+\S*$/,'')+'…';
+/* header */
+$('gen').textContent = 'تولید: ' + M.generated;
+$('hsh').textContent = M.model_hash.slice(0,12);
+(function ring(){
+ const s = M.doctor.health_score, col = s>=80?'var(--low)':s>=60?'var(--med)':'var(--crit)';
+ const r=16, c=2*Math.PI*r, off=c*(1-s/100);
+ $('hring').innerHTML = '<circle cx="20" cy="20" r="'+r+'" fill="none" stroke="#e8e8e2" stroke-width="4"/>'+
+  '<circle cx="20" cy="20" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="4" stroke-linecap="round" '+
+  'stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" transform="rotate(-90 20 20)"/>'+
+  '<text x="20" y="24" text-anchor="middle" font-size="11" font-weight="700" fill="'+col+'">'+s+'</text>';
+})();
+/* gates */
+(function gates(){
+ const g = M.gates; let h='';
+ if(g.rotation_critical_open>0)
+  h += '<div class="banner">⛔ گیت rotation باز — '+g.rotation_critical_open+' ردیف CRITICAL. بالاترین‌اهرم اقدام کل سیستم.</div>';
+ h += '<div class="chips">'+
+  '<span class="chip '+(g.gitleaks_done?'ok':'bad')+'">gitleaks: '+(g.gitleaks_done?'انجام شد':'انجام نشده')+'</span>'+
+  '<span class="chip '+(g.git_init?'ok':'bad')+'">git init: '+(g.git_init?'✓':'باز')+'</span>'+
+  '<span class="chip '+(g.brain_overwrite_ratified?'ok':'bad')+'">ratify بازنویسی Brain.md: '+(g.brain_overwrite_ratified?'✓':'در انتظار verdict')+'</span></div>';
+ $('gatebar').innerHTML = h;
+})();
+/* brain cards */
+const RISKORD = {critical:0, high:1, medium:2, low:3, unknown:4};
+function kitRing(kit){
+ const parts = ['project','index','decisionlog','openquestions'];
+ const n = parts.reduce((a,p)=>a+(kit[p]?1:0),0);
+ let segs='';
+ parts.forEach((p,i)=>{
+  const a0=i*90-90, a1=a0+82;
+  const x0=13+10*Math.cos(a0*Math.PI/180), y0=13+10*Math.sin(a0*Math.PI/180);
+  const x1=13+10*Math.cos(a1*Math.PI/180), y1=13+10*Math.sin(a1*Math.PI/180);
+  segs += '<path d="M'+x0.toFixed(1)+' '+y0.toFixed(1)+' A10 10 0 0 1 '+x1.toFixed(1)+' '+y1.toFixed(1)+
+   '" fill="none" stroke-width="3.5" stroke="'+(kit[p]?'var(--low)':'#e3e3dc')+'"/>';
+ });
+ return '<svg class="kit" viewBox="0 0 26 26" aria-label="کیت '+n+'/4">'+segs+
+  '<text x="13" y="17" text-anchor="middle" font-size="9" fill="var(--mut)">'+n+'</text></svg>';
+}
+function card(b){
+ const stale = b.stale ? '<span class="b stale">stale</span>' : '';
+ const link = (b.path && !b.generic_only)
+  ? '<a href="obsidian://open?vault=backup&file='+encodeURIComponent(b.path)+'">باز کردن در Obsidian ↗</a>'
+  : (b.generic_only ? '<span class="mut" style="font-size:11px">🔒 فقط state ژنریک</span>' : '');
+ const next = (b.next&&b.next.length)
+  ? '<ul class="next">'+b.next.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>' : '';
+ return '<div class="card r-'+esc(b.risk)+'" data-status="'+esc(b.status)+'" data-risk="'+esc(b.risk)+
+  '" data-kit="'+Object.values(b.kit).reduce((a,x)=>a+x,0)+'" data-blockers="'+b.blockers_n+'" data-name="'+esc(b.name)+'">'+
+  '<h3>'+kitRing(b.kit)+esc(b.name)+'</h3>'+
+  '<div class="badges"><span class="b st-'+esc(b.status)+'">'+esc(b.status)+'</span>'+
+  '<span class="b">'+esc(b.risk)+'</span><span class="b">'+esc(b.autonomy)+'</span>'+stale+'</div>'+
+  '<div class="focus">'+esc(b.focus)+'</div>'+ next +
+  (b.signal?'<div class="focus" style="font-size:12px">📡 '+esc(b.signal)+'</div>':'')+
+  (b.raw?'<div class="blk mut" style="font-size:11px">📁 '+b.raw.md+' md · '+b.raw.other+' دیگر · '+b.raw.size_mb+'MB · تغییر '+esc(b.raw.modified)+'</div>':'')+
+  '<div class="blk">بلاکر باز: <b>'+b.blockers_n+'</b></div>'+(b.blockers&&b.blockers.length?'<ul class="next">'+b.blockers.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+ link +'</div>';
+}
+function renderCards(){
+ const fs=$('f-status').value, fr=$('f-risk').value, q=$('q').value.trim().toLowerCase(), srt=$('sort').value;
+ let bs = M.brains.filter(b => (!fs||b.status===fs) && (!fr||b.risk===fr) &&
+  (!q || (b.name+' '+b.focus+' '+(b.next||[]).join(' ')).toLowerCase().includes(q)));
+ bs.sort((a,b)=>{
+  if(srt==='risk') return RISKORD[a.risk]-RISKORD[b.risk];
+  if(srt==='kit') return Object.values(a.kit).reduce((x,y)=>x+y,0)-Object.values(b.kit).reduce((x,y)=>x+y,0);
+  if(srt==='blockers') return b.blockers_n-a.blockers_n;
+  return a.name.localeCompare(b.name,'fa');
+ });
+ $('cards').innerHTML = bs.map(card).join('') || '<div class="mut">موردی مطابق فیلتر نیست.</div>';
+}
+['f-status','f-risk','sort','q'].forEach(id=>$(id).addEventListener('input',renderCards));
+renderCards();
+/* fleet + roadmap */
+$('fleet').innerHTML = 'تسک زمان‌بندی (زمین — زمان‌بند زنده): <b>'+M.fleet.tasks_n+'</b> · اسکات روزانه: <b>'+M.fleet.scouts_daily+'</b> · دیجست امروز: <b>'+M.fleet.digests_today+'</b> · آخرین سنتز: <b>'+esc(M.fleet.last_synthesis)+'</b>'+(M.fleet.selfimprove_runs_day?' · اجرای selfimprove/روز: <b>~'+M.fleet.selfimprove_runs_day+'</b>':'')+(M.fleet.note?'<br><small class="mut">⚠ '+esc(M.fleet.note)+'</small>':'');
+const RS = {done:'✓ انجام',pending:'در انتظار',gated:'⛔ پشت گیت rotation',partial:'نیمه‌کاره'};
+$('road').innerHTML = M.roadmap.map(r=>'<span class="step '+r.state+'" title="'+esc(r.label||'')+'">گام '+r.step+(r.label?' — '+esc(cut(r.label,46)):'')+' · '+RS[r.state]+'</span>').join('');
+/* metrics strip */
+$('mets').innerHTML = ['نوت‌ها (خارج از محدودهٔ منفی): <b>'+M.metrics.notes+'</b>','فرانت‌متر: <b>'+M.metrics.frontmatter_checked+'</b> بررسی · خطا: <b>'+M.metrics.frontmatter_errors+'</b>','لینک: <b>'+M.metrics.links_checked+'</b> بررسی · شکسته: <b>'+M.metrics.broken_links+'</b>','لینک‌های «مرتبط» (Tier A): <b>'+M.metrics.tierA_links+'</b>','Inbox باز: <b>'+M.metrics.inbox_open+'</b>','تصمیم باز سیستمی/پروژه‌ای: <b>'+M.metrics.decisions_open_system+'/'+M.metrics.decisions_open_project+'</b>'].join(' · ');
+/* raw dirs */
+$('rawtbl').querySelector('tbody').innerHTML = (M.raw_dirs||[]).map(d=>'<tr><td dir="ltr" style="text-align:left">'+esc(d.dir)+'</td><td>'+d.md+'</td><td>'+d.other+'</td><td>'+d.size_mb+'</td><td>'+esc(d.modified)+'</td></tr>').join('');
+/* doctor */
+const pending = [];
+$('docsum').innerHTML = 'سلامت مؤثر (تک‌منبع سرکوب: دکتر): <b>'+M.doctor.health_score+'</b>/100'+
+ (M.doctor.raw_score!=null?' · خام: <b>'+M.doctor.raw_score+'</b>':'')+' · شمار مؤثر: '+
+ Object.entries(M.doctor.counts).map(([k,v])=>'<span class="sev '+k+'">'+k+':'+v+'</span>').join(' · ');
+const tb = $('doctbl').querySelector('tbody');
+tb.innerHTML = M.doctor.findings.map((f,i)=>{
+ const lock = f.severity==='CRITICAL';
+ const dim = f.suppressed||f.needs_source_verify;
+ return '<tr class="'+(dim?'sup':'')+'"><td class="sev '+f.severity+'">'+f.severity+'</td>'+
+ '<td>'+esc(f.check)+'</td><td dir="ltr" style="text-align:left">'+esc(f.path)+'</td><td>'+esc(f.msg)+
+ (f.suppressed?' <span class="mut">(مسکوت — '+esc(f.suppress_reason||f.suppressed_by||'by-design')+')</span>':'')+
+ (f.needs_source_verify?' <span class="mut">(نیازمند verify از منبع — سمت ویندوز؛ خارج از گیت CRITICAL)</span>':'')+'</td>'+
+ '<td><button data-i="'+i+'" '+(lock?'disabled title="CRITICAL هرگز خودکار مسکوت نمی‌شود"':'')+'>false-positive?</button></td></tr>';
+}).join('');
+tb.addEventListener('click', e=>{
+ const btn = e.target.closest('button'); if(!btn||btn.disabled) return;
+ const f = M.doctor.findings[+btn.dataset.i];
+ const key = f.check+'|'+f.path;
+ const at = pending.findIndex(p=>p.key===key);
+ if(at>=0){pending.splice(at,1);btn.classList.remove('on');}
+ else{pending.push({date:new Date().toISOString().slice(0,10),kind:'user-fp',target:f.check,key});btn.classList.add('on');}
+ $('pend').textContent = pending.length? pending.length+' مورد آمادهٔ کپی' : 'خالی';
+});
+/* self-improve panel */
+const si = M.self_improve;
+$('params').innerHTML = 'stale_days: <b>'+si.params.stale_days+'</b><br>خانهٔ سرکوب: <b dir="ltr">'+
+ esc(si.params.suppression_home)+'</b><br>dismissed_flags: <b>'+(si.params.dismissed_flags.length||'—')+'</b>';
+(function trend(){
+ const t = si.health_trend; if(!t.length) return;
+ const min = Math.min(...t,40), max = Math.max(...t,100);
+ const X = i => t.length===1 ? 130 : 10+(i*(240/(t.length-1)));
+ const Y = v => 60-((v-min)/(max-min))*50;
+ let h = '<polyline fill="none" stroke="var(--acc)" stroke-width="2" points="'+t.map((v,i)=>X(i)+','+Y(v)).join(' ')+'"/>';
+ t.forEach((v,i)=>{h+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="3" fill="var(--acc)"/>'+
+  '<text x="'+X(i)+'" y="'+(Y(v)-6)+'" text-anchor="middle" font-size="9" fill="var(--mut)">'+v+'</text>';});
+ $('trend').innerHTML = h;
+})();
+$('silog').innerHTML = si.log.map(l=>'<li><span class="k '+l.kind+'">'+l.kind+'</span> <small>'+l.date+'</small> — '+esc(l.note)+'</li>').join('');
+$('pend').textContent = si.pending.length? JSON.stringify(si.pending) : 'خالی';
+$('copyd').addEventListener('click', ()=>{
+ const txt = JSON.stringify({experience_deltas:pending},null,1);
+ const done = ()=>{$('copymsg').textContent='کپی شد — در جلسهٔ بعدی ایجنت بچسبان.';};
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,()=>fb());}else fb();
+ function fb(){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}
+});
+/* circle */
+(function circle(){
+ const c=M.circle; if(!c){$('circle').textContent='—';return;}
+ $('circle').innerHTML =
+  '<div class="chips" style="margin-top:0">'+
+  '<span class="chip">درس‌ها: <b>'+c.lessons_total+'</b></span>'+
+  '<span class="chip ok">applied: <b>'+c.applied+'</b></span>'+
+  '<span class="chip '+(c.pending_verdict>0?'bad':'ok')+'">pending-verdict: <b>'+c.pending_verdict+'</b></span>'+
+  '<span class="chip">info: <b>'+c.info+'</b></span>'+
+  '<span class="chip">rejected: <b>'+c.rejected+'</b></span></div>'+
+  '<div class="focus" style="margin-top:8px">'+esc(c.arms)+'</div>'+
+  '<a href="obsidian://open?vault=backup&file='+encodeURIComponent(c.ledger)+'">باز کردن EXPERIENCE-LEDGER ↗</a>';
+})();
+</script>
+</body>
+</html>

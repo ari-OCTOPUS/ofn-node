@@ -1,0 +1,27 @@
+properties:
+  status:
+    displayName: وضعیت
+  updated:
+    displayName: به‌روزرسانی
+views:
+  - type: table
+    name: Inbox
+    filters:
+      and:
+        - file.inFolder("00 - Inbox")
+    order:
+      - file.name
+      - type
+      - status
+      - updated
+  - type: table
+    name: تلگرام پردازش‌نشده
+    filters:
+      and:
+        - file.inFolder("10 - Telegram processing")
+        - status != "done"
+    order:
+      - file.name
+      - type
+      - status
+      - updated
