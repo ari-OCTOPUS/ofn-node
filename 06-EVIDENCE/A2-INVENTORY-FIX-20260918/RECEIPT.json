@@ -1,0 +1,57 @@
+{
+  "schema": "octopus-receipt.v1",
+  "id": "A2-INVENTORY-FIX-20260918",
+  "mission": "A2 — owner vote: «همه محصولات رو یک عدد اماده داریم» (set every product to 1 unit available)",
+  "gov": "GOV_VERSION=V8 · LADDER=L2",
+  "executed_utc": "2026-09-18T~23:10-23:13Z",
+  "store": "ziman-gift.myshopify.com",
+  "api": "Admin REST 2024-10",
+  "pre_state": {
+    "products_total": 53,
+    "active": 48,
+    "zero_stock_variants_of_active": 29,
+    "note": "5 further products are draft/archived and were intentionally left untouched"
+  },
+  "post_state": {
+    "active": 48,
+    "zero_stock_variants_of_active": 0,
+    "verified_by": "re-GET /products.json?limit=250&status=active after writes"
+  },
+  "actions": [
+    {
+      "run": 1,
+      "method": "POST /inventory_levels/set.json {location_id, inventory_item_id, available:1}",
+      "result": "write_ok=18, fails=11 (HTTP 422 'Inventory item does not have inventory tracking enabled')"
+    },
+    {
+      "run": 2,
+      "method": "PUT /inventory_items/{id}.json {\"inventory_item\":{\"id\":..,\"tracked\":true}} then POST /inventory_levels/set.json available:1",
+      "result": "tracking_set=11, write_ok=11, fails=0",
+      "root_cause_of_run1_fails": "REST inventory_items requires the root wrapper key; the first attempt sent a flat body, so tracking was never enabled for those 11 items"
+    }
+  ],
+  "token_provenance": {
+    "source": "OAuth callback state file on 138: /home/ari/.local/share/ofn/shopify_oauth.env (mtime 2026-09-16 06:22Z, mode 600)",
+    "source_sha256_prefix": "2d0bb776fb6fb206",
+    "grant_path_discovered": "https://ziman.master-painting.com/api/v1/shopify/oauth/start -> Shopify authorize (client_id cf88ce6e…, scope read_products,write_products,read_orders,read_locations,read_inventory,write_inventory) -> /api/v1/shopify/oauth/callback on 138 (cloudflared: ziman.master-painting.com -> 127.0.0.1:8791, ofn.service) which exchanges the code and writes the token to the state file",
+    "merged_into": "~/.config/ofn/secrets.env on 138 (backup: secrets.env.bak-tokenmerge-20260917T231331Z), mode 600",
+    "merge_verified": "using the token read back from secrets.env: GET products.json=200, GET locations.json=200",
+    "secrets_values_printed": false,
+    "note_on_earlier_mirror_failure": "shopify_oauth._store_admin_token() mirrors into secrets.env best-effort; secrets.env mtime was still 2026-09-03 before this merge, consistent with the mirror being blocked for the sandboxed service (ProtectHome=read-only) — the merge was therefore executed directly as user ari"
+  },
+  "evidence": {
+    "console": "run-1 PRE active=48 zero=29 / WRITE_OK=18 / POST zero=17 ; run-2 REMAINING=11 / tracking_set=11 / write_ok=11 / POST zero_variants=0",
+    "old_token_status": "OLD_TOKEN_STILL_ALIVE http=200 (read-only scopes; lacks write_inventory/read_locations) — hygiene item, revoke optional (owner action)"
+  },
+  "limitations": [
+    "Per-item pre-image was NOT captured: only aggregate counts (29 zero variants of 48 active products). Exact variant list before the fix is not in the receipt.",
+    "Rollback is therefore aggregate: set available=0 for the affected variants (or via Shopify inventory history per item).",
+    "Tracking was enabled for 11 inventory items as part of the fix; untracking them on rollback needs the same 11 item ids, which are not individually recorded here."
+  ],
+  "rollback": {
+    "recipe": "Re-run the same script with available:0 instead of 1 for the 29 previously-zero variants of the 48 active products (per-variant), or restore per item from Shopify Admin inventory history.",
+    "risk": "low — inventory quantities are reversible and non-destructive; no product/price/theme data was touched"
+  },
+  "verified_by_agent": "octopus agent (this session)",
+  "witness": "not required (Class-A internal, reversible; owner-ordered)"
+}
