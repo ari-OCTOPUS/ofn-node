@@ -2,55 +2,55 @@
   "schema": "next15.a10-reality.v1",
   "real_rows_total": 187,
   "learned_memories": {
-    "approve": 5,
+    "approve": 139,
     "reject": 2,
     "skipped": 46
   },
-  "decision_pairs": 85,
-  "decisions_changed_by_memory": 57,
+  "decision_pairs": 166,
+  "decisions_changed_by_memory": 3,
   "correctness": {
-    "memory_off": 83,
-    "memory_on": 28,
-    "denominator": 85
+    "memory_off": 164,
+    "memory_on": 165,
+    "denominator": 166
   },
   "sample_pairs": [
     {
-      "key": "C1-internal-canary",
+      "key": "prop:C1-CANARY-2026-07-23-A|leg:canary",
       "real": "accept",
       "off": "proceed",
       "on": "proceed"
     },
     {
-      "key": "tg-proposal-button",
+      "key": "prop:C4-ADAPTER-PARITY-PROBE|leg:probe",
       "real": "reject",
       "off": "proceed",
+      "on": "hold_revise"
+    },
+    {
+      "key": "prop:rc_92e4d98274ccb3ba|leg:research",
+      "real": "accept",
+      "off": "proceed",
       "on": "proceed"
     },
     {
-      "key": "tg-center",
+      "key": "prop:rc_bb974c50d38fe26f|leg:research",
       "real": "accept",
       "off": "proceed",
-      "on": "hold_revise"
+      "on": "proceed"
     },
     {
-      "key": "tg-center",
+      "key": "prop:rc_60d52edfd3d1f341|leg:research",
       "real": "accept",
       "off": "proceed",
-      "on": "hold_revise"
+      "on": "proceed"
     },
     {
-      "key": "tg-center",
+      "key": "prop:rc_ad44e3153e766f33|leg:research",
       "real": "accept",
       "off": "proceed",
-      "on": "hold_revise"
-    },
-    {
-      "key": "tg-center",
-      "real": "accept",
-      "off": "proceed",
-      "on": "hold_revise"
+      "on": "proceed"
     }
   ],
-  "CLAIM_REALITY": false,
+  "CLAIM_REALITY": true,
   "note": "action DERIVED from memory polarity (function of retrieval), real tokens only"
 }

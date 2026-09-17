@@ -77,6 +77,13 @@ def record_owner_verdict(outcome_store, *, proposal_id: str, verdict: str,
           "verdict": "measurement",   # هرگز 'settled'/'delivered' — رأی سنجش است نه تسویه
           "payload": {"owner_verdict_raw": str(verdict)[:40],
                       "source": str(source or "tg-proposal-button")[:40],
+                      # CLAIM->REALITY fix (2026-09-17): the decision key must live
+                      # INSIDE the payload, not only in top-level columns, so memory
+                      # can be keyed per-decision (category/proposal) instead of a
+                      # coarse surface with mixed polarity.
+                      "decision_key": pid,
+                      "category": str(leg_id or "unknown"),
+                      "proposal_id": pid,
                       "measurement_only": True}}
     wrote = bool(outcome_store.record(ev))
     spine_wrote = False

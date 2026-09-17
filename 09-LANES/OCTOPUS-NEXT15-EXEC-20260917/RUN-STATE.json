@@ -60,9 +60,14 @@
       "limits": "component-scope trace; production consumer wiring + ablation = A10 (seeded by this trace's decision-hook pattern)"
     },
     "A10": {
-      "status": "REALITY_TEST_RUN_CLAIM_FALSIFIED_ON_CURRENT_DATA",
-      "evidence": "evidence/A10-REALITY.json — 187 real rows, 7 real memories learned, 85 decision pairs: memory CHANGED 57 decisions (derivation is a real function of retrieval, not decoration) BUT correctness memory_on=28/85 vs memory_off=83/85 => memory made decisions WORSE on real data. Cause: surface-keyed polarity is mixed (tg-center has both accepts and rejects); payloads lack fine-grained decision keys.",
-      "required_change": "owner-verdict recorder must persist the decision key (category/proposal_id) in payload_json; then per-key tokens exist and the claim can be re-tested honestly. NOT a gate change - a data-pipeline fix."
+      "status": "REALITY_TEST_EXACT_LOO_MEMORY_HURTS",
+      "measured": {
+        "in_sample_tainted": "165/166 vs 164/166 (self-inclusion)",
+        "exact_LOO": "138/141 with memory vs 139/141 fixed policy (MEMORY_HURTS, changed exactly 1 of 141)",
+        "keys_with_multiple_rows": 2
+      },
+      "mechanism": "per-proposal keys make each memory unique -> no generalization possible on current data; the single cross-row signal available misled once. Derivation mechanism itself WORKS (57/85 decisions changed when keyed by surface).",
+      "required_change_DONE": "verdict_recorder now persists decision_key/category/proposal_id inside payload_json (vault copy patched, back-compatible additive) -> future real rows accumulate per-key accept/reject structure; re-test window opens with new verdicts."
     },
     "A11": {
       "status": "SYSTEM_SELF_REPAIR_SCOPED_TWO_HOSTS",
