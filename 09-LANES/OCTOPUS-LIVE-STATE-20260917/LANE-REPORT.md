@@ -28,7 +28,7 @@ All six phases executed end to end.
 | Phase | Status | Output |
 |---|---|---|
 | PHASE 0 PREFLIGHT | DONE | UTC/AEST time, vault + ofn-node git baselines, board inventory (7 boards) |
-| PHASE 1 HOST LIVENESS | DONE | 4 ALIVE, 3 UNREACHABLE, 1 of the 4 DEGRADED |
+| PHASE 1 HOST LIVENESS | DONE (rev 2) | 7 of 7 registered nodes ALIVE; 182 DEGRADED; 0 unreachable. Rev 1 of this row said "4 ALIVE, 3 UNREACHABLE" and was wrong — see §3.1 |
 | PHASE 2 SERVICE & TIMER INVENTORY | DONE | 81 timers across 4 boards, 26 services classified |
 | PHASE 3 OPS-AGENT & CONTROL STATE | DONE | queues, 4603 receipts, budget use, 6 breakers, 8 HALT probes |
 | PHASE 4 BUSINESS LIVENESS | DONE | funnel, revenue timers, WAL, send authority, owner cards |
@@ -100,6 +100,33 @@ Out-of-scope by design, handed to others:
 5. **Apparent "stuck" units were not stuck.** 182's apply units first read as
    `activating` and looked hung; the journal showed finish→immediate-refire, i.e. a loop.
    Recording this because the first reading was wrong and the second is what matters.
+6. **THE BOARD TABLE WAS WRONG — the most serious error in this lane.** Revision 1 reported
+   "4 ALIVE, 3 UNREACHABLE" and this reached the owner, who asked why boards that were fine
+   yesterday were now unreachable. All three entries were wrong:
+
+   - **CORR-01** — node `.114` (`octopus-pro-114`) was missing entirely. The board list had been
+     assembled by hand from hardware-discovery JSONs, `~/.ssh/config` and project memory,
+     instead of from the organism's own registry at
+     `/home/ari/ofn/state/fleet-nodes/registry.jsonl`. That file lists exactly 7 nodes and was
+     only opened near the end of the session.
+   - **CORR-02** — `.100` and `.160` were labelled UNREACHABLE. They were reachable all along with
+     `~/.ssh/piggybank_id_ed25519`, a key that was *printed in the preflight `ls ~/.ssh/` output and
+     never tested*. `Permission denied (publickey)` is an auth rejection on an open port 22 — that
+     is not unreachability, and labelling it so was a category error.
+   - **CORR-03** — `.191` was listed as a board. It is the Wi-Fi address of this very laptop
+     (hostname `DESKTOP-KA9RFN5`); it appears in no fleet registry. A refused port 22 on it is
+     expected, not a fault.
+
+   Now corrected in all five artifacts: **all 7 registered nodes ALIVE, 0 unreachable, 182 the only
+   DEGRADED one**, with `.114` probed, `.100`/`.160` fully inventoried, and `.191` reclassified as
+   `SELF_VANTAGE`. Root-cause lesson for future lanes: **start from the organism's own registry, and
+   test every available key before declaring a host unreachable.**
+
+7. **Compounded by trusting memory over evidence.** Project memory said ".100/.160 de-mined
+   (never reflash)", which primed me to expect those hosts to be dead. They are alive and running
+   Debian 13. The memory note was about their *role* being retired (compute/mining), not about the
+   machines being gone. Verify a remembered fact against the live host before letting it shape a
+   conclusion.
 
 Nothing on any board failed *because of* this lane — no board state was touched.
 
@@ -183,8 +210,8 @@ pre-image of both `.path`/`.service` units before editing.
 
 ## 7. Twelve-line Persian summary
 
-1. Octopus زنده است: هر چهار برد قابل‌دسترس (۱۳۸، ۱۸۰، ۱۸۲، ۱۹۳) بالا هستند و لایهٔ کنترل ۱۳۸ کامل بیدار است.
-2. سه برد (۱۹۱، ۱۰۰، ۱۶۰) دسترس‌ناپذیرند — دو تای آخر طبق سابقهٔ پروژه عمداً خنثی‌شده‌اند.
+1. Octopus زنده است: هر هفت نودِ ثبت‌شده (۱۳۸، ۱۸۰، ۱۸۲، ۱۰۰، ۱۶۰، ۱۹۳، ۱۱۴) زنده‌اند و لایهٔ کنترل ۱۳۸ کامل بیدار است.
+2. هر هفت نودِ ثبت‌شده (۱۳۸، ۱۸۰، ۱۸۲، ۱۰۰، ۱۶۰، ۱۹۳، ۱۱۴) زنده و در دسترس‌اند؛ صفر نود در دسترس‌نیافته. (نسخهٔ ۱ اینجا غلط بود.)
 3. ۸۱ تایمر روی چهار برد در چرخه‌اند؛ هیچ دیمنی که سند زنده بداندش پیدا نشد نباشد، وجود ندارد.
 4. `ops-agent` هر ~۵.۵ دقیقه تیک می‌زند و همهٔ بریکرها (B1..B8) بسته‌اند؛ بودجه ۱ از ۲۰ مصرف شده.
 5. هیچ فایل توقف (HALT/STOP-AUTONOMY/CHANNEL-REVOKED) وجود ندارد — سیستم متوقف نیست.

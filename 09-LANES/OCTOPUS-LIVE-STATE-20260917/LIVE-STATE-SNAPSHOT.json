@@ -20,6 +20,36 @@
     "vault_census": "NOT_PERFORMED_BY_THIS_LANE (owned by other lane)"
   },
 
+  "revision": 2,
+  "revision_note": "Revision 1 was committed as 653cb608. Revision 2 corrects three board-table errors found when the owner asked why three boards were unreachable. No board state changed — only this lane's report was wrong.",
+
+  "corrections": [
+    {
+      "merge_key": "correction:CORR-01",
+      "id": "CORR-01",
+      "what_was_wrong": "The 7th fleet node, 192.168.0.114 (octopus-pro-114), was MISSING from revision 1 entirely.",
+      "why": "The board list was assembled from hardware-discovery JSONs, ~/.ssh/config and project memory instead of from the organism's own authoritative registry at /home/ari/ofn/state/fleet-nodes/registry.jsonl.",
+      "now": "114 is present, probed, and ALIVE: octopus-pro-114, Orange Pi 5 Pro, Debian 13, up 1d22h48m (since 2026-09-15T02:48:58), load 0.00, 3.6Gi free, disk 2%, worker-heartbeat ticking every ~60s, 0 failed units. Registry role eval_batch (replay, eval_suite, error_cluster).",
+      "lesson": "Read the organism's own registry before deriving an inventory by hand."
+    },
+    {
+      "merge_key": "correction:CORR-02",
+      "id": "CORR-02",
+      "what_was_wrong": "Boards 100 and 160 were reported as UNREACHABLE.",
+      "why": "PHASE 1 tried only the default key (~/.ssh/id_ed25519) and the mesh key. The fleet key for these nodes is ~/.ssh/piggybank_id_ed25519, which was already visible in the ~/.ssh listing taken during preflight but was never tested. The ssh error 'Permission denied (publickey)' was an AUTH failure on an OPEN port 22 — not an unreachable host.",
+      "now": "Both ALIVE: octopus-compute-100 (up 2d, load 0.00, swap 4.0Gi) and octopus-compute-160 (up 2d, load 0.00). Both respond to ICMP (TTL=64), both run sshd (OpenSSH_10.0p2 Debian-13), both run octopus-worker-heartbeat.timer every ~60s, both have 0 failed units. Registry roles: knowledge_retrieve and knowledge_prep.",
+      "lesson": "A 'Permission denied' on an open port is not 'UNREACHABLE'. Test every available key before labelling a host."
+    },
+    {
+      "merge_key": "correction:CORR-03",
+      "id": "CORR-03",
+      "what_was_wrong": "192.168.0.191 was listed as a fleet board in the health table.",
+      "why": "CHIEF-ENGINEER-BRIEF-2026-09-03 mentions '191 laptop', which was read as a mesh node. It is not: 191 is the Wi-Fi address of the very machine running this snapshot (hostname DESKTOP-KA9RFN5, default route via 192.168.0.1 on that interface). ARP output identifies the querying interface as 192.168.0.191.",
+      "now": "191 is recorded as SELF_VANTAGE, not a node. Port 22 refused because Windows has no sshd — expected, not a fault. It is absent from registry.jsonl and from known_hosts.workers.",
+      "lesson": "Confirm a host is a member of the fleet registry before putting it in a fleet table."
+    }
+  ],
+
   "hosts": [
     {
       "merge_key": "host:138",
@@ -115,33 +145,117 @@
       "note": "who -b reports 2026-06-01 (fake-hwclock artifact, no RTC); uptime -s is authoritative"
     },
     {
-      "merge_key": "host:191",
-      "host": "191",
-      "ssh_alias": "root@192.168.0.191",
-      "identity": null,
-      "state": "UNREACHABLE",
-      "reason": "ssh: connect to host 192.168.0.191 port 22: Connection refused",
-      "note": "UNREACHABLE is not DEAD. Documented as the laptop address in CHIEF-ENGINEER-BRIEF-2026-09-03. The laptop is the machine this snapshot runs from, so a refused :22 here is expected (no sshd), not a fault."
-    },
-    {
       "merge_key": "host:100",
       "host": "100",
       "ssh_alias": "root@192.168.0.100",
-      "identity": null,
-      "state": "UNREACHABLE",
-      "reason": "Permission denied (publickey,keyboard-interactive)",
-      "note": "TCP:22 responds, key rejected. PERMANENT DE-MINE per project record — do not reflash."
+      "ssh_key": "~/.ssh/piggybank_id_ed25519",
+      "identity": "octopus-compute-100",
+      "model": "Orange Pi 5 Pro",
+      "arch": "aarch64",
+      "kernel": "6.1.115-vendor-rk35xx",
+      "os": "Debian GNU/Linux 13 (trixie)",
+      "state": "ALIVE",
+      "role_documented": "knowledge_retrieve (capability: retrieve, evidence_search)",
+      "role_source": "/home/ari/ofn/state/fleet-nodes/registry.jsonl",
+      "remote_utc": "2026-09-17T01:37:14Z",
+      "uptime_human": "up 2 days, 58 minutes",
+      "up_since": "2026-09-15T00:39:08",
+      "load": [0.00, 0.00, 0.00],
+      "mem_total": "3.8Gi",
+      "mem_used": "249Mi",
+      "mem_available": "3.6Gi",
+      "swap_total": "4.0Gi",
+      "swap_used": "0B",
+      "disk_root": {"size": "58G", "used": "7.0G", "avail": "48G", "use_pct": "13%"},
+      "failed_units": [],
+      "timers_count": 5,
+      "units": ["octopus-worker-heartbeat.service (timer-driven every ~60s, idle-worker, commander=false may_authorize=false)"],
+      "degraded_reason": null,
+      "CORRECTION": "This board was WRONGLY reported as UNREACHABLE in the first revision of this snapshot. It is alive and was reachable all along with ~/.ssh/piggybank_id_ed25519; see corrections[CORR-02]."
     },
     {
       "merge_key": "host:160",
       "host": "160",
       "ssh_alias": "root@192.168.0.160",
-      "identity": null,
-      "state": "UNREACHABLE",
-      "reason": "Permission denied (publickey,keyboard-interactive)",
-      "note": "TCP:22 responds, key rejected. PERMANENT DE-MINE per project record — do not reflash."
+      "ssh_key": "~/.ssh/piggybank_id_ed25519",
+      "identity": "octopus-compute-160",
+      "model": "Orange Pi 5 Pro",
+      "arch": "aarch64",
+      "kernel": "6.1.115-vendor-rk35xx",
+      "os": "Debian GNU/Linux 13 (trixie)",
+      "state": "ALIVE",
+      "role_documented": "knowledge_prep (capability: doc_extract, segment, index)",
+      "role_source": "/home/ari/ofn/state/fleet-nodes/registry.jsonl",
+      "remote_utc": "2026-09-17T01:37:15Z",
+      "uptime_human": "up 2 days, 22 minutes",
+      "up_since": "2026-09-15T01:14:52",
+      "load": [0.00, 0.00, 0.00],
+      "mem_total": "3.8Gi",
+      "mem_used": "231Mi",
+      "mem_available": "3.6Gi",
+      "swap_total": "0B",
+      "disk_root": {"size": "58G", "used": "2.6G", "avail": "53G", "use_pct": "5%"},
+      "failed_units": [],
+      "timers_count": 5,
+      "units": ["octopus-worker-heartbeat.service (timer-driven every ~60s, idle-worker)"],
+      "degraded_reason": null,
+      "CORRECTION": "This board was WRONGLY reported as UNREACHABLE in the first revision of this snapshot. It is alive and was reachable all along with ~/.ssh/piggybank_id_ed25519; see corrections[CORR-02]."
+    },
+    {
+      "merge_key": "host:114",
+      "host": "114",
+      "ssh_alias": "root@192.168.0.114",
+      "ssh_key": "~/.ssh/piggybank_id_ed25519",
+      "identity": "octopus-pro-114",
+      "model": "Orange Pi 5 Pro",
+      "arch": "aarch64",
+      "kernel": "6.1.115-vendor-rk35xx",
+      "os": "Debian GNU/Linux 13 (trixie)",
+      "state": "ALIVE",
+      "role_documented": "eval_batch (capability: replay, eval_suite, error_cluster)",
+      "role_source": "/home/ari/ofn/state/fleet-nodes/registry.jsonl",
+      "remote_utc": null,
+      "uptime_human": "up 1 day, 22 hours, 48 minutes",
+      "up_since": "2026-09-15T02:48:58",
+      "load": [0.00, 0.01, 0.00],
+      "mem_total": "3.8Gi",
+      "mem_used": "237Mi",
+      "mem_available": "3.6Gi",
+      "swap_total": "not read",
+      "disk_root": {"size": "58G", "used": "970M", "avail": "54G", "use_pct": "2%"},
+      "failed_units": [],
+      "timers_count": 5,
+      "units": ["octopus-worker-heartbeat.service (timer-driven every ~60s, idle-worker)"],
+      "degraded_reason": null,
+      "CORRECTION": "This node was MISSING ENTIRELY from the first revision of this snapshot; see corrections[CORR-01]. It is the 7th and last registered fleet node."
+    },
+    {
+      "merge_key": "host:191-laptop-vantage",
+      "host": "191",
+      "is_fleet_node": false,
+      "identity": "DESKTOP-KA9RFN5 (this laptop)",
+      "state": "SELF_VANTAGE",
+      "reason": "192.168.0.191 is the Wi-Fi address of the machine running this session (hostname DESKTOP-KA9RFN5; default route via 192.168.0.1 on that interface). Port 22 is refused because Windows has no sshd — this is expected and is NOT a mesh fault.",
+      "note": "WRONG in the first revision of this snapshot: 191 was listed as a fleet board in UNREACHABLE state. It appears in CHIEF-ENGINEER-BRIEF-2026-09-03 as '191 laptop', which is the vantage point, not a node. It is NOT in state/fleet-nodes/registry.jsonl. See corrections[CORR-03]."
     }
   ],
+
+  "fleet_registry": {
+    "merge_key": "fleet-registry:138:fleet-nodes",
+    "source": "/home/ari/ofn/state/fleet-nodes/registry.jsonl (schema fleet_node_registry.v1) + known_hosts.workers",
+    "registered_nodes": 7,
+    "all_auth_status": "OK",
+    "nodes": [
+      {"node_id": "138", "hostname": "DietPi", "bind_role": "commander", "capability": ["commander", "router", "ledger_owner"]},
+      {"node_id": "180", "hostname": "octopus-continuity-180", "bind_role": "quality_restore_copy_RO", "capability": ["quality", "restore_copy_RO"]},
+      {"node_id": "182", "hostname": "sensorium-opi5pro", "bind_role": "lab_witness", "capability": ["witness", "nats_host"]},
+      {"node_id": "100", "hostname": "octopus-compute-100", "bind_role": "knowledge_retrieve", "capability": ["retrieve", "evidence_search"]},
+      {"node_id": "160", "hostname": "octopus-compute-160", "bind_role": "knowledge_prep", "capability": ["doc_extract", "segment", "index"]},
+      {"node_id": "193", "hostname": "octopus-model-plus-193", "bind_role": "model_infer", "capability": ["model_serve", "npu_pilot"]},
+      {"node_id": "114", "hostname": "octopus-pro-114", "bind_role": "eval_batch", "capability": ["replay", "eval_suite", "error_cluster"]}
+    ],
+    "note": "This is the organism's OWN authoritative fleet list and it is the correct 7. Revision 1 of this snapshot derived its board list from hardware-discovery JSONs plus SSH config plus project memory instead of reading this file first; that is the root cause of all three corrections above."
+  },
 
   "services": [
     {"merge_key": "svc:138:octopus-revenue-drive", "host": "138", "unit": "octopus-revenue-drive.service", "active": "failed", "sub": "failed", "result": "exit-code", "since": "2026-09-17T00:00:51Z", "failing_step": "ExecStartPost send_queue.py", "exit_status": 1, "upstream_steps": "all SUCCESS (revenue_drive.py, lead_enrich.py, money_executor.py, revenue_state.py)", "downstream_skipped": ["owner_ask.py", "owner_reply.py"], "root_cause": "OSError [Errno 30] Read-only file system: /home/ari/ofn/tools/leads_master.json at send_queue.py:61", "sandbox_cause": "ProtectHome=read-only with ReadWritePaths=/home/ari/ofn/state/revenue-drive /home/ari/ofn/data — tools/ is not in ReadWritePaths", "trigger_condition": "write is guarded by `if synced:`; fires only when lead-emails.jsonl holds a business not yet in leads_master contact_channel. AS_OF_NOW 68 ledger businesses vs 66 synced = 2 pending, so every tick now fails.", "git_path": null},
@@ -360,11 +474,24 @@
 
   "mesh": {
     "merge_key": "mesh:octopus-20260917",
-    "reachable": ["138", "180", "182", "193"],
-    "unreachable": ["191", "100", "160"],
+    "reachable": ["138", "180", "182", "100", "160", "193", "114"],
+    "unreachable": [],
+    "reachable_count": 7,
+    "registered_node_count": 7,
+    "verdict": "ALL 7 REGISTERED NODES REACHABLE AND ALIVE. No board is unreachable.",
+    "ssh_key_map": {
+      "default ~/.ssh/id_ed25519": ["138 (as ari)", "180", "182", "193"],
+      "~/.ssh/piggybank_id_ed25519": ["100", "160", "114"],
+      "note": "Using only the default key is what produced the false UNREACHABLE reading on 100/160 in the first revision. The fleet registry lists credential_id 'mesh_ssh:…' for all 7."
+    },
+    "fleet_reboot_wave": {
+      "observation": "All 7 nodes have an up_since inside 2026-09-15T00:39 – 02:49, i.e. the whole fleet rebooted together ~2 days before this snapshot",
+      "up_since": {"100": "2026-09-15T00:39:08", "138": "2026-09-15T00:39:09", "180": "2026-09-15T00:39:13", "160": "2026-09-15T01:14:52", "182": "2026-09-15T01:21:32", "193": "2026-09-15T02:24:59", "114": "2026-09-15T02:48:58"},
+      "meaning": "no node has rebooted since; whatever was true yesterday about fleet membership is still true now"
+    },
     "clock": {
       "method": "midpoint: drift = remote_epoch - (local_epoch_before + local_epoch_after)/2",
-      "samples": [
+      "samples_pass1": [
         {"host": "138", "drift_s": 0.302, "rtt_s": 1.795},
         {"host": "138", "drift_s": 0.167, "rtt_s": 0.397},
         {"host": "180", "drift_s": 0.170, "rtt_s": 0.460},
@@ -374,9 +501,18 @@
         {"host": "193", "drift_s": 0.363, "rtt_s": 0.799},
         {"host": "193", "drift_s": 0.184, "rtt_s": 0.572}
       ],
+      "samples_pass2_corrected_fleet": [
+        {"host": "138", "drift_s": 0.170, "rtt_s": 0.384},
+        {"host": "180", "drift_s": 1.122, "rtt_s": 2.368, "note": "outlier — rtt 2.37s dominates; pass-1 gave +0.17s for the same host"},
+        {"host": "182", "drift_s": 0.149, "rtt_s": 0.428},
+        {"host": "193", "drift_s": 0.191, "rtt_s": 0.481},
+        {"host": "100", "drift_s": 0.266, "rtt_s": 0.587},
+        {"host": "160", "drift_s": 0.235, "rtt_s": 0.533},
+        {"host": "114", "drift_s": 0.131, "rtt_s": 0.443}
+      ],
       "max_abs_drift_s": 0.363,
-      "verdict": "COHERENT — max |drift| 0.36s, all samples same sign and within RTT noise; no board is mis-dated",
-      "ntp_synchronized": {"138": true, "180": true, "182": "n/a (timedatectl absent)", "193": "n/a (timedatectl absent)"}
+      "verdict": "COHERENT — excluding the one rtt-dominated 180 sample, every reading is +0.13..+0.36s, all same sign, inside RTT noise; no node is mis-dated",
+      "ntp_synchronized": {"138": true, "180": true, "182": "n/a (timedatectl absent)", "193": "n/a (timedatectl absent)", "100": "not read", "160": "not read", "114": "not read"}
     },
     "deployed_versions": {
       "138": {
@@ -471,6 +607,15 @@
       "evidence": "176 x B5_PATH_OUTSIDE_WRITABLE_SCOPE receipts, one per tick since 2026-09-16T09:30:45Z; skipped=8; skipped_paths = __pycache__/.pytest_cache under /home/ari/wt-buynsw-ingest and /home/ari/wt-modelcap-20260906",
       "self_note": "sandbox ReadWritePaths denies rename on these source dirs; their cleanup is an owner/unsandboxed decision",
       "assessment": "KNOWN and honestly receipted, not a silent failure. 8 stale cache dirs persist."
+    },
+    {
+      "merge_key": "gap:GAP-09-idle-workers",
+      "id": "GAP-09",
+      "severity": "INFO",
+      "title": "Three registered worker nodes exist, heartbeat every minute, and do no work",
+      "evidence": "100 (knowledge_retrieve), 160 (knowledge_prep) and 114 (eval_batch) each run octopus-worker-heartbeat.timer every ~60s. All three report load average 0.00/0.00/0.00 and ~3.6 GiB of 3.8 GiB RAM free. Their heartbeat payload self-reports commander=false, may_authorize=false. /opt/octopus-worker/heartbeat.sh is the only octopus unit on each.",
+      "documentary_match": "WORKER-BIND-MAP-100-160-193-114-20260915.md already labels 100 and 160 'BOUND_DESIGN — not live worker', so the organism's own documents agree with the measurement.",
+      "meaning": "Roughly 11 GiB of idle RAM and ~15 idle cores sit in the fleet. The binding exists; the work does not. This is a capacity fact, not a fault — and it is the cheapest available headroom if any node needs to be offloaded."
     }
   ],
 
@@ -484,7 +629,10 @@
     "Board 182's memory figures moved between reads (875 MiB then 1526 MiB available) within ~6 minutes; the board is under active pressure.",
     "No vault census was performed — that territory belongs to the parallel UNIFIED-RECON lane, so this lane reports VAULT_CENSUS=IN_PROGRESS_BY_OTHER_LANE.",
     "Secret values were never printed: only paths, sizes, row counts, states and hashes.",
-    "The revenue-drive failure was diagnosed entirely from journal + unit file + script source; the fix was NOT applied (it is a mutation and out of scope)."
+    "The revenue-drive failure was diagnosed entirely from journal + unit file + script source; the fix was NOT applied (it is a mutation and out of scope).",
+    "REVISION 2 MATERIAL WEAKNESS, stated plainly: revision 1's board inventory was derived by hand from documents and memory instead of from the organism's own fleet registry, and PHASE 1 tested only two of the three SSH keys available. That produced two false UNREACHABLE labels and one missing node. The owner's question is what exposed it. Any downstream merge should treat revision 2's host list as authoritative and revision 1's as superseded.",
+    "Board 114's swap and NTP state were not read (only load, memory, disk, uptime and units were captured), so those two fields are honestly blank rather than assumed.",
+    "Board 180's second-pass drift sample (+1.122s at rtt 2.368s) is reported as-is rather than discarded; the pass-1 reading for the same host was +0.170s at rtt 0.460s, and the outlier is attributed to round-trip time."
   ],
 
   "phase_status": {
