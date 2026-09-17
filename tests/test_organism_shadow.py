@@ -240,13 +240,16 @@ class OrganismShadowTests(unittest.TestCase):
         self.assertEqual(result["status"], "unverifiable")
         self.assertIn("runtime_code_witness_unverified", result["warnings"])
 
-    def test_cli_persistence_failure_returns_nonzero_with_failure_artifact(self):
+    def test_cli_persistence_failure_completes_with_unknowns_v2(self):
         output = self.root / "self-model.json"
         with patch.object(bridge, "record_assessment", side_effect=ValueError("test-owned fault")):
             with contextlib.redirect_stdout(io.StringIO()):
                 result = producer.main(["--repo", str(ROOT), "--output", str(output)])
         saved = json.loads(output.read_text())
-        self.assertEqual(result, 1)
+        # handoff-contract v2 (owner phase-2 task 3): artifact produced + gaps recorded
+        # as unknowns -> exit 0; v1 nonzero contract retired with the runtime producer
+        self.assertEqual(result, 0)
+        self.assertEqual(saved["completion"]["state"], "completed_with_unknowns")
         self.assertEqual(saved["status"], "unverifiable")
         self.assertEqual(saved["organism_shadow_persistence"]["state"], "FAILED_PRESERVE_JOURNAL")
         self.assertIn("organism_shadow_persistence_failed", saved["warnings"])
