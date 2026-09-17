@@ -62,3 +62,17 @@ Worktree: `F:/wt-s2-maturity-20260917` branch `s2-maturity-20260917` (base 31a39
 - 138: `sudo -n systemctl stop s2replica-soak2` (transient, gone after stop); remove `~/s2-replica-20260917/`.
 - 182: remove `/root/s2-m6-drill-20260917/` + `/root/s2-m6-drill-runner.py` (isolated copies only; nothing live touched).
 - No production service was restarted, stopped, or reconfigured on either node. No secrets read or printed. No journal bytes rewritten.
+
+## 3h AUDIT + CODE COMPLETION (2026-09-17T17:45Z)
+- **PULSE FIX (root-caused + fixed + verified)**: 138 heartbeat `load1=None` gap was NOT a dead service —
+  `octopus-138-pulse.sh` payload carried no load field. Patched via preimage+backup
+  (`octopus-138-pulse.sh.bak-n15-*`) to include `load1` (+leaf=True) while keeping the 140B frame contract;
+  verified: PULSE_SENT bytes=140 ok=True → canonical heartbeat now shows `138 load1=1.12`. leaf=None for 138
+  remains and is CORRECT (commander, not a NATS leaf).
+- **Two missing loops CODED + first runs**: `bin/loop_mirror_freshness.py` (FRESH, seq 1, age 9.3h, quarantine noted)
+  and `bin/loop_fleet_pulse.py` (7 nodes parsed, 0 alerts, 0 silent) — evidence files written; schedule them
+  from a fresh chat (one-automation-per-session limit).
+- **Wide scan clean**: both worktrees zero drift; zero TODO/FIXME markers in touched learning/adapter code;
+  138 disk 35% (37G free), 182 disk 46%; journal 3,088,523 lines (+9.6k/9h ≈ measured rate, nominal);
+  failed units: 138={smartmontools(+2)}, 182={pre-existing informational}.
+- Soak observer 358 samples/0 errors; W1 102 samples frozen; sensorium NRestarts=0 overnight.
