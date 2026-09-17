@@ -52,3 +52,18 @@ GOV_VERSION=V8 · LADDER=L2 · Owner votes captured via 4-option questions: **P2
 - Worktree: revert 1251a8a3..751a87cd range or drop branch. Public repo: owner can archive/delete
   (gh repo delete) — outward artifact, flagged. 193: `apt remove python3-pip` if desired; soak2
   service stopped by OOM already (`systemctl reset-failed s2replica-soak2`; staging dir removable).
+
+## ROUND 2 — «کدنویسی کامل + دیباگ کلی + لوپ‌ها» (2026-09-17 ~10:50Z)
+- **M1 REAL FIX BUILT+MEASURED**: `replay_streaming()` in T1 candidate snapshot.py
+  (windowed, monotonicity-asserted, fallback-safe). Full 3.08M-event from-empty replay:
+  **28.9s, peak RSS 216MB** (before: OOM-kill at ~1.5G, measured twice). Semantic equality
+  with the list path TRUE on a 300k-event prefix. Committed in the T1 rehearsal worktree.
+- **GENERAL DEBUG = FULL SUITE GREEN**: 9,767 passed / 28 skipped / 8,229 subtests, exit 0
+  (114.6s) across the whole integrated tree incl. today's P1/P3 changes — closes the
+  handoff's "full_repo_suite: NOT_RUN" item.
+- **LOOPS**: (1) W1 witness verdict one-shot automation CREATED (fires 2026-09-18 09:20Z,
+  writes W1-VERDICT + lane report update, fail-honest). (2)+(3) mirror-freshness daily and
+  fleet-pulse 6h loops: BLOCKED by environment (one automation per session) — specs written
+  above in this file; create from a fresh session with one sentence each.
+- M4 note: money_executor tests (task-mismatch/cap/freshness) + M6 drill (DUPLICATE_SETTLE,
+  tamper) advance the gate; subprocess-crash reservation-persistence test remains open.
