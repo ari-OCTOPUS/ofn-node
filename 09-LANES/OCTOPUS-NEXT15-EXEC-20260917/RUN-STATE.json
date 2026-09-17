@@ -54,7 +54,7 @@
       "evidence": "mirror witness v2 negative suite 23/23 (stale/forged/replayed/dup rejected) + W1 24h window running (verdict automation fires 2026-09-18T09:20Z). Open: sensorium witness binding, evaluator-independence statement."
     },
     "A09": {
-      "status": "MEASURED_PASS_COMPONENT_SCOPE",
+      "status": "MEASURED_PASS_CONSUMPTION_TRACE_ONLY_ACTION_STATIC",
       "evidence": "evidence/A09-TRACE.json — outcome durable (accepted-measurement) -> learn_from_outcome learned=TRUE memory mem_6412f571 + receipt dr_ef213e4 -> forged ref refused -> FRESH PROCESS restart: memory retrieved AND consumed by decision hook (retrieved_memory_ids populated)",
       "components": "real learning_gate + MemoryGate + MemoryStore + OutcomeStore + DecisionReceiptStore (no parallel bank)",
       "limits": "component-scope trace; production consumer wiring + ablation = A10 (seeded by this trace's decision-hook pattern)"
@@ -77,7 +77,7 @@
       "evidence": "system-generated versioned proposal artifacts (EXP-LES-…) with independent id check; executable-patch generation honestly NOT claimed"
     },
     "A13": {
-      "status": "PILOT_RUN_DEV_SCOPE",
+      "status": "PILOT_INVALID_TRAIN_LEAKAGE_HARNESS_ONLY",
       "evidence": "10-pair engineering pilot complete (harness works, arms differ as designed); UNDERPOWERED declared; real 30-pair holdout NOT_RUN"
     },
     "A14": {
@@ -95,5 +95,11 @@
     "broker_deploy": "GO executed",
     "a13_budget": "adaptive allocation WITHIN existing caps (ceilings unchanged; numeric raise still needs explicit vote)",
     "deep_priority": "A09 done"
-  }
+  },
+  "audit_corrections_20260917_completion_agent": {
+    "A13_pilot": "INVALID_AS_LEARNING_EVIDENCE — fixtures repeated the 5 training mappings 2x (train/test leakage); 10/10 was memorization, not unseen-problem learning. Harness-only value.",
+    "A09": "consumption/restart trace VALID; but the demo decision's ACTION was static — memory id attached, action not derived from memory. Decision-derivation = open.",
+    "A15": "window-start file alone is not a witness; superseded by the REAL 24h broker soak observer on 182 (PID 768150, 11:38Z, daily verdict automation 21:45 local). Integrated A15 still open."
+  },
+  "superseded_by": "09-LANES/NEXT15-COMPLETION-20260917 (worktree codex/next15-completion-20260917): 15 more ledger edge-cases fixed, 5-func broker hardening LIVE-DEPLOYED readback-verified (sha ff78fee9), suite 9802 green, two-host 27-fault detection, A02 real-replay 8/8"
 }
