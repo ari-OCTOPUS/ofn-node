@@ -1,0 +1,16 @@
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "event": "RUN_START", "pid": 17968, "python": "3.13.7"}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "orphan_restart", "round": 0, "dispositions": 1, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "orphan_restart", "round": 1, "dispositions": 1, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "orphan_restart", "round": 2, "dispositions": 1, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "torn_write", "round": 0, "dispositions": 1, "bytes_preserved": true, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "torn_write", "round": 1, "dispositions": 1, "bytes_preserved": true, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "torn_write", "round": 2, "dispositions": 1, "bytes_preserved": true, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "content_tamper", "detected": true, "status": "TAMPERED"}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "orphan_restart", "round": 0, "dispositions": 1, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "orphan_restart", "round": 1, "dispositions": 1, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:31Z", "family": "orphan_restart", "round": 2, "dispositions": 1, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:32Z", "family": "torn_write", "round": 0, "dispositions": 1, "bytes_preserved": true, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:32Z", "family": "torn_write", "round": 1, "dispositions": 1, "bytes_preserved": true, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:32Z", "family": "torn_write", "round": 2, "dispositions": 1, "bytes_preserved": true, "stable": true}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:32Z", "family": "content_tamper", "detected": true, "status": "TAMPERED"}
+{"run_id": "NEXT15-A11A14-20260917T204431Z", "host": "DESKTOP-KA9RFN5", "ts": "2026-09-17T20:44:32Z", "event": "RUN_VERDICT", "all_pass": true, "families": {"orphan_restart_x1": true, "torn_write_x1": true, "content_tamper_x1": true, "orphan_restart_x2": true, "torn_write_x2": true, "content_tamper_x2": true}, "scope": "ledger-damage self-repair, system-executed (load/recover path), engineer_interventions_in_window: 0", "a14_note": "real fleet job on node160 with durable receipt file + read-back"}

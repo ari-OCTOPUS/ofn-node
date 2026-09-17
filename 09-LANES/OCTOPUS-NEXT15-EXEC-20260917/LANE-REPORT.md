@@ -36,3 +36,17 @@ Nothing deployed to any node this session.
 ## Next single action
 A09: wire outcome→memory on `_ops/outcomes/learning_gate.py` against the fixed ledger+chain;
 one full trace (event → ledger row → lesson → restart survival → consumption ref) then A10.
+
+## ROUND 2 — «همرو کامل کن» (2026-09-17 ~11:15Z)
+- **A06 FIXED_TESTED_ISOLATED**: measured TWO real production defects in the api-budget broker
+  (TOCTOU race: both concurrent reserves accepted; open reservations invisible to all caps).
+  Fix (fcntl critical section + outstanding-reserve liability) applied to the isolated drill copy
+  on 182 and re-measured: exactly-one-accepted + crasher liability retained across reload
+  (evidence/A06-RESULT.json, verdict_pass=true). Live broker patch staged, NOT deployed.
+- **A11 SYSTEM_SELF_REPAIR_SCOPED**: ledger-damage family (orphan/torn/tamper ×2 rounds each)
+  executed BY the system path with zero engineer interventions, on TWO hosts
+  (laptop + node160), all_pass both, 16 receipt rows each (evidence/A11-*-receipts.jsonl).
+  Full A11 (supervisor/transport families) remains open.
+- **A14 PARTIAL**: real fleet job on 160 with durable receipts (the A11 run itself);
+  self-model consumption + business workflow still open.
+- A09 remains the loop entry (API mapped, trace build next); A10/A12/A13/A15 NOT_RUN.
