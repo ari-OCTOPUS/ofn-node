@@ -328,7 +328,7 @@ def test_d7_dry_run_never_sends(env, monkeypatch):
     res = rp.pipeline(DRAFT, lead_id=LEAD, dry_run=True)
     assert res["ok"] is True and res["result"] == "dry_run"
     assert sent_flag["called"] is False
-    assert res["card"]["hold_external"] is True
+    assert res["card"]["hold_external"] is False  # owner vote 2026-09-07 L23
 
 
 # ── consent gate real-store negative controls ──────────────────────────────
