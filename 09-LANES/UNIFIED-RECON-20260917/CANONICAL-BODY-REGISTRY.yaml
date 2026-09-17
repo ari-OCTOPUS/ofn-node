@@ -1,0 +1,73 @@
+# CANONICAL-BODY-REGISTRY — OCTOPUS unified four-repo + vault
+# mission: OCTOPUS-UNIFIED-RECON-AND-VAULT-CANONICALIZATION-20260917
+# generated: 2026-09-17 (AEST) by local executor lane UNIFIED-RECON-20260917
+# rule: canonical body per artifact; everything else is pointer/mirror. No file was moved or edited to build this registry.
+
+version: 1
+as_of_utc: "2026-09-16T23:55:00Z"
+
+bodies:
+  - id: ofn-node
+    repo: ari-OCTOPUS/ofn-node
+    canonical_for: [runtime, business-logic, governance-code, deploy-artifacts, in-repo evidence/handoff/lane docs]
+    main_head: dba9971a802653b4f56a1194da49e49551e04c54
+    evidence: "ls-remote + local clone tree this session; 3454 tracked paths; deployed live on board138 (timers verified)"
+    notes: >
+      carries a PARALLEL vault-structure body (06-EVIDENCE/07-HANDOFF/09-LANES/.obsidian = 187 paths)
+      which is NOT a path-mirror of F:/backup: 180 of 187 same paths absent in vault, remaining 7 differ.
+      Both bodies are live and divergent; reconciliation is an owner decision, not an agent action.
+    adoption_gates: [protect-main ruleset: deletion, non_fast_forward, required_linear_history, pull_request]
+
+  - id: Armin
+    repo: ari-OCTOPUS/Armin
+    canonical_for: [painting conceptual/origin documents (heart-awareness map, LANGAR origin doc, audits)]
+    main_head: 4193de1fd1160a2f082b3ed2ec457c00f9bbf4f3
+    evidence: "5 tracked paths enumerated; SCAN.md merged in #2 states idea-only; runtime engine verified on ofn-node/138"
+    notes: description says "Painting lead generation" which OVERSTATES role — merged audit + live runtime say otherwise. No code interface.
+
+  - id: langar
+    repo: ari-OCTOPUS/langar
+    canonical_for: [Telegram/HRV/research subsystem code (langar + langar-pro families)]
+    main_head: ec039bb7cd79eb96096bf87080e625ef0b3904f5
+    evidence: "97 tracked paths; zero ofn imports (grep); no service on 138 (live check); langar_bot.service tracked but not installed"
+    notes: >
+      dormant-but-deployable. _verify/ shadow copies present (drift documented by merged audit langar#1).
+      Money-path isolation CONFIRMED (no wire, no imports, no service). P1 synthesizer bug documented by audit, not re-measured.
+      Hygiene: .fuse_hidden artifact tracked in git.
+    decisions_pending: [_verify shadow sync/delete needs owner vote (carried from 2026-09-17 session)]
+
+  - id: vbaa-patches
+    repo: ari-OCTOPUS/vbaa-patches
+    canonical_for: [L7 VBAA review/staging substrate: ArtifactAdmission, ArgumentProvenanceGuard, ExecutorHandleFirewall]
+    main_head: 16d3bff320a9bb0a4b27c221f559a8e235cec177
+    evidence: "31 tracked paths; tests TOTAL_PASS 23P/1xfail/2xpass this session; _ops/vbaa absent from ofn-node main (0 paths)"
+    notes: >
+      review substrate only. ADOPTION INTO RUNTIME: NOT PROVEN (no path/import/test/receipt link).
+      GAP recorded (mission rule): no vault -> vbaa-patches -> ofn-node transfer contract exists; do not invent one.
+
+  - id: vault
+    path: F:\backup
+    canonical_for: [owner decisions, receipts, evidence, season truth, memory of record]
+    evidence: "owner ruling (mission doc + AGENTS.md); git repo on branch rescue/octopus-live-tree-20260821 @e150099; 16053 tracked files"
+    notes: baseline dirty entries 1462 (parallel-agent activity); Obsidian not running during session; last write 2026-09-16 17:54 AEST.
+
+artifacts_of_record:
+  - artifact: CURRENT-TRUTH (truth board)
+    canonical: F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md
+    canonical_evidence: "D-34 / MIRROR-01 owner GO 2026-09-02 (quoted in 9 pointer stubs); 92,072 bytes; last write 2026-09-16T22:30Z"
+    others:
+      - path: F:/backup/OCTOPUS/CURRENT-TRUTH.md
+        class: auto-generated-surface (frontmatter type: octopus-auto, self-timestamps; 39.6KB; NOT a manual duplicate)
+      - path: F:/backup/01-TRUTH/CURRENT-TRUTH.md
+        class: unknown-role (4.3KB, 2026-09-16T07:50Z; neither stub nor canonical)
+      - path: "9 x 360-byte pointer stubs (00 - Inbox, 01 - Dashboard, 06-EVIDENCE/*, 07-HANDOFF/*, agent-prompts/*)"
+        class: pointer-converted-2026-09-02 (all name the canonical path; old content hash-pinned at 99-ARCHIVE/mirror-cleanup-20260902)
+    conflict_status: "canonical is DOCUMENTED; auto-surface + 01-TRUTH coexist by design or by drift — flagged for owner confirmation, not changed"
+
+  - artifact: lane reports
+    canonical_in: vault (09-LANES/<LANE>/LANE-REPORT.md per AGENTS.md §9)
+    divergent_copy: ofn-node repo carries its own 09-LANES body (142 paths, parallel) — 7 same-path files differ (see mirror-comparison.csv)
+
+  - artifact: audits (Armin/langar)
+    canonical_in: repos (merged PR bodies Armin#1/#2, langar#1/#2 — merged 2026-09-16T20:51-53Z, actor ari322)
+    vault_role: reference copies only

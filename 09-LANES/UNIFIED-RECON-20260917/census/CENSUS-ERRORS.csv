@@ -1,0 +1,5 @@
+﻿path,error
+F:\backup\NUL,"path is on mount '\\\\.\\NUL', start on mount 'F:'"
+F:\backup\_ops\tests\nul,"path is on mount '\\\\.\\nul', start on mount 'F:'"
+F:\backup\_ops\state\chrono.db-shm,[Errno 13] Permission denied
+F:\backup\_ops\backup\gitwrite.lock,[Errno 13] Permission denied: 'F:\\backup\\_ops\\backup\\gitwrite.lock'

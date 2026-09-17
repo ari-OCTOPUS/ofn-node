@@ -1,0 +1,9 @@
+﻿root,kind
+F:/backup,canonical_root
+OCTOPUS-DOCTOR,nested_vault_excluded_from_dedup
+_worktrees/ign2-pathology-slice-guard,nested_vault_excluded_from_dedup
+_Archive/worktrees-orphaned-2026-08-01/hopeful-elgamal-6febe8,nested_vault_excluded_from_dedup
+_Archive/worktree-rescue-2026-07-24/c3fix-verify/untracked,nested_vault_excluded_from_dedup
+09-LANES/MP-OPERATORS-01-20260909/worktree,nested_vault_excluded_from_dedup
+04 - Architect System/architect,nested_vault_excluded_from_dedup
+03 - Projects/OFN-Board,nested_vault_excluded_from_dedup

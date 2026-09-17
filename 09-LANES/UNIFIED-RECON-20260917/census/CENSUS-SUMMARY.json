@@ -1,0 +1,80 @@
+{
+ "mission": "OCTOPUS-UNIFIED-RECON-AND-VAULT-CANONICALIZATION-20260917",
+ "phase": "4-vault-census",
+ "start_utc": "2026-09-16T23:43:30Z",
+ "end_utc": "2026-09-17T01:01:26Z",
+ "mode": "READ_ONLY",
+ "raw_count": 315445,
+ "raw_bytes": 66433236494,
+ "dedup_count": 71235,
+ "dedup_bytes": 16500233499,
+ "class_stats": {
+  "EXCL:claude_worktrees": [
+   121718,
+   32302233751
+  ],
+  "EXCL:git_internal": [
+   50769,
+   5071956129
+  ],
+  "EXCL:github_export": [
+   7075,
+   109240989
+  ],
+  "EXCL:nested_vault": [
+   64562,
+   12441829265
+  ],
+  "EXCL:snapshot": [
+   86,
+   7742861
+  ],
+  "archive": [
+   63,
+   346132583
+  ],
+  "canvas": [
+   4,
+   6440
+  ],
+  "code": [
+   6303,
+   75779326
+  ],
+  "data": [
+   6460,
+   7198369428
+  ],
+  "image": [
+   2602,
+   419466448
+  ],
+  "md": [
+   8540,
+   47415873
+  ],
+  "obsidian_config": [
+   62,
+   43134472
+  ],
+  "other": [
+   47008,
+   8317591696
+  ],
+  "pdf": [
+   193,
+   52337233
+  ]
+ },
+ "md_total": 8476,
+ "tracked_git_files": 16053,
+ "nested_vault_roots": 7,
+ "duplicate_groups": 7026,
+ "broken_links": 1052,
+ "orphans": 7082,
+ "title_collisions": 530,
+ "sensitive_named_files": 264,
+ "errors": 4,
+ "f_drive_obsidian_dirs": 174,
+ "duration_s": 4676.0
+}

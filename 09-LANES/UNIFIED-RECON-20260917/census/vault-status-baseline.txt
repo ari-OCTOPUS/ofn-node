@@ -1,0 +1,1462 @@
+ M .cursor/hook-ledger.jsonl
+ M .cursor/hooks/deny_destructive.py
+ M .obsidian/app.json
+ M .obsidian/graph.json
+ M .obsidian/types.json
+ M 01-TRUTH/CURRENT-TRUTH.md
+ M "04 - Architect System/scripts/constitution_drift.py"
+ M "04 - Architect System/scripts/find_broken_links.py"
+ M "04 - Architect System/scripts/validate_frontmatter.py"
+ M 06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/pc-worker/worktree
+ M 06-EVIDENCE/POISONING-WATCH-4d.md
+ M "07 - Knowledge/genome-system/ledger/ledger.jsonl"
+ M "07 - Knowledge/genome-system/ledger/ledger.jsonl.tip.json"
+ M 09-LANES/L6/LANE-REPORT.md
+ M 09-LANES/L7/LANE-REPORT.md
+ M 09-LANES/L9/LANE-REPORT.md
+ M 09-LANES/LANE-MATRIX.csv
+ M 09-LANES/MP-CAPABILITY-GAP-01-20260907/evidence/wedge-probe-log.jsonl
+ M 09-LANES/REVIEW-AFFORDANCE-ACD-20260907/SUBJECT-IDENTITY-20260907.json
+ M "10 - Telegram processing/_Index - Telegram processing.md"
+ M "4D-Vault/02-\331\205\330\257\331\204-SOG/\331\205\330\257\331\204-\330\256\330\267\333\214-\332\257\330\247\331\210\330\263\333\214.md"
+ M "4D-Vault/07-\330\252\330\255\331\204\333\214\331\204-\331\276\332\230\331\210\331\207\330\264/\360\237\224\215-auto-physical-Damped-oscillator-20260711-085638.md"
+ M "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-436-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+ M "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-978-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22785.md"
+ M "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-DELTASELF-\330\256\331\210\330\257\330\264\331\206\330\247\330\263\333\214\331\220-\331\205\331\206\331\201\333\214.md"
+ M "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-FROZEN-CONTROL-PLANE-\330\263\330\250\330\262\333\214-\332\251\331\207-\331\207\330\261\332\257\330\262-\331\202\330\261\331\205\330\262-\331\206\331\205\333\214\342\200\214\330\264\331\210\330\257.md"
+ M OCTOPUS-DOCTOR/90-_meta/state/doctor-vitals.json
+ M OCTOPUS-DOCTOR/90-_meta/state/fugu-api-shape.json
+ M OCTOPUS-DOCTOR/90-_meta/state/fugu-quota.json
+ M OCTOPUS-DOCTOR/90-_meta/state/missions.json
+ M OCTOPUS-DOCTOR/90-_meta/state/paid-calls.jsonl
+ M OCTOPUS-DOCTOR/90-_meta/state/tg-inbox.jsonl
+ M OCTOPUS-DOCTOR/90-_meta/state/tg-outbox.jsonl
+ M OCTOPUS-DOCTOR/90-_meta/state/tg-seen.json
+ M OCTOPUS-DOCTOR/90-_meta/state/unconscious.json
+ M OCTOPUS/CURRENT-TRUTH.md
+ M OCTOPUS/worlds/graph-data.js
+ M OCTOPUS/worlds/neural-data.js
+ M README.md
+ M _memory/HEARTBEAT.md
+ M _memory/OCTOPUS/NOW.md
+ M _ops/backup/GITWRITE-FAILED.flag
+ M _ops/board_cp/queue.py
+ M _ops/board_cp/schema.py
+ M _ops/budget/budget-state.json
+ M _ops/budget/budgets.yaml
+ M _ops/budget/organ-gate-log.jsonl
+ M _ops/budget/organ-state.json
+ M _ops/budget/state/approval-fatigue-events.jsonl
+ M _ops/cortex/model_router.py
+ M _ops/cortex/pricing_pinned.json.bak-fxpin-20260908
+ M _ops/debate/SURVIVORS-QUEUE.md
+ M _ops/debate/survivors-pending.jsonl
+ M _ops/doctor/state/rules-ledger.jsonl
+ M _ops/governor/governor-alerts.md
+ M _ops/neural/consolidation.json
+ M _ops/neural/hebbian.json
+ M _ops/owner_console/conversation.py
+ M _ops/scripts/render_now.py
+ M _ops/state/ORGANISM-STATE.code
+ M _ops/state/alert-signatures.json
+ M _ops/state/alert-throttle.json
+ M _ops/state/arm/code_autonomy.arm.json
+ M _ops/state/arm/code_autonomy.arm2.json
+ M _ops/state/arm/renewal-log.jsonl
+ M _ops/state/arm/self_improve_auto.arm.json
+ M _ops/state/arm/self_improve_auto.arm2.json
+ M _ops/state/bcm-weights.json
+ M _ops/state/c6/hypothesis-queue.jsonl
+ M _ops/state/c6/research-ledger.jsonl
+ M _ops/state/c6/romajan-seen.json
+ M _ops/state/c6/state-machine.jsonl
+ M _ops/state/cardiac-budget.json
+ M _ops/state/chamber-temperature.json
+ M _ops/state/channel-status.json
+ M _ops/state/circuit-state.json
+ M _ops/state/cockpit-requests.lock
+ M _ops/state/context-fence-hits.json
+ M _ops/state/cortex-watchdog.json
+ M _ops/state/cortex/actuation-latest.json
+ M _ops/state/cortex/actuation-marks.json
+ M _ops/state/cortex/audit-matrix.json
+ M _ops/state/cortex/auto-approve-log.jsonl
+ M _ops/state/cortex/brain-digest-nudge.json
+ M _ops/state/cortex/business-brain-latest.json
+ M _ops/state/cortex/calibration-latest.json
+ M _ops/state/cortex/calibration-log.jsonl
+ M _ops/state/cortex/consolidate-cursor.json
+ M _ops/state/cortex/cortex-state.json
+ M _ops/state/cortex/cortisol-state.json
+ M _ops/state/cortex/cost-receipts.jsonl
+ M _ops/state/cortex/deep-synth.jsonl
+ M _ops/state/cortex/heart-brain/advisories.jsonl
+ M _ops/state/cortex/ignition-latest.json
+ M _ops/state/cortex/improve-deep-slots.json
+ M _ops/state/cortex/innervation-latest.json
+ M _ops/state/cortex/journal.jsonl
+ M _ops/state/cortex/outcomes.jsonl
+ M _ops/state/cortex/part-loops-latest.json
+ M _ops/state/cortex/route-decisions.jsonl
+ M _ops/state/cortex/self-claims.jsonl
+ M _ops/state/cortex/self-model.json
+ M _ops/state/cortex/stress-latest.json
+ M _ops/state/cortex/synthesis-latest.json
+ M _ops/state/cortex/upgrades-digest.json
+ M _ops/state/decisions/decision-record.jsonl
+ M _ops/state/deep-think/sessions.jsonl
+ M _ops/state/deep-think/slots.json
+ M _ops/state/discoveries-nudged.json
+ M _ops/state/discoveries.jsonl
+ M _ops/state/doctor/box-latest.json
+ M _ops/state/doctor/digest-nudge.json
+ M _ops/state/doctor/poller-uniqueness-latest.json
+ M _ops/state/doctor/poller-uniqueness.jsonl
+ M _ops/state/doctor/rfcs.json
+ M _ops/state/doctor/self-accuracy.jsonl
+ M _ops/state/doctor/self-knowledge-latest.json
+ M _ops/state/doctor/self-knowledge.jsonl
+ M _ops/state/doctor/vault-proposals.jsonl
+ M _ops/state/drive/drive-queue.jsonl
+ M _ops/state/drive/drive-state.json
+ M _ops/state/drive/queue-consumed-audit.jsonl
+ M _ops/state/epoch-guard.json
+ M _ops/state/events.archive.jsonl
+ M _ops/state/events.jsonl
+ M _ops/state/fisher-latest.json
+ M _ops/state/fitness-latest.json
+ M _ops/state/fugu-quota.json
+ M _ops/state/heart-wires-last.json
+ M _ops/state/heart-wires-latest.json
+ M _ops/state/idea-graph-latest.json
+ M _ops/state/identities-latest.json
+ M _ops/state/instant-fear.json
+ M _ops/state/journal/research-journal.jsonl
+ M _ops/state/journal/run-journal.jsonl
+ M _ops/state/latent-vectors.json
+ M _ops/state/leg-room-report.json
+ M _ops/state/legs/accounting-inbox/processed/_seen.json
+ M _ops/state/legs/crypto-inbox/processed/_seen.json
+ M _ops/state/legs/cultivation-last.json
+ M _ops/state/legs/cultivation-report.json
+ M _ops/state/legs/invoices/LEAD-20260731-001.json
+ M _ops/state/legs/invoices/inv_seq.json
+ M _ops/state/legs/knowledge-inbox/processed/_seen.json
+ M _ops/state/legs/lead-inbox/processed/_seen.json
+ M _ops/state/legs/lead-naghshi-last-failure.json
+ M _ops/state/legs/lead-pipeline.json
+ M _ops/state/legs/mining-inbox/processed/_seen.json
+ M _ops/state/legs/mining-source-pulse.json
+ M _ops/state/legs/ziman-inbox/processed/_seen.json
+ M _ops/state/legs/ziman-source-pulse.json
+ M _ops/state/live-watchdog-log.txt
+ M _ops/state/loops/incidents.jsonl
+ M _ops/state/loops/telegram-cursor.json
+ M _ops/state/loops/telegram-outbox.jsonl
+ M _ops/state/memory/research-ingest.jsonl
+ M _ops/state/memory/self-loop-ingest.jsonl
+ M _ops/state/miniapp-watchdog-log.txt
+ M _ops/state/needs-nudge.json
+ M _ops/state/neural/effect-shadow.jsonl
+ M _ops/state/neural/pain-assessment.jsonl
+ M _ops/state/neural/recall-trend.jsonl
+ M _ops/state/paid-calls.jsonl
+ M _ops/state/paid-timeout-alerts.jsonl
+ M _ops/state/pulse/arbiter-latest.json
+ M _ops/state/pulse/arbiter-shadow-divergence.jsonl
+ M _ops/state/pulse/arbiter-shadow.jsonl
+ M _ops/state/pulse/beat-parity.json
+ M _ops/state/pulse/beat-state.json
+ M _ops/state/pulse/continuity-last.json
+ M _ops/state/pulse/fourd-health-latest.json
+ M _ops/state/pulse/fuel-stream.jsonl
+ M _ops/state/pulse/heart-card-nudge.json
+ M _ops/state/pulse/heart-card-state.json
+ M _ops/state/pulse/heart-params-shadow.jsonl
+ M _ops/state/pulse/heart-setpoint-latest.json
+ M _ops/state/pulse/heart-shadow-latest.json
+ M _ops/state/pulse/heart-signals-latest.json
+ M _ops/state/pulse/heart-v2-beat-state.json
+ M _ops/state/pulse/heart-v2-latest.json
+ M _ops/state/pulse/heartstate-latest.json
+ M _ops/state/pulse/life-currency-latest.json
+ M _ops/state/pulse/math-control-latest.json
+ M _ops/state/pulse/math-control-observe.jsonl
+ M _ops/state/pulse/memory-context-latest.json
+ M _ops/state/pulse/memory-read-last.json
+ M _ops/state/pulse/memory-read-latest.json
+ M _ops/state/pulse/money-pulse.jsonl
+ M _ops/state/pulse/pending-cards.json
+ M _ops/state/pulse/research-latest.json
+ M _ops/state/pulse/search-latest.json
+ M _ops/state/pulse/telegram-poll.json
+ M _ops/state/pulse/tg-center.json
+ M _ops/state/pulse/tick-timing.jsonl
+ M _ops/state/pulse/velocity-stream.jsonl
+ M _ops/state/pulse/work-health.json
+ M _ops/state/pulse/work-log.jsonl
+ M _ops/state/pulse/work-plan.json
+ M _ops/state/pulse/work-state.json
+ M _ops/state/reach/ledger.jsonl
+ M _ops/state/reach/probes.jsonl
+ M _ops/state/reminders/config.json
+ M _ops/state/replication-latest.json
+ M _ops/state/research/artifacts/05e661df4249f65c40488b74.json
+ M _ops/state/research/artifacts/1371a7ae92a9b63de0fcba1b.json
+ M _ops/state/research/artifacts/1f50c5aa2b10f35d4ec1efdf.json
+ M _ops/state/research/artifacts/4b4552fc751b6c9392b35982.json
+ M _ops/state/research/artifacts/6293213f0e3c3d0312daf1da.json
+ M _ops/state/research/artifacts/79e93dfe6731e5507e2adcb7.json
+ M _ops/state/research/artifacts/921df17ae0a74a4fd80f19e9.json
+ M _ops/state/research/artifacts/cc4cd7d9d38c8367d584e80a.json
+ M _ops/state/research/artifacts/da939c9080462c239cd05b0c.json
+ M _ops/state/research/artifacts/e14852e76d5d1d1e747cce82.json
+ M _ops/state/runner-apply-status.json
+ M _ops/state/school-awareness.json
+ M _ops/state/self-patch/quota/calls.json
+ M _ops/state/self-patch/review-state.json
+ M _ops/state/selfheal-events.jsonl
+ M _ops/state/semantic_memory.jsonl
+ M _ops/state/synapse-trail.jsonl
+ M _ops/state/telegram-pep-shadow.jsonl
+ M _ops/state/telegram/approvals/approvals.jsonl
+ M _ops/state/telegram/center-config.json
+ M _ops/state/telegram/digest-buffer.jsonl
+ M _ops/state/telegram/doctor-link-cursor.json
+ M _ops/state/telegram/event-bridge-cursor.json
+ M _ops/state/telegram/event-bridge-outbox.jsonl
+ M _ops/state/telegram/hold-flush-markers.json
+ M _ops/state/telegram/hold-policy-state.json
+ M _ops/state/telegram/inbound-log.jsonl
+ M _ops/state/telegram/initiative-state.json
+ M _ops/state/telegram/initiative.jsonl
+ M _ops/state/telegram/living-cards.json
+ M _ops/state/telegram/loop/metrics.json
+ M _ops/state/telegram/miniapp-hits.jsonl
+ M _ops/state/telegram/miniapp-tunnel-named-stderr.log
+ M _ops/state/telegram/miniapp-url.json
+ M _ops/state/telegram/notif-inbox.json
+ M _ops/state/telegram/notify-budget.json
+ M _ops/state/telegram/poll-health-incidents.jsonl
+ M _ops/state/telegram/poll-lease.sqlite3
+ M _ops/state/telegram/poll-schedule.sqlite3
+ M _ops/state/telegram/process-identity.json
+ M _ops/state/telegram/process-started.jsonl
+ M _ops/state/telegram/question-budget.json
+ M _ops/state/telegram/question-producers.json
+ M _ops/state/telegram/stall-traceback.txt
+ M _ops/state/telegram/tool-request-state.json
+ M _ops/state/telegram/tool-requests.jsonl
+ M _ops/state/telegram_offset.json
+ M _ops/state/test_cycle/journal.jsonl
+ M _ops/state/test_cycle/memory-consolidated.json
+ M _ops/state/test_cycle/missions.jsonl
+ M _ops/state/test_cycle/prereg.jsonl
+ M _ops/state/test_cycle/state.json
+ M _ops/state/test_cycle/verdicts.jsonl
+ M _ops/state/tg-center-watchdog-log.txt
+ M _ops/state/tg-send-log-prune.json
+ M _ops/state/tg-send-log.jsonl
+ M _ops/state/tg-site-fire.jsonl
+ M _ops/state/thesis/measurements.jsonl
+ M _ops/state/trajectories.jsonl
+ M _ops/state/watchdog-beat-mark.json
+ M _ops/state/watchdog-log.txt
+ M _ops/state/write-failures.jsonl
+ M _ops/tests/test_board_cp.py
+ M docs/NOW.md
+ M nervous-system/.audit_delta.json
+ M nervous-system/audit-data.js
+ M nervous-system/audit-trail-data.js
+ M nervous-system/crypto-data.js
+ M nervous-system/git-data.js
+ M nervous-system/graph-data.js
+ M nervous-system/health-data.js
+ M nervous-system/ideas-data.js
+ M nervous-system/live-data.js
+ M nervous-system/mining-data.js
+ M nervous-system/neural-data.js
+ M nervous-system/ops-data.js
+ M nervous-system/project-data.js
+ M nervous-system/queue-data.js
+ M nervous-system/research-data.js
+ M nervous-system/task-data.js
+ M nervous-system/task-summary-data.js
+ M nervous-system/telegram-commands-data.js
+ M nervous-system/telegram-data.js
+ M nervous-system/watchdog-data.js
+ M octopus-bridge/octopus_bridge/__init__.py
+ M octopus-bridge/octopus_bridge/models.py
+ M state/orphan-watchdog/receipts.jsonl
+?? .agents/
+?? .claudian/
+?? .codex/
+?? .obsidian/community-plugins.json
+?? .obsidian/plugins/
+?? "00 - Inbox/2026-09-01 START-HERE external-agent discovery pointer.md"
+?? "00 - Inbox/2026-09-12 SENTINEL \342\200\224 LAPTOP-BACK 2026-09-12T024627Z.md"
+?? "00 - Inbox/2026-09-12 SENTINEL \342\200\224 LAPTOP-BACK 2026-09-12T060151Z.md"
+?? "00 - Inbox/2026-09-13 SENTINEL \342\200\224 LAPTOP-BACK 2026-09-13T105434Z.md"
+?? "00 - Inbox/2026-09-15 SENTINEL \342\200\224 LAPTOP-BACK 2026-09-15T084837Z.md"
+?? "00 - Inbox/2026-09-15 SENTINEL \342\200\224 LAPTOP-BACK 2026-09-15T110837Z.md"
+?? 00-SEASON/ACK-MEMORY-CANON-180-20260906.json
+?? 00-SEASON/ACK-TEACH-OWNER-VIBE-CODING-180-20260906.json
+?? 00-SEASON/ACTIVE-SEASON-ZIMAN-GOV-V8.md
+?? 00-SEASON/ARM-A3-VERIFY-182-20260906.json
+?? 00-SEASON/ARM-A5-SCOPED-CAPS.json
+?? 00-SEASON/ARM-A6-BC-BACKOFF.json
+?? 00-SEASON/ARM-A7-PRODUCT-MIRROR.json
+?? 00-SEASON/AUTH-SCOPE-NEXT-20260906.json
+?? 00-SEASON/AUTH-SCOPE-NEXT-20260906B.json
+?? 00-SEASON/AUTH-SCOPE-NEXT-ARM-20260906.json
+?? 00-SEASON/BLOCKER-FORENSICS-182-20260906.json
+?? 00-SEASON/DIRECTORY-GBP-VERIFY-PROCESSING-20260906.json
+?? 00-SEASON/DIRECTORY-HOTFROG-CLAIMED-20260906.json
+?? 00-SEASON/DIRECTORY-YP-SUBMITTED-20260906.json
+?? 00-SEASON/GO-BOTH-APPLY-182-20260906T060724Z.json
+?? 00-SEASON/LEARNING-EVENTS-APPEND-20260906.jsonl
+?? 00-SEASON/LIVE-MESH-AUDIT-138-20260906.md
+?? 00-SEASON/OCTOPUS-BUSINESS-WIRING-MAP-20260906.md
+?? 00-SEASON/OCTOPUS-HW-DISCOVERY-01-138-20260908.json
+?? 00-SEASON/OCTOPUS-HW-DISCOVERY-01-138-20260908.md
+?? 00-SEASON/OCTOPUS-HW-DISCOVERY-01-180-20260908.json
+?? 00-SEASON/OCTOPUS-HW-DISCOVERY-01-180-20260908.md
+?? 00-SEASON/OCTOPUS-HW-DISCOVERY-01-182-20260908.json
+?? 00-SEASON/OCTOPUS-HW-DISCOVERY-01-182-20260908.md
+?? 00-SEASON/OCTOPUS-HW-DISCOVERY-01-20260908.json
+?? 00-SEASON/OCTOPUS-HW-DISCOVERY-01-20260908.md
+?? 00-SEASON/OCTOPUS-SELF-DRIVE-20260913/
+?? 00-SEASON/OWNER-GO-ARM-ALL-ALLOWED-20260906.json
+?? 00-SEASON/OWNER-GO-ARM-ALL-ALLOWED-20260906.md
+?? 00-SEASON/OWNER-GO-FIX-SLEEP-CAUSES-20260906.json
+?? 00-SEASON/OWNER-GO-FIX-SLEEP-CAUSES-20260906.md
+?? 00-SEASON/OWNER-GO-INGEST-VIBE-DEEP-TEACH-20260906.json
+?? 00-SEASON/OWNER-GO-PARALLEL-AUTH-STUDIO-HUMAN-20260906.json
+?? 00-SEASON/OWNER-GO-PARALLEL-AUTH-STUDIO-HUMAN-20260906.md
+?? 00-SEASON/OWNER-GO-ZIMAN-INTERNAL-CYCLE-1-20260906.json
+?? 00-SEASON/OWNER-GO-ZIMAN-INTERNAL-CYCLE-1-20260906.md
+?? 00-SEASON/PHASE-A-LAPTOP-OCTOPUS-MAP-20260906.json
+?? 00-SEASON/PHASE-A-LAPTOP-OCTOPUS-MAP-20260906.md
+?? 00-SEASON/PHASE-B-INSTALL-182-20260906.json
+?? 00-SEASON/PHASE-C-ENABLE-182-20260906.json
+?? 00-SEASON/PHASE-C-TRIAGE-182-20260906.json
+?? 00-SEASON/PROMPT-RUNS-20260908/
+?? 00-SEASON/PROMPT-RUNS-20260909/ASSIGNMENT-BOARD.json
+?? 00-SEASON/PROMPT-RUNS-20260909/lead/
+?? 00-SEASON/PROMPT-RUNS-20260909/op0-demat/
+?? 00-SEASON/PROMPT-RUNS-20260909/op1-gap-spine/
+?? 00-SEASON/PROMPT-RUNS-20260909/op2-verify-rewrite/
+?? 00-SEASON/PROMPT-RUNS-20260909/op3-vbaa/
+?? 00-SEASON/PROMPT-RUNS-20260909/op4-pr240/
+?? 00-SEASON/SEASON-ZIMAN-GOV-V8-EXTERNAL-HANDOFF-20260906.json
+?? 00-SEASON/SEASON-ZIMAN-GOV-V8-EXTERNAL-HANDOFF-20260906.md
+?? 00-SEASON/SENSE-DIAGNOSIS-182-20260906.json
+?? 00-SEASON/SLEEP-CAUSES-BUSINESS-LEGS-20260906.md
+?? 00-SEASON/SLEEP-CAUSES-DEEP-B01-B21-20260906.md
+?? 00-SEASON/STUDIO-COLLECTIONS-WIRE-20260906.json
+?? 00-SEASON/STUDIO-CONSENT-RO-DUMP-PACK-20260916.json
+?? 00-SEASON/STUDIO-CONSENT-RO-DUMP-PACK-20260916.md
+?? 00-SEASON/STUDIO-CONSENT-RO-DUMP-PACK-20260916.md.sha256
+?? 00-SEASON/STUDIO-T2-DECISION-20260906.md
+?? 00-SEASON/TEACH-OWNER-VIBE-CODING-20260906.json
+?? 00-SEASON/TEACH-OWNER-VIBE-CODING-20260906.md
+?? 00-SEASON/TEACH-OWNER-VIBE-CODING-DEEP-20260906.json
+?? 00-SEASON/TEACH-OWNER-VIBE-CODING-DEEP-20260906.md
+?? 00-SEASON/TEACH-VIBE-DEEP-ACK-20260906.json
+?? 00-SEASON/TEACH-VIBE-DEEP-LEARNING-EVENTS.jsonl
+?? 00-SEASON/TEACH-VIBE-LEARNING-EVENTS.jsonl
+?? 00-SEASON/U1-IDLE-U2-PREP-20260916.md
+?? 00-SEASON/U1B1-U2-SHOPIFY-RO-PACKET.md
+?? 00-SEASON/ZIMAN-ACQUISITION-GAPS-NOT-WIRED-20260906.md
+?? 00-SEASON/ZIMAN-GOV-V8-CLOSEOUT-20260907.md
+?? 00-SEASON/ZIMAN-GOV-V8-MEMORY-CANON-20260906.json
+?? 00-SEASON/ZIMAN-GOV-V8-MEMORY-CANON-20260906.md
+?? 00-SEASON/ZIMAN-INTERNAL-CYCLE-1-182-VERDICT-20260906.json
+?? 00-SEASON/ZIMAN-INTERNAL-CYCLE-1-TEST-RESULT-20260906.md
+?? 00-SEASON/studio-consent-20260916/
+?? 00-SEASON/ziman-full-repair-20260910/AUDIT-FINDINGS.json
+?? 00-SEASON/ziman-full-repair-20260910/BASELINE-ofn-node-pytest.txt
+?? 00-SEASON/ziman-full-repair-20260910/CYCLE-4-VERIFY.json
+?? 00-SEASON/ziman-full-repair-20260910/GO-B1-CLASSB-LIVE-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/GO-B1-CLASSB-LIVE-APPLY-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/GO-B1-PATH1-WT-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/GO-B2-POLICY-INSERT-RECEIPT-20260913.json
+?? 00-SEASON/ziman-full-repair-20260910/GO-B2-POLICY-INSERT-RECEIPT-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/GO-B3-OWNER-TG-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/GO-W24-BINDER-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/HW-HANDOFF-OWNER-REVIEW-LOCK-20260915/
+?? 00-SEASON/ziman-full-repair-20260910/INCOMPLETE-WIRINGS-20260913.json
+?? 00-SEASON/ziman-full-repair-20260910/INCOMPLETE-WIRINGS-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/LAYER3-TUNNEL-REVIVE-20260913.json
+?? 00-SEASON/ziman-full-repair-20260910/OBSIDIAN-STUCK-DEEP-20260913.json
+?? 00-SEASON/ziman-full-repair-20260910/OBSIDIAN-STUCK-DEEP-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-AUTO-BLOCKERS-20260913.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-AUTO-BLOCKERS-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/FINAL-ACCEPTANCE-20260914.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/OWNER-INBOUND-FIRST-BIND-20260914.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/PRODUCER-RECOVERY-PASS.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/REQUEST-RECOVERY-20260914.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND10-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND11-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND12-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND13-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND14-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND15-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND16-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND17-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND18-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND19-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND2-G8-QUEUE-FORENSIC-v2.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND2-G8-QUEUE-FORENSIC.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND20-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND21-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND22-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND23-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND24-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND25-G28-CODE-STATUS.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND26-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND27-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND28-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND3-G16-CONTRACT-FORENSIC.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND4-ISOLATION-MATRIX-FORENSIC.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND5-G4-ACK-READINESS-FORENSIC.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND6-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND7-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND8-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/ROUND9-CHECKPOINT.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/TELEGRAM-ACK-SEMANTICS-20260914.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/TIME-CORRECTION-20260913.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-COMMANDER-20260913/W24-CHAIN-FORENSIC.json
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-SELF-DRIVE-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/OCTOPUS-SELF-PROGRESS-STALL-RO-20260916.md
+?? 00-SEASON/ziman-full-repair-20260910/ORGANISM-PLACEMENT-SOT-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/OUTREACH-TOP5-STAMP-20260907.copy.json
+?? 00-SEASON/ziman-full-repair-20260910/OWNER-RO-INJECT-20260916/
+?? 00-SEASON/ziman-full-repair-20260910/OWNER-U1-SEND-20260916/
+?? 00-SEASON/ziman-full-repair-20260910/P1-PAINTING-EXTRACT-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/P2-D5-BIS-PUSH-PROOF.txt
+?? 00-SEASON/ziman-full-repair-20260910/P2-D5-PUSH-PROOF.txt
+?? 00-SEASON/ziman-full-repair-20260910/P2-IMPL-HANDOFF.json
+?? 00-SEASON/ziman-full-repair-20260910/P2-IMPL-I1-STATUS-SNAPSHOT.json
+?? 00-SEASON/ziman-full-repair-20260910/P2-IMPL-I6-pytest-ziman-cycle.log
+?? 00-SEASON/ziman-full-repair-20260910/P2-IMPL-I7-G7-DISCOVERY.md
+?? 00-SEASON/ziman-full-repair-20260910/P2-T1-pytest.log
+?? 00-SEASON/ziman-full-repair-20260910/PAINTING-5-APPROVED-CHANNEL-PREP-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/PC-HEALTH-DIAG-20260911-140006.txt
+?? 00-SEASON/ziman-full-repair-20260910/PC-HEALTH-DIAGNOSIS-20260911.json
+?? 00-SEASON/ziman-full-repair-20260910/PHASE-A-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/PHASE1-BASELINE/
+?? 00-SEASON/ziman-full-repair-20260910/PRE_REPAIR_BASELINE.json
+?? 00-SEASON/ziman-full-repair-20260910/READY-FOR-OWNER-SEND-DRAFTS-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/SEC-U1-EMAIL-SEND-RECEIPT-20260916.json
+?? 00-SEASON/ziman-full-repair-20260910/SEC-U1-EMAIL-SEND-RECEIPT-20260916.md
+?? 00-SEASON/ziman-full-repair-20260910/SH10-WHO-FLIPPED-APPROVED-CHANNEL-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/TG-OWNER-REPLY-FORENSIC-20260913.json
+?? 00-SEASON/ziman-full-repair-20260910/TG-OWNER-REPLY-FORENSIC-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/U1-IDLE-U2-PREP-20260916.md
+?? 00-SEASON/ziman-full-repair-20260910/U1-IDLE-U2-PREP-20260916.md.sha256
+?? 00-SEASON/ziman-full-repair-20260910/U2-F1-SAFE-PACKET-20260916/
+?? 00-SEASON/ziman-full-repair-20260910/U2-ZIMAN-DRAFT-PREP-CANDIDATES-20260916.json
+?? 00-SEASON/ziman-full-repair-20260910/U2-ZIMAN-DRAFT-PREP-CANDIDATES-20260916.json.sha256
+?? 00-SEASON/ziman-full-repair-20260910/U2-ZIMAN-PUBLISH-DRAFT-PREP-20260916.md
+?? 00-SEASON/ziman-full-repair-20260910/U2-ZIMAN-PUBLISH-DRAFT-PREP-20260916.md.sha256
+?? 00-SEASON/ziman-full-repair-20260910/WIRING-GAP-CLOSE-20260913/
+?? 00-SEASON/ziman-full-repair-20260910/WIRING-GAP-MAP-20260913.md
+?? 00-SEASON/ziman-full-repair-20260910/_tmp_bind.py
+?? 00-SEASON/ziman-full-repair-20260910/_tmp_units.py
+?? 00-SEASON/ziman-full-repair-20260910/cycle4-dry-run.log
+?? 00-SEASON/ziman-full-repair-20260910/cycle4-verify-cmd.log
+?? 00-SEASON/ziman-full-repair-20260910/fleet-brain/
+?? 00-SEASON/ziman-full-repair-20260910/pytest-ziman-cycle.log
+?? 00-SEASON/ziman-full-repair-20260910/receipts/
+?? 00-SEASON/ziman-internal-cycle-1/
+?? 00-SEASON/ziman-internal-cycle-2/
+?? 00-SEASON/ziman-internal-cycle-3/
+?? 00-SEASON/ziman-internal-cycle-4/
+?? 01-TRUTH/OWNER-RULING-GOV-V7-AGGRESSIVE-IGNITION-2026-09-05.md
+?? 01-TRUTH/SEASON-5-2026-09-04.md
+?? 01-TRUTH/SEASON-5-ADMIN-CHECKLIST-2026-09-04.md
+?? 01-TRUTH/SEASON-5-BOARD-MIRROR.md
+?? 01-TRUTH/TG-UNIFY-TRUTH-20260916.md
+?? 01-TRUTH/ZIMAN-SHIPPING-POLICY-EN-2026-09-04.md
+?? 05-BUSINESSES/Ziman/
+?? 06-EVIDENCE/IGN1-2026-09-05/
+?? 06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-03/
+?? 06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-04/
+?? 06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-08/
+?? 06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-09/
+?? 06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-10/
+?? 06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-11/
+?? 06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-15/
+?? 06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-16/
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ACTIVE-SEASON-ZIMAN-GOV-V8.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ADVANCE-CF1-COMPLETE-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ARM-A5-SCOPED-CAPS.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ARM-A6-BC-BACKOFF.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ARM-A7-PRODUCT-MIRROR.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/AUTH-SCOPE-NEXT-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/AUTH-SCOPE-NEXT-20260906B.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/AUTH-SCOPE-NEXT-ARM-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/BC-BACKOFF-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CHANNEL-RESEARCH-FILLED-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CHANNEL-RESEARCH-FILLED-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CHECKOUT-1-README-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/DAY1-X10-AND-GATES-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/DIRECTORY-GBP-VERIFY-PROCESSING-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/DIRECTORY-HOTFROG-CLAIMED-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/DIRECTORY-PACK-ZIMAN-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/DIRECTORY-PACK-ZIMAN-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/DIRECTORY-YP-SUBMITTED-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ERRATA-AND-UNBLOCK-2026-09-05.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-ACK.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-REVENUE-IGNITION-2026-09-05.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-SIGN-DAY1-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-TEST-RESULTS-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-TEST-halt-flag-20260905.txt
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-TEST-kill-switch-20260905.txt
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-TEST-restore-drill-20260905.txt
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/HARDWARE-LIGHT-RESTORE-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/HTB1-EXEC-REPORT-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/LEARNING-EVENTS-APPEND-20260906.jsonl
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/LIGHT-CALIB-LAPTOP-20260904.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/LIVE-LOOP-AUDIT-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/LIVE-LOOP-AUDIT-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/LIVE-MESH-AUDIT-138-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OCTOPUS-BUSINESS-WIRING-MAP-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DAY1-BUDGET-X10-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DECISION-BUDGET-CONFIRM-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DECISION-BURNABLE-CAPITAL-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DECISION-BURNABLE-CAPITAL-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DECISION-L2-BOOTSTRAP-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DECISION-MONTHLY-BUDGET-AVG-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DECISION-MONTHLY-BUDGET-AVG-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DECISION-WITNESS-W2-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-ARM-ALL-ALLOWED-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-ARM-ALL-ALLOWED-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-CHECKOUT1-AUTONOMOUS-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-CHECKOUT1-AUTONOMOUS-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-FIX-SLEEP-CAUSES-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-FIX-SLEEP-CAUSES-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-FREE-PROMO-TOKENS-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-INGEST-VIBE-DEEP-TEACH-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-PARALLEL-AUTH-STUDIO-HUMAN-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-PARALLEL-AUTH-STUDIO-HUMAN-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-SHELF1-AUTONOMOUS-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-SHELF1-AUTONOMOUS-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-UNLOCK-L1-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-UNLOCK-L1-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-UNLOCK-L2-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-UNLOCK-L2-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-ZIMAN-CF1-START-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-ZIMAN-CF1-START-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-ZIMAN-CHANNEL-RESEARCH-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-ZIMAN-CHANNEL-RESEARCH-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-ZIMAN-INTERNAL-CYCLE-1-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-ZIMAN-INTERNAL-CYCLE-1-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-PROXY-DECISIONS-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-SIGN-PACK/queue/
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-VARIANCE-L1-ACCELERATION-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/PHASE-A-LAPTOP-OCTOPUS-MAP-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/PHASE-A-LAPTOP-OCTOPUS-MAP-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/PREREG-TRAFFIC-1-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/RESTORE-DRILL-1.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/RESTORE-DRILL-138-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEASON-GOV-V8-ZIMAN-DASHBOARD.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEASON-SCORECARD-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEASON-SCORECARD-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEASON-ZIMAN-GOV-V8-EXTERNAL-HANDOFF-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEASON-ZIMAN-GOV-V8-EXTERNAL-HANDOFF-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SHELF-1-ADMIN-PACK-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SHELF1-SUMMARY-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SLEEP-CAUSES-BUSINESS-LEGS-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SLEEP-CAUSES-DEEP-B01-B21-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/STUDIO-POST1-RECEIPT.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/STUDIO-T2-DECISION-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/STUDIO-UNLOCK-RECEIPT-20260905.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-FREE-PROMO-TOKENS-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-OWNER-VIBE-CODING-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-OWNER-VIBE-CODING-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-OWNER-VIBE-CODING-DEEP-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-OWNER-VIBE-CODING-DEEP-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-VIBE-DEEP-LEARNING-EVENTS.jsonl
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-VIBE-LEARNING-EVENTS.jsonl
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-ZIMAN-CUSTOMER-FIND-20260905.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TG-UNIFY-TRUTH-20260916.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ZIMAN-ACQUISITION-GAPS-NOT-WIRED-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ZIMAN-GOV-V8-MEMORY-CANON-20260906.json
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ZIMAN-GOV-V8-MEMORY-CANON-20260906.md
+?? 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ZIMAN-NAP-CANONICAL-20260905.json
+?? 06-EVIDENCE/OCTOPUS-VAULT-MAINT-2026-09-02/
+?? 06-EVIDENCE/TG-UNIFY-OWNER-DOOR-20260916/
+?? 06-EVIDENCE/TRAFFIC1-2026-09-05/
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-06db539e.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-3d56a225.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-4a1805d5.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-51a770ed.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-a7af571b.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-bcf8a424.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-e5e6c32c.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-e8a62581.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-f25421d7.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-f54da13a.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-f6f6a824.md"
+?? "07 - Knowledge/genome-system/knowledge/internal/RFC-fb0a49f1.md"
+?? "07 - Knowledge/\330\264\331\206\330\247\330\256\330\252-\330\247\330\256\330\252\330\247\331\276\331\210\330\263/N3V2-LAB-PARK-20260905T053006Z.md"
+?? "07 - Knowledge/\330\264\331\206\330\247\330\256\330\252-\330\247\330\256\330\252\330\247\331\276\331\210\330\263/N3V2-MATH-CONTINUATION-20260905T043516Z.md"
+?? "07 - Knowledge/\330\264\331\206\330\247\330\256\330\252-\330\247\330\256\330\252\330\247\331\276\331\210\330\263/N3V2-MATH-MULTIOBJECTIVE-20260905T031103Z.md"
+?? "07 - Knowledge/\330\264\331\206\330\247\330\256\330\252-\330\247\330\256\330\252\330\247\331\276\331\210\330\263/SEASON-LOOPS-TELEGRAM-DRYRUN-20260905T060011Z.md"
+?? 07-HANDOFF/A-R0-INSURANCE-WORDING-RECORDED-2026-09-03.md
+?? 07-HANDOFF/B-PULSE-IMAP-SSH-RO-ESCALATION-2026-09-03.md
+?? 07-HANDOFF/C-R0-MP-30690-OWNER-QUESTION-2026-09-03.md
+?? 07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md
+?? 07-HANDOFF/ENGINEERING-ENTRYPOINT-20260907.md
+?? 07-HANDOFF/EX1-CRITERION-AMENDMENT-2026-09-07.md
+?? 07-HANDOFF/EX1-CRITERION-OWNER-QUESTION-2026-09-07.md
+?? 07-HANDOFF/GAP-VERIFY-IDENTITY-STOP-2026-09-08.md
+?? 07-HANDOFF/GO-MIRROR-DRILL-DECISION-2026-09-04.md
+?? 07-HANDOFF/GO-MIRROR-DRILL-OWNER-SLIP-2026-09-04.md
+?? 07-HANDOFF/HANDOFF-WIKILINK-REQUEST-SPINE-CHOICE-2026-09-08.md
+?? 07-HANDOFF/HF-RO-VERIFY-20260902.md
+?? 07-HANDOFF/LANE-TRIAGE-OWNER-CARD-2026-09-05.md
+?? 07-HANDOFF/MEGAPROMPT-CORTEX-CONNECT-ALL-2026-09-10.md
+?? 07-HANDOFF/MEMABL-OBS-PROMPT2-2026-09-08.md
+?? 07-HANDOFF/MEMABL-OBS-SELFCERT-HOOK-2026-09-08.md
+?? 07-HANDOFF/MERGE-MAP.md
+?? 07-HANDOFF/NEXT-AGENT-MEGAPROMPT-2026-09-03-OPEN.md
+?? 07-HANDOFF/OCTOPUS-AGENT-MARKET-MEGAPROTOCOL-2026-09-05.md
+?? 07-HANDOFF/OCTOPUS-STATE-20260905-RECONCILED.md
+?? 07-HANDOFF/OWNER-APPROVALS-2026-09-08.md
+?? 07-HANDOFF/RECON-ANSWERS-20260917.md
+?? 07-HANDOFF/SPINE-CHOICE-MEMO.md
+?? 07-HANDOFF/SPINE-EVENTENVELOPE-PR-BLOCKED-2026-09-08.md
+?? 07-HANDOFF/TWO-ROADMAPS-2026-09-02.md
+?? 07-HANDOFF/U-180-ROLE-LAB-2026-09-05.md
+?? 07-HANDOFF/U-LAYER-GO-PARTIAL-2026-09-05.md
+?? 07-HANDOFF/U-LAYER4-CHANNEL-SELECTION-2026-09-05.md
+?? 07-HANDOFF/U-LAYER4-LIVE-OF-GATE-2026-09-05.md
+?? 07-HANDOFF/U-LAYER4-ONE-GATE-2026-09-05.md
+?? 07-HANDOFF/U-LAYER4-PAID-ADS-GATE-2026-09-05.md
+?? 07-HANDOFF/U-LAYER4-TELEGRAM-GATE-2026-09-05.md
+?? 07-HANDOFF/U-PLAN-EXECUTE-2026-09-05.md
+?? 07-HANDOFF/U-WHY-NOT-LIVE-OWNER-GATE-2026-09-05.md
+?? 07-HANDOFF/UNLOCK-REVIEW-20260908.md
+?? 07-HANDOFF/ZIMAN-PHOTO-INVENTORY-20260903.md
+?? 07-HANDOFF/ZIMAN-SEASON-2026-09-03.md
+?? 09-LANES/A-R0-IDENTITY/
+?? 09-LANES/AIRTASKER-WATCH-20260908/
+?? 09-LANES/AIRTASKER-WIRE-20260908/
+?? 09-LANES/B-PULSE-IMAP/
+?? 09-LANES/BLACKBOX-BRIDGE-20260908/
+?? 09-LANES/C-QUEUE-HYGIENE/
+?? 09-LANES/C2-ACTIVATION-20260908/
+?? 09-LANES/D-S0-HUNT/
+?? 09-LANES/E-ENGINEERING-ENTRYPOINT-20260904/
+?? 09-LANES/G-ATLAS-RELEASE-GATE-20260905/
+?? 09-LANES/H-HANDOFF-RECONCILE-20260905/
+?? 09-LANES/IGN1-IGNITE-20260905/
+?? 09-LANES/L6/GAP-VERIFY-RESULTS-2026-09-08.jsonl
+?? 09-LANES/L7/LANE-REPORT-MEMABL-OBS-PROMPT2.md
+?? 09-LANES/L7/MEMABL-OBS-HASH-MISMATCH-DIAGNOSIS.md
+?? 09-LANES/L7/MEMABL-OBS-HASH-SELFCERT-CRITERION.md
+?? 09-LANES/L7/MEMABL-OBS-HASH-SELFCERT-HOOK.md
+?? 09-LANES/L7/MEMABL-OBS-PREREG-314159.json
+?? 09-LANES/L7/MEMABL-OBS-PROMPT2-RUN-COMMAND.md
+?? 09-LANES/L7/MEMABL-OBS-PROMPT2-STOP-RECEIPT.json
+?? 09-LANES/L7/MEMABL-OBS-THRESHOLDS-LOCKED-314159.json
+?? 09-LANES/L9/LANE-REPORT-SPINE-CHOICE-20260908.md
+?? 09-LANES/LA-SELF-AWARENESS/
+?? 09-LANES/M-MIGRATION-TRANSFER-20260904/
+?? 09-LANES/MP-DEBUG-20260907/
+?? 09-LANES/MP-EX1-CRITERION-20260907/
+?? 09-LANES/MP-OPERATORS-01-20260909/vbaa-check/
+?? 09-LANES/MP-OPERATORS-01-20260909/worktree/
+?? 09-LANES/N-ALIVE-RUNBOOK-20260905/
+?? 09-LANES/N-GO-MIRROR-DRILL-20260904/
+?? 09-LANES/N3V2-LAB-PARK-20260905T053006Z/
+?? 09-LANES/N3V2-MATH-20260905T031103Z/
+?? 09-LANES/N3V2-MATH-CONT-20260905T043516Z/
+?? 09-LANES/OCTOPUS-138-WIRING-20260908/
+?? 09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/
+?? 09-LANES/OCTOPUS-COMMANDER-W24-20260913/
+?? 09-LANES/OCTOPUS-EXECUTOR-SAFETY-20260915/scripts/add_stop_marker_failover.py
+?? 09-LANES/OCTOPUS-EXECUTOR-SAFETY-20260915/scripts/patch_api_budget_failover.py
+?? 09-LANES/OCTOPUS-EXECUTOR-SAFETY-20260915/scripts/provider_failover.py
+?? 09-LANES/OCTOPUS-EXECUTOR-SAFETY-20260915/scripts/test_provider_failover.py
+?? 09-LANES/OCTOPUS-HARDWARE-EXEC-20260915/
+?? 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/
+?? 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/
+?? 09-LANES/OCTOPUS-SELFTEST-20260908/
+?? 09-LANES/OWNER-EXEC-ALL-20260908/
+?? 09-LANES/P-PAINTING-B2B-LEADS-20260905/
+?? 09-LANES/Q-180-DECISION-CRITIQUE-20260904/
+?? 09-LANES/Q-MARKET-COMPARE-20260905/
+?? 09-LANES/Q-QUALITY-SWARM-20260908/
+?? 09-LANES/R-EXEC-DEBUG-20260905/
+?? 09-LANES/S-R-REPORT-REVIEW-20260905/
+?? 09-LANES/SEASON-LOOPS-TELEGRAM-DRYRUN-20260905T060011Z/
+?? 09-LANES/SEC-I1-20260916/
+?? 09-LANES/SEC-STEP-B-PROMOTE-BRIDGE-20260916/
+?? 09-LANES/STUDIO-CONSENT-RO-DUMP-PACK-20260916.json
+?? 09-LANES/STUDIO-CONSENT-RO-DUMP-PACK-20260916.md
+?? 09-LANES/T-LANE-TRIAGE-20260905/
+?? 09-LANES/U-WHY-NOT-LIVE-20260905/
+?? 09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-AUTH-CHECK.json
+?? 09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-CONNECTION-PROPOSAL.md
+?? 09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-EVIDENCE-20260908.json
+?? 09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-EXECUTION-STEP1.json
+?? 09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-EXECUTION-STEP2.json
+?? 09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-INPUT.json
+?? 09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-PUBLICATION.json
+?? 09-LANES/UNLOCK-REVIEW-20260908/OWNER-DECISION-D0-PRIMARY-20260908.json
+?? 09-LANES/UNLOCK-REVIEW-20260908/OWNER-STATE.json
+?? 09-LANES/UNLOCK-REVIEW-20260908/RECEIPT.json
+?? 09-LANES/studio-consent-20260916/
+?? "10 - Telegram processing/Raw/2026-09-13 1517 \330\250\331\201\330\261\330\263\330\252.md"
+?? "10 - Telegram processing/TG-RICH-DIGEST-SELF-REACH-POINTER-20260916.md"
+?? "10 - Telegram processing/TG-UNIFY-TRUTH-20260916.md"
+?? 99-ARCHIVE/archive_AGENTS-pre-GOV-V8-20260905.md
+?? 99-ARCHIVE/archive_BUDGET-json-pre-GOV-V8-20260905.json
+?? 99-ARCHIVE/archive_BUDGET-pre-day1-x10-20260905.json
+?? 99-ARCHIVE/archive_OCTOPUS-flags-pre-GOV-V8-20260905.cmd
+?? 99-ARCHIVE/archive_STOP-ORGANISM-20260905-light-calib
+?? 99-ARCHIVE/archive_budgets-yaml-pre-avg45-20260905.yaml
+?? 99-ARCHIVE/archive_wt-w1-free-20260910/
+?? 99-ARCHIVE/archive_wt-w1-scale-20260910/
+?? 99-ARCHIVE/archive_wt-wt-sense-feeds-forensics-20260906-20260910/
+?? 99-ARCHIVE/archive_wt-wt-unlock-review-20260908-20260910/
+?? "99-ARCHIVE/mirror-cleanup-20260902/00 - Inbox__OCTOPUS-OWNER-BOARD-2026-08-24__CURRENT-TRUTH.md"
+?? "99-ARCHIVE/mirror-cleanup-20260902/01 - Dashboard__OCTOPUS-OWNER-BOARD__CURRENT-TRUTH.md"
+?? 99-ARCHIVE/mirror-cleanup-20260902/01-TRUTH__CURRENT-TRUTH.md
+?? "99-ARCHIVE/mirror-cleanup-20260902/03 - Projects__Lead-\331\206\331\202\330\247\330\264\333\214__06-Board__OCTOPUS-OWNER-BOARD__CURRENT-TRUTH.md"
+?? "99-ARCHIVE/mirror-cleanup-20260902/03 - Projects__Ziman Galerry__06-Board__OCTOPUS-OWNER-BOARD__CURRENT-TRUTH.md"
+?? "99-ARCHIVE/mirror-cleanup-20260902/03 - Projects__\330\247\331\210\331\206\331\204\333\214 \331\201\331\206\330\262__06-Board__OCTOPUS-OWNER-BOARD__CURRENT-TRUTH.md"
+?? 99-ARCHIVE/mirror-cleanup-20260902/06-EVIDENCE__FUGU-BIZ-SPRINT-2026-08-24__OWNER-BOARD__CURRENT-TRUTH.md
+?? 99-ARCHIVE/mirror-cleanup-20260902/06-EVIDENCE__FUGU-BIZ-SPRINT-2026-08-24__cockpit__CURRENT-TRUTH.md
+?? 99-ARCHIVE/mirror-cleanup-20260902/07-HANDOFF__OCTOPUS-OWNER-BOARD-2026-08-24__CURRENT-TRUTH.md
+?? 99-ARCHIVE/mirror-cleanup-20260902/agent-prompts__OCTOPUS-OWNER-BOARD-2026-08-24__CURRENT-TRUTH.md
+?? 99-ARCHIVE/nbb-cp-evidence-20260815/
+?? ACTIVE-SEASON-ZIMAN-GOV-V8.md
+?? ADR-F2-COUNTER-CANONICAL.md
+?? COUNTER-SOURCE-MAP.md
+?? Excalidraw/
+?? IMPORT-BOUNDARY-COLLECT-RECEIPT.md
+?? IMPORT-BOUNDARY-MAP.md
+?? NUL
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-08-31.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-01.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-02.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-03.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-04.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-05.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-06.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-07.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-08.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-09.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-10.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-11.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-12.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-13.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-14.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-15.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-16.md"
+?? "OCTOPUS-DOCTOR/50-\330\247\330\263\332\251\331\206\342\200\214\331\207\330\247/SCAN-2026-09-17.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-1-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-16-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-167-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22785.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-195-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-207-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-209-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-221-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-221-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-225-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-230-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-230-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-236-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-26-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227141.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-261-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227165.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-266-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-277-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227193.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-289-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22779.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-302-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-312-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-350-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-383-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-388-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-39-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22792.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-432-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22792.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-47-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-477-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-492-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227113.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-510-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227201.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-516-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22795.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-522-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22792.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-542-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22785.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-545-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-549-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22791.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-566-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-595-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22786.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-597-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22785.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-598-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227130.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-607-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22792.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-608-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-613-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-616-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-628-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22792.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-63-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22777.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-635-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227216.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-638-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-641-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-654-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22785.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-669-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227155.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-670-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227136.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-68-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-695-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-698-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227107.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-712-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-714-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227155.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-734-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22794.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-74-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227145.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-744-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22777.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-759-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-762-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227123.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-766-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227126.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-77-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22792.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-777-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-778-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-788-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-843-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227216.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-849-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-868-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22779.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-894-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227186.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-898-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227104.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-898-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227202.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-908-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22792.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-925-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227346.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-934-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22785.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-960-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22792.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-962-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-978-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\227119.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-985-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22795.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-ALERT-992-\331\207\330\264\330\257\330\247\330\261\331\220-\330\252\332\251\330\261\330\247\330\261\333\214-\303\22777.md"
+?? "OCTOPUS-DOCTOR/60-\333\214\330\247\331\201\330\252\331\207\342\200\214\331\207\330\247/F-AUTO-BRAKE-\331\202\331\204\330\250-\330\252\330\261\331\205\330\262-\330\256\331\210\330\261\330\257\331\207.md"
+?? "OCTOPUS-DOCTOR/70-\331\206\330\263\330\256\331\207\342\200\214\331\207\330\247/audit-frozen-green.md"
+?? "OCTOPUS-DOCTOR/70-\331\206\330\263\330\256\331\207\342\200\214\331\207\330\247/ign2-pathology-slice-guard.md"
+?? OCTOPUS-DOCTOR/90-_meta/state/ign2-closeout-receipt.json
+?? OCTOPUS-DOCTOR/90-_meta/state/ign3-closeout-receipt.json
+?? OCTOPUS-DOCTOR/90-_meta/state/rollback-ign2-pathology-slice-guard.json
+?? OCTOPUS-DOCTOR/doctor/ign2_driver.py
+?? OCTOPUS-DOCTOR/doctor/ign2_repro_pathology.py
+?? OCTOPUS-DOCTOR/doctor/ign3_memory_probe.py
+?? OCTOPUS-DOCTOR/doctor/studio_post.py
+?? OCTOPUS-DOCTOR/doctor/traffic1-pick-b.json
+?? OCTOPUS-DOCTOR/doctor/traffic1_brain_pick.py
+?? OCTOPUS-DOCTOR/doctor/traffic1_send.py
+?? "Untitled 1.base"
+?? "Untitled 1.canvas"
+?? "Untitled 2.canvas"
+?? Untitled.base
+?? Untitled.canvas
+?? _github-export/
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-08-31.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-01.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-02.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-03.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-04.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-05.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-06.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-07.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-08.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-09.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-10.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-11.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-12.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-13.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-14.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-15.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-16.md
+?? _memory/OCTOPUS/AUTOBIOGRAPHY/2026/2026-09-17.md
+?? _ops/__init__.py
+?? _ops/_ops/
+?? _ops/board_cp/drive_mirror.py
+?? _ops/budget/BUDGET.json
+?? _ops/cortex/pricing_pinned.json.bak-fxpin-20260909
+?? _ops/cortex/pricing_pinned.json.bak-fxpin-20260910
+?? _ops/cortex/pricing_pinned.json.bak-fxpin-20260911
+?? _ops/cortex/pricing_pinned.json.bak-fxpin-20260914
+?? _ops/cortex/pricing_pinned.json.bak-fxpin-20260915
+?? _ops/cortex/pricing_pinned.json.bak-fxpin-20260916
+?? _ops/os_v1/
+?? _ops/state/EXTERNAL_ACTIONS.json
+?? _ops/state/MAY_AUTHORIZE.json
+?? _ops/state/NEW_LAN_LISTENERS.json
+?? _ops/state/content/
+?? _ops/state/cortex-burned-calls-today.json
+?? _ops/state/cortex/connect-calls.jsonl
+?? _ops/state/cortex/connect-daily.json
+?? _ops/state/cortex/digest-summaries.jsonl
+?? _ops/state/domain-tls-poll.sh
+?? _ops/state/drive/store-sync.jsonl
+?? _ops/state/evo-lab-bridge/
+?? _ops/state/external-actions-counter.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-08-31.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-08-31.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-01.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-01.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-02.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-02.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-03.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-03.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-04.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-04.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-05.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-05.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-06.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-06.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-07.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-07.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-08.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-08.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-09.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-09.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-10.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-10.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-11.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-11.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-12.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-12.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-13.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-13.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-14.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-14.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-15.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-15.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-16.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-16.json.result.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-17.json
+?? _ops/state/legs/accounting-inbox/processed/sense-2026-09-17.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-08-31.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-08-31.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-01.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-01.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-02.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-02.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-03.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-03.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-04.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-04.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-05.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-05.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-06.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-06.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-07.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-07.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-08.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-08.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-09.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-09.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-10.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-10.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-11.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-11.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-12.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-12.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-13.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-13.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-14.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-14.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-15.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-15.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-16.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-16.json.result.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-17.json
+?? _ops/state/legs/crypto-inbox/processed/sense-2026-09-17.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-08-31.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-08-31.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-01.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-01.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-02.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-02.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-03.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-03.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-04.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-04.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-05.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-05.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-06.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-06.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-07.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-07.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-08.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-08.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-09.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-09.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-10.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-10.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-11.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-11.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-12.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-12.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-13.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-13.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-14.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-14.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-15.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-15.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-16.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-16.json.result.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-17.json
+?? _ops/state/legs/knowledge-inbox/processed/sense-2026-09-17.json.result.json
+?? _ops/state/legs/lead-inbox/processed/austender-0c70164e77bfda11.json
+?? _ops/state/legs/lead-inbox/processed/austender-0c70164e77bfda11.json.result.json
+?? _ops/state/legs/lead-inbox/processed/austender-2195184151591c69.json
+?? _ops/state/legs/lead-inbox/processed/austender-2195184151591c69.json.result.json
+?? _ops/state/legs/lead-inbox/processed/austender-46fbf78382d2c2a3.json
+?? _ops/state/legs/lead-inbox/processed/austender-46fbf78382d2c2a3.json.result.json
+?? _ops/state/legs/lead-inbox/processed/austender-57e86d6859ca0131.json
+?? _ops/state/legs/lead-inbox/processed/austender-57e86d6859ca0131.json.result.json
+?? _ops/state/legs/lead-inbox/processed/austender-7dd0dd141efa7e11.json
+?? _ops/state/legs/lead-inbox/processed/austender-7dd0dd141efa7e11.json.result.json
+?? _ops/state/legs/lead-inbox/processed/austender-9f1eaf09b1c5c822.json
+?? _ops/state/legs/lead-inbox/processed/austender-9f1eaf09b1c5c822.json.result.json
+?? _ops/state/legs/lead-inbox/processed/austender-a9cc316107b38eda.json
+?? _ops/state/legs/lead-inbox/processed/austender-a9cc316107b38eda.json.result.json
+?? _ops/state/legs/lead-inbox/processed/austender-b92a51a0888b79dc.json
+?? _ops/state/legs/lead-inbox/processed/austender-b92a51a0888b79dc.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-08-31.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-08-31.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-01.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-01.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-02.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-02.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-03.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-03.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-04.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-04.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-05.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-05.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-06.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-06.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-07.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-07.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-08.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-08.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-09.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-09.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-10.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-10.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-11.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-11.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-12.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-12.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-13.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-13.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-14.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-14.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-15.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-15.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-16.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-16.json.result.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-17.json
+?? _ops/state/legs/mining-inbox/processed/sense-2026-09-17.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-08-31.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-08-31.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-01.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-01.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-02.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-02.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-03.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-03.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-04.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-04.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-05.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-05.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-06.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-06.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-07.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-07.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-08.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-08.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-09.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-09.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-10.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-10.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-11.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-11.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-12.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-12.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-13.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-13.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-14.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-14.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-15.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-15.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-16.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-16.json.result.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-17.json
+?? _ops/state/legs/ziman-inbox/processed/sense-2026-09-17.json.result.json
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788299225
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788312738
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788318440
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788320838
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788322057
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788322942
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788325447
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788326364
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788327319
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788327459
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788328575
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788328741
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788329806
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788332049
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788332420
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788332711
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788333025
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788334467
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788339450
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788342053
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788342170
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788344227
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788391023
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788417259
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788426612
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788426732
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788430781
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788432116
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788432143
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788448956
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788450930
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788451125
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788457387
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788460350
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788586027
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788586792
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788587819
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788588294
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788589788
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788593819
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788593845
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788594471
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788605869
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788671927
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788736866
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788737049
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788737268
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788738255
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788738717
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788738733
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788740309
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788741188
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788741696
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788741939
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788742051
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788744437
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788747197
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788757164
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788758209
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788776593
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788827900
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788831450
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788831937
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788848389
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788849074
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788849136
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788863060
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788941203
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788941412
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788942270
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788953983
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1788954750
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789113428
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789173168
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789174147
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789181253
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789189029
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789192515
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789194105
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789194168
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789195611
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789195649
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789197570
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789199151
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789199336
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789200143
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789202202
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789202243
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789207043
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789228145
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789229027
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789242618
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789283877
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789444064
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789445002
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789466717
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789466919
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789468809
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789469601
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789470656
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789470812
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789554624
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789555807
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789556101
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789559070
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789560174
+?? _ops/state/locks/tg-poller-c33098cc078d.lock.stale.1789561042
+?? _ops/state/logs/
+?? _ops/state/pulse/local-llm-failures.jsonl
+?? _ops/state/research/artifacts/13e81c7613da3c7189d7168a.json
+?? _ops/state/research/artifacts/1e14a2258e295de599b665cb.json
+?? _ops/state/research/artifacts/441ca788ade627959e2ce427.json
+?? _ops/state/research/artifacts/44dc9593f2e5b72814dac3df.json
+?? _ops/state/research/artifacts/66571a114bafec2484eb3941.json
+?? _ops/state/research/artifacts/88453871a74f7e77136223ea.json
+?? _ops/state/research/artifacts/977f94aecf61a29034f7639c.json
+?? _ops/state/research/artifacts/9a6444f81afbc4eb0d059bb2.json
+?? _ops/state/research/artifacts/d28c291973e4860f6d0aa93b.json
+?? _ops/state/research/artifacts/d3de1ce009cd3635bad98dd4.json
+?? _ops/state/research/artifacts/eff2eb3111bda243c26b928c.json
+?? _ops/state/research/artifacts/f0ab1632a4f6813b221c7131.json
+?? _ops/state/research/artifacts/fe75c5f9ff7fea197a23e0c2.json
+?? _ops/state/store-watch.json
+?? _ops/state/telegram/approvals/50aa050e608a1ff5.json
+?? _ops/state/telegram/approvals/f436042784eb5270.json
+?? _ops/state/telegram/approvals/up-1292b7e610.json
+?? _ops/state/telegram/approvals/up-3c7058adf5.json
+?? _ops/state/telegram/approvals/up-7a3fd796ff.json
+?? _ops/state/telegram/approvals/up-893b377f8f.json
+?? _ops/state/telegram/dead-letters.jsonl
+?? _ops/state/telegram/event-bridge-pending.jsonl
+?? _ops/state/telegram/loop/events/tg_223883416.json
+?? _ops/state/telegram/loop/events/tg_223883417.json
+?? _ops/state/telegram/loop/events/tg_223883418.json
+?? _ops/state/telegram/loop/events/tg_223883472.json
+?? _ops/state/telegram/loop/events/tg_223883473.json
+?? _ops/state/telegram/loop/events/tg_223883474.json
+?? _ops/state/telegram/loop/events/tg_223883475.json
+?? _ops/state/telegram/loop/events/tg_223883476.json
+?? _ops/state/telegram/loop/events/tg_223883477.json
+?? _ops/state/telegram/loop/events/tg_223883478.json
+?? _ops/state/telegram/loop/events/tg_223883479.json
+?? _ops/state/telegram/loop/events/tg_223883480.json
+?? _ops/state/telegram/loop/events/tg_223883481.json
+?? _ops/state/telegram/loop/events/tg_223883482.json
+?? _ops/state/telegram/loop/events/tg_223883485.json
+?? _ops/state/telegram/loop/events/tg_223883486.json
+?? _ops/state/telegram/loop/events/tg_223883487.json
+?? _ops/state/telegram/loop/events/tg_223883522.json
+?? _ops/state/telegram/loop/events/tg_223883523.json
+?? _ops/state/telegram/loop/events/tg_223883524.json
+?? _ops/state/telegram/loop/events/tg_223883525.json
+?? _ops/state/telegram/loop/events/tg_223883526.json
+?? _ops/state/telegram/loop/events/tg_223883527.json
+?? _ops/state/telegram/loop/events/tg_223883528.json
+?? _ops/state/telegram/loop/events/tg_223883529.json
+?? _ops/state/telegram/loop/events/tg_223883530.json
+?? _ops/state/telegram/loop/events/tg_223883532.json
+?? _ops/state/telegram/loop/events/tg_223883533.json
+?? _ops/state/telegram/loop/outbox/2f5b92ef71aa612a2ae1469cf4b2098cb58d99b0.json
+?? _ops/state/telegram/loop/outbox/5003a4966361b7b3100e879df517e36310564ce3.json
+?? _ops/state/telegram/loop/outbox/a44f04f1dead3ecea4250fb0c03796bdeecc6d16.json
+?? _ops/state/telegram/loop/outbox/evo-11f60a8ccc146493.json
+?? _ops/state/telegram/loop/outbox/evo-191c71506b950fb0.json
+?? _ops/state/telegram/loop/outbox/evo-1e6c2bc28bc67611.json
+?? _ops/state/telegram/loop/outbox/evo-5a7204a0d4e16ac8.json
+?? _ops/state/telegram/loop/outbox/evo-61470ca7d248c0f2.json
+?? _ops/state/telegram/loop/outbox/evo-9bfdd059f9e98f44.json
+?? _ops/state/telegram/loop/outbox/evo-dc8a5cd10b1d5281.json
+?? _ops/state/telegram/loop/outbox/evo-e3bed1e893090a4d.json
+?? _ops/state/telegram/loop/outbox/evo-e3f86411badb7b1e.json
+?? _ops/state/telegram/loop/outbox/evo-e9886f172e3d5b29.json
+?? _ops/state/telegram/loop/outbox/evo-f541aacc5e42f7fa.json
+?? _ops/state/telegram/loop/outbox/evo-f586f25968fe1587.json
+?? _ops/state/telegram/loop/outbox/f57103863d92fd28f16e943c6678311d5fa9ad2b.json
+?? _ops/state/test_cycle/owner_cards/mis_005f14d6000d756898cf.json
+?? _ops/state/test_cycle/owner_cards/mis_01239fe016e8f6ad0e08.json
+?? _ops/state/test_cycle/owner_cards/mis_0196e4a1e8dcfe338333.json
+?? _ops/state/test_cycle/owner_cards/mis_06eb5fb742f2d6d3836d.json
+?? _ops/state/test_cycle/owner_cards/mis_0822ab98d0ead7f8e7e8.json
+?? _ops/state/test_cycle/owner_cards/mis_10f15ab73d82443b2341.json
+?? _ops/state/test_cycle/owner_cards/mis_174acf3bd4f68a5ca1b3.json
+?? _ops/state/test_cycle/owner_cards/mis_24930be26f44ec5c8e8f.json
+?? _ops/state/test_cycle/owner_cards/mis_2b44eeb9965928f4cf0f.json
+?? _ops/state/test_cycle/owner_cards/mis_3d2d1b9292b78e11b831.json
+?? _ops/state/test_cycle/owner_cards/mis_40989d0523df58920b4d.json
+?? _ops/state/test_cycle/owner_cards/mis_47926dc06a443c3eb420.json
+?? _ops/state/test_cycle/owner_cards/mis_4f9af972dabc4e4efaaf.json
+?? _ops/state/test_cycle/owner_cards/mis_50d5f90e79fcd9af197c.json
+?? _ops/state/test_cycle/owner_cards/mis_55cc6e409ebcbc541ea5.json
+?? _ops/state/test_cycle/owner_cards/mis_5c7d520db151e866f4a1.json
+?? _ops/state/test_cycle/owner_cards/mis_6ae0c4362147faebada1.json
+?? _ops/state/test_cycle/owner_cards/mis_74be9e0e4e2ce07baabf.json
+?? _ops/state/test_cycle/owner_cards/mis_825d6c9f89445102755a.json
+?? _ops/state/test_cycle/owner_cards/mis_8cddcd7a3ba9fb5f9eee.json
+?? _ops/state/test_cycle/owner_cards/mis_945c6458cea4832327fb.json
+?? _ops/state/test_cycle/owner_cards/mis_94f5484efc16fa1f50b6.json
+?? _ops/state/test_cycle/owner_cards/mis_9ecef22499e60e3857d5.json
+?? _ops/state/test_cycle/owner_cards/mis_c9ffa4a0aebbe2632ae6.json
+?? _ops/state/test_cycle/owner_cards/mis_d8e62dbb7707f310423a.json
+?? _ops/state/test_cycle/owner_cards/mis_d984fc3ff520af1c3d11.json
+?? _ops/state/test_cycle/owner_cards/mis_dea83e3fa8bcfeecb8d9.json
+?? _ops/state/test_cycle/owner_cards/mis_e1a650c22b4a2389284f.json
+?? _ops/state/test_cycle/owner_cards/mis_e4abc97eeae0d63e0eb9.json
+?? _ops/state/test_cycle/owner_cards/mis_e7ee226f5253d0285598.json
+?? _ops/state/test_cycle/owner_cards/mis_ea1039186a4eb60dce9c.json
+?? _ops/state/test_cycle/owner_cards/mis_ecba9be965cd34ca3884.json
+?? _ops/state/test_cycle/owner_cards/mis_f9206b985b0d88ced253.json
+?? _ops/state/wedge-beat-mark.json
+?? _ops/state/wedge/20260907-220100-pid13576.txt
+?? _ops/state/wedge/directory_crawl.py
+?? _ops/state/wedge/ingest_leads_20260915.py
+?? _ops/state/wedge/ingest_round2.py
+?? _ops/state/wedge/list_products.py
+?? _ops/state/wedge/patch_ab.py
+?? _ops/state/wedge/patch_meter.py
+?? _ops/state/wedge/patch_meter2.py
+?? _ops/state/wedge/patch_revenue_state.py
+?? _ops/state/wedge/photo-add-final.json
+?? _ops/state/wedge/photo-add-plan.json
+?? _ops/state/wedge/photo-batch1.json
+?? _ops/state/wedge/photo_fix.py
+?? _ops/state/wedge/products-now.json
+?? _ops/state/wedge/rba-f11-today.csv
+?? _ops/state/wedge/rba-f111-fetch-20260912.csv
+?? _ops/state/wedge/record_votes.py
+?? _ops/state/wedge/reply_alert.py
+?? _ops/state/wedge/revenue_state_final.py
+?? _ops/state/wedge/send_followups.py
+?? _ops/state/wedge/send_queue_v2.py
+?? _ops/state/wedge/send_queue_v3.py
+?? _ops/state/wedge/store_watch.py
+?? _ops/state/wiki-drift-latest.json
+?? _ops/tests/test_drive_mirror.py
+?? agent-prompts/MEGAPROMPT-ATTENTION-DEBT-2026-09-02.md
+?? debug-11f994.log
+?? debug-b71475.log
+?? debug-df323e.log
+?? debug-eab815.log
+?? debug-f16420.log
+?? docs/octopus-surgery/09-OWNER-ACTION-RUNBOOK.md
+?? docs/octopus-surgery/10-POST-CAMPAIGN-ROADMAP.md
+?? docs/octopus-surgery/11-MERGE-DEPLOY-CHECKLIST.md
+?? docs/octopus-surgery/12-90-PERCENT-GATES.yaml
+?? docs/octopus-surgery/13-OWNER-INBOX.md
+?? docs/octopus-surgery/14-FINAL-CAMPAIGN-REPORT.md
+?? docs/octopus-surgery/15-FAILURE-TRIAGE.csv
+?? docs/octopus-surgery/16-D1-AUDIT-PACKAGE.md
+?? docs/octopus-surgery/17-OWNER-KEY-CEREMONY.md
+?? docs/octopus-surgery/18-SECRET-ROTATION-PLAN.md
+?? docs/octopus-surgery/19-D7-PREREQUISITES.md
+?? docs/octopus-surgery/20-SEASON-2026-0901-RECONCILIATION.md
+?? docs/octopus-surgery/20-STAGING-RUNBOOK.md
+?? docs/octopus-surgery/21-WB-CLUSTER-MAP.md
+?? docs/octopus-surgery/22-DRAWDOWN-EQUIVALENCE.md
+?? docs/octopus-surgery/24-RUNTIME-DIAGNOSTIC-HANDOFF.md
+?? docs/octopus-surgery/ACCOUNTING-CORRECTION-20260831.yaml
+?? docs/octopus-surgery/DOCS-SYNC-INVENTORY.yaml
+?? docs/octopus-surgery/HOST-REGISTRY.yaml
+?? docs/octopus-surgery/L1-LOCATE.yaml
+?? docs/octopus-surgery/OWNER-RATIFY-PR6-20260831T083000Z.json
+?? docs/octopus-surgery/PR11-CLOSE.yaml
+?? docs/octopus-surgery/PROVENANCE.yaml
+?? docs/octopus-surgery/PUBLIC-EXPORT-MANIFEST.yaml
+?? docs/octopus-surgery/PUBLIC-RECONCILIATION.yaml
+?? docs/octopus-surgery/capability-world-fit/
+?? docs/octopus-surgery/ceremony/
+?? docs/octopus-surgery/receipts/ACCEPTANCE-A70200E-CONTEXT-20260901.yaml
+?? docs/octopus-surgery/receipts/ACCEPTANCE-REPRODUCTION-20260901.json
+?? docs/octopus-surgery/receipts/BODY-LOCATE-20260831.yaml
+?? docs/octopus-surgery/receipts/D1-HANDOFF-MANIFEST.txt
+?? docs/octopus-surgery/receipts/D1-SUBMISSION-BUNDLE-20260831.md
+?? docs/octopus-surgery/receipts/DECISIONS.md
+?? docs/octopus-surgery/receipts/DEEP-DEBUG-FINAL-20260901.json
+?? docs/octopus-surgery/receipts/DEPLOY-REQUEST-PACKAGE-20260831.md
+?? docs/octopus-surgery/receipts/EXPORT-A702-DELTA-20260901.json
+?? docs/octopus-surgery/receipts/HERMETIC-FULL-SUITE-20260830T083000Z.sanitized.log
+?? docs/octopus-surgery/receipts/HERMETIC-FULL-SUITE-20260830T092942Z.sanitized.log
+?? docs/octopus-surgery/receipts/HERMETIC-RUNNER-20260830T075600Z.log
+?? docs/octopus-surgery/receipts/IGNITION-20260901.json
+?? docs/octopus-surgery/receipts/IGNITION-ACCEPTED-20260901.json
+?? docs/octopus-surgery/receipts/INTEGRATION-20260830T182000Z.json
+?? docs/octopus-surgery/receipts/LLM-INVENTORY-LAB-GATEWAY-20260830T074618Z.log
+?? docs/octopus-surgery/receipts/OBSERVATION-V1-FOUNDATION-20260830T081800Z.log
+?? docs/octopus-surgery/receipts/OBSERVATORY-PROVENANCE-GAP-20260830T080500Z.json
+?? docs/octopus-surgery/receipts/OWNER-DECISION-BATCH-20260830.json
+?? docs/octopus-surgery/receipts/OWNER-DECISION-BATCH-20260830T131600Z.json
+?? docs/octopus-surgery/receipts/OWNER-FINAL-DECISIONS-20260831T143000Z.json
+?? docs/octopus-surgery/receipts/OWNER-GATE-DECISIONS-20260831T051500Z.json
+?? docs/octopus-surgery/receipts/OWNER-GOVERNANCE-STATUS-20260831.txt
+?? docs/octopus-surgery/receipts/OWNER-GOVERNANCE-STATUS-20260831.txt.sig
+?? docs/octopus-surgery/receipts/OWNER-RATIFY-PR6-20260831T083000Z.json
+?? docs/octopus-surgery/receipts/OWNER-REVIEW-PR9-20260831T103000Z.json
+?? docs/octopus-surgery/receipts/OWNER-REVIEW-PRS-6-7-8-20260830T224000Z.json
+?? docs/octopus-surgery/receipts/POST-MERGE-VERIFICATION-20260831T073000Z.json
+?? docs/octopus-surgery/receipts/S2B-PIECE1-20260901.yaml
+?? docs/octopus-surgery/receipts/S2B-PIECE1-AUDIT-20260901.yaml
+?? docs/octopus-surgery/receipts/S6-D08-SUPERSESSION-20260901.json
+?? docs/octopus-surgery/receipts/S6-D09-D0BLOCKED-CONTEXT-20260901.json
+?? docs/octopus-surgery/receipts/S6-D10-GOVERNANCE-RULES-20260901.json
+?? docs/octopus-surgery/receipts/S6-D11-SURVIVAL-LOOP-FRAME-20260901.json
+?? docs/octopus-surgery/receipts/S6-D13-RULESET-TOGGLE-20260901.json
+?? docs/octopus-surgery/receipts/SECRET-ROTATION-WAIVER-20260831.json
+?? docs/octopus-surgery/receipts/SECRET-ROTATION-WAIVER-20260831.json.sig
+?? docs/octopus-surgery/receipts/SURGERY-HERMETIC-RUNNER-20260830T075700Z.json
+?? docs/octopus-surgery/receipts/SURGERY-LLM-INVENTORY-LAB-GATEWAY-20260830T074700Z.json
+?? docs/octopus-surgery/receipts/SURGERY-OBSERVATION-V1-FOUNDATION-20260830T081900Z.json
+?? docs/octopus-surgery/receipts/WB-CYCLE-2-ROOT-CAUSE-20260831T033000Z.json
+?? docs/octopus-surgery/receipts/WB-CYCLE3-BASELINE-905B41A-20260831T050000Z.json
+?? docs/octopus-surgery/receipts/WB-CYCLE3-SUITE-ACCOUNTING-20260831T060000Z.json
+?? docs/octopus-surgery/receipts/WB-REPRODUCTION-20260831T003000Z.json
+?? docs/octopus-surgery/receipts/WB-ROOT-CAUSE-AND-REPAIR-20260831T020000Z.json
+?? docs/octopus-surgery/receipts/WB-TRUE-FINAL-ACCEPTANCE-20260831T192000Z.json
+?? docs/octopus-surgery/receipts/WEB-FINAL-CAMPAIGN-20260831T130000Z.json
+?? docs/octopus-surgery/receipts/acceptance-20260831-181204/
+?? docs/octopus-surgery/receipts/allowed_signers
+?? docs/octopus-surgery/receipts/host-snapshot-timing-failure.json
+?? docs/octopus-surgery/receipts/octopus_owner.pub
+?? docs/octopus-surgery/receipts/verification-03-hermetic-full-suite.json
+?? docs/octopus-surgery/receipts/verification-public-base-vs-head.json
+?? docs/octopus-surgery/receipts/verification-public-export.json
+?? docs/octopus-surgery/specs/
+?? docs/octopus-surgery/survival-loop/
+?? exports/
+?? octopus-bridge/octopus_bridge/api.py
+?? octopus-bridge/octopus_bridge/approvals.py
+?? octopus-bridge/octopus_bridge/board_cp.py
+?? octopus-bridge/octopus_bridge/config.py
+?? octopus-bridge/octopus_bridge/connector.py
+?? octopus-bridge/octopus_bridge/kill_switch.py
+?? octopus-bridge/octopus_bridge/mcp_server.py
+?? octopus-bridge/octopus_bridge/policy.py
+?? octopus-bridge/octopus_bridge/registry.py
+?? octopus-bridge/octopus_bridge/run.py
+?? octopus-bridge/octopus_bridge/store.py
+?? octopus-bridge/octopus_bridge/telemetry.py
+?? octopus-evidence-archive/chg-e-20260822T120918Z/indexes/event_id.json
+?? research/CONSENT-SQLITE-WIRE-album-unlock-20260822-20260916.md
+?? research/I4-OFN-MARKETING-ENABLE-PATH-REQUEST-20260916.md
+?? research/MAP-VERIFIED-FLIP-album-unlock-20260822-20260916.md
+?? research/OWNER-CONSENT-CONDITIONAL-RESTATE-20260916.md
+?? research/OWNER-CONSENT-FORMS-U3-20260916.md
+?? research/OWNER-CONSENT-GATE-U3-20260916.md
+?? research/OWNER-CONSENT-PENDING-182-WITNESS-20260916.md
+?? research/OWNER-CONSENT-STATUS-AFTER-YES-20260916.md
+?? research/OWNER-CONSENT-STEP1-138-DUMP-20260916.md
+?? research/OWNER-CONSENT-YES-album-unlock-20260822-20260916.md
+?? research/OWNER-RO-DEEP-STUDIO-EVIDENCE-20260916.json
+?? research/OWNER-RO-DEEP-STUDIO-EVIDENCE-20260916.md
+?? research/OWNER-RO-DIR-EVIDENCE-C-20260916.json
+?? research/OWNER-RO-DIR-EVIDENCE-C-20260916.md
+?? research/QA-I4-OFN-MARKETING-APPLY-20260916.NOTE.md
+?? research/SABA-PARTNER-ATTEST-DRAFT-album-unlock-20260822-20260916.md
+?? research/SABA-PARTNER-ATTEST-SIGNED-album-unlock-20260822-20260916.md
+?? research/SEC-I4-OFN-MARKETING-APPLY-RECEIPT-20260916.json
+?? research/SEC-I4-OFN-MARKETING-APPLY-RECEIPT-20260916.md
+?? research/SEC-I4-OFN-MARKETING-EXECUTE-20260916.md
+?? research/SEC-STUDIO-CONSENT-WIRE-APPLY-RECEIPT-20260916.json
+?? research/SEC-STUDIO-CONSENT-WIRE-APPLY-RECEIPT-20260916.md
+?? research/STUDIO-CONSENT-COLLECTION-MAP.md
+?? survival-gateway/
+?? tests/__init__.py
+?? tests/contract/memabl_obs_hash_selfcert.py
+?? tests/contract/test_memabl_obs_preflight_hash_selfcert.py
+?? tools/
+?? witness/

@@ -1,0 +1,265 @@
+﻿path,bytes,git,classification_note
+.env,2817,untracked,secret_risk_path_name_only
+.env.bak-moved-README.txt,284,untracked,secret_risk_path_name_only
+_ops/OCTOPUS.env,291,untracked,secret_risk_path_name_only
+_ops/OCTOPUS.env.baks-moved-README.txt,260,untracked,secret_risk_path_name_only
+_ops/seed_beat.py,2226,tracked,secret_risk_path_name_only
+_ops/token_meter.py,15254,tracked,secret_risk_path_name_only
+_ops/tests/test_cb_token_legmiss.py,14362,tracked,secret_risk_path_name_only
+_ops/tests/test_every_limb_loads_its_credentials.py,11985,tracked,secret_risk_path_name_only
+_ops/tests/test_mail_credentials.py,10836,tracked,secret_risk_path_name_only
+_ops/tests/test_token_meter.py,11161,tracked,secret_risk_path_name_only
+_ops/tests/_flaky/test_cb_token_legmiss.py.txt,1668,untracked,secret_risk_path_name_only
+_ops/tests/_flaky/test_token_meter.py.txt,878,untracked,secret_risk_path_name_only
+_ops/telegram_center/callback_token.py,4210,tracked,secret_risk_path_name_only
+_ops/telegram_center/__pycache__/callback_token.cpython-313.pyc,4644,untracked,secret_risk_path_name_only
+_ops/state/seed/beat-latest.json,249,untracked,secret_risk_path_name_only
+_ops/state/board_cp/tls/cert.pem,1196,untracked,secret_risk_path_name_only
+_ops/state/board_cp/tls/key.pem,1732,untracked,secret_risk_path_name_only
+_ops/seed/canary.py,2649,tracked,secret_risk_path_name_only
+_ops/seed/context_assembler.py,11641,tracked,secret_risk_path_name_only
+_ops/seed/evolution_gate.py,12069,tracked,secret_risk_path_name_only
+_ops/seed/octopus_reader.py,5572,tracked,secret_risk_path_name_only
+_ops/seed/redteam_harness.py,11191,tracked,secret_risk_path_name_only
+_ops/seed/__init__.py,78,tracked,secret_risk_path_name_only
+_ops/secrets/brain.env,328,untracked,secret_risk_path_name_only
+_ops/secrets/ziman-maliheh/README-MOVED-20260907.txt,311,untracked,secret_risk_path_name_only
+_ops/secrets/sakana/.gitignore,22,untracked,secret_risk_path_name_only
+_ops/secrets/sakana/README.md,112,untracked,secret_risk_path_name_only
+_ops/secrets/sakana/sakana.env,229,untracked,secret_risk_path_name_only
+_ops/secrets/onlyfans/.gitignore,30,untracked,secret_risk_path_name_only
+_ops/secrets/onlyfans/HOWTO-FILL.md,219,untracked,secret_risk_path_name_only
+_ops/secrets/onlyfans/README.md,262,untracked,secret_risk_path_name_only
+_ops/secrets/google-ga4/HOWTO-FILL.md,354,untracked,secret_risk_path_name_only
+_ops/secrets/google-ga4/oauth-client.json,472,untracked,secret_risk_path_name_only
+_ops/secrets/google-ga4/README.md,157,untracked,secret_risk_path_name_only
+_ops/secrets/google-ga4/token.json,745,untracked,secret_risk_path_name_only
+_ops/secrets/deepseek/.gitignore,24,untracked,secret_risk_path_name_only
+_ops/secrets/deepseek/deepseek.env,99,untracked,secret_risk_path_name_only
+_ops/secrets/deepseek/README.md,55,untracked,secret_risk_path_name_only
+_ops/owner-signing/octopus-owner-ed25519-public.pem,116,untracked,secret_risk_path_name_only
+_ops/owner-runbook/SIGN-PRE-REG-K9-THREE-SEED-2026-08-20.ps1,1803,tracked,secret_risk_path_name_only
+_ops/outcomes/proposal_token.py,5400,tracked,secret_risk_path_name_only
+_ops/OCTOPUS-FIX-START-CODEX-20260804-200015/03-SECRET-SCAN.md,1478,tracked,secret_risk_path_name_only
+_ops/legs/mail_credentials.py,9279,untracked,secret_risk_path_name_only
+_ops/identity/capability_token.py,10652,tracked,secret_risk_path_name_only
+_build/lead-naghshi-portable/.env,2805,untracked,secret_risk_path_name_only
+_build/lead-naghshi-portable/project/کاریابی/MOVED - 05_راهنمای_API_keys.md,549,untracked,secret_risk_path_name_only
+_archive-binaries/Mining/Robo-data/robots/sentinel/wallet_tracker.py,10150,untracked,secret_risk_path_name_only
+_archive-binaries/Mining/Mining-1/Mining Q/GUI Wallet.lnk,961,untracked,secret_risk_path_name_only
+_archive-binaries/Mining/Mining-1/Mining Q/monero wallet.txt,134,untracked,secret_risk_path_name_only
+_archive-binaries/Mining/Mining-1/Hcash/config.env,2009,untracked,secret_risk_path_name_only
+_archive-binaries/Mining/Mining-1/Hcash/hacash_desktop_offline_wallet_2024_01_23_01_windows64.exe,13674496,untracked,secret_risk_path_name_only
+_archive-binaries/Mining/Ai bots/sentinel/.env.template,1702,untracked,secret_risk_path_name_only
+_archive-binaries/Mining/Ai bots/sentinel/wallet_tracker.py,10264,untracked,secret_risk_path_name_only
+_archive-binaries/Lead-نقاشی/کاریابی/05_راهنمای_API_keys.md,7235,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/local-ai-packaged1/.env,7734,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/AIFarm-book2/fusion-mvp/.env,129,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/AIFarm-book1/fusion-mvp/.env,129,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/AIFarm-book/langar-pro/.env,272,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/AIFarm-book/langar/.env,79,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/AIFarm-book/fusion-mvp/.env,129,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/AI Farm/fusion-mvp/.env,129,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/AI Farm/AI-sume/langar-pro/.env,272,untracked,secret_risk_path_name_only
+_archive-binaries/04 - Architect System/architect/AI Farm/AI-sume/langar/.env,79,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/painting-bot/.env.example,888,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.env,1017,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.env.example,707,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/SECRETS.md,3927,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/tests/test_secrets.py,1191,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/core/secrets.py,2159,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/yaml/tokens.py,2573,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/telegram/_passport/credentials.py,22908,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/pip/_vendor/pygments/token.py,6226,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/pip/_vendor/packaging/_tokenizer.py,5310,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/pip/_vendor/certifi/cacert.pem,290057,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/Cryptodome/SelfTest/Protocol/test_SecretSharing.py,10488,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/Cryptodome/Protocol/SecretSharing.py,9435,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/Cryptodome/Protocol/SecretSharing.pyi,820,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/certifi/cacert.pem,234354,untracked,secret_risk_path_name_only
+_Archive/_launchpad/second-brain-live/control-brain/.venv/Lib/site-packages/argon2/_password_hasher.py,8839,untracked,secret_risk_path_name_only
+_Archive/_code/Ziman Galerry/control-brain/.env.example,707,untracked,secret_risk_path_name_only
+_Archive/_code/Ziman Galerry/control-brain/SECRETS.md,3927,untracked,secret_risk_path_name_only
+_Archive/_code/Ziman Galerry/control-brain/tests/test_secrets.py,1191,untracked,secret_risk_path_name_only
+_Archive/_code/Ziman Galerry/control-brain/core/secrets.py,2159,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/.env.example,297,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/Robo-data/.env.example,989,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/Robo-data/MOVED - .env.md,498,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/Robo-data/robots/sentinel/.env.example,1059,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/Ai bots/sentinel/.env.example,1673,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/Ai bots/sentinel/.env.template,1702,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/Ai bots/sentinel/MOVED - .env.md,535,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/Ai bots/QuantumAlphaBot/.env.example,1588,untracked,secret_risk_path_name_only
+_Archive/_code/Mining/02 - Code/Ai bots/QuantumAlphaBot/MOVED - .env.md,705,untracked,secret_risk_path_name_only
+_Archive/_code/Lead-نقاشی/کاریابی/bot/.env.example,888,untracked,secret_risk_path_name_only
+_Archive/_code/Lead-نقاشی/AiFarm-Lead/infra-control/.env.example,1391,untracked,secret_risk_path_name_only
+_Archive/_code/Lead-نقاشی/AiFarm-Lead/Ai farm- sister Painting/brushline/60_code/.env.example,2476,untracked,secret_risk_path_name_only
+_Archive/_code/Lead-نقاشی/AiFarm-Lead/Ai farm- sister Painting/brushline/60_code/MOVED - .env.md,734,untracked,secret_risk_path_name_only
+_Archive/TELEGRAM-SYSTEM-MAP/E-state-config-tokens.md,26102,untracked,secret_risk_path_name_only
+_Archive/survival-gateway/.env,1669,untracked,secret_risk_path_name_only
+_Archive/survival-gateway/.env.example,1028,untracked,secret_risk_path_name_only
+_Archive/CHRONOS-FABLE-OS/09_Research/lab_seed_data.json,9137,untracked,secret_risk_path_name_only
+_Archive/CHRONOS-FABLE-OS/01_SourceMap/_primaries/from-vault/lab_seed_data.json,9137,untracked,secret_risk_path_name_only
+witness/witness.key,64,untracked,secret_risk_path_name_only
+nervous-system/extract_wallet_data.py,6772,untracked,secret_risk_path_name_only
+nervous-system/wallet-data.js,1569,untracked,secret_risk_path_name_only
+docs/octopus-surgery/18-SECRET-ROTATION-PLAN.md,2321,untracked,secret_risk_path_name_only
+docs/octopus-surgery/survival-loop/state/run-EXP-SEED-AUDIT-001.jsonl,259,untracked,secret_risk_path_name_only
+docs/octopus-surgery/survival-loop/runs/SHADOW-C1-20260901T033003Z/state-evidence/run-EXP-SEED-AUDIT-001.jsonl,259,untracked,secret_risk_path_name_only
+docs/octopus-surgery/receipts/SECRET-ROTATION-WAIVER-20260831.json,1314,untracked,secret_risk_path_name_only
+docs/octopus-surgery/receipts/SECRET-ROTATION-WAIVER-20260831.json.sig,306,untracked,secret_risk_path_name_only
+COUNCIL_REPORTS/2026-08-16-wave-01/A04_authority_attack_auditor/SECRET_HANDLING_MAP.md,2905,tracked,secret_risk_path_name_only
+4d_system/.env,1799,untracked,secret_risk_path_name_only
+4d_system/.env.example,2748,untracked,secret_risk_path_name_only
+4d_system/nbb-cp-kre/.env.example,348,untracked,secret_risk_path_name_only
+4d_system/.test-venv/Lib/site-packages/pygments/token.py,6229,untracked,secret_risk_path_name_only
+4d_system/.test-venv/Lib/site-packages/packaging/_tokenizer.py,5391,untracked,secret_risk_path_name_only
+09-LANES/R2-SECRETS-20260907/LANE-REPORT.md,2137,tracked,secret_risk_path_name_only
+09-LANES/R2-SECRETS-20260907/OWNER-DECISION-ROTATION-WAIVED-20260907.json,1516,tracked,secret_risk_path_name_only
+09-LANES/R2-SECRETS-20260907/R2-RECEIPT.json,2335,tracked,secret_risk_path_name_only
+09-LANES/R2-SECRETS-20260907/ROTATION-RUNBOOK.md,4767,tracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed7/archive.npz,1585457,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed7/history.json,266122,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed7/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed7/operators.json,413,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed7/receipts.jsonl,507983,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed7/run_summary.json,1387,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed23/archive.npz,1587310,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed23/history.json,265778,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed23/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed23/operators.json,413,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed23/receipts.jsonl,507113,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed23/run_summary.json,1387,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed11/archive.npz,1576629,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed11/history.json,266285,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed11/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed11/operators.json,413,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed11/receipts.jsonl,508605,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/random_seed11/run_summary.json,1389,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed7/archive.npz,2334673,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed7/history.json,266928,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed7/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed7/operators.json,415,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed7/receipts.jsonl,859870,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed7/run_summary.json,1388,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed23/archive.npz,2327820,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed23/history.json,266976,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed23/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed23/operators.json,415,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed23/receipts.jsonl,860273,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed23/run_summary.json,1391,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed11/archive.npz,2332702,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed11/history.json,267028,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed11/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed11/operators.json,415,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed11/receipts.jsonl,857415,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/mutation_seed11/run_summary.json,1392,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed7/archive.npz,2337923,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed7/history.json,267401,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed7/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed7/operators.json,436,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed7/receipts.jsonl,1035066,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed7/run_summary.json,1388,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed23/archive.npz,2345271,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed23/history.json,267500,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed23/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed23/operators.json,436,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed23/receipts.jsonl,1035106,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed23/run_summary.json,1388,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed11/archive.npz,2324428,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed11/history.json,267332,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed11/integrity.json,129,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed11/operators.json,437,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed11/receipts.jsonl,1032498,untracked,secret_risk_path_name_only
+09-LANES/QD-LAB-GENERALIZATION-20260908/package/octopus_qd_lab/results/full_seed11/run_summary.json,1389,untracked,secret_risk_path_name_only
+09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/ACCEPTANCE-MATRIX.seed.json,2469,untracked,secret_risk_path_name_only
+09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/SEED-IMPORT-RECEIPT.md,650,tracked,secret_risk_path_name_only
+09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/SEED-SHA.txt,66,tracked,secret_risk_path_name_only
+09-LANES/H9-TESTBATTERY-20260909/chart_coin_balance_seed_quality.png,71190,tracked,secret_risk_path_name_only
+09-LANES/H9-TESTBATTERY-20260909/T3_seed_quality.json,3908,tracked,secret_risk_path_name_only
+09-LANES/API-BUDGET-ACTIVATION-20260913/external-models.env.template,6131,tracked,secret_risk_path_name_only
+07 - Knowledge/شناخت-اختاپوس/34-SEED-AGENT-OWNER-COCKPIT-2026-08-08.md,5546,untracked,secret_risk_path_name_only
+06-EVIDENCE/K9-THREE-SEED-2026-08-20-RUN-OUTPUT.json,3550,tracked,secret_risk_path_name_only
+06-EVIDENCE/SECRET-INVENTORY-REDACTED-2026-08-18.md,5532,tracked,secret_risk_path_name_only
+06-EVIDENCE/OCTOPUS-WAVE-A-2026-08-21/SECRET-SCAN.json,153,tracked,secret_risk_path_name_only
+06-EVIDENCE/OCTOPUS-PRESERVATION-2026-08-21T2138/SECRET-SCAN-RESOLUTION.json,292,tracked,secret_risk_path_name_only
+06-EVIDENCE/OCTOPUS-PRESERVATION-2026-08-21T2138/untracked-source/_ops/owner-runbook/SIGN-PRE-REG-K9-THREE-SEED-2026-08-20.ps1,1803,tracked,secret_risk_path_name_only
+06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-GO-FREE-PROMO-TOKENS-20260905.json,459,untracked,secret_risk_path_name_only
+06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/TEACH-FREE-PROMO-TOKENS-20260905.md,3011,untracked,secret_risk_path_name_only
+06-EVIDENCE/OCTOPUS-ORANGEPI-MQTT-1883-ENABLE-ABD-2026-08-22/FROM-PI/session-mqtt-enable-verify-20260823/octopus.passwd.before,127,tracked,secret_risk_path_name_only
+06-EVIDENCE/K9-THREE-SEED-2026-08-20/README.md,3957,tracked,secret_risk_path_name_only
+06-EVIDENCE/K9-THREE-SEED-2026-08-20/RESULT-A.json,1417,tracked,secret_risk_path_name_only
+06-EVIDENCE/K9-THREE-SEED-2026-08-20/RESULT-B.json,1380,tracked,secret_risk_path_name_only
+06-EVIDENCE/K9-THREE-SEED-2026-08-20/RESULT-C.json,999,tracked,secret_risk_path_name_only
+06-EVIDENCE/K9-THREE-SEED-2026-08-20/SUMMARY.json,3548,tracked,secret_risk_path_name_only
+06-EVIDENCE/GITHUB-AUDIT-20260830/raw/ofn-node/secret-alerts.json,267,untracked,secret_risk_path_name_only
+06-EVIDENCE/GITHUB-AUDIT-20260830/raw/langar/secret-alerts.json,267,untracked,secret_risk_path_name_only
+06-EVIDENCE/GITHUB-AUDIT-20260830/raw/Armin/secret-alerts.json,267,untracked,secret_risk_path_name_only
+06-EVIDENCE/GATE3-SURVIVAL-20260819/stat20-seed42.json,208,untracked,secret_risk_path_name_only
+06-EVIDENCE/CL01-191-20260818-2233/live4/DEEPSEEK-CREDENTIAL-HYGIENE-TEST.md,2933,tracked,secret_risk_path_name_only
+04 - Architect System/learning-engine/app/.env.example,539,untracked,secret_risk_path_name_only
+03 - Projects/WLOS - Weight Loss OS/wlos/prisma/seed.ts,4879,untracked,secret_risk_path_name_only
+03 - Projects/NBB-Control-Plane/.env.example,1130,untracked,secret_risk_path_name_only
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/MOVED - config.env.md,945,untracked,secret_risk_path_name_only
+03 - Projects/Mining/02 - Code/Ai bots/QuantumAlphaBot/.env,469,untracked,secret_risk_path_name_only
+03 - Projects/Lead-نقاشی/کاریابی/MOVED - 05_راهنمای_API_keys.md,549,untracked,secret_risk_path_name_only
+03 - Projects/Lead-نقاشی/AiFarm-Lead/infra-control/.env.example,1391,untracked,secret_risk_path_name_only
+03 - Projects/Lead-نقاشی/AiFarm-Lead/Ai farm- sister Painting/brushline/60_code/.env.example,2433,untracked,secret_risk_path_name_only
+02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20.json,673,tracked,secret_risk_path_name_only
+02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20.md,6205,tracked,secret_risk_path_name_only
+00-SEASON/PROMPT-RUNS-20260909/op1-gap-spine/SEED-STATUS-V3.md,404,untracked,secret_risk_path_name_only
+00-SEASON/PROMPT-RUNS-20260909/op1-gap-spine/SEED-VS-CANONICAL-DIFF.json,3526,untracked,secret_risk_path_name_only
+00-SEASON/PROMPT-RUNS-20260908/gap-spine/GAP-LEDGER-SEED.json,735,untracked,secret_risk_path_name_only
+00-SEASON/PROMPT-RUNS-20260908/gap-spine/SEED-RECEIPT.md,1113,untracked,secret_risk_path_name_only
+00 - Inbox/_scratch-hardtest/s2/tcb-copy/owner-signing/octopus-owner-ed25519-public.pem,116,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/.agentignore,1156,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/CLAUDE.md,1832,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/ROTATION_CHECKLIST.md,800,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_PROJECT_INSTRUCTIONS.md,11387,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_Templates/agent.md,477,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_Templates/handoff.md,504,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_Templates/knowledge.md,470,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_Templates/log.md,446,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_Templates/person.md,510,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_Templates/project.md,741,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_memory/EXPERIENCE-LEDGER.md,369,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_memory/HEARTBEAT.md,356,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_Duplicates/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/_Archive/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/10 - Telegram processing/ROUTING.md,239,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/10 - Telegram processing/SOP.md,797,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/10 - Telegram processing/Raw/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/09 - People/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/08 - Assets/Photos/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/07 - Knowledge/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/06 - Architecture Maps/ECOSYSTEM.md,893,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/06 - Architecture Maps/Property Schema.md,5111,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/06 - Architecture Maps/SYSTEM_MAP.md,1118,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/05 - Agents/AGENT_REGISTRY.md,1337,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/05 - Agents/RATIFIED-TASKS.md,620,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/scripts/find_broken_links.py,1988,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/scripts/gitleaks.toml,1352,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/scripts/README.md,1795,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/scripts/validate_frontmatter.py,5015,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/_meta/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/04-Docs/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/03-Exports/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/02-Research/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/01-Project/BACKLOG.md,291,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/01-Project/CHANGELOG.md,164,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/01-Project/DECISIONS.md,299,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/01-Project/GAPS.md,247,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v1.md,1332,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/03 - Projects/_Index - Projects.md,182,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/02 - Life OS/Weekly Review.md,393,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/01 - Dashboard/Brain.md,345,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/01 - Dashboard/HANDOFF.md,389,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/01 - Dashboard/Home.md,557,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/00 - Inbox/AGENT_QUESTIONS.md,328,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/00 - Inbox/scout-digests/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/00 - Inbox/build-proposals/.gitkeep,0,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/.claude/settings.json,600,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/.claude/rules/architect.md,588,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/.claude/rules/projects.md,1322,untracked,secret_risk_path_name_only
+00 - Inbox/replication-kit/seed/.claude/rules/telegram.md,1072,untracked,secret_risk_path_name_only
+.cursor/hooks/deny_secret_read.py,623,tracked,secret_risk_path_name_only
