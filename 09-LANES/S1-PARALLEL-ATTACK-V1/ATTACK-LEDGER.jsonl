@@ -1,0 +1,17 @@
+{"pulse":"t0","utc":"2026-09-17T08:10:00Z","mission":"S1-PARALLEL-ATTACK-V1","gov":"V8","ladder":"L2","mode":"FAST-PARALLEL-TEHALJMI","spec_note":"pulse cadence stated twice in charter (15min header vs 30min body) - recording both, target 15min; OWNER_DECISION items centralized in this ledger"}
+{"lane":"L-A","state":"RUNNING","lock":"mirror-receiver-182","receipt":"pending","next_action":"read push.sh+receiver, design v2 hardening","owner_blocker":false}
+{"lane":"L-B","state":"RUNNING","lock":"sensorium-probe","receipt":"pending","next_action":"launch read-only telemetry collector on 182","owner_blocker":false}
+{"lane":"L-C","state":"RUNNING","lock":"journal-forensics-182","receipt":"pending","next_action":"read verify_sensorium.py + journal format, freeze dataset","owner_blocker":false}
+{"lane":"L-D","state":"RUNNING","lock":"witness-02a-window","receipt":"pending","next_action":"verify existing frozen-window automation t0=07:18Z, deploy 4 witnesses detached","owner_blocker":false}
+{"lane":"L-E","state":"RUNNING","lock":"swap-preflight-138","receipt":"pending","next_action":"swappiness/findmnt/versions probes then receipt","owner_blocker":false}
+{"lane":"L-F","state":"RUNNING","lock":"prune-archive","receipt":"pending","next_action":"survey duplicate artifacts, manifest moves only","owner_blocker":false}
+{"lane":"L-G","state":"RUNNING","lock":"mirror-schema","receipt":"pending","next_action":"MIRROR-RECEIPT-SCHEMA-V1 doc + receiver enforcement","owner_blocker":false}
+{"lane":"L-H","state":"RUNNING","lock":"attack-ledger","receipt":"this-file","next_action":"pulse every 15min target","owner_blocker":false}
+{"pulse":"close","utc":"2026-09-17T08:40:00Z","lane":"L-A","state":"DONE","lock":"mirror-receiver-182","receipt":"S1PA-20260917T081400Z-fcb37aee6845 / MIRROR-HARDENED-P1","next_action":"none (patches for 02B/02C staged separately)","owner_blocker":false}
+{"pulse":"close","utc":"2026-09-17T08:40:00Z","lane":"L-B","state":"DONE","receipt":"S1-GAP-02B-PROFILED","next_action":"patch adoption needs restart window","owner_blocker":false}
+{"pulse":"close","utc":"2026-09-17T08:40:00Z","lane":"L-C","state":"DONE","receipt":"S1-GAP-02C-FIRST-DIVERGENCE (099, 3021357..3054411, unjournaled transition app.py:784)","next_action":"fix patch staged, not deployed","owner_blocker":false}
+{"pulse":"close","utc":"2026-09-17T08:40:00Z","lane":"L-D","state":"RUNNING","receipt":"W1 live PID762748; W2/W3 6/6; W4 static PASS","next_action":"verdict 2026-09-18T08:28Z","owner_blocker":false}
+{"pulse":"close","utc":"2026-09-17T08:40:00Z","lane":"L-E","state":"DONE","receipt":"SWAP-138-PREFLIGHTED-FB","next_action":"drill needs owner GO (pre-existing)","owner_blocker":false}
+{"pulse":"close","utc":"2026-09-17T08:40:00Z","lane":"L-F","state":"DONE","receipt":"ARCHIVE-HEALED-P1 (survey, zero moves)","next_action":"none","owner_blocker":false}
+{"pulse":"close","utc":"2026-09-17T08:40:00Z","lane":"L-G","state":"DONE","receipt":"MIRROR-RECEIPT-SCHEMA-V1","next_action":"none","owner_blocker":false}
+{"pulse":"close","utc":"2026-09-17T08:40:00Z","owner_decisions_open":["swap drill GO (pre-existing)","OPTIONAL prod-signed fixture ceremony"],"note":"no new blocking owner decisions"}

@@ -1,0 +1,372 @@
+#!/usr/bin/env python3
+"""OCTOPUS mirror-138 receiver on node 182 (witness). Push-based, append-only.
+
+v2 — S1-PARALLEL-ATTACK-V1 lane L-A (MIRROR-HARDENED-P1), 2026-09-17.
+
+Receipt policy (owner verdict 2026-09-17) UNCHANGED from v1: this receiver may
+claim RECEIVED and HASH-MATCH only. It must NOT claim REPLAY-VALID while
+S1-GAP-02C (G13 replay divergence) is open.
+
+v2 hardening over v1:
+- signed manifest.json (schema octopus-mirror-manifest.v1) replaces manifest.sha256:
+  identity, namespace, timestamp, sender node identity, epoch, sequence,
+  prev-manifest hash, scope hash, files_count, policy version+digest INSIDE the
+  signed body (see MIRROR-RECEIPT-SCHEMA-V1.md).
+- duplicate manifest (byte-identical re-push) -> explicit REJECT (never silent no-op,
+  never duplicate accept).
+- duplicate path inside one manifest -> REJECT.
+- monotonic sequence + prev-hash chain enforced against state/ledger.json.
+- file-set equality: every regular file under payload/ must be in the manifest and
+  vice versa (v1 ignored unlisted extra files).
+- symlink / special (device, FIFO) / non-regular / traversal / absolute /
+  non-allowlisted / wrong extension class -> REJECT.
+- caps: file count, per-file bytes, total bytes.
+- freshness bound on sent_at_utc (max age / max future skew).
+- failures QUARANTINED (move-only) under quarantine/, capped; never deleted here.
+- NO bridge to replay/verify: nothing imports or invokes any sensorium/replay path
+  (static guarantee; checked by the lane test suite).
+
+Env overrides (TESTS ONLY; prod defaults are the constants):
+  OCTOPUS_MIRROR_HOME, OCTOPUS_MIRROR_MAX_FILE, OCTOPUS_MIRROR_MAX_TOTAL,
+  OCTOPUS_MIRROR_MAX_FILES, OCTOPUS_MIRROR_MAX_AGE_S, OCTOPUS_MIRROR_MAX_FUTURE_S.
+"""
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+BASE = Path(os.environ.get("OCTOPUS_MIRROR_HOME", "/var/lib/mirror-138"))
+ALLOWED_SIGNERS = BASE / "trusted" / "allowed_signers"
+NAMESPACE = "octopus-mirror-manifest"
+PRINCIPAL = "mirror-138"
+SCHEMA = "octopus-mirror-manifest.v1"
+
+# Canonical policy spec — byte-identical constant lives in push2.sh on 138.
+POLICY_SPEC_JSON = (
+    '{"allow":["api-budget/budget-ledger.jsonl","api-budget/config/<name>.json",'
+    '"api-budget/config/<name>.jsonl","revenue-drive/season-meter.json"],'
+    '"max_age_seconds":172800,"max_file_bytes":52428800,"max_files":64,'
+    '"max_future_skew_seconds":900,"max_total_bytes":209715200,'
+    '"mirror_id":"S1-MONEY-138-182","namespace":"octopus-mirror-manifest",'
+    '"policy_version":"mirror-policy-v2-20260917","quarantine_cap_entries":100,'
+    '"receipt_policy":"RECEIVED+HASH-MATCH ONLY; REPLAY-VALID NOT CLAIMED (S1-GAP-02C)",'
+    '"replay_bridge":"FORBIDDEN"}'
+)
+POLICY_SHA = hashlib.sha256(POLICY_SPEC_JSON.encode()).hexdigest()
+
+MAX_FILE = int(os.environ.get("OCTOPUS_MIRROR_MAX_FILE", 50 * 1024 * 1024))
+MAX_TOTAL = int(os.environ.get("OCTOPUS_MIRROR_MAX_TOTAL", 200 * 1024 * 1024))
+MAX_FILES = int(os.environ.get("OCTOPUS_MIRROR_MAX_FILES", 64))
+MAX_AGE_S = int(os.environ.get("OCTOPUS_MIRROR_MAX_AGE_S", 172800))
+MAX_FUTURE_S = int(os.environ.get("OCTOPUS_MIRROR_MAX_FUTURE_S", 900))
+QUARANTINE_CAP = 100
+
+ALLOW_PATTERNS = [
+    re.compile(r"^api-budget/budget-ledger\.jsonl$"),
+    re.compile(r"^api-budget/config/[^/]+\.jsonl?$"),
+    re.compile(r"^revenue-drive/season-meter\.json$"),
+]
+HEX64 = re.compile(r"^[0-9a-f]{64}$")
+
+_STAGE = None
+_BUNDLE = None
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _slug(reason: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", reason.lower()).strip("-")[:40] or "reject"
+
+
+def _rotate_quarantine() -> None:
+    qroot = BASE / "quarantine"
+    archive = BASE / "quarantine-archive"
+    if not qroot.is_dir():
+        return
+    entries = sorted(p for p in qroot.iterdir() if p.is_dir())
+    while len(entries) > QUARANTINE_CAP:
+        oldest = entries.pop(0)
+        archive.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(oldest), str(archive / oldest.name))
+
+
+def fail(reason: str) -> None:
+    qpath = None
+    if _BUNDLE is not None and _BUNDLE.is_dir():
+        try:
+            stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            qroot = BASE / "quarantine"
+            qroot.mkdir(parents=True, exist_ok=True)
+            qpath = qroot / ("{}-{}".format(stamp, _slug(reason)))
+            shutil.move(str(_BUNDLE), str(qpath))
+            (qpath / "QUARANTINE.json").write_text(json.dumps({
+                "reason": reason, "quarantined_at_utc": _now(),
+                "policy_version": "mirror-policy-v2-20260917",
+            }, indent=2) + "\n", encoding="utf-8")
+            _rotate_quarantine()
+        except OSError:
+            qpath = None
+    if _STAGE is not None:
+        shutil.rmtree(str(_STAGE), ignore_errors=True)
+    out = {"status": "REJECTED", "reason": reason, "received_at_utc": _now(),
+           "mirror_version": "v2"}
+    if qpath is not None:
+        out["quarantined_to"] = str(qpath)
+    print(json.dumps(out))
+    sys.exit(1)
+
+
+def _load_ledger() -> dict:
+    p = BASE / "state" / "ledger.json"
+    if not p.is_file():
+        return {"epoch": 1, "sequence": 0, "last_manifest_sha256": "GENESIS",
+                "last_scope_sha256": None}
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+        return {"epoch": int(d["epoch"]), "sequence": int(d["sequence"]),
+                "last_manifest_sha256": str(d["last_manifest_sha256"]),
+                "last_scope_sha256": d.get("last_scope_sha256")}
+    except Exception:
+        # unreadable ledger = fail-closed: reject everything until healed manually
+        return {"epoch": -1, "sequence": -1, "last_manifest_sha256": "UNREADABLE",
+                "last_scope_sha256": None}
+
+
+def _save_ledger(entry: dict) -> None:
+    sdir = BASE / "state"
+    sdir.mkdir(parents=True, exist_ok=True)
+    tmp = sdir / "ledger.json.tmp"
+    payload = {"epoch": entry["epoch"], "sequence": entry["sequence"],
+               "last_manifest_sha256": entry["last_manifest_sha256"],
+               "last_scope_sha256": entry.get("last_scope_sha256"),
+               "last_manifest_files": entry.get("files_count"),
+               "updated_at_utc": _now()}
+    with open(tmp, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(payload, indent=2) + "\n")
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.replace(str(tmp), str(sdir / "ledger.json"))
+    fd = os.open(str(sdir), os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def main() -> None:
+    global _STAGE, _BUNDLE
+    stage_root = BASE / "staging"
+    stage_root.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix="stage-", dir=str(stage_root)))
+    _STAGE = stage
+    bundle = stage / "bundle"
+    bundle.mkdir()
+    _BUNDLE = bundle
+
+    rc = subprocess.call(["tar", "--no-same-owner", "--no-same-permissions",
+                          "-xf", "-", "-C", str(bundle)], stdin=sys.stdin.buffer)
+    if rc != 0:
+        _BUNDLE = None  # nothing extracted worth keeping
+        fail("tar_extract_failed")
+
+    expected_top = {"manifest.json", "manifest.json.sig", "payload"}
+    actual_top = {p.name for p in bundle.iterdir()}
+    if not expected_top.issubset(actual_top):
+        fail("bundle_shape_invalid:" + ",".join(sorted(actual_top)))
+    extra_top = actual_top - expected_top
+    if extra_top:
+        fail("unexpected_top_level:" + ",".join(sorted(extra_top)))
+
+    for p in bundle.rglob("*"):
+        if p.is_symlink():
+            fail("symlink_rejected:" + p.name)
+        if not (p.is_dir() or p.is_file()):
+            fail("special_file_rejected:" + p.name)
+
+    manifest_p = bundle / "manifest.json"
+    sig_p = bundle / "manifest.json.sig"
+    payload = bundle / "payload"
+    manifest_bytes = manifest_p.read_bytes()
+
+    # OpenSSH 10 contract: -Y verify reads the signed message from STDIN.
+    v = subprocess.run(
+        ["ssh-keygen", "-Y", "verify", "-f", str(ALLOWED_SIGNERS), "-I", PRINCIPAL,
+         "-n", NAMESPACE, "-s", str(sig_p)],
+        input=manifest_bytes, capture_output=True)
+    if v.returncode != 0:
+        fail("manifest_signature_invalid:" + v.stderr.decode(errors="replace")[:200].strip())
+
+    try:
+        m = json.loads(manifest_bytes.decode("utf-8"))
+    except Exception:
+        fail("manifest_not_json")
+    required = ["schema", "mirror_id", "namespace", "epoch", "sequence",
+                "prev_manifest_sha256", "sent_at_utc", "sender", "scope_sha256",
+                "files_count", "policy_version", "policy_sha256", "files"]
+    missing = [k for k in required if k not in m]
+    if missing:
+        fail("manifest_fields_missing:" + ",".join(missing))
+    if m["schema"] != SCHEMA:
+        fail("schema_mismatch:" + str(m["schema"])[:60])
+    if m["mirror_id"] != "S1-MONEY-138-182":
+        fail("mirror_id_mismatch:" + str(m["mirror_id"])[:60])
+    if m["namespace"] != NAMESPACE:
+        fail("namespace_mismatch")
+    if m["sender"] != "node-138":
+        fail("sender_identity_mismatch:" + str(m["sender"])[:60])
+    if m["policy_version"] != "mirror-policy-v2-20260917":
+        fail("policy_version_mismatch:" + str(m["policy_version"])[:60])
+    if m["policy_sha256"] != POLICY_SHA:
+        fail("policy_digest_mismatch")
+    if not isinstance(m["epoch"], int) or m["epoch"] < 1:
+        fail("epoch_invalid")
+    if not isinstance(m["sequence"], int) or m["sequence"] < 1:
+        fail("sequence_invalid")
+    prev = m["prev_manifest_sha256"]
+    if prev != "GENESIS" and not HEX64.match(str(prev)):
+        fail("prev_manifest_sha256_malformed")
+
+    # freshness bound (receiver clock)
+    try:
+        sent = datetime.fromisoformat(str(m["sent_at_utc"]).replace("Z", "+00:00"))
+        nowd = datetime.now(timezone.utc)
+        age = (nowd - sent).total_seconds()
+    except Exception:
+        fail("sent_at_utc_malformed")
+    if age > MAX_AGE_S:
+        fail("stale_manifest:%.0fs" % age)
+    if -age > MAX_FUTURE_S:
+        fail("future_manifest:%.0fs" % -age)
+
+    files = m["files"]
+    if not isinstance(files, list) or not files:
+        fail("files_list_empty")
+    if len(files) > MAX_FILES:
+        fail("count_cap_exceeded:%d" % len(files))
+    seen = set()
+    total = 0
+    for fentry in files:
+        try:
+            rel, dig, nbytes = fentry["path"], fentry["sha256"], int(fentry["bytes"])
+        except Exception:
+            fail("files_entry_malformed")
+        if rel in seen:
+            fail("duplicate_manifest_entry:" + rel)
+        seen.add(rel)
+        if rel.startswith("/") or ".." in rel.split("/"):
+            fail("path_not_allowlisted:" + rel[:80])
+        if not any(p.match(rel) for p in ALLOW_PATTERNS):
+            fail("path_not_allowlisted:" + rel[:80])
+        if not (rel.endswith(".json") or rel.endswith(".jsonl")):
+            fail("extension_class_rejected:" + rel[:80])
+        if not HEX64.match(str(dig)):
+            fail("entry_sha256_malformed:" + rel[:60])
+        if nbytes < 0 or nbytes > MAX_FILE:
+            fail("size_cap_exceeded:" + rel[:60])
+        total += nbytes
+    if total > MAX_TOTAL:
+        fail("total_cap_exceeded:%d" % total)
+    if m["files_count"] != len(files):
+        fail("files_count_mismatch")
+
+    # file-set equality payload/ <-> manifest
+    on_disk = set()
+    for p in payload.rglob("*"):
+        if p.is_file():
+            on_disk.add(str(p.relative_to(payload)))
+    extra = on_disk - seen
+    if extra:
+        fail("file_not_in_manifest:" + ",".join(sorted(extra))[:120])
+    absent = seen - on_disk
+    if absent:
+        fail("file_missing:" + ",".join(sorted(absent))[:120])
+
+    for fentry in files:
+        rel, dig, nbytes = fentry["path"], fentry["sha256"], int(fentry["bytes"])
+        f = payload / rel
+        st = f.stat()
+        if st.st_size != nbytes:
+            fail("size_mismatch:" + rel[:60])
+        if st.st_size > MAX_FILE:
+            fail("size_cap_exceeded:" + rel[:60])
+        h = hashlib.sha256(f.read_bytes()).hexdigest()
+        if h != dig:
+            fail("hash_mismatch:" + rel[:60])
+
+    canonical = "".join("{} {}\n".format(f["path"], f["sha256"])
+                        for f in sorted(files, key=lambda x: x["path"]))
+    if hashlib.sha256(canonical.encode()).hexdigest() != m["scope_sha256"]:
+        fail("scope_mismatch")
+
+    manifest_sha = hashlib.sha256(manifest_bytes).hexdigest()
+    ledger = _load_ledger()
+    if ledger["epoch"] == -1:
+        fail("receiver_ledger_unreadable")
+    if m["epoch"] != ledger["epoch"]:
+        fail("epoch_mismatch:manifest=%d ledger=%d" % (m["epoch"], ledger["epoch"]))
+    if manifest_sha == ledger["last_manifest_sha256"]:
+        fail("duplicate_manifest:%s" % manifest_sha[:16])
+    if ledger.get("last_scope_sha256") and m["scope_sha256"] == ledger["last_scope_sha256"]:
+        # same data re-pushed under a fresh manifest (new timestamp) -> explicit
+        # duplicate rejection, never a silent no-op (lane L-G order)
+        fail("duplicate_manifest_scope:%s" % m["scope_sha256"][:16])
+    if m["sequence"] < ledger["sequence"] + 1:
+        fail("sequence_stale:manifest=%d ledger=%d" % (m["sequence"], ledger["sequence"]))
+    if m["sequence"] > ledger["sequence"] + 1:
+        fail("sequence_gap:manifest=%d ledger=%d" % (m["sequence"], ledger["sequence"]))
+    if str(prev) != str(ledger["last_manifest_sha256"]):
+        fail("prev_hash_mismatch")
+
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    target = BASE / "incoming" / "{}-e{}s{}".format(stamp, m["epoch"], m["sequence"])
+    if target.exists():
+        fail("target_exists_push_duplicate")
+    incoming = BASE / "incoming"
+    incoming.mkdir(parents=True, exist_ok=True)
+    os.rename(str(bundle), str(target))
+    fd = os.open(str(incoming), os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+    receipt = {
+        "status": "RECEIVED+HASH-MATCH",
+        "witness_claim": "HASH-MATCH ONLY; REPLAY-VALID NOT CLAIMED (S1-GAP-02C open: G13 replay divergence)",
+        "received_at_utc": _now(),
+        "mirror_version": "v2",
+        "manifest_sha256": manifest_sha,
+        "epoch": m["epoch"],
+        "sequence": m["sequence"],
+        "sender": m["sender"],
+        "scope_sha256": m["scope_sha256"],
+        "files_count": len(files),
+        "files": [{"path": f["path"], "sha256": f["sha256"], "bytes": int(f["bytes"])} for f in files],
+    }
+    with open(str(target / "RECEIPT.json"), "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(receipt, indent=2) + "\n")
+        fh.flush()
+        os.fsync(fh.fileno())
+
+    _save_ledger({"epoch": m["epoch"], "sequence": m["sequence"],
+                  "last_manifest_sha256": manifest_sha,
+                  "last_scope_sha256": m["scope_sha256"], "files_count": len(files)})
+
+    _BUNDLE = None
+    try:
+        os.rmdir(str(stage))
+    except OSError:
+        shutil.rmtree(str(stage), ignore_errors=True)
+    print(json.dumps(receipt))
+
+
+if __name__ == "__main__":
+    main()
