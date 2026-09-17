@@ -1,0 +1,48 @@
+{
+  "trace": [
+    {
+      "ts": "2026-09-17T20:56:55Z",
+      "step": "outcome_recorded",
+      "ok": true,
+      "outcome_ref": "a09-outcome-1789642615"
+    },
+    {
+      "ts": "2026-09-17T20:56:56Z",
+      "step": "learn_from_outcome",
+      "learned": true,
+      "memory_id": "mem_6412f57141c803d4",
+      "reason": "learned (durable artifact: memory + receipt)",
+      "receipt_id": "dr_ef213e434d9ba9c1"
+    },
+    {
+      "ts": "2026-09-17T20:56:56Z",
+      "step": "finalize",
+      "result": {
+        "ok": true,
+        "admitted": null,
+        "memory_id": null,
+        "reason": null
+      }
+    },
+    {
+      "ts": "2026-09-17T20:56:56Z",
+      "step": "forged_refusal",
+      "learned": false,
+      "reason": "unverified outcome — outcome-ref not found (forged trust) (trust not bound to re"
+    },
+    {
+      "ts": "2026-09-17T20:56:56Z",
+      "step": "restart_consumption",
+      "child_rc": 0,
+      "decision": "{\"action\": \"schedule_follow_up\", \"slot\": \"morning\", \"retrieved_memory_ids\": [\"mem_6412f57141c803d4\"], \"based_on\": \"a09: exterior-quote follow-up timing morning>afternoon\"}\n"
+    }
+  ],
+  "verdict": {
+    "outcome_durable": true,
+    "memory_learned": true,
+    "forged_refused": true,
+    "restart_survival_and_consumption": true,
+    "state_dir": "C:\\Users\\Armin\\AppData\\Local\\Temp\\a09-pdruy3z8",
+    "A09_PASS": true
+  }
+}

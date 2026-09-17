@@ -1,7 +1,7 @@
 {
   "schema": "octopus.next15.run-state.v1",
   "lane": "OCTOPUS-NEXT15-EXEC-20260917",
-  "updated_at_utc": "2026-09-17T11:15:00Z",
+  "updated_at_utc": "2026-09-17T11:00:00Z",
   "owner_decision": "Option A, verbatim 'a', OWNER-DECISION.json plan_sha 72f51ca1…",
   "worktree": "F:/wt-next15-20260917 branch codex/next15-exec-20260917 (base 1251b8a3 = S2 maturity chain)",
   "actions": {
@@ -42,7 +42,8 @@
       ],
       "fix_in_drill_copy": "reserve() wrapped in fcntl LOCK_EX critical section + _outstanding_reserves() liability counted in window_caps/task_spend/month_spend",
       "evidence": "evidence/A06-RESULT.json (verdict_pass true: exactly-one-accepted; crasher reserve persisted unfreed across reload)",
-      "production_patch": "STAGED on 182 drill copy; live 138 broker deploy = separate Class-B step with preimage/rollback"
+      "production_patch": "STAGED on 182 drill copy; live 138 broker deploy = separate Class-B step with preimage/rollback",
+      "live_deploy": "DEPLOYED 2026-09-17T10:54Z: fcntl critical section + outstanding-reserve liability LIVE on 138 broker (preimage 43aa9c5a…, backup api_budget.py.pre-a06fix-20260917T105427Z, compile+status smoke OK, LIABILITY_FN active; intent receipt 8e6270ba90cb). Effective on next per-tick import."
     },
     "A07": {
       "status": "PARTIAL",
@@ -53,8 +54,10 @@
       "evidence": "mirror witness v2 negative suite 23/23 (stale/forged/replayed/dup rejected) + W1 24h window running (verdict automation fires 2026-09-18T09:20Z). Open: sensorium witness binding, evaluator-independence statement."
     },
     "A09": {
-      "status": "NOT_RUN",
-      "note": "remains the loop entry point; learning_gate API mapped (learn_from_outcome + Admission.admit + outcome_store sqlite) - next session builds the full trace"
+      "status": "MEASURED_PASS_COMPONENT_SCOPE",
+      "evidence": "evidence/A09-TRACE.json — outcome durable (accepted-measurement) -> learn_from_outcome learned=TRUE memory mem_6412f571 + receipt dr_ef213e4 -> forged ref refused -> FRESH PROCESS restart: memory retrieved AND consumed by decision hook (retrieved_memory_ids populated)",
+      "components": "real learning_gate + MemoryGate + MemoryStore + OutcomeStore + DecisionReceiptStore (no parallel bank)",
+      "limits": "component-scope trace; production consumer wiring + ablation = A10 (seeded by this trace's decision-hook pattern)"
     },
     "A10": {
       "status": "NOT_RUN",
@@ -87,5 +90,10 @@
     }
   },
   "invariants": "no secrets printed; no journal/ledger bytes rewritten (append-only everywhere); failures preserved (OOM x2, RED-first repro history); no gate weakened; budget caps untouched",
-  "next_single_action": "A09 trace: outcome_store row -> learn_from_outcome(flag on) -> memory_id+receipt -> restart reload -> A10 consumption+ablation"
+  "next_single_action": "A10: wire the trace's decision hook to a REAL production consumer + on/off-memory ablation on replica",
+  "owner_round3": {
+    "broker_deploy": "GO executed",
+    "a13_budget": "adaptive allocation WITHIN existing caps (ceilings unchanged; numeric raise still needs explicit vote)",
+    "deep_priority": "A09 done"
+  }
 }

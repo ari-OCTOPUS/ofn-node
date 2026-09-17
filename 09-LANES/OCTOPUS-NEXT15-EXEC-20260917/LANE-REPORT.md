@@ -50,3 +50,8 @@ one full trace (event → ledger row → lesson → restart survival → consump
 - **A14 PARTIAL**: real fleet job on 160 with durable receipts (the A11 run itself);
   self-model consumption + business workflow still open.
 - A09 remains the loop entry (API mapped, trace build next); A10/A12/A13/A15 NOT_RUN.
+
+## ROUND 3 — «از من بپرس و عمیق کن» (2026-09-17 ~11:00Z; owner: deploy-GO, adaptive-within-caps, A09)
+- **A06 LIVE-DEPLOYED**: both broker fixes live on 138 (preimage/backup/smoke recorded). Rollback = restore api_budget.py.pre-a06fix-20260917T105427Z.
+- **A09 MEASURED_PASS**: full trace green on real components (see RUN-STATE). Forged trust refused; memory survived a fresh-process restart AND was consumed by a decision hook (A10 seeded).
+- A13 budget ruling recorded: adaptive allocation within existing ceilings only.
