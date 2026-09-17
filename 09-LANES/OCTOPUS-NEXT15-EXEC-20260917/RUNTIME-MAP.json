@@ -1,0 +1,21 @@
+{
+  "schema": "octopus.next15.runtime-map.v1",
+  "captured_at_utc": "2026-09-17T11:30:00Z",
+  "nodes": {
+    "138": {"role": "commander+money", "ssh": "AUTHENTICATED_2026-09-17", "live_processes": ["mirror sender v2 (push.sh f8779ca2, sender-ledger seq1)", "s2replica-soak2 (OOM-terminated 10:12:17Z, complete)"], "runtime_git_observed_10:10Z": "fe0c55e0", "candidate_worktree": "NOT_DEPLOYED", "swap": "ACTIVE 2G prio -2"},
+    "182": {"role": "witness+sensorium", "ssh": "AUTHENTICATED", "live_processes": ["sensorium (pinned 2048M ceiling, swap ~710M)", "W1 sidecar PID 764170 (ends 2026-09-18T09:11:20Z)", "S1 frozen-window watcher PID 762748", "mirror receiver v2 (ledger seq1, 0628dafd…)"], "apply-units": "frozen since 07:18:32/41Z"},
+    "180/100/160/193/114": {"status": "AUTHENTICATED_OBSERVATION_09:07Z_handoff", "persistent_job_wiring": "UNKNOWN", "idle": "100/114/160/180/193 load1=0.0 at 09:55-09:57Z"}
+  },
+  "code_locations": {
+    "integrated_candidate": "F:/wt-s2-maturity-20260917 @ 1251b8a3 (P1 money_executor + P3 x402 + m7-prep; FULL SUITE 9767 green 2026-09-17)",
+    "next15_worktree": "F:/wt-next15-20260917 @ codex/next15-exec-20260917 (A02/A03/A04 fixes; 40 learning tests green)",
+    "sensorium_candidate": "T1 lane candidate snapshot.py + replay_streaming (commit 942d0c3); app.py NOT executed in replica (blockers recorded)",
+    "live_138_ofn": "/home/ari/ofn worktree-executed (NOT the candidate); refresh before any deploy"
+  },
+  "data_paths": {
+    "budget_ledger_live": "138:/home/ari/ofn/state/api-budget/budget-ledger.jsonl (89 rows, sha 5d09c95c…; mirrored+restored+drilled)",
+    "sensorium_journal": "182:/var/lib/octopus/state/events.jsonl (445MB, 3.08M events, 0 anomalies; frozen copy on 138 ~/s2-replica-20260917)",
+    "economic_ledger_dev": "worktree tests only — no live instance migrated to v2 yet"
+  },
+  "unknowns": ["5-node job wiring", "138 heartbeat load1=None exporter gap", "193 NPU python binding absent"]
+}
