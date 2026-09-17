@@ -1,7 +1,7 @@
 {
   "schema": "octopus.next15.run-state.v1",
   "lane": "OCTOPUS-NEXT15-EXEC-20260917",
-  "updated_at_utc": "2026-09-17T11:00:00Z",
+  "updated_at_utc": "2026-09-17T11:05:00Z",
   "owner_decision": "Option A, verbatim 'a', OWNER-DECISION.json plan_sha 72f51ca1…",
   "worktree": "F:/wt-next15-20260917 branch codex/next15-exec-20260917 (base 1251b8a3 = S2 maturity chain)",
   "actions": {
@@ -60,8 +60,8 @@
       "limits": "component-scope trace; production consumer wiring + ablation = A10 (seeded by this trace's decision-hook pattern)"
     },
     "A10": {
-      "status": "NOT_RUN",
-      "depends": "A06/A07/A09"
+      "status": "MEASURED_PASS_COMPONENT_SCOPE",
+      "evidence": "evidence/A10-A13-PILOT.json — ablation B0=6/10, B1=4/10, C1=10/10 (+60pp vs B1); 5 unique memory_ids consumed in decisions; production consumer wiring next"
     },
     "A11": {
       "status": "SYSTEM_SELF_REPAIR_SCOPED_TWO_HOSTS",
@@ -73,24 +73,24 @@
       "limits": "ledger scope only; supervisor/transport fault families still open (A11 full)"
     },
     "A12": {
-      "status": "NOT_RUN",
-      "depends": "A03/A06/A07/A08/A10"
+      "status": "SCOPED_PASS",
+      "evidence": "system-generated versioned proposal artifacts (EXP-LES-…) with independent id check; executable-patch generation honestly NOT claimed"
     },
     "A13": {
-      "status": "NOT_RUN",
-      "note": "6+5 replay pairs are DEV, not holdout (per plan) - do not rebrand"
+      "status": "PILOT_RUN_DEV_SCOPE",
+      "evidence": "10-pair engineering pilot complete (harness works, arms differ as designed); UNDERPOWERED declared; real 30-pair holdout NOT_RUN"
     },
     "A14": {
       "status": "PARTIAL_FLEET_JOB",
       "evidence": "real job on node160 (next15-a11 pack run) with durable receipts + read-back; self-model fresh-observation consumption still open"
     },
     "A15": {
-      "status": "NOT_RUN",
-      "note": "24h real window must START after the last relevant change - not started"
+      "status": "WINDOW_STARTED",
+      "evidence": "evidence/RELEASE-PACKAGE.md — full inventory/preimages/rollbacks/canaries; window 2026-09-17T11:05Z -> 2026-09-18T11:05Z; verdict at end; owner waiver possible but counts NOT-pass per gates"
     }
   },
   "invariants": "no secrets printed; no journal/ledger bytes rewritten (append-only everywhere); failures preserved (OOM x2, RED-first repro history); no gate weakened; budget caps untouched",
-  "next_single_action": "A10: wire the trace's decision hook to a REAL production consumer + on/off-memory ablation on replica",
+  "next_single_action": "collect window verdict 2026-09-18 (W1 auto 09:20Z + canary checks); then A13 real holdout or A14 per owner",
   "owner_round3": {
     "broker_deploy": "GO executed",
     "a13_budget": "adaptive allocation WITHIN existing caps (ceilings unchanged; numeric raise still needs explicit vote)",
