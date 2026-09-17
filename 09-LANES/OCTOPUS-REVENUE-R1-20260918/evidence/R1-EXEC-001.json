@@ -1,0 +1,13 @@
+{
+  "mission": "REVENUE-R1", "executed_utc": "2026-09-18T18:45:00Z", "cycle": "R1-EXEC-001",
+  "line1_executor": {"status": "NOT_REACHED_THIS_PASS", "entry_point": "worktree F:/wt-s2-maturity-20260917: add BrokeredProvider(paid_call=loopback to 138 broker) + tests (timeout->FAILED, currency, per-task cap) + witnessed deploy", "blocker": "context budget; no external dependency"},
+  "line2_funnel": {
+    "major_finding_fixed": "44x hourly notify.failed (OwnerNotify, errs=[URLError], last 10:20Z) investigated to root: config HEALTHY (OFN_BOT_TOKEN_OWNER present, OFN_OWNER_USER_IDS=1 chat, live getMe=200 before+after) => transient URLErrors",
+    "fix_deployed_live": "owner_notify.send(): one retry with 5s backoff via _urlopen_retry (preimage bbc5a52c61ff6a79, backup owner_notify.py.pre-r1retry-*, py_compile OK, HAS_RETRY True)",
+    "ziman": "BLOCKED_BY_RELEASE (hold_external=true stands)",
+    "painting_decision": "not prepared this pass - next"
+  },
+  "line3_fleet_learning": {"fanout": "5/5 all_pass 1714ms", "loo": "MEMORY_HURTS unchanged (138 vs 139/141); single recurring learnable key is the conflicting one", "new_outcome_rows": 0, "rows_with_decision_key": 0},
+  "verified_cash": 0,
+  "next_single_action": "line1 BrokeredProvider wiring + tests (worktree), then Painting OwnerDecision with stable idempotency_key"
+}
