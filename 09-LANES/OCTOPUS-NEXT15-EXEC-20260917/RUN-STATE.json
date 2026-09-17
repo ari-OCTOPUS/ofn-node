@@ -60,8 +60,9 @@
       "limits": "component-scope trace; production consumer wiring + ablation = A10 (seeded by this trace's decision-hook pattern)"
     },
     "A10": {
-      "status": "MEASURED_PASS_COMPONENT_SCOPE",
-      "evidence": "evidence/A10-A13-PILOT.json — ablation B0=6/10, B1=4/10, C1=10/10 (+60pp vs B1); 5 unique memory_ids consumed in decisions; production consumer wiring next"
+      "status": "REALITY_TEST_RUN_CLAIM_FALSIFIED_ON_CURRENT_DATA",
+      "evidence": "evidence/A10-REALITY.json — 187 real rows, 7 real memories learned, 85 decision pairs: memory CHANGED 57 decisions (derivation is a real function of retrieval, not decoration) BUT correctness memory_on=28/85 vs memory_off=83/85 => memory made decisions WORSE on real data. Cause: surface-keyed polarity is mixed (tg-center has both accepts and rejects); payloads lack fine-grained decision keys.",
+      "required_change": "owner-verdict recorder must persist the decision key (category/proposal_id) in payload_json; then per-key tokens exist and the claim can be re-tested honestly. NOT a gate change - a data-pipeline fix."
     },
     "A11": {
       "status": "SYSTEM_SELF_REPAIR_SCOPED_TWO_HOSTS",

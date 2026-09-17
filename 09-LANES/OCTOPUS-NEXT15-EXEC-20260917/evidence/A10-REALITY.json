@@ -1,0 +1,56 @@
+{
+  "schema": "next15.a10-reality.v1",
+  "real_rows_total": 187,
+  "learned_memories": {
+    "approve": 5,
+    "reject": 2,
+    "skipped": 46
+  },
+  "decision_pairs": 85,
+  "decisions_changed_by_memory": 57,
+  "correctness": {
+    "memory_off": 83,
+    "memory_on": 28,
+    "denominator": 85
+  },
+  "sample_pairs": [
+    {
+      "key": "C1-internal-canary",
+      "real": "accept",
+      "off": "proceed",
+      "on": "proceed"
+    },
+    {
+      "key": "tg-proposal-button",
+      "real": "reject",
+      "off": "proceed",
+      "on": "proceed"
+    },
+    {
+      "key": "tg-center",
+      "real": "accept",
+      "off": "proceed",
+      "on": "hold_revise"
+    },
+    {
+      "key": "tg-center",
+      "real": "accept",
+      "off": "proceed",
+      "on": "hold_revise"
+    },
+    {
+      "key": "tg-center",
+      "real": "accept",
+      "off": "proceed",
+      "on": "hold_revise"
+    },
+    {
+      "key": "tg-center",
+      "real": "accept",
+      "off": "proceed",
+      "on": "hold_revise"
+    }
+  ],
+  "CLAIM_REALITY": false,
+  "note": "action DERIVED from memory polarity (function of retrieval), real tokens only"
+}
