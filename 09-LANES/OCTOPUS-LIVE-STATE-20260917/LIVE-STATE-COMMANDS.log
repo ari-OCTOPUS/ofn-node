@@ -1,0 +1,412 @@
+---
+merge_domain: live-state
+merge_key: commands:octopus-live-state-20260917T0129Z
+lane: OCTOPUS-LIVE-STATE-20260917
+mode: READ_ONLY
+mutations_performed: 0
+---
+
+# LIVE-STATE-COMMANDS.log — audit trail
+
+Every command issued against a board, in order, with its key output.
+**Read-only only:** `cat`, `ls`, `sha256sum`, `systemctl status/list/show`,
+`journalctl --since/-n`, `mount`, `findmnt`, `free`, `df`, `uptime`, `date`,
+`ps`, `readlink`, `wc`, and `python3` for reading/parsing JSON/JSONL/SQLite.
+No value of any secret was printed — only paths, sizes, counts, states, hashes.
+
+Rule observed: **no write of any kind to any board.** The only file writes in this
+session were the four artifacts in this lane directory on the laptop.
+
+---
+
+## PHASE 0 — PREFLIGHT (local only)
+
+```
+$ date -u '+UTC %Y-%m-%dT%H:%M:%SZ' ; date '+AEST %Y-%m-%dT%H:%M:%S%z'
+UTC 2026-09-17T01:18:03Z
+AEST 2026-09-17T11:18:03+1000
+
+$ cd /f/backup && git status --short | wc -l
+1469                      # vault working tree dirty — baseline only, other lanes active
+$ git rev-parse --abbrev-ref HEAD   ->  rescue/octopus-live-tree-20260821
+$ git rev-parse --short HEAD        ->  0effbf1
+
+$ cd /f/ofn-node && git rev-parse --short HEAD        -> 0da921b1
+$ git status --short | wc -l                          -> 246
+$ git log -1 --format='%H %ci %s'
+0da921b1… 2026-09-09 20:04:04 +1000 sources_from_ledger.py LANDED …
+
+$ ls -d /f/backup/09-LANES/OCTOPUS-LIVE-STATE-20260917
+No such file or directory          # lane dir did not exist -> created once
+
+$ cat ~/.ssh/config
+Host root  HostName 192.168.0.180  User root
+Host board138  HostName 192.168.0.138  User ari  IdentityFile ~/.ssh/id_ed25519
+```
+
+Board inventory harvested from `00-SEASON/OCTOPUS-HW-DISCOVERY-01*.json`
+(138/180/182 packs, read-only) plus the SSH config and project record
+(.100/.160 de-mined; .193 = Plus on eMMC; .191 = laptop).
+
+---
+
+## PHASE 1 — HOST LIVENESS
+
+### 1.1 reachability (root key, strict 5s connect timeout, hard 9s wrapper)
+
+```
+$ for h in 138 180 182 191 193 100 160; do
+    timeout 9 ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no \
+      -o UserKnownHostsFile=/dev/null root@192.168.0.$h "echo OK"; done
+root@192.168.0.138 => root@192.168.0.138: Permission denied (publickey).
+root@192.168.0.180 => OK
+root@192.168.0.182 => OK
+root@192.168.0.191 => ssh: connect to host 192.168.0.191 port 22: Connection refused
+root@192.168.0.193 => OK
+root@192.168.0.100 => root@192.168.0.100: Permission denied (publickey,keyboard-interactive).
+root@192.168.0.160 => root@192.168.0.160: Permission denied (publickey,keyboard-interactive).
+
+$ timeout 9 ssh -o BatchMode=yes -o ConnectTimeout=5 ari@192.168.0.138 "echo OK; hostname"
+OK
+DietPi
+
+$ timeout 9 ssh -o BatchMode=yes -o ConnectTimeout=5 -i ~/.ssh/octopus_mesh_ed25519 ari@192.168.0.138 "echo OK_MESHKEY"
+ari@192.168.0.138: Permission denied (publickey).     # mesh key is not the 138 key
+
+$ for h in 180 182 193; do ssh -i ~/.ssh/octopus_mesh_ed25519 root@192.168.0.$h "echo OK_MESH"; done
+180: Permission denied (publickey,password).
+182: Permission denied (publickey).
+193: Permission denied (publickey,password).          # default id_ed25519 is the working key
+```
+
+### 1.2 vitals
+
+```
+$ ssh ari@192.168.0.138  '<hostname; uptime -p; uptime -s; /proc/loadavg; date -u; uname -r/-m;
+                           /proc/device-tree/model; free -h; df -h /; who -b>'
+HOSTNAME=DietPi          UPTIME=up 2 days, 44 minutes   UP_SINCE=2026-09-15 00:39:09
+LOAD=1.91 1.79 2.27 2/226   MODEL=Orange Pi 5 Pro   KERNEL=6.1.115-vendor-rk35xx
+Mem: 3.8Gi total  1.3Gi used  2.5Gi available
+Swap: 0B total  0B used  0B free          <-- NO SWAP
+/dev/mmcblk0p1  58G  17G  39G  30%  /
+
+$ ssh root@192.168.0.180   → octopus-continuity-180   up 2 days 44 min  load 0.01/0.02/0.04
+                             Mem 2.2Gi used / 1.7Gi avail   Swap 6.0Gi (3.0Gi used)   22% disk
+$ ssh root@192.168.0.182   → sensorium-opi5pro        up 2 days 2 min   load 3.16/3.32/3.35
+                             Mem 3.0Gi used / 875Mi avail   Swap 2.0Gi (1.0Gi used)   45% disk
+$ ssh root@192.168.0.193   → octopus-model-plus-193   up 1 day 22h58  load 0.00/0.00/0.00
+                             Mem 227Mi used / 3.6Gi avail   Swap 0B                 3% disk
+```
+
+Note: `who -b` on 193 reports `2026-06-01` (fake-hwclock, no RTC); `uptime -s` is authoritative.
+
+---
+
+## PHASE 2 — SERVICE & TIMER INVENTORY
+
+### 2.1 user scope is broken over ssh (known trap) — fell back to system scope
+
+```
+$ ssh ari@192.168.0.138 'systemctl --user list-units --type=service --all --no-pager'
+Failed to connect to user scope bus via local transport:
+  $DBUS_SESSION_BUS_ADDRESS and $XDG_RUNTIME_DIR not defined
+```
+The octopus units are therefore SYSTEM units with `User=ari`.
+
+### 2.2 timers and octopus units
+
+```
+$ ssh ari@192.168.0.138 'systemctl list-timers --all --no-pager'
+42 timers listed.   (nearest ticks 14s–1min; weekly: deep-scan Mon 04:03, drill Sun 04:00)
+
+$ ssh ari@192.168.0.138 'systemctl list-units --type=service --all --no-pager | grep -iE "octopus|ofn|paint|langar|…"'
+active running : octopus-bridge, octopus-control-router, octopus-cycle-settler, octopus-router,
+                 octopus-supervisor, octopus-verify-dispatcher, ofn-heartbeat, ofn, systemd-journald
+failed         : octopus-revenue-drive.service   <-- the money loop
+```
+
+Board 180 (15 timers), 182 (19 timers), 193 (5 timers) enumerated the same way.
+
+### 2.3 the failure under the microscope
+
+```
+$ ssh ari@192.168.0.138 'systemctl --failed --no-pager'
+● octopus-revenue-drive.service   loaded failed failed
+● smartmontools.service           loaded failed failed
+
+$ ssh ari@192.168.0.138 'systemctl status octopus-revenue-drive.service -l'
+Active: failed (Result: exit-code) since Thu 2026-09-17 00:00:51 UTC
+ Process: 531420 ExecStart    = revenue_drive.py    (status=0/SUCCESS)
+ Process: 531447 ExecStartPost= lead_enrich.py      (status=0/SUCCESS)
+ Process: 531502 ExecStartPost= money_executor.py   (status=0/SUCCESS)
+ Process: 531503 ExecStartPost= revenue_state.py    (status=0/SUCCESS)
+ Process: 531505 ExecStartPost= send_queue.py       (status=1/FAILURE)   <-- HERE
+
+$ ssh ari@192.168.0.138 'sudo -n journalctl -u octopus-revenue-drive.service -n 60 --no-pager'
+2026-09-17T00:00:51  Traceback (most recent call last):
+2026-09-17T00:00:51    File "…/send_queue.py", line 61, in <module>
+2026-09-17T00:00:51      LEADS.write_text(json.dumps(lm, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+2026-09-17T00:00:51  OSError: [Errno 30] Read-only file system: '/home/ari/ofn/tools/leads_master.json'
+2026-09-17T00:00:51  octopus-revenue-drive.service: Control process exited, code=exited, status=1/FAILURE
+# and NO owner_ask / NO owner_reply lines after this point in the tick
+```
+
+### 2.4 rule out the filesystem, isolate the sandbox
+
+```
+$ ssh ari@192.168.0.138 'mount | grep -E " / " ; findmnt -no TARGET,SOURCE,FSTYPE,OPTIONS /'
+/dev/mmcblk0p1 on / type ext4 (rw,noatime,lazytime)
+/ /dev/mmcblk0p1 ext4 rw,noatime,lazytime          <-- root IS writable
+
+$ ssh ari@192.168.0.138 'ls -la /home/ari/ofn/tools/leads_master.json ; readlink -f …'
+-rw-r--r-- 1 ari ari 95595 Sep 15 12:02 /home/ari/ofn/tools/leads_master.json
+/home/ari/ofn/tools/leads_master.json              <-- regular file, not a symlink, ari-owned
+
+$ ssh ari@192.168.0.138 'cat /etc/systemd/system/octopus-revenue-drive.service'
+ProtectHome=read-only
+ReadWritePaths=/home/ari/ofn/state/revenue-drive /home/ari/ofn/data
+                              ^^^ tools/ is NOT in ReadWritePaths  => EROFS by design (sandbox)
+Drop-Ins: 20-octopus-wire-env.conf, i7-auto-stage.conf
+          (i7: OFN_REVENUE_MODE=auto_stage, OFN_NO_AUTO_CUSTOMER_SEND=true)
+
+$ ssh ari@192.168.0.138 'sed -n "1,70p" …/send_queue.py'
+  if synced:                                    <-- guarded: only writes when the email ledger moved
+      bak = LEADS.with_name("leads_master.json.pre-email-sync-20260915")
+      if not bak.exists(): bak.write_bytes(LEADS.read_bytes())
+      LEADS.write_text(json.dumps(lm, …) + "\n", encoding="utf-8")   <-- line 61
+```
+
+### 2.5 why it fired today and not yesterday
+
+```
+$ ssh ari@192.168.0.138 'wc -l …/lead-emails.jsonl  ;  ls -la /home/ari/ofn/tools/leads_master.json*'
+68 /home/ari/ofn/state/revenue-drive/lead-emails.jsonl
+-rw-r--r-- 95595 Sep 15 12:02 leads_master.json
+-rw-r--r-- 95024 Sep 15 12:02 leads_master.json.pre-email-sync-20260915
+-rw-r--r-- 80540 Sep 15 11:58 leads_master.json.pre-ingest-20260915
+
+$ …python3 -c 'read leads_master; count accounts with an email in contact_channel'
+accounts 97   with_email_in_contact_channel 66
+```
+68 ledger businesses − 66 synced = **2 pending** ⇒ `synced` non-empty ⇒ write fires ⇒ EROFS.
+Previous ticks (00:00 12:00 18:00 on 09-16) had `attempted 0`, so `synced` was empty and the
+service "Finished" — the defect was masked, not absent.
+
+---
+
+## PHASE 3 — OPS-AGENT & CONTROL STATE (138)
+
+```
+$ ssh ari@192.168.0.138 'ls -la /home/ari/ofn/state/ops-agent/ ; sha256sum …/ops_agent.py'
+-rw------- 63282 Sep 16 09:19 ops_agent.py
+b2d48553458bb920d33611df1cfbd6808ed7a86e2ba64ea80e4f8c4ab902208e  ops_agent.py
+
+$ ssh ari@192.168.0.138 'for d in …/ops-agent/state/*/; do printf "%3d  %s\n" $(ls -1 $d|wc -l) $(basename $d); done'
+  0  awaiting-outcome      13  closed        20  outcomes      22  proposals
+  1  b5-quarantine          2  dep-evidence   0  owner-tasks    2  probe-scratch
+  1  canary-requests        8  failed        0  pending        8  superseded-tasks
+  2  incidents            11  executed       1  withdrawn
+
+$ ssh ari@192.168.0.138 'cat …/ops-agent/ops_budgets.json'
+per_node_24h 20 · mesh_wide_24h 20 · per_component_30min 1 · one_class_b_at_a_time true
+circuit_breaker_after_same_class_failures 2 · immediate_breaker_on_unknown_effect true
+kill_switch_paths: /home/ari/ofn/state/autonomy/STOP-AUTONOMY , /etc/octopus-ops-halt
+quota_history: 2→10 (09-14), 10→20 (09-15T20:59:48Z), mesh 15→20 (09-16T20:25:11Z)
+
+$ ssh ari@192.168.0.138 'for p in …HALT-ALL …HALT /etc/octopus-ops-halt …STOP-AUTONOMY …CHANNEL-REVOKED; do
+     [ -e "$p" ] && echo EXISTS $p || echo MISSING $p; done'
+MISSING /home/ari/ofn/HALT-ALL
+MISSING /home/ari/ofn/HALT
+MISSING /etc/octopus-ops-halt
+MISSING /home/ari/ofn/state/autonomy/STOP-AUTONOMY
+MISSING /home/ari/HALT
+MISSING /opt/HALT
+MISSING /home/ari/ofn/state/revenue-drive/CHANNEL-REVOKED
+(existence only — content never read)
+
+$ ls -la /f/ofn-node/HALT*   ->  No such file or directory
+$ ls -la /f/HALT*            ->  No such file or directory
+```
+
+Receipts (last 12 of 4603 rows) — every tick ends `STABLE_HEALTH_CYCLE` → `B5_PATH_OUTSIDE_WRITABLE_SCOPE`
+→ `OPS_TICK_COMPLETE`:
+
+```
+2026-09-17T01:07:58 STABLE_HEALTH_CYCLE
+2026-09-17T01:08:01 B5_PATH_OUTSIDE_WRITABLE_SCOPE  component=storage-cache
+2026-09-17T01:08:01 OPS_TICK_COMPLETE
+… (01:13:33/36, 01:18:52/55) …
+2026-09-17T01:24:33 STABLE_HEALTH_CYCLE
+2026-09-17T01:24:36 B5_PATH_OUTSIDE_WRITABLE_SCOPE  component=storage-cache
+2026-09-17T01:24:36 OPS_TICK_COMPLETE              <-- last tick, ~5.5 min cadence
+```
+
+kind histogram (4603 rows): OPS_B_BLOCKED 1415 · OPS_TICK_COMPLETE 1057 · STABLE_HEALTH_CYCLE 1056 ·
+OPS_B_DEPENDENCY_UNMET 712 · B5_PATH_OUTSIDE_WRITABLE_SCOPE 176 · OPS_B_STALE_BASE 57 ·
+OPS_B_PROPOSAL_SENT 21 · OPS_B_EXECUTED 20 · OPS_B_OUTCOME_SENT 20 · OPS_B_CYCLE_CLOSED 13
+
+blocked-why histogram: CIRCUIT_BREAKER_OPEN 837 · BUDGET_NODE_24H 555 · BUDGET_COMPONENT_30MIN 23
+**last OPS_B_BLOCKED = 2026-09-16T09:14:15Z** ⇒ not blocking since.
+
+standing skip (full receipt body, safe):
+```
+{"kind":"B5_PATH_OUTSIDE_WRITABLE_SCOPE","component":"storage-cache","skipped":8,
+ "skipped_paths":["/home/ari/wt-buynsw-ingest/.pytest_cache","…/ofn/__pycache__",
+   "…/ofn/adapters/__pycache__","…/ofn/kernel/__pycache__","…/ofn/agents/__pycache__",
+   "…/tests/__pycache__","/home/ari/wt-modelcap-20260906/bin/__pycache__","…/tests/__pycache__"],
+ "note":"sandbox ReadWritePaths denies rename on these source dirs; their cleanup is an owner/unsandboxed decision"}
+```
+
+### breaker replication
+Read `budget_allows()` source verbatim (`sed -n "140,200p" …/ops_agent.py`) and re-implemented it
+rather than importing the live module (import could have side effects):
+
+```
+$ ssh … 'python3 -' < probe_breaker.py      # replicate incl. legacy _cat_key / {B8:"RY"} mapping
+B1 fails 0  orej 0  fixed_at -                      n_bad 0  => closed
+B2 fails 0  orej 0  fixed_at -                      n_bad 0  => closed
+B3 fails 0  orej 0  fixed_at -                      n_bad 0  => closed
+B4 fails 0  orej 0  fixed_at -                      n_bad 0  => closed
+B5 fails 4  orej 4  fixed_at 2026-09-16T09:19:57Z   n_bad 0  => closed
+B8 fails 3  orej 3  fixed_at 2026-09-15T06:27:49Z   n_bad 0  => closed   (date via legacy RY key)
+UNKNOWN_EFFECT events anywhere: 0
+```
+**Self-correction recorded:** a first pass omitted the `{B8:"RY"}` legacy mapping and printed
+`B8 => OPEN`. That was an error in this analysis, not a finding. The corrected replication above is
+what was published.
+
+### budget utilisation (exact basis)
+```
+per_node_24h   used = 1  cap = 20      (count of OPS_B_EXECUTED with at < 86400s)
+mesh_wide_24h  used = 1  cap = 20      (ops 1 + STABLE CLASS_B_EXECUTED 0)
+all-time OPS_B_EXECUTED = 20 ; last = 2026-09-16T09:19:57Z (B8 self-surgery)
+STABLE receipts.jsonl rows = 3570 (HEALTH_OBSERVATION 1182 / LEDGER_VERIFICATION 1182 / TICK_COMPLETE 1182)
+```
+
+### installed-version identity
+```
+$ ssh … 'sha256sum …/coding-worker/stage/B5-SCOPE-GUARD-20260916/ops_agent.py'
+b2d48553458bb920d33611df1cfbd6808ed7a86e2ba64ea80e4f8c4ab902208e  …/stage/B5-SCOPE-GUARD-20260916/ops_agent.py
+```
+Identical to the live file ⇒ the deployed bytes are exactly their own staged artifact.
+Legacy hashes `beaee58c` / `a255c4c0` do **not** match (file is 2 generations newer).
+
+---
+
+## PHASE 4 — BUSINESS LIVENESS
+
+```
+$ ssh ari@192.168.0.138 'cat …/revenue-drive/season-meter.json'
+{"at":"2026-09-17T00:00:51Z","authorized_with_contact":94,"contactable_phone_only":29,
+ "emails_known":68,"leads_total":97,"messages_sent_today":0,"packets_in_sent_state":3,
+ "replies_detected":4,"staged_packets":83,"verified_cash":0.0}
+
+$ ssh … 'cat i7-runtime.json'
+{"mode":"auto_stage","customer_send":false,"no_auto_customer_send":true,
+ "expiry":"2026-09-30T12:47:00+10:00","note":"I7 auto_stage only; public/customer send stays RED until new I2/U1"}
+
+$ ssh … 'cat channel-authorization.json'
+granted_by OWNER (telegram/chat 2026-09-13) · channel email · daily_send_cap 10 · expiry_days 30
+conditions: no price without rate card · every send carries payload hash+recipient+receipt ·
+            owner can revoke via state/revenue-drive/CHANNEL-REVOKED
+rollback: "stop queue; no unsend (email)"
+
+$ ssh … 'cat owner-review.json'
+TRAFFIC-DECISION : 433 consecutive zero-order checks — demand generation is the bottleneck
+MONEY-BATCH      : QP-20260917-7838, -1023, -6246, -5702, -4484  (5 packets ready, RED boundary)
+
+$ ssh … 'ls quote-packets/*.json | wc -l ; find send-queue -maxdepth 1 -type f | wc -l
+         wc -l phone-only-queue.jsonl owner-decisions.jsonl sent-log.jsonl'
+quote_packets = 110 ; send_queue_files = 83 ; phone_only = 29 ; owner_decisions = 14 ; sent_log = 39
+last sent-log row: {"at":"2026-09-16T06:15:59Z","kind":"reply_1","outcome":"sent",
+                    "packet":"QP-20260913-3991","to_domain":"absolutestrata.com.au"}
+```
+
+### WAL
+```
+$ ssh … 'find /home/ari/ofn -maxdepth 4 -name "*effects*"'
+/home/ari/ofn/state/revenue-drive/outbound-effects.sqlite3      -> 0 bytes, mtime Sep 16 22:53  = WAL_EMPTY
+/home/ari/ofn/ofn/agi2027_runtime/outbound-effects.sqlite3      -> 12288 bytes, mtime Sep  2 02:00
+
+$ ssh … 'grep -n "outbound-effects" /home/ari/ofn/ofn/agents/lead_effect_gate.py'
+54: LEGACY_DB_PATH = _HERE.parent / "agi2027_runtime" / "outbound-effects.sqlite3"   <-- canonical per code
+
+$ ssh … 'python3 -' <<'PY'      # opened read-only: sqlite3.connect("file:…?mode=ro", uri=True)
+schema: CREATE TABLE outbound_effects(effect_id TEXT PRIMARY KEY, lead_id TEXT NOT NULL,
+        payload_hash TEXT NOT NULL, state TEXT NOT NULL, provider_message_id TEXT,
+        attempt_count INTEGER NOT NULL DEFAULT 0, reason TEXT, created_at REAL, updated_at REAL)
+rows = 6 ; all state='sent' ; all provider_message_id='smtp-sendmail-returned' ;
+all reason='smtp_accepted_and_settled' ; leads = nsw_ocp_buyer:*
+timestamps: 2026-09-01T13:16:59Z, 13:17:03Z, 13:17:06Z, 13:17:10Z, 13:17:15Z, 2026-09-02T02:00:10Z
+PY
+```
+⇒ WAL last write **2026-09-02T02:00:10Z** vs sent-log last send **2026-09-16T06:15:59Z** — 33 sends
+and ~14 days of divergence. (E-mail bodies were never selected; only IDs, states and timestamps.)
+
+```
+$ ssh … 'wc -l sent-log.jsonl'                  -> 39
+$ ssh … 'tail -200 receipts.jsonl | histogram'  -> REPLY_ALERT_POLL 125, ENRICH_CYCLE 15,
+     PACKET_STAGED 6, SEND_TERMINAL 6, REPLY_ALERT 4, SEND_HELD_NO_AUTO_CUSTOMER_SEND 4,
+     SEND_QUEUE_EMPTY 1, MONEY_BATCH_EMAIL_SENT 1, CUSTOMER_REPLY_SENT 1, …
+$ ssh … 'cat reply-alert-cursor.txt ; cat lead-enrich-cursor.txt'
+57178   /   1        (enrich cursor reset at 00:00 today — explains "attempted 8" vs "attempted 0")
+```
+
+---
+
+## PHASE 5 — MESH COHERENCE
+
+### 5.1 clock drift (midpoint method)
+```
+$ for h in 138 180 182 193; do t0=$(date -u +%s.%N); rt=$(ssh $h "date -u +%s.%N"); t1=$(date -u +%s.%N);
+    awk 'drift = rt-(t0+t1)/2'; done
+138 sample1 drift=+0.302s rtt=1.795s     138 sample2 drift=+0.167s rtt=0.397s
+180 sample1 drift=+0.170s rtt=0.460s     180 sample2 drift=+0.172s rtt=0.426s
+182 sample1 drift=+0.210s rtt=0.497s     182 sample2 drift=+0.150s rtt=0.391s
+193 sample1 drift=+0.363s rtt=0.799s     193 sample2 drift=+0.184s rtt=0.572s
+max |drift| = 0.363s  ⇒ COHERENT (all same sign, inside RTT noise)
+ntp: 138 yes · 180 yes · 182 n/a (no timedatectl) · 193 n/a (no timedatectl)
+```
+
+### 5.2 board 182 fire-loop (found here)
+```
+$ ssh root@192.168.0.182 'systemctl status octopus-apply-registry.service'
+Active: activating (start) since Thu 2026-09-17 01:28:24 UTC ; Main PID: 677405 (python)
+$ ssh root@192.168.0.182 'journalctl -u octopus-apply-registry.service -n 8'
+01:28:47  Deactivated successfully.
+01:28:47  Finished octopus-apply-registry.service
+01:28:47  Starting octopus-apply-registry.service     <-- immediate self-refire
+$ ssh root@192.168.0.182 'systemctl cat octopus-apply-checkpoint.path'
+[Path]
+PathExists=/var/lib/octopus/inbound/SIGNED-CHECKPOINT-BUNDLE/checkpoint.json.sig
+Unit=octopus-apply-checkpoint.service
+$ ssh root@192.168.0.182 'ls -la /var/lib/octopus/inbound/SIGNED-CHECKPOINT-BUNDLE/'
+-rw-r--r-- 441 Aug 22 11:54 checkpoint.json     <-- never consumed, so the watch stays armed
+-rw-r--r--  64 Aug 22 11:54 checkpoint.json.sig
+$ ssh root@192.168.0.182 'journalctl -u … | grep -c "Starting octopus"'
+registry = 305 all-time ; 304 in the last 30 min ; 26 in the last 2 min   (~13/min)
+checkpoint =  95 all-time ;  95 in the last 30 min ;  8 in the last 2 min   (~4/min)
+first start in journal: 2026-09-17T01:05:27Z
+$ ssh root@192.168.0.182 'ps -eo pcpu,etime,args --sort=-pcpu | grep apply_signed'
+100.0  00:04  apply_signed_inbound.py checkpoint
+ 99.6  00:03  apply_signed_inbound.py registry
+$ ssh root@192.168.0.182 'uptime ; free -m ; ps -eo pcpu,pmem,rss,etime,args --sort=-rss | head'
+load 3.53 3.36 3.36 ; 1526 MiB available
+6088 91.5 47.9 1921168 1-23:38:54 /opt/octopus/venv/bin/python -m octopus_sensorium.app
+```
+
+### 5.3 documented-but-missing daemons
+None. Every daemon the documents call live (`supervisor`, `router`, `cycle-settler`,
+`control-router`, `verify-dispatcher`) was found `active running` on 138.
+
+---
+
+## What was NOT run (and why)
+
+- No `systemctl start|stop|restart|enable|disable` anywhere.
+- No write to any board file, ledger, `gates.json`, budget, flag, or HALT.
+- No `rm`, `mv`, `cp`, `chmod`, `chattr`.
+- `ops_agent.py` was **not** imported/executed (side-effect risk); `budget_allows()` was
+  re-implemented from source and run against the live receipts file instead.
+- No vault census (belongs to the parallel UNIFIED-RECON lane).
+- Secret material: never read into output. Only paths, sizes, counts, states, hashes.

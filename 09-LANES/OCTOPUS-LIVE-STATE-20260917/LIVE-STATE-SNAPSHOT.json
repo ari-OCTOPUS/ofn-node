@@ -1,0 +1,499 @@
+{
+  "schema": "octopus.live-state.snapshot.v1",
+  "merge_domain": "live-state",
+  "merge_key": "snapshot:octopus-live-state-20260917T0129Z",
+  "lane": "OCTOPUS-LIVE-STATE-20260917",
+  "gov_version": "V8",
+  "ladder": "L2",
+  "mode": "READ_ONLY",
+  "mutations_performed": 0,
+  "snapshot_at_utc": "2026-09-17T01:29:08Z",
+  "snapshot_at_aest": "2026-09-17T11:29:08+10:00",
+  "snapshot_started_utc": "2026-09-17T01:18:03Z",
+  "vantage": "laptop F:\\backup (read-only) + SSH read-only to mesh",
+  "co_lane_notice": {
+    "other_lane": "UNIFIED-RECOVERY / UNIFIED-RECON-20260917",
+    "rule": "AS_OF_NOW semantics; this snapshot does not contradict the other lane, it dates it",
+    "vault_git_baseline_modified_files": 1469,
+    "vault_head": "0effbf1",
+    "vault_branch": "rescue/octopus-live-tree-20260821",
+    "vault_census": "NOT_PERFORMED_BY_THIS_LANE (owned by other lane)"
+  },
+
+  "hosts": [
+    {
+      "merge_key": "host:138",
+      "host": "138",
+      "ssh_alias": "ari@192.168.0.138",
+      "identity": "DietPi",
+      "model": "Orange Pi 5 Pro",
+      "arch": "aarch64",
+      "kernel": "6.1.115-vendor-rk35xx",
+      "state": "ALIVE",
+      "role_documented": "always-on octopus fleet node (control plane + money funnel)",
+      "remote_utc": "2026-09-17T01:28:26Z",
+      "uptime_human": "up 2 days, 44 minutes",
+      "up_since": "2026-09-15T00:39:09",
+      "load": [1.91, 1.79, 2.27],
+      "mem_total": "3.8Gi",
+      "mem_used": "1.3Gi",
+      "mem_available": "2.5Gi",
+      "swap_total": "0B",
+      "swap_note": "NO SWAP CONFIGURED — see gaps[GAP-06]",
+      "disk_root": {"size": "58G", "used": "17G", "avail": "39G", "use_pct": "30%", "fstype": "ext4", "mount_opts": "rw,noatime,lazytime"},
+      "failed_units": ["octopus-revenue-drive.service", "smartmontools.service"],
+      "degraded_reason": null
+    },
+    {
+      "merge_key": "host:180",
+      "host": "180",
+      "ssh_alias": "root@192.168.0.180",
+      "identity": "octopus-continuity-180",
+      "model": "Orange Pi 5 Pro",
+      "arch": "aarch64",
+      "kernel": "6.1.115-vendor-rk35xx",
+      "state": "ALIVE",
+      "role_documented": "continuity / brain node (lab services)",
+      "remote_utc": "2026-09-17T01:28:27Z",
+      "uptime_human": "up 2 days, 44 minutes",
+      "up_since": "2026-09-15T00:39:13",
+      "load": [0.01, 0.02, 0.04],
+      "mem_total": "3.8Gi",
+      "mem_used": "2.2Gi",
+      "mem_available": "1.7Gi",
+      "swap_total": "6.0Gi",
+      "swap_used": "3.0Gi",
+      "disk_root": {"size": "58G", "used": "12G", "avail": "43G", "use_pct": "22%", "fstype": "ext4", "mount_opts": "rw"},
+      "failed_units": [],
+      "degraded_reason": null
+    },
+    {
+      "merge_key": "host:182",
+      "host": "182",
+      "ssh_alias": "root@192.168.0.182",
+      "identity": "sensorium-opi5pro",
+      "model": "Orange Pi 5 Pro",
+      "arch": "aarch64",
+      "kernel": "6.1.115-vendor-rk35xx",
+      "state": "DEGRADED",
+      "role_documented": "sensorium / external witness (NATS 4222) + Class B verdict authority",
+      "remote_utc": "2026-09-17T01:28:27Z",
+      "uptime_human": "up 2 days, 2 minutes",
+      "up_since": "2026-09-15T01:21:32",
+      "load": [3.53, 3.36, 3.36],
+      "mem_total": "3.8Gi",
+      "mem_used": "3.0Gi",
+      "mem_available": "1526Mi (re-sample) / 875Mi (first read)",
+      "swap_total": "2.0Gi",
+      "swap_used": "1.0Gi",
+      "disk_root": {"size": "58G", "used": "25G", "avail": "31G", "use_pct": "45%", "fstype": "ext4", "mount_opts": "rw"},
+      "failed_units": ["octopus-gap001-boot-probe.service", "octopus-miniscientist-daily.service"],
+      "degraded_reason": "continuous systemd PathExists fire-loop on octopus-apply-registry (13/min) + octopus-apply-checkpoint (4/min), two children at ~100% CPU each; see gaps[GAP-02]",
+      "top_memory_process": "/opt/octopus/venv/bin/python -m octopus_sensorium.app RSS 1921168 KiB (47.9%) elapsed 1-23:38"
+    },
+    {
+      "merge_key": "host:193",
+      "host": "193",
+      "ssh_alias": "root@192.168.0.193",
+      "identity": "octopus-model-plus-193",
+      "model": "Orange Pi 5 Plus",
+      "arch": "aarch64",
+      "kernel": "6.1.115-vendor-rk35xx",
+      "state": "ALIVE",
+      "role_documented": "idle worker / T3 model service",
+      "remote_utc": "2026-09-17T01:28:28Z",
+      "uptime_human": "up 1 day, 22 hours, 58 minutes",
+      "up_since": "2026-09-15T02:24:59",
+      "load": [0.00, 0.00, 0.00],
+      "mem_total": "3.8Gi",
+      "mem_used": "227Mi",
+      "mem_available": "3.6Gi",
+      "swap_total": "0B",
+      "disk_root": {"size": "58G", "used": "1.6G", "avail": "54G", "use_pct": "3%", "fstype": "ext4", "mount_opts": "rw"},
+      "failed_units": [],
+      "degraded_reason": null,
+      "note": "who -b reports 2026-06-01 (fake-hwclock artifact, no RTC); uptime -s is authoritative"
+    },
+    {
+      "merge_key": "host:191",
+      "host": "191",
+      "ssh_alias": "root@192.168.0.191",
+      "identity": null,
+      "state": "UNREACHABLE",
+      "reason": "ssh: connect to host 192.168.0.191 port 22: Connection refused",
+      "note": "UNREACHABLE is not DEAD. Documented as the laptop address in CHIEF-ENGINEER-BRIEF-2026-09-03. The laptop is the machine this snapshot runs from, so a refused :22 here is expected (no sshd), not a fault."
+    },
+    {
+      "merge_key": "host:100",
+      "host": "100",
+      "ssh_alias": "root@192.168.0.100",
+      "identity": null,
+      "state": "UNREACHABLE",
+      "reason": "Permission denied (publickey,keyboard-interactive)",
+      "note": "TCP:22 responds, key rejected. PERMANENT DE-MINE per project record — do not reflash."
+    },
+    {
+      "merge_key": "host:160",
+      "host": "160",
+      "ssh_alias": "root@192.168.0.160",
+      "identity": null,
+      "state": "UNREACHABLE",
+      "reason": "Permission denied (publickey,keyboard-interactive)",
+      "note": "TCP:22 responds, key rejected. PERMANENT DE-MINE per project record — do not reflash."
+    }
+  ],
+
+  "services": [
+    {"merge_key": "svc:138:octopus-revenue-drive", "host": "138", "unit": "octopus-revenue-drive.service", "active": "failed", "sub": "failed", "result": "exit-code", "since": "2026-09-17T00:00:51Z", "failing_step": "ExecStartPost send_queue.py", "exit_status": 1, "upstream_steps": "all SUCCESS (revenue_drive.py, lead_enrich.py, money_executor.py, revenue_state.py)", "downstream_skipped": ["owner_ask.py", "owner_reply.py"], "root_cause": "OSError [Errno 30] Read-only file system: /home/ari/ofn/tools/leads_master.json at send_queue.py:61", "sandbox_cause": "ProtectHome=read-only with ReadWritePaths=/home/ari/ofn/state/revenue-drive /home/ari/ofn/data — tools/ is not in ReadWritePaths", "trigger_condition": "write is guarded by `if synced:`; fires only when lead-emails.jsonl holds a business not yet in leads_master contact_channel. AS_OF_NOW 68 ledger businesses vs 66 synced = 2 pending, so every tick now fails.", "git_path": null},
+    {"merge_key": "svc:138:octopus-ops-agent", "host": "138", "unit": "octopus-ops-agent.service", "active": "inactive", "sub": "dead", "type": "oneshot+timer", "timer_next": "2026-09-17T01:24:24Z", "observed_tick_interval_s": 330, "last_receipt_utc": "2026-09-17T01:24:36Z", "state": "LIVE (ticking)"},
+    {"merge_key": "svc:138:octopus-control-router", "host": "138", "unit": "octopus-control-router.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:138:octopus-cycle-settler", "host": "138", "unit": "octopus-cycle-settler.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:138:octopus-router", "host": "138", "unit": "octopus-router.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:138:octopus-supervisor", "host": "138", "unit": "octopus-supervisor.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:138:octopus-verify-dispatcher", "host": "138", "unit": "octopus-verify-dispatcher.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:138:octopus-bridge", "host": "138", "unit": "octopus-bridge.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:138:ofn-heartbeat", "host": "138", "unit": "ofn-heartbeat.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:138:ofn", "host": "138", "unit": "ofn.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:138:smartmontools", "host": "138", "unit": "smartmontools.service", "active": "failed", "result": "exit-code", "exit_status": 17, "severity": "LOW — no SMART-capable device on eMMC path", "state": "FAILED_COSMETIC"},
+    {"merge_key": "svc:180:octopus-afferent-lab", "host": "180", "unit": "octopus-afferent-lab.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:180:octopus-gateway", "host": "180", "unit": "octopus-gateway.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:180:octopus-llama-lab", "host": "180", "unit": "octopus-llama-lab.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:180:octopus-organism-lab", "host": "180", "unit": "octopus-organism-lab.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:180:octopus-soak-lab", "host": "180", "unit": "octopus-soak-lab.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:182:nats-server", "host": "182", "unit": "nats-server.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:182:octopus-fusiond", "host": "182", "unit": "octopus-fusiond.service", "active": "active", "sub": "running", "state": "LIVE"},
+    {"merge_key": "svc:182:octopus-metacontrol", "host": "182", "unit": "octopus-metacontrol.service", "active": "active", "sub": "running", "description": "advisory only, no planner", "state": "LIVE"},
+    {"merge_key": "svc:182:octopus-laptop-handoff", "host": "182", "unit": "octopus-laptop-handoff.service", "active": "active", "sub": "exited", "state": "LIVE"},
+    {"merge_key": "svc:182:octopus-gap001-boot-probe", "host": "182", "unit": "octopus-gap001-boot-probe.service", "active": "failed", "result": "oom-kill", "since": "2026-09-15T01:22:32Z", "mem_peak": "2G", "cpu_time_s": 15.449, "state": "FAILED_OOM"},
+    {"merge_key": "svc:182:octopus-miniscientist-daily", "host": "182", "unit": "octopus-miniscientist-daily.service", "active": "failed", "result": "exit-code", "exit_status": 1, "since": "2026-09-16T06:35:05Z", "exec": "/opt/octopus/venv/bin/python /opt/octopus-agent/SANDBOX/daily_report.py", "state": "FAILED"},
+    {"merge_key": "svc:182:octopus-apply-registry", "host": "182", "unit": "octopus-apply-registry.service", "active": "activating", "sub": "start", "state": "FIRE_LOOP", "starts_last_30min": 304, "starts_last_2min": 26, "rate_per_min": 13, "exec": "/opt/octopus/scripts/apply_signed_inbound.py registry", "exec_main_status": 0, "cpu_per_cycle_s": 4.553, "trigger": "octopus-apply-registry.path PathExists=/var/lib/octopus/inbound/SIGNED-REGISTRY-BUNDLE/*", "state_since_utc": "2026-09-17T01:05:27Z"},
+    {"merge_key": "svc:182:octopus-apply-checkpoint", "host": "182", "unit": "octopus-apply-checkpoint.service", "active": "activating", "sub": "start", "state": "FIRE_LOOP", "starts_last_30min": 95, "starts_last_2min": 8, "rate_per_min": 4, "exec": "/opt/octopus/scripts/apply_signed_inbound.py checkpoint", "exec_main_status": 0, "cpu_per_cycle_s": 14.905, "trigger": "octopus-apply-checkpoint.path PathExists=/var/lib/octopus/inbound/SIGNED-CHECKPOINT-BUNDLE/checkpoint.json.sig", "state_since_utc": "2026-09-17T01:05:27Z"},
+    {"merge_key": "svc:193:octopus-t3-model", "host": "193", "unit": "octopus-t3-model.service", "active": "active", "sub": "running", "description": "extractive-v1", "state": "LIVE"},
+    {"merge_key": "svc:193:octopus-worker-heartbeat", "host": "193", "unit": "octopus-worker-heartbeat.service", "active": "inactive", "sub": "dead", "state": "LIVE (timer-ticked)"}
+  ],
+
+  "timers": {
+    "merge_key": "timers:all-hosts",
+    "counts": {"138": 42, "180": 15, "182": 19, "193": 5},
+    "host_138_high_frequency_octopus": [
+      {"unit": "octopus-autonomy-supervisor.timer", "next_utc": "2026-09-17T01:24:21Z", "last_utc": "2026-09-17T01:18:54Z"},
+      {"unit": "octopus-ops-agent.timer", "next_utc": "2026-09-17T01:24:24Z", "last_utc": "2026-09-17T01:18:50Z"},
+      {"unit": "octopus-shadow-verify.timer", "next_utc": "2026-09-17T01:24:31Z", "last_utc": "2026-09-17T01:19:16Z"},
+      {"unit": "octopus-eti-telemetry.timer", "next_utc": "2026-09-17T01:25:04Z", "last_utc": "2026-09-17T01:19:50Z"},
+      {"unit": "octopus-mesh-consume.timer", "next_utc": "2026-09-17T01:25:07Z", "last_utc": "2026-09-17T01:20:16Z"},
+      {"unit": "octopus-go-b3-bind.timer", "next_utc": "2026-09-17T01:25:31Z", "last_utc": "2026-09-17T01:23:31Z"},
+      {"unit": "octopus-coding-worker.timer", "next_utc": "2026-09-17T01:25:33Z", "last_utc": "2026-09-17T01:20:16Z"},
+      {"unit": "octopus-reply-alert.timer", "next_utc": "2026-09-17T01:26:00Z", "last_utc": "2026-09-17T01:24:01Z"},
+      {"unit": "octopus-glass.timer", "next_utc": "2026-09-17T01:27:00Z", "last_utc": "2026-09-17T01:22:01Z"},
+      {"unit": "octopus-scheduler.timer", "next_utc": "2026-09-17T01:28:00Z", "last_utc": "2026-09-17T01:13:01Z"},
+      {"unit": "octopus-owner-reply.timer", "next_utc": "2026-09-17T01:28:01Z", "last_utc": "2026-09-17T01:23:01Z"},
+      {"unit": "octopus-budget-monitor.timer", "next_utc": "2026-09-17T01:29:00Z", "last_utc": "2026-09-17T01:24:01Z"},
+      {"unit": "octopus-quote.timer", "next_utc": "2026-09-17T01:48:00Z", "last_utc": "2026-09-17T01:18:01Z"},
+      {"unit": "octopus-shopify-watch.timer", "next_utc": "2026-09-17T01:54:00Z", "last_utc": "2026-09-17T01:24:01Z"},
+      {"unit": "octopus-revenue-drive.timer", "next_utc": "2026-09-17T06:00:27Z", "last_utc": "2026-09-17T00:00:39Z", "interval_h": 6},
+      {"unit": "octopus-provider-probe.timer", "next_utc": "2026-09-17T02:00:00Z", "last_utc": "2026-09-17T01:00:01Z"},
+      {"unit": "octopus-deep-scan.timer", "next_utc": "2026-09-21T04:03:33Z", "last_utc": "2026-09-13T04:00:01Z", "cadence": "weekly"},
+      {"unit": "ofn-backup.timer", "next_utc": "2026-09-17T03:24:44Z", "last_utc": "2026-09-16T03:18:08Z"},
+      {"unit": "capability-school-revenue.timer", "next_utc": "2026-09-18T00:20:42Z", "last_utc": "2026-09-17T00:21:14Z"}
+    ],
+    "host_182_key": [
+      {"unit": "octopus-remote-witness.timer", "next_utc": "2026-09-17T01:29:44Z", "last_utc": "2026-09-17T01:27:44Z", "role": "Class B verdict authority for 138"},
+      {"unit": "octopus-witness-worker.timer", "next_utc": "2026-09-17T01:31:12Z", "last_utc": "2026-09-17T01:28:12Z"},
+      {"unit": "octopus-agent-exchange.timer", "next_utc": null, "last_utc": "2026-09-17T01:28:16Z"},
+      {"unit": "octopus-agent-sentinel.timer", "next_utc": "2026-09-17T01:28:49Z", "last_utc": "2026-09-17T01:23:49Z"},
+      {"unit": "octopus-crossnode-probe.timer", "next_utc": "2026-09-17T01:28:49Z", "last_utc": "2026-09-17T01:23:49Z"},
+      {"unit": "octopus-all-ledgers-verify.timer", "next_utc": "2026-09-17T02:00:49Z", "last_utc": "2026-09-17T01:02:07Z"},
+      {"unit": "octopus-miniscientist-daily.timer", "next_utc": "2026-09-17T06:35:00Z", "last_utc": "2026-09-16T06:35:00Z"}
+    ],
+    "host_180_key": [
+      {"unit": "octopus-cognitive-worker.timer", "next_utc": "2026-09-17T01:28:34Z", "last_utc": "2026-09-17T01:27:49Z"},
+      {"unit": "octopus-mirror.timer", "next_utc": "2026-09-17T01:28:39Z", "last_utc": "2026-09-17T01:13:39Z"},
+      {"unit": "octopus-drain.timer", "next_utc": "2026-09-17T01:28:49Z", "last_utc": "2026-09-17T01:23:49Z"},
+      {"unit": "octopus-mesh-heartbeat.timer", "next_utc": "2026-09-17T01:28:49Z", "last_utc": "2026-09-17T01:27:49Z"},
+      {"unit": "octopus-reply-outbox.timer", "next_utc": "2026-09-17T01:30:00Z", "last_utc": "2026-09-17T01:15:01Z"},
+      {"unit": "octopus-mesh-send.timer", "next_utc": "2026-09-17T02:00:00Z", "last_utc": "2026-09-17T01:00:00Z"},
+      {"unit": "octopus-life-currency.timer", "next_utc": "2026-09-17T02:00:10Z", "last_utc": "2026-09-17T01:00:49Z"}
+    ],
+    "host_193_key": [
+      {"unit": "octopus-worker-heartbeat.timer", "next_utc": "2026-09-17T01:28:58Z", "last_utc": "2026-09-17T01:27:58Z"}
+    ]
+  },
+
+  "queues": {
+    "merge_key": "queues:138:ops-agent",
+    "source": "/home/ari/ofn/state/ops-agent/state/",
+    "counts": {
+      "pending": 0,
+      "awaiting-outcome": 0,
+      "owner-tasks": 0,
+      "proposals": 22,
+      "executed": 11,
+      "closed": 13,
+      "failed": 8,
+      "outcomes": 20,
+      "superseded-tasks": 8,
+      "withdrawn": 1,
+      "b5-quarantine": 1,
+      "canary-requests": 1,
+      "incidents": 2,
+      "dep-evidence": 2,
+      "probe-scratch": 2
+    },
+    "receipt_ledger": {"file": "/home/ari/ofn/state/ops-agent/state/ops-receipts.jsonl", "rows": 4603, "last_at_utc": "2026-09-17T01:24:36Z", "size_bytes": 2049865},
+    "observations_ledger": {"file": "/home/ari/ofn/state/ops-agent/state/observations.jsonl", "size_bytes": 781110, "last_at_utc": "2026-09-17T01:24:36Z"},
+    "receipt_kind_histogram_top": {
+      "OPS_B_BLOCKED": 1415,
+      "OPS_TICK_COMPLETE": 1057,
+      "STABLE_HEALTH_CYCLE": 1056,
+      "OPS_B_DEPENDENCY_UNMET": 712,
+      "B5_PATH_OUTSIDE_WRITABLE_SCOPE": 176,
+      "OPS_B_STALE_BASE": 57,
+      "OPS_B_PROPOSAL_SENT": 21,
+      "OPS_B_EXECUTED": 20,
+      "OPS_B_OUTCOME_SENT": 20,
+      "OPS_B_CYCLE_CLOSED": 13
+    },
+    "blocked_why_histogram": {"CIRCUIT_BREAKER_OPEN": 837, "BUDGET_NODE_24H": 555, "BUDGET_COMPONENT_30MIN": 23},
+    "last_blocked_at_utc": "2026-09-16T09:14:15Z",
+    "blocking_state_now": "NOT BLOCKING — no OPS_B_BLOCKED since 2026-09-16T09:14:15Z"
+  },
+
+  "budgets": {
+    "merge_key": "budgets:138:ops-agent+api",
+    "ops_budgets_file": "/home/ari/ofn/state/ops-agent/ops_budgets.json",
+    "measured_at_utc": "2026-09-17T01:26:00Z",
+    "ops": {
+      "per_node_24h": {"used": 1, "cap": 20, "basis": "count of OPS_B_EXECUTED rows with at < 86400s"},
+      "mesh_wide_24h": {"used": 1, "cap": 20, "basis": "ops OPS_B_EXECUTED (1) + STABLE CLASS_B_EXECUTED (0) in 24h"},
+      "per_component_30min": {"cap": 1},
+      "mesh_cap_history": "mesh 15 -> 20 on 2026-09-16T20:25:11Z (owner card); per_node 10 -> 20 on 2026-09-15T20:59:48Z; 2 -> 10 on 2026-09-14",
+      "one_class_b_at_a_time": true,
+      "circuit_breaker_after_same_class_failures": 2,
+      "immediate_breaker_on_unknown_effect": true,
+      "unknown_effect_events_found": 0,
+      "last_class_b_execution_utc": "2026-09-16T09:19:57Z",
+      "class_b_executions_all_time": 20,
+      "class_b_executions_last_24h": 1
+    },
+    "breakers": {
+      "note": "replicated budget_allows() exactly, including the legacy _cat_key/_legacy {B8: RY} signature mapping",
+      "B1": "closed", "B2": "closed", "B3": "closed", "B4": "closed",
+      "B5": {"state": "closed", "n_bad_since_fix": 0, "fixed_at": "2026-09-16T09:19:57Z", "signature": "mv-from-readonly-sandbox-source-denied (root-cause-3)"},
+      "B8": {"state": "closed", "n_bad_since_fix": 0, "fixed_at": "2026-09-15T06:27:49Z (via legacy RY key)"}
+    },
+    "api": {
+      "month_spent_usd": 0.853012,
+      "month_budget_remaining_usd": 99.146988,
+      "month_cap_usd": 100.0,
+      "window_spent_usd": 0.0,
+      "window_cap_usd": 10.0,
+      "budget_runway_days_at_steady_cap": 9.9,
+      "paid_api_used_this_review": 0.0,
+      "mode": "LOCAL_FIRST_PAID_FALLBACK",
+      "model_allowlist": ["fugu"],
+      "no_automatic_overage": true
+    }
+  },
+
+  "halt": {
+    "merge_key": "halt:all-hosts",
+    "state": "NOT_HALTED",
+    "probes": [
+      {"path": "/home/ari/ofn/HALT-ALL", "host": "138", "result": "MISSING"},
+      {"path": "/home/ari/ofn/HALT", "host": "138", "result": "MISSING"},
+      {"path": "/etc/octopus-ops-halt", "host": "138", "result": "MISSING"},
+      {"path": "/home/ari/ofn/state/autonomy/STOP-AUTONOMY", "host": "138", "result": "MISSING"},
+      {"path": "/home/ari/HALT", "host": "138", "result": "MISSING"},
+      {"path": "/opt/HALT", "host": "138", "result": "MISSING"},
+      {"path": "/home/ari/ofn/state/revenue-drive/CHANNEL-REVOKED", "host": "138", "result": "MISSING"},
+      {"path": "F:\\ofn-node\\HALT", "host": "laptop", "result": "MISSING"}
+    ],
+    "kill_switch_consumers_documented": ["state/autonomy/STOP-AUTONOMY", "/etc/octopus-ops-halt"],
+    "content_read": false
+  },
+
+  "funnel": {
+    "merge_key": "funnel:painting:138",
+    "source_at_utc": "2026-09-17T00:00:51Z",
+    "season": "ACTIVE-SEASON-REVENUE",
+    "leads_total": 97,
+    "emails_known": 68,
+    "authorized_with_contact": 94,
+    "contactable_phone_only": 29,
+    "staged_packets": 83,
+    "packets_in_sent_state": 3,
+    "messages_sent_today": 0,
+    "replies_detected": 4,
+    "verified_cash": 0.0,
+    "quote_packets_on_disk": 110,
+    "send_queue_files": 83,
+    "phone_only_queue_rows": 29,
+    "owner_decisions_rows": 14,
+    "sent_log_rows": 39,
+    "sent_log_last_at_utc": "2026-09-16T06:15:59Z",
+    "sent_log_last_kind": "reply_1 to reception@absolutestrata.com.au",
+    "verified_cash_aud": 0.0,
+    "revenue_defect_self_reported": "ONLY_ONE_QUOTE_EVER (QT-20260902-001, AUD 0) — funnel stalled since 2026-09-02",
+    "zero_order_streak_checks": 433,
+    "store_reachable": true,
+    "wal": {
+      "paint_l5_001_wal_status": "WAL_EMPTY",
+      "revenue_drive_wal": {"path": "/home/ari/ofn/state/revenue-drive/outbound-effects.sqlite3", "size_bytes": 0, "mtime": "2026-09-16T22:53Z", "status": "WAL_EMPTY"},
+      "canonical_wal_per_code": {"path": "/home/ari/ofn/ofn/agi2027_runtime/outbound-effects.sqlite3", "referenced_by": "ofn/agents/lead_effect_gate.py (LIVE) + heartbeat.py", "size_bytes": 12288, "table": "outbound_effects", "rows": 6, "last_write_utc": "2026-09-02T02:00:10Z", "all_states": "sent", "all_provider_message_id": "smtp-sendmail-returned", "distinct_leads": ["nsw_ocp_buyer:department-of-education-corporate", "nsw_ocp_buyer:environment-and-heritage", "nsw_ocp_buyer:healthshare-nsw", "nsw_ocp_buyer:transport-for-nsw", "nsw_ocp_buyer:transport-for-nsw-transport-infrastructure-projects"], "note": "6 rows now, vault previously recorded 5"},
+      "divergence": "sent-log.jsonl records 39 sends up to 2026-09-16T06:15:59Z, but the outbound_effects WAL has recorded nothing since 2026-09-02T02:00:10Z — the two ledgers do not agree; see gaps[GAP-05]"
+    },
+    "send_authority": {
+      "mode": "auto_stage",
+      "customer_send": false,
+      "no_auto_customer_send": true,
+      "i7_expiry": "2026-09-30T12:47:00+10:00",
+      "channel_authorization": {"granted": "2026-09-13T05:21:07Z", "granted_by": "OWNER (telegram/chat answer 2026-09-13)", "channel": "email", "daily_send_cap": 10, "expiry_days": 30, "scope": "painting/renovation lead funnel"},
+      "revoked_file_present": false,
+      "sender_auto_enabled": "DISABLED_BY_DESIGN — RED boundary; stages only, never customer-sends",
+      "evidence": "i7-runtime.json + systemd drop-in i7-auto-stage.conf (OFN_REVENUE_MODE=auto_stage, OFN_NO_AUTO_CUSTOMER_SEND=true)"
+    },
+    "owner_cards_pending": [
+      {"id": "TRAFFIC-DECISION", "priority": 1, "why": "store LIVE but 433 consecutive zero-order checks — demand generation is the bottleneck, not delivery"},
+      {"id": "MONEY-BATCH", "priority": 1, "packets": ["QP-20260917-7838", "QP-20260917-1023", "QP-20260917-6246", "QP-20260917-5702", "QP-20260917-4484"], "why": "5 quote packets ready; autonomous money execution reached the RED boundary"}
+    ]
+  },
+
+  "mesh": {
+    "merge_key": "mesh:octopus-20260917",
+    "reachable": ["138", "180", "182", "193"],
+    "unreachable": ["191", "100", "160"],
+    "clock": {
+      "method": "midpoint: drift = remote_epoch - (local_epoch_before + local_epoch_after)/2",
+      "samples": [
+        {"host": "138", "drift_s": 0.302, "rtt_s": 1.795},
+        {"host": "138", "drift_s": 0.167, "rtt_s": 0.397},
+        {"host": "180", "drift_s": 0.170, "rtt_s": 0.460},
+        {"host": "180", "drift_s": 0.172, "rtt_s": 0.426},
+        {"host": "182", "drift_s": 0.210, "rtt_s": 0.497},
+        {"host": "182", "drift_s": 0.150, "rtt_s": 0.391},
+        {"host": "193", "drift_s": 0.363, "rtt_s": 0.799},
+        {"host": "193", "drift_s": 0.184, "rtt_s": 0.572}
+      ],
+      "max_abs_drift_s": 0.363,
+      "verdict": "COHERENT — max |drift| 0.36s, all samples same sign and within RTT noise; no board is mis-dated",
+      "ntp_synchronized": {"138": true, "180": true, "182": "n/a (timedatectl absent)", "193": "n/a (timedatectl absent)"}
+    },
+    "deployed_versions": {
+      "138": {
+        "ops_agent.py": {"path": "/home/ari/ofn/state/ops-agent/ops_agent.py", "sha256": "b2d48553458bb920d33611df1cfbd6808ed7a86e2ba64ea80e4f8c4ab902208e", "size_bytes": 63282, "mtime": "2026-09-16T09:19Z", "matches_stage_artifact": {"path": "/home/ari/ofn/state/coding-worker/stage/B5-SCOPE-GUARD-20260916/ops_agent.py", "sha256": "b2d48553458bb920d33611df1cfbd6808ed7a86e2ba64ea80e4f8c4ab902208e", "verdict": "BYTE-IDENTICAL"}, "legacy_hashes_matched": false, "legacy_hashes_seen_in_records": ["beaee58c", "a255c4c0"], "interpretation": "current file is 2 generations past the beaee58c/a255c4c0 records; identity with its own signed stage artifact confirms the 4th self-surgery (2026-09-16T09:19:57Z) is what is deployed"},
+        "send_queue.py": {"sha256": "d05820359f2ecde645dddcbe738fd3a40baa7a9b7c468e4178609364a7440365"}
+      }
+    },
+    "control_plane_liveness": {
+      "verdict": "CONTROL PLANE IS ALIVE ON 138 — all five long-running daemons documented as live were found active/running",
+      "found": ["octopus-control-router", "octopus-cycle-settler", "octopus-router", "octopus-supervisor", "octopus-verify-dispatcher"],
+      "not_found": [],
+      "witness_chain": {"138": "octopus-witness.timer + octopus-soak-witness.timer", "182": "octopus-remote-witness.timer (Class B verdict authority) + octopus-witness-worker.timer"},
+      "receipt_streams_shared": ["octopus-mesh-consume", "octopus-mesh-drain", "octopus-mesh-send", "octopus-mesh-heartbeat", "octopus-eti-telemetry"]
+    }
+  },
+
+  "gaps": [
+    {
+      "merge_key": "gap:GAP-01-revenue-drive-readonly",
+      "id": "GAP-01",
+      "severity": "CRITICAL",
+      "title": "Money-path send stage dies on a systemd sandbox read-only path; blocks owner_ask + owner_reply in the same tick",
+      "evidence": "journalctl octopus-revenue-drive.service 2026-09-17T00:00:51Z: OSError [Errno 30] Read-only file system: '/home/ari/ofn/tools/leads_master.json' at send_queue.py:61",
+      "mechanism": "unit has ProtectHome=read-only and ReadWritePaths=/home/ari/ofn/state/revenue-drive /home/ari/ofn/data; the script writes to /home/ari/ofn/tools/, which is outside ReadWritePaths",
+      "verified_not_disk": "root FS is ext4 rw (mount + findmnt); the file is a regular file owned ari:ari rw-r--r-- — the read-only is the unit sandbox, not the filesystem and not file mode",
+      "masking": "the write sits behind `if synced:`, so it is invisible whenever the email ledger is fully synced; it became fatal the moment 2 ledger businesses were pending",
+      "blast_radius": "ExecStartPost failure aborts the remaining ExecStartPost steps, so owner_ask.py and owner_reply.py did NOT run at 2026-09-17T00:00 — no MONEY-BATCH card was emitted and owner TG replies were not polled that tick",
+      "fix_requires": "mutation (unit drop-in or code path change) — OUT OF SCOPE for this read-only lane",
+      "rollback_available": "leads_master.json.pre-email-sync-20260915 exists; bak.write_bytes is skipped because the bak already exists"
+    },
+    {
+      "merge_key": "gap:GAP-02-182-fire-loop",
+      "id": "GAP-02",
+      "severity": "HIGH",
+      "title": "182 runs a continuous systemd PathExists fire-loop, burning ~2 full cores",
+      "evidence": "octopus-apply-registry 304 starts/30min (26/2min, 13/min); octopus-apply-checkpoint 95 starts/30min (8/2min, 4/min); two children at 100% and 99.6% CPU sampled at 2026-09-17T01:29:08Z; ExecMainStatus=0 each cycle so systemd does not mark it failed — ActiveState stays 'activating'",
+      "mechanism": "path units use PathExists= (not PathChanged=) on files first written 2026-08-22 that the service never consumes/removes — /var/lib/octopus/inbound/SIGNED-CHECKPOINT-BUNDLE/checkpoint.json.sig still present; each success re-arms the watch and refires immediately",
+      "started_utc": "2026-09-17T01:05:27Z",
+      "cpu_cost_per_cycle_s": {"registry": 4.553, "checkpoint": 14.905},
+      "impact": "182 load 3.53/3.36/3.36; competes with octopus_sensorium.app (RSS 1921168 KiB = 47.9% of RAM, running 1d23h); board has only ~0.9-1.5 GiB available",
+      "fix_requires": "mutation — OUT OF SCOPE for this read-only lane"
+    },
+    {
+      "merge_key": "gap:GAP-03-182-oom",
+      "id": "GAP-03",
+      "severity": "MEDIUM",
+      "title": "182 cold-boot probe died by OOM killer",
+      "evidence": "octopus-gap001-boot-probe.service Active: failed (Result: oom-kill) since 2026-09-15T01:22:32Z; Mem peak 2G; Main PID 821 killed signal TERM",
+      "context": "3.8 GiB board, 2 GiB swap; sensorium alone holds 1.87 GiB RSS",
+      "recurrence_risk": "boot-time only; will recur on next reboot unless the probe's memory ceiling or the sensorium footprint changes"
+    },
+    {
+      "merge_key": "gap:GAP-04-182-miniscientist",
+      "id": "GAP-04",
+      "severity": "LOW",
+      "title": "182 Mini Scientist daily advisory report failing",
+      "evidence": "octopus-miniscientist-daily.service failed exit 1 since 2026-09-16T06:35:05Z; ExecStart=/opt/octopus-agent/SANDBOX/daily_report.py",
+      "impact": "report-only unit (no deploy/restart/network) — advisory output missing, no execution impact"
+    },
+    {
+      "merge_key": "gap:GAP-05-wal-divergence",
+      "id": "GAP-05",
+      "severity": "HIGH",
+      "title": "Outbound-effect WAL and sent-log disagree by 33 sends and 14 days",
+      "evidence": "outbound_effects WAL (canonical path per lead_effect_gate.py): 6 rows, last write 2026-09-02T02:00:10Z, all state=sent. sent-log.jsonl: 39 rows, last 2026-09-16T06:15:59Z (reply_1 sent).",
+      "meaning": "effect-gate accounting exists but the real September sends never became WAL rows, so 'what actually left the building' is not answerable from the WAL alone",
+      "note_on_vault_claim": "04-BUSINESS-LEGS/painting.md (authored by the other lane) states the live 138 WAL is 0 bytes today; that is true of /home/ari/ofn/state/revenue-drive/outbound-effects.sqlite3 (0 bytes, mtime 2026-09-16T22:53Z). The code-referenced WAL is the agi2027_runtime one, which is 12288 bytes but frozen. Both statements are true of different files — recorded here AS_OF_NOW rather than as a correction.",
+      "row_count_delta": "vault recorded 5 rows; WAL now holds 6"
+    },
+    {
+      "merge_key": "gap:GAP-06-138-no-swap",
+      "id": "GAP-06",
+      "severity": "MEDIUM",
+      "title": "138 (the money + control-plane node) has no swap at all",
+      "evidence": "free -h on 138: Swap total 0B. Compare 180 (6.0 GiB swap) and 182 (2.0 GiB swap).",
+      "context": "138 has 3.8 GiB RAM, 1.3 GiB used, 2.5 GiB available, and is the busiest board (load 1.91/1.79/2.27, 42 timers)",
+      "risk": "an OOM on 138 takes out the revenue timer and the daemons that enforce the money RED boundary; project record shows 182 was already OOM-fixed by a 2 GiB swapfile"
+    },
+    {
+      "merge_key": "gap:GAP-07-138-smartmon",
+      "id": "GAP-07",
+      "severity": "LOW",
+      "title": "138 smartmontools failed",
+      "evidence": "smartmontools.service Result=exit-code ExecMainStatus=17",
+      "assessment": "expected on an eMMC-only board with no SMART-capable device; no monitoring signal is actually lost"
+    },
+    {
+      "merge_key": "gap:GAP-08-b5-standing-skip",
+      "id": "GAP-08",
+      "severity": "INFO",
+      "title": "ops-agent self-documents a permanent out-of-scope cleanup it cannot perform",
+      "evidence": "176 x B5_PATH_OUTSIDE_WRITABLE_SCOPE receipts, one per tick since 2026-09-16T09:30:45Z; skipped=8; skipped_paths = __pycache__/.pytest_cache under /home/ari/wt-buynsw-ingest and /home/ari/wt-modelcap-20260906",
+      "self_note": "sandbox ReadWritePaths denies rename on these source dirs; their cleanup is an owner/unsandboxed decision",
+      "assessment": "KNOWN and honestly receipted, not a silent failure. 8 stale cache dirs persist."
+    }
+  ],
+
+  "limitations": [
+    "READ_ONLY lane: no service was started, stopped, restarted, enabled or disabled; no flag/HALT/budget/gates.json/ledger was written; no file was deleted, moved, renamed or overwritten. mutations_performed = 0.",
+    "journalctl on 138 required sudo -n; user-scope systemctl over ssh is broken on 138 ($DBUS_SESSION_BUS_ADDRESS unset) so all unit state was read from SYSTEM scope, where the octopus units actually live (User=ari).",
+    "182/193 have no timedatectl, so NTPSynchronized could not be read there; clock coherence was instead measured by the midpoint method (max |drift| 0.36s).",
+    "The 182 fire-loop's start timestamp (2026-09-17T01:05:27Z) is the earliest 'Starting' line still in the journal for that unit, and total all-time starts (305) is within one of the 30-minute count (304) — consistent with the loop beginning then, but journal rotation means this is a floor on the start time, not a proven origin.",
+    "Breaker states are a faithful replication of budget_allows() (including the legacy {B8:RY} signature mapping) executed against the live receipts file, not an invocation of the ops-agent itself — importing the live module could have side effects, so it was deliberately not executed.",
+    "Budget use is a point-in-time count of last-24h OPS_B_EXECUTED rows; it changes every tick (~5.5 min) and should be re-measured before any decision.",
+    "Board 182's memory figures moved between reads (875 MiB then 1526 MiB available) within ~6 minutes; the board is under active pressure.",
+    "No vault census was performed — that territory belongs to the parallel UNIFIED-RECON lane, so this lane reports VAULT_CENSUS=IN_PROGRESS_BY_OTHER_LANE.",
+    "Secret values were never printed: only paths, sizes, row counts, states and hashes.",
+    "The revenue-drive failure was diagnosed entirely from journal + unit file + script source; the fix was NOT applied (it is a mutation and out of scope)."
+  ],
+
+  "phase_status": {
+    "PHASE_0_PREFLIGHT": "DONE",
+    "PHASE_1_HOST_LIVENESS": "DONE",
+    "PHASE_2_SERVICE_TIMER_INVENTORY": "DONE",
+    "PHASE_3_OPS_AGENT_CONTROL_STATE": "DONE",
+    "PHASE_4_BUSINESS_LIVENESS": "DONE",
+    "PHASE_5_MESH_COHERENCE": "DONE",
+    "PHASE_6_OUTPUTS": "DONE"
+  }
+}
