@@ -1,0 +1,23 @@
+{
+  "schema": "octopus.s2-m1-soak-prereg.v1",
+  "written_at_utc": "2026-09-17T10:2Z",
+  "scope_honesty": "This is the REPLAY-PATH memory soak of the candidate snapshot module over frozen real input, NOT the full sensorium app boot. Full boot on 138 BLOCKED: (1) python nacl module absent on 138 system python; (2) app boot requires /etc/octopus identity+registry absent on 138 and copying them would forge the sensorium board identity on a second host (forbidden: roles are not forged from names); (3) app _amain connects and publishes to NATS - pointing a replica at production NATS risks contamination, and no isolated NATS is installed on 138. These blockers are recorded, not bypassed.",
+  "candidate_bytes": {
+    "snapshot_py_sha256": "48cfac2e6a0cde62b86af08a8ca7843aac12e2ff113d9d52a20877c2acdd4824",
+    "base_package": "tar of /opt/octopus/current/src/octopus_sensorium from node 182 (read-only); original snapshot.py sha d9c8ce85167ced9df59f320a382ca23a879ebf21f1b13be87041a86c7cd35a98 replaced by candidate",
+    "path_adaptation_diff_2_lines": "DEFAULT_DIR: /var/lib/octopus/state/snapshots -> /home/ari/s2-replica-20260917/state/snapshots ; DEFAULT_JOURNAL: /var/lib/octopus/state/events.jsonl -> /home/ari/s2-replica-20260917/state/events.jsonl",
+    "app_py": "candidate app.py NOT executed in this soak (see blockers)"
+  },
+  "frozen_input": {
+    "events_jsonl_sha256_182side": "d5d4d7f4f928d50a2b15be1004a4ee14b6237e7a8c2443014db316cf269af8bd",
+    "events_jsonl_bytes": 445138480,
+    "snapshots_dir_bytes_182side": 52312962,
+    "transfer": "direct tar stream 182->138, verified sizes"
+  },
+  "quota": {"MemoryMax": 1610612736, "MemorySwapMax": 0, "unit": "s2replica-soak.scope (systemd-run transient, system manager, --uid ari)"},
+  "sampling": {"interval_s": 60, "count": 65, "fields": ["VmRSS", "VmSwap", "VmSize", "cgroup memory.current/peak/swap.current/events"], "clock": "date -u / time.gmtime"},
+  "phases": {"A_samples_0_19": "snapshot-anchored replay + replay_matches_current each cycle (steady-state restart path)", "B_sample_20_21": "ONE from-empty replay of the full frozen journal (load_events materializes all events - the S1-GAP-02B RAM risk; an OOM here is a MEASURED FAIL to preserve)", "C_22_64": "hold sampling"},
+  "pass_rule_frozen": "max VmRSS across the last ten 60-second samples ending at T+1h <= 1610612736 bytes AND all ten samples exist AND no OOM kill, unexpected restart or missing sample. Verdict computed AFTER completion; sampler does not conclude.",
+  "rollback": "sudo -n systemctl stop s2replica-soak.scope ; rm -rf ~/s2-replica-20260917 (staging only)",
+  "budget": "zero API cost; CPU-only local replay"
+}
