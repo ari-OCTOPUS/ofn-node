@@ -1,0 +1,17 @@
+{
+  "cycle": 1,
+  "n": 141,
+  "changed": 1,
+  "on": 138,
+  "off": 139,
+  "keys_multi": 1,
+  "mixed_polarity_keys": [
+    "646d80a894ad3e8f"
+  ],
+  "VERDICT": "MEMORY_HURTS",
+  "delta_vs_prev": {
+    "changed": 0,
+    "on": 0,
+    "off": 0
+  }
+}

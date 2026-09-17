@@ -1,0 +1,53 @@
+{
+  "cycle_id": "STTL-001",
+  "utc": "2026-09-17T18:21:46Z",
+  "part_a_tests": {
+    "health": {
+      "soak_182": {
+        "samples": 372,
+        "failures": 0
+      },
+      "apply_units_frozen": true,
+      "sensorium_restarts": 0,
+      "broker_138": {
+        "window": "steady-24h",
+        "month_usd": 0.886724,
+        "rows": 89
+      },
+      "fleet_pulse": "7 nodes, 0 alerts, 0 silent",
+      "mirror_freshness": "FRESH seq=1 age=9.3h"
+    },
+    "full_suite": "SEE suite log (background task) - canonical worktree",
+    "fanout_5node": {
+      "result": "5/5 all_pass",
+      "wall_ms": 1714,
+      "prev_wall_ms": 1074
+    },
+    "adversarial_class": {
+      "class": "tampered checkpoint",
+      "status": "ALREADY_CLOSED_IN_CANONICAL (CHECKPOINT_UNAVAILABLE, valid=False)",
+      "regression_tests_added": "tests/test_sttl_adversarial_cycle1.py (2 passed)",
+      "note": "hypothesis was a fail-open hole; completion-agent's fixes already guard it - probe confirms"
+    }
+  },
+  "part_b_training": {
+    "real_rows": 187,
+    "learnable_rows": 141,
+    "keys_multi_in_learnable_set": 1,
+    "mixed_polarity_key": "646d80a894ad3e8f (accept+reject on same proposal)",
+    "learned": "see a10out (learning run in background; prior cycle: approve 139 / reject 2)",
+    "loo": {
+      "n": 141,
+      "on": 138,
+      "off": 139,
+      "changed": 1,
+      "VERDICT": "MEMORY_HURTS",
+      "delta_vs_prev": "0/0/0"
+    },
+    "interpretation": "the ONLY recurring learnable key is the CONFLICTING one; memory's single action there is necessarily wrong for one of its two rows. No other key can carry generalization yet."
+  },
+  "part_c_next": {
+    "next_single_action": "grow recurring decisions: surface the same proposal to the owner twice only WITH the recorder decision_key (now live) so future rows build shared keys; re-run LOO each cycle",
+    "stop_rule_counter": "1 of 3 NO_DIFFERENCE-equivalent cycles (MEMORY_HURTS counts as signal-absent for now)"
+  }
+}
