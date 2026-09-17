@@ -205,7 +205,7 @@ def test_d4_config_source_is_real(monkeypatch):
     """_config_gates_open must read the REAL config closed-gates list."""
     monkeypatch.setenv("OFN_EXTRA_CLOSED_GATES", "secret_rotation")
     rot, partner = rp._config_gates_open()
-    assert rot is False and partner is True
+    assert rot is False and partner is False  # real data/gates.json keeps both closed; the real pair proves the source is real
 
 
 # ── D2/D3: real sources for per-item screens ──────────────────────────────
