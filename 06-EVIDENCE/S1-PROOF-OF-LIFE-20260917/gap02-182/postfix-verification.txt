@@ -1,0 +1,17 @@
+=== post-window 07:24:41Z ===
+ 07:24:41 up 2 days,  6:03,  0 users,  load average: 2.02, 2.47, 3.02
+--- service timestamps (must be frozen at 07:18) ---
+ExecMainStartTimestamp=Thu 2026-09-17 07:18:41 UTC
+ActiveState=inactive
+ExecMainStartTimestamp=Thu 2026-09-17 07:18:32 UTC
+ActiveState=inactive
+--- procs ---
+760691 bash -c echo "=== post-window $(date -u +%H:%M:%SZ) ==="; uptime; echo "--- service timestamps (must be frozen at 07:18) ---"; systemctl show octopus-apply-checkpoint.service -p ExecMainStartTimestamp,ActiveState; systemctl show octopus-apply-registry.service -p ExecMainStartTimestamp,ActiveState; echo "--- procs ---"; pgrep -af apply_signed_inbound || echo "NO_APPLY_PROCS"; echo "--- path units ---"; systemctl is-active octopus-apply-checkpoint.path octopus-apply-registry.path; echo "--- consumed intact ---"; ls /var/lib/octopus/state/inbound-apply/consumed/; echo "--- sensorium now ---"; ps -o pid,etime,%cpu,rss,cmd -p 6088 | tail -1
+--- path units ---
+active
+active
+--- consumed intact ---
+SIGNED-CHECKPOINT-BUNDLE-20260917T071856Z-checkpoint-processed
+SIGNED-REGISTRY-BUNDLE-20260917T071836Z-registry-processed
+--- sensorium now ---
+   6088  2-05:34:35 91.5 1946140 /opt/octopus/venv/bin/python -m octopus_sensorium.app
