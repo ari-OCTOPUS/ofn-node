@@ -18,7 +18,7 @@ sensitivity: internal
 
 | نسخه | کلاس | وضعیت |
 |---|---|---|
-| `06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md` (۹۲KB) | **canonical** طبق حکم D-34/MIRROR-01 (owner GO 2026-09-02) | فعال — آخرین نوشتن 2026-09-16T22:30Z |
+| `06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md` (۹۲KB) | **canonical** طبق حکم D-34/MIRROR-01 (owner GO 2026-09-02) | فعال — آخرین نوشتن 2026-09-17T06:20Z (بعدازظهر: همگرایی+فلیت) |
 | `OCTOPUS/CURRENT-TRUTH.md` (۳۹.۶KB) | سطح خودنویس (frontmatter `octopus-auto`) | فعال — ماشینی، هر بار refresh |
 | `01-TRUTH/CURRENT-TRUTH.md` (۴.۳KB) | **نقش نامعلوم** | نیازمند رأی مالک (کارت ۳) |
 | ۹ فایل ۳۶۰ بایتی در پوشه‌های board قدیمی | استاب pointer به canonical | درست و بسته |

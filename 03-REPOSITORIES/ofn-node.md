@@ -14,7 +14,7 @@ sensitivity: internal
 ---
 # MOC — ofn-node
 
-بدنهٔ اصلی: runtime، کسب‌وکار، حاکمیت، شواهد درون-repo. `main@dba9971a80` (2026-09-17).
+بدنهٔ اصلی: runtime، کسب‌وکار، حاکمیت، شواهد درون-repo. `main@ae187e03 (سبزِ کامل ۲۰۲۶-۰۹-۱۷: کد یکتای board همگرا شد)` (2026-09-17).
 
 - موتور لید نقاشی: `packs/lead.yaml` + `web/lead.html` — روی board-138 زنده (اثبات 2026-09-16T23:47Z)
 - fleet زنده روی 138: autonomy-supervisor، coding-worker، budget-monitor، mesh-consume و ۷ timer دیگر

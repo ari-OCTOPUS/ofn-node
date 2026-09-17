@@ -630,3 +630,19 @@ RULE         = paid cognition never burns the budget on money thoughts — this 
 **آنچه ثابت ماند:** دو مسیر ۸/۸ در برابر چهار معیار (ارسال تلگرام، ورود وب‌هوک) · صفر ارسال خودکار · صفر تغییر روی نودها در این lane.
 
 **منابع:** `plans/OCTOPUS-SAFETY-MAP-v1.md` · `09-LANES/LIVE-PATH-GATE-AUDIT-20260917/` · `09-LANES/OD4-HALT-COVERAGE-WIRING-PREP-20260917/` · `06-EVIDENCE/OBSIDIAN-SURFACES-AUDIT-2026-09-17.md`
+
+
+## 2026-09-17 (بعدازظهر) — همگرایی کامل سه‌بدنه + فلیت ۷-نودی زنده
+
+- **GitHub main برای اولین بار کاملاً سبز:** `dba9971 → b846122 (#264 رفع ۶ قرمز تست) → 8ce45fa (#263 همگرایی کد یکتای board) → ae187e03 (#265 self-model با طبقه‌بندی DECLARED≠WIRED)`. ۱۰۰٪ کد یکتای runtime ۱۳۸ اکنون در main است؛ هر سه merge با approve انسانی (aram-ui) + squash + بدون force-push.
+- **ترمیم EROFS روی ۱۳۸** (drop-in `zz-rwpaths-tools.conf`، dir-scoped) با اجرای دستی مجاز و شاهد مستقل: `PASS_OWNER_NOTIFICATION_OBSERVED` — leads_master پس از ۲ روز نوشته شد؛ صفر اثر مشتری؛ گارد no-customer-send برقرار.
+- **فلیت NATS ۷/۷ آنلاین:** هاب لپ‌تاپ `192.168.0.191` (nats v2.14.7، JetStream `OCTOPUS_EVENTS` ماندگار ۲GiB) + leafهای TLS: 100(coding)·114(hw)·138(revenue)·160(shadow)·180(telemetry)·182(witness، نمونهٔ مستقل کنار Sensorium)·193(hypothesis).
+- **نبض خودکار ۶۰s + ساعت‌ها ±۳ms UTC** (SNTP تک‌شات)؛ ماتریس زندهٔ نودها در `06-EVIDENCE/FLEET-HEARTBEAT-CANONICAL.md` (مصرف‌کنندهٔ durable=vault-pulse)؛ هاب به‌صورت سرویس دائمی (HKCU Run).
+- **پروب‌های استعدادیابی ۵/۵ سبز** (hw-census/hypothesis-dryrun/sandbox-verify/watchdog-consensus/witness-attestation) — همگی در JetStream.
+- **پشتیبان air-gap برای PII:** `secure-backups/leads_master-20260917T061529Z.json` (95,667B، sha256-locked؛ بیرون از git).
+- **سختی‌کاری ۱۳۸:** `/etc/nats-leaf/nats-leaf-138.conf` → `640 root:nogroup` (اعتبارنامه leaf دیگر برای کاربران محلی خوانا نیست).
+- `verified_cash` همچمان `$0.00` — موج امروز زیرساخت/همگرایی بود، نه فروش.
+
+**باز ماند:** سیم‌کشی OD-4 (هنوز مجاز نیست تا doctor→PRE/POST) · PR#71 (منسوب‌شده ولی باز) · گیت‌های مهاجرت Obsidian · I7-expiry renewal از ۲۸ سپتامبر · Phase-1.5 تفکیک permissions فلیت.
+
+**منابع:** `09-LANES/OCTOPUS-UNIFIED-RECOVERY-20260917/` · `09-LANES/FLEET-NATS-7NODE-20260917/LANE-REPORT.md` · `F:/recon-clones-20260917/nats-hub/RECEIPT-*.md` (هر فاز) · PRهای #263/#264/#265
