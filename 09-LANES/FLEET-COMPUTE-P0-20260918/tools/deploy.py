@@ -55,6 +55,10 @@ SETS = {
          "/home/ari/ofn/state/fleet-compute/units/octopus-compute-shadow.service", "644"),
         ("units/octopus-compute-shadow.timer",
          "/home/ari/ofn/state/fleet-compute/units/octopus-compute-shadow.timer", "644"),
+        ("units/octopus-compute-canary.service",
+         "/home/ari/ofn/state/fleet-compute/units/octopus-compute-canary.service", "644"),
+        ("units/octopus-compute-canary.timer",
+         "/home/ari/ofn/state/fleet-compute/units/octopus-compute-canary.timer", "644"),
     ],
 }
 

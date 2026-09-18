@@ -176,6 +176,34 @@ as runnable, so `load1` badly understates utilisation under a cgroup quota.**
    The pre-existing `state/fleet-jobs`, `state/fleet-scheduler` and NATS units
    were **not modified** by this lane.
 
+## Phase 2 soak — ARMED
+
+The canary is now an unattended timer on 138, not a manual command:
+
+- `octopus-compute-canary.timer` — every 10 min, `octopus-compute-canary.service`
+- mode `canary`, `allowed_nodes: ["114"]`, `CPUQuota=200%`, 30 s task, 8 workers
+- **Soak start: 2026-09-18T01:00:00Z** (first timer fire 00:57:57Z, manual
+  verification fire 00:58:30Z, both `status=0/SUCCESS`)
+
+Acceptance is evaluated from evidence, not recollection:
+
+```
+python tools/canary_acceptance.py --since 2026-09-18T01:00:00Z
+```
+
+It checks eight criteria against the live control plane and the local telemetry
+ledger: no service restart, no thermal throttling (cooling-device `cur_state`
+all zero), no queue corruption (no task holding two open leases), exactly-once
+settlement, proven cgroup envelope for every dispatch **in the window**, no work
+outliving its lease (no in-flight task, no open scope, no stray worker process),
+node never rebooted, and the 24 h window actually elapsed.
+
+One honesty note it enforces: a 1-hour dry run of that evaluator reports the
+envelope criterion as **FAIL** (`VERIFIED: 12, UNVERIFIED: 4, NONE: 1`) because
+dispatches from the pre-fix agent are inside that window. That is the correct
+verdict — those four runs genuinely could not prove their limits — and it is why
+the criterion is scoped to the soak window rather than all history.
+
 ## Next actions (in dependency order)
 
 1. Let the 24 h baseline and 24 h of shadow decisions finish; then compare

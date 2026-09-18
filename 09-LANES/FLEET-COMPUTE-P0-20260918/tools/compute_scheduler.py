@@ -501,6 +501,7 @@ def main() -> int:
     ap.add_argument("--auto-profile", default="cpu_bench")
     ap.add_argument("--auto-params", default="{}")
     ap.add_argument("--auto-seconds", type=int, help="shorthand for auto params seconds=N")
+    ap.add_argument("--auto-workers", type=int, help="shorthand for auto params workers=N")
     ap.add_argument("--cgroup-quota", help="override CPUQuota for this run (e.g. 200%%)")
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--loop", action="store_true")
@@ -533,6 +534,8 @@ def main() -> int:
         params = json.loads(args.auto_params)
         if args.auto_seconds:
             params["seconds"] = args.auto_seconds
+        if args.auto_workers:
+            params["workers"] = args.auto_workers
         stamp = utc_now()
         return {
             "profile": args.auto_profile,
