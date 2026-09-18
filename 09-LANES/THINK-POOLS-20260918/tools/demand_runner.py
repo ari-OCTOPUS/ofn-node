@@ -62,11 +62,20 @@ def src_customer() -> tuple[str, str] | None:
 
 
 def src_bulk() -> tuple[str, str] | None:
-    """Bulk work: classify the newest lead enquiry. Free brain is fit for this."""
+    """Bulk work: classify the newest lead. Free brain is fit for this.
+
+    ITEM 1 FIX: the original predicate required a 'subject' key, which lead rows
+    do not carry - so the consumer silently SKIPPED. Any identifying field plus
+    any context field is enough; build ctx from whatever exists.
+    """
     for row in reversed(_rows("lead-emails.jsonl")):
-        if row.get("subject"):
-            ident = str(row.get("email") or row.get("id") or "y")
-            return hashlib.sha256(ident.encode()).hexdigest()[:12], str(row["subject"])[:60]
+        ident = str(row.get("email") or row.get("to") or row.get("id") or "")
+        if not ident:
+            continue
+        ctx = str(row.get("subject") or row.get("company") or row.get("source")
+                  or row.get("channel") or ident.split("@")[-1] if "@" in ident else
+                  row.get("subject") or row.get("company") or row.get("id") or "enquiry")
+        return hashlib.sha256(ident.encode()).hexdigest()[:12], str(ctx)[:60]
     return None
 
 
