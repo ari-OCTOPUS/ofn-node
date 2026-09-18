@@ -1838,7 +1838,7 @@
    "hypothesis": "نجات زیرساخت (OOM/EROFS/SD/برق) ساعت‌های جلسه را بلعیده و کار درآمدی را عقب انداخته",
    "reason": "EROFS incident + OOM-182 + swap drill + disk crisis همه در بازهٔ 09-12..09-18",
    "verify_against": [
-    "RES-05C (session-memory label; source doc not located)"
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md #RES-05C witness verdict (PASS_OWNER_NOTIFICATION_OBSERVED)"
    ],
    "verdict": "PARTIAL",
    "verdict_code": "P",
@@ -1850,8 +1850,8 @@
    "unblock_2liner": "قاعدهٔ توقف خونریزی: هیچ rescue بیشتر از n ساعت بدون کارت مالک",
    "verified_this_session": false,
    "seeded": true,
-   "anchor_quality": "carries-labelled-weakness",
-   "anchor_note": "bare lane label from session memory; source document NOT located in the vault (searched: git log --grep=RES-05, 09-LANES/*RECOVERY*, 09-LANES/*RECON*, 06-EVIDENCE) -> anchor honestly retained as-is instead of a fabricated path"
+   "anchor_quality": "resolvable",
+   "anchor_note": "resolved 2026-09-18: the RES-05C verdict is recorded in the owner-board CURRENT-TRUTH (found by grepping the verdict string PASS_OWNER_NOTIFICATION_OBSERVED)"
   },
   {
    "id": "W-236",
@@ -5358,7 +5358,7 @@
    "hypothesis": "EROFS روی ۱۳۸ (که دو روز نوشتن را بسته بود) با RES-05C رفع شده — علتِ رفع‌شده",
    "reason": "RES-05C verdict PASS_OWNER_NOTIFICATION_OBSERVED @03:19:07Z؛ EROFS gone",
    "verify_against": [
-    "RES-05C (session-memory label; source doc not located)"
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md #RES-05C witness verdict (PASS_OWNER_NOTIFICATION_OBSERVED)"
    ],
    "verdict": "REFUTED",
    "verdict_code": "R",
@@ -5370,8 +5370,8 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness",
-   "anchor_note": "bare lane label from session memory; source document NOT located in the vault (searched: git log --grep=RES-05, 09-LANES/*RECOVERY*, 09-LANES/*RECON*, 06-EVIDENCE) -> anchor honestly retained as-is instead of a fabricated path"
+   "anchor_quality": "resolvable",
+   "anchor_note": "resolved 2026-09-18: the RES-05C verdict is recorded in the owner-board CURRENT-TRUTH (found by grepping the verdict string PASS_OWNER_NOTIFICATION_OBSERVED)"
   },
   {
    "id": "W-200",
@@ -5469,5 +5469,11 @@
   ],
   "note": "the only two anchors that could not be resolved to a real document; kept as explicit labels",
   "at": "2026-09-18T13:50:00Z"
+ },
+ "anchor_stats_v10": {
+  "resolvable": 250,
+  "labelled_weak": 0,
+  "closed_at": "2026-09-18T14:00:00Z",
+  "note": "all 250 anchors now resolve to a real document or a re-runnable command"
  }
 }

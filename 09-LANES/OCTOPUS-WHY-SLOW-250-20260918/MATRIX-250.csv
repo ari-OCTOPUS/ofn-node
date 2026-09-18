@@ -81,7 +81,7 @@ W-198,T9-attention-priority,CONFIRMED_BLOCKER,E3,3,3,9,False,True,False,resolvab
 W-003,T1-money-path,PARTIAL,E2,4,2,8,True,True,False,resolvable,انتخاب SEND_YOURSELF توسط مالک در 09-16 ارسال ماشینی را به رأی دسته‌به‌دسته گره زده و کار را به مالک منتقل کرده
 W-011,T1-money-path,UNVERIFIED,E2,4,2,8,False,True,False,resolvable,meter چهار پاسخ شناسایی‌شده نشان می‌دهد ولی sent-log فقط یک reply_1 دارد — سرنوشت ۳ پاسخ نامعلوم است
 W-019,T1-money-path,CONFIRMED_BLOCKER,E1,4,2,8,True,False,False,resolvable,تبلیغ پولی و هر خرید ترافیک در مرز سرخ است؛ تولید تقاضا به ۶۸ ایمیل سرد محدود مانده
-W-S13,T10-infra-fleet,PARTIAL,E1,4,2,8,False,False,True,carries-labelled-weakness,نجات زیرساخت (OOM/EROFS/SD/برق) ساعت‌های جلسه را بلعیده و کار درآمدی را عقب انداخته
+W-S13,T10-infra-fleet,PARTIAL,E1,4,2,8,False,False,True,resolvable,نجات زیرساخت (OOM/EROFS/SD/برق) ساعت‌های جلسه را بلعیده و کار درآمدی را عقب انداخته
 W-236,T12-buffer-external,CONFIRMED_BLOCKER,E3,4,2,8,False,True,False,resolvable,صفر اعتبارسنجی بیرونی: هیچ پیشنهادی هرگز پذیرفته یا رد نشده (۰ برد، ۱ پاسخ)
 W-043,T2-demand-market,PARTIAL,E1,4,2,8,True,False,False,resolvable,مرز RED روی ارتباط عمومی، کانال‌های تقاضای ارزان را هم قفل می‌کند
 W-080,T2-demand-market,CONFIRMED_BLOCKER,E2,4,2,8,False,True,False,resolvable,هیچ کانال ورودی ترافیک به فروشگاه وصل نیست: تبلیغ ممنوع، SEO و شبکه‌های اجتماعی صفر
@@ -246,6 +246,6 @@ W-173,T8-knowledge-debt,UNVERIFIED,E1,1,2,2,False,False,False,resolvable,چک‌
 W-177,T8-knowledge-debt,UNVERIFIED,E1,1,2,2,False,False,False,resolvable,خلبان AIE صادقانه fail شد و PYMDP v2 ثبت‌شده ولی هرگز اجرا نشد
 W-179,T8-knowledge-debt,UNVERIFIED,E1,1,2,2,False,False,False,resolvable,حلقهٔ کسب‌وکار EDGE6 مسدود و remote انتشار GitHub نامکشوف مانده
 W-035,T1-money-path,REFUTED,E3,0,5,0,True,True,False,resolvable,بودجهٔ API ماهانه ۰.۹ دلار از ۱۰۰ دلار است — کمبود بودجه علت کندی نیست
-W-199,T10-infra-fleet,REFUTED,E1,0,5,0,False,False,False,carries-labelled-weakness,EROFS روی ۱۳۸ (که دو روز نوشتن را بسته بود) با RES-05C رفع شده — علتِ رفع‌شده
+W-199,T10-infra-fleet,REFUTED,E1,0,5,0,False,False,False,resolvable,EROFS روی ۱۳۸ (که دو روز نوشتن را بسته بود) با RES-05C رفع شده — علتِ رفع‌شده
 W-200,T10-infra-fleet,REFUTED,E1,0,5,0,False,False,False,resolvable,OOM روی ۱۸۲ با swapfile ۲G رفع شده و gap001 مربوط به قبل از swapfile بود
 W-215,T10-infra-fleet,REFUTED,E2,0,5,0,False,False,False,resolvable,کلید leaf ناتس ۱۳۸ در پالس‌ها None بود که در ۰۹-۱۷ اصلاح شد — علتِ رفع‌شده
