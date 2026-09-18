@@ -1,0 +1,17 @@
+=== FIRST PAID CONSUMPTION (tier=strong, customer-facing) ===
+{
+ "schema": "demand_use.v1",
+ "at_utc": "2026-09-18T02:14:20Z",
+ "consumer": "lead_reply_draft",
+ "provider": "gemini",
+ "model": "gemini-3.1-pro-preview",
+ "tier": "strong",
+ "lead_id": "1c0fdaae927d",
+ "ok": false,
+ "reply_chars": 0,
+ "est_out_tokens": 1,
+ "est_cost_usd": 0.0,
+ "cost_is_estimate": true,
+ "latency_s": 0.8,
+ "reply_head": ""
+}

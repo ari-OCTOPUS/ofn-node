@@ -66,7 +66,10 @@ def main() -> int:
     lead_id = hashlib.sha256(ident.encode()).hexdigest()[:12]
     subject = str(lead.get("subject") or lead.get("company") or "")[:40]
 
-    tier = "standard"          # first consumer: bulk-quality work, free brain first
+    # tier=strong by CONSEQUENCE: a customer reads this draft, and the free 0.6B
+    # local model produced repetition garbage on exactly this task (2026-09-18).
+    # Bulk/classification work stays tier=standard (free first).
+    tier = "strong"
     built = bf.build(tier=tier)
     brain, model = built["brain"], built["model"]
     provider = built["decision"]["chosen"]
