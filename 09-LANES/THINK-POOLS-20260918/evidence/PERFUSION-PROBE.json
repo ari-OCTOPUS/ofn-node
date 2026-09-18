@@ -1,0 +1,486 @@
+{
+ "at_utc": "2026-09-18T01:33:23Z",
+ "units_total": 80,
+ "units_by_sub": {
+  "running": 6,
+  "dead": 37,
+  "waiting": 37
+ },
+ "octopus_units": [
+  "octopus-138-pulse.service",
+  "octopus-138-pulse.timer",
+  "octopus-absence.service",
+  "octopus-absence.timer",
+  "octopus-autonomy-supervisor.service",
+  "octopus-autonomy-supervisor.timer",
+  "octopus-brainwake.service",
+  "octopus-brainwake.timer",
+  "octopus-bridge.service",
+  "octopus-budget-monitor.service",
+  "octopus-budget-monitor.timer",
+  "octopus-coding-worker.service",
+  "octopus-coding-worker.timer",
+  "octopus-compute-canary.service",
+  "octopus-compute-canary.timer",
+  "octopus-compute-shadow.service",
+  "octopus-compute-shadow.timer",
+  "octopus-control-router.service",
+  "octopus-cycle-settler.service",
+  "octopus-deep-scan.service",
+  "octopus-deep-scan.timer",
+  "octopus-doctor.service",
+  "octopus-doctor.timer",
+  "octopus-drill.service",
+  "octopus-drill.timer",
+  "octopus-eti-telemetry.service",
+  "octopus-eti-telemetry.timer",
+  "octopus-experience-ingest.service",
+  "octopus-experience-ingest.timer",
+  "octopus-feedback-loop.service",
+  "octopus-feedback-loop.timer",
+  "octopus-fleet-scheduler.service",
+  "octopus-fleet-scheduler.timer",
+  "octopus-glass.service",
+  "octopus-glass.timer",
+  "octopus-go-b3-bind.service",
+  "octopus-go-b3-bind.timer",
+  "octopus-heartbeat.service",
+  "octopus-heartbeat.timer",
+  "octopus-imap.service",
+  "octopus-imap.timer",
+  "octopus-learningfeeder.service",
+  "octopus-learningfeeder.timer",
+  "octopus-mesh-consume.service",
+  "octopus-mesh-consume.timer",
+  "octopus-mesh-drain.service",
+  "octopus-mesh-drain.timer",
+  "octopus-mirror-push.service",
+  "octopus-mirror-push.timer",
+  "octopus-ops-agent.service",
+  "octopus-ops-agent.timer",
+  "octopus-owner-ask.service",
+  "octopus-owner-ask.timer",
+  "octopus-owner-reply.service",
+  "octopus-owner-reply.timer",
+  "octopus-provider-probe.service",
+  "octopus-provider-probe.timer",
+  "octopus-quote.service",
+  "octopus-quote.timer",
+  "octopus-reply-alert.service",
+  "octopus-reply-alert.timer",
+  "octopus-revenue-drive.service",
+  "octopus-revenue-drive.timer",
+  "octopus-router.service",
+  "octopus-scheduler.service",
+  "octopus-scheduler.timer",
+  "octopus-selfmodel.service",
+  "octopus-selfmodel.timer",
+  "octopus-shadow-verify.service",
+  "octopus-shadow-verify.timer",
+  "octopus-shopify-watch.service",
+  "octopus-shopify-watch.timer",
+  "octopus-soak-witness.service",
+  "octopus-soak-witness.timer",
+  "octopus-supervisor.service",
+  "octopus-verify-dispatcher.service",
+  "octopus-w1-verdict.service",
+  "octopus-w1-verdict.timer",
+  "octopus-witness.service",
+  "octopus-witness.timer"
+ ],
+ "timers": {
+  "octopus-owner-reply.timer": {
+   "next": "Fri",
+   "last": "46s"
+  },
+  "octopus-go-b3-bind.timer": {
+   "next": "Fri",
+   "last": "45s"
+  },
+  "octopus-138-pulse.timer": {
+   "next": "Fri",
+   "last": "43s"
+  },
+  "octopus-budget-monitor.timer": {
+   "next": "Fri",
+   "last": "17s"
+  },
+  "octopus-glass.timer": {
+   "next": "Fri",
+   "last": "19s"
+  },
+  "octopus-reply-alert.timer": {
+   "next": "Fri",
+   "last": "19s"
+  },
+  "octopus-ops-agent.timer": {
+   "next": "Fri",
+   "last": "55s"
+  },
+  "octopus-soak-witness.timer": {
+   "next": "Fri",
+   "last": "58min"
+  },
+  "octopus-mesh-consume.timer": {
+   "next": "Fri",
+   "last": "8s"
+  },
+  "octopus-experience-ingest.timer": {
+   "next": "Fri",
+   "last": "12min"
+  },
+  "octopus-owner-ask.timer": {
+   "next": "Fri",
+   "last": "7min"
+  },
+  "octopus-imap.timer": {
+   "next": "Fri",
+   "last": "12min"
+  },
+  "octopus-compute-shadow.timer": {
+   "next": "Fri",
+   "last": "42s"
+  },
+  "octopus-coding-worker.timer": {
+   "next": "Fri",
+   "last": "41s"
+  },
+  "octopus-eti-telemetry.timer": {
+   "next": "Fri",
+   "last": "11s"
+  },
+  "octopus-fleet-scheduler.timer": {
+   "next": "Fri",
+   "last": "25min"
+  },
+  "octopus-autonomy-supervisor.timer": {
+   "next": "Fri",
+   "last": "37s"
+  },
+  "octopus-compute-canary.timer": {
+   "next": "Fri",
+   "last": "5min"
+  },
+  "octopus-shadow-verify.timer": {
+   "next": "Fri",
+   "last": "18s"
+  },
+  "octopus-witness.timer": {
+   "next": "Fri",
+   "last": "52min"
+  },
+  "octopus-feedback-loop.timer": {
+   "next": "Fri",
+   "last": "50min"
+  },
+  "octopus-scheduler.timer": {
+   "next": "Fri",
+   "last": "5min"
+  },
+  "octopus-selfmodel.timer": {
+   "next": "Fri",
+   "last": "47min"
+  },
+  "octopus-quote.timer": {
+   "next": "Fri",
+   "last": "15min"
+  },
+  "octopus-shopify-watch.timer": {
+   "next": "Fri",
+   "last": "9min"
+  },
+  "octopus-provider-probe.timer": {
+   "next": "Fri",
+   "last": "33min"
+  },
+  "octopus-doctor.timer": {
+   "next": "Fri",
+   "last": "28min"
+  },
+  "octopus-brainwake.timer": {
+   "next": "Fri",
+   "last": "23min"
+  },
+  "octopus-absence.timer": {
+   "next": "Fri",
+   "last": "17min"
+  },
+  "octopus-heartbeat.timer": {
+   "next": "Fri",
+   "last": "13min"
+  },
+  "octopus-learningfeeder.timer": {
+   "next": "Fri",
+   "last": "10min"
+  },
+  "octopus-mesh-drain.timer": {
+   "next": "Fri",
+   "last": "19s"
+  },
+  "octopus-mirror-push.timer": {
+   "next": "Fri",
+   "last": "UTC"
+  },
+  "octopus-revenue-drive.timer": {
+   "next": "Fri",
+   "last": "33min"
+  },
+  "octopus-w1-verdict.timer": {
+   "next": "Fri",
+   "last": "-"
+  },
+  "octopus-drill.timer": {
+   "next": "Sun",
+   "last": "UTC"
+  },
+  "octopus-deep-scan.timer": {
+   "next": "Mon",
+   "last": "UTC"
+  }
+ },
+ "brain_consumers": {
+  "ofn/assistant_update.py": [
+   "remote_brain"
+  ],
+  "ofn/config.py": [
+   "remote_brain"
+  ],
+  "ofn/run.py": [
+   "remote_brain"
+  ],
+  "ofn/helpers/brainport.py": [
+   "BRAIN_PROVIDER"
+  ],
+  "ofn/adapters/self_model_producer.py": [
+   "remote_brain"
+  ],
+  "ofn/adapters/trend_sources.py": [
+   "remote_brain"
+  ],
+  "ofn/adapters/remote_brain.py": [
+   "remote_brain"
+  ],
+  "state/fleet-scheduler/pb4_test.py": [
+   "t3:8193"
+  ],
+  "state/fleet-scheduler/capaware_scheduler.py": [
+   "t3:8193"
+  ],
+  "state/cognition/cognition_factory.py": [
+   "llama180"
+  ],
+  "state/api-budget/provider_failover.py": [
+   "provider_registry"
+  ],
+  "state/api-budget/providers.py": [
+   "llama180"
+  ],
+  "state/api-budget/api_budget.py": [
+   "remote_brain",
+   "llama180",
+   "provider_registry"
+  ],
+  "state/coding-worker/coding_worker.py": [
+   "llama180"
+  ],
+  "state/api-budget/tests/test_provider_failover.py": [
+   "provider_registry"
+  ]
+ },
+ "organs": {
+  "api-budget": {
+   "files": 24,
+   "written_24h": 6,
+   "newest_age_h": 0.6,
+   "ledgers": [
+    "budget-ledger.jsonl"
+   ],
+   "last_ledger_row": "2026-09-15T22:43:11+00:00"
+  },
+  "autonomy": {
+   "files": 27,
+   "written_24h": 2,
+   "newest_age_h": 0.0,
+   "ledgers": [
+    "prediction-ledger.jsonl",
+    "receipts.jsonl"
+   ],
+   "last_ledger_row": "2026-09-18T01:32:45+00:00"
+  },
+  "coding-worker": {
+   "files": 173,
+   "written_24h": 2,
+   "newest_age_h": 0.0,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "cognition": {
+   "files": 280,
+   "written_24h": 0,
+   "newest_age_h": 65.0,
+   "ledgers": [
+    "receipts.jsonl"
+   ],
+   "last_ledger_row": "2026-09-15T08:33:43Z"
+  },
+  "deep-scan": {
+   "files": 1476,
+   "written_24h": 7,
+   "newest_age_h": 1.0,
+   "ledgers": [
+    "findings-events.jsonl"
+   ],
+   "last_ledger_row": "2026-09-18T00:35:47Z"
+  },
+  "durability": {
+   "files": 3,
+   "written_24h": 0,
+   "newest_age_h": 65.3,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "eti-telemetry": {
+   "files": 3315,
+   "written_24h": 540,
+   "newest_age_h": 0.0,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "evidence": {
+   "files": 2,
+   "written_24h": 2,
+   "newest_age_h": 2.1,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "fleet-compute": {
+   "files": 27,
+   "written_24h": 27,
+   "newest_age_h": 0.0,
+   "ledgers": [
+    "decisions.jsonl",
+    "receipts.jsonl"
+   ],
+   "last_ledger_row": "2026-09-18T01:31:48Z"
+  },
+  "fleet-compute-probe": {
+   "files": 1,
+   "written_24h": 1,
+   "newest_age_h": 1.4,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "fleet-jobs": {
+   "files": 5,
+   "written_24h": 2,
+   "newest_age_h": 0.4,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "fleet-memory": {
+   "files": 13,
+   "written_24h": 0,
+   "newest_age_h": 40.0,
+   "ledgers": [
+    "fleet_decisions.jsonl"
+   ],
+   "last_ledger_row": null
+  },
+  "fleet-nodes": {
+   "files": 2,
+   "written_24h": 0,
+   "newest_age_h": 46.7,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "fleet-scheduler": {
+   "files": 18,
+   "written_24h": 3,
+   "newest_age_h": 0.2,
+   "ledgers": [
+    "scheduler-receipts.jsonl",
+    "retrieve-receipts.jsonl"
+   ],
+   "last_ledger_row": "2026-09-15T04:38:06Z"
+  },
+  "glass": {
+   "files": 1,
+   "written_24h": 0,
+   "newest_age_h": 42.5,
+   "ledgers": [
+    "inject_receipts.jsonl"
+   ],
+   "last_ledger_row": "2026-09-16T07:05:16Z"
+  },
+  "of-draft-queue": {
+   "files": 1,
+   "written_24h": 0,
+   "newest_age_h": 42.4,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "ops-agent": {
+   "files": 190,
+   "written_24h": 4,
+   "newest_age_h": 0.1,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "owner_dialogue": {
+   "files": 24,
+   "written_24h": 7,
+   "newest_age_h": 0.6,
+   "ledgers": [
+    "owner_decision.v1.jsonl",
+    "decision_consumption.jsonl"
+   ],
+   "last_ledger_row": "2026-09-18T00:57:40+00:00"
+  },
+  "receipts": {
+   "files": 43,
+   "written_24h": 7,
+   "newest_age_h": 0.7,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "revenue-drive": {
+   "files": 400,
+   "written_24h": 121,
+   "newest_age_h": 0.0,
+   "ledgers": [
+    "receipts.jsonl",
+    "owner-decisions.jsonl"
+   ],
+   "last_ledger_row": "2026-09-18T00:53:19Z"
+  },
+  "self-model": {
+   "files": 23,
+   "written_24h": 1,
+   "newest_age_h": 0.8,
+   "ledgers": [],
+   "last_ledger_row": null
+  },
+  "shadow-verify": {
+   "files": 6,
+   "written_24h": 2,
+   "newest_age_h": 0.0,
+   "ledgers": [],
+   "last_ledger_row": null
+  }
+ },
+ "compute_vein": {
+  "control_plane": true,
+  "agent_on_this_node": false,
+  "timers": {
+   "octopus-compute-shadow.timer": {
+    "next": "Fri",
+    "last": "42s"
+   },
+   "octopus-compute-canary.timer": {
+    "next": "Fri",
+    "last": "5min"
+   }
+  },
+  "task_states": "unavailable: NameError"
+ }
+}
