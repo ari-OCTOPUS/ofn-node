@@ -1,0 +1,81 @@
+{
+ "schema": "octopus.runtime-export.receipt.v1",
+ "lane": "RUNTIME-EXPORT-20260918",
+ "gov": "GOV_VERSION=V8 \u00b7 LADDER=L2",
+ "base": "ae187e03ecb4",
+ "at": "2026-09-18T00:14:32Z",
+ "method": "each file fetched from board138 with `ssh -n ... cat`; source sha256 (138) compared to the staged file AND to the git index blob \u2014 all 9 matched byte-for-byte",
+ "files": [
+  {
+   "path": "ofn/ziman_cycle/gates.py",
+   "sha256": "f3451a16f63539cfbd5477d6685bb2c9cef515b86c21525667f67a4951d19f8f",
+   "change": "A1 \u2014 Ziman GatePolicy.hold_external released (owner vote)"
+  },
+  {
+   "path": "ofn/agents/owner_notify.py",
+   "sha256": "b90cd74329458d447b2a162c4ec51302c4c018edcccbb72797493ec9f0bdd417",
+   "change": "R1 \u2014 owner_notify 5s retry for transient URLError"
+  },
+  {
+   "path": "ofn/agents/glass_runner.py",
+   "sha256": "6b27c828e6c964e64937b949460d815bb6aa36156e5c4c3aa81799adaad9e5c0",
+   "change": "spool callback_query (button taps) to the MONEY lane + ack"
+  },
+  {
+   "path": "tools/octopus-138-pulse.sh",
+   "sha256": "d781b65a3ff1d681f56f263d39ae8e11f4985c8eb305bd523a44a5182f24db9e",
+   "change": "pulse publishes nats_leaf_active (hub's key), 140->160B frame, real leaf probe"
+  },
+  {
+   "path": "tools/w1_verdict_collector.py",
+   "sha256": "f9f19b560860027805750e65a71c07698589b09fe451add43788996ae2f1e76d",
+   "change": "W1 witness verdict collector (read-only probe of 182)"
+  },
+  {
+   "path": "tools/systemd/octopus-w1-verdict.service",
+   "sha256": "b5ecdf3563ae2d5392a417fd3d7d4e3b20c9c189f6a6e5b1a5bcb7b967fc5ff4",
+   "change": "one-shot unit for the W1 collector"
+  },
+  {
+   "path": "tools/systemd/octopus-w1-verdict.timer",
+   "sha256": "7839ba78bd45b78a6bed0ae4d7112182625f9cde1caef947ad7ac8bad6727ae4",
+   "change": "fires once 2026-09-18 09:20Z"
+  },
+  {
+   "path": "tools/revenue-drive/owner_ask.py",
+   "sha256": "1a09d3c11099f5dea60885cb12894493b485bef113b90d85d3d2b62aaac849f6",
+   "change": "cards get an 8-hex decision id + inline approval buttons"
+  },
+  {
+   "path": "tools/revenue-drive/owner_reply.py",
+   "sha256": "798e833e958e228fddb80573b8e1929ec5f4a333bdb74bbb511a2801e9d8434f",
+   "change": "consume button taps by registry identity + dispatch to money_tools"
+  }
+ ],
+ "tests": {
+  "file": "tests/test_runtime_export_20260918.py",
+  "result": "14 passed",
+  "exit": 0,
+  "covers": [
+   "gate flip",
+   "notify retry",
+   "pulse key contract",
+   "telegram button parse + vocabulary",
+   "W1 collector criteria",
+   "no-secrets scan",
+   "compile check"
+  ]
+ },
+ "attestations": {
+  "secrets_or_values_included": false,
+  "leads_master_json_touched": false,
+  "customer_chat_touched": false,
+  "data_gates_json_touched": false,
+  "timers_restarted": false,
+  "merge_performed": false
+ },
+ "notes": [
+  "the two unit files and the pulse script live outside the repo tree on 138 (/etc/systemd/system, /usr/local/bin); they are exported under tools/ for review",
+  "revenue-drive files live at state/revenue-drive on 138; exported under tools/revenue-drive/"
+ ]
+}
