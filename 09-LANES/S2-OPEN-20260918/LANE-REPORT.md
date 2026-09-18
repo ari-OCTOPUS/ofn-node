@@ -51,3 +51,6 @@ Owner answered in chat: «همش کامل» (full wave). Ruling doc: 06-EVIDENCE
 
 ## Addendum 3 (18:10 AEST): owner ruling CAP60
 Owner clicked «۶۰ در روز». Verification (no mutation): operative file standing-authorization.json already daily_cap=60 (runtime lane set it earlier today from owner words); i7-runtime 10 is dead weight (only hold-gate fields consumed). Ruling doc: OWNER-RULING-CAP60-2026-09-18.md. Wave cadence: 25+25+10 today (60), +8 next day; full 68 within ~24-30h of the 12:00:36Z tick.
+
+## Addendum 4 (18:30 AEST): DIDWW deferred + phone-list automation LIVE
+Owner: DIDWW identity issue -> retry 2026-09-25; phone list auto-push EXECUTED: first send ok=true (25 callable of 29; 4 website-only), octopus-phone-list-notify.timer every 30min with change-only dedup (proven unchanged-exit). Owner calls manually.
