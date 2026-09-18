@@ -48,3 +48,6 @@ ruling sha `13e87cdf…`. Ruling doc: 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24
 
 ## Addendum 2 (17:55 AEST): owner ruling WAVE1 = full scope
 Owner answered in chat: «همش کامل» (full wave). Ruling doc: 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-RULING-WAVE1-2026-09-18.md. Readiness verified live: all locks absent, cards 6/6 consumed, rate card validated, packets staged; next drive tick 12:00:36Z. Cap mismatch (i7=10/day vs channel=60/day) flagged to the runtime lane — not edited here (money-path discipline).
+
+## Addendum 3 (18:10 AEST): owner ruling CAP60
+Owner clicked «۶۰ در روز». Verification (no mutation): operative file standing-authorization.json already daily_cap=60 (runtime lane set it earlier today from owner words); i7-runtime 10 is dead weight (only hold-gate fields consumed). Ruling doc: OWNER-RULING-CAP60-2026-09-18.md. Wave cadence: 25+25+10 today (60), +8 next day; full 68 within ~24-30h of the 12:00:36Z tick.
