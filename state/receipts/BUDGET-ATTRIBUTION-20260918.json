@@ -1,0 +1,23 @@
+{
+  "at": "2026-09-18T02:34:20+00:00",
+  "changes": [
+    "reserve(): provider default sakana-fugu removed; empty/unknown/blank -> PROVIDER_ATTRIBUTION_REQUIRED (no row recorded)",
+    "reserve(): rolling per-provider cap per_provider_cap_usd_24h (default 0.25) -> PROVIDER_CAP_REACHED with provider named",
+    "new _provider_spend_24h(): settles<=24h + open reserves, attributed via reserve rows",
+    "settle rows now inherit provider from their reserve row",
+    "broker VERSION -> 1.2.0-provider-attribution"
+  ],
+  "historical_rows": "untouched by design (hash-chained ledger, 89 rows, 44 unnamed stay as-is)",
+  "measured_before": "89 rows: 45 reserve/43 settle/1 correction; unnamed=43 settle+1 correction=49.4%; last row 2026-09-15T22:43:11Z",
+  "paired_test": {
+    "file": "state/api-budget/tests/test_provider_attribution.py",
+    "green": "15/15 pass after patch",
+    "red": "6 pass / 9 fail before patch"
+  },
+  "postimage_sha256": "d2aa56c59b5946f984504fe9c55e3ba2e001bf7848d29681f33dee1d48f08009",
+  "preimage_sha256": "ff78fee904325e51db492859323a6e302c94527526d569d51467be39d1ec2bbe",
+  "regression": "tests/test_provider_failover.py 10/10 pass",
+  "schema": "octopus.receipt.v1",
+  "target": "state/api-budget/api_budget.py",
+  "what": "RUN-TO-COMPLETION item 3 \u2014 budget ledger provider attribution + per-provider cap"
+}
