@@ -142,7 +142,10 @@
    "unblock_2liner": "گره release را با یک کارت تأییدِ از‌پیش‌آماده در هر ۶ ساعت باز کن؛ سکوت ۱.۸ روزه = صفر آموخته",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "resolvable",
+   "erratum": "ERRATUM 2026-09-18T06:20Z: the 'no sends since 09-16' basis of this entry came from a BLIND ledger - sent-log.jsonl was never appended by the send path. The machine DID send 4 quote emails at 2026-09-18T06:03:35Z (QP-20260918-1152/8053/5773/8275, receipt MONEY_BATCH_EMAIL_SENT) and a customer reply was sent 06:1xZ; sent-log+packet status were backfilled and money_tools now writes both (ledger-fix). Verdict kept for the record; the 'zero sends' reading is CORRECTED.",
+   "verdict_at_diagnosis": "CONFIRMED_BLOCKER",
+   "evidence_status": "SUPERSEDED_BY_ERRATUM"
   },
   {
    "id": "W-015",
@@ -4076,7 +4079,10 @@
    "unblock_2liner": "قاعدهٔ تعادل: هر روز کاری باید حداقل یک اثر درآمدی ثبت کند (حتی یک ارسال)",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "resolvable",
+   "erratum": "ERRATUM 2026-09-18T06:20Z: the 'no sends since 09-16' basis of this entry came from a BLIND ledger - sent-log.jsonl was never appended by the send path. The machine DID send 4 quote emails at 2026-09-18T06:03:35Z (QP-20260918-1152/8053/5773/8275, receipt MONEY_BATCH_EMAIL_SENT) and a customer reply was sent 06:1xZ; sent-log+packet status were backfilled and money_tools now writes both (ledger-fix). Verdict kept for the record; the 'zero sends' reading is CORRECTED.",
+   "verdict_at_diagnosis": "PARTIAL",
+   "evidence_status": "SUPERSEDED_BY_ERRATUM"
   },
   {
    "id": "W-196",
@@ -5471,6 +5477,23 @@
   "at": "2026-09-18T13:50:00Z"
  },
  "anchor_stats_v10": {
+  "resolvable": 250,
+  "labelled_weak": 0,
+  "closed_at": "2026-09-18T14:00:00Z",
+  "note": "all 250 anchors now resolve to a real document or a re-runnable command"
+ },
+ "errata": [
+  {
+   "at": "2026-09-18T06:20:00Z",
+   "scope": [
+    "W-006",
+    "W-193"
+   ],
+   "what": "4 real quote emails were sent at 06:03:35Z and a customer reply at 06:1xZ; the send path did not write sent-log/packet-status, which is why the diagnosis read 'zero sends'. Ledger-fix deployed + 4 rows backfilled + outbound-effects.sqlite3 now has 5 rows.",
+   "rule": "原 verdicts are preserved; the evidence is marked SUPERSEDED instead of rewritten."
+  }
+ ],
+ "anchor_stats_v11": {
   "resolvable": 250,
   "labelled_weak": 0,
   "closed_at": "2026-09-18T14:00:00Z",
