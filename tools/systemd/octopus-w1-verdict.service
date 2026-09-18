@@ -1,0 +1,12 @@
+[Unit]
+Description=OCTOPUS W1 witness verdict collector (one-shot, S2-MATURITY-EXEC)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+ExecStart=/usr/bin/python3 /home/ari/ofn/tools/w1_verdict_collector.py
+
+[Install]
+WantedBy=multi-user.target

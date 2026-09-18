@@ -1,0 +1,13 @@
+[Unit]
+StartLimitIntervalSec=0
+Description=OCTOPUS event consumer: mesh (scheduler on inbound mesh events)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+Environment=OCTOPUS_GATE_TRIGGER=file:octopus-mesh/state/events
+ExecStart=/home/ari/ofn/tools/octopus_event_gate.sh mesh - -- /usr/bin/python3 /home/ari/octopus-mesh/bin/octopus_scheduler.py --once
+TimeoutStartSec=600
+Nice=5

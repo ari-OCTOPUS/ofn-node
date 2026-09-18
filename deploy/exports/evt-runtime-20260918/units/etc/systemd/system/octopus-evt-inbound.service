@@ -1,0 +1,14 @@
+[Unit]
+StartLimitIntervalSec=0
+Description=OCTOPUS event consumer: inbound (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+Environment=OCTOPUS_GATE_TRIGGER=events:inbound
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+ExecStart=/home/ari/ofn/tools/octopus_event_gate.sh inbound /home/ari/ofn/state/events/inbox/inbound_reply,/home/ari/ofn/state/events/inbox/quote_requested,/home/ari/ofn/state/events/inbox/quote_accepted,/home/ari/ofn/state/events/inbox/opted_out,/home/ari/ofn/state/events/inbox/bounce -- /bin/bash -c "python3 /home/ari/ofn/state/revenue-drive/reply_runner.py; python3 /home/ari/ofn/ofn/agents/quote_pipeline.py; python3 /home/ari/ofn/state/revenue-drive/owner_ask.py; python3 /home/ari/ofn/state/revenue-drive/revenue_state.py; python3 /home/ari/ofn/state/revenue-drive/event_notify.py"
+TimeoutStartSec=900
+Nice=5

@@ -1,0 +1,17 @@
+{
+ "schema": "octopus.standing-authorization.v1",
+ "granted_at": "2026-09-18T02:58:30Z",
+ "granted_by": "owner (ZCode session chat, 2026-09-18)",
+ "scope": {
+  "channel": "email",
+  "daily_cap": 60,
+  "days": 14,
+  "expires_at": "2026-10-02T02:58:30Z",
+  "templates_only": true,
+  "recipients": "existing leads only",
+  "ziman": "existing ziman emails only",
+  "cap_note": "owner 2026-09-18: 'no artificial limit, as much as it can' -> the 10/day throttle is lifted. REAL ceilings remain: the lead bank (68 emails known / 103 packets staged) and Gmail's own per-account limits; a per-run batch of 25 is kept so a bug cannot blast the whole list at once."
+ },
+ "revoke": "write state/revenue-drive/AUTH-REVOKED or delete this file",
+ "notes": "owner answered the 4-option question: 14 days, <=10/day, approved templates; revocable any time"
+}
