@@ -56,3 +56,13 @@ FIXED_RECEIPTED **۵** · CLOSED_NOOP **۵** (شامل رد‌های مستدل 
 - **وضعیت پایانی:** ۵ کارت معتبر PENDING: `cc2566cb` (MONEY-BATCH، ۱۰ بسته) · `4d6f9cc9` · `3c63766b` · `fda29337` · `1b41b3cf`.
 - **نقص‌های تازه:** `DEBUG-FINDINGS.json` (W-251..W-254) — addendum خارج از ۲۵۰.
 - **رسیدها:** `138:state/receipts/WHYSLOW250-DEBUG-20260918T004502Z.json` + `...-DEDUP-...json`؛ پیش‌تصویرها `*.pre-whyslow250-debug-*` / `*.pre-whyslow250-dedup-*`.
+
+---
+
+## ضمیمهٔ U-WORK (2026-09-18 00:49–00:53Z) — کارهای پیش‌بینی‌نشده
+- **شکافِ کشف‌شده:** کارت‌های خارج از typed-tools فقط «تأیید ثبت شد» می‌گرفتند (`approved-no-typed-tool`) — نه تشخیص کار ناشناخته بود، نه دستِ اجرا.
+- **ساخته و deploy شد (V1، با رسید):** `proposal_intake.py` (صف پیشنهاد + مسیریابی سبز/سرخ) · `action_executor.py` (allowlist: write_file/append_jsonl/run_script/send_email_batch/none با pre-image+رسید+rollback و محصورسازی مسیر) · سیم‌کشی `_dispatch_card` به مجری عمومی (receipt `UWORK-WIRE-*`).
+- **تست پذیرش 4/4:** سبز-داخلی خودکار ✓ · مرز سرخ → کارت ✓ · تپ → اجرا (type ناشناخته: `ACTION_NOT_ALLOWED`) ✓ · فرار مسیر `/etc/passwd` رد ✓.
+- **باگ تست که رفع شد:** id ثانیه‌ای کولید داشت → محتوا-محور شد (`UWORK-IDFIX-*`)؛ همهٔ مصنوعات تستی از صف مالک پاک شدند (درس: تست هرگز کارت واقعی نگذارد).
+- **مستندات:** `U-WORK-DESIGN.md` (مکانیزم ۶ قطعه‌ای + ۳ تصمیم مالک) · `PROMPT-U-WORK-V2.md` (capability-learning + detection sources + سیاست مجوز ایستاده).
+- **پیش‌تصویرها:** `owner_reply.py.pre-uwork-*` · `proposal_intake.py.pre-uwork-idfix-*`
