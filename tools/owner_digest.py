@@ -71,7 +71,11 @@ def _direct_caveat(approach: str) -> str:
 # Phone classifier — mobile vs office/1300
 # ---------------------------------------------------------------------------
 
-_MOBILE_RE = re.compile(r"(?:0[45]\d{2}|\+?614\d{2})[\s\-]?\d{3}[\s\-]?\d{3}")
+# Country-code prefix and the leading mobile digit may be separated by a
+# space/hyphen: the old regex required "614" contiguous, so "+61 415 784 898"
+# (a real ESR Group mobile) never matched and the account fell to office-only.
+# Bracketed "(+61)"/"(61)" forms are accepted; trunk-0 (04xx/05xx) kept.
+_MOBILE_RE = re.compile(r"(?:\(?\+?61\)?[\s\-]?|0)[45]\d{2}[\s\-]?\d{3}[\s\-]?\d{3}")
 
 
 def _has_mobile(contact_str: str) -> bool:
