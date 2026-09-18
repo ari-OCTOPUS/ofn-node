@@ -26,6 +26,7 @@ from typing import Callable, Mapping, Sequence
 from . import offer_v0_3
 from .adapters.boot import BootReport, closed_gates_for
 from .adapters.facts import FactStore
+from .adapters.lead_store import TERMINAL_LEAD_STATUSES
 from .adapters.ledger import Ledger
 from .adapters.outbox import APPROVED_MANUAL, Outbox
 from .adapters.products import (ProductError, ProductStore, money_view,
@@ -4191,6 +4192,21 @@ class Node:
         lead = self.painting.get(scope.tenant.value, lead_id)
         if not lead:
             return {"ok": False, "error": "لید پیدا نشد"}
+        # --- suppression: terminal leads must not receive new drafts ---
+        lead_status = lead.get("status", "")
+        if lead_status in ("spam", "archived"):
+            return {"ok": False, "error": "لید مسدود است", "rule": "suppression:spam-or-archived"}
+        if lead_status == "lost":
+            return {"ok": False, "error": "لید از دست رفته است", "rule": "suppression:lost"}
+        if lead_status == "won":
+            return {"ok": False, "error": "لید بسته شده است", "rule": "suppression:won"}
+        # Catch-all: the four above carry their own message, but the set is
+        # the source of truth. A terminal status added there and not here
+        # would fail open — silently draftable again — so the generic branch
+        # closes it, naming the status in the rule so the refusal stays
+        # readable.
+        if lead_status in TERMINAL_LEAD_STATUSES:
+            return {"ok": False, "error": "لید نهایی است", "rule": f"suppression:{lead_status}"}
         offer = offer_v0_3.load_offer()
         now = self.now_iso()
         try:

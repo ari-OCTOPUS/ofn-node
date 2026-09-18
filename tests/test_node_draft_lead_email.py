@@ -22,7 +22,7 @@ from unittest import mock
 
 from ofn.adapters.facts import FactStore
 from ofn.adapters.ledger import Ledger
-from ofn.adapters.lead_store import LeadStore
+from ofn.adapters.lead_store import TERMINAL_LEAD_STATUSES, LeadStore
 from ofn.adapters.outbox import PENDING, Outbox
 from ofn.adapters.packloader import load_pack
 from ofn.agents import j_draft
@@ -246,6 +246,149 @@ class TestDraftLeadEmailFabricatedOffer(_Base):
         self.assertFalse(out["ok"])
         self.assertIn("error", out)
         self.assertEqual(self.pending_items(), [])
+
+
+class TestDraftLeadEmailSuppression(_Base):
+    """A terminal lead must not receive a new draft.
+
+    `draft_lead_email` used to check only that the row existed, so a lead
+    marked spam, archived, lost or won was as draftable as a live one — the
+    generator would happily write to someone who had asked to be left alone,
+    or to a job that closed months ago. The refusal is per-status rather than
+    one blanket message because the owner has to be able to read *why* a
+    draft was withheld, so each carries its own `rule` code.
+
+    Every case asserts the queue as well as the return value: the check sits
+    before `_gate_enqueue`, and a refusal that still queued something would
+    be the only failure that matters.
+    """
+
+    def suppressed_lead(self, status, **extra):
+        """Seed a live lead and drive it to `status` through the real path.
+
+        `spam`, `archived` and `lost` are ordinary owner classifications from
+        `new`. `won` is not: it is delivery-derived, so `update_lead` refuses
+        it and only `record_booked_revenue` can mint it. Seeding it the long
+        way keeps the fixture honest about how a lead actually reaches won.
+        """
+        lead_id = self.seed_lead(**extra)
+        if status == "won":
+            out = self.painting.record_booked_revenue(
+                self.scope.tenant.value, lead_id, amount_cents=250_000,
+                booked_at=NOW_ISO, authority="owner")
+        else:
+            out = self.node.update_painting_lead(
+                lead_id, {"status": status}, actor="owner")
+        self.assertTrue(out["ok"], out)
+        self.assertEqual(
+            self.painting.get(self.scope.tenant.value, lead_id)["status"],
+            status)
+        return lead_id
+
+    def test_spam_lead_is_refused_and_queues_nothing(self):
+        lead_id = self.suppressed_lead("spam")
+
+        out = self.node.draft_lead_email(lead_id)
+
+        self.assertFalse(out["ok"])
+        self.assertEqual(out["error"], "لید مسدود است")
+        self.assertEqual(out["rule"], "suppression:spam-or-archived")
+        self.assertEqual(self.pending_items(), [])
+
+    def test_archived_lead_is_refused_and_queues_nothing(self):
+        lead_id = self.suppressed_lead("archived")
+
+        out = self.node.draft_lead_email(lead_id)
+
+        self.assertFalse(out["ok"])
+        self.assertEqual(out["error"], "لید مسدود است")
+        self.assertEqual(out["rule"], "suppression:spam-or-archived")
+        self.assertEqual(self.pending_items(), [])
+
+    def test_lost_lead_is_refused_and_queues_nothing(self):
+        lead_id = self.suppressed_lead("lost")
+
+        out = self.node.draft_lead_email(lead_id)
+
+        self.assertFalse(out["ok"])
+        self.assertEqual(out["error"], "لید از دست رفته است")
+        self.assertEqual(out["rule"], "suppression:lost")
+        self.assertEqual(self.pending_items(), [])
+
+    def test_won_lead_is_refused_and_queues_nothing(self):
+        # `won` is terminal too, and blocked by default: a closed job is not
+        # an outreach target. If quote follow-up ever wants this path, it is
+        # one branch to delete — but it has to be a decision, not a gap.
+        lead_id = self.suppressed_lead("won")
+
+        out = self.node.draft_lead_email(lead_id)
+
+        self.assertFalse(out["ok"])
+        self.assertEqual(out["error"], "لید بسته شده است")
+        self.assertEqual(out["rule"], "suppression:won")
+        self.assertEqual(self.pending_items(), [])
+
+    def test_every_suppression_refusal_is_persian(self):
+        # The method's other refusals are Persian; a suppression that answered
+        # in English would be the one error the owner cannot read. Distinct
+        # `source_ref` values keep the four leads apart — `lead_id` is derived
+        # from source, source_ref and the (frozen) clock.
+        statuses = ("spam", "archived", "lost", "won")
+        # If this fails, a terminal status was added and the branches above
+        # never grew one — the catch-all is carrying it with a generic
+        # message. Give it its own message, or accept the generic one here.
+        self.assertEqual(set(statuses), set(TERMINAL_LEAD_STATUSES))
+        seen = set()
+        for i, status in enumerate(statuses):
+            lead_id = self.suppressed_lead(status, source_ref=f"ref-{i}")
+
+            out = self.node.draft_lead_email(lead_id)
+
+            self.assertFalse(out["ok"], (status, out))
+            self.assertTrue(out["rule"].startswith("suppression:"), out)
+            message = out["error"]
+            self.assertTrue(message.strip(), status)
+            self.assertFalse(
+                any(ch.isascii() and ch.isalpha() for ch in message),
+                f"{status} refuses in English: {message!r}")
+            seen.add(out["rule"])
+        self.assertEqual(len(seen), 3)  # spam and archived share one rule
+        self.assertEqual(self.pending_items(), [])
+
+    def test_a_future_terminal_status_is_refused_by_the_catch_all(self):
+        # The four branches above are literals; TERMINAL_LEAD_STATUSES is the
+        # source of truth. Add a fifth terminal status there — "blocked", say
+        # — and without this catch-all the method would quietly go back to
+        # drafting for it. The status cannot be stored (the column's CHECK
+        # knows only today's eight), so the future is staged rather than
+        # written: the set gains a member and the store hands back a row
+        # carrying it.
+        future = frozenset(TERMINAL_LEAD_STATUSES | {"blocked"})
+        lead_id = self.seed_lead()
+        blocked = dict(self.painting.get(self.scope.tenant.value, lead_id))
+        blocked["status"] = "blocked"
+
+        with mock.patch("ofn.node.TERMINAL_LEAD_STATUSES", future), \
+                mock.patch.object(self.painting, "get", return_value=blocked):
+            out = self.node.draft_lead_email(lead_id)
+
+        self.assertFalse(out["ok"])
+        self.assertEqual(out["error"], "لید نهایی است")
+        self.assertEqual(out["rule"], "suppression:blocked")
+        self.assertEqual(self.pending_items(), [])
+
+    def test_a_live_lead_still_drafts(self):
+        # The regression guard: suppression must not cost the happy path.
+        lead_id = self.seed_lead()
+        self.assertEqual(
+            self.painting.get(self.scope.tenant.value, lead_id)["status"],
+            "new")
+
+        out = self.node.draft_lead_email(lead_id)
+
+        self.assertTrue(out["ok"], out)
+        self.assertTrue(out["queued"])
+        self.assertEqual(len(self.pending_items()), 1)
 
 
 if __name__ == "__main__":
