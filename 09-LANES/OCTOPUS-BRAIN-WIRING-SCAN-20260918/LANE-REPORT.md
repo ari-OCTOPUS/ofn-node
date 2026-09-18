@@ -1,20 +1,37 @@
-# LANE-REPORT — OCTOPUS-BRAIN-WIRING-SCAN-20260918 (ساخت مگاپرامپت)
+# LANE-REPORT — OCTOPUS-BRAIN-WIRING-SCAN-20260918 (ساخت مگاپرامپت + اجرای کامل)
 
-GOV_VERSION=V8 · LADDER=L2 · این پوشه فقط سند مأموریت است؛ اجرا با ایجنت بعدی.
+GOV_VERSION=V8 · LADDER=L2 · runtime فقط‌خواندنی (فقط دو نوشتن: seed + receipt روی ۱۳۸)
 
-## چه شد
-- خواستهٔ مالک: «دیپ‌اسکن کن چند مغز دارد، سیم‌کشی همهٔ کسب‌وکارها/ماژول‌ها/جعبه‌سیاه‌ها کامل است یا نه، و ۷ برد چه کدنویسی برای بازده لازم دارند — همه در قالب مگاپرامپت».
-- ساخته شد: `MEGAPROMPT-BRAIN-WIRING-SCAN.md` — سه سؤال قطعی‌ساز + ۹ قلمرو با سهمیه (~۱۵۲ ردیف) + ۱۰ بذر لنگرشده (همه نیازمند راستی‌آزمایی) + روش انضباطی + ۶ خروجی + معیار پایان + تله‌ها.
+## جواب سه سؤال (عدد، نه روایت)
 
-## شواهد پایه (همین جلسه اندازه‌گیری/خوانده شد)
-- نقش و بار ۷ برد از `06-EVIDENCE/FLEET-HEARTBEAT-CANONICAL.md`: ۱۳۸ بار ~۱.۰-۱.۵؛ بقیه ۰.۰-۰.۰۵ (پنج برد عملاً بیکار).
-- رجیستر بدهی روی ۱۳۸ الان ۵۷۳ ردیف (۲۴۶ ردیف WHY-SLOW تازه‌import شده) — F-024 (۵۰ سیم گم‌شده/۲ رفع)، F-042، F-076، F-056 (NPU بی‌مصرف).
-- broker: `api_budget.py` (multiprovider + failover)، پیش‌فرض `sakana-fugu`، مسیر `local-insufficient`؛ دفتر ۸۹ ردیف/$۰.۸۹ ماه.
-- `state/legs/` روی ۱۳۸ وجود ندارد در حالی که glass در خطا آنجا می‌نویسد (یافتهٔ همین جلسه).
-- mergeهای تازهٔ ۰۹-۱۸ روی ofn-node: `#259` → `88840181` و `#260` → `3d74b757` (enrichment/digest) — سیم‌کشی reader برای `v_account_last_call` هنوز نیست.
+**۱) چند مغز؟ → ۳۲ مغز.** تفکیک: ۵ provider بیرونی (deepseek-flash پیش‌فرض با ۲۸ فراخوان، sakana-fugu، gpt-5.6-terra، claude-sonnet-5، gemini-3.8-flash) + ۱ مسیر محلی رایگان (`local-insufficient`) + ۱۷ لایهٔ decision-code (ops_agent، owner_reply/ask، action_executor، proposal_intake، money_*, revenue_state، deep_scan، glass، imap/reply_alert، b2b_discovery، coding-worker، fleet-scheduler، think_pool، self-model، cognition_factory) + **۶ سرویس دائمی لایهٔ mesh** (`/home/ari/octopus-mesh/bin`: router، supervisor، control-router، cycle-settler، verify-dispatcher، bridge + کیت ۹‌ماژولی octomesh) + ۳ دفتر حافظه.
+> کشف اصلی: **دو ارگانیسم موازی** — `ofn/` (تایمری) و `octopus-mesh/` (دیمن‌های دائم). دومی هیچ رسیدی در `state/receipts` ندارد (BW-05).
+
+**۲) سیم‌کشی کامل است؟ → نه: ۲۱ یال از ۵۰ (۴۲٪) تاریک یا شکسته.**
+`WIRED-LIVE 24 · WIRED-DARK 15 · DANGLING 5 · MISSING 4 · ORPHAN 2`
+سه یال DANGLING که دردناک‌اند (همه با شاهد grep=0): `painting_call_log` (جدول CRM که #248 merge کرد **هیچ خواننده‌ای ندارد**)، `v_account_last_call` (وضعیت تماس هرگز روی کارت به‌روز نمی‌شود)، `AUTO_DISCOVERY_TAG`.
+پنج ناحیهٔ state **مرده‌اند**: cognition (۰۹-۱۵)، durability (۰۹-۱۵)، glass (۰۹-۱۶)، fleet-memory (۰۹-۱۶)، fleet-nodes (۰۹-۱۶)، of-draft-queue (۰۹-۱۶).
+
+**۳) ۷ برد کد لازم دارند؟ → مشکل «کمبود برد» نیست، «توزیع کار» است.**
+| برد | بار | خوانش |
+|---|---|---|
+| 100 | 0.02 | **عملاً کاملاً بیکار** (۸ هسته، ۴۸G آزاد) |
+| 114 / 160 / 193 | 0.39 / 0.34 / 0.47 | سبک — ۱۱۴ و ۱۶۰ units آمادهٔ نصب‌نشده دارند (F-003) |
+| 180 | 1.26 | متوسط |
+| 182 | 1.68 | پرکار (۲۷ سرویس؛ وظیفهٔ شاهد) |
+| 138 | ~1.0–1.5 | اشباع (revenue + batch روی یک برد) |
+→ ۲۰ آیتم `THROUGHPUT-PLAN.md`؛ ترتیب پیشنهادی: TP-14 → TP-10 → TP-01 → TP-04 → TP-02 → TP-03 → TP-15 (همه Class A سبک، بدون رأی مالک).
+
+## تحویل‌دادنی‌ها
+`BRAIN-CENSUS.json` (۳۲ مغز با caller/calls-per-day/هزینه/شاهد) · `WIRING-MATRIX.csv` (۵۰ یال با شاهد) · `BOARD-CAPACITY.md` (۷/۷ برد) · `THROUGHPUT-PLAN.md` (۲۰ آیتم) · `GAP-REGISTER.json` (۱۵ شکاف BW-01..15) · مگاپرامپت · تزریق لجر با رسید.
+
+## انحراف صادقانه از معیار پایان
+- **یال‌ها: ۵۰ در برابر هدف ≥۶۰.** عدد را برای سبز شدن نساختم؛ ۱۰ یال باقی‌مانده (سیم‌کشی داخلی ماژول‌های mesh و readers ناشناختهٔ self-model/fleet-memory) نیاز به trace عمیق‌تر دارند و در `GAP-REGISTER` به‌عنوان کار باقی‌مانده ثبت‌اند.
+- یک شاهد UNVERIFIED ماند: `think_pool` (BW-04) — grep مصرف‌کننده نتیجهٔ متناقض داد؛ نیازمند re-probe.
+
+## شاهدهای پایه (اندازه‌گیری همین جلسه)
+- دفتر بودجه ۱۳۸ (۸۹ ردیف، ۵ provider)، inventory ماژول‌ها با mtime، جدول state-tier، grep‌های مصرف‌کننده، probe هفت برد از لپ‌تاپ (۱۳۸ با alias جدا probe نشد؛ بارش از heartbeat).
+- تزریق: `seed_imported=15` → نمای زنده **۶۰۳ ردیف، ۱۵ ردیف BW** · رسید `138:state/receipts/BRAINWIRING-SEED-*.json`.
 
 ## rollback
-- additive: حذف پوشه + revert کامیت = بازگشت کامل. runtime دست‌نخورده.
-
-## evidence
-- `MEGAPROMPT-BRAIN-WIRING-SCAN.md` (CJK-clean پس از اصلاح یک نویسه)
+additive: حذف پوشه + revert کامیت؛ روی ۱۳۸ فقط seed + receipt (بدون حذف ردیف).

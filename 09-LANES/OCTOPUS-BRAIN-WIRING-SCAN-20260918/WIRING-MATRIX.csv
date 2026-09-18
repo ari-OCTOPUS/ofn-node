@@ -1,0 +1,51 @@
+﻿edge_id,domain,producer,consumer,trigger,state,proof
+W-001,business,painting_call_log (#248 table),—,—,DANGLING,138:grep painting_call_log consumers=0
+W-002,business,v_account_last_call (view),—,—,DANGLING,138:grep v_account_last_call consumers=0
+W-003,business,AUTO_DISCOVERY_TAG,—,—,DANGLING,138:grep consumers=0 (digest --include-unverified absent in runtime)
+W-004,business,revenue_drive quote packets,send-queue / owner-ask,6h timer,WIRED-LIVE,138:sent-log 39 rows; receipts SEND_HELD
+W-005,business,owner_ask cards,Telegram owner chat,10min timer,WIRED-LIVE,138:receipts owner-ask http_200 09-18
+W-006,business,owner taps / typed votes,glass spool → owner_reply,1min timers,WIRED-LIVE,138:receipts OWNER_DECISION_* 09-18 (fixed today)
+W-007,business,owner_reply approve,money_tools/action_executor,on vote,WIRED-LIVE,138:OWNER_DECISION_EXECUTED receipts
+W-008,business,money_tools send,Gmail SMTP,on approved batch,WIRED-LIVE,138:MONEY_BATCH_EMAIL_SENT receipts (16)
+W-009,business,imap replies,reply_alert → owner chat,15min timer,WIRED-LIVE,138:reply-alert-cursor advancing 00:36
+W-010,business,lead enrichment run,lead-emails.jsonl,manual/loop,WIRED-LIVE,"138:lead-emails 68 rows, mtime 09-16"
+W-011,business,lead-emails.jsonl,outreach packets,revenue loop,WIRED-LIVE,138:68 emails → packets staged
+W-012,business,outbound sends,outbound-effects.sqlite3,on send,WIRED-DARK,138:file exists 0 bytes
+W-013,business,quote packets (137),packet-state counters,—,WIRED-DARK,138:funnel_reconcile: 0 packets marked sent
+W-014,business,campaign dir,nothing,—,DANGLING,138:campaign/ empty since 09-13
+W-015,business,ziman Shopify,shopify-watch checks,timer,WIRED-LIVE,138:482 zero-order checks counted
+W-016,business,ziman store traffic,any acquisition loop,—,MISSING,no ads/seo/social file anywhere
+W-017,business,studio consent chain,publish path,owner signatures,ORPHAN,14/14 unsigned (F-023)
+W-018,business,painting call outcomes,CRM/stage display,—,DANGLING,v_account_last_call unread
+W-019,module,proposal_intake proposals,action_executor (green) / cards (red),submit,WIRED-LIVE,138:UWORK receipts 09-18
+W-020,module,action_executor receipts,receipts.jsonl,on action,WIRED-LIVE,138:ACTION_EXECUTED receipts
+W-021,module,deep_scan findings,guard timer + vault dashboard,Mon 04:00Z,WIRED-LIVE,138:findings 573; DASHBOARD 09-15 (stale)
+W-022,module,deep_scan dashboard,—,—,WIRED-DARK,generated_at 09-15T08:03 vs today
+W-023,module,env enrichment package,digest/reports,merge #259,WIRED-LIVE,repo 88840181 merged; modules on main
+W-024,module,digest mobile regex fix,digest call list,merge #260,WIRED-LIVE,repo 3d74b757; 6 regex tests pass
+W-025,module,NATS JetStream OCTOPUS_EVENTS,fleet-vault-consumer (vault-pulse),durable,WIRED-LIVE,heartbeat matrix auto-maintained 00:12
+W-026,module,NATS job bus,consumers per job type,—,WIRED-DARK,F-042 consumers=0 recorded; fleet_jobs 144/150 closed
+W-027,module,114 evaluator,no systemd unit (staged),—,MISSING,F-003 staged-not-installed
+W-028,module,160 ingestion,no systemd unit (staged),—,MISSING,F-003 staged-not-installed
+W-029,module,state/legs/lead-inbox/events.jsonl,glass error path writes there,error only,MISSING,138:directory absent; glass target
+W-030,module,self-model shadow journal,consumers unknown,timer,WIRED-DARK,state/self-model alive but no reader found
+W-031,module,fleet-memory facts/decisions,—,—,WIRED-DARK,state/fleet-memory FROZEN 09-16
+W-032,module,fleet-nodes registry,fleet probes,—,WIRED-DARK,state/fleet-nodes FROZEN 09-16
+W-033,module,of-draft-queue,senders,—,WIRED-DARK,state/of-draft-queue FROZEN 09-16
+W-034,module,durability lane,—,—,WIRED-DARK,state/durability FROZEN 09-15
+W-035,module,cognition_factory,—,—,WIRED-DARK,state/cognition FROZEN 09-15 (877 lines idle)
+W-036,module,glass state dir,owner intake,—,WIRED-DARK,state/glass FROZEN 09-16 (runner lives in ofn/)
+W-037,module,provider health (provider-health.jsonl),think_pool classification,probe,WIRED-LIVE,.provider-probe timer; think_pool derives from evidence
+W-038,module,think_pool health results,api_budget route,—,ORPHAN,consumer grep inconclusive → needs re-probe
+W-039,module,local-insufficient route,local tier brain,budget decision,WIRED-LIVE,api_budget.py single consumer
+W-040,module,fleet-jobs bus,job consumers,timers,WIRED-LIVE,144/150 CLOSED at 00:0x
+W-041,blackbox,ops_agent decisions consume,task resume,5min,WIRED-LIVE,consume_decisions fixed 09-18 (spin→0)
+W-042,blackbox,octopus-mesh control_router,router/supervisor flow,daemon,WIRED-DARK,"running service, consumer/output not traced"
+W-043,blackbox,octopus-mesh verify_dispatcher,witness path,daemon,WIRED-DARK,running; no receipt trail found in state/receipts
+W-044,blackbox,octomesh_* kit (9 modules),send/receive between nodes,?,WIRED-DARK,module set exists; producers/consumers untraced
+W-045,blackbox,octopus_bridge,ofn bridge watchdog,timer,WIRED-LIVE,octopus-bridge.service active + ofn-bridge-watchdog.timer
+W-046,blackbox,self-model producer,operator card / dashboards,daily,WIRED-DARK,three divergent bodies known (DC-03D)
+W-047,blackbox,coding-worker,patch pipeline,timer,WIRED-LIVE,state/coding-worker alive 01:47
+W-048,blackbox,fleet-scheduler feedback,scheduler inputs,timer,WIRED-LIVE,state/fleet-scheduler alive 01:50
+W-049,blackbox,glass owner intake,owner_reply spool,1min,WIRED-LIVE,tg-inbox rows appended (fixed 09-18)
+W-050,blackbox,receipts.jsonl,audit readers,on action,WIRED-LIVE,666 objects (repaired 09-18)
