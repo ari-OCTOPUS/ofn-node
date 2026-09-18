@@ -1,0 +1,117 @@
+{
+  "schema": "octopus.next-to-alive-execute.v1",
+  "measured_at": "2026-09-05T16:25:09+10:00",
+  "measured_at_utc": "2026-09-05T06:25:09Z",
+  "lane": "U-WHY-NOT-LIVE-20260905",
+  "owner_quote_fa": "پلن بپین همرو انجام بده متوقف نشو",
+  "plan": "09-LANES/U-WHY-NOT-LIVE-20260905/NEXT-TO-ALIVE.md",
+  "live_organism_claim": false,
+  "send": false,
+  "flags_enabled": false,
+  "138_written": false,
+  "arbiter": {
+    "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+    "vantage": "this_host plus ssh_ro_138",
+    "scope": "this_host_only plus node138 via ssh_ro",
+    "claim_type": "observation",
+    "not_node180": true
+  },
+  "hard_stop": {
+    "AGENTS_md_section_4": "no message leaves the machine; no OCTOPUS_WIRE_*",
+    "plan_step_2_send": "not_executed",
+    "plan_step_1_rewrite_138_json": "not_executed_this_script_is_read_only"
+  },
+  "tunnels": {
+    "ziman": {
+      "local": 18791,
+      "remote": 8791,
+      "listen": true,
+      "url": "http://127.0.0.1:18791/healthz",
+      "http": 200,
+      "ok": true,
+      "n": 12,
+      "err": null
+    },
+    "lead": {
+      "local": 18792,
+      "remote": 8792,
+      "listen": true,
+      "url": "http://127.0.0.1:18792/healthz",
+      "http": 200,
+      "ok": true,
+      "n": 12,
+      "err": null
+    },
+    "studio": {
+      "local": 18793,
+      "remote": 8793,
+      "listen": true,
+      "url": "http://127.0.0.1:18793/healthz",
+      "http": 200,
+      "ok": true,
+      "n": 12,
+      "err": null
+    },
+    "owner": {
+      "local": 18794,
+      "remote": 8794,
+      "listen": true,
+      "url": "http://127.0.0.1:18794/healthz",
+      "http": 200,
+      "ok": true,
+      "n": 12,
+      "err": null
+    },
+    "bridge": {
+      "local": 18796,
+      "remote": 8796,
+      "listen": true,
+      "url": "http://127.0.0.1:18796/healthz",
+      "http": 200,
+      "ok": true,
+      "n": 38,
+      "err": null
+    }
+  },
+  "all_five_healthz_200_ok": true,
+  "ssh_identity": {
+    "exit": 0,
+    "stdout": "DietPi\neth0             UP             192.168.0.138/24 \nGATES=1\nSEASON_NOTE=1\n",
+    "stderr": ""
+  },
+  "gates_probe": {
+    "exit": 0,
+    "stdout": "exists True\nTYPE dict\nKEYS ads_budget,as_of,cognitive_wake,four_drafts,google_publish,gst_display,laptop_role,m5_owner_release,owner,painting,schema,shipping_policy,social,ssh_inter_board,studio\nKV ads_budget = ZERO_UNTIL_OWNER_SAYS\nKV as_of = 2026-09-04T04:30:00Z\nKV cognitive_wake = EVERY_BUSINESS_EVENT\nKV four_drafts = DELETE_ALL\nKV google_publish = GO\nKV gst_display = EXCLUSIVE\nKV laptop_role = ACTIVE_MESH_NODE\nKV m5_owner_release = ACTIVE_REAL_SEND_AUTHORIZED\nKV owner = armin ( ratified all 31 gates )\nKV painting = SEASON_5_ACTIVE\nKV schema = season5.gates.v1\nDICT shipping_policy subkeys action,channel,route,text\nDICT social subkeys action,instagram\nKV ssh_inter_board = DISTRIBUTED_AND_TESTED\nKV studio = NEXT_SEASON_SABA_CONTENT_WE_FIND_CUSTOMERS\n",
+    "stderr": ""
+  },
+  "hold_grep": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": "bash: line 1: rg: command not found\n"
+  },
+  "ledger_paths_only": {
+    "exit": 0,
+    "stdout": "n 2\nFILE /home/ari/ofn/09-LANES/ECONOMIC-LEARNING/runs/2026-09-02/economic-learning-ledger.jsonl\nFILE /home/ari/ofn/data/state/legs/claims-ledger.jsonl\n",
+    "note": "paths only; values not copied"
+  },
+  "executed": [
+    "reuse/verify five tunnel /healthz GET",
+    "ssh BatchMode identity + gates file probe",
+    "HOLD_EXTERNAL grep on 138 season/ofn",
+    "ledger path census (names only)"
+  ],
+  "not_executed": [
+    "rewrite season5-gates-final.json",
+    "Telegram send",
+    "live OF publish",
+    "paid ads spend",
+    "enable OCTOPUS_WIRE_*",
+    "source OCTOPUS-flags.cmd",
+    "write revenue/sent/booking in this vault",
+    "new SSH to 180",
+    "138-to-180 tunnel",
+    "invent 138 JSON schema"
+  ],
+  "alive": false,
+  "why_not_alive": "step_2_first_effect_row_not_fired; AGENTS.md section 4"
+}

@@ -1,0 +1,295 @@
+{
+  "schema": "octopus.layer4-channel-selection.v1",
+  "selected_at": "2026-09-05T16:08:32+10:00",
+  "selected_at_utc": "2026-09-05T06:08:32Z",
+  "lane": "U-WHY-NOT-LIVE-20260905",
+  "status": "channel_selected",
+  "live_effect": "closed",
+  "external_effect": "HOLD",
+  "live_organism_claim": false,
+  "layer": 4,
+  "layer4_split": {
+    "mesh_channel_selection": "DONE",
+    "live_effect": "CLOSED"
+  },
+  "arbiter": {
+    "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+    "asserted_ip": "192.168.0.191",
+    "vantage": "ssh_local_forward_from_laptop_191",
+    "scope": "this_host_only plus node138 via tunnel",
+    "claim_type": "observation",
+    "not_node180": true,
+    "session_label_board_180": "invalid",
+    "evidence": [
+      "09-LANES/U-WHY-NOT-LIVE-20260905/LAYER4-CHANNEL-SELECTION.json",
+      "09-LANES/U-WHY-NOT-LIVE-20260905/LAYER3-RECEIPT.json",
+      "09-LANES/U-WHY-NOT-LIVE-20260905/LAYER2-COMPLETE.json",
+      "F:/ofn-node/ofn/config.py:294"
+    ]
+  },
+  "this_host": {
+    "hostname": "DESKTOP-KA9RFN5",
+    "wifi": "192.168.0.191",
+    "wifi_source": "Get-NetIPAddress InterfaceAlias=Wi-Fi this session 2026-09-05T16:08:19+10:00",
+    "not_node180": true
+  },
+  "owner_delegation": {
+    "quote_fa": "همه چیو از قبل داخل برد 138 ساختم خودت کانالاشو انتخاب کن",
+    "interpreted_as": "select among already-built healthy 138 loopback channels; do not ask owner to pick Telegram vs live OF vs paid ads",
+    "this_turn_is_outbound_go": false
+  },
+  "selection_rule": {
+    "applied": "default_five_138_loopback_legs",
+    "contradiction": null,
+    "primary_default": "ziman_8791 + octopus_bridge_8796",
+    "primary_contradicted_by_ofn_config_or_l2_l3": false,
+    "role_source": "F:/ofn-node/ofn/config.py:294",
+    "bridge_source": "09-LANES/U-WHY-NOT-LIVE-20260905/LAYER2-COMPLETE.json 8796_cmd"
+  },
+  "selected_class": "operational_mesh_loopback",
+  "not_selected_class": "external_effect_outbound",
+  "selected_channels": [
+    {
+      "role": "ziman",
+      "remote_host": "node138",
+      "remote_bind": "127.0.0.1",
+      "remote_port": 8791,
+      "process_family": "ofn.run",
+      "selected": true,
+      "primary": true
+    },
+    {
+      "role": "lead",
+      "remote_host": "node138",
+      "remote_bind": "127.0.0.1",
+      "remote_port": 8792,
+      "process_family": "ofn.run",
+      "selected": true,
+      "primary": false
+    },
+    {
+      "role": "studio",
+      "remote_host": "node138",
+      "remote_bind": "127.0.0.1",
+      "remote_port": 8793,
+      "process_family": "ofn.run",
+      "selected": true,
+      "primary": false
+    },
+    {
+      "role": "owner",
+      "remote_host": "node138",
+      "remote_bind": "127.0.0.1",
+      "remote_port": 8794,
+      "process_family": "ofn.run",
+      "selected": true,
+      "primary": false
+    },
+    {
+      "role": "octopus_bridge",
+      "remote_host": "node138",
+      "remote_bind": "127.0.0.1",
+      "remote_port": 8796,
+      "process_family": "octopus_bridge.run",
+      "not_ofn": true,
+      "selected": true,
+      "primary": true
+    }
+  ],
+  "primary_pair": {
+    "a": {
+      "role": "ziman",
+      "remote_port": 8791,
+      "local_forward": 18791
+    },
+    "b": {
+      "role": "octopus_bridge",
+      "remote_port": 8796,
+      "local_forward": 18796
+    },
+    "reason": "Default day-to-day pair unless ofn config or 138/L2/L3 receipts show another intended primary. config.py:294 lists ziman first among ofn ports; 8796 is octopus_bridge, not ofn (LAYER2-COMPLETE.json).",
+    "contradiction": null
+  },
+  "not_selected": {
+    "telegram": false,
+    "live_of": false,
+    "paid_ads": false,
+    "new_broker": false,
+    "new_miniapp": false,
+    "new_outbound_product": false,
+    "note": "Telegram / live OF / paid ads are a different class (external effect). They stay HOLD. This selection is the already-built 138 loopback mesh, not an outbound send path."
+  },
+  "painting_draft_winner": {
+    "declared": false,
+    "reason": "no 138 ledger evidence for revenue/sent/booking; this vault must not write those tokens"
+  },
+  "tunnel": {
+    "state": "up",
+    "started_this_run": false,
+    "reused_existing_layer3": true,
+    "ssh_pid": 26364,
+    "ssh_pid_source": "Get-Process -Id 26364 this session 2026-09-05T16:08:19+10:00; also LAYER3-RECEIPT.json",
+    "ssh_start_time_local": "2026-09-05T16:03:54+10:00",
+    "bind": "127.0.0.1",
+    "wildcard_bind": false,
+    "direction": "laptop_191_to_138_loopback",
+    "map": [
+      "18791->127.0.0.1:8791",
+      "18792->127.0.0.1:8792",
+      "18793->127.0.0.1:8793",
+      "18794->127.0.0.1:8794",
+      "18796->127.0.0.1:8796"
+    ],
+    "listen_table_this_session": [
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18791,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18792,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18793,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18794,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18796,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 8791,
+        "OwningProcess": 2324,
+        "note": "harvest ingest on this host; not the selected ziman channel"
+      }
+    ],
+    "laptop_8791_left_alone": true,
+    "new_ssh_opened": false
+  },
+  "healthz_via_tunnel_this_session": {
+    "measured_at": "2026-09-05T16:08:32+10:00",
+    "method": "GET only",
+    "post": false,
+    "8791": {
+      "role": "ziman",
+      "port": 18791,
+      "url": "http://127.0.0.1:18791/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 12,
+      "n_meaning": "response body character length",
+      "body": {
+        "ok": true
+      },
+      "remote_port": 8791
+    },
+    "8792": {
+      "role": "lead",
+      "port": 18792,
+      "url": "http://127.0.0.1:18792/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 12,
+      "n_meaning": "response body character length",
+      "body": {
+        "ok": true
+      },
+      "remote_port": 8792
+    },
+    "8793": {
+      "role": "studio",
+      "port": 18793,
+      "url": "http://127.0.0.1:18793/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 12,
+      "n_meaning": "response body character length",
+      "body": {
+        "ok": true
+      },
+      "remote_port": 8793
+    },
+    "8794": {
+      "role": "owner",
+      "port": 18794,
+      "url": "http://127.0.0.1:18794/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 12,
+      "n_meaning": "response body character length",
+      "body": {
+        "ok": true
+      },
+      "remote_port": 8794
+    },
+    "8796": {
+      "role": "octopus_bridge",
+      "port": 18796,
+      "url": "http://127.0.0.1:18796/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 38,
+      "n_meaning": "response body character length",
+      "body": {
+        "ok": true,
+        "name": "octopus-bridge"
+      },
+      "remote_port": 8796
+    }
+  },
+  "all_five_healthz_200_ok": true,
+  "still_closed": [
+    "HOLD_EXTERNAL",
+    "auto_email",
+    "OCTOPUS_WIRE_*",
+    "OFN_WIRE_*",
+    "OBSERVATORY",
+    "CORTEX_HYPOTHESIS",
+    "D1",
+    "D7",
+    "OWNER_KEY",
+    "Telegram send",
+    "live OF publish",
+    "paid ads"
+  ],
+  "not_executed": [
+    "enable flags",
+    "source OCTOPUS-flags.cmd",
+    "RUN-ORGANISM.bat",
+    "POST",
+    "send Telegram/email/ads",
+    "bind 0.0.0.0",
+    "write revenue/sent/booking",
+    "kill harvest PID 2324",
+    "restart ofn.service",
+    "open new 138->180 tunnel",
+    "guess SSH passwords for 180",
+    "commit/push",
+    "mutate F:/octo-exec/N3V2-MATH-20260905T031103Z"
+  ],
+  "grades": {
+    "tunnel_healthz_five_ports": "E3",
+    "tunnel_healthz_evidence": "GET /healthz this session 2026-09-05T16:08:32+10:00 all http=200 ok=true",
+    "live_organism_or_outbound": "E0",
+    "live_organism_evidence": "no send; HOLD_EXTERNAL closed; no 138 ledger effect row"
+  },
+  "prior_layer_citations": {
+    "layer2": "09-LANES/U-WHY-NOT-LIVE-20260905/LAYER2-COMPLETE.json measured_at=2026-09-05T15:59:33+10:00 ofn_pid=2986361 bridge_pid=2986615 (not re-measured this turn)",
+    "layer3": "09-LANES/U-WHY-NOT-LIVE-20260905/LAYER3-RECEIPT.json measured_at=2026-09-05T16:04:02+10:00 ssh_pid=26364"
+  }
+}

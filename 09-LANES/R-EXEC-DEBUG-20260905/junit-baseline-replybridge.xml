@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="7" time="0.353" timestamp="2026-09-05T01:32:13.832695+10:00" hostname="DESKTOP-KA9RFN5"><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_append_does_not_claim_default_path_after_restore" time="0.003"><failure message="AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded">self = &lt;tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_append_does_not_claim_default_path_after_restore&gt;
+
+    def test_append_does_not_claim_default_path_after_restore(self) -&gt; None:
+        """The #182 CI failure: assert-after-restore on the home QUEUE path."""
+        n = append_to_queue([
+            {"confidence": 0.3, "evidence": ["painting:BLOCKED_HONEST:sha"]},
+        ])
+        self.assertEqual(n, 1)
+        self.assertTrue(self.queue.exists())
+        _rqb.QUEUE = self._orig_queue
+&gt;       self.assertFalse(
+            _rqb.QUEUE.exists(),
+            "restored default QUEUE must stay unwritten; exists() after "
+            "restore is not evidence the append succeeded",
+        )
+E       AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded
+
+tests\test_reply_queue_bridge.py:92: AssertionError</failure></testcase><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_append_to_queue" time="0.004"><failure message="AssertionError: True is not false">self = &lt;tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_append_to_queue&gt;
+
+    def test_append_to_queue(self) -&gt; None:
+        n = append_to_queue([
+            {"confidence": 0.3, "evidence": ["painting:BLOCKED_HONEST:sha"]},
+        ])
+        self.assertEqual(n, 1)
+        self.assertTrue(self.queue.exists())
+        text = self.queue.read_text(encoding="utf-8")
+        self.assertIn("0.3", text)
+        self.assertIn("painting:BLOCKED_HONEST:sha", text)
+&gt;       self.assertFalse(self._orig_queue.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:82: AssertionError</failure></testcase><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_bridge_does_not_grant_send" time="0.001" /><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_dedup_second_pass" time="0.006" /><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_empty_proposals_do_not_create_queue" time="0.001"><failure message="AssertionError: True is not false">self = &lt;tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_empty_proposals_do_not_create_queue&gt;
+
+    def test_empty_proposals_do_not_create_queue(self) -&gt; None:
+        n = append_to_queue([])
+        self.assertEqual(n, 0)
+        self.assertFalse(self.queue.exists())
+&gt;       self.assertFalse(self._orig_queue.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:103: AssertionError</failure></testcase><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_malformed_proposal_is_skipped_not_written" time="0.003" /><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_proposal_extraction" time="0.006"><failure message="AssertionError: True is not false">self = &lt;tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_proposal_extraction&gt;
+
+    def test_proposal_extraction(self) -&gt; None:
+        inbox = _seed_inbox(self.tmp, [
+            {"idempotency_key": "abc", "payload": {"response": {
+                "claim_type": "proposal", "confidence": 0.3,
+                "evidence": ["painting:BLOCKED"]}, "businesses": ["painting"]}},
+            {"idempotency_key": "def", "payload": {"response": {
+                "claim_type": "observation"}}},
+        ])
+        props = extract_proposals(inbox)
+        self.assertEqual(len(props), 1)
+        self.assertEqual(props[0]["idempotency_key"], "abc")
+        self.assertTrue(self.seen.exists())
+&gt;       self.assertFalse(self._orig_seen.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:61: AssertionError</failure></testcase></testsuite></testsuites>

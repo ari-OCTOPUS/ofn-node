@@ -1,0 +1,29 @@
+{
+  "schema": "octopus.domain-names.v1",
+  "recorded_utc": "2026-09-07T22:39:44.4731527Z",
+  "source": "direct owner image supplied in current task",
+  "source_image_sha256": "1d001d1e0f4009b5a8fa25713448277d353996297f85c3208b2da311e38db4bc",
+  "domains": [
+    {
+      "name": "ziman-gift.com.au",
+      "purchase_term": "1 year",
+      "evidence": "visible on owner order image"
+    },
+    {
+      "name": "ziman-gift.shop",
+      "purchase_term": "1 year",
+      "evidence": "visible on owner order image"
+    }
+  ],
+  "names_known_only": true,
+  "selected_primary": "ziman-gift.com.au",
+  "domain_connection_approval": {
+    "decision_id": "D0_PRIMARY_DOMAIN_20260908",
+    "receipt": "09-LANES/UNLOCK-REVIEW-20260908/OWNER-DECISION-D0-PRIMARY-20260908.json",
+    "allowed_domain": "ziman-gift.com.au",
+    "status": "APPROVED_NOT_EXECUTED"
+  },
+  "miniapp_publication_approval": null,
+  "next_step": "Complete selected .com.au connection after authenticated panel access. Do not ask domain names or primary choice again. No miniapp or .shop change approved.",
+  "runtime_consumption": "not_verified"
+}

@@ -1,0 +1,2 @@
+d31fc19c85b85f6091b2bd0f6af9d962d5264a4e410bfb536402ec92bac738e8  /usr/lib/librknnrt.so
+246957d2b9d150b2bc7331a21208398aaac2e641a1499fa4263bdda720aff62e  /home/ari/rknn_version_test

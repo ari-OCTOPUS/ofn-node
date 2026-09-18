@@ -1,0 +1,66 @@
+{
+  "schema": "PB-2-CRASH-IDEMPOTENCY",
+  "status": "PASS",
+  "stamp_utc": "2026-09-15T04:03:45Z",
+  "fault_script": {
+    "description": "Start sleep 300 as mid-lease work stand-in on worker 100; kill -9 mid-run; abort without ACK_RESULT; mark UNKNOWN on 138",
+    "commands": [
+      "ssh mesh root@100 'nohup sleep 300 >/tmp/pb2-sleep.out 2>&1 & echo $! >/tmp/pb2-sleep.pid'",
+      "sleep 1",
+      "ssh mesh root@100 'kill -9 $(cat /tmp/pb2-sleep.pid); echo KILLED'",
+      "fleet_job_sm.mark_unknown(job, crash_mid_lease_no_durable_result)"
+    ],
+    "target_worker": "100",
+    "never_power_off_138": true
+  },
+  "job_under_test": {
+    "job_id": "job-63726f44cc2f49af",
+    "idempotency_key": "pb2-crash-100-1789445024",
+    "job_type": "echo_capability_probe",
+    "worker_node_id": "100",
+    "final_state": "UNKNOWN"
+  },
+  "lease_trace": {
+    "before_fault": {
+      "state": "LEASED",
+      "lease_expiry": "2099-01-01T02:00:00Z",
+      "attempt": 1,
+      "lease_owner": "100"
+    },
+    "after_fault": {
+      "state": "UNKNOWN",
+      "attempt": 1,
+      "lease_expiry": "2099-01-01T02:00:00Z"
+    },
+    "mid_lease_pid_killed": "3645",
+    "kill_ok": true
+  },
+  "side_effect_ledger": {
+    "external_effects": 0,
+    "expected": 0,
+    "duplicates": 0
+  },
+  "unknown_handling": {
+    "marked_UNKNOWN": true,
+    "illegal_CLOSED_blocked": true,
+    "notes": "No durable result \u2192 UNKNOWN; no invent CLOSED; no blind retry of non-idempotent effects"
+  },
+  "idempotency_rehit": {
+    "pass": true,
+    "job_id": "job-63726f44cc2f49af",
+    "same_job": true
+  },
+  "recovery_receipt": {
+    "terminal_state": "UNKNOWN",
+    "side_effect_count": 0,
+    "job_not_lost": true
+  },
+  "bus": "jsonl_138",
+  "nats_durability": "NOT_CLAIMED",
+  "jetstream_consumers": 0,
+  "customer_send": false,
+  "commander_node_id": "138",
+  "power_off_138": false,
+  "sec_p6_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+  "design_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b"
+}

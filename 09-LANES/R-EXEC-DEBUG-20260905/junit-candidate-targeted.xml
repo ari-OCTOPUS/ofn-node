@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="41" time="35.950" timestamp="2026-09-05T01:31:19.190602+10:00" hostname="DESKTOP-KA9RFN5"><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_append_does_not_claim_default_path_after_restore" time="0.004"><failure message="AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded">self = &lt;tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_append_does_not_claim_default_path_after_restore&gt;
+
+    def test_append_does_not_claim_default_path_after_restore(self) -&gt; None:
+        """The #182 CI failure: assert-after-restore on the home QUEUE path."""
+        n = append_to_queue([
+            {"confidence": 0.3, "evidence": ["painting:BLOCKED_HONEST:sha"]},
+        ])
+        self.assertEqual(n, 1)
+        self.assertTrue(self.queue.exists())
+        _rqb.QUEUE = self._orig_queue
+&gt;       self.assertFalse(
+            _rqb.QUEUE.exists(),
+            "restored default QUEUE must stay unwritten; exists() after "
+            "restore is not evidence the append succeeded",
+        )
+E       AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded
+
+tests\test_reply_queue_bridge.py:92: AssertionError</failure></testcase><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_append_to_queue" time="0.009"><failure message="AssertionError: True is not false">self = &lt;tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_append_to_queue&gt;
+
+    def test_append_to_queue(self) -&gt; None:
+        n = append_to_queue([
+            {"confidence": 0.3, "evidence": ["painting:BLOCKED_HONEST:sha"]},
+        ])
+        self.assertEqual(n, 1)
+        self.assertTrue(self.queue.exists())
+        text = self.queue.read_text(encoding="utf-8")
+        self.assertIn("0.3", text)
+        self.assertIn("painting:BLOCKED_HONEST:sha", text)
+&gt;       self.assertFalse(self._orig_queue.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:82: AssertionError</failure></testcase><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_bridge_does_not_grant_send" time="0.002" /><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_dedup_second_pass" time="0.018" /><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_empty_proposals_do_not_create_queue" time="0.002"><failure message="AssertionError: True is not false">self = &lt;tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_empty_proposals_do_not_create_queue&gt;
+
+    def test_empty_proposals_do_not_create_queue(self) -&gt; None:
+        n = append_to_queue([])
+        self.assertEqual(n, 0)
+        self.assertFalse(self.queue.exists())
+&gt;       self.assertFalse(self._orig_queue.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:103: AssertionError</failure></testcase><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_malformed_proposal_is_skipped_not_written" time="0.010" /><testcase classname="tests.test_reply_queue_bridge.TestReplyQueueBridge" name="test_proposal_extraction" time="0.018"><failure message="AssertionError: True is not false">self = &lt;tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_proposal_extraction&gt;
+
+    def test_proposal_extraction(self) -&gt; None:
+        inbox = _seed_inbox(self.tmp, [
+            {"idempotency_key": "abc", "payload": {"response": {
+                "claim_type": "proposal", "confidence": 0.3,
+                "evidence": ["painting:BLOCKED"]}, "businesses": ["painting"]}},
+            {"idempotency_key": "def", "payload": {"response": {
+                "claim_type": "observation"}}},
+        ])
+        props = extract_proposals(inbox)
+        self.assertEqual(len(props), 1)
+        self.assertEqual(props[0]["idempotency_key"], "abc")
+        self.assertTrue(self.seen.exists())
+&gt;       self.assertFalse(self._orig_seen.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:61: AssertionError</failure></testcase><testcase classname="tests.test_release_gate_regression" name="test_d1_garbage_tokens_cannot_release" time="1.178" /><testcase classname="tests.test_release_gate_regression" name="test_d1_real_two_step_releases_once" time="4.036" /><testcase classname="tests.test_release_gate_regression" name="test_d1_forged_code_refused" time="0.419" /><testcase classname="tests.test_release_gate_regression" name="test_d1_step2_replayed_as_step1_refused" time="0.598" /><testcase classname="tests.test_release_gate_regression" name="test_d1_payload_change_invalidates" time="0.716" /><testcase classname="tests.test_release_gate_regression" name="test_d1_expiry_refused" time="0.569" /><testcase classname="tests.test_release_gate_regression" name="test_d1_revoked_refused" time="0.847" /><testcase classname="tests.test_release_gate_regression" name="test_d4_defaults_fail_closed" time="0.001" /><testcase classname="tests.test_release_gate_regression" name="test_d4_closed_secret_rotation_blocks_pipeline" time="0.942" /><testcase classname="tests.test_release_gate_regression" name="test_d4_config_source_is_real" time="0.059" /><testcase classname="tests.test_release_gate_regression" name="test_d2_consent_missing_blocks" time="1.265" /><testcase classname="tests.test_release_gate_regression" name="test_d3_rate_limit_blocks" time="1.180" /><testcase classname="tests.test_release_gate_regression" name="test_d3_idempotency_used_blocks" time="1.090" /><testcase classname="tests.test_release_gate_regression" name="test_d5_gate_none_refused" time="1.459" /><testcase classname="tests.test_release_gate_regression" name="test_d5_real_gate_flows_through_worker" time="0.002" /><testcase classname="tests.test_release_gate_regression" name="test_d5_gate_deny_consumes_nothing" time="0.952" /><testcase classname="tests.test_release_gate_regression" name="test_d6_effect_id_is_stable_not_time_based" time="1.101" /><testcase classname="tests.test_release_gate_regression" name="test_d6_duplicate_settle_refused" time="1.188" /><testcase classname="tests.test_release_gate_regression" name="test_d7_not_armed_is_rejected_not_ok" time="4.442" /><testcase classname="tests.test_release_gate_regression" name="test_d7_worker_error_is_failed" time="4.520" /><testcase classname="tests.test_release_gate_regression" name="test_d7_dry_run_never_sends" time="1.685" /><testcase classname="tests.test_release_gate_regression" name="test_consent_missing_refused" time="1.331" /><testcase classname="tests.test_release_gate_regression" name="test_consent_unreviewed_compliance_refused" time="1.280" /><testcase classname="tests.test_release_gate_regression" name="test_consent_suppressed_refused" time="1.488" /><testcase classname="tests.test_release_gate_regression" name="test_consent_clear_path_ok" time="1.311" /><testcase classname="tests.test_release_gate_regression" name="test_transport_not_armed_without_creds" time="0.002" /><testcase classname="tests.test_release_gate_regression" name="test_transport_no_recipient" time="0.002" /><testcase classname="tests.test_release_gate_regression" name="test_receipts_append_only" time="0.011" /><testcase classname="tests.test_release_pipeline" name="test_draft_too_short_refused" time="0.003" /><testcase classname="tests.test_release_pipeline" name="test_verify_refuses_without_two_step" time="0.010" /><testcase classname="tests.test_release_pipeline" name="test_verify_refuses_kill_switch" time="0.002" /><testcase classname="tests.test_release_pipeline" name="test_verify_passes_with_all_gates_open" time="0.005" /><testcase classname="tests.test_release_pipeline" name="test_receipts_are_append_only" time="1.558" /><testcase classname="tests.test_release_pipeline" name="test_kernel_release_switch_owner_release_is_importable" time="0.000" /></testsuite></testsuites>

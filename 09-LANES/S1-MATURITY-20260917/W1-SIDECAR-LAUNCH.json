@@ -1,0 +1,12 @@
+{
+  "action": "new isolated bounded read-only W1 sidecar",
+  "target": "node182:/root/s1-maturity-w1-20260917",
+  "preimage": "ABSENT required",
+  "source_sha256": "00488082df90e6af42172d9836e7d35f4daa8ef9253619ec470b13058546ecca",
+  "status": "LAUNCHED",
+  "observed_at_utc": "2026-09-17T09:11:16.907782+00:00",
+  "original_watcher": "PRESERVED",
+  "rollback": "Stop only PID recorded in launch output; preserve observations and original watcher.",
+  "pid": "764170",
+  "ssh_returncode": 0
+}

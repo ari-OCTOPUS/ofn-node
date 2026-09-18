@@ -1,0 +1,1238 @@
+{
+  "schema": "octopus.report-review.v1",
+  "recorded_at_utc": "2026-09-04T15:54:04.8214945Z",
+  "clock_note": "Host-reported timestamp; not an independently anchored time attestation.",
+  "role": "DOCUMENTATION_ONLY_REVIEWER_NOT_SIG_IV",
+  "root": "F:/backup/09-LANES/S-R-REPORT-REVIEW-20260905",
+  "review_target": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/",
+  "mission_status": "INCOMPLETE",
+  "debug_status": "PARTIAL_EVIDENCE_RECONCILED_NEGATIVE_COVERAGE_NOT_DEMONSTRATED",
+  "A30_status": "OPEN_CONDITIONAL_CHRONOLOGY",
+  "vault_head": "6fd777d4672137b38bff3463ca35ed36e397c12f",
+  "candidate_head": "80d98ff505f02c606b0decc32a36e645fa05d276",
+  "active_writer_status": "UNKNOWN_NOT_CERTIFIED_ABSENT",
+  "authorization_note": "The supplied narrative is reviewed as a report. No delegated execution or live action is activated by this document.",
+  "sources": [
+    {
+      "path": "F:/backup/AGENTS.md",
+      "sha256": "b004fff1063b757a6a827728e76892f0bf3c26256be61f5653c639c0e5f9a52f",
+      "size": 2935,
+      "mtime": "2026-09-04T05:24:27.7877578Z",
+      "creation_time": "2026-09-01T13:32:26.0000000Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/backup/.agentignore",
+      "sha256": "f05774944b0ddef020f2980f5c1c6f0851f265ba8921d7e28574d1474f8b2003",
+      "size": 2608,
+      "mtime": "2026-07-29T08:28:37.4899864Z",
+      "creation_time": "2026-07-29T08:28:37.4899864Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/backup/09-LANES/H-HANDOFF-RECONCILE-20260905/NEXT-AGENT-PROMPT.md",
+      "sha256": "2de4d5e370a0e1d07441b2d8af6d3172e6be224380f3f9c79eb5e0e6a35d11f6",
+      "size": 12792,
+      "mtime": "2026-09-04T15:06:58.4114065Z",
+      "creation_time": "2026-09-04T15:06:58.4114065Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/backup/09-LANES/H-HANDOFF-RECONCILE-20260905/HANDOFF-MANIFEST.sha256",
+      "sha256": "254188141f77a608a8db2ac0cf5bd24a25664ea838cb727756cdc1ef619d5617",
+      "size": 1628,
+      "mtime": "2026-09-04T15:14:46.5999880Z",
+      "creation_time": "2026-09-04T15:14:46.5918807Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/SCOPE.md",
+      "sha256": "232f0b53cf05b52b426dd504e0ddc470d370cac26ee3689ab9c2508ef0a03c66",
+      "size": 1494,
+      "mtime": "2026-09-04T15:22:26.7209913Z",
+      "creation_time": "2026-09-04T15:22:26.7089144Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/LANE-REPORT.md",
+      "sha256": "92e3dcece1d2db7e99bbad0e3e4892a9c66cc9037c23056d8bb5626bdc215945",
+      "size": 6978,
+      "mtime": "2026-09-04T15:43:00.6523115Z",
+      "creation_time": "2026-09-04T15:43:00.6523115Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/RECONCILIATION-RECORDS.json",
+      "sha256": "64154dc09864f962c6a0c2518f16f19bf6fe631a3d2f0cd6669bdd98592149db",
+      "size": 11668,
+      "mtime": "2026-09-04T15:41:56.6674564Z",
+      "creation_time": "2026-09-04T15:41:56.6674564Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-baseline-replybridge.xml",
+      "sha256": "0cd906a1a6534936f02473b52ecae0e416895989b55a6f0f8232c78bb8a7367c",
+      "size": 4483,
+      "mtime": "2026-09-04T15:32:14.2276032Z",
+      "creation_time": "2026-09-04T15:32:14.1814352Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "XML suite metadata and failure nodes"
+    },
+    {
+      "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-candidate-targeted.xml",
+      "sha256": "463233c418f6a81e7180685557d5c3dac144c857a434297bd81cc004b03a5671",
+      "size": 8266,
+      "mtime": "2026-09-04T15:31:55.2385911Z",
+      "creation_time": "2026-09-04T15:31:55.1394495Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "XML suite metadata and failure nodes"
+    },
+    {
+      "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-candidate-fullsuite.xml",
+      "sha256": "c84e278dc3458845030b6109a5ba71f267dc9063e814b2d44fa579675f9d74f2",
+      "size": 590380,
+      "mtime": "2026-09-04T15:35:06.3438980Z",
+      "creation_time": "2026-09-04T15:35:06.3279903Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "XML suite metadata and failure nodes"
+    },
+    {
+      "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-p03-930e0cc-fullsuite.xml",
+      "sha256": "81536abe0fb07e530bac388d1e3db08570d39f96bdfa82d51951268d60256d84",
+      "size": 591070,
+      "mtime": "2026-09-04T15:38:26.6992848Z",
+      "creation_time": "2026-09-04T15:38:26.6771811Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "XML suite metadata and failure nodes"
+    },
+    {
+      "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/fullsuite-stdout.txt",
+      "sha256": "8378e457d8b5847e4096ec0b881ba8278739dea354200843c1c5d737cd928d45",
+      "size": 9526,
+      "mtime": "2026-09-04T15:35:07.3482658Z",
+      "creation_time": "2026-09-04T15:33:01.1892300Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/RUN-STATE.json",
+      "sha256": "a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc",
+      "size": 6885,
+      "mtime": "2026-09-04T14:47:26.0482189Z",
+      "creation_time": "2026-09-04T14:47:26.0482189Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/ACCEPTANCE-BOUNDS.json",
+      "sha256": "757d234d71b8e5f438508adb43cc51bcb13397f55abda36685959f399afed672",
+      "size": 5857,
+      "mtime": "2026-09-04T13:15:57.0234558Z",
+      "creation_time": "2026-09-04T13:15:57.0234558Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/P03-RELEASE-GATE-RECEIPT.json",
+      "sha256": "075a6a04078707d1ce28ed885e1dcd9dde4bb240e946d0bdd1e9710c42f06c3b",
+      "size": 5126,
+      "mtime": "2026-09-04T14:33:07.7243084Z",
+      "creation_time": "2026-09-04T14:11:00.5236782Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/P03-ARTIFACT-HASHES.txt",
+      "sha256": "56ccc6dda185c75703d36f1a987fd4f55b0c5a1c94eac71e6fa274deedbb04e5",
+      "size": 487,
+      "mtime": "2026-09-04T14:11:01.0084885Z",
+      "creation_time": "2026-09-04T14:11:00.9072554Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/mesh-p04/RAW-STATE-180.json",
+      "sha256": "164f0412c2f1b72988f5a28813ee2e82bf57768f3830ba6d57fc7ffbd903176c",
+      "size": 2590,
+      "mtime": "2026-09-04T14:42:52.1532327Z",
+      "creation_time": "2026-09-04T14:42:52.1517204Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/ofn/agents/learning_feeder.py",
+      "sha256": "2705bcb6bbbe7303aa0cdf74247411e9abdc2dd6f5ffec85cb8b6f08f9aaac9c",
+      "size": 4940,
+      "mtime": "2026-09-04T15:30:05.0134721Z",
+      "creation_time": "2026-09-04T15:30:04.9998556Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/ofn/learning/cli.py",
+      "sha256": "5aeea680fcc744ef004b02f681703a6b6572621510b0fd7e2f12bada984dba52",
+      "size": 9298,
+      "mtime": "2026-09-04T15:30:07.8388699Z",
+      "creation_time": "2026-09-04T15:30:07.8388699Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/tests/test_reply_queue_bridge.py",
+      "sha256": "d6d31029946bb8ed81baa1e2463cca87a9d2b91bd0ba80b6175af3e4471e0771",
+      "size": 4936,
+      "mtime": "2026-09-04T15:30:12.8153967Z",
+      "creation_time": "2026-09-04T15:30:12.8153967Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/backup/04 - Architect System/scripts/validate_frontmatter.py",
+      "sha256": "d832dc760fe2289f4c09e565106c4054bb25bc254d757bab0edf92094d7cb130",
+      "size": 13895,
+      "mtime": "2026-08-28T13:24:29.2504625Z",
+      "creation_time": "2026-08-02T16:43:50.5276568Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "complete validator source"
+    },
+    {
+      "path": "F:/backup/04 - Architect System/scripts/find_broken_links.py",
+      "sha256": "c2d533fb66a8fb34a832c5c22c6eff56f5f09e2a75aa9173982114235b96275c",
+      "size": 13795,
+      "mtime": "2026-08-28T13:24:29.2504625Z",
+      "creation_time": "2026-08-06T05:54:45.6614959Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "complete validator source"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/BOUNDS-HASH.txt",
+      "sha256": "095a7c08c3e6cad0c90ab4d787bdd01179db8c2d129747b04116950ffc58bf39",
+      "size": 120,
+      "mtime": "2026-09-04T13:16:03.8799849Z",
+      "creation_time": "2026-09-04T13:16:03.8799849Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/ofn/budget/opslib.py",
+      "sha256": "eb00ddbfbbe63573c69e4ab8ed0e57f547b0355b68c1041c39725d015b8e82ac",
+      "size": 2010,
+      "mtime": "2026-09-04T15:30:06.3534308Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "now_iso definition only; whole-file hash"
+    },
+    {
+      "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/tests/test_organism_shadow.py",
+      "sha256": "501acfb77a1b9b9acda41774a232a14f7195f66a0710d3e63601490a74279ec2",
+      "size": 13452,
+      "mtime": "2026-09-04T15:30:12.3992921Z",
+      "sensitivity": "SOURCE_CODE_OR_OPERATIONAL_EVIDENCE_NO_SECRET_VALUES_COPIED",
+      "read_scope": "source as cited; whole-file hash"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "S01",
+      "priority": "P1",
+      "claim": "A30 is not conclusively closed by present hash plus filesystem timestamps. REC-01 calls 14:15 content +18 minutes ahead of 14:33 write; the sign is reversed.",
+      "status": "CONFLICTED",
+      "evidence": [
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/RECONCILIATION-RECORDS.json",
+          "sha256": "64154dc09864f962c6a0c2518f16f19bf6fe631a3d2f0cd6669bdd98592149db",
+          "lines": "14-21"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/ACCEPTANCE-BOUNDS.json",
+          "sha256": "757d234d71b8e5f438508adb43cc51bcb13397f55abda36685959f399afed672"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/P03-RELEASE-GATE-RECEIPT.json",
+          "sha256": "075a6a04078707d1ce28ed885e1dcd9dde4bb240e946d0bdd1e9710c42f06c3b"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/BOUNDS-HASH.txt",
+          "sha256": "095a7c08c3e6cad0c90ab4d787bdd01179db8c2d129747b04116950ffc58bf39"
+        }
+      ],
+      "reproduced": "Current bytes/times and timestamp arithmetic rechecked; historical byte order not reproduced",
+      "confidence": "HIGH for the limitation; historical chronology UNKNOWN",
+      "resolution": null,
+      "next_verification": "Keep both clocks. Bind the pre-test bounds hash to immutable CI/artifact or contemporaneously anchored signed/append-only evidence. Otherwise rerun a newly preregistered cycle; do not retroactively repair A30.",
+      "target_head": "UNKNOWN",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S02",
+      "priority": "P1",
+      "claim": "The R report's 'debug done' exceeds supplied evidence. Required targeted multi-process SQLite races, payload confusion, fsync/crash cases and mesh consume/ack proof need test-node mapping. R explicitly reports no OS-level network block.",
+      "status": "CONFLICTED",
+      "evidence": [
+        {
+          "path": "F:/backup/09-LANES/H-HANDOFF-RECONCILE-20260905/NEXT-AGENT-PROMPT.md",
+          "sha256": "2de4d5e370a0e1d07441b2d8af6d3172e6be224380f3f9c79eb5e0e6a35d11f6",
+          "lines": "47-53"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/LANE-REPORT.md",
+          "sha256": "92e3dcece1d2db7e99bbad0e3e4892a9c66cc9037c23056d8bb5626bdc215945",
+          "lines": "17;69-71"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-baseline-replybridge.xml",
+          "sha256": "0cd906a1a6534936f02473b52ecae0e416895989b55a6f0f8232c78bb8a7367c"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-candidate-fullsuite.xml",
+          "sha256": "c84e278dc3458845030b6109a5ba71f267dc9063e814b2d44fa579675f9d74f2"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-candidate-targeted.xml",
+          "sha256": "463233c418f6a81e7180685557d5c3dac144c857a434297bd81cc004b03a5671"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-p03-930e0cc-fullsuite.xml",
+          "sha256": "81536abe0fb07e530bac388d1e3db08570d39f96bdfa82d51951268d60256d84"
+        }
+      ],
+      "reproduced": "Compared supplied artifacts against requested acceptance coverage; did not rerun tests",
+      "confidence": "HIGH for missing demonstrated coverage, not proof cases never existed",
+      "resolution": null,
+      "next_verification": "Create requirement-to-node-to-receipt coverage; mark missing tests NOT_DEMONSTRATED. Complete authorized synthetic negative tests with network denial and isolated state before DEBUG_COMPLETE.",
+      "target_head": "UNKNOWN",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S03",
+      "priority": "P1",
+      "claim": "Four identical reply bridge failure nodes and failure-body hashes appear in baseline and candidate artifacts. This supports recurrence before the candidate, not a universal Windows-only state leak. Assertions check absent original default files and are non-hermetic when those files already exist.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "evidence": [
+        {
+          "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/tests/test_reply_queue_bridge.py",
+          "sha256": "d6d31029946bb8ed81baa1e2463cca87a9d2b91bd0ba80b6175af3e4471e0771",
+          "lines": "40-47;61;82;92;103"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-baseline-replybridge.xml",
+          "sha256": "0cd906a1a6534936f02473b52ecae0e416895989b55a6f0f8232c78bb8a7367c"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-candidate-fullsuite.xml",
+          "sha256": "c84e278dc3458845030b6109a5ba71f267dc9063e814b2d44fa579675f9d74f2"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-candidate-targeted.xml",
+          "sha256": "463233c418f6a81e7180685557d5c3dac144c857a434297bd81cc004b03a5671"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-p03-930e0cc-fullsuite.xml",
+          "sha256": "81536abe0fb07e530bac388d1e3db08570d39f96bdfa82d51951268d60256d84"
+        }
+      ],
+      "reproduced": "Parsed all four XMLs and compared node identities and failure-body digests; no pytest rerun in this review",
+      "confidence": "HIGH within supplied artifacts/source; independent execution UNKNOWN",
+      "next_verification": "With code-change approval, preserve original defaults, compare pre/post state, use isolated fixture paths, and prove zero writes outside sandbox. Do not delete existing files or merely remove assertions.",
+      "target_head": "80d98ff505f02c606b0decc32a36e645fa05d276",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S04",
+      "priority": "P1",
+      "claim": "The feeder assigns an ISO timestamp to snapshot_sha256 and the CLI propagates that field to score/lesson/proposal records and Obsidian output. It is not a content digest.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "evidence": [
+        {
+          "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/ofn/agents/learning_feeder.py",
+          "sha256": "2705bcb6bbbe7303aa0cdf74247411e9abdc2dd6f5ffec85cb8b6f08f9aaac9c",
+          "lines": "78"
+        },
+        {
+          "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/ofn/budget/opslib.py",
+          "sha256": "eb00ddbfbbe63573c69e4ab8ed0e57f547b0355b68c1041c39725d015b8e82ac",
+          "lines": "24-25"
+        },
+        {
+          "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/ofn/learning/cli.py",
+          "sha256": "5aeea680fcc744ef004b02f681703a6b6572621510b0fd7e2f12bada984dba52",
+          "lines": "51;72;79;88;97;143"
+        }
+      ],
+      "reproduced": "Static assignment and callee inspected; module not executed",
+      "confidence": "HIGH for source; live exposure UNKNOWN",
+      "next_verification": "Proposal only: separate captured_at from hash of defined immutable/canonical evidence bytes; test valid digest shape, same-bytes same-hash, changed-bytes changed-hash; never fabricate historic hashes.",
+      "target_head": "80d98ff505f02c606b0decc32a36e645fa05d276",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S05",
+      "priority": "P2",
+      "claim": "Mesh raw windows contain 8899 before inventory, 8900 at operation start, and 8892 expired + 8 retained. +1 arrival is a plausible explanation, not event-identity proof. Constant inbox count cannot establish no duplicate processing.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "evidence": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/mesh-p04/RAW-STATE-180.json",
+          "sha256": "164f0412c2f1b72988f5a28813ee2e82bf57768f3830ba6d57fc7ffbd903176c"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/RECONCILIATION-RECORDS.json",
+          "sha256": "64154dc09864f962c6a0c2518f16f19bf6fe631a3d2f0cd6669bdd98592149db",
+          "lines": "24-34"
+        }
+      ],
+      "reproduced": "Parsed existing raw JSON only; no board/SSH probe",
+      "confidence": "HIGH for counts, UNKNOWN for no-duplicate semantic effects",
+      "next_verification": "Compare unique envelope/effect IDs and durable consume/ack receipts across cycles and crash replay; positive semantic delivery remains unproven.",
+      "target_head": "UNKNOWN",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S06",
+      "priority": "P1",
+      "claim": "Fresh GitHub metadata has both PRs OPEN/REVIEW_REQUIRED; #193 Windows test fails; #194 Ubuntu/Windows full-suite checks pass but require-independent-approval fails. 'All CI green' and 'only merge blocker' are too strong.",
+      "status": "CONFIRMED_FROM_RUNTIME_ARTIFACT",
+      "evidence": [
+        {
+          "source": "gh pr view 193 and 194 --repo ari-OCTOPUS/ofn-node --json number,state,headRefOid,baseRefOid,reviewDecision,mergedAt,statusCheckRollup",
+          "raw_embedded_in": "github_api_snapshot",
+          "source_hash": null,
+          "hash_contract": "Embedded API snapshot covered by final REVIEW-RECEIPT.json manifest entry; no detached raw hash claimed"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/RECONCILIATION-RECORDS.json",
+          "sha256": "64154dc09864f962c6a0c2518f16f19bf6fe631a3d2f0cd6669bdd98592149db",
+          "lines": "91-97"
+        }
+      ],
+      "reproduced": "Read-only GitHub metadata refreshed in current review",
+      "confidence": "HIGH at observation only",
+      "next_verification": "Do not merge/close/rebase. Refresh review and merge requirements at exact target HEAD through authorized maintainer. Commit containment is not authority to supersede PR #193.",
+      "target_head": "UNKNOWN",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S07",
+      "priority": "P2",
+      "claim": "The inspected feeder->learning CLI path builds scores/lessons/proposals and reads ledger summaries for bookkeeping/rendering. No demonstrated prior-cycle decision reuse was found in this path; a single-file grep does not establish a whole-system absence.",
+      "status": "INFERENCE",
+      "evidence": [
+        {
+          "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/ofn/agents/learning_feeder.py",
+          "sha256": "2705bcb6bbbe7303aa0cdf74247411e9abdc2dd6f5ffec85cb8b6f08f9aaac9c"
+        },
+        {
+          "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/ofn/learning/cli.py",
+          "sha256": "5aeea680fcc744ef004b02f681703a6b6572621510b0fd7e2f12bada984dba52",
+          "lines": "40-117;129-172"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/LANE-REPORT.md",
+          "sha256": "92e3dcece1d2db7e99bbad0e3e4892a9c66cc9037c23056d8bb5626bdc215945",
+          "lines": "45-47"
+        }
+      ],
+      "reproduced": "Call path read statically, no two-cycle fixture or live journal",
+      "confidence": "HIGH for inspected path; whole-system closure UNKNOWN",
+      "next_verification": "Trace ledger to actual decision consumer. Two-cycle plus no-memory control: cycle 2 cites cycle-1 memory/decision/outcome ID and records decision_changed_by_memory. Readback for display alone is not reuse.",
+      "target_head": "80d98ff505f02c606b0decc32a36e645fa05d276",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S08",
+      "priority": "P1",
+      "claim": "R's SCOPE names the manifest-verified H prompt as Owner dispatch. A verified prompt is a routing/evidence document, not by itself a new owner action grant or independent verification.",
+      "status": "CONFLICTED",
+      "evidence": [
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/SCOPE.md",
+          "sha256": "232f0b53cf05b52b426dd504e0ddc470d370cac26ee3689ab9c2508ef0a03c66",
+          "lines": "10"
+        },
+        {
+          "path": "F:/backup/09-LANES/H-HANDOFF-RECONCILE-20260905/NEXT-AGENT-PROMPT.md",
+          "sha256": "2de4d5e370a0e1d07441b2d8af6d3172e6be224380f3f9c79eb5e0e6a35d11f6",
+          "lines": "27"
+        }
+      ],
+      "reproduced": "Authority wording compared; no validity judgment about unseen separate owner delegation",
+      "confidence": "HIGH for distinction; actual historical grant applicability UNKNOWN",
+      "resolution": null,
+      "next_verification": "Link actual applicable owner authorization, target/head, allowed effects and expiry. Keep review, merge, deletion, restart and sends separately gated.",
+      "target_head": "UNKNOWN",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S09",
+      "priority": "P2",
+      "claim": "Candidate full-suite stdout reports 4558 passed/4 failed/28 skipped/3450 subtests. Git diff from 930e0cc adds four tests and changes frozen-file checking to LF-canonical hashes; repaired fifth failure plus four tests is consistent with +5 passes vs R's 4553 P03 report.",
+      "status": "CONFIRMED_FROM_GIT",
+      "evidence": [
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/fullsuite-stdout.txt",
+          "sha256": "8378e457d8b5847e4096ec0b881ba8278739dea354200843c1c5d737cd928d45",
+          "lines": "149"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/junit-p03-930e0cc-fullsuite.xml",
+          "sha256": "81536abe0fb07e530bac388d1e3db08570d39f96bdfa82d51951268d60256d84"
+        },
+        {
+          "path": "F:/octo-exec/R-EXEC-DEBUG-20260905/wt-candidate/tests/test_organism_shadow.py",
+          "sha256": "501acfb77a1b9b9acda41774a232a14f7195f66a0710d3e63601490a74279ec2",
+          "lines": "17-97"
+        },
+        {
+          "source": "git diff 930e0cc..80d98ff -- tests/test_organism_shadow.py",
+          "target_head": "80d98ff505f02c606b0decc32a36e645fa05d276"
+        }
+      ],
+      "reproduced": "Git diff read and XML failure set parsed; numerical pass reconciliation conditional on R's P03 pass report",
+      "confidence": "HIGH for diff and candidate stdout; P03 exact pass count not independently rerun",
+      "next_verification": "Keep pytest top-level counts, JUnit tests attribute/testcase elements, and subtests separate. LF-canonical source equivalence does not prove raw running-byte identity; preserve both raw and normalized pins.",
+      "target_head": "80d98ff505f02c606b0decc32a36e645fa05d276",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    },
+    {
+      "claim_id": "S10",
+      "priority": "P2",
+      "claim": "Archive member/spot hashes, board capacity, NTP, soak cadence and worker lifecycle remain R-reported observations in this review, not refreshed runtime truth. 'interrupted-with-partial-output' conflicts with worker UNKNOWN.",
+      "status": "REPORTED_NOT_REPRODUCED",
+      "evidence": [
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/LANE-REPORT.md",
+          "sha256": "92e3dcece1d2db7e99bbad0e3e4892a9c66cc9037c23056d8bb5626bdc215945",
+          "lines": "29-34;61-73"
+        },
+        {
+          "path": "F:/backup/09-LANES/R-EXEC-DEBUG-20260905/RECONCILIATION-RECORDS.json",
+          "sha256": "64154dc09864f962c6a0c2518f16f19bf6fe631a3d2f0cd6669bdd98592149db",
+          "lines": "47"
+        }
+      ],
+      "reproduced": false,
+      "confidence": "UNKNOWN for current boards/workers; report bytes confirmed",
+      "next_verification": "Use actual handles/identity and current bounded read-only evidence only with applicable access scope. No redispatch based on absence. Full archive integrity and isolated restore before any separate deletion proposal.",
+      "target_head": "UNKNOWN",
+      "caveat": "Current review verifies sources, not an independently witnessed original execution or permission grant."
+    }
+  ],
+  "xml_comparison": [
+    {
+      "file": "junit-baseline-replybridge.xml",
+      "sha256": "0cd906a1a6534936f02473b52ecae0e416895989b55a6f0f8232c78bb8a7367c",
+      "suites": [
+        {
+          "tests": "7",
+          "failures": "4",
+          "errors": "0",
+          "skipped": "0",
+          "timestamp": "2026-09-05T01:32:13.832695+10:00",
+          "time": "0.353"
+        }
+      ],
+      "testcase_count": 7,
+      "failure_nodes": [
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_append_does_not_claim_default_path_after_restore",
+          "message": "AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded",
+          "failure_sha256": "4ff7731cd7170d6705539e90cb7ebaf9b8a63fa148efcd65135b4eb2422a7f37"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_append_to_queue",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "77735185067d151edfb67c0ecc5db48bf278d667755ce29c8a8302a3746efb5d"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_empty_proposals_do_not_create_queue",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "6a7155c12dccab1bfa80f56d2a4c2b08168dca35d0a5ec737b16b601b29bb984"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_proposal_extraction",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "a04e2041ac24b6f3806262599968805d099de23fa26b43220d96c44318023076"
+        }
+      ]
+    },
+    {
+      "file": "junit-candidate-fullsuite.xml",
+      "sha256": "c84e278dc3458845030b6109a5ba71f267dc9063e814b2d44fa579675f9d74f2",
+      "suites": [
+        {
+          "tests": "8040",
+          "failures": "4",
+          "errors": "0",
+          "skipped": "28",
+          "timestamp": "2026-09-05T01:33:02.552518+10:00",
+          "time": "123.777"
+        }
+      ],
+      "testcase_count": 4580,
+      "failure_nodes": [
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_append_does_not_claim_default_path_after_restore",
+          "message": "AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded",
+          "failure_sha256": "4ff7731cd7170d6705539e90cb7ebaf9b8a63fa148efcd65135b4eb2422a7f37"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_append_to_queue",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "77735185067d151edfb67c0ecc5db48bf278d667755ce29c8a8302a3746efb5d"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_empty_proposals_do_not_create_queue",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "6a7155c12dccab1bfa80f56d2a4c2b08168dca35d0a5ec737b16b601b29bb984"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_proposal_extraction",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "a04e2041ac24b6f3806262599968805d099de23fa26b43220d96c44318023076"
+        }
+      ]
+    },
+    {
+      "file": "junit-candidate-targeted.xml",
+      "sha256": "463233c418f6a81e7180685557d5c3dac144c857a434297bd81cc004b03a5671",
+      "suites": [
+        {
+          "tests": "41",
+          "failures": "4",
+          "errors": "0",
+          "skipped": "0",
+          "timestamp": "2026-09-05T01:31:19.190602+10:00",
+          "time": "35.950"
+        }
+      ],
+      "testcase_count": 41,
+      "failure_nodes": [
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_append_does_not_claim_default_path_after_restore",
+          "message": "AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded",
+          "failure_sha256": "4ff7731cd7170d6705539e90cb7ebaf9b8a63fa148efcd65135b4eb2422a7f37"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_append_to_queue",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "77735185067d151edfb67c0ecc5db48bf278d667755ce29c8a8302a3746efb5d"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_empty_proposals_do_not_create_queue",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "6a7155c12dccab1bfa80f56d2a4c2b08168dca35d0a5ec737b16b601b29bb984"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_proposal_extraction",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "a04e2041ac24b6f3806262599968805d099de23fa26b43220d96c44318023076"
+        }
+      ]
+    },
+    {
+      "file": "junit-p03-930e0cc-fullsuite.xml",
+      "sha256": "81536abe0fb07e530bac388d1e3db08570d39f96bdfa82d51951268d60256d84",
+      "suites": [
+        {
+          "tests": "8036",
+          "failures": "5",
+          "errors": "0",
+          "skipped": "28",
+          "timestamp": "2026-09-05T01:36:25.137517+10:00",
+          "time": "121.542"
+        }
+      ],
+      "testcase_count": 4576,
+      "failure_nodes": [
+        {
+          "classname": "tests.test_organism_shadow.OrganismShadowTests",
+          "name": "test_captured_source_identity_and_frozen_files",
+          "message": "AssertionError: 'cfa730c9d9cda268f89b69c7b11ef8a1dec8f5d9d390a0db36f1d098d2e96ae4' != 'e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b'\n- cfa730c9d9cda268f89b69c7b11ef8a1dec8f5d9d390a0db36f1d098d2e96ae4\n+ e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b",
+          "failure_sha256": "5f4d0066cfcf6ea314ffb30d0f3f9ab40591b7328281e872f1a288de9d642293"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_append_does_not_claim_default_path_after_restore",
+          "message": "AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded",
+          "failure_sha256": "4ff7731cd7170d6705539e90cb7ebaf9b8a63fa148efcd65135b4eb2422a7f37"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_append_to_queue",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "77735185067d151edfb67c0ecc5db48bf278d667755ce29c8a8302a3746efb5d"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_empty_proposals_do_not_create_queue",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "6a7155c12dccab1bfa80f56d2a4c2b08168dca35d0a5ec737b16b601b29bb984"
+        },
+        {
+          "classname": "tests.test_reply_queue_bridge.TestReplyQueueBridge",
+          "name": "test_proposal_extraction",
+          "message": "AssertionError: True is not false",
+          "failure_sha256": "a04e2041ac24b6f3806262599968805d099de23fa26b43220d96c44318023076"
+        }
+      ]
+    }
+  ],
+  "github_api_snapshot": [
+    {
+      "baseRefOid": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+      "headRefOid": "2cd67aa43a73d6f9cf4e9a62d7e96cd52502d51e",
+      "mergedAt": null,
+      "number": 193,
+      "reviewDecision": "REVIEW_REQUIRED",
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:30Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257617/job/101033836374",
+          "name": "test (ubuntu-latest)",
+          "startedAt": "2026-09-04T13:06:47Z",
+          "status": "COMPLETED",
+          "workflowName": "full-suite"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:06:50Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257332/job/101033834679",
+          "name": "require-fresh-base",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:08:17Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876389716/job/101034266965",
+          "name": "require-fresh-base",
+          "startedAt": "2026-09-04T13:08:13Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:03Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257293/job/101033835693",
+          "name": "test (ubuntu-latest, 3.11)",
+          "startedAt": "2026-09-04T13:06:47Z",
+          "status": "COMPLETED",
+          "workflowName": "observation-contract"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:06:58Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257475/job/101033835390",
+          "name": "test (ubuntu-latest, 3.11)",
+          "startedAt": "2026-09-04T13:06:47Z",
+          "status": "COMPLETED",
+          "workflowName": "observatory-fixture"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:06:55Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257362/job/101033835737",
+          "name": "test (ubuntu-latest, 3.11)",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "restore-drill"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:12:37Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257617/job/101033836227",
+          "name": "test (windows-latest)",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "full-suite"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:06:59Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257293/job/101033835840",
+          "name": "test (ubuntu-latest, 3.13)",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "observation-contract"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:09Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257475/job/101033835722",
+          "name": "test (ubuntu-latest, 3.13)",
+          "startedAt": "2026-09-04T13:06:47Z",
+          "status": "COMPLETED",
+          "workflowName": "observatory-fixture"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:06Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257362/job/101033835492",
+          "name": "test (ubuntu-latest, 3.13)",
+          "startedAt": "2026-09-04T13:06:47Z",
+          "status": "COMPLETED",
+          "workflowName": "restore-drill"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:13Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257293/job/101033835361",
+          "name": "test (windows-latest, 3.11)",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "observation-contract"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:30Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257475/job/101033835433",
+          "name": "test (windows-latest, 3.11)",
+          "startedAt": "2026-09-04T13:06:47Z",
+          "status": "COMPLETED",
+          "workflowName": "observatory-fixture"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:18Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257362/job/101033835684",
+          "name": "test (windows-latest, 3.11)",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "restore-drill"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:08Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257293/job/101033835563",
+          "name": "test (windows-latest, 3.13)",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "observation-contract"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:19Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257475/job/101033835156",
+          "name": "test (windows-latest, 3.13)",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "observatory-fixture"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:07:12Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257362/job/101033835276",
+          "name": "test (windows-latest, 3.13)",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "restore-drill"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:06:49Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257332/job/101033834870",
+          "name": "require-independent-approval",
+          "startedAt": "2026-09-04T13:06:45Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:08:20Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876389716/job/101034266679",
+          "name": "require-independent-approval",
+          "startedAt": "2026-09-04T13:08:15Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:06:52Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33876257617/job/101033835950",
+          "name": "hygiene",
+          "startedAt": "2026-09-04T13:06:46Z",
+          "status": "COMPLETED",
+          "workflowName": "full-suite"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:06:51Z",
+          "conclusion": "NEUTRAL",
+          "detailsUrl": "https://cursor.com/docs/bugbot",
+          "name": "Cursor Bugbot",
+          "startedAt": "2026-09-04T13:06:49Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:08:17Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://cursor.com/agents/bc-db95e096-87d0-4f2c-825a-e0a58b96fabb",
+          "name": "Cursor Approval Agent: Pull Request Router and Approver",
+          "startedAt": "2026-09-04T13:06:42Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T13:26:02Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://cursor.com/agents/bc-993f9c0d-2279-489a-88b4-6e1e5d99f35b",
+          "name": "Cursor Automation: OCTOPUS — Owner-Absent Continuous Operator",
+          "startedAt": "2026-09-04T13:12:51Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        }
+      ]
+    },
+    {
+      "baseRefOid": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+      "headRefOid": "80d98ff505f02c606b0decc32a36e645fa05d276",
+      "mergedAt": null,
+      "number": 194,
+      "reviewDecision": "REVIEW_REQUIRED",
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:29:10Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896394/job/101058978022",
+          "name": "test (ubuntu-latest)",
+          "startedAt": "2026-09-04T14:28:27Z",
+          "status": "COMPLETED",
+          "workflowName": "full-suite"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:16Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896368/job/101058887651",
+          "name": "require-fresh-base",
+          "startedAt": "2026-09-04T14:28:11Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:29:31Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33884019136/job/101059297214",
+          "name": "require-fresh-base",
+          "startedAt": "2026-09-04T14:29:28Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:29:53Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33884049533/job/101059402301",
+          "name": "require-fresh-base",
+          "startedAt": "2026-09-04T14:29:48Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:23Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896235/job/101058887309",
+          "name": "test (ubuntu-latest, 3.11)",
+          "startedAt": "2026-09-04T14:28:10Z",
+          "status": "COMPLETED",
+          "workflowName": "observation-contract"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:30Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896553/job/101058887943",
+          "name": "test (ubuntu-latest, 3.11)",
+          "startedAt": "2026-09-04T14:28:11Z",
+          "status": "COMPLETED",
+          "workflowName": "observatory-fixture"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:20Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896320/job/101058887484",
+          "name": "test (ubuntu-latest, 3.11)",
+          "startedAt": "2026-09-04T14:28:10Z",
+          "status": "COMPLETED",
+          "workflowName": "restore-drill"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:32:11Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896394/job/101058978139",
+          "name": "test (windows-latest)",
+          "startedAt": "2026-09-04T14:28:28Z",
+          "status": "COMPLETED",
+          "workflowName": "full-suite"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:19Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896235/job/101058887019",
+          "name": "test (ubuntu-latest, 3.13)",
+          "startedAt": "2026-09-04T14:28:10Z",
+          "status": "COMPLETED",
+          "workflowName": "observation-contract"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:20Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896553/job/101058887823",
+          "name": "test (ubuntu-latest, 3.13)",
+          "startedAt": "2026-09-04T14:28:10Z",
+          "status": "COMPLETED",
+          "workflowName": "observatory-fixture"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:20Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896320/job/101058887550",
+          "name": "test (ubuntu-latest, 3.13)",
+          "startedAt": "2026-09-04T14:28:11Z",
+          "status": "COMPLETED",
+          "workflowName": "restore-drill"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:34Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896235/job/101058887425",
+          "name": "test (windows-latest, 3.11)",
+          "startedAt": "2026-09-04T14:28:10Z",
+          "status": "COMPLETED",
+          "workflowName": "observation-contract"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:35Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896553/job/101058888047",
+          "name": "test (windows-latest, 3.11)",
+          "startedAt": "2026-09-04T14:28:11Z",
+          "status": "COMPLETED",
+          "workflowName": "observatory-fixture"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:41Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896320/job/101058887172",
+          "name": "test (windows-latest, 3.11)",
+          "startedAt": "2026-09-04T14:28:10Z",
+          "status": "COMPLETED",
+          "workflowName": "restore-drill"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:34Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896235/job/101058887436",
+          "name": "test (windows-latest, 3.13)",
+          "startedAt": "2026-09-04T14:28:11Z",
+          "status": "COMPLETED",
+          "workflowName": "observation-contract"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:46Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896553/job/101058888049",
+          "name": "test (windows-latest, 3.13)",
+          "startedAt": "2026-09-04T14:28:15Z",
+          "status": "COMPLETED",
+          "workflowName": "observatory-fixture"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:38Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896320/job/101058887540",
+          "name": "test (windows-latest, 3.13)",
+          "startedAt": "2026-09-04T14:28:13Z",
+          "status": "COMPLETED",
+          "workflowName": "restore-drill"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:17Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896368/job/101058887974",
+          "name": "require-independent-approval",
+          "startedAt": "2026-09-04T14:28:11Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:29:32Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33884019136/job/101059297693",
+          "name": "require-independent-approval",
+          "startedAt": "2026-09-04T14:29:28Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:29:52Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33884049533/job/101059401835",
+          "name": "require-independent-approval",
+          "startedAt": "2026-09-04T14:29:47Z",
+          "status": "COMPLETED",
+          "workflowName": "independent-review-gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:33Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ari-OCTOPUS/ofn-node/actions/runs/33883896394/job/101058977680",
+          "name": "hygiene",
+          "startedAt": "2026-09-04T14:28:28Z",
+          "status": "COMPLETED",
+          "workflowName": "full-suite"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:28:15Z",
+          "conclusion": "NEUTRAL",
+          "detailsUrl": "https://cursor.com/docs/bugbot",
+          "name": "Cursor Bugbot",
+          "startedAt": "2026-09-04T14:28:14Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:29:45Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://cursor.com/agents/bc-c9b24968-4668-4cf3-b9b1-dd4dbab31d2a",
+          "name": "Cursor Approval Agent: Pull Request Router and Approver",
+          "startedAt": "2026-09-04T14:28:05Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-04T14:41:28Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://cursor.com/agents/bc-89821a77-8613-4a50-8dff-bfe93a8ba09e",
+          "name": "Cursor Automation: OCTOPUS — Owner-Absent Continuous Operator",
+          "startedAt": "2026-09-04T14:32:26Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "scope": "Only this additive review lane; no whole-vault PASS claim",
+    "frontmatter": {
+      "checked": 3,
+      "passed": 3,
+      "failed": 0,
+      "checker": "Original validate_frontmatter.check_note, unchanged, called on explicit files"
+    },
+    "wikilinks": {
+      "checked": 6,
+      "passed": 6,
+      "failed": 0,
+      "checker": "Explicit target existence scoped to three new Markdown files, not a whole-vault link scan"
+    },
+    "protected_sources": {
+      "checked": 25,
+      "unchanged": 25
+    },
+    "old_handoff_manifest": {
+      "checked": 10,
+      "matched": 10
+    },
+    "secret_pattern_hits": 0,
+    "secret_scan_limit": "Limited credential-shaped string scan of newly authored Markdown and receipt; not a secret inventory",
+    "whole_vault": [
+      {
+        "script": "validate_frontmatter.py",
+        "status": "BLOCKED_BY_SCOPE_GUARD",
+        "observed_shell_exit": 1,
+        "guard_requested_python_exit": 2,
+        "blocked_writes": 2,
+        "blocked_reads": 1
+      },
+      {
+        "script": "find_broken_links.py",
+        "status": "BLOCKED_BY_SCOPE_GUARD",
+        "observed_shell_exit": 1,
+        "guard_requested_python_exit": 2,
+        "blocked_writes": 9,
+        "blocked_reads": 1
+      }
+    ],
+    "whole_vault_caveat": "Both original validators attempted. External Python audit hook denied debug-log writes and excluded reads. No validator source edits. Interrupted checking proves no whole-vault validation. PowerShell tool returned exit 1; wrapper requested Python exit 2.",
+    "network_note": "Only read-only GitHub metadata queries; no SSH or Telegram requests.",
+    "runtime_test_executions": 0
+  },
+  "scope": {
+    "git_read_only": true,
+    "github_metadata_read_only": true,
+    "ssh_probes": 0,
+    "telegram_actions": 0,
+    "credential_reads": 0,
+    "source_edits": 0,
+    "runtime_test_executions": 0,
+    "commits": 0,
+    "process_restart_or_kill": 0,
+    "original_report_edits": 0
+  }
+}

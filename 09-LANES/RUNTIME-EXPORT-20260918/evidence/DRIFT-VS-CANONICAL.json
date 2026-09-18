@@ -1,0 +1,144 @@
+{
+ "schema": "drift_report.v1",
+ "canonical_repo": "ari-OCTOPUS/ofn-node",
+ "canonical_branch": "main",
+ "canonical_head": "ae187e03ecb4c057bd63f424f45f519d9b239771",
+ "canonical_tree_truncated": false,
+ "canonical_blob_count": 3454,
+ "counts": {
+  "DRIFT": 3,
+  "ABSENT_FROM_CANONICAL": 10
+ },
+ "files": [
+  {
+   "path": "ofn/ziman_cycle/gates.py",
+   "label": "A1 ziman hold flip (claimed)",
+   "in_board_head": "YES",
+   "diff_vs_board_head": "DIFFERS",
+   "live_blob": "d7b09f461d28c45cc8e93dc7f6303768bb3a123e",
+   "live_sha256": "f3451a16f63539cfbd5477d6685bb2c9cef515b86c21525667f67a4951d19f8f",
+   "canonical_blob": "64ad82d6519ce84a3aaeb53467877e6c296dcf80",
+   "verdict": "DRIFT"
+  },
+  {
+   "path": "ofn/agents/owner_notify.py",
+   "label": "R1 notify retry patch (claimed)",
+   "in_board_head": "YES",
+   "diff_vs_board_head": "DIFFERS",
+   "live_blob": "69250d30b47422924cdedd1811163b06840e1d84",
+   "live_sha256": "b90cd74329458d447b2a162c4ec51302c4c018edcccbb72797493ec9f0bdd417",
+   "canonical_blob": "0b8f6cffa67dd1b5d9ca92064de1eb8b4ac8d856",
+   "verdict": "DRIFT"
+  },
+  {
+   "path": "ofn/agents/glass_runner.py",
+   "label": "telegram button intake patch (claimed)",
+   "in_board_head": "YES",
+   "diff_vs_board_head": "DIFFERS",
+   "live_blob": "ddb446b8edf0bfa8e17568e5c2d5fea44d9a72b0",
+   "live_sha256": "2cbd76ce13ba6f31fd8e73be8eb6a5f6bacffaed875075abd69094b2220f2122",
+   "canonical_blob": "ab6f4c7aefdc9f9c981e31b65ede6f6bdccb2dfb",
+   "verdict": "DRIFT"
+  },
+  {
+   "path": "tools/w1_verdict_collector.py",
+   "label": "W1 verdict collector (untracked)",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "e9920b43ff7f2d0c3b2fbdcd7b84928a57852aef",
+   "live_sha256": "f9f19b560860027805750e65a71c07698589b09fe451add43788996ae2f1e76d",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "state/revenue-drive/owner_ask.py",
+   "label": "owner card generator",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "7b9a2fc4bad6cdd20a3e230b51e202a681326c75",
+   "live_sha256": "ae7269ecc064926cbbdd1283e502cfc1525aaa6191ade5d263b9a215fb92ef7a",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "state/revenue-drive/owner_reply.py",
+   "label": "owner reply attribution",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "7382b11be474d694c2a11a8e8f0a7ada9ffde311",
+   "live_sha256": "1be1c05138d3b649d22b6d716bcc15f1a5e380b7abef259f124f389cdc396114",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "state/revenue-drive/action_executor.py",
+   "label": "action executor",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "60510825fec68f20e18087df6a06af6c680eb278",
+   "live_sha256": "d084728b2eef77d0844388993e126eab849919ee126d70fcf66c803c47d162f2",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "state/revenue-drive/proposal_intake.py",
+   "label": "proposal intake",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "eda7c11147598110856e92790a4139bb7b4258ed",
+   "live_sha256": "d498e3bbb98b78a660e73150cd9c0f2f227c6913f3f6bde5330ded16d3c7a0f3",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "state/revenue-drive/uwork_acceptance_test.py",
+   "label": "uwork acceptance test",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "ccb86df21fd3772ea882a7ca19463937d79ed88b",
+   "live_sha256": "bfc596412e355f4663d3903a3a4e39acda7e4f4b0f988850c343a3f4252a07a7",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "state/revenue-drive/patch_uwork_wire.py",
+   "label": "uwork wire patch script",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "16698127b59792bfee0658e92aafa05f8d1f536d",
+   "live_sha256": "381bb2676cbf1a17a98b9f8a20b57cc27d83b7d0f4ee4607bf7c00c191c52ab3",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "state/revenue-drive/funnel_reconcile.py",
+   "label": "funnel reconcile",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "9f81c7b25493304dc5bc95f6730cc0f6a744f2d7",
+   "live_sha256": "bc174ffe1afd1361fb59635f6366bab0bfc46b44a002513a91dc3b2ee6e03296",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "ofn/agents/owner_digest_emit.py",
+   "label": "owner digest emit (untracked)",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "407dba13b99089f7d9fb44c6682ed4847b82b5ff",
+   "live_sha256": "adb787caf60d57898d5d9ded3bf34740dd7c7b9fdffe8c68999c491252c6b865",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  },
+  {
+   "path": "ofn/agents/owner_queue_notify_hook.py",
+   "label": "owner queue notify hook (untracked)",
+   "in_board_head": "NO",
+   "diff_vs_board_head": "CLEAN",
+   "live_blob": "f2808281f04d0fb64deb424a2d24e21da5337a27",
+   "live_sha256": "342414f8bd30757bab6cd1211c8a10b5364eec751d3d916796b7ac8ab799748d",
+   "canonical_blob": null,
+   "verdict": "ABSENT_FROM_CANONICAL"
+  }
+ ]
+}

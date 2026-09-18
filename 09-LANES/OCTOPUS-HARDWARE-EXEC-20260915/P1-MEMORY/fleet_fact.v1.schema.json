@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/fleet_fact.v1.schema.json",
+  "title": "fleet_fact.v1",
+  "description": "Tier A experience/fact row for persistent fleet memory. Aligns with P1-MEMORY-SCHEMA. Writer: 138 primary. No secrets. HOLD customer_send.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "fact_id",
+    "at",
+    "node_id",
+    "kind",
+    "body_hash",
+    "source_refs",
+    "commander_node_id",
+    "customer_send"
+  ],
+  "properties": {
+    "schema": { "const": "fleet_fact.v1" },
+    "fact_id": { "type": "string", "minLength": 1 },
+    "at": { "type": "string", "minLength": 1 },
+    "node_id": { "type": "string", "minLength": 1 },
+    "kind": { "type": "string", "minLength": 1 },
+    "body_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "source_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "expires_at": { "type": ["string", "null"] },
+    "commander_node_id": { "const": "138" },
+    "customer_send": { "const": false },
+    "external_effects": { "type": "integer", "minimum": 0, "default": 0 }
+  }
+}

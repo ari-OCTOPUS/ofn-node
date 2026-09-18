@@ -1,0 +1,15 @@
+Created symlink '/etc/systemd/system/timers.target.wants/octopus-worker-heartbeat.timer' → '/etc/systemd/system/octopus-worker-heartbeat.timer'.
+active
+{
+  "schema": "octopus_worker_heartbeat.v1",
+  "node_id": "160",
+  "role": "prep",
+  "hostname": "octopus-compute-160",
+  "boot_id": "bacb05a6-b351-4531-a232-371d3a32c2a6",
+  "utc": "2026-09-15T03:31:22Z",
+  "temp_c": "28.7",
+  "loadavg": "0.16 0.03 0.01",
+  "mem_available_kb": 3804696,
+  "commander": false,
+  "may_authorize": false
+}

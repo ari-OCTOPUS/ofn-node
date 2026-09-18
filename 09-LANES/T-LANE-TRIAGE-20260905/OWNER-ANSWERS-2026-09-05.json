@@ -1,0 +1,66 @@
+{
+  "schema": "owner-answers.lane-triage.v1",
+  "id": "OWNER-ANSWERS-LANE-TRIAGE-2026-09-05",
+  "lane": "T-LANE-TRIAGE-20260905",
+  "decided_at_local": "2026-09-05T19:38+10",
+  "decided_at_utc": "2026-09-05T09:38:00Z",
+  "decided_by": "owner (this chat, AskQuestion)",
+  "host": {
+    "hostname": "DESKTOP-KA9RFN5",
+    "wifi_ipv4": "192.168.0.191",
+    "identity": "laptop_vault_not_node180"
+  },
+  "gov_version": "V8",
+  "agents_md_ladder_unchanged": "L0",
+  "answers": {
+    "D1": {
+      "choice": "confirm_50",
+      "cap_aud": 50,
+      "stands": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-DECISION-L2-BOOTSTRAP-20260905.json",
+      "note": "Existing file kept. This session did not rewrite it."
+    },
+    "D2": {
+      "choice": "B",
+      "meaning": "dispatch_receipt = send to an external audience only. IGN-1 owner-card 1676 does not count.",
+      "clock_owner_pick": "N/A",
+      "clock_start_used": {
+        "id": "TRAFFIC1-SEND1",
+        "message_id": 31,
+        "ts_utc": "2026-09-05T08:19:19Z",
+        "source": "06-EVIDENCE/TRAFFIC1-2026-09-05/TRAFFIC1-SEND1-RECEIPT.json",
+        "basis": "definitional first schema=dispatch_receipt.v1 to telegram_channel under reading B; not a second owner vote"
+      },
+      "l1_self_open_if_no_invariant_breach": "2026-09-07T08:19:19Z",
+      "variance_not_adopted": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-VARIANCE-L1-ACCELERATION-20260905.json remains on disk; this newer answer rejects reading C"
+    },
+    "D3": {
+      "choice": "YES",
+      "meaning": "permanent memory flag for the daemon is owner-authorized",
+      "executed_this_session": false,
+      "reason_not_executed": "this host does not flip OCTOPUS-flags.cmd; flag enable is 138/flag-lane work"
+    },
+    "D4": {
+      "choice": "SEE-DIFF",
+      "pending_patchset_on_disk": false,
+      "shown": "09-LANES/T-LANE-TRIAGE-20260905/GATE-9-SEE-DIFF.md",
+      "sanctum_file_already_on_disk": {
+        "path": "_ops/os_v1/mission_runner.py",
+        "lines": 303,
+        "sha256": "522AB60E53591293EFB2CFAE3797AC2AA1C9953AEFBE90990A2A3D16C8FA816A",
+        "how_it_got_there": "agent restore 2026-09-05 outside PatchSet.gate(); file header says so"
+      },
+      "allow_sanctum": "this_file_this_sha256_only",
+      "ratify_receipt": "09-LANES/T-LANE-TRIAGE-20260905/OWNER-RATIFY-GATE9-MISSION-RUNNER-20260905.json",
+      "note": "Owner ratified after seeing the file. PatchSet.gate default remains allow_sanctum=False."
+    }
+  },
+  "not_authorized_by_this_go": [
+    "send",
+    "payment",
+    "flag/gate enable on this host",
+    "rewrite AGENTS.md ladder",
+    "rewrite ACK or delete variance",
+    "SSH write to 138",
+    "allow_sanctum=true"
+  ]
+}

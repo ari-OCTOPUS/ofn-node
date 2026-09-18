@@ -1,0 +1,84 @@
+{
+  "at_utc": "2026-09-16T03:43:32Z",
+  "pack_md": "/workspace/octopus-hq/wiring/STUDIO-CONSENT-RO-DUMP-PACK-20260916.md",
+  "pack_md_sha256": "6de47fa24fe4072d8b3cea028ab8913a85ba55669229c4776131b5f163b65afd",
+  "VERIFIED_count": 0,
+  "checklist_score": {
+    "green": 18,
+    "red": 27,
+    "unknown": 0,
+    "total": 45,
+    "pct": 40
+  },
+  "consent_sqlite": {
+    "subjects": 1,
+    "releases": 1,
+    "draft_subjects": 23,
+    "posts": 0,
+    "active_releases": 1,
+    "revoked": 0,
+    "collection_wired_releases": 0
+  },
+  "studio_sqlite": {
+    "collections": 3,
+    "media_items": 22,
+    "drafts": 24,
+    "draft_media": 23,
+    "media_sent": 0,
+    "sensitivity": {
+      "general": 1,
+      "restricted": 2
+    },
+    "media_direct": {
+      "album-0001": 0,
+      "album-0002": 2,
+      "album-unlock-20260822": 0
+    },
+    "media_via_unlock_drafts_unique": 22
+  },
+  "timer": {
+    "UnitFileState": "disabled",
+    "ActiveState": "inactive",
+    "SubState": "dead"
+  },
+  "csv_dir": "/workspace/octopus-hq/wiring/studio-consent-20260916/",
+  "media_ids_unlock_max30": [
+    "shot-0001",
+    "shot-0002",
+    "shot-0003",
+    "shot-0004",
+    "shot-0005",
+    "shot-0006",
+    "shot-0007",
+    "shot-0008",
+    "shot-0009",
+    "shot-0010",
+    "shot-0011",
+    "shot-0012",
+    "shot-0013",
+    "shot-0014",
+    "shot-0015",
+    "shot-0016",
+    "shot-0017",
+    "shot-0018",
+    "shot-0019",
+    "shot-0020",
+    "shot-0021",
+    "shot-0022"
+  ],
+  "blockers_U3": [
+    "VERIFIED=0",
+    "Saba attest missing",
+    "Owner collection attest missing",
+    "releases lack collection_id wire",
+    "182 scoped OK missing",
+    "timer KEEP_DISABLED (no enable)",
+    "album-0001 has 0 media"
+  ],
+  "hold": [
+    "ofn-marketing.timer",
+    "OF",
+    "customer_send",
+    "HOLD_EXTERNAL"
+  ]
+}

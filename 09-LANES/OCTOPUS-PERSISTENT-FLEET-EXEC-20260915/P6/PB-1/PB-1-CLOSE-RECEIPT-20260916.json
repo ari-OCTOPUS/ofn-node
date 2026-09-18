@@ -1,0 +1,147 @@
+{
+  "schema": "PB-1-CLOSE-RECEIPT",
+  "receipt_id": "PB-1-CLOSE-RECEIPT-20260916",
+  "status": "PASS_WITH_CAVEAT",
+  "outcome": "PASS_WITH_CAVEAT",
+  "window_start_utc": "2026-09-15T04:03:36Z",
+  "window_end_utc": "2026-09-16T04:17:42Z",
+  "wall_clock_hours": 24.235,
+  "pass_rule": "PASS only after >=24.0 real wall-clock hours; no early PASS; no invent green",
+  "gate_utc": "2026-09-16T04:03:36Z",
+  "gate_met": true,
+  "bus": "jsonl_138",
+  "nats_durability": "NOT_CLAIMED",
+  "jetstream_consumers": 0,
+  "customer_send": false,
+  "dual_commander": false,
+  "commander_node_id": "138",
+  "hold_customer_send": true,
+  "claims_denied": [
+    "NATS durable / JetStream brain durability",
+    "usable-42 TOPS",
+    "overall laptop-free / fleet-durable marketing claim",
+    "early or simulated 24h PASS"
+  ],
+  "sample_job": {
+    "job_id": "job-432175b362774fae",
+    "idempotency_key": "pb1-sample-100-1789445016",
+    "final_state": "CLOSED",
+    "worker_node_id": "100",
+    "result_hash": "20f96048585c74e3d8dc46e64b155eb4a6654833a0abfd9ed852d89ecc5a2875",
+    "ack_at": "2026-09-15T04:03:37Z",
+    "external_effects": 0,
+    "transitions_jsonl_lines": "22-27 QUEUED->LEASED->RUNNING->ACK_RESULT->PERSISTED->CLOSED"
+  },
+  "live_138_ro_at_close": {
+    "host": "DietPi",
+    "uptime_hours_approx": 27.616,
+    "fleet_jobs_jsonl_path": "/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl",
+    "fleet_jobs_jsonl_lines": 350,
+    "fleet_jobs_jsonl_size_bytes": 218836,
+    "states": {
+      "QUEUED": 61,
+      "LEASED": 59,
+      "RUNNING": 58,
+      "ACK_RESULT": 56,
+      "PERSISTED": 56,
+      "CLOSED": 56,
+      "UNKNOWN": 2,
+      "REJECTED": 2
+    },
+    "closed_after_window_start": 54,
+    "last_closed": {
+      "job_id": "job-65128c52ac684bb5",
+      "state": "CLOSED",
+      "ack_at": "2026-09-16T04:01:37Z",
+      "worker_node_id": "100",
+      "idempotency_key": "capaware-knowledge_-1789531296",
+      "type": "knowledge_retrieve"
+    },
+    "closed_acks_late_sample": [
+      "2026-09-16T02:31:36Z",
+      "2026-09-16T03:01:36Z",
+      "2026-09-16T03:04:21Z",
+      "2026-09-16T03:31:36Z",
+      "2026-09-16T04:01:37Z"
+    ],
+    "scheduler_heartbeat_path": "/home/ari/ofn/state/fleet-scheduler/scheduler-heartbeat.json",
+    "scheduler_heartbeat_at": "2026-09-15T04:31:26Z",
+    "scheduler_heartbeat_note": "STALE file; laptop_dependency=false in last write; continuity via jsonl CLOSED not via fresh HB file",
+    "hold_external_sot": {
+      "path": "/home/ari/ofn/state/owner_dialogue/hold_external_sot.v1.json",
+      "customer_send": false,
+      "as_of": "2026-09-16T12:53:53+10:00"
+    },
+    "may_authorize_sot": {
+      "path": "/home/ari/ofn/state/owner_dialogue/may_authorize_sot.v1.json",
+      "customer_send": false,
+      "commander_node_id": "138",
+      "deny_includes": [
+        "customer_send",
+        "dual_commander",
+        "power_off_138"
+      ]
+    },
+    "138_up": true
+  },
+  "critical_path_inventory": [
+    {
+      "step": "enqueue",
+      "host": "138",
+      "component": "fleet_job_sm.create_job",
+      "laptop_required": false
+    },
+    {
+      "step": "queue",
+      "host": "138",
+      "component": "/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl",
+      "laptop_required": false
+    },
+    {
+      "step": "lease_authority",
+      "host": "138",
+      "component": "fleet_job_sm.transition LEASED",
+      "laptop_required": false
+    },
+    {
+      "step": "worker_compute",
+      "host": "100",
+      "component": "capability probe / knowledge_retrieve",
+      "laptop_required": false
+    },
+    {
+      "step": "receipt_writer",
+      "host": "138",
+      "component": "ACK_RESULT->PERSISTED->CLOSED",
+      "laptop_required": false
+    }
+  ],
+  "laptop_in_critical_path": false,
+  "laptop_dependency_probe": "NOT_YET — full deliberate laptop-off probe not executed in window; soak watch + jsonl continuity used as continuity witness",
+  "prior_artifacts": {
+    "matrix_sha_before": "69521d9f77424d5954aa08ffa62375b9e3335e5e21490697524b3d7823a1213a",
+    "matrix_pb1_status_before": "IN_PROGRESS",
+    "matrix_wall_clock_hours_before": 18.4564,
+    "intermediate_receipt_path": "P6/PB-1/PB-1-INTERMEDIATE-RECEIPT.json",
+    "intermediate_receipt_sha256": "5937c980aa852cf019da522caf6bb083d7d9cf1c905de0365550554db356aa7b",
+    "intermediate_elapsed_at_last_tick": 22.5361,
+    "intermediate_last_watch_tick_utc": "2026-09-16T02:35:46Z",
+    "start_intermediate_sha_cited_in_matrix": "c5753aad3d58e2a7f5a701ec48fc89b93751281b82b913e246d44e4715bcf4ee",
+    "preimage_path": "P6/PB-1/PB1-PREIMAGE.json",
+    "preimage_ledger_sha256": "97ca3950c0577c19e1d744695b61b735a94468e1703ce1b698b1ac19beddbaa3",
+    "soak_watch_routine": "pb-1-24h-soak-watch (cron 15 */2; last runs ok through b8129547…)"
+  },
+  "sec_p6_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+  "design_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b",
+  "caveats": [
+    "laptop_dependency_probe remains NOT_YET — no deliberate laptop-off / isolation probe during soak window; critical_path inventory asserts laptop_required=false but full probe not executed",
+    "fleet-scheduler/scheduler-heartbeat.json stale (at=2026-09-15T04:31:26Z) — STALE file ≠ continuous HB capability; continuity evidenced instead by jsonl CLOSED growth through window",
+    "NATS_DURABILITY=NOT_CLAIMED; jetstream_consumers=0 — DENY durable NATS claim",
+    "DENY usable-42 TOPS (PB-5 nominal only; not in scope of this close)",
+    "overall matrix remains OPEN (PB-4 NOT_RUN; QA overall seal still required; no laptop-free marketing claim)",
+    "HOLD customer_send intact"
+  ],
+  "matrix_update_note": "ACCEPTANCE-MATRIX.json PB-1: IN_PROGRESS->PASS_WITH_CAVEAT; ended_at=2026-09-16T04:17:42Z; wall_clock_hours=24.235; witness -> this CLOSE receipt; overall remains OPEN; prior matrix sha 69521d9f77424d5954aa08ffa62375b9e3335e5e21490697524b3d7823a1213a",
+  "written_at_utc": "2026-09-16T04:17:42Z",
+  "written_by": "PC_CLOSE executor (PB-1 wall-clock close)"
+}

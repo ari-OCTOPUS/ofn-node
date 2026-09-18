@@ -1,0 +1,46 @@
+{
+  "mode": "random",
+  "seed": 23,
+  "config": {
+    "grid": 64,
+    "batch": 96,
+    "generations": 500,
+    "initial": 256,
+    "init_sigma": 1.2,
+    "clip": 4.0,
+    "sigma_iso": 0.1,
+    "sigma_line": 0.25,
+    "sigma_mut": 0.18,
+    "mut_rate": 0.3
+  },
+  "final": {
+    "gen": 500,
+    "evals": 48256,
+    "new_cells": 0,
+    "admissions": 2,
+    "surviving_offspring": 2,
+    "reused_parent_ids": 0,
+    "n_elites": 2478,
+    "coverage": 0.60498046875,
+    "center_free_coverage": 0.6576375314158056,
+    "n_center_free": 3581,
+    "n_boundary_elites": 123,
+    "qd_score": 1845.681614782635,
+    "normalized_qd": 0.45060586298404176,
+    "mean_fitness": 0.7448271246096186,
+    "max_fitness": 0.9756306717356806,
+    "bd_entropy": 5.847088088968427,
+    "bd_spread": 0.5120132514277145
+  },
+  "receipt_anchor": {
+    "head": "de032273f20904807279e679b71a7781b1ca8e295aa9a6908162b7f061912bc4",
+    "count": 504
+  },
+  "file_hashes": {
+    "archive.npz": "5fd8e5f1c29678b80c06544cfa1a9b51ff50b9271168184825db83ea07526cf1",
+    "history.json": "739a41877e7884820aaeb164fe34674f224c3d1a51b6e6f7da3f1f258c284474",
+    "operators.json": "e1b310616e0878dff6e7e5a567d783d1048c5de738e2198f1f3a3f18073a21c7",
+    "receipts.jsonl": "7815c18572a5a516d4b16d16570bf1e18388cac277746d61e50346b8d23af9af"
+  },
+  "note": "Anchor is local and unsigned; preserve elsewhere for later comparison."
+}

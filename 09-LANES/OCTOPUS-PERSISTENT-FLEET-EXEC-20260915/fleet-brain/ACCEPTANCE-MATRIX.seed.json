@@ -1,0 +1,86 @@
+{
+  "schema": "acceptance_matrix.v1",
+  "matrix_id": "p6-20260915-seed",
+  "created_at": "2026-09-15T03:59:18Z",
+  "next_sha256": "7ab84e03df7ca708abeb8cb4178c2d7cf10bc00e9b17a20d2c41588c26508f07",
+  "proposal_sha256": "e5cacff06435af1d6da95d339d4e4dbb58c09b32384758dfa33bc6f805053ba9",
+  "commander_node_id": "138",
+  "customer_send": false,
+  "dual_commander": false,
+  "overall": "OPEN",
+  "overall_notes": "ARCH seed \u2014 PC measures; PB-1 no early PASS without \u226524h wall-clock",
+  "tests": [
+    {
+      "id": "PB-1",
+      "name": "Continuity without laptop (\u226524h wall-clock)",
+      "status": "NOT_RUN",
+      "witness_receipt_path": null,
+      "witness_receipt_sha256": null,
+      "started_at": null,
+      "ended_at": null,
+      "wall_clock_hours": null,
+      "caveats": [],
+      "notes": "START WATCH before IN_PROGRESS; PASS only after \u226524.0h"
+    },
+    {
+      "id": "PB-2",
+      "name": "Worker restart / brief disconnect",
+      "status": "NOT_RUN",
+      "witness_receipt_path": null,
+      "witness_receipt_sha256": null,
+      "started_at": null,
+      "ended_at": null,
+      "wall_clock_hours": null,
+      "caveats": [],
+      "notes": ""
+    },
+    {
+      "id": "PB-3",
+      "name": "Restore separate path + RPO/RTO",
+      "status": "NOT_RUN",
+      "witness_receipt_path": null,
+      "witness_receipt_sha256": null,
+      "started_at": null,
+      "ended_at": null,
+      "wall_clock_hours": null,
+      "caveats": [],
+      "notes": "P3 baseline 83d52513\u2026 may seed"
+    },
+    {
+      "id": "PB-4",
+      "name": "Answer-with-memory A/B",
+      "status": "NOT_RUN",
+      "witness_receipt_path": null,
+      "witness_receipt_sha256": null,
+      "started_at": null,
+      "ended_at": null,
+      "wall_clock_hours": null,
+      "caveats": [],
+      "notes": ""
+    },
+    {
+      "id": "PB-5",
+      "name": "NPU honesty",
+      "status": "NOT_RUN",
+      "witness_receipt_path": null,
+      "witness_receipt_sha256": null,
+      "started_at": null,
+      "ended_at": null,
+      "wall_clock_hours": null,
+      "caveats": [],
+      "notes": "cite T2 d13f1928\u2026; nominal TOPS only"
+    },
+    {
+      "id": "PB-6",
+      "name": "Expand seven-row matrix",
+      "status": "NOT_RUN",
+      "witness_receipt_path": null,
+      "witness_receipt_sha256": null,
+      "started_at": null,
+      "ended_at": null,
+      "wall_clock_hours": null,
+      "caveats": [],
+      "notes": "fixed denominator 7"
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "schema": "octopus.ex1.criterion_proposal.v1",
+  "kind": "advisor_proposal",
+  "status": "answered_in_chat",
+  "requires": "none_for_ex1_layers",
+  "resolution": "three_layer_register_not_abcd",
+  "not": ["owner_ruling", "PASS", "waiver", "EX1_accepted", "EX3_authorized"],
+  "gov_version": "V8",
+  "ladder": "L2",
+  "lane": "MP-EX1-CRITERION-20260907",
+  "local_date": "2026-09-07",
+  "work_order": {
+    "path": "C:/Users/Armin/Downloads/MEGAPROMPT-OCTOPUS-v3-EXECUTABLE-2026-09-07.md",
+    "sha256": "ca736a4724ddac884fd39108dc6089e907fba6f1439ba61ff71cc7681cdaa4e3",
+    "section_ex1": "EX-1",
+    "on_fail": "کل lane متوقف",
+    "expect_per_record_fields": ["loaded_source_revision", "consumer_path", "read_receipt_id"],
+    "expect_also": ["calib_tail", "reason_code", "verify_chain --from-zero status=OK"],
+    "section_0_continue_rule": "when GRANTED_AUTHORITY and IMPLEMENTED_CAP differ: write owner_decision and continue the lane; do not stop"
+  },
+  "work_order_internal_conflict": {
+    "id": "EX1-WO-C1",
+    "left": {"locus": "v3 §0", "rule": "owner_decision row then lane continues", "source": "MEGAPROMPT-OCTOPUS-v3-EXECUTABLE-2026-09-07.md:36"},
+    "right": {"locus": "v3 EX-1 on_fail", "rule": "stop the entire lane", "source": "MEGAPROMPT-OCTOPUS-v3-EXECUTABLE-2026-09-07.md:119"},
+    "resolution": null,
+    "status": "open",
+    "note": "Both rules are in the same signed work order. This lane does not pick a winner."
+  },
+  "sources": {
+    "ex1_receipt": "F:/backup/09-LANES/MP-EXEC-EX1-EX2-20260907/EX1-VERIFICATION-RECEIPT.json",
+    "debug_live": "F:/backup/09-LANES/MP-DEBUG-20260907/LIVE-READBACK.json",
+    "debug_report": "F:/backup/09-LANES/MP-DEBUG-20260907/DEBUG-REPORT.md"
+  },
+  "original_verdict_this_proposal_does_not_change": {
+    "ex1_original_acceptance": "NOT_SATISFIED_MISSING_REQUIRED_RAW_FIELDS",
+    "source": "F:/backup/09-LANES/MP-DEBUG-20260907/LIVE-READBACK.json:audit_verdict.ex1_original_acceptance"
+  },
+  "records": {
+    "194298": {
+      "existence": "MEASURED",
+      "line_equals_seq": true,
+      "safe_fields_agreed_by_both_receipts": {
+        "event": "standing_go_halted",
+        "reason": "calibration_error_ge_0.5",
+        "seq": 194298,
+        "calib_tail": ["unresolved", "confirmed", "unresolved"]
+      },
+      "fields_absent_in_raw_row": [
+        "loaded_source_revision",
+        "consumer_path",
+        "read_receipt_id",
+        "reason_code",
+        "mint_evidence"
+      ],
+      "raw_line_sha256": "2622cf331684990b4254a061f3e2985859ae23f8a4c6f7e3346047a4c996cf82",
+      "raw_line_sha256_source": "LIVE-READBACK.json snapshot and historical_prefix target_records"
+    },
+    "194329": {
+      "existence": "MEASURED",
+      "line_equals_seq": true,
+      "safe_fields_agreed_by_both_receipts": {
+        "event": "standing_go_minted",
+        "reason": "internal_pulse",
+        "seq": 194329
+      },
+      "owner_go_id": {
+        "value": "STANDING-GO-INTERNAL-CYCLES-2026-09-06-03",
+        "in_ex1_receipt_row": true,
+        "in_debug_safe_fields": false,
+        "reextracted_this_lane": false,
+        "status": "open",
+        "note": "Original EX1 receipt lists the key. Debug safe_fields omitted it. This lane did not decode raw_line_sha256. Do not treat the key as absent."
+      },
+      "fields_absent_in_raw_row": [
+        "loaded_source_revision",
+        "consumer_path",
+        "read_receipt_id",
+        "reason_code",
+        "calib_tail",
+        "mint_evidence"
+      ],
+      "raw_line_sha256": "57b89fa1bdf7d9cbac0eb991e8a50a30df4e4810ef143588988ae25359aa0acb",
+      "raw_line_sha256_source": "LIVE-READBACK.json snapshot and historical_prefix target_records"
+    }
+  },
+  "ledger_structure": {
+    "historical_prefix_bytes": 30047320,
+    "historical_prefix_records": 195097,
+    "historical_prefix_sha256": "029afbb112400a6b6eefd234c2efdc3b2dd1f9c267a138816f83a09fdc83009c",
+    "prefix_match": true,
+    "prefix_match_meaning": "unchanged relative to prior captured fingerprint only",
+    "fresh_snapshot_bytes": 30245852,
+    "fresh_snapshot_records": 196462,
+    "fresh_snapshot_sha256": "0fa64552a08a8e68e1978fea48654036258884cd63e86308109b0642333238b2",
+    "parse_errors_on_observed_bytes": 0,
+    "seq_non_increment_breaks_on_observed_bytes": 0,
+    "hash_chain_in_inspected_writers": false,
+    "verify_chain_from_zero_tool": "E0_absent",
+    "receipt_level_provenance_is_not_per_record": true
+  },
+  "amendment_options": [
+    {
+      "id": "A_STRICT_STOP",
+      "label": "Keep original EX1 expect. Lane stays stopped. No EX3.",
+      "recommended": false,
+      "invents_pass": false
+    },
+    {
+      "id": "B_SPLIT_CRITERION",
+      "label": "Split EX1-H (historical knowable set) from EX1-F (forward per-record provenance). EX3 only after owner adopts the split; still not an original PASS.",
+      "recommended_as_advisor_proposal": true,
+      "invents_pass": false
+    },
+    {
+      "id": "C_RECEIPT_SUBSTITUTE_WAIVER",
+      "label": "Treat the later reader receipt fields as the missing per-record keys, and seq-monotonic as verify_chain. Label would have to be WAIVER, not PASS.",
+      "recommended": false,
+      "invents_pass": true
+    },
+    {
+      "id": "D_NEW_BASELINE_PAIR",
+      "label": "Attach EX1 to two NEW records that already carry required fields. Keep 194298/194329 as MEASURED_PARTIAL only.",
+      "recommended": false,
+      "invents_pass": false,
+      "note": "A parallel draft labeled this idea as option C. That label conflict is open."
+    }
+  ],
+  "recommended_option": "B_SPLIT_CRITERION",
+  "recommendation_is": "advisor_proposal_archived_not_chosen",
+  "owner_chat_resolution": "three_layer_register_not_abcd",
+  "ex1_v3_0": "NOT_PASSED",
+  "ex3": "not_started",
+  "mutations": {
+    "services": 0,
+    "gates": 0,
+    "commits": 0,
+    "deploys": 0,
+    "historical_rows_rewritten": 0
+  }
+}

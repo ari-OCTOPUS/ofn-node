@@ -1,0 +1,23 @@
+{
+  "schema": "octopus.ex1.post_repro.v1",
+  "lane": "MP-EX1-CRITERION-20260907",
+  "runId": "post-repro",
+  "log": "F:/backup/debug-df323e.log",
+  "same_as_pre_repro": true,
+  "hypotheses": {
+    "H-ORDER": "CONFIRMED",
+    "H-A": "CONFIRMED",
+    "H-B": "CONFIRMED",
+    "H-C": "CONFIRMED",
+    "H-D": "CONFIRMED",
+    "H-E": "CONFIRMED",
+    "H-F": "CONFIRMED",
+    "H-G": "CONFIRMED"
+  },
+  "literal_ex1_pass": false,
+  "ex3_started": false,
+  "baseline_records_retained": true,
+  "ex2_code_mutated": false,
+  "stale_abcd_menu": "archived_not_chosen",
+  "instrumentation_removed": false
+}

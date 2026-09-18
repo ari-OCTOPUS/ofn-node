@@ -1,0 +1,5 @@
+{
+  "summary": "P1 dry persist bootstrap: JetStream YES on 182 with 0 consumers; worker heartbeats present on 100/160/193/114",
+  "p0_discovery_sha": "a2bd6c1233e7eb6d348cb9bdb36d2267c7b9e12d629dd1fedfce9db31964e4d9",
+  "t2_matrix_sha": "d13f19285482a2a346b8b26979f2341c8f7a4ccef50c281967e47cabfc469df5"
+}

@@ -1,0 +1,243 @@
+{
+  "schema": "octopus.channel-catalog.v1",
+  "lane": "N-ALIVE-RUNBOOK-20260905",
+  "as_of_local": "2026-09-05T20:08+10",
+  "rule": "rank named surfaces; do not invent audiences; find ≠ send",
+  "contradictions_open": [
+    {
+      "topic": "painting_lead_count",
+      "values": [
+        {"n": 8, "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-REVENUE-IGNITION-2026-09-05.md:92"},
+        {"n": 55, "source": "07-HANDOFF/BIZ-LEGS-PLAN-2026-09-05.md:12 (other lane; read-only cite)"}
+      ],
+      "resolution": null,
+      "status": "open"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "leg-ziman-http",
+      "leg": "ziman",
+      "class": "mesh",
+      "port": 8791,
+      "feeds": ["ziman"],
+      "customer_job": "gift buyer on Shopify",
+      "find_mode": "healthz + TRAFFIC-1 + storefront receipts",
+      "source": "F:/ofn-node/ofn/config.py:294"
+    },
+    {
+      "id": "ziman-storefront",
+      "leg": "ziman",
+      "class": "shopify",
+      "feeds": ["ziman"],
+      "customer_job": "public storefront buyer",
+      "find_mode": "named product URL already on disk; no new scrape",
+      "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CHECKOUT-1-README-20260905.md"
+    },
+    {
+      "id": "ziman-checkout-1",
+      "leg": "ziman",
+      "class": "shopify",
+      "feeds": ["ziman"],
+      "customer_job": "none — owner self-purchase path test",
+      "find_mode": "catalog only; buyer=owner so not a customer find",
+      "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CHECKOUT-1-README-20260905.md"
+    },
+    {
+      "id": "leg-lead-http",
+      "leg": "painting",
+      "class": "mesh",
+      "port": 8792,
+      "feeds": ["painting"],
+      "customer_job": "painting lead → quote",
+      "find_mode": "score existing leads; outreach_permission unknown → no contact",
+      "source": "config.py:294 · GOV-V8:92 n=8 · BIZ-LEGS-PLAN:12 n=55 · status:open"
+    },
+    {
+      "id": "paint-leads-pool",
+      "leg": "painting",
+      "class": "crm",
+      "feeds": ["painting"],
+      "customer_job": "existing researched leads",
+      "find_mode": "rank pool only; both counts kept; no phone/email out",
+      "source": "GOV-V8-REVENUE-IGNITION-2026-09-05.md:92 vs BIZ-LEGS-PLAN-2026-09-05.md:12"
+    },
+    {
+      "id": "paint-ch-telegram",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": ["painting"],
+      "customer_job": "inbound painting lead via existing TG bot",
+      "find_mode": "seed row connection=connected outbound_enabled=0 — sense only",
+      "source": "ofn/adapters/lead_store.py:381"
+    },
+    {
+      "id": "paint-ch-website",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": ["painting"],
+      "customer_job": "contact form (not built)",
+      "find_mode": "seed planned; GOV-V8 says form not built",
+      "source": "lead_store.py:380 · GOV-V8:92"
+    },
+    {
+      "id": "paint-ch-google",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": ["painting"],
+      "customer_job": "local Google Business inbound",
+      "find_mode": "seed planned; no consumer receipt",
+      "source": "lead_store.py:382"
+    },
+    {
+      "id": "paint-ch-instagram",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": ["painting"],
+      "customer_job": "before/after inbound",
+      "find_mode": "seed planned; no official token",
+      "source": "lead_store.py:383"
+    },
+    {
+      "id": "paint-ch-facebook",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": ["painting"],
+      "customer_job": "neighbourhood inbound",
+      "find_mode": "seed planned; no official token",
+      "source": "lead_store.py:384"
+    },
+    {
+      "id": "paint-ch-tiktok",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": ["painting"],
+      "customer_job": "short video inbound",
+      "find_mode": "seed planned outbound_enabled=0",
+      "source": "lead_store.py:385"
+    },
+    {
+      "id": "paint-ch-email",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": ["painting"],
+      "customer_job": "quote follow-up",
+      "find_mode": "seed planned; auto_email stays closed",
+      "source": "lead_store.py:386 · AGENTS.md §4"
+    },
+    {
+      "id": "leg-studio-http",
+      "leg": "studio",
+      "class": "mesh",
+      "port": 8793,
+      "feeds": ["studio", "onlyfans"],
+      "customer_job": "studio / Nova Soles traffic toward OF and TG",
+      "find_mode": "healthz + studio telegram receipts",
+      "source": "config.py:294"
+    },
+    {
+      "id": "leg-owner-http",
+      "leg": "owner",
+      "class": "mesh",
+      "port": 8794,
+      "feeds": [],
+      "customer_job": "none — owner panel",
+      "find_mode": "healthz only; not a customer channel",
+      "source": "config.py:294"
+    },
+    {
+      "id": "mesh-bridge",
+      "leg": "bridge",
+      "class": "mesh",
+      "port": 8796,
+      "feeds": [],
+      "customer_job": "none — octopus_bridge",
+      "find_mode": "healthz only",
+      "source": "LAYER4-CHANNEL-SELECTION.json"
+    },
+    {
+      "id": "tg-channel-traffic",
+      "leg": "ziman+studio",
+      "class": "telegram",
+      "feeds": ["ziman", "studio", "onlyfans"],
+      "customer_job": "public channel viewers → shop or studio",
+      "find_mode": "ledger dispatch_receipt.v1",
+      "source": "06-EVIDENCE/TRAFFIC1-2026-09-05/TRAFFIC1-SEND1-RECEIPT.json"
+    },
+    {
+      "id": "studio-tg-post1",
+      "leg": "studio",
+      "class": "telegram",
+      "feeds": ["studio", "onlyfans"],
+      "customer_job": "studio viewers toward OF",
+      "find_mode": "studio.post.receipt.v1 message_id=33",
+      "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/STUDIO-POST1-RECEIPT.json"
+    },
+    {
+      "id": "tg-owner-card",
+      "leg": "owner",
+      "class": "telegram",
+      "feeds": [],
+      "customer_job": "none — owner",
+      "find_mode": "IGN-1 closeout",
+      "source": "06-EVIDENCE/IGN1-2026-09-05/IGN1-CLOSEOUT-RECEIPT.json"
+    },
+    {
+      "id": "of-novasolesau",
+      "leg": "studio",
+      "class": "onlyfans",
+      "handle": "@novasolesau",
+      "feeds": ["onlyfans"],
+      "customer_job": "paying fans",
+      "find_mode": "inbound from already-linked surfaces (X, later TG). No cookie API. No OF scrape.",
+      "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/profiles/ONLYFANS-CONNECT.md",
+      "adapter": "ofn/adapters/platforms/onlyfans.py",
+      "adapter_hold": "onlyfans:http-scaffold-dry-hold until second GO + OFN_ONLYFANS_HTTP_ARM",
+      "cookie_api": "REJECT"
+    },
+    {
+      "id": "x-novasolmate",
+      "leg": "studio",
+      "class": "x",
+      "handle": "@novasolmate",
+      "feeds": ["onlyfans"],
+      "customer_job": "route to OF profile",
+      "find_mode": "already cross-linked; treat as OF feeder, not a new scrape",
+      "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/profiles/SOCIAL-HANDLES.md"
+    },
+    {
+      "id": "feetfinder-novasolesau",
+      "leg": "studio",
+      "class": "feetfinder",
+      "feeds": ["onlyfans"],
+      "customer_job": "feet market → OF",
+      "find_mode": "KYC_BLOCKED — catalog only, no harvest",
+      "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/profiles/SOCIAL-HANDLES.md"
+    },
+    {
+      "id": "ig-novasoles-tbd",
+      "leg": "studio",
+      "class": "instagram",
+      "feeds": ["onlyfans", "studio"],
+      "customer_job": "route to OF when handle exists",
+      "find_mode": "handle TBD — owner creating; no scrape",
+      "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/profiles/SOCIAL-HANDLES.md"
+    },
+    {
+      "id": "fb-novasoles-tbd",
+      "leg": "studio",
+      "class": "facebook",
+      "feeds": ["onlyfans", "studio"],
+      "customer_job": "route to OF when handle exists",
+      "find_mode": "handle TBD — owner creating; no scrape",
+      "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/profiles/SOCIAL-HANDLES.md"
+    }
+  ],
+  "explicitly_not_in_catalog": [
+    "unofficial OF cookie/HTTP customer lists",
+    "cold Telegram groups",
+    "paid ads until L3",
+    "accountant SKUs (owner parked)",
+    "IG/FB invented @handles"
+  ]
+}

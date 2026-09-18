@@ -1,0 +1,11 @@
+{
+  "stamp_utc": "2026-09-15T03:53:04Z",
+  "ledger_bytes": 8363,
+  "ledger_sha256": "1582ea8e9bdb2e824b1fd79d6843f0a6d620ab59f36b9c082d53106694bf3421",
+  "index_sha256": "e9f09aa0c1cd65cb0acc0c1a34c5698afc6e5e42594787322a21946dc5a06840",
+  "schema_sha256": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59",
+  "jetstream_consumers": 0,
+  "nats_durability": "NOT_CLAIMED",
+  "bus": "SHADOW_LOCAL_JSONL",
+  "rollback_note": "Append-only jsonl; rollback = ignore P5 job_id rows + remove idempotency_key from index; no JS consumer created so none to delete."
+}

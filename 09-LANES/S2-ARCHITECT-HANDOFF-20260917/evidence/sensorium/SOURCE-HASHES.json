@@ -1,0 +1,8 @@
+{
+  "original\\app.py": "0386a4ddebc1c57c11541f852c446015124f085d06afb3250a6dc50902f75e8e",
+  "original\\snapshot.py": "d9c8ce85167ced9df59f320a382ca23a879ebf21f1b13be87041a86c7cd35a98",
+  "original\\state_machine.py": "95ee5d33a3e227b236ba230c7e2412e5ba616806c5ecbfd473e8b2ea8e309537",
+  "candidate\\octopus_sensorium\\app.py": "79a10dbd02392a381b9b262d62011f4b9c37e9f6228ac5dd951a483dfe0ba4be",
+  "candidate\\octopus_sensorium\\snapshot.py": "48cfac2e6a0cde62b86af08a8ca7843aac12e2ff113d9d52a20877c2acdd4824",
+  "candidate\\octopus_sensorium\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

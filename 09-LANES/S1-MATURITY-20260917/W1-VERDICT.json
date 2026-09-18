@@ -1,0 +1,9 @@
+{
+  "status": "RUNNING",
+  "sample_count": 7,
+  "sample_span_seconds": 1801.0,
+  "observed_activation_changes": 0,
+  "scheduled_end_utc": "2026-09-18T08:28:19+00:00",
+  "collection_limitation": "Legacy collector suppresses pgrep failures and does not retain subprocess returncodes; empty process list cannot prove successful probe.",
+  "source_sha256": "208c94fa7d6b6e04785813bbee0af1e84a49cda907ba12a2cfbf48f1f0da841d"
+}

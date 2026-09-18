@@ -1,0 +1,35 @@
+{
+  "schema": "octopus.layer1-library-verify.v1",
+  "measured_at": "2026-09-05T15:51:52+10:00",
+  "measured_at_utc": "2026-09-05T05:51:52Z",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "live_organism_claim": false,
+  "layer": 1,
+  "checks": {
+    "stop_absent": true,
+    "8771_loopback": true,
+    "8772_loopback": true,
+    "api_http_200": true,
+    "ts_today": true,
+    "stop_organism_false": true,
+    "no_all_iface_8771": true
+  },
+  "pass": true,
+  "api_ts": "2026-09-05T15:49:31",
+  "api_beat": 61581,
+  "api_started": "2026-09-05T15:41:32",
+  "api_error": null,
+  "listens": {
+    "127.0.0.1:8771": {
+      "role": "organism",
+      "open": true
+    },
+    "127.0.0.1:8772": {
+      "role": "cortex",
+      "open": true
+    }
+  },
+  "source": "verify_layer1.py"
+}

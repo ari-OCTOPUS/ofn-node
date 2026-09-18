@@ -1,0 +1,41 @@
+{
+  "schema": "octopus.layer2-ssh-ro.v1",
+  "measured_at": "2026-09-05T15:53:00+10:00",
+  "vantage": "ssh_from_laptop_191",
+  "scope": "node138_only",
+  "claim_type": "observation",
+  "live_organism_claim": false,
+  "layer": 2,
+  "operator": "ari@192.168.0.138",
+  "mode": "read_only",
+  "identity": {
+    "hostname": "DietPi",
+    "eth0": "192.168.0.138/24",
+    "claimed_node": "138",
+    "identity_match": true
+  },
+  "ofn": {
+    "unit": "ofn.service",
+    "active": true,
+    "main_pid": 2986361,
+    "working_directory": "/home/ari/ofn",
+    "fragment_path": "/etc/systemd/system/ofn.service",
+    "cmd": "/usr/bin/python3 -m ofn.run",
+    "etime": "1-15:39:20"
+  },
+  "listen_ss": [
+    "127.0.0.1:8791",
+    "127.0.0.1:8792",
+    "127.0.0.1:8793",
+    "127.0.0.1:8794",
+    "127.0.0.1:8796"
+  ],
+  "not_listen": ["8771", "192.168.0.138:8791-8796"],
+  "note": "ofn legs are loopback-only on 138. Laptop 8792-8794 empty is body_not_on_this_host, not body_missing.",
+  "node180": {
+    "tried": "ari@192.168.0.180",
+    "result": "Permission denied (publickey,password)",
+    "host_reachable": true,
+    "status": "auth_failed"
+  }
+}

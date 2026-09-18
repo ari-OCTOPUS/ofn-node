@@ -1,0 +1,128 @@
+{
+ "schema": "octopus.brain-wiring-gaps.v1",
+ "generated_at": "2026-09-18T02:00:00Z",
+ "count": 15,
+ "note": "یافته‌های تازهٔ اسکن مغز/سیم‌کشی — خارج از رجیستر ۵۷۳ ردیفی فعلی",
+ "gaps": [
+  {
+   "id": "BW-01",
+   "title": "painting_call_log (canonical CRM table, merged #248) has zero readers",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "138:grep painting_call_log consumers=0",
+   "why": "the CRM data the owner asked for is written but never displayed"
+  },
+  {
+   "id": "BW-02",
+   "title": "v_account_last_call view unread → stage never updates on the card",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "138:grep consumers=0",
+   "why": "Elahe's own note confirmed; now measured"
+  },
+  {
+   "id": "BW-03",
+   "title": "AUTO_DISCOVERY_TAG has zero consumers in the runtime",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "138:grep consumers=0",
+   "why": "unverified discovered leads cannot be filtered out of the call list"
+  },
+  {
+   "id": "BW-04",
+   "title": "think_pool (evidence-based provider health) may have no consumer",
+   "verdict": "UNVERIFIED",
+   "grade": "E2",
+   "proof": "consumer grep returned nothing but the sakana probe listed it",
+   "why": "provider routing may still trust a stale status"
+  },
+  {
+   "id": "BW-05",
+   "title": "six octopus-mesh services run continuously with no receipt trail",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "138:systemctl running + no receipts in state/receipts",
+   "why": "a second organism runs with dark I/O"
+  },
+  {
+   "id": "BW-06",
+   "title": "cognition_factory frozen since 09-15 (877 lines)",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "138:state/cognition last_write 09-15T08:33",
+   "why": "a brain that stopped being fed"
+  },
+  {
+   "id": "BW-07",
+   "title": "durability + of-draft-queue + fleet-memory + fleet-nodes + glass state frozen 09-15/16",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "138:state/* last_write table",
+   "why": "five state areas are tombstones"
+  },
+  {
+   "id": "BW-08",
+   "title": "100 is effectively idle (load 0.02, 48G free, 8 cores) while 138 runs saturated",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "laptop probe 2026-09-18",
+   "why": "the fleet's spare capacity is unused"
+  },
+  {
+   "id": "BW-09",
+   "title": "182 witness runs 27 services at load 1.68",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "laptop probe",
+   "why": "witness headroom must be protected"
+  },
+  {
+   "id": "BW-10",
+   "title": "outbound-effects.sqlite3 still 0 bytes (no outcome wiring)",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "138:file size 0",
+   "why": "learning loop for outreach still open (W-012)"
+  },
+  {
+   "id": "BW-11",
+   "title": "packet store still reports 0 sent vs 39 message rows",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "funnel_reconcile output",
+   "why": "send path does not persist packet state"
+  },
+  {
+   "id": "BW-12",
+   "title": "staged units on 114/160 still uninstalled (F-003)",
+   "verdict": "CONFIRMED",
+   "grade": "E2",
+   "proof": "findings F-003 + 14 services each board",
+   "why": "two lanes of compute sit unused"
+  },
+  {
+   "id": "BW-13",
+   "title": "no reader for fleet-memory facts (frozen)",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "state/fleet-memory last_write 09-16",
+   "why": "memory layer dark"
+  },
+  {
+   "id": "BW-14",
+   "title": "owner decisions still single-channel (Telegram only)",
+   "verdict": "CONFIRMED",
+   "grade": "E2",
+   "proof": "today's debug: no fallback path",
+   "why": "a TG outage freezes every gated action"
+  },
+  {
+   "id": "BW-15",
+   "title": "no standing send-authorization; every batch needs a vote",
+   "verdict": "CONFIRMED",
+   "grade": "E3",
+   "proof": "today's funnel stall",
+   "why": "the measured #1 growth blocker (WHY-SLOW R1)"
+  }
+ ]
+}

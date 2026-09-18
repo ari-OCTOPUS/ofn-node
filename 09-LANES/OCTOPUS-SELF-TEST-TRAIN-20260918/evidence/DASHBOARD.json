@@ -1,0 +1,9 @@
+{
+  "updated_utc": "2026-09-17T18:21:46Z",
+  "cycle": "STTL-001",
+  "tests": "9802 expected; fanout 5/5 in 1.714s; adversarial class 2/2",
+  "learning_verdict": "MEMORY_HURTS (138 vs 139/141) - unchanged",
+  "why": "single recurring learnable key is the conflicting one",
+  "next": "grow recurring decisions: surface the same proposal to the owner twice only WITH the recorder decision_key (now live) so future rows build shared keys; re-run LOO each cycle",
+  "watches": "soak verdict ~11:38Z, W1 verdict 09:20 local, mirror 03:30Z"
+}

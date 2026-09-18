@@ -1,0 +1,332 @@
+{
+ "schema": "octopus.brain-census.v1",
+ "generated_at": "2026-09-18T02:00:00Z",
+ "count": 32,
+ "external": 5,
+ "local": 1,
+ "decision_code": 17,
+ "mesh": 6,
+ "memory": 3,
+ "brains": [
+  {
+   "id": "BR-01",
+   "name": "deepseek-flash (primary paid)",
+   "kind": "external",
+   "provider_model": "deepseek",
+   "callers": "api_budget.reserve/settle via broker",
+   "calls_per_day": 28,
+   "cost": "$0.80/mo",
+   "evidence": "138:state/api-budget/budget-ledger.jsonl (28 reserve rows)"
+  },
+  {
+   "id": "BR-02",
+   "name": "sakana-fugu",
+   "kind": "external",
+   "provider_model": "sakana-fugu/fugu",
+   "callers": "providers.py, think_pool.py, api_budget.py (+4)",
+   "calls_per_day": 5,
+   "cost": "included",
+   "evidence": "138:budget-ledger (5 rows) + grep consumers=7"
+  },
+  {
+   "id": "BR-03",
+   "name": "gpt-5.6-terra",
+   "kind": "external",
+   "provider_model": "openai",
+   "callers": "api_budget failover",
+   "calls_per_day": 5,
+   "cost": "included",
+   "evidence": "138:budget-ledger (5 rows)"
+  },
+  {
+   "id": "BR-04",
+   "name": "claude-sonnet-5",
+   "kind": "external",
+   "provider_model": "anthropic",
+   "callers": "api_budget failover",
+   "calls_per_day": 4,
+   "cost": "included",
+   "evidence": "138:budget-ledger (4 rows)"
+  },
+  {
+   "id": "BR-05",
+   "name": "gemini-3.8-flash",
+   "kind": "external",
+   "provider_model": "gemini",
+   "callers": "api_budget failover",
+   "calls_per_day": 3,
+   "cost": "included",
+   "evidence": "138:budget-ledger (3 rows)"
+  },
+  {
+   "id": "BR-06",
+   "name": "local tier (free)",
+   "kind": "local",
+   "provider_model": "local-insufficient route",
+   "callers": "api_budget.py (1 consumer)",
+   "calls_per_day": 0,
+   "cost": "$0",
+   "evidence": "138:grep local-insufficient → 1 file"
+  },
+  {
+   "id": "BR-07",
+   "name": "ops_agent decision-code",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-ops-agent.timer (~5min)",
+   "calls_per_day": 288,
+   "cost": "$0",
+   "evidence": "138:state/ops-agent/ops_agent.py 1342 lines, mtime 09-18T01:51"
+  },
+  {
+   "id": "BR-08",
+   "name": "owner_reply (owner vote brain)",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-owner-reply.timer (1min)",
+   "calls_per_day": 1440,
+   "cost": "$0",
+   "evidence": "138:state/revenue-drive/owner_reply.py, alive"
+  },
+  {
+   "id": "BR-09",
+   "name": "owner_ask (card builder)",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-owner-ask.timer (10min)",
+   "calls_per_day": 144,
+   "cost": "$0",
+   "evidence": "138:owner_ask.py"
+  },
+  {
+   "id": "BR-10",
+   "name": "action_executor (unforeseen-work)",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "owner_reply dispatch + proposal_intake",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:action_executor.py (deployed 09-18)"
+  },
+  {
+   "id": "BR-11",
+   "name": "proposal_intake (U-WORK)",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "manual/loops",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:proposal_intake.py"
+  },
+  {
+   "id": "BR-12",
+   "name": "money_tools / money_executor",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "owner vote (money executor gate 13 rules)",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:money_executor.py + money_tools.py"
+  },
+  {
+   "id": "BR-13",
+   "name": "revenue_state (meter)",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-revenue-drive.timer (6h)",
+   "calls_per_day": 4,
+   "cost": "$0",
+   "evidence": "138:revenue_state.py"
+  },
+  {
+   "id": "BR-14",
+   "name": "deep_scan_tick (guard)",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-deep-scan.timer (Mon 04:00Z)",
+   "calls_per_day": 0.14,
+   "cost": "$0",
+   "evidence": "138:deep_scan_tick.py 535 lines (findings 573)"
+  },
+  {
+   "id": "BR-15",
+   "name": "cognition_factory",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "FROZEN (last write 09-15T08:33)",
+   "calls_per_day": 0,
+   "cost": "$0",
+   "evidence": "138:state/cognition/ 877 lines, last_write 09-15"
+  },
+  {
+   "id": "BR-16",
+   "name": "self-model producer",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus timers",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:state/self-model alive 01:46"
+  },
+  {
+   "id": "BR-17",
+   "name": "fleet-compute think_pool",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "consumer check INCONCLUSIVE (grep mismatch)",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:state/fleet-compute/think_pool.py (evidence-based provider health)"
+  },
+  {
+   "id": "BR-18",
+   "name": "glass_runner (owner message intake)",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-glass.timer (1min)",
+   "calls_per_day": 1440,
+   "cost": "$0",
+   "evidence": "138:ofn/agents/glass_runner.py 374 lines; state/glass FROZEN 09-16"
+  },
+  {
+   "id": "BR-19",
+   "name": "imap_listener",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-imap.timer (15min)",
+   "calls_per_day": 96,
+   "cost": "$0",
+   "evidence": "138:ofn/agents/imap_listener.py alive"
+  },
+  {
+   "id": "BR-20",
+   "name": "reply_alert",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-reply-alert.timer",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:reply_alert.py alive 00:36"
+  },
+  {
+   "id": "BR-21",
+   "name": "b2b_discovery agent",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "ofn/agents (merge #259)",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "repo:ofn/agents/b2b_discovery.py"
+  },
+  {
+   "id": "BR-22",
+   "name": "coding-worker",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-coding-worker.timer",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:state/coding-worker alive 01:47"
+  },
+  {
+   "id": "BR-23",
+   "name": "fleet-scheduler",
+   "kind": "decision-code",
+   "provider_model": "python",
+   "callers": "octopus-scheduler.timer",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:state/fleet-scheduler alive 01:50"
+  },
+  {
+   "id": "BR-24",
+   "name": "octopus-mesh control_router",
+   "kind": "mesh",
+   "provider_model": "python",
+   "callers": "octopus-control-router.service (RUNNING)",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:/home/ari/octopus-mesh/bin/octopus_control_router.py"
+  },
+  {
+   "id": "BR-25",
+   "name": "octopus-mesh router",
+   "kind": "mesh",
+   "provider_model": "python",
+   "callers": "octopus-router.service (RUNNING)",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:octopus_router.py"
+  },
+  {
+   "id": "BR-26",
+   "name": "octopus-mesh supervisor",
+   "kind": "mesh",
+   "provider_model": "python",
+   "callers": "octopus-supervisor.service (RUNNING)",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:octopus_supervisor.py"
+  },
+  {
+   "id": "BR-27",
+   "name": "octopus-mesh verify_dispatcher",
+   "kind": "mesh",
+   "provider_model": "python",
+   "callers": "octopus-verify-dispatcher.service (RUNNING)",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:octopus_verify_dispatcher.py"
+  },
+  {
+   "id": "BR-28",
+   "name": "octopus-mesh cycle_settler",
+   "kind": "mesh",
+   "provider_model": "python",
+   "callers": "octopus-cycle-settler.service (RUNNING)",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:octopus_cycle_settler.py"
+  },
+  {
+   "id": "BR-29",
+   "name": "octomesh_* transport kit",
+   "kind": "mesh",
+   "provider_model": "python",
+   "callers": "send/receive/consume/process/bridge/calibration/selftest/status",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:/home/ari/octopus-mesh/bin/octomesh_*.py (9 modules)"
+  },
+  {
+   "id": "BR-30",
+   "name": "budget ledger (memory brain)",
+   "kind": "memory",
+   "provider_model": "jsonl",
+   "callers": "api_budget + monitor",
+   "calls_per_day": "cont",
+   "cost": "$0.85/mo",
+   "evidence": "138:budget-ledger 89 rows"
+  },
+  {
+   "id": "BR-31",
+   "name": "deep-scan findings register (memory)",
+   "kind": "memory",
+   "provider_model": "json",
+   "callers": "deep_scan_tick + guard",
+   "calls_per_day": "?",
+   "cost": "$0",
+   "evidence": "138:findings-current 573 rows"
+  },
+  {
+   "id": "BR-32",
+   "name": "decision ledger + consumption (memory)",
+   "kind": "memory",
+   "provider_model": "jsonl",
+   "callers": "owner_reply/ops_agent",
+   "calls_per_day": "cont",
+   "cost": "$0",
+   "evidence": "138:owner_dialogue/{owner_decision,decision_consumption}.jsonl"
+  }
+ ]
+}

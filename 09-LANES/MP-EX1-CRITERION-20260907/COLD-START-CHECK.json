@@ -1,0 +1,17 @@
+{
+  "schema": "octopus.ex1.cold_start.v1",
+  "H-NAV-1": {
+    "agents_md_entrypoint_has_ex1_latest": true,
+    "first_latest_forbids_exec_next_ex3": true,
+    "first_latest_points_current_status": true
+  },
+  "H-NAV-2": {
+    "dated_entrypoint_exists": true,
+    "dated_says_not_passed": true
+  },
+  "H-NAV-3": {
+    "obsidian_debug_reroutes": true,
+    "current_not_passed": true
+  },
+  "ok": true
+}

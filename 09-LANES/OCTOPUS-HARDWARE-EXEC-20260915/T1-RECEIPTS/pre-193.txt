@@ -1,0 +1,6 @@
+/usr/bin/python3
+Python 3.13.5
+bash: line 1: git: command not found
+               total        used        free      shared  buff/cache   available
+Mem:            3910         274        3288           7         398        3636
+0.20 0.06 0.02 2/190 1733

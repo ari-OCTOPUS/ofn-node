@@ -1,0 +1,144 @@
+{
+  "packet_id": "OCTOPUS-MIGRATION-EXEC-20260904-01",
+  "status": "approved_for_execution",
+  "prepared_on": "2026-09-04",
+  "purpose": "Evidence-backed staged migration of OCTOPUS, beginning with an isolated advisory self-model restore drill and continuing only through measured dependency, state, and service gates.",
+  "authoritative_navigation": [
+    "F:/backup/AGENTS.md",
+    "F:/backup/agent-prompts/_PROJECT_INSTRUCTIONS.md",
+    "F:/backup/07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md",
+    "F:/backup/09-LANES/M-MIGRATION-TRANSFER-20260904/MIGRATION-EXECUTION-PACKET.md"
+  ],
+  "active_owner_decision": "F:/backup/07-HANDOFF/GO-MIRROR-DRILL-DECISION-2026-09-04.md",
+  "approved_execution_amendments": {
+    "drill_order": ["A:/home/ari/drill-001 on node138", "B:/opt/octopus/drill-001 on node180 when absent-or-empty and unbound"],
+    "timer_quiesce": false,
+    "ofn_service_stop": false,
+    "mirror_registration_precedes_drill_A": true
+  },
+  "latest_execution": {
+    "observed_utc": "2026-09-04T10:29:26Z",
+    "drill_A": {
+      "status": "PASSED",
+      "archive": "/home/ari/archive_drill-001-20260904T1022Z/RESULT.json",
+      "result_sha256": "6a9d4b6949f7c7cbd05decc6e9fb233f7558959238602be66ab9aa3e32d6808c",
+      "code_commit": "4bbfccf3b94192615c603a0ce87973d81bcbb1e1"
+    },
+    "drill_B": {
+      "status": "PASSED",
+      "archive": "/opt/octopus/archive_drill-001-B-20260904T1028Z/RESULT.json",
+      "result_sha256": "066ea43509c77e630ad171bf01de18669117ee3b7cfc0edd0645b286484c789b",
+      "code_commit": "4bbfccf3b94192615c603a0ce87973d81bcbb1e1"
+    },
+    "source_rehash": "MATCHED_PRETRANSFER_MANIFEST",
+    "target_roots_after_archive": [
+      "/home/ari/drill-001 absent",
+      "/opt/octopus/drill-001 absent"
+    ],
+    "mirror_push": "BLOCKED_403_REMOTE_AUTHORIZATION",
+    "mirror_branch_created": false
+  },
+  "runtime_matrix": {
+    "path": "F:/backup/09-LANES/M-MIGRATION-TRANSFER-20260904/RUNTIME-MATRIX-2026-09-04.json",
+    "observed_utc_window": "2026-09-04T10:45:14Z/2026-09-04T10:45:17Z",
+    "component_rows": 14,
+    "scope_verdict": "advisory_restore_drill_complete; full_organism_migration_unverified",
+    "service_metadata": "sanitized WorkingDirectory/FragmentPath/MainPID/ActiveState/SubState only; ExecStart/environment/arguments/secrets not read"
+  },
+  "documentation_sync": {
+    "observed_utc": "2026-09-04T10:42:51Z",
+    "local_obsidian": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/02-agent-memory-and-handoffs/MIGRATION-HANDOFF-2026-09-04.md",
+    "node138_pointer": "/home/ari/migration-handoff-20260904/README.md",
+    "node180_pointer": "/opt/octopus/migration-handoff-20260904/README.md",
+    "sha256": "df8315e46d0ad404973d29d6293ea445cb2bbc03877e89a86d4c2740326d78ea",
+    "result": "services_and_protected_roots_unchanged"
+  },
+  "physical_scope": ["laptop", "node138", "node180"],
+  "retired_non_hardware": ["node182", "PC_worker"],
+  "canonical_source": {
+    "node": "node138",
+    "root": "/home/ari/ofn",
+    "branch": "main",
+    "head_observed_20260904": "2cd67aa43a73d6f9cf4e9a62d7e96cd52502d51e",
+    "tested_and_directly_invoked_code_commit": "1c81bdf1d6eaf2c1fb466fbfd2c7fb297f1861d8",
+    "origin_identity": "github.com/ari-OCTOPUS/ofn-node",
+    "service_binding_observed": {
+      "unit": "ofn.service",
+      "working_directory": "/home/ari/ofn",
+      "state": "active/running",
+      "loaded_revision": "unverified"
+    }
+  },
+  "source_integrity": {
+    "final_source_manifest": "/home/ari/ofn/09-LANES/BOARD-EXEC-001-INTEGRATION-001/FINAL-SOURCE-MANIFEST.json",
+    "source_and_test_file_count": 23,
+    "selected_test_command": "python3 -B -m unittest -v tests.test_self_model tests.test_self_model_input_trust tests.test_kernel_purity tests.test_self_model_producer tests.test_organism_shadow tests.test_runtime_provenance",
+    "observed_selected_tests": "90 passed, 0 failed, 0 skipped",
+    "protected_registry_sha256": "e3ef142d2254c0e430b98c39f244dfb14e7e4ecd33ef58b8ad3d348daefa767b",
+    "protected_metacontrol_sha256": "a731adcddc37517d813157ce9355686e9a4eb9d61c378dfb71b494746d5a97cf",
+    "self_model_kernel_sha256": "c6a60a6c75ab48181d13d97fb0864408f8e7ddf792ddff8d231abf3fda06cb50"
+  },
+  "advisory_contract": {
+    "schemas": [
+      "octopus.self-model.v3",
+      "octopus.organism-shadow.v1",
+      "shadow-pipeline.v2",
+      "octopus-journal.v2"
+    ],
+    "dependencies": "Python standard library only for the new advisory library",
+    "executable": false,
+    "state_candidate": [
+      "/home/ari/ofn/state/self-model/SYSTEM-SELF-MODEL.json",
+      "/home/ari/ofn/state/self-model/organism-shadow/journal.jsonl",
+      "/home/ari/ofn/state/self-model/organism-shadow/checkpoint.json",
+      "/home/ari/ofn/state/self-model/organism-shadow/OWNER-INBOX.md"
+    ],
+    "state_rule": "journal, checkpoint, and OWNER-INBOX are one scoped state bundle; preserve ordering, prev_hash, stable event IDs, and bitemporal timestamps.",
+    "caps": {
+      "journal_bytes": 8388608,
+      "journal_records": 4096,
+      "advisory_directory_bytes": 20971520,
+      "auto_delete_or_rotate": false
+    },
+    "restore_drill": "PASSED_A_AND_B",
+    "target_sequence": "A_then_B"
+  },
+  "node180": {
+    "platform": "Linux aarch64, CPython 3.13.5",
+    "existing_roots": [
+      {
+        "path": "/opt/octopus/lab",
+        "branch": "backup/board180-20260830",
+        "head": "28209effa84af68a85ab60329c77dca81c6cea00",
+        "classification": "separate archival/source candidate; do not overwrite"
+      },
+      {
+        "path": "/root/octopus-mesh",
+        "branch": "master",
+        "head": "17bcff3f50bec92e381d31539f3645d31f8fd95b",
+        "classification": "unknown mixed state/source tree; do not overwrite or snapshot"
+      }
+    ],
+    "named_service_probe": "ofn.service, octopus.service, octopus-lab.service, and octopus-mesh.service had no evidenced active binding during the 2026-09-04 read-only probe; this does not prove no other process exists.",
+    "destination_status": "unverified; use a fresh owner-private non-service root only after preflight"
+  },
+  "state_exclusions_until_classified": [
+    "/home/ari/ofn/data (contains 6 tracked paths; allowlist required)",
+    "/root/octopus-mesh/state (21920 tracked paths and recent writes; never mix into this drill)",
+    "F:/backup and OCTOPUS-LAB (vault/atlas, not runtime source or target)"
+  ],
+  "source_mirror": {
+    "origin_main_observed": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+    "source_ahead_of_origin_main_observed": 5,
+    "untracked_source_entries_observed": 28,
+    "rule": "Preserve all untracked state; do not stage it. A rescue-branch then fast-forward origin push requires fresh preflight and explicit owner authorization. Never force-push or touch germline."
+  },
+  "prohibited_without_fresh_owner_confirmation": [
+    "network publication or git push",
+    "writer quiescence",
+    "service bind/start/restart or production cutover",
+    "secret extraction or copying",
+    "wire/gate enablement, messaging, payments, or policy changes",
+    "deletion, overwrite of existing roots, force-push, or history rewrite"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "lane": "S1-T1-REHEARSAL-20260917",
+  "registered_before": "full-replica rehearsal and any node182 deployment",
+  "status": "ENGINEERING_ACCEPTANCE_PREREGISTERED_NOT_MEASURED",
+  "scope": "same frozen real journal prefix, snapshot anchor, candidate bytes and service configuration on a non-production replica",
+  "rss_at_t_plus_1h_max_bytes": 1610612736,
+  "rss_observation": "maximum process VmRSS across the last ten 60-second samples ending at T+1h; all ten must exist",
+  "rss_threshold_basis": "1536 MiB leaves 512 MiB below the current 2048 MiB cgroup cap; engineering acceptance, not historical owner-specified numeric threshold",
+  "startup_and_soak": "No OOM kill, unexpected restart or missing sample. Collect cgroup MemoryCurrent, MemoryPeak, MemorySwapCurrent and process VmRSS/VmSwap separately.",
+  "baseline": "Run original and candidate on the same replica and frozen real input. Small corpus component measurements do not satisfy this requirement.",
+  "replay_acceptance": "New witnessed genesis anchor and all committed events after it replay to the same canonical state. Preserve KNOWN_UNREPLAYABLE historical interval 3021357..3054411 without rewriting any journal bytes.",
+  "batch_acceptance": "No caller projection, publish, snapshot or acknowledgment before durable batch completion; bounded batch age and shutdown flush; exact runtime consumer integrated and exercised.",
+  "retention_acceptance": "No unique evidence deletion. Archive/checksum/readback and replay from a retained witnessed anchor plus ordered segments before any rotation. Preserve cross-file references, seq continuity and all previous receipts.",
+  "measured_here": ["isolated batch API SIGKILL cases", "exact-source component contracts", "one-shot real 3000-event batch API benchmark"],
+  "not_measured_here": ["full replica boot", "T+1h RSS", "integrated service batching", "power-loss durability", "genesis consumer", "retention reader integration"]
+}

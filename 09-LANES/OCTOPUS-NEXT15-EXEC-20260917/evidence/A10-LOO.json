@@ -1,0 +1,9 @@
+{
+  "n": 141,
+  "changed": 1,
+  "on": 138,
+  "off": 139,
+  "keys_with_multiple_rows": 2,
+  "HONEST_VERDICT": "MEMORY_HURTS",
+  "basis": "exact leave-one-out over REAL rows; decision changes only where a same-proposal token from OTHER rows exists"
+}

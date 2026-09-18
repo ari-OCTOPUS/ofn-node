@@ -1,0 +1,116 @@
+=== repo identity ===
+HEAD=fe0c55e0a952e0048ff6bd3ddb8ab9419cd1dc0d
+DATE=2026-09-17T05:31:10Z
+SUBJ=merge(canonical): align board138 with origin/main@ae187e03 (owner authorized convergence)
+=== branch ===
+main
+=== dirty (tracked, code/config only) ===
+ M data/gates.json
+ M ofn/agents/glass_runner.py
+ M ofn/agents/owner_notify.py
+ M ofn/ziman_cycle/gates.py
+ M tools/leads_master.json
+?? data/rate-card.json
+?? ofn/agents/airtasker_alert_parser.py
+?? ofn/agents/airtasker_intake.py
+?? ofn/agents/go_b3_owner_bind.py
+?? ofn/agents/owner_digest_emit.py
+?? ofn/agents/owner_queue_notify_hook.py
+?? tools/compute_core.py
+?? tools/compute_scheduler.py
+?? tools/fleet_probe.py
+?? tools/restore_drill.sh
+?? tools/w1_verdict_collector.py
+=== dirty count total ===
+83
+=== untracked code files ===
+?? ofn/agents/airtasker_alert_parser.py
+?? ofn/agents/airtasker_intake.py
+?? ofn/agents/go_b3_owner_bind.py
+?? ofn/agents/owner_digest_emit.py
+?? ofn/agents/owner_queue_notify_hook.py
+?? tools/compute_core.py
+?? tools/compute_scheduler.py
+?? tools/fleet_probe.py
+?? tools/restore_drill.sh
+?? tools/w1_verdict_collector.py
+=== files modified since 2026-09-17T00:00Z (code/config), excluding .git ===
+2026-09-18 00:58 17146 /home/ari/ofn/ofn/agents/glass_runner.py
+2026-09-18 00:57 902 /home/ari/ofn/state/fleet-compute/units/octopus-compute-shadow.service
+2026-09-18 00:57 301 /home/ari/ofn/state/fleet-compute/units/octopus-compute-shadow.timer
+2026-09-18 00:57 301 /home/ari/ofn/state/fleet-compute/units/octopus-compute-canary.timer
+2026-09-18 00:57 25414 /home/ari/ofn/tools/compute_core.py
+2026-09-18 00:57 22999 /home/ari/ofn/tools/compute_scheduler.py
+2026-09-18 00:57 18279 /home/ari/ofn/tools/fleet_probe.py
+2026-09-18 00:57 17440 /home/ari/ofn/state/revenue-drive/owner_reply.py
+2026-09-18 00:57 1046 /home/ari/ofn/state/fleet-compute/units/octopus-compute-canary.service
+2026-09-18 00:54 8247 /home/ari/ofn/state/revenue-drive/owner_ask.py
+2026-09-18 00:50 4731 /home/ari/ofn/state/revenue-drive/proposal_intake.py
+2026-09-18 00:49 9082 /home/ari/ofn/state/revenue-drive/action_executor.py
+2026-09-18 00:49 3173 /home/ari/ofn/state/revenue-drive/uwork_acceptance_test.py
+2026-09-18 00:49 2312 /home/ari/ofn/state/revenue-drive/patch_uwork_wire.py
+2026-09-18 00:37 2320 /home/ari/ofn/state/revenue-drive/funnel_reconcile.py
+2026-09-18 00:35 64030 /home/ari/ofn/state/ops-agent/ops_agent.py
+2026-09-17 23:44 10877 /home/ari/ofn/tools/w1_verdict_collector.py
+2026-09-17 20:24 2265 /home/ari/ofn/ofn/ziman_cycle/gates.py
+2026-09-17 18:30 3755 /home/ari/ofn/ofn/agents/owner_notify.py
+2026-09-17 11:33 21200 /home/ari/ofn/state/api-budget/api_budget.py
+2026-09-17 05:31 9990 /home/ari/ofn/ofn/kernel/coprime_class.py
+2026-09-17 05:31 9983 /home/ari/ofn/tests/test_append_class.py
+2026-09-17 05:31 9972 /home/ari/ofn/ofn/kernel/peak_class.py
+2026-09-17 05:31 9956 /home/ari/ofn/ofn/kernel/once_pin.py
+2026-09-17 05:31 9684 /home/ari/ofn/ofn/kernel/fold_pin.py
+2026-09-17 05:31 9584 /home/ari/ofn/tests/test_format_class.py
+2026-09-17 05:31 9563 /home/ari/ofn/tests/test_fold_pin.py
+2026-09-17 05:31 9561 /home/ari/ofn/ofn/ziman_cycle/sales_fields.py
+2026-09-17 05:31 9470 /home/ari/ofn/ofn/kernel/figure_pin.py
+2026-09-17 05:31 9359 /home/ari/ofn/tests/test_stride_class.py
+2026-09-17 05:31 9318 /home/ari/ofn/tests/test_byte_class.py
+2026-09-17 05:31 9309 /home/ari/ofn/ofn/kernel/digest_class.py
+2026-09-17 05:31 9306 /home/ari/ofn/tests/test_attest_class.py
+2026-09-17 05:31 9281 /home/ari/ofn/tests/test_once_pin.py
+2026-09-17 05:31 9206 /home/ari/ofn/ofn/kernel/format_class.py
+2026-09-17 05:31 9117 /home/ari/ofn/ofn/kernel/attest_class.py
+2026-09-17 05:31 9113 /home/ari/ofn/tests/test_spend_fence.py
+2026-09-17 05:31 9046 /home/ari/ofn/ofn/kernel/stride_class.py
+2026-09-17 05:31 9041 /home/ari/ofn/tests/test_body_class.py
+2026-09-17 05:31 9036 /home/ari/ofn/ofn/kernel/silver_pin.py
+2026-09-17 05:31 8990 /home/ari/ofn/ofn/kernel/trough_pin.py
+2026-09-17 05:31 8921 /home/ari/ofn/ofn/kernel/independent_pin.py
+2026-09-17 05:31 8903 /home/ari/ofn/ofn/kernel/far_pin.py
+2026-09-17 05:31 8811 /home/ari/ofn/tests/test_cut_pin.py
+2026-09-17 05:31 8778 /home/ari/ofn/ofn/kernel/mint_fence.py
+2026-09-17 05:31 8771 /home/ari/ofn/ofn/kernel/average_pin.py
+2026-09-17 05:31 8763 /home/ari/ofn/ofn/kernel/nest_pin.py
+2026-09-17 05:31 8754 /home/ari/ofn/ofn/kernel/cubic_pin.py
+2026-09-17 05:31 8745 /home/ari/ofn/ofn/kernel/below_pin.py
+2026-09-17 05:31 8716 /home/ari/ofn/ofn/kernel/byte_class.py
+=== systemd units modified since 09-17 ===
+2026-09-18 00:57 301 /etc/systemd/system/octopus-compute-canary.timer
+2026-09-18 00:57 1046 /etc/systemd/system/octopus-compute-canary.service
+2026-09-18 00:21 902 /etc/systemd/system/octopus-compute-shadow.service
+2026-09-18 00:21 301 /etc/systemd/system/octopus-compute-shadow.timer
+2026-09-17 23:44 265 /etc/systemd/system/octopus-w1-verdict.service
+2026-09-17 23:44 238 /etc/systemd/system/octopus-w1-verdict.timer
+2026-09-17 23:27 368 /etc/systemd/system/octopus-owner-ask.service
+2026-09-17 23:27 185 /etc/systemd/system/octopus-owner-ask.timer
+2026-09-17 07:51 200 /etc/systemd/system/octopus-mirror-push.service
+2026-09-17 07:51 152 /etc/systemd/system/octopus-mirror-push.timer
+2026-09-17 05:54 295 /etc/systemd/system/octopus-138-pulse.service
+2026-09-17 05:54 186 /etc/systemd/system/octopus-138-pulse.timer
+2026-09-17 05:49 419 /etc/systemd/system/nats-leaf.service
+=== preimage/backup siblings ===
+-rw-r--r--  1 ari ari  2093 Sep 17 05:31 gates.py.pre-a1-20260917T202341Z
+-rw-r--r--  1 ari ari 12493 Sep 17 05:31 glass_runner.py.bak-callback-20260917T232549Z
+-rw-r--r--  1 ari ari  6683 Sep 14 05:11 glass_runner.py.pre-g13live-20260914
+-rw-r--r--  1 ari ari  7167 Sep 15 04:58 glass_runner.py.pre-g27s-20260915
+-rw-r--r--  1 ari ari 14684 Sep 17 23:25 glass_runner.py.pre-ownerlink2-20260918T005259Z
+-rw-r--r--  1 ari ari 15594 Sep 18 00:52 glass_runner.py.pre-ownerlink4-20260918T005754Z
+-rw-r--r--  1 ari ari 16590 Sep 18 00:57 glass_runner.py.pre-ownerlink5-20260918T005835Z
+-rw-r--r--  1 ari ari 10667 Sep 15 08:11 glass_runner.py.pre-urlopen-fix-20260916
+-rw-r--r--  1 ari ari 15875 Sep  8 03:36 imap_listener.py.bak-airtasker-20260908
+-rw-r--r--  1 ari ari  3174 Sep  2 13:56 owner_notify.py.pre-r1retry-20260917T183029Z
+-rwxr-xr-x  1 root root     1867 Sep 17 23:46 octopus-138-pulse.sh
+-rwxr-xr-x  1 root root     1566 Sep 17 17:41 octopus-138-pulse.sh.bak-leafkey-20260917T234628Z
+-rwxr-xr-x  1 root root     1469 Sep 17 05:53 octopus-138-pulse.sh.bak-n15-20260917T174120Z
+PROBE_END=1

@@ -1,0 +1,15 @@
+{
+  "schema": "fleet_hypothesis.v1",
+  "hyp_id": "hyp-p1-sample-fact-p1-dry-20260915T033445Z",
+  "summary_hash": "51736a142e745107cb747b77752bdf1660e0ac2b56c82f392ee3b6c2b11f4fa1",
+  "model_id": "none-dry",
+  "prompt_hash": "140bedbf9c3f6d56a9846d2ba7088798683f4da0c248231336e6a05679e4fdfe",
+  "source_fact_ids": [
+    "fact-p1-dry-20260915T033445Z"
+  ],
+  "confidence": 0.0,
+  "quality_gate": "pending_180",
+  "soft_ttl": "2026-09-22T00:00:00Z",
+  "commander_node_id": "138",
+  "customer_send": false
+}

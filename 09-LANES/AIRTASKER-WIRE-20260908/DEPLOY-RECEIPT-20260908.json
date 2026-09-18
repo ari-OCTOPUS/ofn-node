@@ -1,0 +1,35 @@
+{
+  "receipt_id": "AIRTASKER-WIRE-DEPLOY-20260908",
+  "governance": "GOV-V8 · LADDER=L2 · GOV-V7 protection: pre-image before node write + receipt-or-rollback",
+  "owner_order": "«پرامپت اتصال رو بازده اجرایی واقعی بساز و تست کن و چیزیو حذف نکن ... و وصلش کن به اختاپوس این وبسایت رو» (2026-09-08, session)",
+  "target": "board138 /home/ari/ofn/ofn/agents (octopus-imap.service ExecStart, timer :00/:15/:30/:45)",
+  "pre_image": {
+    "ts": "2026-09-08T03:36:30Z",
+    "imap_listener.py": "76f5ec63dc1904e6fe9b9a7775c667a215c4c34eef7543a42412ec2b40ade69e",
+    "airtasker_alert_parser.py": "ABSENT (new file)",
+    "airtasker_intake.py": "ABSENT (new file)",
+    "backup_created": "/home/ari/ofn/ofn/agents/imap_listener.py.bak-airtasker-20260908 (sha 76f5ec63…, verified post-deploy)",
+    "git_state_note": "imap_listener.py clean in 138 git; 138 HEAD 63938eb0; laptop clone F:\\ofn-node identical except CRLF"
+  },
+  "post_image": {
+    "imap_listener.py": "c6c9dad0c02e0a01cfa768a0cd68f0fb1bd6895843e160f1ee21ed10602a6e95",
+    "airtasker_alert_parser.py": "edcf73f26d64b06567fe1a60efb10747d73585b20159e631133258a06552ddf0",
+    "airtasker_intake.py": "620621552ba779a45b2ca9ffabeded0b41257ca55009b0062ee5c4146d57b0ab",
+    "py_compile": "OK (python3 on 138)",
+    "change_nature": "ADDITIVE ONLY: 1 new branch in classify() before noise fall-through; 1 new branch in _act() before dry-check; 2 new module files; zero lines of existing behaviour modified or deleted (proven by 8 regression tests)"
+  },
+  "tests": {
+    "laptop_pytest": "15/15 passed (8 regression + 7 new-branch) — 09-LANES/AIRTASKER-WIRE-20260908/test_airtasker_wire.py",
+    "on_host_selftest_dry": "classify→('alert','airtasker') · tasks_seen=1 · would_insert correct · zero writes (events file absent after dry)",
+    "on_host_real_dry_cycle": "{\"scanned\":0,\"error\":\"not-armed:smtp-creds-missing\"} — expected: ssh shell lacks unit EnvironmentFile; service context is armed",
+    "first_production_cycle_with_new_code": {
+      "started": "2026-09-08T03:45:12Z",
+      "exited": "2026-09-08T03:45:51Z",
+      "result": "success",
+      "exit_status": 0
+    }
+  },
+  "receipt_chain_on_138": "/home/ari/ofn/data/state/legs/airtasker-watch/events.jsonl (created on first real alert email; opslib STATE_DIR=/home/ari/ofn/data/state)",
+  "rollback": "cp /home/ari/ofn/ofn/agents/imap_listener.py.bak-airtasker-20260908 /home/ari/ofn/ofn/agents/imap_listener.py && rm-free: keep parser/intake files (inert without listener branch) — next timer fire reverts behaviour; zero restarts needed",
+  "pending_for_full_E2E": "owner enables Airtasker task alerts (Painting + Sydney) on own account → first real alert email → auto lead insert + TG card (cards capped 3/email; proposals stay manual per registry)"
+}

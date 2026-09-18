@@ -1,0 +1,29 @@
+{
+  "at": "2026-09-13T11:50:12Z",
+  "cjk_scan": "0 hits in all three",
+  "convention": "additive-only; VITAL-DATA block after H1 + updated: bump; CURRENT-TRUTH and ACTIVE-SEASON appended at tail; per-file EOL; marker guard = a literal string from the inserted block",
+  "files": {
+    "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md": {
+      "marker_count": 1,
+      "sha256_16": "06504063d70171fd"
+    },
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md": {
+      "marker_count": 1,
+      "sha256_16": "8c6c1fa6d277201b"
+    },
+    "ACTIVE-SEASON-REVENUE-ON-LIVE-LOOP-20260907.md": {
+      "marker_count": 1,
+      "sha256_16": "9904b2f635b1d79b"
+    }
+  },
+  "lane": "OCTOPUS-COMMANDER-W24-20260913",
+  "marker": "W24-COMMANDER-20260913-R6",
+  "not_mine": "OCTOPUS/CURRENT-TRUTH.md is modified in the worktree but predates this turn (updated: 2026-09-11T07:40) and is not one of the three surfaces; it was already dirty",
+  "reason": "owner: scan and fix for independence + update obsidian",
+  "schema": "octopus.obsidian-refresh.v1",
+  "validators": {
+    "find_broken_links": "rc=1, total 141 = the recorded 17+124 baseline",
+    "my_files_flagged": 0,
+    "validate_frontmatter": "rc=0, charter layer VALID (legacy report-only ~472 pre-existing)"
+  }
+}

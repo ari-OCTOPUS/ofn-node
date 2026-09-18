@@ -1,0 +1,181 @@
+{
+  "schema": "octopus.unlock-review.receipt.v1",
+  "created_utc": "2026-09-07T22:20:07.5634456Z",
+  "mode": "read_only_runtime_and_additive_documentation",
+  "lane": "UNLOCK-REVIEW-20260908",
+  "source_head": "893b8cec66904968c5489167fcc7d1210f4b9150",
+  "gov_version": "V8",
+  "ladder": "L2",
+  "registry": {
+    "unique_rows": 62,
+    "row_count": 62,
+    "claimed_total": 63,
+    "owner_reported_total": 91,
+    "scope": "rows in current registry, not exhaustive runtime census",
+    "statuses": {
+      "KEEP": 23,
+      "PROPOSED": 32,
+      "PROPOSED_KEEP_AMBIGUOUS": 1,
+      "AUTO": 2,
+      "DONE": 1,
+      "EXECUTED": 2,
+      "VERIFIED": 1
+    }
+  },
+  "board138": {
+    "observed_utc": "2026-09-07T22:14:25.331725+00:00",
+    "host": "DietPi",
+    "standing_go": {
+      "expires_at": "2026-10-07T00:00:00Z",
+      "locks": {
+        "hold_external": false,
+        "paid_ads": false,
+        "external_writes": 0,
+        "customer_messages": 0
+      },
+      "modified_epoch": 1788786970.638499
+    },
+    "GO-EXT2-HOLD-EXTERNAL-OPEN-20260907.json": {
+      "schema": "go-extension-and-locks.v1",
+      "changes": {
+        "expires_at": {
+          "old": "2026-09-21T00:00:00Z",
+          "new": "2026-10-07T00:00:00Z"
+        },
+        "hold_external": {
+          "old": true,
+          "new": false
+        }
+      },
+      "ts_utc": "2026-09-07T13:16:10Z",
+      "orig_sha256": "c6f609b9fb749fd3c737b57159bcc544ed7ae5481347a81445522a8f05d471cb",
+      "new_sha256": "3a171ec2fbcf350b339302b5ac8fca7ab83ea19334111fefb7b004a04ae77e3d"
+    },
+    "MSG38-RESOLVED-NOT-PAID-20260907.json": {
+      "schema": "msg38.resolution.v1",
+      "resolution": "NOT_PAID",
+      "resolved_at_utc": "2026-09-07T13:16:31Z"
+    },
+    "ofn_head": {
+      "exit_code": 0,
+      "stdout": "63938eb01141030f6c9c56f8e1c51ec76e46458c"
+    },
+    "ofn_unit": {
+      "exit_code": 0,
+      "stdout": "MainPID=3905410\nWorkingDirectory=/home/ari/ofn\nActiveState=active\nSubState=running"
+    }
+  },
+  "local_runtime": {
+    "pid": 27200,
+    "pid_started_utc": "2026-09-07T13:16:01.675194Z",
+    "samples": [
+      {
+        "observed_utc": "2026-09-07T22:12:11.5888199Z",
+        "state_ts_local": "2026-09-08T08:12:06",
+        "beat": 65253
+      },
+      {
+        "observed_utc": "2026-09-07T22:15:39.3462204Z",
+        "state_ts_local": "2026-09-08T08:14:02",
+        "beat": 65255
+      }
+    ],
+    "verdict": "state_advanced_in_observed_window",
+    "whole_organism_health": "unverified",
+    "loaded_revision": "unverified"
+  },
+  "drive": {
+    "source_check_count": 8,
+    "state_check_count": 4,
+    "state_ts_utc": "2026-09-07T22:07:01Z",
+    "state_msg38": "locked",
+    "queue_rows": 6,
+    "sandbox_rows": 3,
+    "real_rows": 3,
+    "consumed_rows": 0,
+    "consumer_search_scope": "_ops Python PowerShell JSON references to drive-queue and three_role calls",
+    "consumer_verdict": "not_identified_in_scoped_search",
+    "ram_mismatch_hypothesis": "old import cache is consistent with metadata; not direct RAM proof",
+    "receipt_outcomes": [
+      "UNKNOWN",
+      "UNKNOWN",
+      "FAIL"
+    ],
+    "reward_pass_filter": "absent_in_inspected_count_path",
+    "restart_alone_proves_consumer": false
+  },
+  "backup": {
+    "observed_utc": "2026-09-07T22:20:07.5714141Z",
+    "stamp": "2026-09-01_0330",
+    "drill": "PASS",
+    "manifest_mtime_utc": "2026-08-31T20:10:13.3205125Z",
+    "last_run_local": "2026-09-08T03:30:01.0000000+10:00",
+    "last_task_result": 1,
+    "hourly_last_three": [
+      "2026-09-08 05:54:47  OK push +state",
+      "2026-09-08 06:51:51  OK push +state",
+      "2026-09-08 07:54:19  OK push +state"
+    ],
+    "verdict": "DAILY_RECOVERY_NOT_CONFIRMED",
+    "failing_stage": "unknown",
+    "every_night_failed": "not_established"
+  },
+  "domain_dns": [
+    {
+      "server": "1.1.1.1",
+      "domain": "ziman-gift.com",
+      "result": "LOOKUP_FAILED",
+      "error_id": "DNS_ERROR_RCODE_NAME_ERROR,Microsoft.DnsClient.Commands.ResolveDnsName",
+      "message": "ziman-gift.com : DNS name does not exist."
+    },
+    {
+      "server": "8.8.8.8",
+      "domain": "ziman-gift.com",
+      "result": "LOOKUP_FAILED",
+      "error_id": "DNS_ERROR_RCODE_NAME_ERROR,Microsoft.DnsClient.Commands.ResolveDnsName",
+      "message": "ziman-gift.com : DNS name does not exist."
+    }
+  ],
+  "sources": [
+    {
+      "path": "F:\\backup\\07-HANDOFF\\OWNER-APPROVALS-2026-09-07.md",
+      "mtime_utc": "2026-09-07T13:19:54.1936278Z",
+      "sha256": "3d37bf6bb5add5864e402843a50e2dec20d2c3637f9c136ad789ccdd41b010a8"
+    },
+    {
+      "path": "F:\\backup\\01 - Dashboard\\UNLOCK-REGISTRY-2026-09-08.md",
+      "mtime_utc": "2026-09-07T13:38:34.7448095Z",
+      "sha256": "b9147073bf204dbf298cac378af817244330472a60965be50acc0fb216109f4f"
+    },
+    {
+      "path": "F:\\backup\\_ops\\drive_loops.py",
+      "mtime_utc": "2026-09-07T13:37:50.6941894Z",
+      "sha256": "feb5980113623e101458b5643d71f4b91e269ed5e818749a0982990b6571f7d3"
+    },
+    {
+      "path": "F:\\backup\\_ops\\three_role.py",
+      "mtime_utc": "2026-09-07T13:15:14.1159497Z",
+      "sha256": "cd337dc0bae65aee4633f888021d4fdea36943eeda1c2fa17162db17be65b4cf"
+    },
+    {
+      "path": "F:\\backup\\_ops\\organism.py",
+      "mtime_utc": "2026-09-07T13:15:39.9322843Z",
+      "sha256": "0221f629b5576bf5d6b5cdd1d0fa372cae6c9df6a2a03ab658f7f61b8cddc31c"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\VIS-ARCH-20260907\\organism-hologram.html",
+      "mtime_utc": "2026-09-07T13:25:03.9147773Z",
+      "sha256": "55022bf93de0b7ad451005ed2c24814f6469b049d7548b5a03a2274f7c0a438d"
+    }
+  ],
+  "missing_navigation_file": "F:/backup/agent-prompts/_PROJECT_INSTRUCTIONS.md",
+  "limitations": [
+    "No first new standing child packet collected",
+    "No calibration consumption receipt collected",
+    "No whole-runtime gate census",
+    "No memory-derived current state claim",
+    "No live deployment or restart",
+    "No live drive selftest run",
+    "No automatic organism consumption of new documents demonstrated"
+  ]
+}

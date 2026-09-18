@@ -1,0 +1,80 @@
+{
+  "COMPLETED_THIS_ROUND": [
+    {
+      "check": "curl http://192.168.0.193:8193/health",
+      "id": "T3-systemd",
+      "status": "LIVE",
+      "what": "installed octopus-t3-model.service on 193; health returns ok"
+    },
+    {
+      "corpus_size": 6,
+      "file": "/home/ari/ofn/state/fleet-memory/fleet_facts.jsonl",
+      "id": "corpus-ingestion",
+      "status": "DONE",
+      "what": "5 real facts ingested from 138 state (revenue, rate-card, channel-auth, fleet-nodes, ops-deploys)"
+    },
+    {
+      "id": "retrieve-expanded",
+      "status": "WORKING",
+      "test": "job-0bd80250 found revenue_state + channel_authorization for 'verified cash' query",
+      "what": "real retrieval against expanded corpus returns relevant facts"
+    },
+    {
+      "A_avg": 1.0,
+      "B_avg": 0.0,
+      "file": "/home/ari/ofn/state/fleet-scheduler/PB4-SIMPLIFIED.json",
+      "id": "PB4-simplified",
+      "n": 5,
+      "note": "this proves the retrieval path works; the model-on-193 integration for full PB-4 needs an SSH quoting fix",
+      "powered": false,
+      "verdict": "IMPROVED",
+      "what": "A/B test: memory-on finds the right facts 100% of the time, memory-off finds 0%"
+    }
+  ],
+  "GOV_VERSION": "V8",
+  "LADDER": "L2",
+  "LIVE_SERVICES": [
+    {
+      "interval": "30min",
+      "node": "138",
+      "service": "octopus-fleet-scheduler.timer",
+      "status": "LIVE"
+    },
+    {
+      "corpus": 6,
+      "node": "138",
+      "service": "fleet_retrieve.py",
+      "status": "LIVE"
+    },
+    {
+      "node": "193",
+      "port": 8193,
+      "service": "octopus-t3-model (extractive-v1)",
+      "status": "LIVE"
+    },
+    {
+      "node": "193",
+      "service": "systemd octopus-t3-model",
+      "status": "installed, activating"
+    }
+  ],
+  "NEXT_IMMEDIATE": "verify T3 systemd is fully active on 193; fix the model-call path; expand PB-4 to 10+ questions",
+  "PB1_STATUS": {
+    "heartbeat_at": "2026-09-15T04:31:26Z",
+    "jobs_autonomous": 2,
+    "laptop_dependency": false,
+    "note": "the scheduler is now running autonomously; the 24h window STARTS from now with real automatic operation",
+    "scheduler_live": true
+  },
+  "REMAINING": [
+    "full PB-4 with model-on-193 (SSH quoting fix needed for the A/B call from 138)",
+    "T3 systemd service showing 'activating' — needs a restart check",
+    "PB-4 powered=false (n=5, need >=10)",
+    "F1: ingest more real documents (currently only 6 facts from state files)"
+  ],
+  "at_utc": "2026-09-15T04:40:45Z",
+  "customer_send": false,
+  "go_b4": false,
+  "hold_external": true,
+  "schema": "octopus.body-adaptation.round2.v1"
+}

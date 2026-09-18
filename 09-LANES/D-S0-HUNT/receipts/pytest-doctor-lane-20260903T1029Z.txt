@@ -1,0 +1,65 @@
+lane: D-S0-HUNT
+cwd: F:\ofn-node
+python: C:\Program Files\Python313\python.exe
+utc: 20260903T1029Z
+files:
+  F:\ofn-node\tests\test_doctor_lane_cli.py
+  F:\ofn-node\tests\test_doctor_lane_round.py
+  F:\ofn-node\tests\test_doctor_lane_backlog.py
+  F:\ofn-node\tests\test_doctor_lane_destiny.py
+  F:\ofn-node\tests\test_doctor_lane_contract_map.py
+---- pytest ----
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.1.1, pluggy-1.6.0 -- C:\Program Files\Python313\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: F:\ofn-node
+configfile: pytest.ini
+plugins: anyio-4.13.0, hypothesis-6.158.1, jaxtyping-0.3.11, langsmith-0.10.1
+collecting ... collected 41 items
+
+tests/test_doctor_lane_cli.py::test_cli_round_backlog_destiny_end_to_end PASSED [  2%]
+tests/test_doctor_lane_round.py::test_deadref_resolver_no_false_positives PASSED [  4%]
+tests/test_doctor_lane_round.py::test_01_healthy_vault_yields_no_source_findings PASSED [  7%]
+tests/test_doctor_lane_round.py::test_02_missing_source_root_fails_closed PASSED [  9%]
+tests/test_doctor_lane_round.py::test_03_malformed_file_is_a_finding_not_a_crash PASSED [ 12%]
+tests/test_doctor_lane_round.py::test_04_unreadable_file_is_a_finding_not_a_crash PASSED [ 14%]
+tests/test_doctor_lane_round.py::test_05_findings_have_stable_ids_no_duplicates PASSED [ 17%]
+tests/test_doctor_lane_round.py::test_09_10_round_never_touches_source_tree PASSED [ 19%]
+tests/test_doctor_lane_round.py::test_mirror_relapse_is_detected PASSED  [ 21%]
+tests/test_doctor_lane_round.py::test_canonical_and_machine_lineage_mirrors_are_exempt PASSED [ 24%]
+tests/test_doctor_lane_backlog.py::test_13_backlog_no_duplicates_on_upsert PASSED [ 26%]
+tests/test_doctor_lane_backlog.py::test_items_carry_exactly_the_nine_owner_fields PASSED [ 29%]
+tests/test_doctor_lane_backlog.py::test_engineering_area_can_be_owner_flagged_explicitly PASSED [ 31%]
+tests/test_doctor_lane_backlog.py::test_state_file_round_trips PASSED    [ 34%]
+tests/test_doctor_lane_backlog.py::test_bad_severity_is_rejected PASSED  [ 36%]
+tests/test_doctor_lane_destiny.py::test_06_valid_proposal_reaches_an_outcome PASSED [ 39%]
+tests/test_doctor_lane_destiny.py::test_07_invalid_proposal_is_rejected_with_reason PASSED [ 41%]
+tests/test_doctor_lane_destiny.py::test_08_sensitive_proposal_escalates_to_owner PASSED [ 43%]
+tests/test_doctor_lane_destiny.py::test_irreversible_proposal_escalates PASSED [ 46%]
+tests/test_doctor_lane_destiny.py::test_forbidden_targets_escalate PASSED [ 48%]
+tests/test_doctor_lane_destiny.py::test_shared_surface_proposal_is_queued_not_written PASSED [ 51%]
+tests/test_doctor_lane_destiny.py::test_merge_is_never_an_outcome PASSED [ 53%]
+tests/test_doctor_lane_destiny.py::test_executor_failure_escalates_without_retry PASSED [ 56%]
+tests/test_doctor_lane_destiny.py::test_14_crash_mid_proposal_leaves_no_pending PASSED [ 58%]
+tests/test_doctor_lane_destiny.py::test_incident_rule_on_deny_touch PASSED [ 60%]
+tests/test_doctor_lane_contract_map.py::test_miniyaml_parses_the_real_contract PASSED [ 63%]
+tests/test_doctor_lane_contract_map.py::test_miniyaml_inline_list_and_types PASSED [ 65%]
+tests/test_doctor_lane_contract_map.py::test_miniyaml_fails_closed PASSED [ 68%]
+tests/test_doctor_lane_contract_map.py::test_bundled_contract_is_byte_identical_to_source PASSED [ 70%]
+tests/test_doctor_lane_contract_map.py::test_windows_crlf_checkout_is_a_known_hash_not_the_source PASSED [ 73%]
+tests/test_doctor_lane_contract_map.py::test_hashed_contract_checkout_is_pinned_lf PASSED [ 75%]
+tests/test_doctor_lane_contract_map.py::test_every_requirement_is_fully_mapped PASSED [ 78%]
+tests/test_doctor_lane_contract_map.py::test_requirement_stats_sum_to_total PASSED [ 80%]
+tests/test_doctor_lane_contract_map.py::test_mapped_tests_exist_on_disk PASSED [ 82%]
+tests/test_doctor_lane_contract_map.py::test_extract_gaps_finds_the_known_missing_organs PASSED [ 85%]
+tests/test_doctor_lane_contract_map.py::test_untrusted_execution_is_refused PASSED [ 87%]
+tests/test_doctor_lane_contract_map.py::test_self_promotion_bans_are_enforced PASSED [ 90%]
+tests/test_doctor_lane_contract_map.py::test_prescription_shape PASSED   [ 92%]
+tests/test_doctor_lane_contract_map.py::test_validate_experiment PASSED  [ 95%]
+tests/test_doctor_lane_contract_map.py::test_11_receipt_is_valid_parseable_jsonl PASSED [ 97%]
+tests/test_doctor_lane_contract_map.py::test_12_tampered_line_is_detected PASSED [100%]
+
+============================= 41 passed in 0.92s ==============================
+
+---- exit_code=0 ----

@@ -1,0 +1,26 @@
+{
+  "schema": "octopus.test-matrix.v1",
+  "measured_at": "2026-09-03T09:14:00Z",
+  "pass": "execute",
+  "cwd": "F:/backup",
+  "rows": [
+    {
+      "command": "Test-Path F:\\backup\\tests\\test_repair_api.py",
+      "result": "False",
+      "exit": 0
+    },
+    {
+      "command": "Test-Path C:\\Users\\Armin\\ofn\\tests\\test_repair_api.py",
+      "result": "False",
+      "exit": 0
+    },
+    {
+      "command": "python -m pytest -q --tb=line six named doctor/cockpit/outbox files",
+      "exit": 0,
+      "elapsed_s": 3.67,
+      "summary": "5 passed in 1.98s",
+      "log": "receipts/pytest-narrow-20260903T0912Z.txt"
+    }
+  ],
+  "unittest_used": false
+}

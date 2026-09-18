@@ -1,0 +1,20 @@
+MODEL=/opt/rknn-pilot/yolov5s-640-640.rknn
+LOOPS=20 WARMUP=3
+MODEL_BYTES=8357380
+rknn_init=0
+rknn_query_sdk=0 api=2.3.2 (429f97ae6b@2025-04-09T09:09:27) drv=0.9.8
+rknn_query_io=0 n_input=1 n_output=3
+input[0] dims=1x640x640x3 fmt=1 type=2 size=1228800
+rknn_outputs_get=0
+output[0] bytes=6528000 floats=1632000 first3=0.537255 0.54902 0.490196 
+output[1] bytes=1632000 floats=408000 first3=0.423529 0.470588 0.423529 
+output[2] bytes=408000 floats=102000 first3=0.564706 0.447059 0.501961 
+OUTPUT_CHECKSUM=2461229809902879509 OUTPUT_BYTES=8568000
+LATENCY_MS_MEAN=20.613
+LATENCY_MS_MIN=20.174
+LATENCY_MS_MAX=24.260
+LATENCY_MS_P50=20.255
+LATENCY_MS_P95=24.260
+THROUGHPUT_FPS=48.513
+NPU_LOAD=NPU load:  Core0: 38%, Core1:  0%, Core2:  0%,
+STATUS=PASS

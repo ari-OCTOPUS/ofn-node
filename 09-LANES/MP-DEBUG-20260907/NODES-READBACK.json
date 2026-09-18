@@ -1,0 +1,82 @@
+{
+  "schema": "octopus.nodes_readback.v1",
+  "lane_id": "MP-DEBUG-20260907",
+  "order": "MP-EXEC-ORDER-v3",
+  "gov_version": "V8",
+  "ladder": "L2",
+  "scope": "Bounded read-only node180/node182 probe for O-5 and BB-2/BB-3; not a whole-organism health assessment",
+  "receipt_written_after_utc": "2026-09-06T23:44:36Z",
+  "time_boundary": "Exact SSH attempt start/end wall-clock timestamps were not captured. The receipt time is after both attempts; remote UTC remains unobserved because hostname resolution failed.",
+  "attempts": [
+    {
+      "requested_node": "node180",
+      "ssh_alias": "board180",
+      "status": "unobserved",
+      "probe_transport_status": "failed_before_remote_execution",
+      "exit_code": 1,
+      "stdout_or_stderr": "ssh: Could not resolve hostname board180: No such host is known.",
+      "tool_chunk_id": "8e0428",
+      "reported_tool_wall_time_seconds": 1.5886336,
+      "attempt_count": 1,
+      "retry_count": 0,
+      "remote_hostname": null,
+      "remote_utc": null,
+      "unit_states": null,
+      "listeners_8081": null,
+      "numeric_ctx_size": null,
+      "model_swap_actor": null,
+      "model_quality": null,
+      "conclusion": "BB-2 actor and present model service/ctx remain unobserved. A local alias-resolution failure is not evidence that node180 or its model is down."
+    },
+    {
+      "requested_node": "node182",
+      "ssh_alias": "board182",
+      "status": "unobserved",
+      "probe_transport_status": "failed_before_remote_execution",
+      "exit_code": 1,
+      "stdout_or_stderr": "ssh: Could not resolve hostname board182: No such host is known.",
+      "tool_chunk_id": "cde955",
+      "reported_tool_wall_time_seconds": 2.9540327,
+      "attempt_count": 1,
+      "retry_count": 0,
+      "remote_hostname": null,
+      "remote_utc": null,
+      "unit_states": null,
+      "listener_9101_owner": null,
+      "witness_sensorium_artifact_metadata": null,
+      "conclusion": "BB-3 port9101 ownership and present witness/sensorium status remain unobserved. No exact witness/sensorium artifact path appears in the workorder; none was guessed."
+    }
+  ],
+  "ssh_transport_options": {
+    "BatchMode": "yes",
+    "ConnectTimeout_seconds": 20,
+    "ServerAliveInterval_seconds": 5,
+    "ServerAliveCountMax": 3,
+    "StrictHostKeyChecking": "yes",
+    "UpdateHostKeys": "no",
+    "pseudo_terminal": false
+  },
+  "planned_remote_read_scope_not_executed": [
+    "hostname and UTC",
+    "loaded systemd service units matching llama|octopus|sensorium|world|mesh|ofn|witness, maximum 32",
+    "Id, ActiveState, SubState, MainPID, ActiveEnterTimestamp, ExecMainStartTimestamp only",
+    "TCP LISTEN socket process identity for ports8081/9101 only",
+    "numeric context-size flag only for node180 port8081 owner; no complete command line output"
+  ],
+  "source_documents_read": [
+    "F:/backup/AGENTS.md",
+    "F:/backup/07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md",
+    "C:/Users/Armin/Downloads/MEGAPROMPT-OCTOPUS-v3-EXECUTABLE-2026-09-07.md"
+  ],
+  "mutations": {
+    "local": ["Add this new receipt file only"],
+    "remote_commands_executed": 0,
+    "remote_file_writes": 0,
+    "service_or_timer_changes": 0,
+    "http_model_generations": 0,
+    "secret_or_environment_payloads_read": 0,
+    "existing_receipts_overwritten": 0
+  },
+  "next_safe_action": "Use an exact connection target already established by fresh project evidence, if supplied by the parent audit; otherwise retain unobserved and do not infer a node outage.",
+  "rollback": "Append a superseding interpretation if a later readback succeeds; preserve this failed-attempt receipt."
+}

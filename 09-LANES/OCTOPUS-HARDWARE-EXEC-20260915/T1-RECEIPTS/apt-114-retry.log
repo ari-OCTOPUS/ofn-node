@@ -1,0 +1,8 @@
+Hit:1 https://deb.debian.org/debian trixie InRelease
+Hit:2 https://deb.debian.org/debian trixie-updates InRelease
+Hit:3 https://deb.debian.org/debian-security trixie-security InRelease
+Hit:4 https://deb.debian.org/debian trixie-backports InRelease
+Hit:5 https://dietpi.com/apt trixie InRelease
+Hit:6 https://dietpi.com/apt all InRelease
+Reading package lists...
+APT_EC=100

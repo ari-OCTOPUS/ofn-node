@@ -1,0 +1,184 @@
+{
+  "schema": "octopus.debug.calibration_readback.v1",
+  "local_started_at_utc": "2026-09-06T23:54:48.587386+00:00",
+  "local_ended_at_utc": "2026-09-06T23:54:49.434405+00:00",
+  "probe_script_path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\calibration_readback.py",
+  "probe_script_sha256": "46c2f0a85a2f7fd17369c8c9f66ce41347fee032fd2e08688176228e3437327e",
+  "script_bytes": 5492,
+  "script_transmission": "exact saved file bytes supplied as subprocess stdin; no shell text conversion",
+  "ssh_attempts": 1,
+  "ssh_exit_code": 0,
+  "stderr_present": false,
+  "board_probe": {
+    "schema": "read_only.calibration_verification.v1",
+    "started_at_utc": "2026-09-06T23:54:51.484372+00:00",
+    "hostname": "DietPi",
+    "loaded_process_revision": "UNKNOWN",
+    "runtime_imports": 0,
+    "remote_writes_requested": 0,
+    "snapshot": {
+      "path": "/home/ari/octopus-mesh/calibration/calibration_data.jsonl",
+      "read_started_at_utc": "2026-09-06T23:54:51.484441+00:00",
+      "read_ended_at_utc": "2026-09-06T23:54:51.486443+00:00",
+      "fstat_before": {
+        "size_bytes": 1387682,
+        "inode": 391883,
+        "device": 45825,
+        "mtime_ns": 1788738891410368800
+      },
+      "fstat_after": {
+        "size_bytes": 1387682,
+        "inode": 391883,
+        "device": 45825,
+        "mtime_ns": 1788738891410368800
+      },
+      "path_stat_after": {
+        "size_bytes": 1387682,
+        "inode": 391883,
+        "device": 45825,
+        "mtime_ns": 1788738891410368800
+      },
+      "read_bytes": 1387682,
+      "complete_initial_bound": true,
+      "sha256": "c14bbec40157748ec4190dfa542dc8138d66836b2ad9bf3d72e2737fd7f6f421",
+      "ends_newline": true
+    },
+    "counts": {
+      "line_count": 4326,
+      "parsed_records": 4326,
+      "parse_errors": 0,
+      "non_dict_records": 0,
+      "kind_counts": {
+        "prediction": 2164,
+        "outcome": 2161,
+        "correction_note": 1
+      },
+      "outcome_status_counts_kind_outcome_only": {
+        "correct": 4,
+        "incorrect": 1,
+        "unresolved": 2156
+      },
+      "calibration_error_field_count_all_dicts": 2161,
+      "numeric_calibration_error_count_all_dicts": 2161,
+      "nonfinite_numeric_calibration_error_count": 0,
+      "numeric_calibration_error_by_outcome_status_kind_outcome_only": {
+        "correct": 4,
+        "incorrect": 1,
+        "unresolved": 2156
+      },
+      "unresolved_with_numeric_metric_all_dicts": 2156,
+      "unresolved_with_numeric_metric_kind_outcome_only": 2156
+    },
+    "last_three_physical_records_sanitized": [
+      {
+        "line": 4324,
+        "kind": "outcome",
+        "safe_fields": {
+          "outcome": "unresolved",
+          "outcome_source": "witness_182",
+          "calibration_error": 0.25
+        },
+        "field_presence": {
+          "loaded_source_revision": false,
+          "consumer_path": false,
+          "read_receipt_id": false,
+          "truth_source": false,
+          "claim_id": false,
+          "outcome_evidence": true,
+          "event_time": false,
+          "record_time": false,
+          "read_snapshot": false,
+          "snapshot_hash": false,
+          "prediction_id": false,
+          "cycle_id": true,
+          "resolved_at": true,
+          "submitted_at": false,
+          "as_of": false,
+          "known_at": false,
+          "scope": false,
+          "supersedes": false
+        }
+      },
+      {
+        "line": 4325,
+        "kind": "prediction",
+        "safe_fields": {},
+        "field_presence": {
+          "loaded_source_revision": false,
+          "consumer_path": false,
+          "read_receipt_id": false,
+          "truth_source": false,
+          "claim_id": false,
+          "outcome_evidence": false,
+          "event_time": false,
+          "record_time": false,
+          "read_snapshot": false,
+          "snapshot_hash": false,
+          "prediction_id": false,
+          "cycle_id": true,
+          "resolved_at": false,
+          "submitted_at": true,
+          "as_of": false,
+          "known_at": false,
+          "scope": false,
+          "supersedes": false
+        }
+      },
+      {
+        "line": 4326,
+        "kind": "outcome",
+        "safe_fields": {
+          "outcome": "unresolved",
+          "outcome_source": "witness_182",
+          "calibration_error": 0.25
+        },
+        "field_presence": {
+          "loaded_source_revision": false,
+          "consumer_path": false,
+          "read_receipt_id": false,
+          "truth_source": false,
+          "claim_id": false,
+          "outcome_evidence": true,
+          "event_time": false,
+          "record_time": false,
+          "read_snapshot": false,
+          "snapshot_hash": false,
+          "prediction_id": false,
+          "cycle_id": true,
+          "resolved_at": true,
+          "submitted_at": false,
+          "as_of": false,
+          "known_at": false,
+          "scope": false,
+          "supersedes": false
+        }
+      }
+    ],
+    "interpretation": {
+      "numeric_definition": "JSON int/float excluding bool; finite/nonfinite separately counted",
+      "scope": "Stored values were counted, not recomputed or assumed scientifically valid.",
+      "unresolved_numeric": "Co-presence of unresolved outcome and numeric field is measured; validity requires a separately established truth contract.",
+      "privacy": "No cycle/prediction IDs, payloads, contacts, or outcome evidence contents emitted."
+    },
+    "ended_at_utc": "2026-09-06T23:54:51.551734+00:00"
+  },
+  "gov_version": "V8",
+  "ladder": "L2",
+  "lane_id": "MP-DEBUG-20260907",
+  "timestamp_note": "Local wrapper and board timestamps retain their own clocks; do not infer cross-host timestamp ordering or clock synchronization.",
+  "mutations": {
+    "remote_requested": [],
+    "local_files_created": [
+      "calibration_readback.py",
+      "CALIBRATION-READBACK.json"
+    ],
+    "historical_evidence_edited": false,
+    "metric_values_recomputed": false
+  },
+  "previous_receipt_context": {
+    "path": "F:\\backup\\09-LANES\\MP-EXEC-EX1-EX2-20260907\\EX1-VERIFICATION-RECEIPT.json",
+    "reported_record_count": 968,
+    "reported_sha256": "a33b4b9971723eb8251e2082eeb402ae2bacaa28c137a21c3598fcfec4e6b7df",
+    "interpretation": "Prior snapshot is historical. Current counts and SHA were freshly measured; no claim that the older snapshot hash identifies the current bytes."
+  }
+}

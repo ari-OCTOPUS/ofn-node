@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/fleet_job.v1.schema.json",
+  "title": "fleet_job.v1",
+  "description": "Durable fleet job contract (P2). Commander=138 only. Shadow ledger until JetStream consumer proof.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "job_id", "idempotency_key", "type", "input_hash", "worker_node_id",
+    "deadline", "state", "attempt", "commander_node_id", "customer_send", "external_effects", "bus"
+  ],
+  "properties": {
+    "schema": { "const": "fleet_job.v1" },
+    "job_id": { "type": "string", "minLength": 1 },
+    "idempotency_key": { "type": "string", "minLength": 1 },
+    "type": { "type": "string", "minLength": 1 },
+    "input_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "worker_node_id": { "type": "string", "minLength": 1 },
+    "deadline": { "type": "string", "minLength": 1 },
+    "lease_expiry": { "type": ["string", "null"] },
+    "state": {
+      "type": "string",
+      "enum": ["QUEUED", "LEASED", "RUNNING", "ACK_RESULT", "PERSISTED", "CLOSED", "FAILED", "UNKNOWN", "EXPIRED", "REJECTED"]
+    },
+    "attempt": { "type": "integer", "minimum": 0 },
+    "ack_at": { "type": ["string", "null"] },
+    "result_hash": { "type": ["string", "null"], "pattern": "^([a-f0-9]{64})?$" },
+    "receipt_id": { "type": ["string", "null"] },
+    "commander_node_id": { "const": "138" },
+    "customer_send": { "const": false },
+    "external_effects": { "type": "integer", "minimum": 0 },
+    "bus": {
+      "type": "string",
+      "enum": ["SHADOW_LOCAL_JSONL", "JETSTREAM_PENDING_CONSUMER", "NATS_DURABLE"]
+    },
+    "notes": { "type": "string" }
+  }
+}

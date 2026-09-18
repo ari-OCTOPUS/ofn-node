@@ -1,0 +1,7 @@
+=== FINAL whole-path smoke, all 6 ===
+{"provider": "local-llamacpp-180", "model": "qwen3-0.6b-q4_0", "dialect": "llamacpp", "ok": true, "reply_head": "The capital of France is Paris. The capital of France is Paris. The capital of F", "latency_s": 2.61, "insufficient": false}
+{"provider": "deepseek", "model": "deepseek-flash", "dialect": "openai", "ok": true, "reply_head": "Paris", "latency_s": 0.78, "insufficient": false}
+{"provider": "openai", "model": "gpt-5.6-terra", "dialect": "openai-v2", "ok": true, "reply_head": "Paris", "latency_s": 2.07, "insufficient": false}
+{"provider": "anthropic", "model": "claude-sonnet-5", "dialect": "anthropic", "ok": true, "reply_head": "Paris", "latency_s": 1.43, "insufficient": false}
+{"provider": "gemini", "model": "gemini-3.8-flash", "dialect": "google", "ok": true, "reply_head": "Paris", "latency_s": 1.44, "insufficient": false}
+{"provider": "local-llamacpp-180", "model": "qwen3-0.6b-q4_0", "dialect": "llamacpp", "ok": true, "reply_head": "The capital of France is Paris. The capital of France is Paris. The capital of F", "latency_s": 2.8, "insufficient": false}

@@ -1,0 +1,19 @@
+vantage,asserted_ip,local_address,local_port,pid,cmdline_or_note
+ssh_ro_138,192.168.0.138,127.0.0.1,8791,2574033,/usr/bin/python3 -m ofn.run
+ssh_ro_138,192.168.0.138,127.0.0.1,8792,2574033,/usr/bin/python3 -m ofn.run
+ssh_ro_138,192.168.0.138,127.0.0.1,8793,2574033,/usr/bin/python3 -m ofn.run
+ssh_ro_138,192.168.0.138,127.0.0.1,8794,2574033,/usr/bin/python3 -m ofn.run
+ssh_ro_138,192.168.0.138,127.0.0.1,8796,589802,/usr/bin/python3 -m octopus_bridge.run
+ssh_ro_138,192.168.0.138,127.0.0.1,8895,672,/usr/bin/python3 -m hypno.run
+ssh_ro_138,192.168.0.138,127.0.0.1,20241,,ss showed LISTEN; process name empty for this user
+ssh_ro_138,192.168.0.138,0.0.0.0,22,,ss -lnt; no pid in ss -lntp for dropbear/sshd
+ssh_ro_138,192.168.0.138,absent,143,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,993,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,8771,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,8772,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,8773,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,8774,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,8775,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,8776,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,8777,,not in ss -lnt
+ssh_ro_138,192.168.0.138,absent,8795,,not in ss -lnt

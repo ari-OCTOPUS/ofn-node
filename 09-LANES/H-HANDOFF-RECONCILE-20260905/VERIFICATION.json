@@ -1,0 +1,229 @@
+{
+  "schema": "octopus.handoff-document-verification.v1",
+  "recorded_at_utc": "2026-09-04 15:14:26 UTC",
+  "verdict": "SCOPED_DOCUMENT_CHECKS_PASS_GLOBAL_VAULT_VALIDATION_BLOCKED",
+  "scope": "Five newly authored Markdown files, added navigation links/blocks, and 27 protected input hashes.",
+  "scoped": {
+    "scoped_frontmatter": [
+      {
+        "path": "F:/backup/09-LANES/H-HANDOFF-RECONCILE-20260905/SCOPE.md",
+        "errors": []
+      },
+      {
+        "path": "F:/backup/09-LANES/H-HANDOFF-RECONCILE-20260905/NEXT-AGENT-PROMPT.md",
+        "errors": []
+      },
+      {
+        "path": "F:/backup/07-HANDOFF/OCTOPUS-STATE-20260905-RECONCILED.md",
+        "errors": []
+      },
+      {
+        "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/02-agent-memory-and-handoffs/HANDOFF-COMPLETE-20260904-RECONCILED-2026-09-05.md",
+        "errors": []
+      },
+      {
+        "path": "F:/backup/09-LANES/H-HANDOFF-RECONCILE-20260905/LANE-REPORT.md",
+        "errors": []
+      }
+    ],
+    "scoped_links_checked": 15,
+    "scoped_links_failed": [],
+    "protected_source_files": [
+      {
+        "path": "C:/Users/Armin/Downloads/OCTOPUS-STATE-20260905-obsidian.md",
+        "unchanged": true,
+        "sha256_after": "b91dfa45d3d98d1a62e9a696eba77e5ba00bda46ccfeadd34b6f55bbd4f60c2c"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/RUN-STATE.json",
+        "unchanged": true,
+        "sha256_after": "a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/NEXT-AGENT-PROMPT.md",
+        "unchanged": true,
+        "sha256_after": "b5aa330289b1c271e0f58779ec928c6bf43476e1b725b8a82a75fded323a9a43"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/LANE-REPORT.md",
+        "unchanged": true,
+        "sha256_after": "8c2a66d6dd8757741e1393ec7c9fa69f6a40cb24caf9bf4790e0ba40f9d80690"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/AUTHORITY-DELTA.md",
+        "unchanged": true,
+        "sha256_after": "c1490392326ba14eef6458faaf5f9762ddb36937574079d6eb9f96f6ff05bf1e"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/OWNER-DISPATCH-RECEIPT.json",
+        "unchanged": true,
+        "sha256_after": "3759686bd4e2b9620e5570a39d14278aeb485801b2080a1e85c8ff3b277dcb20"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/ACCEPTANCE-BOUNDS.json",
+        "unchanged": true,
+        "sha256_after": "757d234d71b8e5f438508adb43cc51bcb13397f55abda36685959f399afed672"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/REQUIREMENTS-AND-TRACEABILITY.json",
+        "unchanged": true,
+        "sha256_after": "6508875bdcc4c60213f28791d0ec8b1b7c15d016bd185d8caf2737c4ad380173"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/GATE-REGISTRY.json",
+        "unchanged": true,
+        "sha256_after": "5e9bec6fc1b0a1fc3efae982e426a441d352a3eab6db8e6ac73395fe00cefdbd"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p06-business/OWNER-INPUTS-NEEDED.json",
+        "unchanged": true,
+        "sha256_after": "70f1abef1eb70e61ecd6dcb6bdbed3176e5717b92b6cc94596bb2f3aecb11a2b"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/P03-RELEASE-GATE-RECEIPT.json",
+        "unchanged": true,
+        "sha256_after": "075a6a04078707d1ce28ed885e1dcd9dde4bb240e946d0bdd1e9710c42f06c3b"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/cellframe-move.log",
+        "unchanged": true,
+        "sha256_after": "d524c486786e0f2da73d9790be7983dc28bbe7cb94e46ef72ae50bb2b5f038ad"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/mesh-p04/LANE-REPORT.md",
+        "unchanged": true,
+        "sha256_after": "ef8865af48806ee54ded3e9e2f733a7caf0fa626821e7e880d874f4e1e8ccb1d"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/GATE3-SANDBOX-TESTS.json",
+        "unchanged": true,
+        "sha256_after": "0a6062fb777cf48ff17ce2385fcdc2e9da4be09c8326a9e638efa6e9618d8cfb"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/GATE4-PRESCRIPTIONS.json",
+        "unchanged": true,
+        "sha256_after": "40c376a746fb4bd98507ec849121121a88d2a7e1b9dbe8199a3c4febd0b1df25"
+      },
+      {
+        "path": "F:/backup/AGENTS.md",
+        "unchanged": true,
+        "sha256_after": "b004fff1063b757a6a827728e76892f0bf3c26256be61f5653c639c0e5f9a52f"
+      },
+      {
+        "path": "F:/backup/agent-prompts/_PROJECT_INSTRUCTIONS.md",
+        "unchanged": true,
+        "sha256_after": "eac6207aff9d7eb92788ca37d679674da0e76ac4b053698604a0e558e23275b8"
+      },
+      {
+        "path": "F:/backup/.agentignore",
+        "unchanged": true,
+        "sha256_after": "f05774944b0ddef020f2980f5c1c6f0851f265ba8921d7e28574d1474f8b2003"
+      },
+      {
+        "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/02-agent-memory-and-handoffs/HANDOFF-COMPLETE-20260904-2026-09-05.md",
+        "unchanged": true,
+        "sha256_after": "d26cd803d5c24875df5d2fdb16350b535c922f5207afe1e0d9be28a233b19727"
+      },
+      {
+        "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/OWNER-START.md",
+        "unchanged": true,
+        "sha256_after": "a0c9e8b90d9707f0e22bdf7d85896c8dc612cd293cb801d23f665f333399a5f4"
+      },
+      {
+        "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/EXECUTION-PLAN.md",
+        "unchanged": true,
+        "sha256_after": "6d8e9d7749cbfd001bddd074b0c8ab439d408d584a52efa7cdb02ee89a2e8283"
+      },
+      {
+        "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/ACCEPTANCE.json",
+        "unchanged": true,
+        "sha256_after": "b9c8a8980f01391b2f7d79fc5b3a07d21230e9ce3764cb42aed9300baa35c741"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-sandbox-deny-results.json",
+        "unchanged": true,
+        "sha256_after": "ac53e314faffa2a38340dfcaf6d0b0e3681140bb3e28c9e01eb6a0338f498144"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-sandbox-limit-results.json",
+        "unchanged": true,
+        "sha256_after": "f25b4cabc1e79b52e9443b8e83f42fa0d4355ce8653cfb441359fa3b31bc396a"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-sandbox-journal.txt",
+        "unchanged": true,
+        "sha256_after": "9a203b664bd7fbe9fd6c96519a406d771e88c7f18827f465b175be37c5169282"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-doctor-prescriptions.generated.json",
+        "unchanged": true,
+        "sha256_after": "7a1f5446b8beca61e0d2ca479eb6a02116ec0cb434be44f9f9845b9d1a4773e7"
+      },
+      {
+        "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-doctor-prescriptions.falsified.json",
+        "unchanged": true,
+        "sha256_after": "57731c65b20e4e2481b500dabdb4998b2135fa72db6e67c88a1dbd487168554c"
+      }
+    ],
+    "navigation_history_preservation": [
+      {
+        "path": "F:/backup/07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md",
+        "preimage_reconstructed": true,
+        "matching_line_ending": [
+          "LF"
+        ]
+      },
+      {
+        "path": "F:/backup/01 - Dashboard/HANDOFF.md",
+        "preimage_reconstructed": true,
+        "matching_line_ending": [
+          "CRLF"
+        ]
+      },
+      {
+        "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/README.md",
+        "preimage_reconstructed": true,
+        "matching_line_ending": [
+          "LF"
+        ]
+      }
+    ],
+    "token_pattern_hits": 0,
+    "secret_scan_limit": "heuristic on newly authored Markdown; not a credential inventory",
+    "validator_source_unchanged": true,
+    "runtime_tests_run": 0,
+    "blocked_operations": {
+      "writes": 0,
+      "reads": 0
+    }
+  },
+  "global_validators": [
+    {
+      "validator": "validate_frontmatter.py",
+      "exit_code": 2,
+      "result": "BLOCKED_BY_READ_BOUNDARY",
+      "blocked_writes": 2,
+      "blocked_reads": 1
+    },
+    {
+      "validator": "find_broken_links.py",
+      "exit_code": 2,
+      "result": "BLOCKED_BY_READ_BOUNDARY",
+      "blocked_writes": 9,
+      "blocked_reads": 1
+    }
+  ],
+  "validation_method": "Original validator scripts executed with an external audit hook denying filesystem writes and excluded reads. No validator checks or source files changed. A first output-capture attempt lacked reconfigure() support; the capture adapter was corrected and both scripts were rerun.",
+  "global_limit": "Both full scans stopped on an excluded read; no total-vault pass or global error count is claimed. Debug-log writes were denied. Excluded path names/content were not disclosed.",
+  "preedit_navigation_check": {
+    "checked_at": "2026-09-04 15:09:49 UTC",
+    "changed": []
+  },
+  "git_heads_unchanged_during_pass": true,
+  "final_git_heads": {
+    "vault": "6fd777d4672137b38bff3463ca35ed36e397c12f",
+    "execution_worktree": "80d98ff505f02c606b0decc32a36e645fa05d276"
+  },
+  "active_writer_status": "UNKNOWN; identical observed hashes do not prove writer absence",
+  "remaining_verification": "Next execution agent handles runtime/PR/test/async/chronology questions from the prompt. This pass verified documentation only."
+}

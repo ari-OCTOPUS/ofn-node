@@ -1,0 +1,137 @@
+{
+  "schema": "PB-1-CAVEATS-CLOSEOUT",
+  "receipt_id": "PB-1-CAVEATS-CLOSEOUT-20260916",
+  "task": "OWNER GO Priority B — PB-1 caveats close-out RO+fix",
+  "status": "PASS_WITH_CAVEAT",
+  "outcome": "CAVEATS_PARTIALLY_CLOSED",
+  "written_at_utc": "2026-09-16T05:17:30Z",
+  "written_by": "PB-1 caveats close-out executor",
+  "hold_customer_send": true,
+  "customer_send": false,
+  "dual_commander": false,
+  "commander_node_id": "138",
+  "never_power_off_138": true,
+  "138_powered_off": false,
+  "prior_close": {
+    "json_sha256": "8a24e456395a808397f49f1e660934ea565017e54ce41dc9b9222db9ad9c03fb",
+    "matrix_sha256": "ac4dbb18726d832507f690a43452130816b311037a837655a9807f6715f52d8f",
+    "status": "PASS_WITH_CAVEAT",
+    "caveats_at_close": [
+      "laptop NOT_YET",
+      "HB STALE",
+      "NATS NOT_CLAIMED"
+    ]
+  },
+  "laptop_dependency_probe": {
+    "status": "PROBED_SHORT_WINDOW_PASS",
+    "method": "deliberate_quiet_window_no_new_laptop_SSH",
+    "safe": true,
+    "laptop_powered_off": false,
+    "138_powered_off": false,
+    "laptop_machineId": "2edb534d-b485-4625-ad43-e92d02aa9a2d",
+    "laptop_lan_ip": "192.168.0.191",
+    "ssh_target": "ari@192.168.0.138",
+    "isolation_start_utc": "2026-09-16T04:32:12Z",
+    "isolation_end_utc": "2026-09-16T05:16:38Z",
+    "quiet_window_minutes": 44.43,
+    "no_new_laptop_ssh_during_window": true,
+    "baseline_at_start": {
+      "fleet_jobs_jsonl_lines": 356,
+      "last_closed_job_id": "job-d6b25156e8244aee",
+      "last_closed_ack_at": "2026-09-16T04:31:37Z",
+      "last_closed_worker": "193",
+      "closed_count": 57
+    },
+    "observed_during_quiet_window": {
+      "timer_trigger_utc": "2026-09-16T05:01:36Z",
+      "new_closed_job_id": "job-ddd3364e9d3d4c3d",
+      "new_closed_ack_at": "2026-09-16T05:01:37Z",
+      "new_closed_worker": "193",
+      "new_closed_type": "model_infer",
+      "idempotency_key": "capaware-model_infe-1789534897",
+      "result_hash": "a2dae117e1aec4cf43d6a720249c476c798d0502bd65586510a51d9ae7632a77",
+      "customer_send": false,
+      "external_effects": 0,
+      "bus": "SHADOW_LOCAL_JSONL"
+    },
+    "at_end": {
+      "fleet_jobs_jsonl_lines": 362,
+      "closed_count": 58,
+      "delta_lines": 6,
+      "delta_closed": 1
+    },
+    "proof_statement": "During ~44.4min deliberate quiet window with no new laptop SSH to 138, octopus-fleet-scheduler.timer fired autonomously and fleet_jobs.jsonl gained CLOSED job-ddd3364e9d3d4c3d @ 05:01:37Z (worker 193). 138 was not powered off. Laptop was not power-cycled; probe is isolation/no-new-SSH, not full laptop-off.",
+    "limits": [
+      "Not a full laptop power-off / unreachable-LAN probe",
+      "Laptop remained on LAN (192.168.0.191); only new SSH sessions were withheld",
+      "Does not authorize overall laptop-free marketing claim"
+    ],
+    "invent_success": false
+  },
+  "scheduler_heartbeat": {
+    "path": "/home/ari/ofn/state/fleet-scheduler/scheduler-heartbeat.json",
+    "status": "STALE_REMAINS",
+    "file_at": "2026-09-15T04:31:26Z",
+    "refreshed": false,
+    "reason_stale_remains": "octopus-fleet-scheduler.service ExecStart runs capaware_scheduler.py which produces/closes jobs but does NOT write scheduler-heartbeat.json. Only fleet_scheduler.py writes the HB file, and that script is not the unit ExecStart. Timer/service healthy (active waiting; LastTrigger 05:01:36Z Result=success) but HB writer path is unwired — refuse to hand-edit or invent a fresh HB.",
+    "timer_healthy": true,
+    "timer_state": "active/waiting",
+    "service_result_last": "success",
+    "last_trigger_utc": "2026-09-16T05:01:36Z",
+    "exec_start": "/usr/bin/python3 /home/ari/ofn/state/fleet-scheduler/capaware_scheduler.py",
+    "hb_writer_script": "/home/ari/ofn/state/fleet-scheduler/fleet_scheduler.py",
+    "hb_writer_scheduled": false,
+    "continuity_witness": "jsonl CLOSED growth (incl. job-ddd3364e… @ 05:01:37Z) not HB file mtime"
+  },
+  "nats": {
+    "nats_durability": "NOT_CLAIMED",
+    "jetstream_consumers": 0,
+    "proof": {
+      "nats_cli": "absent",
+      "nats_server_unit": "absent (systemctl: Unit nats-server.service could not be found)",
+      "listen_ports_4222_8222": "none",
+      "nats_process": "none",
+      "vault_status_note": "P0 138-nats-status.txt historically: Unit nats-server.service could not be found"
+    },
+    "invent_durable": false
+  },
+  "live_138_ro_at_closeout": {
+    "host": "DietPi",
+    "fleet_jobs_jsonl_path": "/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl",
+    "fleet_jobs_jsonl_lines": 362,
+    "states": {
+      "QUEUED": 63,
+      "LEASED": 61,
+      "RUNNING": 60,
+      "UNKNOWN": 2,
+      "REJECTED": 2,
+      "ACK_RESULT": 58,
+      "PERSISTED": 58,
+      "CLOSED": 58
+    },
+    "last_closed": {
+      "job_id": "job-ddd3364e9d3d4c3d",
+      "ack_at": "2026-09-16T05:01:37Z",
+      "worker_node_id": "193",
+      "type": "model_infer"
+    },
+    "hold_external_customer_send": false,
+    "may_authorize_customer_send": false
+  },
+  "caveats_after": [
+    "laptop_dependency_probe PROBED_SHORT_WINDOW_PASS (quiet no-new-SSH ~44.4min; CLOSED continued) — NOT full laptop power-off; DENY overall laptop-free marketing",
+    "fleet-scheduler/scheduler-heartbeat.json STALE_REMAINS (at=2026-09-15T04:31:26Z) — unit healthy via capaware_scheduler.py; HB writer fleet_scheduler.py not ExecStart; continuity via jsonl CLOSED",
+    "NATS_DURABILITY=NOT_CLAIMED; jetstream_consumers=0 — DENY durable NATS claim",
+    "DENY usable-42 TOPS",
+    "overall matrix remains OPEN (PB-4 NOT_RUN; QA overall seal still required)",
+    "HOLD customer_send intact"
+  ],
+  "matrix_update_note": "PB-1 remains PASS_WITH_CAVEAT (not invent PASS). Update caveats/notes for probe+HB reason+NATS still NOT_CLAIMED. overall OPEN unchanged. HOLD customer_send.",
+  "claims_denied": [
+    "NATS durable / JetStream brain durability",
+    "usable-42 TOPS",
+    "overall laptop-free / fleet-durable marketing claim",
+    "fresh continuous HB capability (file remains STALE)",
+    "full laptop power-off independence (only short no-new-SSH window proven)"
+  ]
+}

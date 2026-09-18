@@ -1,0 +1,23 @@
+# STAGED — NOT INSTALLED (OPT2 §7.4/§7.6: apply only after owner decision card)
+[Unit]
+Description=OCTOPUS ingestion (node 160) - dedup+provenance fact pipeline, watchdog-supervised
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=root
+WorkingDirectory=/opt/octopus-worker
+ExecStart=/usr/bin/python3 /opt/octopus-worker/octopus_notify_shim.py /usr/bin/python3 /opt/octopus-worker/ingestion.py
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=600
+WatchdogSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=read-only
+ReadWritePaths=/opt/octopus-worker
+
+[Install]
+WantedBy=multi-user.target

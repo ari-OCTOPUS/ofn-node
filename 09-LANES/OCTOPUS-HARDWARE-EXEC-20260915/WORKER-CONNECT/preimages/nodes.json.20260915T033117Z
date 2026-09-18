@@ -1,0 +1,76 @@
+{
+  "nodes": {
+    "138": {
+      "node_id": "138",
+      "ip": "192.168.0.138",
+      "ssh_user": "ari",
+      "home": "/home/ari",
+      "hostname": "DietPi",
+      "role": "commander-router-ledger-owner",
+      "identity": "/home/ari/.ssh/octopus_mesh_ed25519",
+      "may_authorize": false
+    },
+    "180": {
+      "node_id": "180",
+      "ip": "192.168.0.180",
+      "ssh_user": "root",
+      "home": "/root",
+      "hostname": "octopus-continuity-180",
+      "role": "quality-brain",
+      "identity": "/root/.ssh/octopus_mesh_ed25519",
+      "may_authorize": false
+    },
+    "182": {
+      "node_id": "182",
+      "ip": "192.168.0.182",
+      "ssh_user": "root",
+      "home": "/root",
+      "hostname": "sensorium-opi5pro",
+      "role": "lab-witness",
+      "identity": "/root/.ssh/octopus_mesh_ed25519",
+      "may_authorize": false,
+      "retired": false
+    },
+    "100": {
+      "node_id": "100",
+      "ip": "192.168.0.100",
+      "ssh_user": "root",
+      "home": "/root",
+      "hostname": "octopus-compute-100",
+      "role": "compute-node",
+      "identity": "/root/.ssh/octopus_mesh_ed25519",
+      "may_authorize": false
+    },
+    "160": {
+      "node_id": "160",
+      "ip": "192.168.0.160",
+      "ssh_user": "root",
+      "home": "/root",
+      "hostname": "octopus-compute-160",
+      "role": "compute-node",
+      "identity": "/root/.ssh/octopus_mesh_ed25519",
+      "may_authorize": false
+    },
+    "193": {
+      "node_id": "193",
+      "ip": "192.168.0.193",
+      "ssh_user": "root",
+      "home": "/root",
+      "hostname": "octopus-model-plus-193",
+      "role": "model-server",
+      "identity": "/root/.ssh/octopus_mesh_ed25519",
+      "may_authorize": false,
+      "note": "boots from eMMC (DietPi); SD slot free. eMMC confirmed working 2026-09-15."
+    },
+    "114": {
+      "node_id": "114",
+      "ip": "192.168.0.114",
+      "ssh_user": "root",
+      "home": "/root",
+      "hostname": "octopus-pro-114",
+      "role": "compute-node",
+      "identity": "/root/.ssh/octopus_mesh_ed25519",
+      "may_authorize": false
+    }
+  }
+}

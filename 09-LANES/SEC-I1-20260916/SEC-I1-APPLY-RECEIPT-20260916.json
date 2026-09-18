@@ -1,0 +1,112 @@
+{
+  "task_id": "SEC-I1-APPLY",
+  "stamp_aest": "2026-09-16T12:52:26+10:00",
+  "execute_sha": "f17a193ab07b47415a6d9f35f37b69f3fffe1b6b2b8f8d832d029a7b3228d34a",
+  "outcome": "ok",
+  "before": {
+    "holds": {
+      "/home/ari/ofn/state/owner_dialogue/hold_external_sot.v1.json": {
+        "customer_send": false,
+        "publish": false,
+        "may_authorize": false,
+        "may_authorize_scope": null,
+        "may_authorize_expires": null,
+        "sha256": "13a1e79fc56da0bdf72cd6790e45c155f32c0e2bde642c4edd59bc8e2a2d8745"
+      },
+      "/home/ari/ofn/state/self-model/OCTOPUS-SELF-DRIVE-20260913/hold_external_sot.v1.json": {
+        "customer_send": false,
+        "publish": false,
+        "may_authorize": false,
+        "may_authorize_scope": null,
+        "may_authorize_expires": null,
+        "sha256": "13a1e79fc56da0bdf72cd6790e45c155f32c0e2bde642c4edd59bc8e2a2d8745"
+      }
+    },
+    "registry_138": {
+      "may_authorize": false,
+      "customer_send": false,
+      "commander": true,
+      "expires_at": null,
+      "lease_eligible": false
+    },
+    "may_authorize_sot_existed": false
+  },
+  "after": {
+    "holds": {
+      "/home/ari/ofn/state/owner_dialogue/hold_external_sot.v1.json": {
+        "customer_send": false,
+        "publish": false,
+        "may_authorize": true,
+        "may_authorize_scope": "internal_only",
+        "may_authorize_expires": "2026-09-30T12:47:00+10:00",
+        "sha256": "c067c7fc9e97ed21a23f4896665ddfd653275d42d9a5ce6ee44756d1808b691b",
+        "backup": "/home/ari/ofn/state/receipts/sec-i1-20260916/backups/home_ari_ofn_state_owner_dialogue_hold_external_sot.v1.json.bak"
+      },
+      "/home/ari/ofn/state/self-model/OCTOPUS-SELF-DRIVE-20260913/hold_external_sot.v1.json": {
+        "customer_send": false,
+        "publish": false,
+        "may_authorize": true,
+        "may_authorize_scope": "internal_only",
+        "may_authorize_expires": "2026-09-30T12:47:00+10:00",
+        "sha256": "c067c7fc9e97ed21a23f4896665ddfd653275d42d9a5ce6ee44756d1808b691b",
+        "backup": "/home/ari/ofn/state/receipts/sec-i1-20260916/backups/home_ari_ofn_state_self-model_OCTOPUS-SELF-DRIVE-20260913_hold_external_sot.v1.json.bak"
+      }
+    },
+    "registry_138": {
+      "may_authorize": true,
+      "customer_send": false,
+      "commander": true,
+      "expires_at": "2026-09-30T12:47:00+10:00",
+      "lease_eligible": false,
+      "note": "I1 EXECUTE overrides standing may_authorize for commander 138 with expiry; workers unchanged"
+    },
+    "may_authorize_sot": {
+      "path": "/home/ari/ofn/state/owner_dialogue/may_authorize_sot.v1.json",
+      "may_authorize": true,
+      "scope": "internal_only",
+      "expires_at": "2026-09-30T12:47:00+10:00",
+      "customer_send": false,
+      "sha256": "730d784c63cd249fb25b59192f262557f6b21234a4aaf1d3478008e0f197e27e"
+    },
+    "registry_sha256": "4e208db1c3dc04bd67e499b02724d1c87556924f730c063c62f401dac6377add"
+  },
+  "verify": {
+    "/home/ari/ofn/state/owner_dialogue/hold_external_sot.v1.json": {
+      "may_authorize": true,
+      "scope": "internal_only",
+      "expiry": "2026-09-30T12:47:00+10:00",
+      "customer_send": false
+    },
+    "/home/ari/ofn/state/self-model/OCTOPUS-SELF-DRIVE-20260913/hold_external_sot.v1.json": {
+      "may_authorize": true,
+      "scope": "internal_only",
+      "expiry": "2026-09-30T12:47:00+10:00",
+      "customer_send": false
+    },
+    "may_authorize_sot": {
+      "may_authorize": true,
+      "scope": "internal_only",
+      "expiry": "2026-09-30T12:47:00+10:00",
+      "customer_send": false
+    },
+    "registry_138": {
+      "may_authorize": true,
+      "customer_send": false,
+      "expires_at": "2026-09-30T12:47:00+10:00",
+      "commander": true
+    }
+  },
+  "paths_touched": [
+    "/home/ari/ofn/state/owner_dialogue/hold_external_sot.v1.json",
+    "/home/ari/ofn/state/self-model/OCTOPUS-SELF-DRIVE-20260913/hold_external_sot.v1.json",
+    "/home/ari/ofn/state/owner_dialogue/may_authorize_sot.v1.json",
+    "/home/ari/ofn/state/fleet-nodes/registry.jsonl"
+  ],
+  "notes": [
+    "GatePolicy (ziman_cycle) has no may_authorize field; HOLD_EXTERNAL code defaults left intact",
+    "customer_send remains false on all touched SoTs",
+    "worker registry may_authorize left false",
+    "no FREEDOM / OF / marketing / MONEY / publish standing flips",
+    "SSH Step A and MONEY-BATCH not touched"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+ "arm": "D-validator",
+ "faults": {
+  "none": {
+   "verdict": "OK",
+   "ok": true,
+   "correctly_handled": true,
+   "expected": "pass-through"
+  },
+  "timeout": {
+   "verdict": "RECOVERED_BY_RETRY",
+   "ok": true,
+   "correctly_handled": true,
+   "expected": "recovered-by-retry"
+  },
+  "http_error": {
+   "verdict": "TOOL_ERROR",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "rate_limit": {
+   "verdict": "TOOL_ERROR",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "stale_data": {
+   "verdict": "STALE",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "truncated_payload": {
+   "verdict": "UNPARSEABLE",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "schema_drift": {
+   "verdict": "MISSING_FIELD",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "empty_result": {
+   "verdict": "MISSING_FIELD",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "wrong_units": {
+   "verdict": "WRONG_UNITS",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "duplicate_delivery": {
+   "verdict": "UNPARSEABLE",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "lost_acknowledgment": {
+   "verdict": "UNPARSEABLE",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "tool_description_poisoning": {
+   "verdict": "CONTAMINATED",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  },
+  "content_prompt_injection": {
+   "verdict": "CONTAMINATED",
+   "ok": false,
+   "correctly_handled": true,
+   "expected": "caught/rejected"
+  }
+ },
+ "handled": "13/12",
+ "model_calls": 0,
+ "note": "timeout handled by retry arm; contamination by marker rule"
+}

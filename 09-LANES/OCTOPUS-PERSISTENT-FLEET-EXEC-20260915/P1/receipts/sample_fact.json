@@ -1,0 +1,18 @@
+{
+  "schema": "fleet_fact.v1",
+  "fact_id": "fact-p1-dry-20260915T033445Z",
+  "at": "2026-09-15T03:34:45Z",
+  "node_id": "138",
+  "kind": "p1_dry_persist_bootstrap",
+  "body_hash": "90ad9ba8eaf24d90d873837587dbedeb23dd17f5a2255c220e89996d53edc700",
+  "source_refs": [
+    "P0-DISCOVERY.json:a2bd6c12",
+    "T2-NPU-INFERENCE-MATRIX.json:d13f1928",
+    "SEC:52887e1a",
+    "ARCH-P1:3b02f54d"
+  ],
+  "expires_at": null,
+  "commander_node_id": "138",
+  "customer_send": false,
+  "external_effects": 0
+}

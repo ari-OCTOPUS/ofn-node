@@ -1,0 +1,604 @@
+{
+  "schema": "octopus.handoff-document-review.v1",
+  "recorded_at_utc": "2026-09-04 15:09:06 UTC",
+  "scope": "Current local documentation and Git observations for next-agent handoff; not a runtime or independent-verifier audit.",
+  "lane": "H-HANDOFF-RECONCILE-20260905",
+  "source_manifest_contract": "Hashes were captured in a bounded observation window. read_scope=hash_only means contents were not reviewed. Archive tar intentionally has no content hash.",
+  "git_observation": {
+    "vault_root": "F:/backup",
+    "vault_branch": "rescue/octopus-live-tree-20260821",
+    "vault_head": "6fd777d4672137b38bff3463ca35ed36e397c12f",
+    "execution_worktree": "F:/octo-exec/COMPLETE-20260904/worktree",
+    "execution_branch": "codex/complete-octopus-20260904",
+    "execution_head": "80d98ff505f02c606b0decc32a36e645fa05d276",
+    "origin_head": "UNKNOWN_NOT_FETCHED",
+    "active_writer": "UNKNOWN_NOT_ESTABLISHED",
+    "navigation_initial_status": {
+      "01 - Dashboard/HANDOFF.md": " M",
+      "07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md": "??"
+    }
+  },
+  "github_observation": {
+    "method": "GitHub plugin get_pr_info",
+    "repository": "ari-OCTOPUS/ofn-node",
+    "pull_requests": [
+      193,
+      194
+    ],
+    "attempts": 2,
+    "result": "UNAUTHORIZED_REAUTHENTICATION_REQUIRED",
+    "remote_state": "UNKNOWN",
+    "external_writes": 0
+  },
+  "archive_observation": {
+    "path": "F:/octo-exec/COMPLETE-20260904/cellframe-archive-20260904/cellframe-var.tar",
+    "size": 42651402240,
+    "mtime_utc": "2026-09-04T14:58:58.0337643Z",
+    "hash": "NOT_MEASURED",
+    "verified_complete": false,
+    "log_disposition": "TAR-DONE",
+    "source_deletion_authorized_by_review": false
+  },
+  "sources": [
+    {
+      "path": "C:/Users/Armin/Downloads/OCTOPUS-STATE-20260905-obsidian.md",
+      "exists": true,
+      "sha256": "b91dfa45d3d98d1a62e9a696eba77e5ba00bda46ccfeadd34b6f55bbd4f60c2c",
+      "size": 6807,
+      "mtime_utc": "2026-09-04T14:57:52.8183074Z",
+      "document_role": "supplied_snapshot",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/RUN-STATE.json",
+      "exists": true,
+      "sha256": "a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc",
+      "size": 6885,
+      "mtime_utc": "2026-09-04T14:47:26.0482189Z",
+      "document_role": "mutable_run_index",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/NEXT-AGENT-PROMPT.md",
+      "exists": true,
+      "sha256": "b5aa330289b1c271e0f58779ec928c6bf43476e1b725b8a82a75fded323a9a43",
+      "size": 7639,
+      "mtime_utc": "2026-09-04T14:52:41.4337784Z",
+      "document_role": "prior_prompt",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/LANE-REPORT.md",
+      "exists": true,
+      "sha256": "8c2a66d6dd8757741e1393ec7c9fa69f6a40cb24caf9bf4790e0ba40f9d80690",
+      "size": 6893,
+      "mtime_utc": "2026-09-04T14:51:06.8469599Z",
+      "document_role": "prior_lane_report",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/AUTHORITY-DELTA.md",
+      "exists": true,
+      "sha256": "c1490392326ba14eef6458faaf5f9762ddb36937574079d6eb9f96f6ff05bf1e",
+      "size": 5854,
+      "mtime_utc": "2026-09-04T12:53:54.2960409Z",
+      "document_role": "reported_delegation",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/OWNER-DISPATCH-RECEIPT.json",
+      "exists": true,
+      "sha256": "3759686bd4e2b9620e5570a39d14278aeb485801b2080a1e85c8ff3b277dcb20",
+      "size": 2342,
+      "mtime_utc": "2026-09-04T12:54:24.8672979Z",
+      "document_role": "unsigned_dispatch_record",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/ACCEPTANCE-BOUNDS.json",
+      "exists": true,
+      "sha256": "757d234d71b8e5f438508adb43cc51bcb13397f55abda36685959f399afed672",
+      "size": 5857,
+      "mtime_utc": "2026-09-04T13:15:57.0234558Z",
+      "document_role": "acceptance_bounds",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/REQUIREMENTS-AND-TRACEABILITY.json",
+      "exists": true,
+      "sha256": "6508875bdcc4c60213f28791d0ec8b1b7c15d016bd185d8caf2737c4ad380173",
+      "size": 50653,
+      "mtime_utc": "2026-09-04T14:57:37.7992325Z",
+      "document_role": "requirements",
+      "read_scope": "structured_counts"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/GATE-REGISTRY.json",
+      "exists": true,
+      "sha256": "5e9bec6fc1b0a1fc3efae982e426a441d352a3eab6db8e6ac73395fe00cefdbd",
+      "size": 28153,
+      "mtime_utc": "2026-09-04T13:19:45.3165256Z",
+      "document_role": "gate_registry",
+      "read_scope": "structured_counts"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p06-business/OWNER-INPUTS-NEEDED.json",
+      "exists": true,
+      "sha256": "70f1abef1eb70e61ecd6dcb6bdbed3176e5717b92b6cc94596bb2f3aecb11a2b",
+      "size": 8671,
+      "mtime_utc": "2026-09-04T14:39:54.0359247Z",
+      "document_role": "owner_inputs",
+      "read_scope": "structured_count_and_ids"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/P03-RELEASE-GATE-RECEIPT.json",
+      "exists": true,
+      "sha256": "075a6a04078707d1ce28ed885e1dcd9dde4bb240e946d0bdd1e9710c42f06c3b",
+      "size": 5126,
+      "mtime_utc": "2026-09-04T14:33:07.7243084Z",
+      "document_role": "test_claim_receipt",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/cellframe-move.log",
+      "exists": true,
+      "sha256": "d524c486786e0f2da73d9790be7983dc28bbe7cb94e46ef72ae50bb2b5f038ad",
+      "size": 47,
+      "mtime_utc": "2026-09-04T14:58:58.0980258Z",
+      "document_role": "transfer_log",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/mesh-p04/LANE-REPORT.md",
+      "exists": true,
+      "sha256": "ef8865af48806ee54ded3e9e2f733a7caf0fa626821e7e880d874f4e1e8ccb1d",
+      "size": 6099,
+      "mtime_utc": "2026-09-04T14:44:54.7140930Z",
+      "document_role": "mesh_report",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/GATE3-SANDBOX-TESTS.json",
+      "exists": true,
+      "sha256": "0a6062fb777cf48ff17ce2385fcdc2e9da4be09c8326a9e638efa6e9618d8cfb",
+      "size": 6912,
+      "mtime_utc": "2026-09-04T14:55:25.0693313Z",
+      "document_role": "lab_receipt",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/GATE4-PRESCRIPTIONS.json",
+      "exists": true,
+      "sha256": "40c376a746fb4bd98507ec849121121a88d2a7e1b9dbe8199a3c4febd0b1df25",
+      "size": 6665,
+      "mtime_utc": "2026-09-04T14:56:22.9492571Z",
+      "document_role": "doctor_receipt",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/backup/AGENTS.md",
+      "exists": true,
+      "sha256": "b004fff1063b757a6a827728e76892f0bf3c26256be61f5653c639c0e5f9a52f",
+      "size": 2935,
+      "mtime_utc": "2026-09-04T05:24:27.7877578Z",
+      "document_role": "operating_contract",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/backup/agent-prompts/_PROJECT_INSTRUCTIONS.md",
+      "exists": true,
+      "sha256": "eac6207aff9d7eb92788ca37d679674da0e76ac4b053698604a0e558e23275b8",
+      "size": 11954,
+      "mtime_utc": "2026-07-14T21:41:00.1732724Z",
+      "document_role": "vault_instructions",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/backup/.agentignore",
+      "exists": true,
+      "sha256": "f05774944b0ddef020f2980f5c1c6f0851f265ba8921d7e28574d1474f8b2003",
+      "size": 2608,
+      "mtime_utc": "2026-07-29T08:28:37.4899864Z",
+      "document_role": "read_boundary",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/backup/07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md",
+      "exists": true,
+      "sha256": "19139e20db5efca4b65b2252ae14fb26db63e62a9ff6265478a73f6f5b6b81a5",
+      "size": 16597,
+      "mtime_utc": "2026-09-04T14:53:13.9066669Z",
+      "document_role": "navigation_preimage",
+      "read_scope": "full"
+    },
+    {
+      "path": "F:/backup/01 - Dashboard/HANDOFF.md",
+      "exists": true,
+      "sha256": "8c958c7b5540a1dacbf81fa242c3ab4ebf010985b830d5056b75c524142ba2ed",
+      "size": 143692,
+      "mtime_utc": "2026-09-04T14:53:39.2844420Z",
+      "document_role": "navigation_preimage",
+      "read_scope": "recent_entries"
+    },
+    {
+      "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/README.md",
+      "exists": true,
+      "sha256": "0a5c3f9f8c361f8e4eee77cbbf0c9f3c428326210d153dd8628d238035fac6e4",
+      "size": 4965,
+      "mtime_utc": "2026-09-04T14:54:27.7440296Z",
+      "document_role": "navigation_preimage",
+      "read_scope": "full"
+    },
+    {
+      "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/02-agent-memory-and-handoffs/HANDOFF-COMPLETE-20260904-2026-09-05.md",
+      "exists": true,
+      "sha256": "d26cd803d5c24875df5d2fdb16350b535c922f5207afe1e0d9be28a233b19727",
+      "size": 2725,
+      "mtime_utc": "2026-09-04T14:54:27.1404184Z",
+      "document_role": "historical_lab_handoff",
+      "read_scope": "full"
+    },
+    {
+      "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/OWNER-START.md",
+      "exists": true,
+      "sha256": "a0c9e8b90d9707f0e22bdf7d85896c8dc612cd293cb801d23f665f333399a5f4",
+      "size": 7083,
+      "mtime_utc": "2026-09-04T12:43:52.8505011Z",
+      "document_role": "dispatch_package",
+      "read_scope": "hash_only"
+    },
+    {
+      "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/EXECUTION-PLAN.md",
+      "exists": true,
+      "sha256": "6d8e9d7749cbfd001bddd074b0c8ab439d408d584a52efa7cdb02ee89a2e8283",
+      "size": 50710,
+      "mtime_utc": "2026-09-04T12:43:52.8505011Z",
+      "document_role": "dispatch_package",
+      "read_scope": "hash_only"
+    },
+    {
+      "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/ACCEPTANCE.json",
+      "exists": true,
+      "sha256": "b9c8a8980f01391b2f7d79fc5b3a07d21230e9ce3764cb42aed9300baa35c741",
+      "size": 39318,
+      "mtime_utc": "2026-09-04T12:43:53.4474330Z",
+      "document_role": "dispatch_package",
+      "read_scope": "hash_only"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-sandbox-deny-results.json",
+      "exists": true,
+      "sha256": "ac53e314faffa2a38340dfcaf6d0b0e3681140bb3e28c9e01eb6a0338f498144",
+      "size": 3064,
+      "mtime_utc": "2026-09-04T14:50:48.6729570Z",
+      "document_role": "raw_evidence_pointer",
+      "read_scope": "hash_only"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-sandbox-limit-results.json",
+      "exists": true,
+      "sha256": "f25b4cabc1e79b52e9443b8e83f42fa0d4355ce8653cfb441359fa3b31bc396a",
+      "size": 216,
+      "mtime_utc": "2026-09-04T14:50:49.5974352Z",
+      "document_role": "raw_evidence_pointer",
+      "read_scope": "hash_only"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-sandbox-journal.txt",
+      "exists": true,
+      "sha256": "9a203b664bd7fbe9fd6c96519a406d771e88c7f18827f465b175be37c5169282",
+      "size": 851,
+      "mtime_utc": "2026-09-04T14:51:41.8010081Z",
+      "document_role": "raw_evidence_pointer",
+      "read_scope": "hash_only"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-doctor-prescriptions.generated.json",
+      "exists": true,
+      "sha256": "7a1f5446b8beca61e0d2ca479eb6a02116ec0cb434be44f9f9845b9d1a4773e7",
+      "size": 5353,
+      "mtime_utc": "2026-09-04T14:50:53.0162590Z",
+      "document_role": "raw_evidence_pointer",
+      "read_scope": "hash_only"
+    },
+    {
+      "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/RAW/RAW-doctor-prescriptions.falsified.json",
+      "exists": true,
+      "sha256": "57731c65b20e4e2481b500dabdb4998b2135fa72db6e67c88a1dbd487168554c",
+      "size": 2070,
+      "mtime_utc": "2026-09-04T14:50:53.8974385Z",
+      "document_role": "raw_evidence_pointer",
+      "read_scope": "hash_only"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "H01",
+      "claim": "The three original dispatch-package byte hashes match RUN-STATE and OWNER-DISPATCH-RECEIPT.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "sources": [
+        {
+          "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/OWNER-START.md",
+          "sha256": "a0c9e8b90d9707f0e22bdf7d85896c8dc612cd293cb801d23f665f333399a5f4"
+        },
+        {
+          "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/EXECUTION-PLAN.md",
+          "sha256": "6d8e9d7749cbfd001bddd074b0c8ab439d408d584a52efa7cdb02ee89a2e8283"
+        },
+        {
+          "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/04-execution-prompts/FULL-COMPLETION-20260904/ACCEPTANCE.json",
+          "sha256": "b9c8a8980f01391b2f7d79fc5b3a07d21230e9ce3764cb42aed9300baa35c741"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/OWNER-DISPATCH-RECEIPT.json",
+          "sha256": "3759686bd4e2b9620e5570a39d14278aeb485801b2080a1e85c8ff3b277dcb20"
+        }
+      ],
+      "reproduced": true,
+      "caveat": "Hash equality is not signature verification or current execution authority.",
+      "next_verification": "Validate the direct task scope; preserve signed=false."
+    },
+    {
+      "claim_id": "H02",
+      "claim": "RUN-STATE.updated_utc is 2026-09-04T14:32:00Z, while its phase history reaches 15:10:00Z; last_observation remains 13:30:00Z.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/RUN-STATE.json",
+          "sha256": "a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc"
+        }
+      ],
+      "reproduced": true,
+      "caveat": "This proves inconsistent metadata, not which board measurement is valid.",
+      "next_verification": "Reconstruct chronology from raw receipts and independent clocks; append corrections."
+    },
+    {
+      "claim_id": "H03",
+      "claim": "At the 15:00:53Z tool-clock read and 15:03:44Z host-clock read, some previously observed documentation mtimes and the 15:10Z history entry were in the future.",
+      "status": "CONFLICTED",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/RUN-STATE.json",
+          "sha256": "a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/NEXT-AGENT-PROMPT.md",
+          "sha256": "b5aa330289b1c271e0f58779ec928c6bf43476e1b725b8a82a75fded323a9a43"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/LANE-REPORT.md",
+          "sha256": "8c2a66d6dd8757741e1393ec7c9fa69f6a40cb24caf9bf4790e0ba40f9d80690"
+        }
+      ],
+      "reproduced": false,
+      "caveat": "No cause assigned; editing timestamps can differ from event times. No host or board clock was changed.",
+      "next_verification": "Retain observation time, original timestamps and clock-source evidence."
+    },
+    {
+      "claim_id": "H04",
+      "claim": "The local cellframe log contains TAR-DONE; tar length was 42651402240 bytes.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/cellframe-move.log",
+          "sha256": "d524c486786e0f2da73d9790be7983dc28bbe7cb94e46ef72ae50bb2b5f038ad"
+        }
+      ],
+      "reproduced": true,
+      "caveat": "Tar was statted, not fully hashed/listed/extracted; no source-side manifest comparison. This is not successful restore or deletion authorization.",
+      "next_verification": "Recover real transfer handle/result and validate source/target consistency, checksums and isolated restoration."
+    },
+    {
+      "claim_id": "H05",
+      "claim": "RUN-STATE.async_handles contains descriptive lane strings, without operational task/session/process identifiers.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/RUN-STATE.json",
+          "sha256": "a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc"
+        }
+      ],
+      "reproduced": true,
+      "caveat": "A descriptive field is not a resumable handle; current writer liveness remains UNKNOWN.",
+      "next_verification": "Recover original orchestrator handle; do not duplicate jobs on this evidence."
+    },
+    {
+      "claim_id": "H06",
+      "claim": "P05-LAB currently has five top-level result/spec files and the five cited sandbox/Doctor RAW files exist.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/GATE3-SANDBOX-TESTS.json",
+          "sha256": "0a6062fb777cf48ff17ce2385fcdc2e9da4be09c8326a9e638efa6e9618d8cfb"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/GATE4-PRESCRIPTIONS.json",
+          "sha256": "40c376a746fb4bd98507ec849121121a88d2a7e1b9dbe8199a3c4febd0b1df25"
+        }
+      ],
+      "reproduced": true,
+      "caveat": "Raw files were existence/hash checked only; this pass did not reproduce experiments.",
+      "next_verification": "Check lane owner and reconstruct test outcomes from raw bytes before integration."
+    },
+    {
+      "claim_id": "H07",
+      "claim": "Gate3 receipt limits its claimed sandbox verification to externally launched transient units and says the Lab run_sandbox connection is not done.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/GATE3-SANDBOX-TESTS.json",
+          "sha256": "0a6062fb777cf48ff17ce2385fcdc2e9da4be09c8326a9e638efa6e9618d8cfb"
+        }
+      ],
+      "reproduced": true,
+      "caveat": "This confirms a stated limitation, not a fresh board security test.",
+      "next_verification": "Prove the actual Lab caller uses the boundary, with negative and positive tests."
+    },
+    {
+      "claim_id": "H08",
+      "claim": "Gate4 receipt reports 3 prescriptions and 1 rejection, declares same-author generator/falsifier, and leaves A23 partial pending a Doctor consumer.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p05-lab/GATE4-PRESCRIPTIONS.json",
+          "sha256": "40c376a746fb4bd98507ec849121121a88d2a7e1b9dbe8199a3c4febd0b1df25"
+        }
+      ],
+      "reproduced": true,
+      "caveat": "Experiment results are reported by the prior lane; independent reproduction not performed here.",
+      "next_verification": "Reproduce raw evaluation and demonstrate decision consumption plus later memory reuse."
+    },
+    {
+      "claim_id": "H09",
+      "claim": "Requirement array contains 69 entries: 1 verified, 24 in_progress and 44 pending; owner-input array contains 14 entries.",
+      "status": "CONFIRMED_FROM_CURRENT_FILE",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/REQUIREMENTS-AND-TRACEABILITY.json",
+          "sha256": "6508875bdcc4c60213f28791d0ec8b1b7c15d016bd185d8caf2737c4ad380173"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/p06-business/OWNER-INPUTS-NEEDED.json",
+          "sha256": "70f1abef1eb70e61ecd6dcb6bdbed3176e5717b92b6cc94596bb2f3aecb11a2b"
+        }
+      ],
+      "reproduced": true,
+      "caveat": "Counts are file labels, not 69 audited facts or resolution of owner dependencies.",
+      "next_verification": "Bind every current label to scoped evidence and authority."
+    },
+    {
+      "claim_id": "H10",
+      "claim": "Gate array has 39 entries and a separate 5-entry infrastructure array; prior LANE-REPORT says 38-gate census.",
+      "status": "CONFLICTED",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/GATE-REGISTRY.json",
+          "sha256": "5e9bec6fc1b0a1fc3efae982e426a441d352a3eab6db8e6ac73395fe00cefdbd"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/LANE-REPORT.md",
+          "sha256": "8c2a66d6dd8757741e1393ec7c9fa69f6a40cb24caf9bf4790e0ba40f9d80690"
+        }
+      ],
+      "reproduced": false,
+      "caveat": "39 versus 38 needs source-window reconciliation; do not silently total unlike categories.",
+      "next_verification": "Use stable gate IDs and distinguish aliases, infrastructure and actual consumers."
+    },
+    {
+      "claim_id": "H11",
+      "claim": "P03 receipt reports 4554 passed, 28 skipped and 4 failed; attribution of the failures to a pre-existing environment issue is not reproduced by this pass.",
+      "status": "REPORTED_NOT_REPRODUCED",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/P03-RELEASE-GATE-RECEIPT.json",
+          "sha256": "075a6a04078707d1ce28ed885e1dcd9dde4bb240e946d0bdd1e9710c42f06c3b"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/LANE-REPORT.md",
+          "sha256": "8c2a66d6dd8757741e1393ec7c9fa69f6a40cb24caf9bf4790e0ba40f9d80690"
+        }
+      ],
+      "reproduced": false,
+      "caveat": "No pytest suite, baseline reproduction or CI result was executed/read successfully by this pass.",
+      "next_verification": "Run candidate and baseline with identical isolated state and record JUnit/test-node identities."
+    },
+    {
+      "claim_id": "H12",
+      "claim": "Current bounds hash matches 757d234d71b8e5f438508adb43cc51bcb13397f55abda36685959f399afed672, but bounds.created_utc=14:40Z is later than P03.recorded_at_utc=14:15Z.",
+      "status": "CONFLICTED",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/ACCEPTANCE-BOUNDS.json",
+          "sha256": "757d234d71b8e5f438508adb43cc51bcb13397f55abda36685959f399afed672"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/P03-RELEASE-GATE-RECEIPT.json",
+          "sha256": "075a6a04078707d1ce28ed885e1dcd9dde4bb240e946d0bdd1e9710c42f06c3b"
+        }
+      ],
+      "reproduced": false,
+      "caveat": "Byte match does not establish the claimed pre-test freeze; clock drift or receipt timing may explain the ordering, but that is unproven.",
+      "next_verification": "Reconstruct A30 chronology without changing frozen bounds or raw timestamps."
+    },
+    {
+      "claim_id": "H13",
+      "claim": "Local execution worktree HEAD is 80d98ff505f02c606b0decc32a36e645fa05d276, and log includes 06a2854425182619cf0ea53623ea6c21ff1324c0.",
+      "status": "CONFIRMED_FROM_GIT",
+      "sources": [],
+      "reproduced": true,
+      "caveat": "Local log does not establish origin state, current writer identity, or deployment.",
+      "next_verification": "Check ownership and remote ancestry before any authorized integration; no automatic shared-branch rebase."
+    },
+    {
+      "claim_id": "H14",
+      "claim": "PR #193/#194 were previously reported open and awaiting GOV-V6; this pass could not refresh either PR because the GitHub connector requires reauthentication.",
+      "status": "REPORTED_NOT_REPRODUCED",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/RUN-STATE.json",
+          "sha256": "a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/LANE-REPORT.md",
+          "sha256": "8c2a66d6dd8757741e1393ec7c9fa69f6a40cb24caf9bf4790e0ba40f9d80690"
+        }
+      ],
+      "reproduced": false,
+      "caveat": "Neither current PR state nor checks/reviews/merge is known here.",
+      "next_verification": "Read current PR metadata and reviews through a working authorized connection."
+    },
+    {
+      "claim_id": "H15",
+      "claim": "Mesh lane reports 8892 expired messages dead-lettered, 8 valid retained, and zero consumed/ack at the real sweep; attachment gives 8899 as the dead-letter figure.",
+      "status": "CONFLICTED",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/receipts/lanes/mesh-p04/LANE-REPORT.md",
+          "sha256": "ef8865af48806ee54ded3e9e2f733a7caf0fa626821e7e880d874f4e1e8ccb1d"
+        },
+        {
+          "path": "C:/Users/Armin/Downloads/OCTOPUS-STATE-20260905-obsidian.md",
+          "sha256": "b91dfa45d3d98d1a62e9a696eba77e5ba00bda46ccfeadd34b6f55bbd4f60c2c"
+        }
+      ],
+      "reproduced": false,
+      "caveat": "Backlog removal is not live semantic delivery. The report also alternates 8899/8900 totals.",
+      "next_verification": "Reconcile raw counts by one node/time window and prove a valid consumer/ack trace."
+    },
+    {
+      "claim_id": "H16",
+      "claim": "NTP and hourly soak deployment/health are prior-lane reports, not current board observations in this pass.",
+      "status": "REPORTED_NOT_REPRODUCED",
+      "sources": [
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/RUN-STATE.json",
+          "sha256": "a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc"
+        },
+        {
+          "path": "F:/octo-exec/COMPLETE-20260904/LANE-REPORT.md",
+          "sha256": "8c2a66d6dd8757741e1393ec7c9fa69f6a40cb24caf9bf4790e0ba40f9d80690"
+        }
+      ],
+      "reproduced": false,
+      "caveat": "No SSH, board probe, timer inspection or soak journal read was performed.",
+      "next_verification": "Prove clock offset and complete 24-hour real-time cadence with gaps/boots explicitly accounted."
+    }
+  ],
+  "counts": {
+    "confirmed_from_file": 8,
+    "confirmed_from_git": 1,
+    "reported_not_reproduced": 3,
+    "conflicted": 4
+  },
+  "non_actions": {
+    "code_changes": 0,
+    "commits": 0,
+    "board_connections": 0,
+    "telegram_actions": 0,
+    "runtime_tests": 0,
+    "service_changes": 0,
+    "original_run_state_writes": 0,
+    "secret_reads": 0
+  },
+  "next_step": "Read this lane's NEXT-AGENT-PROMPT; reconcile async ownership and evidence before continuing the separately authorized execution mission."
+}

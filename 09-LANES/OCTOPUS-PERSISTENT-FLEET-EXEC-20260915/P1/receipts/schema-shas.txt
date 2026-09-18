@@ -1,0 +1,3 @@
+ef61d791fb527020210fa3e7f41d965e0d61b10c494606241f7e084566519115  /home/ari/ofn/state/fleet-memory/schemas/fleet_decision.v1.schema.json
+db44a3f0c674c7308135498412ab1835d2ab4df3c0e801b0ea8d2a31747418cb  /home/ari/ofn/state/fleet-memory/schemas/fleet_fact.v1.schema.json
+0ee946f450590fffa2061414712cbc5804b117f1c86f9b8d97342e031c577686  /home/ari/ofn/state/fleet-memory/schemas/fleet_hypothesis.v1.schema.json

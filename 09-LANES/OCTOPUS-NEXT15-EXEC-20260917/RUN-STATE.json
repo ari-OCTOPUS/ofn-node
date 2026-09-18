@@ -1,0 +1,111 @@
+{
+  "schema": "octopus.next15.run-state.v1",
+  "lane": "OCTOPUS-NEXT15-EXEC-20260917",
+  "updated_at_utc": "2026-09-17T11:05:00Z",
+  "owner_decision": "Option A, verbatim 'a', OWNER-DECISION.json plan_sha 72f51ca1…",
+  "worktree": "F:/wt-next15-20260917 branch codex/next15-exec-20260917 (base 1251b8a3 = S2 maturity chain)",
+  "actions": {
+    "A01": {
+      "status": "PARTIAL",
+      "evidence": "M0-IDENTITY.md (S2 lane) refreshed today: 138/182 ssh-authenticated, witness/watcher PIDs, mirror ledger seq; 5 nodes carried UNKNOWN wiring. RUNTIME-MAP.json (this lane) = scoped first cut; TRACE.json pending real event→consumer trace (A02 fix enables it next)."
+    },
+    "A02": {
+      "status": "FIXED_TESTED",
+      "change": "ofn/learning/chain.py normalize_feeder_events + FEEDER_EVENT_MAP; ofn/learning/cli.py wired, mapping report surfaced in run-summary",
+      "tests": "8 real sends -> 8 traceable contacts; payment.claimed NOT mapped (unverified); unknown/malformed classified; chain consumes contacts (payment stays unknown without verified receipt)",
+      "files": [
+        "ofn/learning/chain.py",
+        "ofn/learning/cli.py",
+        "tests/test_next15_a02_a04.py"
+      ]
+    },
+    "A03": {
+      "status": "FIXED_TESTED",
+      "change": "ledger contract v2: prev_line_sha256 chaining, checkpoint sidecar (head anchor, fsync), legacy v1 prefix counted append-only",
+      "tests": "content-tamper TAMPERED; reorder CHAIN_BREAK; duplicate detected; mid-deletion CHAIN_BREAK; end-truncation TRUNCATION_SUSPECTED via checkpoint; legacy prefix VALID",
+      "notes": "deployed scope = worktree only; live 138 economic ledger migration is a separate Class-B step with preimage+rollback"
+    },
+    "A04": {
+      "status": "FIXED_TESTED",
+      "change": "recover() supersession-aware: exactly one durable disposition per damage across restarts; torn lines preserved byte-for-byte, excluded from recovered view, one SAFE_HOLD disposition each",
+      "tests": "restart x3 -> 1 disposition; torn bytes intact; counts surface torn_lines; verify status TORN_SAFE_HOLD"
+    },
+    "A05": {
+      "status": "MEASURED_DONE_READER",
+      "evidence": "replay_streaming() in T1 candidate (commit 942d0c3): full 3.08M-event from-empty replay 28.9s / peak RSS 216MB (previously OOM at 1.5G, measured twice); equality with list path TRUE on 300k prefix. App-integrated batch consumer + full replica boot still pending (identity/NATS blockers recorded in PREREG-M1-SOAK)."
+    },
+    "A06": {
+      "status": "FIXED_TESTED_ISOLATED",
+      "measured_defects_found": [
+        "TOCTOU: concurrent reserves both passed cap check (2x accepted, measured)",
+        "reservations invisible to caps: window/month/task summed settles only - open reserves were free money"
+      ],
+      "fix_in_drill_copy": "reserve() wrapped in fcntl LOCK_EX critical section + _outstanding_reserves() liability counted in window_caps/task_spend/month_spend",
+      "evidence": "evidence/A06-RESULT.json (verdict_pass true: exactly-one-accepted; crasher reserve persisted unfreed across reload)",
+      "production_patch": "STAGED on 182 drill copy; live 138 broker deploy = separate Class-B step with preimage/rollback",
+      "live_deploy": "DEPLOYED 2026-09-17T10:54Z: fcntl critical section + outstanding-reserve liability LIVE on 138 broker (preimage 43aa9c5a…, backup api_budget.py.pre-a06fix-20260917T105427Z, compile+status smoke OK, LIABILITY_FN active; intent receipt 8e6270ba90cb). Effective on next per-tick import."
+    },
+    "A07": {
+      "status": "PARTIAL",
+      "evidence": "halt oracle fail-closed drill (component, isolated) 3/3 on 182. Open: effect-path checkpoints with capture transport incl. race window + retry."
+    },
+    "A08": {
+      "status": "PARTIAL",
+      "evidence": "mirror witness v2 negative suite 23/23 (stale/forged/replayed/dup rejected) + W1 24h window running (verdict automation fires 2026-09-18T09:20Z). Open: sensorium witness binding, evaluator-independence statement."
+    },
+    "A09": {
+      "status": "MEASURED_PASS_CONSUMPTION_TRACE_ONLY_ACTION_STATIC",
+      "evidence": "evidence/A09-TRACE.json — outcome durable (accepted-measurement) -> learn_from_outcome learned=TRUE memory mem_6412f571 + receipt dr_ef213e4 -> forged ref refused -> FRESH PROCESS restart: memory retrieved AND consumed by decision hook (retrieved_memory_ids populated)",
+      "components": "real learning_gate + MemoryGate + MemoryStore + OutcomeStore + DecisionReceiptStore (no parallel bank)",
+      "limits": "component-scope trace; production consumer wiring + ablation = A10 (seeded by this trace's decision-hook pattern)"
+    },
+    "A10": {
+      "status": "REALITY_TEST_EXACT_LOO_MEMORY_HURTS",
+      "measured": {
+        "in_sample_tainted": "165/166 vs 164/166 (self-inclusion)",
+        "exact_LOO": "138/141 with memory vs 139/141 fixed policy (MEMORY_HURTS, changed exactly 1 of 141)",
+        "keys_with_multiple_rows": 2
+      },
+      "mechanism": "per-proposal keys make each memory unique -> no generalization possible on current data; the single cross-row signal available misled once. Derivation mechanism itself WORKS (57/85 decisions changed when keyed by surface).",
+      "required_change_DONE": "verdict_recorder now persists decision_key/category/proposal_id inside payload_json (vault copy patched, back-compatible additive) -> future real rows accumulate per-key accept/reject structure; re-test window opens with new verdicts."
+    },
+    "A11": {
+      "status": "SYSTEM_SELF_REPAIR_SCOPED_TWO_HOSTS",
+      "scope": "ledger-damage family (orphan/torn/tamper): fault -> system detect -> one disposition -> read-back verify, zero engineer interventions in window",
+      "evidence": [
+        "evidence/A11-laptop-receipts.jsonl (16 rows, all_pass)",
+        "evidence/A11-160-receipts.jsonl (16 rows, all_pass, host octopus-compute-160)"
+      ],
+      "limits": "ledger scope only; supervisor/transport fault families still open (A11 full)"
+    },
+    "A12": {
+      "status": "SCOPED_PASS",
+      "evidence": "system-generated versioned proposal artifacts (EXP-LES-…) with independent id check; executable-patch generation honestly NOT claimed"
+    },
+    "A13": {
+      "status": "PILOT_INVALID_TRAIN_LEAKAGE_HARNESS_ONLY",
+      "evidence": "10-pair engineering pilot complete (harness works, arms differ as designed); UNDERPOWERED declared; real 30-pair holdout NOT_RUN"
+    },
+    "A14": {
+      "status": "PARTIAL_FLEET_JOB",
+      "evidence": "real job on node160 (next15-a11 pack run) with durable receipts + read-back; self-model fresh-observation consumption still open"
+    },
+    "A15": {
+      "status": "WINDOW_STARTED",
+      "evidence": "evidence/RELEASE-PACKAGE.md — full inventory/preimages/rollbacks/canaries; window 2026-09-17T11:05Z -> 2026-09-18T11:05Z; verdict at end; owner waiver possible but counts NOT-pass per gates"
+    }
+  },
+  "invariants": "no secrets printed; no journal/ledger bytes rewritten (append-only everywhere); failures preserved (OOM x2, RED-first repro history); no gate weakened; budget caps untouched",
+  "next_single_action": "collect window verdict 2026-09-18 (W1 auto 09:20Z + canary checks); then A13 real holdout or A14 per owner",
+  "owner_round3": {
+    "broker_deploy": "GO executed",
+    "a13_budget": "adaptive allocation WITHIN existing caps (ceilings unchanged; numeric raise still needs explicit vote)",
+    "deep_priority": "A09 done"
+  },
+  "audit_corrections_20260917_completion_agent": {
+    "A13_pilot": "INVALID_AS_LEARNING_EVIDENCE — fixtures repeated the 5 training mappings 2x (train/test leakage); 10/10 was memorization, not unseen-problem learning. Harness-only value.",
+    "A09": "consumption/restart trace VALID; but the demo decision's ACTION was static — memory id attached, action not derived from memory. Decision-derivation = open.",
+    "A15": "window-start file alone is not a witness; superseded by the REAL 24h broker soak observer on 182 (PID 768150, 11:38Z, daily verdict automation 21:45 local). Integrated A15 still open."
+  },
+  "superseded_by": "09-LANES/NEXT15-COMPLETION-20260917 (worktree codex/next15-completion-20260917): 15 more ledger edge-cases fixed, 5-func broker hardening LIVE-DEPLOYED readback-verified (sha ff78fee9), suite 9802 green, two-host 27-fault detection, A02 real-replay 8/8"
+}

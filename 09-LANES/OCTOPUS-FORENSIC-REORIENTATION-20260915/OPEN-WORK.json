@@ -1,0 +1,108 @@
+{
+  "schema": "octopus.forensic.open-work.v1",
+  "rule": "one item per real open task; each has an owner, prerequisite, safe next step and acceptance evidence",
+  "items": [
+    {
+      "id": "OW-1",
+      "title": "Verify G8-021 witnessed execution (queued by this lane)",
+      "owner": "octopus-ops-agent (executor) — commander verifies",
+      "prerequisite": "component budget window (per_component_30min=1) reopens ~2026-09-15T05:52Z after the 05:20Z failed attempt on superseded 020",
+      "safe_next_step": "wait for ops-agent tick; check executed/native-A1-G8-PRODUCER-021.json + OPS_B_EXECUTED + witness verdict from 182; live glass_runner must become fc993720570b8a72",
+      "authority": "standing non-TCB Class B (witnessed canary) — no new gate needed",
+      "consumer_effect": "owner TG messages route B3-vs-MONEY correctly; unblocks W24",
+      "acceptance_evidence": "ops-receipts.jsonl OPS_B_EXECUTED entry + sha readback + witness outcome receipt",
+      "rollback": "pre-image /home/ari/ofn/state/owner_dialogue/preimage/glass_runner.py.02fb704da2d4190a.orig"
+    },
+    {
+      "id": "OW-2",
+      "title": "Let W24-BINDER-006 execute after G8-021",
+      "owner": "executor (already queued)",
+      "prerequisite": "OW-1 + its dependency native-A2-G8-PRODUCER-010.json (already in executed/)",
+      "safe_next_step": "no action — verify execution + first real owner bind after G8 live",
+      "authority": "standing",
+      "consumer_effect": "owner replies bind to B3 cards; full W24 inbound chain",
+      "acceptance_evidence": "executed/native-A3-W24-BINDER-006.json + a live owner message bound with zero money effect",
+      "rollback": "request carries its own pre-image"
+    },
+    {
+      "id": "OW-3",
+      "title": "Rebase Z-SUCCESSOR-TRIO-001 onto live c2e290fd (next stale-base wall)",
+      "owner": "commander (or forensic successor)",
+      "prerequisite": "OW-2 executed (TRIO sits behind W24 in DAG)",
+      "safe_next_step": "same three-way rebase recipe as scripts/rebase_g8_v3.py: live ops_agent.py + (TRIO artifact - its base 109e68c0); overlap-check; py_compile; functional smoke; queue as TRIO-002 with fresh pre-image",
+      "authority": "standing non-TCB (it touches ops_agent but through the witnessed canary lane — TCB change ban applies to DIRECT edits; this artifact was already owner-visible in queue)",
+      "consumer_effect": "unblocks W3G30-COMBINED-001 (coding-worker improvements)",
+      "acceptance_evidence": "executed receipt + dependency gate satisfied for W3G30",
+      "rollback": "request pre-image",
+      "caveat": "ops_agent.py is TCB-adjacent: if any doubt, surface to owner before executing (RED-2 boundary is TCB+authority changes)"
+    },
+    {
+      "id": "OW-4",
+      "title": "systemd units for evaluator(114) + ingestion(160)",
+      "owner": "fleet lane",
+      "prerequisite": "none (internal, Class A)",
+      "safe_next_step": "copy the octopus-t3-model.service pattern from 193; install on 114/160; enable --now; verify ports after a service restart",
+      "authority": "standing (GOV-FREEDOM-V2 PROCEED)",
+      "consumer_effect": "closed learning loop survives reboots",
+      "acceptance_evidence": "systemctl is-active + health probe after restart",
+      "rollback": "disable unit, relaunch nohup"
+    },
+    {
+      "id": "OW-5",
+      "title": "PB-1 24h continuity PASS check",
+      "owner": "commander",
+      "prerequisite": "wall clock >= 2026-09-16T04:31Z with fleet-scheduler ticks uninterrupted",
+      "safe_next_step": "read soak-witness receipts; count missed ticks; declare PASS only with full evidence",
+      "authority": "standing",
+      "consumer_effect": "laptop-independence acceptance",
+      "acceptance_evidence": "octopus-soak-witness.timer receipts spanning >=24h, zero missed scheduler windows",
+      "rollback": "n/a"
+    },
+    {
+      "id": "OW-6",
+      "title": "Revenue: first customer reply -> verified_cash",
+      "owner": "owner (reply handling) + organism (funnel)",
+      "prerequisite": "a lead replies to one of the 3 sent quotes (QP-3991/5195/951)",
+      "safe_next_step": "imap watcher (octopus-imap.timer live) captures reply; funnel advances to quote->job->cash states",
+      "authority": "channel-authorization.v1 (email cap 10/day) — cash handling needs owner card",
+      "consumer_effect": "verified_cash > 0 — the survival metric",
+      "acceptance_evidence": "revenue state verified_cash field with same-scope receipt",
+      "rollback": "n/a"
+    },
+    {
+      "id": "OW-7",
+      "title": "PB-4 retest with 371-fact corpus",
+      "owner": "fleet lane",
+      "prerequisite": "OW-4 (durable loop) preferred first",
+      "safe_next_step": "rerun the 12-question A/B harness + add held-out questions; keep UNDERPOWERED discipline",
+      "authority": "standing",
+      "consumer_effect": "learning-loop quality evidence refresh",
+      "acceptance_evidence": "A/B scores with n and denominator",
+      "rollback": "n/a"
+    },
+    {
+      "id": "OW-8",
+      "title": "Executor starvation defect: blocked request halts whole category lane",
+      "owner": "owner-visible implementation packet (executor code is TCB-adjacent)",
+      "prerequisite": "none — runtime-proven 2026-09-15T06:38Z",
+      "safe_next_step": "in handle_spool_category, replace `return \"budget-blocked\"` with persist-disposition + continue (the pasted Wave-1 algorithm); per-request budget keyed by req.component (already passed) instead of category-level abort",
+      "authority": "executor change = TCB-adjacent: needs owner-visible packet or witnessed canary against ops_agent itself (TRIO-002 already touches adjacent regions — fold or sequence carefully)",
+      "consumer_effect": "a blocked request can no longer starve independent ready requests (observed: probe + W3G30 + TRIO-002 evaluation suspended behind G8-021's budget window)",
+      "acceptance_evidence": "receipt shows DEPENDENCY_UNMET for one request while an independent runnable request executes in the SAME tick",
+      "rollback": "revert executor to pre-change sha with pre-image",
+      "runtime_proof": "ops-receipts.jsonl 06:38:13Z: single B8 budget-block for ofn-agents component aborted the loop before the g22-probe request (component g22-probe, fresh budget) was ever evaluated"
+    },
+    {
+      "id": "OW-9",
+      "title": "B5 circuit breaker newly OPEN (storage-cache lane)",
+      "owner": "ops lane / next agent",
+      "prerequisite": "read the 2 B5 outcome rejections feeding it (failed/op-ae56d3d1, op-f4f0c543)",
+      "safe_next_step": "root-cause the fresh B5 failure; if fixed, register B5 signature with fixed_at after the newest rejection",
+      "authority": "standing ops-lane mechanism",
+      "consumer_effect": "B5 storage maintenance resumes",
+      "acceptance_evidence": "budget_allows('B5','storage-cache') = (True, OK)",
+      "rollback": "n/a (append-only signatures)",
+      "runtime_proof": "ops-receipts.jsonl 06:38:12Z: B5 CIRCUIT_BREAKER_OPEN (was budget-blocked in earlier cycles)"
+    }
+  ]
+}

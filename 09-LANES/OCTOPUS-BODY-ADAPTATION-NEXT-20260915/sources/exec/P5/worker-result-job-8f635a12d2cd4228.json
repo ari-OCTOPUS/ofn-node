@@ -1,0 +1,13 @@
+{
+  "job_id": "job-8f635a12d2cd4228",
+  "worker_node_id": "100",
+  "hostname": "octopus-compute-100",
+  "boot_id": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a",
+  "bind_role": "knowledge_retrieve",
+  "type": "echo_capability_probe",
+  "ok": true,
+  "external_effects": 0,
+  "customer_send": false,
+  "stamp_utc": "2026-09-15T03:53:04Z",
+  "notes": "P5 live worker probe; no customer_send"
+}

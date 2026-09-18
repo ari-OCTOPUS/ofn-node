@@ -1,0 +1,363 @@
+﻿"Id","ProcessName","Path"
+"5096","agent_ovpnconnect",
+"9352","AggregatorHost",
+"5228","ApplicationFrameHost","C:\WINDOWS\system32\ApplicationFrameHost.exe"
+"3344","AppProvisioningPlugin",
+"1736","audiodg",
+"22188","backgroundTaskHost","C:\WINDOWS\system32\backgroundTaskHost.exe"
+"652","bash","C:\Program Files\Git\bin\..\usr\bin\bash.exe"
+"30328","Chatbox","C:\Program Files\Chatbox\Chatbox.exe"
+"15232","Chatbox","C:\Program Files\Chatbox\Chatbox.exe"
+"2196","Chatbox","C:\Program Files\Chatbox\Chatbox.exe"
+"13604","cloudflared","C:\Program Files (x86)\cloudflared\cloudflared.exe"
+"21716","cmd","C:\WINDOWS\system32\cmd.exe"
+"17764","cmd","C:\WINDOWS\system32\cmd.exe"
+"30268","cmd","C:\WINDOWS\system32\cmd.exe"
+"28216","cmd","C:\WINDOWS\system32\cmd.exe"
+"16792","cmd","C:\WINDOWS\system32\cmd.exe"
+"11388","cmd","C:\WINDOWS\system32\cmd.exe"
+"4652","cmd","C:\WINDOWS\SYSTEM32\cmd.exe"
+"16332","cmd","C:\WINDOWS\system32\cmd.exe"
+"13268","cmd","C:\WINDOWS\system32\cmd.exe"
+"24012","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"25604","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"20760","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"22344","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"27972","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"29088","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"26448","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"27836","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"18512","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"11096","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"11752","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"7652","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"10448","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"18016","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"18404","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"12888","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"17716","comet","C:\Program Files\Perplexity\Comet\Application\comet.exe"
+"20892","conhost","C:\WINDOWS\system32\conhost.exe"
+"21228","conhost","C:\WINDOWS\system32\conhost.exe"
+"18392","conhost","C:\WINDOWS\system32\conhost.exe"
+"19128","conhost","C:\WINDOWS\system32\conhost.exe"
+"23064","conhost","C:\WINDOWS\system32\conhost.exe"
+"26776","conhost","C:\WINDOWS\system32\conhost.exe"
+"28548","conhost","C:\WINDOWS\system32\conhost.exe"
+"24220","conhost","C:\WINDOWS\system32\conhost.exe"
+"24272","conhost","C:\WINDOWS\system32\conhost.exe"
+"18388","conhost","C:\WINDOWS\system32\conhost.exe"
+"3724","conhost","C:\WINDOWS\system32\conhost.exe"
+"7448","conhost","C:\WINDOWS\system32\conhost.exe"
+"2536","conhost","C:\WINDOWS\system32\conhost.exe"
+"3516","conhost",
+"10848","conhost","C:\WINDOWS\system32\conhost.exe"
+"14740","conhost","C:\WINDOWS\system32\conhost.exe"
+"17728","conhost","C:\WINDOWS\system32\conhost.exe"
+"12044","conhost","C:\WINDOWS\system32\conhost.exe"
+"12132","conhost","C:\WINDOWS\system32\conhost.exe"
+"22904","crashhelper","C:\Program Files\Mozilla Firefox\crashhelper.exe"
+"11576","CrossDeviceResume","C:\WINDOWS\SystemApps\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\CrossDeviceResume.exe"
+"13272","CrossDeviceService","C:\Program Files\WindowsApps\MicrosoftWindows.CrossDevice_1.26071.84.0_x64__cw5n1h2txyewy\CrossDeviceService.exe"
+"1484","csrss",
+"1376","csrss",
+"12744","ctfmon",
+"15940","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"16760","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"14152","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"14244","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"23608","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"23952","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"19608","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"23224","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"2896","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"3708","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"2056","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"2088","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"10328","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"10480","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"4180","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"9920","Cursor","C:\Users\Armin\AppData\Local\Programs\cursor\Cursor.exe"
+"9688","dasHost",
+"29140","DataExchangeHost","C:\Windows\System32\DataExchangeHost.exe"
+"8004","DAX3API",
+"4684","DAX3API",
+"20656","dllhost","C:\WINDOWS\system32\DllHost.exe"
+"21564","dllhost","C:\WINDOWS\system32\DllHost.exe"
+"24856","dllhost","C:\WINDOWS\system32\DllHost.exe"
+"11480","dllhost","C:\WINDOWS\system32\DllHost.exe"
+"17320","dllhost","C:\WINDOWS\SysWOW64\DllHost.exe"
+"18284","dllhost","C:\WINDOWS\system32\DllHost.exe"
+"9864","DSRHost",
+"1224","dwm",
+"5348","esif_uf",
+"7788","explorer","C:\WINDOWS\Explorer.EXE"
+"10956","ExpressVPN.AppService",
+"5172","ExpressVPN.SystemService",
+"5164","ExpressVPN.VpnService",
+"10100","Fing","C:\Program Files\Fing\Fing.exe"
+"5196","fingagent",
+"19632","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"19796","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"13628","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"16100","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"25612","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"26964","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"20524","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"23116","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"4144","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"4508","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"904","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"1148","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"7588","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"11000","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"4592","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"6372","firefox","C:\Program Files\Mozilla Firefox\firefox.exe"
+"5256","FMService64",
+"11280","FnHotkeyCapsLKNumLK",
+"15136","FnHotkeyUtility","C:\Windows\System32\DriverStore\FileRepository\lenovofnandfunctionkeys.inf_amd64_5e21bf389d23855a\FnHotkeyUtility.exe"
+"1824","fontdrvhost",
+"1816","fontdrvhost",
+"25016","git","C:\Program Files\Git\mingw64\bin\git.exe"
+"27052","git","C:\Program Files\Git\cmd\git.exe"
+"22040","git","C:\Program Files\Git\mingw64\bin\git.exe"
+"23888","git","C:\Program Files\Git\cmd\git.exe"
+"26344","git-receive-pack","C:\Program Files\Git\mingw64\bin\git-receive-pack.exe"
+"0","Idle",
+"3676","igfxCUIService",
+"11484","igfxEM","C:\WINDOWS\System32\DriverStore\FileRepository\cui_dch.inf_amd64_7208949846a9b9dc\igfxEM.exe"
+"2284","IntelCpHDCPSvc",
+"2664","IntelCpHeciSvc",
+"5416","jhi_service",
+"5424","LenovoUtilityService",
+"21508","LenovoVantage-(GenericMessagingAddin)","C:\Program Files (x86)\Lenovo\VantageService\5.1.2608.14\LenovoVantage-(GenericMessagingAddin).exe"
+"10560","LenovoVantage-(LenovoGamingSystemAddin)",
+"3472","LenovoVantage-(VantageCoreAddin)",
+"5568","LenovoVantageService",
+"5716","LMS",
+"21200","Locator",
+"1628","LsaIso",
+"1648","lsass",
+"23384","M365Copilot","C:\Program Files\WindowsApps\Microsoft.MicrosoftOfficeHub_19.2608.61011.0_x64__8wekyb3d8bbwe\M365Copilot.exe"
+"3304","Memory Compression",
+"10668","MessagingPlugin","C:\ProgramData\Lenovo\Udc\Hosts\x64\MessagingPlugin.exe"
+"19792","MpDefenderCoreService",
+"18844","mscopilot_proxy","C:\Program Files (x86)\Microsoft\Copilot\Application\mscopilot_proxy.exe"
+"26616","msedge","C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+"27628","msedge","C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+"27812","msedge","C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+"20048","msedge","C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+"20876","msedge","C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+"22124","msedge","C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+"16900","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"16960","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"17004","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"15548","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"16172","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"16744","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"19024","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"19108","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"19636","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"17192","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"17240","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"17424","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"10512","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"11212","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"13452","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"3644","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"5404","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"10032","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"14260","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"14372","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"14960","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"13572","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"13732","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"14228","msedgewebview2","C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.53\msedgewebview2.exe"
+"6012","MsMpEng",
+"25312","NisSrv",
+"19452","node","C:\Program Files\nodejs\node.exe"
+"28264","node","C:\Program Files\nodejs\node.exe"
+"7384","node","C:\Program Files\nodejs\node.exe"
+"18700","node","c:\Users\Armin\AppData\Local\Programs\cursor\resources\app\resources\helpers\node.exe"
+"4972","NVDisplay.Container",
+"2920","NVDisplay.Container",
+"8048","ollama","C:\Users\Armin\AppData\Local\Programs\Ollama\ollama.exe"
+"17488","ollama app","C:\Users\Armin\AppData\Local\Programs\Ollama\ollama app.exe"
+"5308","OneApp.IGCC.WinService",
+"19356","OpenConsole","C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe\OpenConsole.exe"
+"9560","OpenConsole","C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe\OpenConsole.exe"
+"420","OpenConsole","C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe\OpenConsole.exe"
+"13712","OpenVPNConnect","C:\Program Files\OpenVPN Connect\OpenVPNConnect.exe"
+"14648","OpenVPNConnect","C:\Program Files\OpenVPN Connect\OpenVPNConnect.exe"
+"11712","OpenVPNConnect","C:\Program Files\OpenVPN Connect\OpenVPNConnect.exe"
+"12972","OpenVPNConnect","C:\Program Files\OpenVPN Connect\OpenVPNConnect.exe"
+"5660","ovpnhelper_service",
+"25728","powershell","C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.EXE"
+"26360","powershell","C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe"
+"7452","powershell","C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe"
+"16784","powershell","C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe"
+"2404","PresentationFontCache",
+"22584","python","C:\Program Files\Python313\python.exe"
+"21908","python","C:\Program Files\Python313\python.exe"
+"25636","python","C:\Program Files\Python313\python.exe"
+"22936","python","C:\Program Files\Python313\python.exe"
+"11992","python","C:\Program Files\Python313\python.exe"
+"2324","python","C:\Program Files\Python313\python.exe"
+"19176","python","C:\Program Files\Python313\python.exe"
+"17088","python","C:\Program Files\Python313\python.exe"
+"232","Registry",
+"7028","remoting_host",
+"5116","remoting_host",
+"5768","RstMwService",
+"5700","RtkAudUService64",
+"20688","RuntimeBroker","C:\Windows\System32\RuntimeBroker.exe"
+"16948","RuntimeBroker","C:\Windows\System32\RuntimeBroker.exe"
+"26972","RuntimeBroker","C:\Windows\System32\RuntimeBroker.exe"
+"23868","RuntimeBroker","C:\Windows\System32\RuntimeBroker.exe"
+"13084","RuntimeBroker","C:\Windows\System32\RuntimeBroker.exe"
+"5920","RuntimeBroker","C:\Windows\System32\RuntimeBroker.exe"
+"14824","RuntimeBroker","C:\Windows\System32\RuntimeBroker.exe"
+"13532","RuntimeBroker","C:\Windows\System32\RuntimeBroker.exe"
+"12824","SearchHost","C:\WINDOWS\SystemApps\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\SearchHost.exe"
+"13408","SearchIndexer",
+"188","Secure System",
+"6652","SecurityHealthService",
+"1596","services",
+"27884","sh","C:\Program Files\Git\usr\bin\sh.exe"
+"3556","ShellExperienceHost","C:\WINDOWS\SystemApps\ShellExperienceHost_cw5n1h2txyewy\ShellExperienceHost.exe"
+"656","ShellHost","C:\Windows\System32\ShellHost.exe"
+"2772","sihost","C:\WINDOWS\system32\sihost.exe"
+"1176","smss",
+"29956","SnippingTool","C:\Program Files\WindowsApps\Microsoft.ScreenSketch_11.2605.37.0_x64__8wekyb3d8bbwe\SnippingTool\SnippingTool.exe"
+"4848","spoolsv",
+"12832","StartMenuExperienceHost","C:\WINDOWS\SystemApps\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\StartMenuExperienceHost.exe"
+"6124","svchost",
+"6200","svchost",
+"5996","svchost",
+"5844","svchost",
+"5892","svchost","C:\WINDOWS\system32\svchost.exe"
+"6824","svchost","C:\WINDOWS\system32\svchost.exe"
+"8268","svchost",
+"8592","svchost",
+"7916","svchost",
+"7116","svchost",
+"7540","svchost",
+"4728","svchost",
+"4736","svchost",
+"4712","svchost",
+"4560","svchost",
+"4700","svchost",
+"5032","svchost",
+"5816","svchost",
+"5828","svchost",
+"5776","svchost",
+"5336","svchost",
+"5464","svchost",
+"8796","svchost",
+"16320","svchost",
+"16736","svchost",
+"16208","svchost",
+"14468","svchost",
+"15148","svchost",
+"17748","svchost","C:\WINDOWS\system32\svchost.exe"
+"24320","svchost",
+"27776","svchost",
+"23896","svchost","C:\WINDOWS\system32\svchost.exe"
+"18028","svchost",
+"22488","svchost","C:\WINDOWS\System32\svchost.exe"
+"9800","svchost",
+"10272","svchost",
+"9444","svchost",
+"9024","svchost",
+"9284","svchost",
+"10404","svchost",
+"12792","svchost",
+"13096","svchost","C:\WINDOWS\system32\svchost.exe"
+"12244","svchost",
+"11376","svchost","C:\WINDOWS\system32\svchost.exe"
+"11404","svchost",
+"4400","svchost",
+"2332","svchost",
+"2412","svchost",
+"2296","svchost",
+"2240","svchost",
+"2268","svchost",
+"2416","svchost",
+"2748","svchost",
+"3028","svchost",
+"2692","svchost",
+"2476","svchost",
+"2576","svchost",
+"1768","svchost",
+"1784","svchost",
+"1580","svchost",
+"796","svchost",
+"1340","svchost",
+"1940","svchost",
+"2136","svchost",
+"2228","svchost",
+"2128","svchost",
+"1992","svchost",
+"2120","svchost",
+"3136","svchost",
+"4016","svchost",
+"4064","svchost",
+"3868","svchost","C:\WINDOWS\system32\svchost.exe"
+"3844","svchost",
+"3856","svchost",
+"4108","svchost",
+"4224","svchost",
+"4376","svchost","C:\WINDOWS\system32\svchost.exe"
+"4208","svchost",
+"4120","svchost",
+"4200","svchost",
+"3180","svchost",
+"3392","svchost",
+"3168","svchost",
+"3152","svchost",
+"3160","svchost",
+"3440","svchost",
+"3664","svchost",
+"3828","svchost",
+"3620","svchost",
+"3528","svchost",
+"3560","svchost",
+"4","System",
+"10884","SystemSettings","C:\Windows\ImmersiveControlPanel\SystemSettings.exe"
+"8456","taskhostw","C:\WINDOWS\system32\taskhostw.exe"
+"16080","TextInputHost","C:\WINDOWS\SystemApps\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\TextInputHost.exe"
+"15744","UDClientService",
+"13340","unsecapp","C:\WINDOWS\system32\wbem\unsecapp.exe"
+"11596","unsecapp",
+"8756","unsecapp",
+"15708","UserOOBEBroker","C:\Windows\System32\oobe\UserOOBEBroker.exe"
+"4756","vmcompute",
+"8704","vmmemCmZygote",
+"5832","WDDriveService",
+"12684","WhatsApp.Root","C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2632.100.0_x64__cv1g1gvanyjgm\WhatsApp.Root.exe"
+"12936","Widgets","C:\Program Files\WindowsApps\MicrosoftWindows.Client.WebExperience_526.21100.40.0_x64__cw5n1h2txyewy\Dashboard\Widgets.exe"
+"12572","WidgetService","C:\Program Files\WindowsApps\Microsoft.WidgetsPlatformRuntime_1.6.19.0_x64__8wekyb3d8bbwe\WidgetService\WidgetService.exe"
+"16444","WindowsTerminal","C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe\WindowsTerminal.exe"
+"1476","wininit",
+"1568","winlogon",
+"9456","wlanext",
+"19868","WmiApSrv",
+"8244","WmiPrvSE",
+"6096","wslservice",
+"9644","WUDFHost",
+"1892","WUDFHost",
+"23092","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"23316","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"22868","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"23072","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"27712","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"30028","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"23912","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"26004","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"14132","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"19580","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"7392","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"11760","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"21420","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"22784","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"20592","ZCode","C:\Program Files\ZCode\ZCode.exe"
+"21224","ZCode","C:\Program Files\ZCode\ZCode.exe"

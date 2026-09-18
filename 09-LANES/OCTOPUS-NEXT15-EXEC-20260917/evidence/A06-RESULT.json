@@ -1,0 +1,19 @@
+{
+  "concurrency": {
+    "proc_outputs": [
+      "True",
+      "False"
+    ],
+    "accepted": 1,
+    "refused": 1,
+    "exactly_one_accepted": true
+  },
+  "crash_persistence": {
+    "exit_code": 9,
+    "reservation_persisted": true,
+    "no_settle_freed": true,
+    "month_before": 7.886604,
+    "month_after": 9.886604
+  },
+  "verdict_pass": true
+}

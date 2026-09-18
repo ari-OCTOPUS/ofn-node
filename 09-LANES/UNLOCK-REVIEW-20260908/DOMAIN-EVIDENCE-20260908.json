@@ -1,0 +1,396 @@
+{
+  "schema": "octopus.domain-evidence.v1",
+  "recorded_utc": "2026-09-07T22:39:44.4785218Z",
+  "owner_images": [
+    {
+      "path": "C:\\Users\\Armin\\Desktop\\image14",
+      "kind": "domain_order_image",
+      "sha256": "1d001d1e0f4009b5a8fa25713448277d353996297f85c3208b2da311e38db4bc",
+      "bytes": 90816
+    },
+    {
+      "path": "C:\\Users\\Armin\\Desktop\\image.png",
+      "kind": "abn_email_image",
+      "sha256": "dc4abf713d1b33a50d9085f2522e55b81137c0ba678cfe345da505ee2209696e",
+      "bytes": 256741
+    }
+  ],
+  "domain_names": [
+    "ziman-gift.com.au",
+    "ziman-gift.shop"
+  ],
+  "abn_image": {
+    "reported_status": "Active",
+    "official_registry_check": "not_performed",
+    "personal_fields": "not_transcribed"
+  },
+  "dns": [
+    {
+      "observed_utc": "2026-09-07T22:34:53.4029310Z",
+      "name": "ziman-gift.com.au",
+      "query_type": "NS",
+      "resolver": "1.1.1.1",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "NS",
+          "name": "ziman-gift.com.au",
+          "host": "ns73.domaincontrol.com",
+          "address": null,
+          "primary_server": null
+        },
+        {
+          "type": "NS",
+          "name": "ziman-gift.com.au",
+          "host": "ns74.domaincontrol.com",
+          "address": null,
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:53.6138945Z",
+      "name": "ziman-gift.com.au",
+      "query_type": "NS",
+      "resolver": "8.8.8.8",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "NS",
+          "name": "ziman-gift.com.au",
+          "host": "ns73.domaincontrol.com",
+          "address": null,
+          "primary_server": null
+        },
+        {
+          "type": "NS",
+          "name": "ziman-gift.com.au",
+          "host": "ns74.domaincontrol.com",
+          "address": null,
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:53.7758338Z",
+      "name": "ziman-gift.com.au",
+      "query_type": "A",
+      "resolver": "1.1.1.1",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "A",
+          "name": "ziman-gift.com.au",
+          "host": null,
+          "address": "76.223.105.230",
+          "primary_server": null
+        },
+        {
+          "type": "A",
+          "name": "ziman-gift.com.au",
+          "host": null,
+          "address": "13.248.243.5",
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:53.9671271Z",
+      "name": "ziman-gift.com.au",
+      "query_type": "A",
+      "resolver": "8.8.8.8",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "A",
+          "name": "ziman-gift.com.au",
+          "host": null,
+          "address": "13.248.243.5",
+          "primary_server": null
+        },
+        {
+          "type": "A",
+          "name": "ziman-gift.com.au",
+          "host": null,
+          "address": "76.223.105.230",
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:54.1297794Z",
+      "name": "ziman-gift.com.au",
+      "query_type": "CNAME",
+      "resolver": "1.1.1.1",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "SOA",
+          "name": "ziman-gift.com.au",
+          "host": null,
+          "address": null,
+          "primary_server": "ns73.domaincontrol.com"
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:54.3178689Z",
+      "name": "ziman-gift.com.au",
+      "query_type": "CNAME",
+      "resolver": "8.8.8.8",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "SOA",
+          "name": "ziman-gift.com.au",
+          "host": null,
+          "address": null,
+          "primary_server": "ns73.domaincontrol.com"
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:54.6248037Z",
+      "name": "ziman-gift.shop",
+      "query_type": "NS",
+      "resolver": "1.1.1.1",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "NS",
+          "name": "ziman-gift.shop",
+          "host": "ns13.domaincontrol.com",
+          "address": null,
+          "primary_server": null
+        },
+        {
+          "type": "NS",
+          "name": "ziman-gift.shop",
+          "host": "ns14.domaincontrol.com",
+          "address": null,
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:54.8112633Z",
+      "name": "ziman-gift.shop",
+      "query_type": "NS",
+      "resolver": "8.8.8.8",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "NS",
+          "name": "ziman-gift.shop",
+          "host": "ns14.domaincontrol.com",
+          "address": null,
+          "primary_server": null
+        },
+        {
+          "type": "NS",
+          "name": "ziman-gift.shop",
+          "host": "ns13.domaincontrol.com",
+          "address": null,
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:55.1185610Z",
+      "name": "ziman-gift.shop",
+      "query_type": "A",
+      "resolver": "1.1.1.1",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "A",
+          "name": "ziman-gift.shop",
+          "host": null,
+          "address": "3.33.130.190",
+          "primary_server": null
+        },
+        {
+          "type": "A",
+          "name": "ziman-gift.shop",
+          "host": null,
+          "address": "15.197.148.33",
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:55.2989625Z",
+      "name": "ziman-gift.shop",
+      "query_type": "A",
+      "resolver": "8.8.8.8",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "A",
+          "name": "ziman-gift.shop",
+          "host": null,
+          "address": "15.197.148.33",
+          "primary_server": null
+        },
+        {
+          "type": "A",
+          "name": "ziman-gift.shop",
+          "host": null,
+          "address": "3.33.130.190",
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:55.4626118Z",
+      "name": "ziman-gift.shop",
+      "query_type": "CNAME",
+      "resolver": "1.1.1.1",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "SOA",
+          "name": "ziman-gift.shop",
+          "host": null,
+          "address": null,
+          "primary_server": "ns13.domaincontrol.com"
+        }
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:34:55.6463381Z",
+      "name": "ziman-gift.shop",
+      "query_type": "CNAME",
+      "resolver": "8.8.8.8",
+      "result": "ANSWER",
+      "records": [
+        {
+          "type": "SOA",
+          "name": "ziman-gift.shop",
+          "host": null,
+          "address": null,
+          "primary_server": "ns13.domaincontrol.com"
+        }
+      ]
+    }
+  ],
+  "additional_dns": [
+    {
+      "name": "ziman-gift.com.au",
+      "query_type": "AAAA",
+      "records": [
+        {
+          "type": "SOA",
+          "host": null,
+          "address": null,
+          "primary_server": "ns73.domaincontrol.com"
+        }
+      ]
+    },
+    {
+      "name": "ziman-gift.shop",
+      "query_type": "AAAA",
+      "records": [
+        {
+          "type": "SOA",
+          "host": null,
+          "address": null,
+          "primary_server": "ns13.domaincontrol.com"
+        }
+      ]
+    }
+  ],
+  "www_dns": [
+    {
+      "name": "www.ziman-gift.com.au",
+      "query_type": "CNAME",
+      "records": [
+        {
+          "type": "CNAME",
+          "host": "ziman-gift.com.au",
+          "address": null,
+          "primary_server": null
+        }
+      ]
+    },
+    {
+      "name": "www.ziman-gift.shop",
+      "query_type": "CNAME",
+      "records": [
+        {
+          "type": "CNAME",
+          "host": "ziman-gift.shop",
+          "address": null,
+          "primary_server": null
+        }
+      ]
+    }
+  ],
+  "shopify": {
+    "observed_utc": "2026-09-07T22:35:45.690720+00:00",
+    "queries": "read-only shop identity and domains",
+    "shop": {
+      "status": 200,
+      "effective_api_version": "2026-07",
+      "data": {
+        "shop": {
+          "myshopifyDomain": "pwqytn-kp.myshopify.com",
+          "primaryDomain": {
+            "host": "ziman-gift.com",
+            "url": "https://ziman-gift.com"
+          }
+        }
+      },
+      "errors": null
+    },
+    "error": {
+      "type": "HTTPError",
+      "status": 404
+    }
+  },
+  "http": [
+    {
+      "observed_utc": "2026-09-07T22:35:46.2445497Z",
+      "url": "https://ziman-gift.com.au",
+      "exit_code": 0,
+      "response": [
+        "HTTP/1.1 200 OK",
+        "Content-Type: text/html;charset=utf-8",
+        "Server: DPS/2.0.0-beta+sha-46c8a14"
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:35:47.6598001Z",
+      "url": "https://ziman-gift.shop",
+      "exit_code": 35,
+      "response": [
+        "curl: (35) schannel: next InitializeSecurityContext failed: SEC_E_ILLEGAL_MESSAGE (0x80090326) - This error usually occurs when a fatal SSL/TLS alert is received (e.g. handshake failed). More detail may be available in the Windows System event log."
+      ]
+    },
+    {
+      "observed_utc": "2026-09-07T22:35:48.2907309Z",
+      "url": "https://ziman-gift.myshopify.com/products/kitty-bubble-balloon-gift-box-with-pink-roses-and-chocolates",
+      "exit_code": 0,
+      "response": [
+        "HTTP/1.1 301 Moved Permanently",
+        "Content-Type: text/html; charset=utf-8",
+        "location: https://ziman-gift.com/products/kitty-bubble-balloon-gift-box-with-pink-roses-and-chocolates",
+        "server: cloudflare"
+      ]
+    }
+  ],
+  "au_page": {
+    "url": "https://ziman-gift.com.au",
+    "status": 200,
+    "title": "Ziman Gift",
+    "text_excerpt": "Ziman Gift Ziman Gift Ziman Gift Ziman Gift Ziman Gift Ziman Gift Ziman Gift Ziman Gift Ziman Gift Gifts That Make Memories Gifts That Make Memories Gifts That Make Memories Gifts That Make Memories Gifts That Make Memories Gifts That Make Memories Gifts That Make Memories Gifts That Make Memories Contact Us Drop us a line! Name Email* Sign up for our email list for updates, promotions, and more. Send This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply. Copyright © 2026 Ziman Gift - All Rights Reserved. Powered by This website uses cookies. We use cookies to analyze website traffic and optimize your website experience. By accepting our use of cookies, your data will be aggregated with all other user data. Accept"
+  },
+  "registrar_account": "not_verified",
+  "dns_or_primary_mutation": "not_performed",
+  "documentation_source": "https://help.shopify.com/en/manual/domains/add-a-domain/connecting-domains/connect-domain-manual",
+  "known_errors": [
+    "Shopify REST domains GET returned 404; connected domain inventory remains unknown",
+    "Initial www query had local argument error, corrected in www_dns",
+    "Public web opening service refused the new domains; direct local HTTP observations are recorded separately"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "t2_npu_inference_matrix.v1",
+  "utc": "2026-09-15T03:33:06Z",
+  "deny": "42 TOPS unused/ready NOT a measured claim",
+  "rows": [
+    {
+      "node": "138",
+      "status": "NOT_RUN",
+      "note": "organism_optional_last"
+    },
+    {
+      "node": "180",
+      "status": "PASS",
+      "latency_ms_mean": 19.83,
+      "latency_ms_p50": 20.095,
+      "latency_ms_p95": 20.762,
+      "throughput_fps": 50.429
+    },
+    {
+      "node": "182",
+      "status": "PASS",
+      "latency_ms_mean": 16.815,
+      "latency_ms_p50": 16.811,
+      "latency_ms_p95": 17.053,
+      "throughput_fps": 59.472
+    },
+    {
+      "node": "100",
+      "status": "PASS",
+      "latency_ms_mean": 20.638,
+      "latency_ms_p50": 20.846,
+      "latency_ms_p95": 23.657,
+      "throughput_fps": 48.454
+    },
+    {
+      "node": "160",
+      "status": "PASS",
+      "latency_ms_mean": 20.613,
+      "latency_ms_p50": 20.255,
+      "latency_ms_p95": 24.26,
+      "throughput_fps": 48.513
+    },
+    {
+      "node": "193",
+      "status": "PASS",
+      "latency_ms_mean": 19.909,
+      "latency_ms_p50": 20.346,
+      "latency_ms_p95": 20.541,
+      "throughput_fps": 50.23
+    },
+    {
+      "node": "114",
+      "status": "PASS",
+      "latency_ms_mean": 21.954,
+      "latency_ms_p50": 20.542,
+      "latency_ms_p95": 40.871,
+      "throughput_fps": 45.549
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "lane-source-provenance/1",
+  "lane": "T-LANE-TRIAGE-20260905",
+  "recorded_at_local": "2026-09-05T19:22+10",
+  "recorded_at_utc": "unverified",
+  "source_path_original": "C:\\Users\\Armin\\Downloads\\LANE-TRIAGE-2026-09-05.md",
+  "vault_copy": "09-LANES/T-LANE-TRIAGE-20260905/SOURCE-LANE-TRIAGE-2026-09-05.md",
+  "sha256": "CFD25FC1C0143F459D4C8F0871F2A27496C58339F57B70A75F2C2D9A37EB6113",
+  "hash_match_original_and_copy": true,
+  "host": {
+    "hostname": "DESKTOP-KA9RFN5",
+    "wifi_ipv4": "192.168.0.191",
+    "ethernet_ipv4": "169.254.163.233",
+    "claimed_session_board": "180",
+    "identity": "laptop_vault_not_node180"
+  },
+  "vault_head_this_session": "50d15e4f43bc3393236c5bffac8e09012bbe8c61",
+  "note": "Copy is byte-identical to the Downloads drop. No rewrite of the triage text."
+}

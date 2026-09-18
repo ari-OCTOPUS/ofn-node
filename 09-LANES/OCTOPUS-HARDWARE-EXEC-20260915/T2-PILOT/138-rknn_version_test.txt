@@ -1,0 +1,11 @@
+=== RKNN NPU Test (Orange Pi 5 Pro / RK3588S) ===
+librknnrt linked. چک NPU...
+
+
+NPU freq: 1000 MHz
+NPU volt: 0.812 V
+NPU temp: 37.9 C
+
+=== تست query SDK version (بدون نیاز به مدل) ===
+برای تست کامل inference، یک مدل .rknn لازم است.
+(مثلاً yolov5s.rknn از rknn-toolkit2 examples)

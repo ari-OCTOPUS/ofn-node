@@ -1,0 +1,43 @@
+{
+  "schema": "octopus.layer4-one-by-one-go.v1",
+  "queue_item": 4,
+  "item": "node180_role",
+  "role": "lab",
+  "recorded_at": "2026-09-05T16:19:12+10:00",
+  "recorded_at_source": "Get-Date this session",
+  "lane": "U-WHY-NOT-LIVE-20260905",
+  "owner_prompt_fa": "دونه دونه بپرس و باز کن",
+  "owner_answer": "lab",
+  "owner_answer_ui": "۱۸۰ = lab",
+  "this_host_is_not_180": true,
+  "this_host_wifi": "192.168.0.191",
+  "prior_role_in_layer3": {
+    "value": "UNDECIDED",
+    "source": "09-LANES/U-WHY-NOT-LIVE-20260905/LAYER3-RECEIPT.json",
+    "superseded_by_this_owner_pick": true
+  },
+  "auth": {
+    "last_try": "ari@192.168.0.180",
+    "result": "Permission denied (publickey,password)",
+    "source": "09-LANES/U-WHY-NOT-LIVE-20260905/LAYER3-RECEIPT.json",
+    "retried_this_turn": false,
+    "password_guesses": 0,
+    "root_tried": false
+  },
+  "not_executed": [
+    "new SSH to 180",
+    "138-to-180 tunnel",
+    "relabel this laptop as board 180",
+    "enable wires",
+    "send"
+  ],
+  "arbiter": {
+    "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+    "asserted_ip": "192.168.0.191",
+    "vantage": "this_host_vault_write",
+    "scope": "this_host_only",
+    "claim_type": "owner_decision_record",
+    "not_node180": true
+  },
+  "live_organism_claim": false
+}

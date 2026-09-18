@@ -1,0 +1,57 @@
+{
+  "schema": "octopus.layer4-one-by-one-go.v1",
+  "queue_item": 3,
+  "channel": "paid ads",
+  "channel_scope": "paid_ads_gate_only",
+  "recorded_at": "2026-09-05T16:17:58+10:00",
+  "recorded_at_source": "Get-Date this session",
+  "lane": "U-WHY-NOT-LIVE-20260905",
+  "owner_prompt_fa": "دونه دونه بپرس و باز کن",
+  "owner_answer": "open_record",
+  "owner_answer_ui": "باز کن — فقط گیت تبلیغ را ثبت کن (خرج نمی‌شود)",
+  "gate": {
+    "name": "HOLD_EXTERNAL",
+    "action": "lift_recorded_for_paid_ads_only",
+    "live_effect": "closed",
+    "spend": false,
+    "campaign": false,
+    "flags_cmd": false,
+    "auto_email": 0,
+    "OCTOPUS_WIRE_LEAD_OUTBOUND": 0
+  },
+  "season5_ads_budget": {
+    "value": "ZERO until owner",
+    "source": "01-TRUTH/SEASON-5-2026-09-04.md",
+    "this_file_does_not_set_a_dollar_budget": true
+  },
+  "contradiction": {
+    "status": "open",
+    "resolution": null,
+    "a": {
+      "value": "HOLD_EXTERNAL still true; ads budget ZERO until owner",
+      "source": "01-TRUTH/SEASON-5-2026-09-04.md"
+    },
+    "b": {
+      "value": "owner one-by-one Q3 open_record — paid ads gate recorded on this laptop vault; spend still false",
+      "source": "09-LANES/U-WHY-NOT-LIVE-20260905/Q3-PAID-ADS-GO.json"
+    }
+  },
+  "not_executed": [
+    "paid ad campaign",
+    "spend",
+    "enable OCTOPUS_WIRE_*",
+    "source OCTOPUS-flags.cmd",
+    "write revenue/sent/booking",
+    "rewrite 01-TRUTH/SEASON-5-2026-09-04.md"
+  ],
+  "arbiter": {
+    "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+    "asserted_ip": "192.168.0.191",
+    "vantage": "this_host_vault_write",
+    "scope": "this_host_only",
+    "claim_type": "owner_decision_record",
+    "not_node180": true
+  },
+  "live_organism_claim": false,
+  "grade": "E0"
+}

@@ -1,0 +1,68 @@
+{
+  "A0_BODY_MAP_PARTIAL": {
+    "PB4": "NOT_RUN — no retrieval harness, no frozen prompt set",
+    "T3": "role model_infer registered on 193 but no service proof",
+    "nodes_observed": {
+      "100": {
+        "access": "root@192.168.0.100 via mesh key",
+        "jobs_executed": "echo_capability_probe (P5, PB-1), crash test (PB-2)",
+        "role": "knowledge_retrieve (target)"
+      },
+      "138": {
+        "fleet_jobs_consumer": "ABSENT",
+        "fleet_jobs_ledger": "present, 31 rows",
+        "role": "coordinator",
+        "timers": "mesh-consume, mesh-drain, verify-dispatcher running"
+      },
+      "fleet-memory": {
+        "content": "P1 dry bootstrap fact only — not real knowledge",
+        "path": "/home/ari/ofn/state/fleet-memory/fleet_facts.jsonl",
+        "rows": 1
+      }
+    }
+  },
+  "GOV_VERSION": "V8",
+  "IMMEDIATE_NEXT": [
+    {
+      "blocker": "P5 gate limits to one job_type (echo_capability_probe); need to reconcile scope for a retrieve type OR use standing non-TCB path",
+      "id": "B1",
+      "task": "build real typed retrieve on 100 using the existing fleet-jobs jsonl path"
+    },
+    {
+      "blocker": "none — internal, non-TCB, Class A",
+      "id": "PB1-fresh",
+      "task": "create a fleet-jobs scheduler/consumer timer on 138 that runs autonomously"
+    },
+    {
+      "blocker": "design + scope check, parallel with B1",
+      "id": "D1",
+      "task": "T3 model service on 193"
+    }
+  ],
+  "LADDER": "L2",
+  "PB1_MEASURED_STATUS": {
+    "evidence": {
+      "automatic_consumer": "NONE — no process watches fleet-jobs; octopus-mesh-consume and mesh-drain are different paths",
+      "elapsed_since_last_write_s": 1434,
+      "laptop_dependency_probe": "NOT_PRESENT in any receipt",
+      "ledger_last_write": "2026-09-15T04:03:45Z",
+      "ledger_path": "/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl",
+      "now": "2026-09-15T04:27:57Z",
+      "pb1_job": "job-432175b362774fae CLOSED at 2026-09-15T04:03:37Z, result_hash=20f96048585c74e3…",
+      "pb2_job": "job-63726f44cc2f49af terminal=UNKNOWN (deliberate crash test)",
+      "total_rows": 31,
+      "unique_jobs": 9
+    },
+    "meaning": "the PB-1 window marker (04:03:36Z) is just a timestamp on a one-shot laptop-invoked script. No scheduler/consumer is autonomously running. The 24h soak cannot PASS because the underlying machinery does not exist yet.",
+    "next_action": "build a fleet-jobs consumer/scheduler timer on 138 (non-TCB, Class A) that periodically enqueues+executes a real internal job WITHOUT laptop invocation, then start a fresh 24h window with a receipt",
+    "owner": "retrieval_implementer (per NEXT-ACTIONS B1) or coordinator",
+    "verdict": "START_ONLY — no automatic scheduler/consumer is running on the fleet-jobs bus"
+  },
+  "at_utc": "2026-09-15T04:27:57Z",
+  "at_utc_method": "date -u measured",
+  "customer_send": false,
+  "go_b4": false,
+  "hold_external": true,
+  "lane": "OCTOPUS-BODY-ADAPTATION-NEXT-20260915",
+  "schema": "octopus.body-adaptation.pb1-status.v1"
+}

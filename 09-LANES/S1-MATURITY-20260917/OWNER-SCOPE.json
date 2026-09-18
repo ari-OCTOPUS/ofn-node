@@ -1,0 +1,25 @@
+{
+  "schema": "octopus.owner-scope.v1",
+  "recorded_at_utc": "2026-09-17T08:59:45.4325860Z",
+  "owner_message": "من مالکم همه اجازه هارو میدوم کمک کن اختاپوس بلوغ کامل پیداکنه براساس معماری داخلیش",
+  "interpretation": "Owner authorizes advancing supplied D1-D5 and T1-T10 subject to their explicit prerequisites; permission is not evidence of completed deployment, cash or witness.",
+  "budget_answer": "دلار آمریکا (USD) برای هزینهٔ API",
+  "studio_answer": "منظورم بیزنس اونلی فنز و پا هستش پاهای سبا کمر به پایین",
+  "source_kind": "authenticated conversation text; not cryptographic signature",
+  "D1": "GO conditional on replica rehearsal, kill-9 durability, full direct-write census, witnessed baseline and T+1h RSS acceptance",
+  "D2": "USD API caps 100/month, 10/rolling24h, 2/task; stricter runtime wins",
+  "D3": "Real transport development authorized; real dispatch remains two-step released; Ziman hold_external=true",
+  "D4": "Trident activated: Ziman, Painting, Studio; settlement requires external evidence",
+  "D5": "Parallel work authorized; invariant locks remain; no quota gate changed in this lane",
+  "swap_reboot": "General authorization acknowledged; quiesce, verified backup/restore and exact target readiness still required; NOT_RUN",
+  "sources": [
+    {
+      "sha256": "435767F14F2041C74784D1FC0DEFB91E38444D4CDFA42995BACAB7F41FDBAFB1",
+      "path": "C:/Users/Armin/.codex/attachments/5d1c7b63-ed1a-48df-b0e7-58e4f2340534/pasted-text.txt"
+    },
+    {
+      "sha256": "EFD56436F17CCF07FEC57F161AFFF40E82D2D6BF0D7E3EFB60FBA545EA7D979F",
+      "path": "C:/Users/Armin/.codex/attachments/5db410a6-ff2b-43a9-b494-84f43ac2fe34/pasted-text.txt"
+    }
+  ]
+}

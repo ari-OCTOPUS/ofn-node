@@ -1,0 +1,12 @@
+{
+ "repo_paths_checked": 187,
+ "counts": {
+  "repo_only": 0,
+  "vault_only_unknown": null,
+  "same_path_content_match": 0,
+  "same_path_content_differs": 7,
+  "same_path_vault_missing": 180,
+  "repo_read_error": 0
+ },
+ "current_truth_copies": 12
+}

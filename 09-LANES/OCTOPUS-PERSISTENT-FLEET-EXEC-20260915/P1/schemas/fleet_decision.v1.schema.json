@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/fleet_decision.v1.schema.json",
+  "title": "fleet_decision.v1",
+  "description": "Tier B decision+expiry. Field names align with W21 owner_decision / decision_request where overlapping (bound payload sha, expires_at, hold_external).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "decision_id",
+    "bound_payload_sha256",
+    "verdict",
+    "expires_at",
+    "hold_external",
+    "commander_node_id",
+    "customer_send"
+  ],
+  "properties": {
+    "schema": { "const": "fleet_decision.v1" },
+    "decision_id": { "type": "string", "minLength": 1 },
+    "bound_payload_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "verdict": { "type": "string", "minLength": 1 },
+    "expires_at": { "type": "string", "minLength": 1 },
+    "hold_external": { "type": "boolean" },
+    "external_effects": { "type": "integer", "minimum": 0, "default": 0 },
+    "commander_node_id": { "const": "138" },
+    "customer_send": { "const": false },
+    "source_decision_request_id": { "type": "string" }
+  }
+}

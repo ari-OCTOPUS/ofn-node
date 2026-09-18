@@ -1,0 +1,16 @@
+health record: 2026-09-18T01:00:03Z  (rows=31)
+
+provider             declared derived    paid   reason
+------------------------------------------------------------------------------
+anthropic            LIVE     LIVE       True   PROBE_OK
+deepseek             LIVE     LIVE       True   PROBE_OK
+gemini               LIVE     LIVE       True   PROBE_OK
+local-llamacpp-180   LIVE     LIVE       False  PROBE_OK
+openai               LIVE     LIVE       True   PROBE_OK
+sakana-fugu          LIVE     EXHAUSTED  True   CREDIT_OR_QUOTA_EXHAUSTED   <== declared LIVE but is NOT routable
+
+routing order (free first, then least-used): ['local-llamacpp-180', 'gemini', 'anthropic', 'openai', 'deepseek']
+excluded: ['sakana-fugu']
+recharged since previous probe: []
+
+usage share (all-time ledger): {'anthropic': 0.0449, 'deepseek': 0.3146, 'gemini': 0.0337, 'openai': 0.0562, 'sakana-fugu': 0.0562, 'unknown': 0.4944}

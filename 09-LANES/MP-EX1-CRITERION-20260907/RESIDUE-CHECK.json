@@ -1,0 +1,17 @@
+{
+  "schema": "octopus.ex1.residue.v1",
+  "H-INPLACE-1": {
+    "exec_has_next_ex3": true,
+    "exec_has_blockers_none": true,
+    "exec_has_inplace_errata_banner": false,
+    "cross_lane_edit_not_performed": true
+  },
+  "H-INPLACE-2": {
+    "current_not_passed": true,
+    "three_pass": false,
+    "three_ex3": false,
+    "entrypoint_first_latest_parks": true
+  },
+  "residue_is_historical_only": true,
+  "inplace_banner_requires_other_lane_write": true
+}

@@ -1,0 +1,193 @@
+{
+  "schema": "octopus.season-maturity-gates.v1",
+  "status": "ENGINEERING_DESIGN_NOT_EXECUTED",
+  "criteria_origin": "S1 owner charter plus explicit S2 engineering proposals; no new owner signature",
+  "operational_required": [
+    "M0",
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M8"
+  ],
+  "scientific_required": [
+    "M7"
+  ],
+  "aggregation": "all required gates, no weighted average; current proof cannot substitute other scope",
+  "allowed_verdicts": [
+    "MEASURED",
+    "FAIL",
+    "UNKNOWN",
+    "ERROR",
+    "NOT_RUN",
+    "INCONCLUSIVE",
+    "UNDERPOWERED",
+    "WAIVER"
+  ],
+  "waiver_counts_as_pass": false,
+  "gates": [
+    {
+      "id": "M0",
+      "name": "Scope and identity",
+      "initial_status": "RECORDED_REVALIDATION_REQUIRED",
+      "acceptance": [
+        "Owner scope resolved without authority expansion",
+        "Fresh node/boot/PID/source and path ownership",
+        "Applicable halt oracle and governance ladder explicitly mapped"
+      ],
+      "evidence": [
+        "evidence/s1/OWNER-SCOPE.json"
+      ],
+      "depends_on": []
+    },
+    {
+      "id": "M1",
+      "name": "Durable sensorium and bounded memory",
+      "initial_status": "PARTIAL_COMPONENT_PROOF",
+      "acceptance": [
+        "Actual batch consumer exercised",
+        "Full frozen-input replica boot under quota",
+        "Anchored/segmented replay equality with historical divergence preserved",
+        "T+1h RSS max <= 1610612736 bytes under preregistered sampling",
+        "No OOM, unexplained restart or missing sample"
+      ],
+      "evidence": [
+        "evidence/sensorium/LANE-REPORT.md",
+        "evidence/sensorium/ACCEPTANCE-PREREGISTRATION.json"
+      ],
+      "depends_on": [
+        "M0"
+      ]
+    },
+    {
+      "id": "M2",
+      "name": "Witness and provenance",
+      "initial_status": "PARTIAL_RUNNING_WINDOW",
+      "acceptance": [
+        "Fresh same-scope signature and loaded-byte checks",
+        "Full W1 window with successful probes; sampling limits explicit",
+        "Corrupt, stale, forged and replayed witnesses rejected"
+      ],
+      "evidence": [
+        "evidence/s1/W1-SIDECAR-LAUNCH.json"
+      ],
+      "depends_on": [
+        "M0"
+      ]
+    },
+    {
+      "id": "M3",
+      "name": "Deployed fleet self-model",
+      "initial_status": "LOCAL_SEVEN_NODE_CONSUMER_ONLY",
+      "acceptance": [
+        "At least 4 authenticated nodes consumed by deployed self-model; target 7",
+        "At least 100 and 160 perform receipt-backed jobs",
+        "Stale hub/node/boot change fails to UNKNOWN and grants no authority"
+      ],
+      "evidence": [
+        "evidence/s1/FLEET-OBSERVATION.json",
+        "evidence/integration/LANE-REPORT.md"
+      ],
+      "depends_on": [
+        "M0",
+        "M2"
+      ]
+    },
+    {
+      "id": "M4",
+      "name": "API budget real caller coverage",
+      "initial_status": "LOCAL_GUARD_NOT_GLOBAL_ENFORCEMENT",
+      "acceptance": [
+        "One USD policy source and stricter runtime wins",
+        "Atomic reserve across all paid callers before effect",
+        "Crash, retry, timeout, concurrent boundary and currency-mismatch cases pass",
+        "Reservations reconcile against provider outcome without freeing unknown liabilities"
+      ],
+      "evidence": [
+        "source/integrated/ofn/kernel/canonical_budget.py"
+      ],
+      "depends_on": [
+        "M0"
+      ]
+    },
+    {
+      "id": "M5",
+      "name": "One real end-to-end RevenueRun",
+      "initial_status": "STRUCTURAL_CONTRACT_ONLY",
+      "acceptance": [
+        "Real producer-to-consumer chain using same run_id and versioned leg mapping",
+        "Required owner release and existing holds enforced",
+        "Independent external settlement evidence and reconciliation, not historical payment reattribution",
+        "Cost and attribution separately recorded; one payment not intelligence proof"
+      ],
+      "evidence": [
+        "source/integrated/ofn/adapters/revenue_run.py"
+      ],
+      "depends_on": [
+        "M2",
+        "M4"
+      ]
+    },
+    {
+      "id": "M6",
+      "name": "Restore and kill-switch drills",
+      "initial_status": "SIGNED_BYTE_RESTORE_ONLY",
+      "acceptance": [
+        "Consumer operates correctly on isolated restored state",
+        "Injected corrupt restore refused",
+        "Actual effect-path kill-switch stops effects at all mapped checkpoints in isolated replica",
+        "Rollback and second-host witness complete"
+      ],
+      "evidence": [
+        "evidence/s1/MIRROR-RESTORE-RECEIPT.json"
+      ],
+      "depends_on": [
+        "M1",
+        "M2"
+      ]
+    },
+    {
+      "id": "M7",
+      "name": "Causal learning and system self-repair",
+      "initial_status": "NOT_RUN",
+      "acceptance": [
+        "Preregistered heldout comparison with fixed budget/model controls",
+        "Consumed-memory trace and ablation establish mechanism",
+        "Unassisted deployed system closes fault-to-witness cycle; manual intervention reported separately",
+        "Effects and uncertainty meet frozen criteria, or honest INCONCLUSIVE",
+        "Evaluator and test leakage boundaries independently checked"
+      ],
+      "evidence": [
+        "EXPERIMENT-PROTOCOL.md"
+      ],
+      "depends_on": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M6"
+      ]
+    },
+    {
+      "id": "M8",
+      "name": "Sustained operation and restart retention",
+      "initial_status": "NOT_RUN",
+      "acceptance": [
+        "Predeclared 24h integrated soak after final relevant change",
+        "No invariant violation, lost acknowledged event or unexplained observation gap",
+        "Warm/cold process restart preserves authorized state and no duplicate external effect",
+        "Observation exposure and false-positive denominators reported"
+      ],
+      "evidence": [],
+      "depends_on": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M6"
+      ]
+    }
+  ]
+}

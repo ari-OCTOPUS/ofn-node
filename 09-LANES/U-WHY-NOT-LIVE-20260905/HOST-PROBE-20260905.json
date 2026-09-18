@@ -1,0 +1,47 @@
+{
+  "schema": "octopus.this-host-liveness-probe.v1",
+  "measured_at_local": "2026-09-05T14:54+10",
+  "vantage": "this_host_only",
+  "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+  "asserted_ip": "192.168.0.191",
+  "ip_source": "Get-NetIPAddress InterfaceAlias Wi-Fi this session",
+  "eth0_like": "172.17.176.1 vEthernet WSL — not 192.168.0.180",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "session_180_role": "STOPPED_IDENTITY_CONTRADICTION",
+  "hostname": "DESKTOP-KA9RFN5",
+  "listen": [
+    {"port": 8771, "state": "not_listen", "intended": "organism.py lock"},
+    {"port": 8772, "state": "not_listen", "intended": "cortex.py"},
+    {"port": 8773, "state": "listen", "addr": "127.0.0.1", "pid": 11992, "cmd": "python -X utf8 live\\server.py"},
+    {"port": 8774, "state": "listen", "addr": "127.0.0.1", "pid": 19176, "cmd": "miniapp_gateway.py"},
+    {"port": 8776, "state": "not_listen", "intended": "telegram_center/center.py"},
+    {"port": 8777, "state": "not_listen", "intended": "organism.py extra"},
+    {"port": 8791, "state": "listen", "addr": "127.0.0.1", "pid": 2324, "cmd": "buynsw-harvester/ingest_server.py --port 8791 --allow-no-auth"},
+    {"port": 8792, "state": "not_listen", "intended": "ofn.run lead"},
+    {"port": 8793, "state": "not_listen", "intended": "ofn.run studio"},
+    {"port": 8794, "state": "not_listen", "intended": "ofn.run owner"},
+    {"port": 8796, "state": "not_listen", "intended": "ofn extra / tunnel"}
+  ],
+  "sept4_watch_pids": {
+    "source": "06-EVIDENCE/OCTOPUS-HEALTH-WATCH-2026-09-04/13-42.md",
+    "organism_22936": false,
+    "center_24088": false,
+    "miniapp_19176": true,
+    "cloudflared_13604": true
+  },
+  "ofn_run_process": "absent",
+  "organism_py_process": "absent",
+  "center_py_process": "absent",
+  "wire_flags_in_this_process": {
+    "OCTOPUS_WIRE_": false,
+    "OFN_WIRE_": false,
+    "OBSERVATORY": null,
+    "CORTEX_HYPOTHESIS": null,
+    "OFN_KEEP_GATES_OPEN": null,
+    "auto_email": null
+  },
+  "organism_state_last_ts": "2026-09-04T14:46:26",
+  "organism_state_source": "_ops/state/ORGANISM-STATE.json",
+  "board_138_180_this_session": "not_probed"
+}

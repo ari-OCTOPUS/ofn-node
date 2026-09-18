@@ -1,0 +1,20 @@
+{
+  "schema": "PB-4-ANSWER-WITH-MEMORY-AB",
+  "status": "NOT_RUN",
+  "stamp_utc": "2026-09-15T04:03:57Z",
+  "honest_reason": "No retrieval QA A/B path wired: no frozen prompt set, no retrieve_ab harness, fleet_facts.jsonl rows=1 (P1 dry only). Worker 100 role=knowledge_retrieve but no measured answer-with-memory quality+latency path exists for PB-4. DENY inventing quality scores; DENY CPU/NPU fill as success.",
+  "fleet_facts_rows": 1,
+  "harness_candidates_found": [],
+  "prompt_set_sha256": null,
+  "condition_A": null,
+  "condition_B": null,
+  "per_item_rows": [],
+  "aggregate": null,
+  "deny": [
+    "invent_quality_scores",
+    "cpu_npu_fill_as_success"
+  ],
+  "customer_send": false,
+  "sec_p6_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+  "design_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b"
+}

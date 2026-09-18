@@ -1,0 +1,174 @@
+{
+  "schema": "PB-6-SEVEN-ROW-EXPAND",
+  "status": "PASS",
+  "stamp_utc": "2026-09-15T04:03:58Z",
+  "denominator": 7,
+  "nodes_fixed": [
+    "138",
+    "180",
+    "182",
+    "100",
+    "160",
+    "193",
+    "114"
+  ],
+  "rows": [
+    {
+      "node_id": "138",
+      "host": "192.168.0.138",
+      "hostname": "DietPi",
+      "role": "commander",
+      "auth": "OK",
+      "HB": "HEALTHY",
+      "T2_NPU": "NOT_RUN",
+      "lease_eligible": false,
+      "RAM_MB": {
+        "total": 3910,
+        "used": 1450,
+        "available": 2460
+      },
+      "temp_C": 39.77,
+      "boot_id": "4f3f2c05-5703-4cbb-92c3-6fed8ff708bd",
+      "status": "PASS",
+      "error": null,
+      "notes": [
+        "commander; lease_eligible=false; T2 NPU NOT_RUN"
+      ]
+    },
+    {
+      "node_id": "180",
+      "host": "192.168.0.180",
+      "hostname": "octopus-continuity-180",
+      "role": "quality_restore_copy_RO",
+      "auth": "OK",
+      "HB": "HEALTHY",
+      "T2_NPU": "PASS",
+      "lease_eligible": false,
+      "RAM_MB": {
+        "total": 3910,
+        "used": 1824,
+        "available": 2086
+      },
+      "temp_C": 33.31,
+      "boot_id": "94c9f38e-495b-4ff7-a5d2-f902c618e4fd",
+      "status": "PASS",
+      "error": null,
+      "notes": [
+        "restore_copy_RO only; never commander"
+      ]
+    },
+    {
+      "node_id": "182",
+      "host": "192.168.0.182",
+      "hostname": "sensorium-opi5pro",
+      "role": "lab_witness",
+      "auth": "OK",
+      "HB": "HEALTHY",
+      "T2_NPU": "PASS",
+      "lease_eligible": false,
+      "RAM_MB": {
+        "total": 3910,
+        "used": 2435,
+        "available": 1475
+      },
+      "temp_C": 50.85,
+      "boot_id": "7a4e237a-8c2c-40e2-a429-f39ebbe21551",
+      "status": "PASS",
+      "error": null,
+      "notes": []
+    },
+    {
+      "node_id": "100",
+      "host": "192.168.0.100",
+      "hostname": "octopus-compute-100",
+      "role": "knowledge_retrieve",
+      "auth": "OK",
+      "HB": "HEALTHY",
+      "T2_NPU": "PASS",
+      "lease_eligible": true,
+      "RAM_MB": {
+        "total": 3910,
+        "used": 221,
+        "available": 3689
+      },
+      "temp_C": 33.31,
+      "boot_id": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a",
+      "status": "PASS",
+      "error": null,
+      "notes": []
+    },
+    {
+      "node_id": "160",
+      "host": "192.168.0.160",
+      "hostname": "octopus-compute-160",
+      "role": "knowledge_prep",
+      "auth": "OK",
+      "HB": "HEALTHY",
+      "T2_NPU": "PASS",
+      "lease_eligible": true,
+      "RAM_MB": {
+        "total": 3910,
+        "used": 199,
+        "available": 3711
+      },
+      "temp_C": 27.77,
+      "boot_id": "bacb05a6-b351-4531-a232-371d3a32c2a6",
+      "status": "PASS",
+      "error": null,
+      "notes": []
+    },
+    {
+      "node_id": "193",
+      "host": "192.168.0.193",
+      "hostname": "octopus-model-plus-193",
+      "role": "model_infer",
+      "auth": "OK",
+      "HB": "HEALTHY",
+      "T2_NPU": "PASS",
+      "lease_eligible": true,
+      "RAM_MB": {
+        "total": 3910,
+        "used": 194,
+        "available": 3716
+      },
+      "temp_C": 28.69,
+      "boot_id": "92a8e9fd-d7cd-4b91-a1a9-af8d92a2f46b",
+      "status": "PASS",
+      "error": null,
+      "notes": [
+        "bind_role=model_infer \u2260 T3 model-server service claim"
+      ]
+    },
+    {
+      "node_id": "114",
+      "host": "192.168.0.114",
+      "hostname": "octopus-pro-114",
+      "role": "eval_batch",
+      "auth": "OK",
+      "HB": "HEALTHY",
+      "T2_NPU": "PASS",
+      "lease_eligible": true,
+      "RAM_MB": {
+        "total": 3910,
+        "used": 194,
+        "available": 3716
+      },
+      "temp_C": 27.77,
+      "boot_id": "b7a638d4-adb7-4f15-a1d6-01986fa65c69",
+      "status": "PASS",
+      "error": null,
+      "notes": []
+    }
+  ],
+  "pass_count": 7,
+  "unknown_count": 0,
+  "fail_count": 0,
+  "honesty": {
+    "193_model_server_claimed": false,
+    "usable_42_TOPS_claimed": false,
+    "dual_commander": false
+  },
+  "customer_send": false,
+  "sec_p6_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+  "design_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b"
+}

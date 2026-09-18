@@ -1,0 +1,124 @@
+{
+  "schema": "octopus.lane-reconciliation-records.v1",
+  "lane": "R-EXEC-DEBUG-20260905",
+  "created_utc": "2026-09-04T15:40:00Z",
+  "authority": "Dispatch prompt in 09-LANES/H-HANDOFF-RECONCILE-20260905/NEXT-AGENT-PROMPT.md (manifest-verified); mission OWNER-DELEGATION-OCTOPUS-20260904 via F:/octo-exec/COMPLETE-20260904/AUTHORITY-DELTA.md",
+  "rule": "Corrections are NEW records only. RUN-STATE.json and all original receipts were NOT modified. Both values of every contradiction are preserved.",
+  "records": [
+    {
+      "id": "REC-01-A30-CHRONOLOGY",
+      "claim": "ACCEPTANCE-BOUNDS freeze-before-test (A30) is supported at byte/mtime level; content timestamps inside run artifacts are future-drifted and unreliable.",
+      "observed_at_utc": "2026-09-04T15:24-15:26Z",
+      "evidence": [
+        "ACCEPTANCE-BOUNDS.json mtime 2026-09-04T13:15:57Z (TZ=UTC stat), sha256=757d234d71b8e5f438508adb43cc51bcb13397f55abda36685959f399afed672 — byte-identical to receipts/BOUNDS-HASH.txt (mtime 13:16:03Z) and to current file",
+        "P03-ARTIFACT-HASHES.txt mtime 14:11:01Z; P03-RELEASE-GATE-RECEIPT.json mtime 14:33:07Z with content recorded_at_utc=14:15:00Z (content +18min ahead of write)",
+        "RUN-STATE.json mtime 14:47:26Z; content updated_utc=14:32Z (-15min) yet phase_history contains 15:05Z and 15:10Z entries (content +18..+23min ahead of last write)",
+        "ACCEPTANCE-BOUNDS.json content created_utc=14:40:00Z vs mtime 13:15:57Z (content +84min ahead of write)",
+        "git commit dates: 930e0cc=14:07:30Z, 06a2854=14:25:44Z, 80d98ff=14:27:59Z"
+      ],
+      "resolution": "Bounds bytes existed and were hashed BEFORE repair/test artifacts (13:15:57Z < 14:07-14:33Z). Content timestamps carry a decaying positive drift (+84min early, +15-23min late). Both the content times and the filesystem times are recorded; neither was rewritten.",
+      "evidence_grade": "MEASURED (filesystem + byte hash); limitation: mtime trust assumed, no immutable log cross-check",
+      "status": "resolved_with_dual_values"
+    },
+    {
+      "id": "REC-02-MESH-8899",
+      "claim": "The '8899' (appendix) vs '8892 expired + 8 retained' (report) mesh numbers reconcile in the same raw window.",
+      "observed_at_utc": "2026-09-04T15:28Z (files) and 15:33Z (fresh boards)",
+      "evidence": [
+        "receipts/lanes/mesh-p04/RAW-STATE-180.json: before.inbox_files=8899; consume_run.real.inbox_before=8900 (+1 arrival); dead_lettered=8892 all reason=expired; skipped_native=8; consumed=0; acks=0",
+        "Fresh probe 15:33Z node180: inbox=8 (stable, native-valid wakes untouched — no reprocessing), dead=8896 (+4 new arrivals expired), timer active",
+        "Fresh probe 15:33Z node138: inbox=0, dead=1, timer active"
+      ],
+      "resolution": "8899 (first count) + 1 new arrival = 8900 swept = 8892 dead + 8 retained. Consistent. consumed=0/acks=0 remains true: the sweep proved reaping, NOT semantic delivery; delivery proof still missing.",
+      "evidence_grade": "MEASURED",
+      "status": "resolved_with_dual_values"
+    },
+    {
+      "id": "REC-03-ASYNC-HANDLES",
+      "claim": "RUN-STATE async_handles carry no real process/session/task ids; original orchestrator handle remains unresolved; work products were verified directly instead.",
+      "observed_at_utc": "2026-09-04T15:18-15:33Z",
+      "evidence": [
+        "RUN-STATE.json async_handles: three entries with descriptive text only ('background lane dispatched ...')",
+        "No orchestrator session/table found in run root; no tar/ssh/scp/rsync processes alive on laptop at 15:23Z",
+        "MESH-P04: outputs complete (SUMMARY+RAW both boards, 9/9 tests re-run green by this lane)",
+        "P06-BUSINESS: outputs complete (SUMMARY + 5 deliverables + 14 owner-inputs recounted)",
+        "P05-LAB: 5 gate/spec files + 10 RAW files present (14:50-14:56Z) but NO LANE-REPORT.md — worker status UNKNOWN (absence of report is not proof of death, per dispatch)"
+      ],
+      "resolution": "HANDLE_UNRESOLVED for all three dispatched lanes. Jobs not re-dispatched (no blind duplication). P05-LAB treated as interrupted-with-partial-output; integration pending.",
+      "evidence_grade": "MEASURED (products) / UNKNOWN (worker liveness)",
+      "status": "open"
+    },
+    {
+      "id": "REC-04-CELLFRAME-TRANSFER",
+      "claim": "cellframe-var.tar transfer is complete and verified to manifest + spot-hash level; source deletion remains NOT performed and NOT authorized by this lane.",
+      "observed_at_utc": "2026-09-04T15:23-15:28Z",
+      "evidence": [
+        "receipts/lanes/cellframe-move.log: 'tar: var/run/node_cli: socket ignored' + 'TAR-DONE' (mtime 14:58:58Z)",
+        "Tar file: 42,651,402,240 bytes, mtime 14:58:58Z, no writer processes after",
+        "tar -tvf exit 0: 27 members = 10 regular files + 17 dirs; file-bytes sum = 42,651,385,093 — EXACT match to node180 source 'du -sb' file bytes (42,651,385,093)",
+        "Source find count 28 = tar 27 members + 1 ignored socket (var/run/node_cli) — reconciled",
+        "Spot-hash 4/4 members EXACT match source (mdbx.lck, node-addr.dcert, cellframe-node.pid, cellframe-node.log 128,349,603 B); listing: F:/backup/09-LANES/R-EXEC-DEBUG-20260905/cellframe-tar-listing.txt; extraction kept at F:/octo-exec/COMPLETE-20260904/cellframe-archive-20260904/verify-extract-R-EXEC-DEBUG/",
+        "Source stability: 0 files modified in last 12h on /opt/cellframe-node/var; no open writers (lsof); disk 94% used (B-CAP-180 still violated)"
+      ],
+      "resolution": "Archive integrity: strong MEASURED evidence (exact byte totals + member reconciliation + 4/4 spot hashes incl. a 128MB member). NOT yet: per-member hashes of the 3 large dchaincells; isolated restore drill not run. Source deletion (RUN-STATE checklist path) requires those + a separate owner-visible manifest; explicitly NOT executed by this lane.",
+      "evidence_grade": "MEASURED (manifest+spot-hash); full-member hash pending",
+      "status": "open (verification advanced; deletion decision separate)"
+    },
+    {
+      "id": "REC-05-TESTS-REPRODUCTION",
+      "claim": "The 4 reply_queue_bridge failures are pre-existing (baseline == candidate, identical assertion) and stable; the receipt's exact pass-counts are SHA/checkout-dependent.",
+      "observed_at_utc": "2026-09-04T15:29-15:38Z",
+      "environment": "Windows laptop, Python 3.13.7, isolated git worktrees under F:/octo-exec/R-EXEC-DEBUG-20260905/ (wt-baseline@2cd67aa, wt-candidate@80d98ff, wt-p03@930e0cc), -p no:cacheprovider, PYTHONDONTWRITEBYTECODE=1, isolated --basetemp; no OS-level network block (limitation); bounds hash binding: 757d234d (see REC-01)",
+      "evidence": [
+        "baseline 2cd67aa: tests/test_reply_queue_bridge.py => 4 failed / 3 passed, same AssertionError at line 61 (seen-marker file persists across tests — Windows state leak)",
+        "candidate 80d98ff targeted (reply_bridge + release_gate_regression + release_pipeline): 4 failed / 37 passed — all d1..d7 gate regression tests GREEN",
+        "candidate 80d98ff FULL suite: 4 failed / 4558 passed / 28 skipped / 3450 subtests (124.01s), junit-candidate-fullsuite.xml",
+        "930e0cc (receipt SHA) FULL suite: 5 failed / 4553 passed / 28 skipped / 3450 subtests (121.77s) — 5th failure = tests/test_organism_shadow.py::test_captured_source_identity_and_frozen_files (frozen-source byte pin, CRLF-sensitive before the 06a2854+80d98ff .gitattributes fix)",
+        "diff 930e0cc..80d98ff -- tests/: only test_organism_shadow.py +58/-4 (the added tests explain pass-count deltas)",
+        "receipt claim '4554 passed / 4 failed' at 930e0cc: NOT exactly reproduced on a fresh Windows checkout (measured 4553/5); failed-SET {4 reply_bridge} IS exactly reproduced at 80d98ff",
+        "mesh consumer suite (worktree-mesh): 9 passed in 12.17s — claim reproduced"
+      ],
+      "resolution": "Never ALL_GREEN: 4 pre-existing laptop-local failures remain open (documented out of P03 scope). Pre-existing status upgraded REPORTED -> MEASURED (E3-style reproduction on both SHAs).",
+      "evidence_grade": "MEASURED",
+      "status": "resolved_with_dual_values"
+    },
+    {
+      "id": "REC-06-PR-FRESH-STATUS",
+      "claim": "Fresh GitHub status replaces the stale 'no current PR state verified' record; GOV-V6 human review is still the blocker.",
+      "observed_at_utc": "2026-09-04T15:28Z via gh CLI (authenticated ari322, repo ari-OCTOPUS/ofn-node)",
+      "evidence": [
+        "PR #193: OPEN, head 2cd67aa (rescue/main-board-integ-20260904), reviewDecision=REVIEW_REQUIRED, full-suite test (windows-latest) FAILURE completed 13:12:37Z — failing test test_organism_shadow (frozen-source sha mismatch 'cfa730c9...' != 'e3ef142d...')",
+        "PR #194: OPEN, head 80d98ff (codex/complete-octopus-20260904), reviewDecision=REVIEW_REQUIRED, ALL CI checks SUCCESS incl. full-suite ubuntu+windows (completed 14:29-14:32Z); require-independent-approval FAIL on all attempts (gate functioning)",
+        "#193 head (2cd67aa) is an ancestor of #194 head (80d98ff): merging #194 supersedes #193; #193's windows failure is already repaired on #194",
+        "'Cursor Approval Agent' bot check-runs SUCCESS on both PRs did NOT satisfy the independent-approval gate (reviewDecision unchanged)"
+      ],
+      "resolution": "PR/review/CI state refreshed; nothing merged by this lane; GOV-V6 (one of Elahe-z|aram-ui) remains blocked_external.",
+      "evidence_grade": "MEASURED (API read at timestamp)",
+      "status": "open (awaiting independent human review)"
+    },
+    {
+      "id": "REC-07-LEARNING-LOOP",
+      "claim": "The memory/learning N+1 cycle is NOT closed at code level: learning_feeder.py reads no prior-cycle memory_id/outcome.",
+      "observed_at_utc": "2026-09-04T15:38Z",
+      "evidence": [
+        "node138:/home/ari/ofn/ofn/agents/learning_feeder.py = 117 lines; grep for memory_id|prior|outcome|last_cycle|previous => 0 hits; writes evidence+claims JSON from owner_statement claims only",
+        "GATE4-PRESCRIPTIONS.json: judge_independence_limited=true (same author for generator+falsifier), 3 prescriptions: DX-001 NOT_REJECTED (llama /health timeout 3.04s), DX-002 REJECTED (lab footprint = 0.472% of disk — hypothesis rejected), DX-003 NOT_REJECTED — matches '3 proposals, 1 real rejection'",
+        "GATE3-SANDBOX-TESTS.json: 10 negative tests VERIFIED (systemd transient sandbox); explicit gap: Lab's own run_sandbox not connected to the transient mechanism",
+        "GATES-567-SPEC-DRAFT.yaml: gates 5-7 SPEC_DRAFTED only; execution requires independent judge + owner approval for B1 targets",
+        "Traceability recount: 69 rows = 1 verified (A22) + 24 in_progress + 44 pending — labels are file status, not independent verdicts"
+      ],
+      "resolution": "Loop closure remains OPEN; measurable decision-change from cycle N to N+1 not demonstrated anywhere (code, state, or receipts).",
+      "evidence_grade": "MEASURED (code-level)",
+      "status": "open"
+    },
+    {
+      "id": "REC-08-RUN-STATE-INDEX",
+      "claim": "RUN-STATE.json is a mutable index with internally inconsistent times; it was NOT modified by this lane.",
+      "observed_at_utc": "2026-09-04T15:24Z",
+      "evidence": ["mtime 14:47:26Z vs content updated_utc 14:32Z vs phase_history entries 15:05Z/15:10Z (see REC-01)"],
+      "resolution": "Dual values preserved here; RUN-STATE left byte-identical (sha256 a0f025815f4f8ba50b14da0c25dd6b69247c5e18fa9d760482a8d3c0558e4bdc at 15:20:26Z). Corrections live in this file, not in RUN-STATE.",
+      "evidence_grade": "MEASURED",
+      "status": "open (owner/lane-writer to adopt corrections)"
+    }
+  ]
+}

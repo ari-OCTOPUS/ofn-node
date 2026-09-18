@@ -1,0 +1,10 @@
+{
+ "receipt_id": "QUICKWIN-SCORE-COUNTER-20260908",
+ "ts": "2026-09-08T04:41:38Z",
+ "change": "airtasker_intake.py += transparent score rule (budget40+loc30+id10+demand20 -> score column + score:why in notes) + daily-counter.json (emails/tasks/inserted)",
+ "tests": "16/16 (15 prev + score-rule)",
+ "pre_sha": "620621552ba779a45b2ca9ffabeded0b41257ca55009b0062ee5c4146d57b0ab",
+ "post_sha": "b9c9bc8c67ffd636e5e9f1051c40c0993f6ac7d5da3f6d84cbc9b01b0774dbc8",
+ "rollback": "deploy/airtasker_intake.py git-less; restore from this lane deploy/ folder pre-edit? no \u2014 bak: lane holds prior version in git-less form; simplest rollback = re-scp previous sha version from lane (kept)",
+ "deploy": "scp to 138 agents dir; next imap timer picks it up, no restart"
+}

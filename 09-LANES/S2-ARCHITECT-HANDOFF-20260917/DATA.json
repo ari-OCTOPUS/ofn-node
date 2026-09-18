@@ -1,0 +1,202 @@
+{
+  "schema": "octopus.s2-handoff-data.v1",
+  "assembled_at_utc": "2026-09-17T09:28:57.161922+00:00",
+  "new_season_executed": false,
+  "runtime_observation_window": "2026-09-17 S1 receipts; refresh before action",
+  "owner_scope_ref": "evidence/s1/OWNER-SCOPE.json",
+  "policy": {
+    "currency": "USD",
+    "scope": "API cost",
+    "month_cap": 100,
+    "rolling_24h_cap": 10,
+    "task_cap": 2,
+    "stricter_runtime_wins": true,
+    "real_external_send": "existing two-step release required",
+    "ziman_hold_external": true
+  },
+  "governance": {
+    "report_gov_version": "V8",
+    "last_reported_ladder": "L2",
+    "refresh_required": true,
+    "warning": "V8 L0-L4, season A0-A5 and survival A0-A7 are distinct scopes; do not infer promotions across them"
+  },
+  "sources": {
+    "runtime_git_observed": "fe0c55e0a952e0048ff6bd3ddb8ab9419cd1dc0d",
+    "integrated_candidate_commit": "31a39ee6841a592830e5530f93b52da51cca32c7",
+    "candidate_root": "F:/wt-s1-fleet-self-model-20260917",
+    "sensorium_lane_root": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917",
+    "vault_root": "F:/backup",
+    "original_handoff_lane": "F:/backup/09-LANES/S1-MATURITY-20260917"
+  },
+  "tests": {
+    "integrated_main_tests": 169,
+    "witness_component_tests": 14,
+    "sensorium_component_tests": 25,
+    "full_repo_suite": "NOT_RUN",
+    "notes": "Separate suites and scopes; counts are not a whole-system pass."
+  },
+  "fleet": {
+    "captured_at_utc": "2026-09-17T09:07:53.830537+00:00",
+    "nodes": [
+      {
+        "node_id": "138",
+        "declared_role": "commander",
+        "ssh_observation_status": "AUTHENTICATED_OBSERVATION",
+        "observation_timestamp": "2026-09-17T09:07:54.191681+00:00",
+        "persistent_job_wiring": "NOT_VERIFIED"
+      },
+      {
+        "node_id": "180",
+        "declared_role": "quality_restore_copy_RO",
+        "ssh_observation_status": "AUTHENTICATED_OBSERVATION",
+        "observation_timestamp": "2026-09-17T09:07:53.763683+00:00",
+        "persistent_job_wiring": "NOT_VERIFIED"
+      },
+      {
+        "node_id": "182",
+        "declared_role": "lab_witness",
+        "ssh_observation_status": "AUTHENTICATED_OBSERVATION",
+        "observation_timestamp": "2026-09-17T09:07:53.696305+00:00",
+        "persistent_job_wiring": "NOT_VERIFIED"
+      },
+      {
+        "node_id": "100",
+        "declared_role": "knowledge_retrieve",
+        "ssh_observation_status": "AUTHENTICATED_OBSERVATION",
+        "observation_timestamp": "2026-09-17T09:07:53.487960+00:00",
+        "persistent_job_wiring": "NOT_VERIFIED"
+      },
+      {
+        "node_id": "160",
+        "declared_role": "knowledge_prep",
+        "ssh_observation_status": "AUTHENTICATED_OBSERVATION",
+        "observation_timestamp": "2026-09-17T09:07:53.286779+00:00",
+        "persistent_job_wiring": "NOT_VERIFIED"
+      },
+      {
+        "node_id": "193",
+        "declared_role": "model_infer",
+        "ssh_observation_status": "AUTHENTICATED_OBSERVATION",
+        "observation_timestamp": "2026-09-17T09:07:53.686177+00:00",
+        "persistent_job_wiring": "NOT_VERIFIED"
+      },
+      {
+        "node_id": "114",
+        "declared_role": "eval_batch",
+        "ssh_observation_status": "AUTHENTICATED_OBSERVATION",
+        "observation_timestamp": "2026-09-17T09:07:53.740961+00:00",
+        "persistent_job_wiring": "NOT_VERIFIED"
+      }
+    ],
+    "daemon_integration": "NOT_DEPLOYED_BY_S1",
+    "signature_verified": false,
+    "laptop_hub_dependency": "REPORTED_PRESENT; measure failure behavior"
+  },
+  "sensorium": {
+    "hashes": {
+      "original\\app.py": "0386a4ddebc1c57c11541f852c446015124f085d06afb3250a6dc50902f75e8e",
+      "original\\snapshot.py": "d9c8ce85167ced9df59f320a382ca23a879ebf21f1b13be87041a86c7cd35a98",
+      "original\\state_machine.py": "95ee5d33a3e227b236ba230c7e2412e5ba616806c5ecbfd473e8b2ea8e309537",
+      "candidate\\octopus_sensorium\\app.py": "79a10dbd02392a381b9b262d62011f4b9c37e9f6228ac5dd951a483dfe0ba4be",
+      "candidate\\octopus_sensorium\\snapshot.py": "48cfac2e6a0cde62b86af08a8ca7843aac12e2ff113d9d52a20877c2acdd4824",
+      "candidate\\octopus_sensorium\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acceptance": {
+      "lane": "S1-T1-REHEARSAL-20260917",
+      "registered_before": "full-replica rehearsal and any node182 deployment",
+      "status": "ENGINEERING_ACCEPTANCE_PREREGISTERED_NOT_MEASURED",
+      "scope": "same frozen real journal prefix, snapshot anchor, candidate bytes and service configuration on a non-production replica",
+      "rss_at_t_plus_1h_max_bytes": 1610612736,
+      "rss_observation": "maximum process VmRSS across the last ten 60-second samples ending at T+1h; all ten must exist",
+      "rss_threshold_basis": "1536 MiB leaves 512 MiB below the current 2048 MiB cgroup cap; engineering acceptance, not historical owner-specified numeric threshold",
+      "startup_and_soak": "No OOM kill, unexpected restart or missing sample. Collect cgroup MemoryCurrent, MemoryPeak, MemorySwapCurrent and process VmRSS/VmSwap separately.",
+      "baseline": "Run original and candidate on the same replica and frozen real input. Small corpus component measurements do not satisfy this requirement.",
+      "replay_acceptance": "New witnessed genesis anchor and all committed events after it replay to the same canonical state. Preserve KNOWN_UNREPLAYABLE historical interval 3021357..3054411 without rewriting any journal bytes.",
+      "batch_acceptance": "No caller projection, publish, snapshot or acknowledgment before durable batch completion; bounded batch age and shutdown flush; exact runtime consumer integrated and exercised.",
+      "retention_acceptance": "No unique evidence deletion. Archive/checksum/readback and replay from a retained witnessed anchor plus ordered segments before any rotation. Preserve cross-file references, seq continuity and all previous receipts.",
+      "measured_here": [
+        "isolated batch API SIGKILL cases",
+        "exact-source component contracts",
+        "one-shot real 3000-event batch API benchmark"
+      ],
+      "not_measured_here": [
+        "full replica boot",
+        "T+1h RSS",
+        "integrated service batching",
+        "power-loss durability",
+        "genesis consumer",
+        "retention reader integration"
+      ]
+    },
+    "batch_consumer": "NOT_INTEGRATED",
+    "historical_unreplayable_seq": [
+      3021357,
+      3054411
+    ],
+    "benchmark_sha256": "6a4c5483aff9bf1b274eabcea6e6d975773a4832621c7fb79a874e36fe879e07",
+    "benchmark_file_required": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/original/benchmark-events.jsonl",
+    "benchmark_file_in_bundle": false,
+    "candidate_init_py": "TEST_SCAFFOLD_EXCLUDED_DO_NOT_DEPLOY"
+  },
+  "active_witness": {
+    "node": "182",
+    "remote_script": "/root/s1-maturity-w1-20260917/collector.py",
+    "remote_receipts": "/root/s1-maturity-w1-20260917/observations.jsonl",
+    "historical_pid": 764170,
+    "planned_end_utc": "2026-09-18T09:11:20Z",
+    "historical_status": "RUNNING",
+    "pid_reuse_check_required": true,
+    "interval_seconds": 300
+  },
+  "live_mirror_replica": "node182:/root/s1-maturity-mirror-replica-20260917",
+  "read_only_code_findings": [
+    {
+      "id": "LEARN-HASH-01",
+      "path": "ofn/agents/learning_feeder.py",
+      "function": "build_evidence",
+      "finding": "snapshot_sha256 receives opslib.now_iso(); timestamp is not content hash",
+      "status": "SOURCE_OBSERVED_RUNTIME_UNVERIFIED"
+    },
+    {
+      "id": "LEARN-DENOM-02",
+      "path": "ofn/learning/lessons.py",
+      "function": "LessonExtractor.extract",
+      "finding": "max(n,1) reports sample_size >=1 when contact denominator is zero",
+      "status": "SOURCE_OBSERVED_RUNTIME_UNVERIFIED"
+    },
+    {
+      "id": "LEARN-ORDER-03",
+      "path": "ofn/learning/chain.py",
+      "function": "ActionChainLinker.build",
+      "finding": "first encountered event is used without chronological sort; test reordered input before claiming earliest evidence",
+      "status": "TEST_RECIPE_NOT_RUNTIME_DEFECT_CLAIM"
+    }
+  ],
+  "research_sources": [
+    {
+      "title": "Reflexion",
+      "url": "https://arxiv.org/abs/2303.11366"
+    },
+    {
+      "title": "Voyager",
+      "url": "https://arxiv.org/abs/2305.16291"
+    },
+    {
+      "title": "Darwin Godel Machine",
+      "url": "https://arxiv.org/abs/2505.22954"
+    },
+    {
+      "title": "Building Effective Agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents"
+    }
+  ],
+  "nonclaims": [
+    "AGI",
+    "sentience",
+    "general scientific novelty",
+    "global self-repair proven",
+    "new settled RevenueRun",
+    "complete sensorium deployment"
+  ],
+  "next_action": "Verify bundle, refresh scoped runtime identity, split owned lanes, reproduce baseline; finish existing consumers before adding organs."
+}

@@ -1,0 +1,9 @@
+{
+  "stamp_utc": "2026-09-15T04:03:36Z",
+  "ledger_bytes": 12680,
+  "ledger_sha256": "97ca3950c0577c19e1d744695b61b735a94468e1703ce1b698b1ac19beddbaa3",
+  "index_sha256": "26b92c3401f74ff7da14e2bb99979c5fbf207c2896e02ad0117ff179bea49bf8",
+  "jetstream_consumers": 0,
+  "nats_durability": "NOT_CLAIMED",
+  "bus": "jsonl_138"
+}

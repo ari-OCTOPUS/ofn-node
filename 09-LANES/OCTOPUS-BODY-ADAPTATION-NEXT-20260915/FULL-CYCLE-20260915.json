@@ -1,0 +1,135 @@
+{
+  "ALL_TIMERS_ON_138": [
+    "octopus-fleet-scheduler.timer (30min, capaware)",
+    "octopus-experience-ingest.timer (15min)",
+    "octopus-feedback-loop.timer (60min)",
+    "octopus-glass.timer (5min)",
+    "octopus-coding-worker.timer (5.5min)",
+    "octopus-ops-agent.timer (5min)",
+    "octopus-revenue-drive.timer (varies)",
+    "octopus-heartbeat.timer (20min)",
+    "octopus-witness.timer (varies)",
+    "octopus-brainwake.timer (varies)",
+    "octopus-scheduler.timer (varies)"
+  ],
+  "CHERRY_CHAIN_FIX": {
+    "sha": "api_budget.py 05766a3b → b5af7c7d",
+    "verified": "api_budget.paid_call returns valid JSON from deepseek",
+    "what": "patch tasks now skip local 0.6B and go to deepseek"
+  },
+  "CLOSED_LOOP_STATUS": {
+    "nodes_wired": {
+      "100": "knowledge_retrieve",
+      "114": "evaluator (structured, error_class + score + next_action)",
+      "138": "coordinator + scheduler + feedback-loop timer (60min)",
+      "160": "ingestion (candidate→fact/hypothesis with provenance+dedup)",
+      "180": "quality + restore",
+      "182": "witness",
+      "193": "model_infer (T3)"
+    },
+    "total_nodes": 7,
+    "unwired": [],
+    "verdict": "ALL NODES WIRED AND CONNECTED",
+    "wired": 7
+  },
+  "CORPUS": {
+    "auto_ingest": "octopus-experience-ingest.timer (15min)",
+    "ingestion_160": "separate service with dedup+provenance",
+    "total": 367
+  },
+  "EVALUATOR_114": {
+    "error_classes": [
+      "EMPTY_RESPONSE",
+      "INVALID_JSON",
+      "SCHEMA_MISMATCH",
+      "PATH_VIOLATION",
+      "ANCHOR_DRIFT",
+      "EOL_CORRUPTION",
+      "TEST_FAILURE",
+      "TIMEOUT",
+      "WRONG_ANSWER",
+      "CITATION_MISSING",
+      "ABSTENTION_WRONG",
+      "DEPENDENCY_UNMET",
+      "WITNESS_UNAVAILABLE"
+    ],
+    "output_schema": "input→expected→actual→error_class→evidence→score→next_action",
+    "port": 8114,
+    "types": [
+      "patch",
+      "answer",
+      "deploy",
+      "generic"
+    ]
+  },
+  "FEEDBACK_LOOP_138": {
+    "consumes": "coding-receipts, learning, ops-receipts",
+    "first_cycle": {
+      "at": "2026-09-15T05:09:46Z",
+      "facts_ingested": 2,
+      "failures_evaluated": 9,
+      "hypotheses": 0,
+      "improvements_generated": 2,
+      "successes_evaluated": 2
+    },
+    "improvements": [
+      {
+        "error_class": "PATCH_REJECTED",
+        "frequency": 8,
+        "priority": "high"
+      },
+      {
+        "error_class": "WORKER_ABNORMAL",
+        "frequency": 1,
+        "priority": "low"
+      }
+    ],
+    "produces": "improvements.jsonl (coding worker can consume) + facts to 160",
+    "timer": "octopus-feedback-loop.timer (every 60min)"
+  },
+  "GOV_VERSION": "V8",
+  "INGESTION_160": {
+    "evidence_grades": {
+      "fact": "E2",
+      "hypothesis": "E1"
+    },
+    "fact_types": {
+      "decision": "owner vote/authorization",
+      "event": "raw without definitive outcome (skipped)",
+      "fact": "definitive receipt-backed (deployment, revenue, fleet_node, etc)",
+      "hypothesis": "observed patterns needing confirmation (patch_failure, self_feed)"
+    },
+    "pipeline": "event→candidate→dedup/provenance→fact|hypotesis|event",
+    "port": 8160,
+    "provenance_required": [
+      "source_refs",
+      "timestamp",
+      "node_id",
+      "body_hash"
+    ]
+  },
+  "LADDER": "L2",
+  "REMAINING": [
+    {
+      "id": "G8-deploy",
+      "what": "ops-agent will pick up from queue when witness available"
+    },
+    {
+      "id": "PB1-24h",
+      "what": "window active since 04:31Z, PASS earliest 2026-09-16T04:31Z"
+    },
+    {
+      "id": "PB4-retest",
+      "what": "with 367-fact corpus + deepseek patches"
+    },
+    {
+      "id": "114-160-systemd",
+      "what": "services running via nohup; systemd unit pending"
+    }
+  ],
+  "at_utc": "2026-09-15T05:10:13Z",
+  "customer_send": false,
+  "go_b4": false,
+  "hold_external": true,
+  "schema": "octopus.body-adaptation.full-cycle.v1"
+}

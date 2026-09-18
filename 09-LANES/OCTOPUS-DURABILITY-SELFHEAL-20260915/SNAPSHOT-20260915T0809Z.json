@@ -1,0 +1,27 @@
+{
+  "schema": "octopus.durability.snapshot.v1",
+  "lane": "OCTOPUS-DURABILITY-SELFHEAL-20260915",
+  "captured_at_utc": "2026-09-15T08:09:05Z",
+  "source": "read-only ssh probes on 138 (fleet_jobs.jsonl, systemctl, ops_agent.budget_allows, ps on 114/160)",
+  "fleet_jobs": {
+    "total": 103,
+    "histogram": {"QUEUED": 19, "LEASED": 18, "RUNNING": 17, "ACK_RESULT": 15, "PERSISTED": 15, "CLOSED": 15, "UNKNOWN": 2, "REJECTED": 2},
+    "non_terminal": 69,
+    "row_schema_fields_present": ["lease_expiry", "idempotency_key", "attempt", "deadline", "ack_at", "bump_attempt", "input_hash", "job_id", "commander_node_id", "customer_send", "external_effects"],
+    "finding": "schema for durable execution EXISTS (lease/idempotency/attempt) but no reaper enforces it — the exact gap OPT2 closes"
+  },
+  "services": {
+    "octopus-ops-agent": "inactive/dead (timer-driven oneshot — normal)",
+    "octopus-glass": "inactive/dead (timer-driven oneshot — normal)",
+    "octopus-router": "active/running",
+    "octopus-supervisor": "active/running",
+    "node114_evaluator": {"pid": 5005, "ppid": 1, "elapsed": "02:59:48", "note": "orphaned nohup — reboot-fragile"},
+    "node160_ingestion": {"pid": 3668, "ppid": 1, "elapsed": "02:59:45", "note": "orphaned nohup — reboot-fragible"}
+  },
+  "breakers": {"B2": "OK", "B3": "OK", "B5": "CIRCUIT_BREAKER_OPEN", "B6": "OK", "RY(B8)": "OK"},
+  "risks_observed": [
+    "69/103 rows non-terminal with leases/ack machinery present but unenforced",
+    "B5 breaker open since 06:38Z — no auto-root-cause",
+    "114/160 persistence still nohup (owner install plan staged in forensic lane)"
+  ]
+}

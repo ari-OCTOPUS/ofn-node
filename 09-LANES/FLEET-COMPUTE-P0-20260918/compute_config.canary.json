@@ -1,0 +1,35 @@
+{
+  "schema": "compute_config.v1",
+  "mode": "canary",
+  "commander_node_id": "138",
+  "ssh_key": "octopus_mesh_ed25519",
+  "agent_path": "/usr/local/bin/compute_worker.py",
+  "work_root": "/var/lib/octopus-compute",
+  "nodes": [
+    { "id": "114", "ssh": "root@192.168.0.114" }
+  ],
+  "policy": {
+    "max_telemetry_age_s": 120,
+    "temp_ceiling_millic": 70000,
+    "temp_admit_millic": 55000,
+    "mem_used_pct_ceiling": 80.0,
+    "mem_avail_min_mb": 400,
+    "load_per_core_ceiling": 1.2,
+    "cpu_pct_admit": 45.0,
+    "disk_used_pct_ceiling": 90.0,
+    "reserved_cores": 1,
+    "reserved_mem_mb": 512,
+    "lease_seconds": 120,
+    "owner_pause": false,
+    "allowed_nodes": ["114"],
+    "max_failures_before_quarantine": 2
+  },
+  "cgroup": {
+    "CPUQuota": "50%",
+    "CPUWeight": "50",
+    "MemoryMax": "512M",
+    "MemoryHigh": "384M",
+    "IOWeight": "50"
+  },
+  "notes": "Phase 2 canary: exactly one node (114), cgroup-limited to 50% of one core-equivalent quota. 182 is excluded permanently: it holds the witness/audit-latch role and must not gain execution authority."
+}

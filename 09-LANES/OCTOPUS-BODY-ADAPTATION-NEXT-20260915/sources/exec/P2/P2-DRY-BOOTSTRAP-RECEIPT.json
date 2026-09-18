@@ -1,0 +1,38 @@
+{
+  "schema": "p2_dry_bootstrap_receipt.v1",
+  "utc": "2026-09-15T03:36:19Z",
+  "mode": "DRY_BOOTSTRAP",
+  "sec_sot_sha": "52887e1a088d6d4e87f2a8c14879db392a647d450afe8473ea0a5e620022d268",
+  "arch_state_machine_sha": "7323758d2a9ec7588e3f3b391370eef5c47628a996df68283429be33f5fbae20",
+  "commander_node_id": "138",
+  "customer_send": false,
+  "external_effects": 0,
+  "bus": "SHADOW_LOCAL_JSONL",
+  "nats_durability": "NOT_CLAIMED",
+  "nats_note": "JetStream YES but consumers=0 \u2014 DENY durable-bus claim; shadow ledger only",
+  "paths": {
+    "ledger": "/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl",
+    "index": "/home/ari/ofn/state/fleet-jobs/idempotency_index.json",
+    "module": "/home/ari/ofn/state/fleet-jobs/fleet_job_sm.py",
+    "schema": "/home/ari/ofn/state/fleet-jobs/schemas/fleet_job.v1.schema.json"
+  },
+  "selftest": "PASS",
+  "tests": [
+    "idempotency",
+    "UNKNOWN_no_silent_success",
+    "shell_job_type_REJECTED",
+    "happy_CLOSED_external_effects_0"
+  ],
+  "deny": [
+    "no production enqueue",
+    "no revenue reuse",
+    "no dual-commander",
+    "no shell-as-job_type",
+    "STOP before P3"
+  ],
+  "shas": {
+    "schema": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59",
+    "module": "6ce7fd1609b672d9f33e52a543a623eb5103e5e9077744cf3a452967b3f311e2",
+    "ledger": "a71a8888d10911508180fd21a26ac4598208a47d3169edced0025bdd82ed693f"
+  }
+}

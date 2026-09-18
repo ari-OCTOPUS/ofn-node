@@ -1,0 +1,98 @@
+﻿{
+  "schema": "P4-NODE-AUTH-RECEIPT",
+  "stamp_utc": "2026-09-15T03:44:56Z",
+  "verdict": "PASS",
+  "method_primary": "mesh_ssh",
+  "mesh_credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+  "arch_design_sha256": "8b0a5e03c4df626cb735a54ba16e0a02c948f23c9a9066d7fe0354e107316cd2",
+  "sec_addendum_sha256": "db62b3357c24f464b047926a51132829f08f7dc9222f58bcf4df033d59f2a0a9",
+  "sec_align_sha256": "9057f9ec175b3d4e75fe7c0e969a2b7a3b83138e34ce17b4891221d44a53bc6a",
+  "registry_schema_sha256": "47d76eeb9639689388d9737cdaeb5dc6b7f3ba2c1377fbd18af5ca8b718d9bb2",
+  "registry_path": "/home/ari/ofn/state/fleet-nodes/registry.jsonl",
+  "out_path": "/home/ari/hw-exec-t0/P4-NODE-AUTH",
+  "nodes_json_backup": "/home/ari/octopus-mesh/config/nodes.json.bak-p4-20260915T034459Z",
+  "sm_patched": true,
+  "per_node": {
+    "100": {
+      "auth_status": "OK",
+      "bind_role": "knowledge_retrieve",
+      "pubkey_fp": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "challenge_verify": "n/a_primary_mesh_ssh_batchmode",
+      "hb_sig_verify": "n/a_primary_mesh_ssh_batchmode",
+      "batchmode_strict_hostkey": true,
+      "strict_hostkey_negative_reject": true,
+      "hostname": "octopus-compute-100",
+      "boot_id": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a"
+    },
+    "160": {
+      "auth_status": "OK",
+      "bind_role": "knowledge_prep",
+      "pubkey_fp": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "challenge_verify": "n/a_primary_mesh_ssh_batchmode",
+      "hb_sig_verify": "n/a_primary_mesh_ssh_batchmode",
+      "batchmode_strict_hostkey": true,
+      "strict_hostkey_negative_reject": true,
+      "hostname": "octopus-compute-160",
+      "boot_id": "bacb05a6-b351-4531-a232-371d3a32c2a6"
+    },
+    "193": {
+      "auth_status": "OK",
+      "bind_role": "model_infer",
+      "pubkey_fp": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "challenge_verify": "n/a_primary_mesh_ssh_batchmode",
+      "hb_sig_verify": "n/a_primary_mesh_ssh_batchmode",
+      "batchmode_strict_hostkey": true,
+      "strict_hostkey_negative_reject": true,
+      "hostname": "octopus-model-plus-193",
+      "boot_id": "92a8e9fd-d7cd-4b91-a1a9-af8d92a2f46b"
+    },
+    "114": {
+      "auth_status": "OK",
+      "bind_role": "eval_batch",
+      "pubkey_fp": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "challenge_verify": "n/a_primary_mesh_ssh_batchmode",
+      "hb_sig_verify": "n/a_primary_mesh_ssh_batchmode",
+      "batchmode_strict_hostkey": true,
+      "strict_hostkey_negative_reject": true,
+      "hostname": "octopus-pro-114",
+      "boot_id": "b7a638d4-adb7-4f15-a1d6-01986fa65c69"
+    }
+  },
+  "matrix_path": "/home/ari/hw-exec-t0/P4-NODE-AUTH/P4-7ROW-MATRIX.json",
+  "auth_proof_index": "/home/ari/hw-exec-t0/P4-NODE-AUTH/auth_proof_index.v1.json",
+  "lease_tests": {
+    "lease_ok_100": {
+      "pass": true,
+      "state": "LEASED"
+    },
+    "lease_deny_unregistered": {
+      "pass": true,
+      "error": "REJECTED: LEASE DENY auth_status=UNREGISTERED for node_id=999 (need OK)"
+    },
+    "auth_status_100": "OK",
+    "auth_status_180": "OK"
+  },
+  "registry_validation_errors": {},
+  "hb_updates": {
+    "100": {
+      "rc": 0
+    },
+    "160": {
+      "rc": 0
+    },
+    "193": {
+      "rc": 0
+    },
+    "114": {
+      "rc": 0
+    }
+  },
+  "controls": {
+    "may_authorize_all_false": true,
+    "commander_sole_138": true,
+    "customer_send": false,
+    "stop_before_p5": true,
+    "no_secret_paste": true
+  },
+  "blockers": []
+}

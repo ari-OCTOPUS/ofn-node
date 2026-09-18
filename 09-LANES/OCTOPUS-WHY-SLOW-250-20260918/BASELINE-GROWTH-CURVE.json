@@ -1,0 +1,145 @@
+{
+ "schema": "octopus.why-slow-250.baseline.v1",
+ "lane": "OCTOPUS-WHY-SLOW-250-20260918",
+ "measured_at": "2026-09-18T00:10:00Z",
+ "season_window": {
+  "from": "2026-09-07",
+  "to": "2026-09-18",
+  "days": 11
+ },
+ "axes": {
+  "A_verified_cash": {
+   "value": 0.0,
+   "unit": "USD",
+   "slope": "0.00/day",
+   "sources": [
+    "138:state/revenue-drive/season-meter.json",
+    "138:state/revenue-drive/revenue-state.json#verified_cash_aud"
+   ]
+  },
+  "B_customer_replies": {
+   "replies_detected": 4,
+   "replies_answered": 1,
+   "first_reply_at": "2026-09-16T00:22:06Z",
+   "answered_at": "2026-09-16T06:15:59Z",
+   "latency_hours": 5.9,
+   "reply_rate": "1/35≈3%",
+   "sources": [
+    "138:season-meter.json",
+    "138:sent-log.jsonl"
+   ]
+  },
+  "C_offers_sent": {
+   "total_rows": 39,
+   "breakdown": {
+    "packet": 22,
+    "quote": 13,
+    "followup_1": 3,
+    "reply_1": 1
+   },
+   "by_day": {
+    "2026-09-13": 10,
+    "2026-09-14": 8,
+    "2026-09-15": 10,
+    "2026-09-16": 11,
+    "2026-09-17": 0,
+    "2026-09-18": 0
+   },
+   "last_send_at": "2026-09-16T06:15:59Z",
+   "sources": [
+    "138:sent-log.jsonl"
+   ]
+  },
+  "C2_counter_conflict": {
+   "channel_authorized": 94,
+   "state_sent": 3,
+   "sent_log_rows": 39,
+   "meter_staged": 103,
+   "meter_sent_state": 3,
+   "sources": [
+    "138:revenue-state.json",
+    "138:season-meter.json",
+    "138:sent-log.jsonl"
+   ]
+  },
+  "D_owner_decisions": {
+   "decisions_rows": 17,
+   "window_days": 5,
+   "rate_per_day": 2.6,
+   "traffic_card_open_days": 4.8,
+   "money_batch_cards_pending": 2,
+   "decision_consumption_rows": 2081,
+   "no_task_retryable": 2078,
+   "spin_per_hour": 66,
+   "sources": [
+    "138:owner-decisions.jsonl",
+    "138:owner-ask-registry.json",
+    "138:decision_consumption.jsonl"
+   ]
+  },
+  "E_cycles_throughput": {
+   "commits_12d": 260,
+   "commits_by_day": [
+    53,
+    50,
+    7,
+    5,
+    17,
+    2,
+    23,
+    8,
+    36,
+    12,
+    34,
+    13
+   ],
+   "formal_cycle_records": 1,
+   "fleet_jobs_closed": "144/150",
+   "sources": [
+    "git log",
+    "138:CYCLE-STTL-001.json",
+    "138:fleet_jobs.jsonl"
+   ]
+  },
+  "F_learning": {
+   "loo_verdict": "MEMORY_HURTS",
+   "loo_n": 141,
+   "loo_on": 138,
+   "loo_off": 139,
+   "multi_keys": 1,
+   "mixed_polarity": [
+    "646d80a894ad3e8f"
+   ],
+   "delta_vs_prev": [
+    0,
+    0,
+    0
+   ],
+   "outbound_effects_bytes": 0,
+   "sources": [
+    "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/LOO-cycle1.json",
+    "138:outbound-effects.sqlite3"
+   ]
+  },
+  "G_infra": {
+   "nodes_online": "7/7",
+   "pulse_interval_s": "30-60",
+   "restore_drill": "NOT_RUN",
+   "archive_S": "OFFLINE",
+   "smartmontools": "FAILED(register)",
+   "mirror_freshness_h": 9.3,
+   "load138": "1.0-1.5",
+   "heartbeat_timer_first_run": "2026-09-18T00:20Z(pending)",
+   "sources": [
+    "06-EVIDENCE/FLEET-HEARTBEAT-CANONICAL.md",
+    "138:finding register",
+    "138:systemctl list-timers"
+   ]
+  }
+ },
+ "missing_ledgers": [
+  "bounce/deliverability log",
+  "funnel conversion columns (staged→sent→replied→won)",
+  "time-allocation record per work type"
+ ]
+}

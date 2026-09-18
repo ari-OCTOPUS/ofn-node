@@ -1,0 +1,8 @@
+---- 100 ----
+{'schema': 'octopus_worker_heartbeat.v1', 'node_id': '100', 'role': 'retrieve', 'hostname': 'octopus-compute-100', 'boot_id': '1d9d56a9-9591-451e-bdbe-a04f2c898a3a', 'utc': '2026-09-15T03:31:26Z', 'temp_c': '32.4', 'loadavg': '0.07 0.02 0.00', 'mem_available_kb': 3777728, 'commander': False, 'may_authorize': False}
+---- 160 ----
+{'schema': 'octopus_worker_heartbeat.v1', 'node_id': '160', 'role': 'prep', 'hostname': 'octopus-compute-160', 'boot_id': 'bacb05a6-b351-4531-a232-371d3a32c2a6', 'utc': '2026-09-15T03:31:26Z', 'temp_c': '27.8', 'loadavg': '0.16 0.03 0.01', 'mem_available_kb': 3806224, 'commander': False, 'may_authorize': False}
+---- 193 ----
+{'schema': 'octopus_worker_heartbeat.v1', 'node_id': '193', 'role': 'model-server', 'hostname': 'octopus-model-plus-193', 'boot_id': '92a8e9fd-d7cd-4b91-a1a9-af8d92a2f46b', 'utc': '2026-09-15T03:31:27Z', 'temp_c': '28.7', 'loadavg': '0.00 0.03 0.05', 'mem_available_kb': 3804964, 'commander': False, 'may_authorize': False}
+---- 114 ----
+{'schema': 'octopus_worker_heartbeat.v1', 'node_id': '114', 'role': 'eval', 'hostname': 'octopus-pro-114', 'boot_id': 'b7a638d4-adb7-4f15-a1d6-01986fa65c69', 'utc': '2026-09-15T03:31:27Z', 'temp_c': '27.8', 'loadavg': '0.02 0.02 0.00', 'mem_available_kb': 3807340, 'commander': False, 'may_authorize': False}

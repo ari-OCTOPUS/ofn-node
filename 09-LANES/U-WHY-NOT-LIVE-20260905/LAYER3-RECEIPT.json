@@ -1,0 +1,235 @@
+{
+  "schema": "octopus.layer3-receipt.v1",
+  "measured_at": "2026-09-05T16:04:02+10:00",
+  "measured_at_utc": "2026-09-05T06:04:02Z",
+  "reverified_at": "2026-09-05T16:08:02+10:00",
+  "reverified_at_utc": "2026-09-05T06:08:02Z",
+  "tunnels_already_exist": true,
+  "vantage": "ssh_local_forward_from_laptop_191",
+  "scope": "this_host_only plus node138 via tunnel",
+  "claim_type": "observation",
+  "live_organism_claim": false,
+  "layer": 3,
+  "pass": true,
+  "canonical_body": "node138",
+  "this_host": {
+    "hostname": "DESKTOP-KA9RFN5",
+    "wifi": "192.168.0.191",
+    "not_node180": true
+  },
+  "collision_avoidance": {
+    "laptop_8791_left_alone": true,
+    "laptop_8791_listen": true,
+    "laptop_8791_pid": 2324,
+    "laptop_8791_cmd": "\"C:\\Program Files\\Python313\\python.exe\" tools/buynsw-harvester/ingest_server.py --port 8791 --allow-no-auth",
+    "forward_ports_used": [
+      18791,
+      18792,
+      18793,
+      18794,
+      18796
+    ],
+    "note": "harvest ingest already owns 127.0.0.1:8791; forwards use 18791-18794 and 18796"
+  },
+  "tunnel": {
+    "ssh_start_exit": 0,
+    "ssh_pid": 26364,
+    "stderr": null,
+    "argv_bind": "127.0.0.1 only",
+    "gateway_ports": false,
+    "remote": "ari@192.168.0.138",
+    "started_this_run": true,
+    "direction": "laptop_191_to_138_loopback",
+    "bind": "127.0.0.1",
+    "bind_addrs_observed": [
+      "127.0.0.1"
+    ],
+    "bind_ok_localhost_only": true,
+    "map": [
+      "18791->127.0.0.1:8791",
+      "18792->127.0.0.1:8792",
+      "18793->127.0.0.1:8793",
+      "18794->127.0.0.1:8794",
+      "18796->127.0.0.1:8796"
+    ],
+    "listen_table": [
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18796,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18794,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18793,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18792,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 18791,
+        "OwningProcess": 26364
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 8791,
+        "OwningProcess": 2324
+      }
+    ],
+    "ssh_write_on_138": false,
+    "wildcard_bind": false
+  },
+  "healthz_via_tunnel": {
+    "8791": {
+      "port": 18791,
+      "url": "http://127.0.0.1:18791/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 12,
+      "body": {
+        "ok": true
+      },
+      "remote_port": 8791,
+      "role": "ziman",
+      "loopback_open": true
+    },
+    "8792": {
+      "port": 18792,
+      "url": "http://127.0.0.1:18792/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 12,
+      "body": {
+        "ok": true
+      },
+      "remote_port": 8792,
+      "role": "lead",
+      "loopback_open": true
+    },
+    "8793": {
+      "port": 18793,
+      "url": "http://127.0.0.1:18793/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 12,
+      "body": {
+        "ok": true
+      },
+      "remote_port": 8793,
+      "role": "studio",
+      "loopback_open": true
+    },
+    "8794": {
+      "port": 18794,
+      "url": "http://127.0.0.1:18794/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 12,
+      "body": {
+        "ok": true
+      },
+      "remote_port": 8794,
+      "role": "owner",
+      "loopback_open": true
+    },
+    "8796": {
+      "port": 18796,
+      "url": "http://127.0.0.1:18796/healthz",
+      "http": 200,
+      "ok": true,
+      "err": null,
+      "n": 38,
+      "body": {
+        "ok": true,
+        "name": "octopus-bridge"
+      },
+      "remote_port": 8796,
+      "role": "bridge",
+      "loopback_open": true
+    }
+  },
+  "ofn_legs_healthz_200": true,
+  "bridge_8796_healthz_200": true,
+  "leg_roles": {
+    "8791": "ziman",
+    "8792": "lead",
+    "8793": "studio",
+    "8794": "owner",
+    "8796": "octopus_bridge.run",
+    "role_source": "F:/ofn-node/ofn/config.py:294"
+  },
+  "laptop_8791_healthz": {
+    "port": 8791,
+    "url": "http://127.0.0.1:8791/healthz",
+    "http": null,
+    "ok": null,
+    "err": "TimeoutError",
+    "n": 0,
+    "body": null,
+    "role_on_this_host": "harvest_ingest",
+    "listen_pid": 2324,
+    "listen_cmd": "\"C:\\Program Files\\Python313\\python.exe\" tools/buynsw-harvester/ingest_server.py --port 8791 --allow-no-auth"
+  },
+  "this_host_8792_8794_8796": {
+    "8792": false,
+    "8793": false,
+    "8794": false,
+    "8796": false,
+    "note": "ofn.run legs still absent on this host; empty 8792-8794 is body_not_on_this_host"
+  },
+  "node180": {
+    "tried": "ari@192.168.0.180",
+    "ssh_exit": 255,
+    "stderr": "ari@192.168.0.180: Permission denied (publickey,password).",
+    "host_reachable_tcp22": true,
+    "password_guesses": 0,
+    "root_tried": false,
+    "role": "UNDECIDED",
+    "role_decided_by_this_lane": false,
+    "tunnel_138_to_180": "not_attempted_no_180_auth_and_no_ssh_write_on_138",
+    "status": "auth_failed"
+  },
+  "not_done_this_layer": [
+    "HOLD_EXTERNAL remains closed",
+    "180 role remains UNDECIDED (owner)",
+    "138->180 tunnel not opened (no 180 auth; no SSH write on 138)",
+    "no live-organism claim"
+  ],
+  "reverify": {
+    "tunnels_already_exist": true,
+    "started_this_run": false,
+    "ssh_pid_still": 26364,
+    "bind": "127.0.0.1",
+    "wildcard_bind": false,
+    "laptop_8791_left_alone": true,
+    "laptop_8791_pid": 2324,
+    "healthz": {
+      "18791": {"http": 200, "ok": true, "n": 12, "body": {"ok": true}},
+      "18792": {"http": 200, "ok": true, "n": 12, "body": {"ok": true}},
+      "18793": {"http": 200, "ok": true, "n": 12, "body": {"ok": true}},
+      "18794": {"http": 200, "ok": true, "n": 12, "body": {"ok": true}},
+      "18796": {"http": 200, "ok": true, "n": 38, "body": {"ok": true, "name": "octopus-bridge"}}
+    },
+    "18795": {
+      "opened": false,
+      "local_listen": false,
+      "reason": "138:8795 not_listen this hour; no ofn/bridge on 8795"
+    },
+    "138_ss_loopback": ["127.0.0.1:8791", "127.0.0.1:8792", "127.0.0.1:8793", "127.0.0.1:8794", "127.0.0.1:8796"],
+    "138_ss_8795": "not_listen",
+    "138_ss_source": "ssh ari@192.168.0.138 ss -lnt"
+  },
+  "source": "verify_layer3.py + reverify_existing_forwards"
+}

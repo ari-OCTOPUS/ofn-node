@@ -1,0 +1,81 @@
+{
+  "schema": "PB-5-NPU-HONESTY",
+  "status": "PASS",
+  "stamp_utc": "2026-09-15T04:03:57Z",
+  "t2_matrix_sha256": "d13f19285482a2a346b8b26979f2341c8f7a4ccef50c281967e47cabfc469df5",
+  "t2_matrix_path": "/home/ari/hw-exec-t0/T2-PILOT/T2-NPU-INFERENCE-MATRIX.json",
+  "source": "fold_T2_measured",
+  "denominator": 7,
+  "pass_count": 6,
+  "not_run_count": 1,
+  "rows": [
+    {
+      "node": "138",
+      "status": "NOT_RUN",
+      "note": "organism_optional_last"
+    },
+    {
+      "node": "180",
+      "status": "PASS",
+      "latency_ms_mean": 19.83,
+      "latency_ms_p50": 20.095,
+      "latency_ms_p95": 20.762,
+      "throughput_fps": 50.429
+    },
+    {
+      "node": "182",
+      "status": "PASS",
+      "latency_ms_mean": 16.815,
+      "latency_ms_p50": 16.811,
+      "latency_ms_p95": 17.053,
+      "throughput_fps": 59.472
+    },
+    {
+      "node": "100",
+      "status": "PASS",
+      "latency_ms_mean": 20.638,
+      "latency_ms_p50": 20.846,
+      "latency_ms_p95": 23.657,
+      "throughput_fps": 48.454
+    },
+    {
+      "node": "160",
+      "status": "PASS",
+      "latency_ms_mean": 20.613,
+      "latency_ms_p50": 20.255,
+      "latency_ms_p95": 24.26,
+      "throughput_fps": 48.513
+    },
+    {
+      "node": "193",
+      "status": "PASS",
+      "latency_ms_mean": 19.909,
+      "latency_ms_p50": 20.346,
+      "latency_ms_p95": 20.541,
+      "throughput_fps": 50.23
+    },
+    {
+      "node": "114",
+      "status": "PASS",
+      "latency_ms_mean": 21.954,
+      "latency_ms_p50": 20.542,
+      "latency_ms_p95": 40.871,
+      "throughput_fps": 45.549
+    }
+  ],
+  "nominal_TOPS_per_board_RK3588": 6,
+  "nominal_TOPS_note": "RK3588 ~6 TOPS/board NOMINAL only \u2014 NEVER usable-42 / unused-ready claim",
+  "deny": [
+    "usable-42-TOPS",
+    "unused-ready-capacity",
+    "invent_latency"
+  ],
+  "model_runtime_hash": null,
+  "model_runtime_hash_note": "T2 matrix did not embed model/runtime file hash in summary JSON; latency/fps measured per-node where PASS",
+  "customer_send": false,
+  "sec_p6_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+  "design_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b",
+  "caveats": [
+    "138 NOT_RUN organism_optional_last retained; Gate A open; nominal TOPS only"
+  ]
+}

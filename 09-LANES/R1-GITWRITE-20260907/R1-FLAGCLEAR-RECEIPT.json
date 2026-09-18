@@ -1,0 +1,23 @@
+{
+  "schema": "r1.flagclear.receipt.v1",
+  "lane_id": "R1-GITWRITE-20260907",
+  "cleared_at": "2026-09-07 ~13:5x AEST (after the 13:49 scheduled run)",
+  "authority": "the system's own recorded clear-condition — handshake/emit_cycle.py OWNER_PENDING: 'GITWRITE-FAILED.flag stays until AUTO hourly path is green' (state: held-deliberately). No new owner ruling was invented; condition was measured as met.",
+  "condition_evidence": [
+    "2026-09-07 13:33:23  OK push + state  (manual verification run, rc=0 — pipeline proof after ref surgery)",
+    "2026-09-07 13:49:54  OK push + state  (SCHEDULED/AUTO run — the condition itself)",
+    "prior failing pattern (for contrast): continuous 'FAIL push failed AND bundle fallback failed' since 2026-09-06 18:49, lock TIMEOUT 03:50:21"
+  ],
+  "action": {
+    "file": "F:/backup/_ops/backup/GITWRITE-FAILED.flag",
+    "pre_sha256": "e6388c2c2594b7f66f13a15f91ef0cf728ebd8d4f9456e9a29eb4ee350b97d6e",
+    "content": "GITWRITE-FAILED 2026-09-07_035021 : git-write lock TIMEOUT after 40 attempts on F:\\backup\\ops\\backup\\gitwrite.lock (BOM-prefixed)",
+    "disposition": "NOT deleted — moved (byte-identical) to 09-LANES/R1-GITWRITE-20260907/archive_GITWRITE-FAILED.flag-20260907T035021Z per AGENTS.md §7",
+    "post_verification": "opslib.gitwrite_failed() -> None (health check returns ok); _ops/backup now empty; next scheduled run 14:49:04"
+  },
+  "residual_watch": [
+    "germline-daily (03:30) recovery expected tomorrow now that lock collisions are gone — verify last_backup_manifest.json stamp updates from 2026-09-01_0330",
+    "structural cards remain open for owner: hourly-cadence-unfit full-bundle fallback (incremental --since= bundles or higher FALLBACK_MIN_HOURS) and repo diet R5"
+  ],
+  "counters": "EXTERNAL_ACTIONS=0"
+}

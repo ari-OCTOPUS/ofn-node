@@ -1,0 +1,44 @@
+{
+  "schema": "octopus.this-host-loop-death.v1",
+  "vantage": "this_host_only",
+  "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+  "asserted_ip": "192.168.0.191",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "measured_at_local": "2026-09-05T15:19+10",
+  "verdict": "INTENTIONAL_OWNER_STOP_LIGHT_CALIB_2026-09-04",
+  "not": ["crash_unexplained", "reboot_kill", "missing_code", "138_body_missing"],
+  "stop_organism": {
+    "exists": true,
+    "bytes": 47,
+    "text": "light-calib-2026-09-04 owner GO kalybr-sabok",
+    "last_write_local": "2026-09-04T14:54:30.6500633+10:00",
+    "path": "F:/backup/_ops/STOP-ORGANISM"
+  },
+  "organism_state_last_write_local": "2026-09-04T14:46:26.2144626+10:00",
+  "last_boot_local": "2026-09-03T09:11:06.5942850+10:00",
+  "other_halt_files_absent": ["STOP", "STOP-METABOLIC", "HALT-ALL", "FREEZE.flag", "RESTART-REQUESTED"],
+  "scheduled_tasks_disabled": [
+    "organism-watchdog",
+    "OCTOPUS-Cortex-Watchdog",
+    "OCTOPUS-Cockpit-Brain",
+    "OCTOPUS-Live-Watchdog"
+  ],
+  "listen_after_repro": {
+    "8771": "not_listen",
+    "8772": "not_listen",
+    "8773": "listen live\\server.py",
+    "8774": "listen miniapp_gateway",
+    "8776": "transient then not_listen",
+    "8791": "listen harvest ingest"
+  },
+  "owner_receipt": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/LIGHT-CALIB-LAPTOP-20260904.md",
+  "owner_doctrine_in_receipt": "laptop = library (no live member depends on it). Brain stays on 180.",
+  "identity_note": "This host is 191 not 180; receipt doctrine is intent, not a proof that brain is on 180 now.",
+  "restore_not_executed": true,
+  "restore_requires_owner": [
+    "Enable-ScheduledTask organism-watchdog and OCTOPUS-Cortex-Watchdog",
+    "Delete F:/backup/_ops/STOP-ORGANISM",
+    "Run RUN-ORGANISM.bat / RUN-CORTEX.bat"
+  ]
+}

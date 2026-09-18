@@ -1,0 +1,44 @@
+{
+  "schema": "octopus.owner-decision.v1",
+  "id": "D0_PRIMARY_DOMAIN_20260908",
+  "recorded_utc": "2026-09-07T22:44:25.5229281Z",
+  "origin": "direct structured user answer in current task",
+  "owner_verbatim": "۱) ziman-gift.com.au اصلی شود — جای صفحهٔ معرفی فعلی (پیشنهاد)",
+  "selected_path": "A",
+  "selected_primary": "ziman-gift.com.au",
+  "status": "APPROVED_NOT_EXECUTED",
+  "scope": {
+    "shop_myshopify_domain": "pwqytn-kp.myshopify.com",
+    "connect_domains": [
+      "ziman-gift.com.au",
+      "www.ziman-gift.com.au"
+    ],
+    "allowed_operations": [
+      "DNS records needed to connect selected domain to this Shopify shop",
+      "connect existing selected domain",
+      "set selected root domain as shop primary after connection and TLS verification"
+    ],
+    "acknowledged_effect": "existing .com.au introduction page at root will be replaced by the Shopify storefront address",
+    "other_purchased_domain_change": false,
+    "email_change": false,
+    "miniapp_publication": false,
+    "purchase_or_renewal": false
+  },
+  "previous_primary_observed": "ziman-gift.com",
+  "proposal": "DOMAIN-CONNECTION-PROPOSAL.md",
+  "execution": {
+    "dns_changed": false,
+    "shopify_changed": false,
+    "status": "waiting_for_shopify_login",
+    "browser": "Codex In-app Browser",
+    "observed_page": "Log in — Shopify",
+    "login_secret_in_chat_requested": false
+  },
+  "acceptance": [
+    "selected domain connected to same shop",
+    "valid HTTPS",
+    "primary readback equals selected root domain",
+    "existing product page opens without redirect to dead .com"
+  ],
+  "rollback": "restore captured prior DNS and primary; existing myshopify fallback authorization retained if required"
+}

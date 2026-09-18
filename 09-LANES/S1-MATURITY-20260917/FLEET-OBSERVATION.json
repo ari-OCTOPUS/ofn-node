@@ -1,0 +1,218 @@
+{
+  "schema": "octopus.fleet-observation.v1",
+  "captured_at_utc": "2026-09-17T09:07:53.830537+00:00",
+  "producer_sha256": "1c6bdc014eee5cb8efe2711eab1adf750de557e5461fa2316261102f080200b7",
+  "self_model_integration": "NOT_VERIFIED",
+  "nodes": [
+    {
+      "node_id": "138",
+      "declared_role": "commander",
+      "role_source": "DEEP-ARCH-HARVEST-20260917",
+      "runtime_job_proven": false,
+      "heartbeat_signature_verified": false,
+      "ssh_returncode": 0,
+      "observation": {
+        "observed_at_utc": "2026-09-17T09:07:54.191681+00:00",
+        "hostname": "DietPi",
+        "model": "Orange Pi 5 Pro",
+        "boot_id": "4f3f2c05-5703-4cbb-92c3-6fed8ff708bd",
+        "uptime": "203326.02 1396961.20",
+        "meminfo": {
+          "MemTotal": "4004732 kB",
+          "MemAvailable": "2581176 kB",
+          "SwapTotal": "2097148 kB",
+          "SwapFree": "2096636 kB"
+        },
+        "leaf": {
+          "returncode": 0,
+          "stdout": "active"
+        },
+        "python": {
+          "returncode": 0,
+          "stdout": "Python 3.13.5"
+        }
+      },
+      "status": "AUTHENTICATED_OBSERVATION"
+    },
+    {
+      "node_id": "180",
+      "declared_role": "quality_restore_copy_RO",
+      "role_source": "DEEP-ARCH-HARVEST-20260917",
+      "runtime_job_proven": false,
+      "heartbeat_signature_verified": false,
+      "ssh_returncode": 0,
+      "observation": {
+        "observed_at_utc": "2026-09-17T09:07:53.763683+00:00",
+        "hostname": "octopus-continuity-180",
+        "model": "Orange Pi 5 Pro",
+        "boot_id": "94c9f38e-495b-4ff7-a5d2-f902c618e4fd",
+        "uptime": "203320.22 1608402.70",
+        "meminfo": {
+          "MemTotal": "4004732 kB",
+          "MemAvailable": "1729916 kB",
+          "SwapTotal": "6291448 kB",
+          "SwapFree": "3168760 kB"
+        },
+        "leaf": {
+          "returncode": 0,
+          "stdout": "active"
+        },
+        "python": {
+          "returncode": 0,
+          "stdout": "Python 3.13.5"
+        }
+      },
+      "status": "AUTHENTICATED_OBSERVATION"
+    },
+    {
+      "node_id": "182",
+      "declared_role": "lab_witness",
+      "role_source": "DEEP-ARCH-HARVEST-20260917",
+      "runtime_job_proven": false,
+      "heartbeat_signature_verified": false,
+      "ssh_returncode": 0,
+      "observation": {
+        "observed_at_utc": "2026-09-17T09:07:53.696305+00:00",
+        "hostname": "sensorium-opi5pro",
+        "model": "Orange Pi 5 Pro",
+        "boot_id": "7a4e237a-8c2c-40e2-a429-f39ebbe21551",
+        "uptime": "200781.55 968798.65",
+        "meminfo": {
+          "MemTotal": "4004732 kB",
+          "MemAvailable": "961832 kB",
+          "SwapTotal": "2097148 kB",
+          "SwapFree": "1048492 kB"
+        },
+        "leaf": {
+          "returncode": 0,
+          "stdout": "active"
+        },
+        "python": {
+          "returncode": 0,
+          "stdout": "Python 3.13.5"
+        }
+      },
+      "status": "AUTHENTICATED_OBSERVATION"
+    },
+    {
+      "node_id": "100",
+      "declared_role": "knowledge_retrieve",
+      "role_source": "DEEP-ARCH-HARVEST-20260917",
+      "runtime_job_proven": false,
+      "heartbeat_signature_verified": false,
+      "ssh_returncode": 0,
+      "observation": {
+        "observed_at_utc": "2026-09-17T09:07:53.487960+00:00",
+        "hostname": "octopus-compute-100",
+        "model": "Orange Pi 5 Pro",
+        "boot_id": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a",
+        "uptime": "203325.44 1623024.37",
+        "meminfo": {
+          "MemTotal": "4004732 kB",
+          "MemAvailable": "3727716 kB",
+          "SwapTotal": "4194300 kB",
+          "SwapFree": "4194300 kB"
+        },
+        "leaf": {
+          "returncode": 0,
+          "stdout": "active"
+        },
+        "python": {
+          "returncode": 0,
+          "stdout": "Python 3.13.5"
+        }
+      },
+      "status": "AUTHENTICATED_OBSERVATION"
+    },
+    {
+      "node_id": "160",
+      "declared_role": "knowledge_prep",
+      "role_source": "DEEP-ARCH-HARVEST-20260917",
+      "runtime_job_proven": false,
+      "heartbeat_signature_verified": false,
+      "ssh_returncode": 0,
+      "observation": {
+        "observed_at_utc": "2026-09-17T09:07:53.286779+00:00",
+        "hostname": "octopus-compute-160",
+        "model": "Orange Pi 5 Pro",
+        "boot_id": "bacb05a6-b351-4531-a232-371d3a32c2a6",
+        "uptime": "201180.61 1593118.92",
+        "meminfo": {
+          "MemTotal": "4004732 kB",
+          "MemAvailable": "3742260 kB",
+          "SwapTotal": "0 kB",
+          "SwapFree": "0 kB"
+        },
+        "leaf": {
+          "returncode": 0,
+          "stdout": "active"
+        },
+        "python": {
+          "returncode": 0,
+          "stdout": "Python 3.13.5"
+        }
+      },
+      "status": "AUTHENTICATED_OBSERVATION"
+    },
+    {
+      "node_id": "193",
+      "declared_role": "model_infer",
+      "role_source": "DEEP-ARCH-HARVEST-20260917",
+      "runtime_job_proven": false,
+      "heartbeat_signature_verified": false,
+      "ssh_returncode": 0,
+      "observation": {
+        "observed_at_utc": "2026-09-17T09:07:53.686177+00:00",
+        "hostname": "octopus-model-plus-193",
+        "model": "Orange Pi 5 Plus",
+        "boot_id": "92a8e9fd-d7cd-4b91-a1a9-af8d92a2f46b",
+        "uptime": "196975.63 1573214.07",
+        "meminfo": {
+          "MemTotal": "4004536 kB",
+          "MemAvailable": "3751076 kB",
+          "SwapTotal": "0 kB",
+          "SwapFree": "0 kB"
+        },
+        "leaf": {
+          "returncode": 0,
+          "stdout": "active"
+        },
+        "python": {
+          "returncode": 0,
+          "stdout": "Python 3.13.5"
+        }
+      },
+      "status": "AUTHENTICATED_OBSERVATION"
+    },
+    {
+      "node_id": "114",
+      "declared_role": "eval_batch",
+      "role_source": "DEEP-ARCH-HARVEST-20260917",
+      "runtime_job_proven": false,
+      "heartbeat_signature_verified": false,
+      "ssh_returncode": 0,
+      "observation": {
+        "observed_at_utc": "2026-09-17T09:07:53.740961+00:00",
+        "hostname": "octopus-pro-114",
+        "model": "Orange Pi 5 Pro",
+        "boot_id": "b7a638d4-adb7-4f15-a1d6-01986fa65c69",
+        "uptime": "195534.76 1561516.34",
+        "meminfo": {
+          "MemTotal": "4004732 kB",
+          "MemAvailable": "3744996 kB",
+          "SwapTotal": "0 kB",
+          "SwapFree": "0 kB"
+        },
+        "leaf": {
+          "returncode": 0,
+          "stdout": "active"
+        },
+        "python": {
+          "returncode": 0,
+          "stdout": "Python 3.13.5"
+        }
+      },
+      "status": "AUTHENTICATED_OBSERVATION"
+    }
+  ]
+}

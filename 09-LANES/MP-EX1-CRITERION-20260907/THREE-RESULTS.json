@@ -1,0 +1,69 @@
+{
+  "schema": "octopus.ex1.three_results.v1",
+  "lane": "MP-EX1-CRITERION-20260907",
+  "kind": "advisor_proposal_input",
+  "owner_instruction": "keep_both_records_and_receipts; do_not_drop_from_baseline; do_not_rerun_same_test_unchanged; split_three_results; no_pass_if_any_clause_unmet",
+  "layer_1_existence_and_content": {
+    "verdict": "MEASURED_WITHIN_RECEIPT_KEYS_ONLY",
+    "pass_name_forbidden": "EX1_PASS",
+    "194298": {
+      "keys_measured": [
+        "event",
+        "reason",
+        "seq",
+        "calib_tail"
+      ],
+      "event": "standing_go_halted",
+      "reason": "calibration_error_ge_0.5",
+      "calib_tail": [
+        "unresolved",
+        "confirmed",
+        "unresolved"
+      ],
+      "raw_line_sha256": "2622cf331684990b4254a061f3e2985859ae23f8a4c6f7e3346047a4c996cf82"
+    },
+    "194329": {
+      "keys_measured_in_debug_safe_fields": [
+        "event",
+        "reason",
+        "seq"
+      ],
+      "event": "standing_go_minted",
+      "reason": "internal_pulse",
+      "owner_go_id": {
+        "ex1_receipt": "STANDING-GO-INTERNAL-CYCLES-2026-09-06-03",
+        "debug_safe_fields": null,
+        "status": "open"
+      },
+      "raw_line_sha256": "57b89fa1bdf7d9cbac0eb991e8a50a30df4e4810ef143588988ae25359aa0acb"
+    }
+  },
+  "layer_2_halt_and_mint_modes": {
+    "verdict": "TWO_MODES_OBSERVED_NOT_A_RATE_OR_QUALITY_CLAIM",
+    "halt_seq": 194298,
+    "mint_seq": 194329,
+    "not_claimed": [
+      "rate",
+      "stability",
+      "decision_quality",
+      "scientific_calibration"
+    ]
+  },
+  "layer_3_ex1_original_contract": {
+    "verdict": "NOT_PASSED",
+    "literal_ex1_pass": false,
+    "unmet_or_contradicted": [
+      "reason_code key absent on both records",
+      "loaded_source_revision/consumer_path/read_receipt_id absent on both records",
+      "mint_evidence.calib_tail absent on 194329",
+      "tools.verify_chain --from-zero is E0; specified status=OK not obtained"
+    ],
+    "met": [
+      "both records exist",
+      "194298 calib_tail matches prior report list",
+      "seq-monotonic on observed snapshot bytes (not the specified verifier)"
+    ]
+  },
+  "ex3_started": false,
+  "baseline_records_retained": true
+}

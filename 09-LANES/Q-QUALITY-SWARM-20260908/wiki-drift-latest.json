@@ -1,0 +1,156 @@
+{
+  "generated_at_utc": "2026-09-08T07:01:39Z",
+  "backup_head": "e73c76cdbe5bd029a0e85aa9348200271751bdba",
+  "ofn_head": "b1d1586cfc260ff12111ddeee22b82b06abba260",
+  "wiki_head": "9b6ed0c",
+  "wiki_beat": 36563,
+  "members_present": 11,
+  "boards_doc": [
+    "138",
+    "180",
+    "182"
+  ],
+  "pytest": {
+    "passed": 1826,
+    "skipped": 5,
+    "collected": 1831,
+    "span": "pytest      1826 passed · 5 skipped · 1831 collected"
+  },
+  "n_rows": 15,
+  "counts": {
+    "STALE": 7,
+    "SUPERSEDED": 3,
+    "MATCH": 3,
+    "UNKNOWN": 2,
+    "OTHER": 0
+  },
+  "renderer": "tools/wiki_drift_check.py",
+  "handwritten": false,
+  "hold_external": true,
+  "rows": [
+    {
+      "field": "backup_HEAD",
+      "wiki": "9b6ed0c",
+      "live": "e73c76cdbe5b",
+      "mark": "STALE",
+      "source_wiki": "01-TRUTH/CURRENT-TRUTH.md",
+      "source_live": "git -C F:\\backup rev-parse HEAD"
+    },
+    {
+      "field": "repository_head_at_capture",
+      "wiki": "dae5cb8207c6",
+      "live": "e73c76cdbe5b",
+      "mark": "STALE",
+      "source_wiki": "LIVE-ORGANISM-MAP.json",
+      "source_live": "git -C F:\\backup rev-parse HEAD"
+    },
+    {
+      "field": "ofn_node_HEAD",
+      "wiki": "(no fresh pin in CURRENT-TRUTH)",
+      "live": "b1d1586cfc26",
+      "mark": "UNKNOWN",
+      "source_wiki": "01-TRUTH/CURRENT-TRUTH.md",
+      "source_live": "git -C F:\\ofn-node rev-parse HEAD",
+      "note": "live recorded; wiki silent in files checked"
+    },
+    {
+      "field": "three_board_anatomy",
+      "wiki": "138/180/182",
+      "live": "138/180/182",
+      "mark": "MATCH",
+      "source_wiki": "ofn-node/docs/octopus-mesh/RUNTIME-V1-STATUS.md",
+      "source_live": "doc anchors (HOLD_EXTERNAL: no LAN probe)"
+    },
+    {
+      "field": "fleet_13_plus_13_claim",
+      "wiki": "13+13 (prompt/HW contrast; source often absent)",
+      "live": "3 boards (138/180/182) canonical",
+      "mark": "SUPERSEDED",
+      "source_wiki": "prompt / HW discovery contrast",
+      "source_live": "RUNTIME-V1-STATUS.md THREE-BOARD-V1"
+    },
+    {
+      "field": "members_present",
+      "wiki": 11,
+      "live": "unrevalidated vs three-board mesh",
+      "mark": "STALE",
+      "source_wiki": "01-TRUTH/CURRENT-TRUTH.md",
+      "source_live": "HOLD_EXTERNAL (no live council probe)",
+      "note": "verified_at=2026-08-15"
+    },
+    {
+      "field": "discovery_138_WHAT_IS_LIVE",
+      "wiki": "LIVE @ 2026-08-28",
+      "live": "not re-probed (HOLD_EXTERNAL)",
+      "mark": "STALE",
+      "source_wiki": "ofn-node/docs/discovery-138/WHAT-IS-LIVE.md",
+      "source_live": "HOLD_EXTERNAL"
+    },
+    {
+      "field": "ofn_pytest_suite",
+      "wiki": "pytest      1826 passed · 5 skipped · 1831 collected",
+      "live": "live HEAD b1d1586cfc26; collect not re-run",
+      "mark": "STALE",
+      "source_wiki": "ofn-node/HANDOFF.md",
+      "source_live": "HOLD: no pytest --collect-only this pass"
+    },
+    {
+      "field": "TEST_COUNT_ledger",
+      "wiki": "verified_at=2026-08-15",
+      "live": "backup HEAD e73c76cdbe5b",
+      "mark": "STALE",
+      "source_wiki": "01-TRUTH/TEST-COUNT.md",
+      "source_live": "git -C F:\\backup rev-parse HEAD"
+    },
+    {
+      "field": "OFN_test_count_era",
+      "wiki": "older OFN/411-class / unverified rows",
+      "live": "pytest      1826 passed · 5 skipped · 1831 collected",
+      "mark": "SUPERSEDED",
+      "source_wiki": "01-TRUTH/TEST-COUNT.md",
+      "source_live": "ofn-node/HANDOFF.md"
+    },
+    {
+      "field": "brier_delta_status",
+      "wiki": "null / UNKNOWN_NOT_COMPUTED",
+      "live": "no numeric metrics file",
+      "mark": "MATCH",
+      "source_wiki": "LIVE-ORGANISM-MAP.json learning",
+      "source_live": "metrics/"
+    },
+    {
+      "field": "confidence_brier",
+      "wiki": null,
+      "live": "null (no alternate metric file)",
+      "mark": "MATCH",
+      "source_wiki": "LIVE-ORGANISM-MAP.json identity_and_doctor",
+      "source_live": "metrics/"
+    },
+    {
+      "field": "brier_numeric_in_01_TRUTH",
+      "wiki": "no numeric claim",
+      "live": "searched 01-TRUTH/*.md",
+      "mark": "UNKNOWN",
+      "source_wiki": "01-TRUTH/*.md",
+      "source_live": "grep brier"
+    },
+    {
+      "field": "CURRENT_TRUTH_redirect",
+      "wiki": "REDIRECT 2026-09-02 + stale 2026-08-15 body",
+      "live": "redirect acknowledges supersession; body retained",
+      "mark": "SUPERSEDED",
+      "source_wiki": "01-TRUTH/CURRENT-TRUTH.md",
+      "source_live": "canonical evidence copy (HOLD: do not delete body)"
+    },
+    {
+      "field": "CURRENT_TRUTH_verified_at",
+      "wiki": "2026-08-15",
+      "live": "2026-09-08",
+      "mark": "STALE",
+      "source_wiki": "01-TRUTH/CURRENT-TRUTH.md front matter",
+      "source_live": "calendar vs live HEAD day"
+    }
+  ],
+  "now_path": "F:\\backup\\docs\\NOW.md",
+  "now_created_because_absent": false
+}

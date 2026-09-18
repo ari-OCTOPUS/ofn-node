@@ -1,0 +1,11 @@
+{
+  "schema": "fleet_decision.v1",
+  "decision_id": "dec-p1-sample-fact-p1-dry-20260915T033445Z",
+  "bound_payload_sha256": "a2ea5dcdf58a910494c85954e287b381fb51d0257cc1a436d7b8cebf811d6de2",
+  "verdict": "SAMPLE_NOT_LIVE",
+  "expires_at": "2026-09-15T04:00:00Z",
+  "hold_external": true,
+  "external_effects": 0,
+  "commander_node_id": "138",
+  "customer_send": false
+}

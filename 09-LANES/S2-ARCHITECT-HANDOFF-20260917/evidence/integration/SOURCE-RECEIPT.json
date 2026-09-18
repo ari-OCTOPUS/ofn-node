@@ -1,0 +1,62 @@
+{
+  "schema": "octopus.source-integration-receipt.v1",
+  "source_task": "S1-MATURITY-20260917",
+  "base": "fe0c55e0a952e0048ff6bd3ddb8ab9419cd1dc0d",
+  "captured_at_utc": "2026-09-17T09:14:21.701627+00:00",
+  "model_digest": "UNKNOWN",
+  "deployed": false,
+  "tests": {
+    "main_passed": 169,
+    "full_repository_suite": "NOT_RUN"
+  },
+  "artifacts": [
+    {
+      "path": "ofn/adapters/fake_executor.py",
+      "sha256": "df2e254b601849911b7791f9a5c235cd639fd2e698bce6484fb1cef7bf4e6958"
+    },
+    {
+      "path": "ofn/adapters/self_model_producer.py",
+      "sha256": "28b11b875e046c404d74f66d76f487eaf07fe7bd4b49b2b22ff2665b6629c887"
+    },
+    {
+      "path": "ofn/adapters/fleet_observation.py",
+      "sha256": "459f08ba07ce679b0087396afc277304094db6cbc426cd2798765bfdc7c634e3"
+    },
+    {
+      "path": "ofn/adapters/revenue_run.py",
+      "sha256": "b64286bd345d8ccef72f56cd84e2f171ba50ec757b8d44f1fc810b735f74bf22"
+    },
+    {
+      "path": "ofn/kernel/callbudget.py",
+      "sha256": "df7a5100d8f3980eecd8ab022faa355c007a626c46ec333c9a2c4165b658def5"
+    },
+    {
+      "path": "ofn/kernel/canonical_budget.py",
+      "sha256": "588e411f7e76209cf8de297fbc5fe15efade8f65fc5c0cb43870e58a03653933"
+    },
+    {
+      "path": "tests/test_fleet_observation.py",
+      "sha256": "c0f4446195ae421ace4c50b48d8c1088090cf88cc2f2cba8afe60d5639710d22"
+    },
+    {
+      "path": "tests/test_revenue_run.py",
+      "sha256": "4c24ae2baf2b0f84dde0cd0a9448030b5028ebcca8fccb7ccb4466dc5ca8a621"
+    },
+    {
+      "path": "tests/test_canonical_budget.py",
+      "sha256": "13474ad218620861af8e3d1bfd686515c90ba44122f9ad4d1c870d0b3b5efb00"
+    },
+    {
+      "path": "tools/replay_revenue_run.py",
+      "sha256": "29af80afeda986793db6cf3877612f82931a874667bec562b361d97a1212fe39"
+    },
+    {
+      "path": "09-LANES/S1-FLEET-SELF-MODEL-20260917/integration-tests.xml",
+      "sha256": "2e4788b46e3e3119e02295abb586c7317b2eb3d2155d9b42ede5273dc779f9e0"
+    },
+    {
+      "path": "09-LANES/S1-FLEET-SELF-MODEL-20260917/executor-purity-tests.xml",
+      "sha256": "f663a9082d30d6656f7322e6affa35ebf86b052a48cfe932e6f64d21d336c3f0"
+    }
+  ]
+}

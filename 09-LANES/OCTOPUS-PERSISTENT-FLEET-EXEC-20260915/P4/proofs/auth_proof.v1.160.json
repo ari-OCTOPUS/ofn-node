@@ -1,0 +1,33 @@
+{
+  "schema": "auth_proof.v1",
+  "node_id": "160",
+  "lan_octet": "160",
+  "cred_kind": "mesh_ssh",
+  "cred_fingerprint_or_token_sha256": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+  "auth_status": "OK",
+  "verified_at": "2026-09-15T03:44:56Z",
+  "verifier": "138",
+  "method": "mesh_ssh",
+  "commander_node_id": "138",
+  "may_authorize": false,
+  "customer_send": false,
+  "strict_hostkey_checking": "yes",
+  "batchmode_pull": true,
+  "boot_id": "bacb05a6-b351-4531-a232-371d3a32c2a6",
+  "hostname": "octopus-compute-160",
+  "evidence": {
+    "strict_hostkey_reject_wrong_pin": true,
+    "ssh_rc": 0,
+    "ssh_stderr_tail": ""
+  },
+  "bind_role": "knowledge_prep",
+  "capability": [
+    "doc_extract",
+    "segment",
+    "index"
+  ],
+  "credential_id": "mesh_ssh:octopus_mesh_ed25519:node:160",
+  "hb_node_id_observed": "160",
+  "hb_role_observed": "prep",
+  "deny_note": "hostname/boot_id/IP alone insufficient; OK only via mesh_ssh BatchMode+StrictHostKey pin"
+}

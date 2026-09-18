@@ -1,0 +1,85 @@
+{
+  "schema": "PB-3-RESTORE",
+  "status": "PASS",
+  "stamp_utc": "2026-09-15T04:04:42Z",
+  "method": "reverify_existing_P3_restore_copy_on_180_separate_path",
+  "parent_p3_receipt_sha256": "83d525134317e7b2de93986684309ba2bb4bd96b9ee79566e5494035bf801d11",
+  "parent_rpo_rto_sha256": "5262d4eae4531b9b76cfcbc3068a3abbdc86cb2993c6a6b61f29a1604d656335",
+  "restore_target": {
+    "node_id": "180",
+    "path": "/opt/octopus-restore-copies/p3-20260915T033708Z",
+    "state_prefix": "/opt/octopus-restore-copies/p3-20260915T033708Z/state",
+    "overwrite_live_138": false
+  },
+  "commander_node_id": "138",
+  "dual_commander": false,
+  "RPO_seconds": 0,
+  "RTO_seconds": 3,
+  "RPO_RTO_source": "P3-RPO-RTO-ADDENDUM.json (parent measured wall=3s; RPO=0 at snapshot instant)",
+  "reverify_wall_seconds": 2.015,
+  "reverify_window": {
+    "start_utc": "2026-09-15T04:04:40Z",
+    "end_utc": "2026-09-15T04:04:42Z"
+  },
+  "file_results": [
+    {
+      "rel": "fleet-memory/fleet_facts.jsonl",
+      "status": "MATCH",
+      "expected": "adff9efbec2e1e682977750e0c2e4c87e9c41b65ea136edf5a741dc2badf0d6d",
+      "got": "adff9efbec2e1e682977750e0c2e4c87e9c41b65ea136edf5a741dc2badf0d6d"
+    },
+    {
+      "rel": "fleet-memory/schemas/fleet_decision.v1.schema.json",
+      "status": "MATCH",
+      "expected": "ef61d791fb527020210fa3e7f41d965e0d61b10c494606241f7e084566519115",
+      "got": "ef61d791fb527020210fa3e7f41d965e0d61b10c494606241f7e084566519115"
+    },
+    {
+      "rel": "fleet-memory/schemas/fleet_fact.v1.schema.json",
+      "status": "MATCH",
+      "expected": "db44a3f0c674c7308135498412ab1835d2ab4df3c0e801b0ea8d2a31747418cb",
+      "got": "db44a3f0c674c7308135498412ab1835d2ab4df3c0e801b0ea8d2a31747418cb"
+    },
+    {
+      "rel": "fleet-memory/schemas/fleet_hypothesis.v1.schema.json",
+      "status": "MATCH",
+      "expected": "0ee946f450590fffa2061414712cbc5804b117f1c86f9b8d97342e031c577686",
+      "got": "0ee946f450590fffa2061414712cbc5804b117f1c86f9b8d97342e031c577686"
+    },
+    {
+      "rel": "fleet-jobs/__pycache__/fleet_job_sm.cpython-313.pyc",
+      "status": "MATCH",
+      "expected": "f24c2ff8d7f4bbe3356a59aa5fe5e8400022c939daefa29570302a100a8a6329",
+      "got": "f24c2ff8d7f4bbe3356a59aa5fe5e8400022c939daefa29570302a100a8a6329"
+    },
+    {
+      "rel": "fleet-jobs/fleet_job_sm.py",
+      "status": "MATCH",
+      "expected": "6ce7fd1609b672d9f33e52a543a623eb5103e5e9077744cf3a452967b3f311e2",
+      "got": "6ce7fd1609b672d9f33e52a543a623eb5103e5e9077744cf3a452967b3f311e2"
+    },
+    {
+      "rel": "fleet-jobs/fleet_jobs.jsonl",
+      "status": "MATCH",
+      "expected": "a71a8888d10911508180fd21a26ac4598208a47d3169edced0025bdd82ed693f",
+      "got": "a71a8888d10911508180fd21a26ac4598208a47d3169edced0025bdd82ed693f"
+    },
+    {
+      "rel": "fleet-jobs/idempotency_index.json",
+      "status": "MATCH",
+      "expected": "0d99b91ca7c781ea906ada349414d9b7299fe812bfbb298744365b170a138fac",
+      "got": "0d99b91ca7c781ea906ada349414d9b7299fe812bfbb298744365b170a138fac"
+    },
+    {
+      "rel": "fleet-jobs/schemas/fleet_job.v1.schema.json",
+      "status": "MATCH",
+      "expected": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59",
+      "got": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59"
+    }
+  ],
+  "files_match": "9/9",
+  "parent_files_match": "9/9",
+  "customer_send": false,
+  "sec_p6_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+  "design_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b"
+}

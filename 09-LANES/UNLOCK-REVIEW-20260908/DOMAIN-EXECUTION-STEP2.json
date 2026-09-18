@@ -1,0 +1,34 @@
+{
+  "schema": "octopus.domain-execution-step.v1",
+  "step": "2_dns_now_points_to_shopify",
+  "observed_utc": "2026-09-07T23:20:20.4328645Z",
+  "domain": "ziman-gift.com.au",
+  "provider": "GoDaddy",
+  "provider_url": "https://dcc.godaddy.com/control/portfolio/ziman-gift.com.au/settings?tab=dns",
+  "records_observed": [
+    {
+      "type": "A",
+      "name": "@",
+      "value": "23.227.38.32",
+      "ttl": "1 Hour"
+    },
+    {
+      "type": "CNAME",
+      "name": "www",
+      "value": "shops.myshopify.com.",
+      "ttl": "1 Hour"
+    },
+    {
+      "type": "CNAME",
+      "name": "b69b7c46-f1ef-429b-9b86-2f399ec89835",
+      "value": "dns-verification.shopify.com.",
+      "ttl": "1 Hour"
+    }
+  ],
+  "old_a_records_in_current_table": false,
+  "actor_of_dns_change": "unverified; automatic connect was requested earlier and user also had UI access",
+  "manual_dns_writes_by_this_agent": 0,
+  "shopify_recheck": "I updated DNS records clicked; current status Checking DNS",
+  "shopify_primary_changed_by_this_agent": false,
+  "next": "wait for confirmed connection and TLS, then perform already-approved primary change"
+}

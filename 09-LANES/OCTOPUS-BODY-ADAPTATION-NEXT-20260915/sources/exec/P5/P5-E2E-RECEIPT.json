@@ -1,0 +1,56 @@
+{
+  "schema": "P5-E2E-RECEIPT",
+  "stamp_utc": "2026-09-15T03:53:05Z",
+  "verdict": "PASS",
+  "job_id": "job-8f635a12d2cd4228",
+  "idempotency_key": "p5-e2e-100-1789444384",
+  "worker_node_id": "100",
+  "worker_hostname": "octopus-compute-100",
+  "worker_boot_id": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a",
+  "bind_role": "knowledge_retrieve",
+  "job_type": "echo_capability_probe",
+  "path": "138 producer -> fleet_jobs.jsonl -> LEASE 100 -> RUNNING -> ACK_RESULT -> PERSISTED -> CLOSED",
+  "bus": "SHADOW_LOCAL_JSONL",
+  "bus_state_explicit": "jsonl_138",
+  "nats_durability": "NOT_CLAIMED",
+  "jetstream_consumers": 0,
+  "jetstream_consumers_created_this_run": 0,
+  "external_effects": 0,
+  "customer_send": false,
+  "may_authorize": false,
+  "commander_node_id": "138",
+  "result_hash": "14a99a95216456fc7c29fd719f85b02d66794a12e651c22202dd1a9ad9efb497",
+  "receipt_id": "rcpt-p5-job-8f635a12d2cd4228",
+  "worker_result_path": "/var/lib/octopus-worker/jobs/job-8f635a12d2cd4228.json",
+  "worker_result_local": "/home/ari/hw-exec-t0/P5-E2E/worker-result-job-8f635a12d2cd4228.json",
+  "schema_fleet_job_v1_sha256": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59",
+  "sec_p5_job_path_gate_sha256": "3e8bd525748531e747761cfaa4345b8a39af8758ea3bf7c565e3da1ea8ba27ec",
+  "exit_receipt_contract_sha256": "5d12e068568cdcc694ac1c8de6c5e36c623832727244814a36303ed7862c82d7",
+  "p4_node_auth_receipt_sha256": "d8844e96dcd9b6f81bba3825af9a9128347a123fc298cefacab9c565e5da2036",
+  "lease_deny_unregistered": {
+    "pass": true,
+    "error": "REJECTED: LEASE DENY auth_status=UNREGISTERED for node_id=999 (need OK)"
+  },
+  "shell_job_type_deny": {
+    "pass": true,
+    "state": "REJECTED"
+  },
+  "idempotency_rehit": {
+    "pass": true,
+    "job_id": "job-8f635a12d2cd4228",
+    "idempotent_hit": true
+  },
+  "preimage_path": "/home/ari/hw-exec-t0/P5-E2E/P5-PREIMAGE.json",
+  "rollback_note": "Append-only jsonl; rollback = ignore P5 job_id rows + remove idempotency_key from index; no JS consumer created so none to delete.",
+  "controls": {
+    "hold_customer_send": true,
+    "deny_revenue_queues": true,
+    "deny_jetstream_consumer_create": true,
+    "lease_only_auth_ok": true,
+    "stop_before_p6": true,
+    "no_claim_193_live_model_server": true
+  },
+  "final_job_state": "CLOSED",
+  "blockers": [],
+  "stop": "STOP before P6; QA seal next"
+}

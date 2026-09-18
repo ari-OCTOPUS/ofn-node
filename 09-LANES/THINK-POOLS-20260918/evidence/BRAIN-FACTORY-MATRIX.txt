@@ -1,0 +1,6 @@
+  deepseek             BLOCKED provider 'deepseek' needs DEEPSEEK_API_KEY, which is not set
+  openai               BLOCKED provider 'openai' needs OPENAI_API_KEY, which is not set
+  sakana-fugu          OK fugu-ultra api.sakana.ai
+  anthropic            BLOCKED provider 'anthropic' needs a provider-specific adapter (endpoint api.a
+  gemini               BLOCKED provider 'gemini' needs a provider-specific adapter (endpoint generati
+  local-llamacpp-180   BLOCKED no routable provider: PIN_UNKNOWN_FALLBACK (excluded=['local-llamacpp-

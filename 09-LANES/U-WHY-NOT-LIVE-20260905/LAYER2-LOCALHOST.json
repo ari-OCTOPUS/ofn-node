@@ -1,0 +1,47 @@
+{
+  "schema": "octopus.layer2-localhost.v1",
+  "measured_at": "2026-09-05T15:51:53+10:00",
+  "measured_at_utc": "2026-09-05T05:51:53Z",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "live_organism_claim": false,
+  "layer": 2,
+  "ssh_to_138": false,
+  "node138_status": "unverified",
+  "ports": [
+    {
+      "port": 8791,
+      "loopback_open": true,
+      "role_on_this_host": "harvest_ingest",
+      "listen_pid": 2324,
+      "listen_bind": "127.0.0.1",
+      "cmd_has_ingest_server": true,
+      "cmd_has_ofn_run": false
+    },
+    {
+      "port": 8792,
+      "loopback_open": false,
+      "role_on_this_host": "ofn_leg_absent_this_host"
+    },
+    {
+      "port": 8793,
+      "loopback_open": false,
+      "role_on_this_host": "ofn_leg_absent_this_host"
+    },
+    {
+      "port": 8794,
+      "loopback_open": false,
+      "role_on_this_host": "ofn_leg_absent_this_host"
+    },
+    {
+      "port": 8796,
+      "loopback_open": false,
+      "role_on_this_host": "ofn_leg_absent_this_host"
+    }
+  ],
+  "ofn_run_legs_listen_this_host": 0,
+  "mesh_tunnel_present_inference": false,
+  "note": "Missing LAN/loopback ofn ports is not evidence 138 APIs are down.",
+  "source": "probe_layer2_localhost.py"
+}

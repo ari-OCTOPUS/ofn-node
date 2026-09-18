@@ -1,0 +1,150 @@
+.......................................................... [  1%]
+............................................................ [  2%]
+.................................................................... [  4%]
+............................................................... [  5%]
+.................................... [  6%]
+................................................................... [  7%]
+...................................................... [  8%]
+.................................................................................................................................. [ 11%]
+..................................................................... [ 13%]
+........................................................................ [ 14%]
+.................................................................. [ 16%]
+................................................................... [ 17%]
+........................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 21%]
+................................................................... [ 23%]
+............................................................ [ 24%]
+........................................................................ [ 26%]
+..................................................................................................................... [ 28%]
+............................................................. [ 29%]
+..................................................................... [ 31%]
+............................................................................................................... [ 33%]
+.......................................................... [ 35%]
+.......s................................................................ [ 36%]
+............s.................................. [ 37%]
+.........s.s............................ [ 38%]
+........................................................................................................... [ 40%]
+.................................................................................................................................................... [ 44%]
+................................................................. [ 45%]
+................................................................. [ 47%]
+.................................................................... [ 48%]
+......................................................s............s.... [ 50%]
+.................................................. [ 51%]
+..................................................... [ 52%]
+................................................................. [ 53%]
+............................................. [ 54%]
+.................................................................. [ 56%]
+............................................................. [ 57%]
+........................................................... [ 58%]
+........s..................sss........................... [ 60%]
+................... [ 60%]
+.............................................................. [ 61%]
+..............................sss............................. [ 63%]
+........................................................................ [ 64%]
+................................................................... [ 66%]
+..........................................s................... [ 67%]
+.................................................................FF..F.F [ 69%]
+.......................................................... [ 70%]
+............................................... [ 71%]
+........................................s............................. [ 72%]
+........s...s..................................................................................................... [ 75%]
+........................................................................................................... [ 77%]
+................................................................................ [ 79%]
+...................................... [ 80%]
+.................................................................................................... [ 82%]
+........................................... [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+........................................................................ [ 89%]
+........................................................................ [ 91%]
+............................................... [ 92%]
+........................................................ [ 93%]
+........................................................................................................... [ 95%]
+............................................. [ 96%]
+......................................................................................................... [ 99%]
+.....................................s                         [100%]
+================================== FAILURES ===================================
+_ TestReplyQueueBridge.test_append_does_not_claim_default_path_after_restore __
+
+self = <tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_append_does_not_claim_default_path_after_restore>
+
+    def test_append_does_not_claim_default_path_after_restore(self) -> None:
+        """The #182 CI failure: assert-after-restore on the home QUEUE path."""
+        n = append_to_queue([
+            {"confidence": 0.3, "evidence": ["painting:BLOCKED_HONEST:sha"]},
+        ])
+        self.assertEqual(n, 1)
+        self.assertTrue(self.queue.exists())
+        _rqb.QUEUE = self._orig_queue
+>       self.assertFalse(
+            _rqb.QUEUE.exists(),
+            "restored default QUEUE must stay unwritten; exists() after "
+            "restore is not evidence the append succeeded",
+        )
+E       AssertionError: True is not false : restored default QUEUE must stay unwritten; exists() after restore is not evidence the append succeeded
+
+tests\test_reply_queue_bridge.py:92: AssertionError
+__________________ TestReplyQueueBridge.test_append_to_queue __________________
+
+self = <tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_append_to_queue>
+
+    def test_append_to_queue(self) -> None:
+        n = append_to_queue([
+            {"confidence": 0.3, "evidence": ["painting:BLOCKED_HONEST:sha"]},
+        ])
+        self.assertEqual(n, 1)
+        self.assertTrue(self.queue.exists())
+        text = self.queue.read_text(encoding="utf-8")
+        self.assertIn("0.3", text)
+        self.assertIn("painting:BLOCKED_HONEST:sha", text)
+>       self.assertFalse(self._orig_queue.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:82: AssertionError
+________ TestReplyQueueBridge.test_empty_proposals_do_not_create_queue ________
+
+self = <tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_empty_proposals_do_not_create_queue>
+
+    def test_empty_proposals_do_not_create_queue(self) -> None:
+        n = append_to_queue([])
+        self.assertEqual(n, 0)
+        self.assertFalse(self.queue.exists())
+>       self.assertFalse(self._orig_queue.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:103: AssertionError
+________________ TestReplyQueueBridge.test_proposal_extraction ________________
+
+self = <tests.test_reply_queue_bridge.TestReplyQueueBridge testMethod=test_proposal_extraction>
+
+    def test_proposal_extraction(self) -> None:
+        inbox = _seed_inbox(self.tmp, [
+            {"idempotency_key": "abc", "payload": {"response": {
+                "claim_type": "proposal", "confidence": 0.3,
+                "evidence": ["painting:BLOCKED"]}, "businesses": ["painting"]}},
+            {"idempotency_key": "def", "payload": {"response": {
+                "claim_type": "observation"}}},
+        ])
+        props = extract_proposals(inbox)
+        self.assertEqual(len(props), 1)
+        self.assertEqual(props[0]["idempotency_key"], "abc")
+        self.assertTrue(self.seen.exists())
+>       self.assertFalse(self._orig_seen.exists())
+E       AssertionError: True is not false
+
+tests\test_reply_queue_bridge.py:61: AssertionError
+============================== warnings summary ===============================
+tests\test_restore_drill_disposable.py:119
+  F:\octo-exec\R-EXEC-DEBUG-20260905\wt-candidate\tests\test_restore_drill_disposable.py:119: SyntaxWarning: invalid escape sequence '\ '
+    refusal, (b) the Windows drive-root regression — protecting F:\ used to
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_reply_queue_bridge.py::TestReplyQueueBridge::test_append_does_not_claim_default_path_after_restore
+FAILED tests/test_reply_queue_bridge.py::TestReplyQueueBridge::test_append_to_queue
+FAILED tests/test_reply_queue_bridge.py::TestReplyQueueBridge::test_empty_proposals_do_not_create_queue
+FAILED tests/test_reply_queue_bridge.py::TestReplyQueueBridge::test_proposal_extraction
+4 failed, 4558 passed, 28 skipped, 1 warning, 3450 subtests passed in 124.01s (0:02:04)
+FULL SUITE EXIT=1 at 15:35:07Z

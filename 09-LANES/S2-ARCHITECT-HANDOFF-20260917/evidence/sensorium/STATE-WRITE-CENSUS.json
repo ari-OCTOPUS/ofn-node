@@ -1,0 +1,1183 @@
+{
+  "original/app.py": {
+    "sha256": "0386a4ddebc1c57c11541f852c446015124f085d06afb3250a6dc50902f75e8e",
+    "self_writes": [
+      {
+        "method": "__init__",
+        "line": 73,
+        "target": "self.sm",
+        "statement": "self.sm = StateMachine()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 74,
+        "target": "self.audit",
+        "statement": "self.audit = AuditLog()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 75,
+        "target": "self.identity",
+        "statement": "self.identity = load_identity()",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 76,
+        "target": "self.nc",
+        "statement": "self.nc = None",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 77,
+        "target": "self.plugins",
+        "statement": "self.plugins: dict[str, Any] = {}",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 78,
+        "target": "self.health",
+        "statement": "self.health: dict[str, str] = {}",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 79,
+        "target": "self.recent",
+        "statement": "self.recent: list[dict[str, Any]] = []",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 80,
+        "target": "self.seen_hashes",
+        "statement": "self.seen_hashes: set[str] = set()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 81,
+        "target": "self.observations_published",
+        "statement": "self.observations_published = 0",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 82,
+        "target": "self.invalid_observations",
+        "statement": "self.invalid_observations = 0",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 83,
+        "target": "self.streams",
+        "statement": "self.streams: list[str] = []",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 84,
+        "target": "self.birth_published",
+        "statement": "self.birth_published = False",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 85,
+        "target": "self.stop_event",
+        "statement": "self.stop_event = asyncio.Event()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 86,
+        "target": "self.board_doc",
+        "statement": "self.board_doc: dict[str, Any] = {}",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 87,
+        "target": "self.registry_doc",
+        "statement": "self.registry_doc: dict[str, Any] = {}",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 88,
+        "target": "self.clock",
+        "statement": "self.clock = probe_clock()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 89,
+        "target": "self.readiness_state",
+        "statement": "self.readiness_state = 'UNVERIFIED'",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 90,
+        "target": "self.migration_published",
+        "statement": "self.migration_published = False",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 91,
+        "target": "self.offline_buffer",
+        "statement": "self.offline_buffer = OfflineBuffer()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 92,
+        "target": "self.observation_hashes",
+        "statement": "self.observation_hashes: list[str] = []",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 93,
+        "target": "self.lifecycle",
+        "statement": "self.lifecycle = PluginLifecycle()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 94,
+        "target": "self.metrics",
+        "statement": "self.metrics = InProcessMetrics()",
+        "canonical_state": false
+      },
+      {
+        "method": "_restore_journal_state",
+        "line": 184,
+        "target": "self.observation_hashes",
+        "statement": "self.observation_hashes = list(restored.get('observation_hashes') or [])",
+        "canonical_state": true
+      },
+      {
+        "method": "_restore_journal_state",
+        "line": 185,
+        "target": "self.observations_published",
+        "statement": "self.observations_published = int(restored.get('observations_published') or 0)",
+        "canonical_state": true
+      },
+      {
+        "method": "_restore_journal_state",
+        "line": 186,
+        "target": "self.invalid_observations",
+        "statement": "self.invalid_observations = int(restored.get('invalid_observations') or 0)",
+        "canonical_state": true
+      },
+      {
+        "method": "_restore_journal_state",
+        "line": 188,
+        "target": "self.health",
+        "statement": "self.health = dict(restored['health'])",
+        "canonical_state": true
+      },
+      {
+        "method": "_quarantine_record",
+        "line": 217,
+        "target": "self.audit",
+        "statement": "self.audit.append('quarantine_write_failed', sensor_id=sensor_id, error=type(exc).__name__)",
+        "canonical_state": false
+      },
+      {
+        "method": "_publish",
+        "line": 222,
+        "target": "self.offline_buffer",
+        "statement": "self.offline_buffer.append(subject, payload)",
+        "canonical_state": false
+      },
+      {
+        "method": "_publish",
+        "line": 227,
+        "target": "self.offline_buffer",
+        "statement": "self.offline_buffer.append(subject, payload)",
+        "canonical_state": false
+      },
+      {
+        "method": "_flush_offline_buffer",
+        "line": 245,
+        "target": "self.audit",
+        "statement": "self.audit.append('buffer_drop_stale', subject=subject)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_leg_birth",
+        "line": 262,
+        "target": "self.audit",
+        "statement": "self.audit.append('leg_birth_denied', requester=board_id)",
+        "canonical_state": false
+      },
+      {
+        "method": "load_signed",
+        "line": 268,
+        "target": "self.board_doc",
+        "statement": "self.board_doc = board.document",
+        "canonical_state": false
+      },
+      {
+        "method": "load_signed",
+        "line": 269,
+        "target": "self.registry_doc",
+        "statement": "self.registry_doc = registry.document",
+        "canonical_state": false
+      },
+      {
+        "method": "load_signed",
+        "line": 273,
+        "target": "self.audit",
+        "statement": "self.audit.append('config_loaded', board_hash=board.payload_hash, registry_hash=registry.payload_hash)",
+        "canonical_state": false
+      },
+      {
+        "method": "_instantiate_wave1",
+        "line": 301,
+        "target": "self.plugins[spec['sensor_id']]",
+        "statement": "self.plugins[spec['sensor_id']] = plugin",
+        "canonical_state": false
+      },
+      {
+        "method": "_instantiate_wave1",
+        "line": 293,
+        "target": "self.health[spec['sensor_id']]",
+        "statement": "self.health[spec['sensor_id']] = 'quarantine'",
+        "canonical_state": true
+      },
+      {
+        "method": "_instantiate_wave1",
+        "line": 294,
+        "target": "self.audit",
+        "statement": "self.audit.append('sensor_quarantine', sensor_id=spec['sensor_id'], reason=str(exc))",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 434,
+        "target": "self.readiness_state",
+        "statement": "self.readiness_state = 'UNVERIFIED'",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 311,
+        "target": "self.audit",
+        "statement": "self.audit.append('boot_start', identity=self.identity.as_dict(), version=__version__)",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 383,
+        "target": "self.nc",
+        "statement": "self.nc = await asyncio.wait_for(nats_connect(disconnected_cb=_disconnected, reconnected_cb=_reconnected), timeout=8)",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 421,
+        "target": "self.birth_published",
+        "statement": "self.birth_published = True",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 433,
+        "target": "self.audit",
+        "statement": "self.audit.append('boot_gates', report=report.as_dict())",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 344,
+        "target": "self.health[sensor_id]",
+        "statement": "self.health[sensor_id] = 'unavailable'",
+        "canonical_state": true
+      },
+      {
+        "method": "boot",
+        "line": 354,
+        "target": "self.health[sensor_id]",
+        "statement": "self.health[sensor_id] = 'healthy'",
+        "canonical_state": true
+      },
+      {
+        "method": "boot",
+        "line": 363,
+        "target": "self.health[sensor_id]",
+        "statement": "self.health[sensor_id] = 'quarantine'",
+        "canonical_state": true
+      },
+      {
+        "method": "boot",
+        "line": 392,
+        "target": "self.nc",
+        "statement": "self.nc = None",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 397,
+        "target": "self.audit",
+        "statement": "self.audit.append('snapshot_saved')",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 317,
+        "target": "self.audit",
+        "statement": "self.audit.append('boot_signed_config_failed', error=type(exc).__name__)",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 327,
+        "target": "self.audit",
+        "statement": "self.audit.append('isolation_fail', error=str(exc))",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 335,
+        "target": "self.audit",
+        "statement": "self.audit.append('schema_collision', error=str(exc))",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 365,
+        "target": "self.audit",
+        "statement": "self.audit.append('sensor_quarantine', sensor_id=sensor_id, reason=result.message)",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 375,
+        "target": "self.audit",
+        "statement": "self.audit.append('nats_disconnected')",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 379,
+        "target": "self.audit",
+        "statement": "self.audit.append('nats_reconnected')",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 391,
+        "target": "self.audit",
+        "statement": "self.audit.append('nats_connect_failed', error=type(exc).__name__)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 520,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_deferred', command=name, reason='wave0_non_diagnostic_deferred', signature_verify=signature_verify)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 446,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_forbidden', command=name, sender=body.get('sender_id'))",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 450,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_rejected', reason='unsigned_or_incomplete', command=name)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 453,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_rejected', reason='not_allowlisted', command=name)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 502,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_diagnostics', command=name, status=result.get('status'), request_id=request_id, signature_verify=signature_verify)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 442,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_rejected', reason='invalid_json')",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 463,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_trust_reject', command=name, reason=str(exc), sender=body.get('sender_id'))",
+        "canonical_state": false
+      },
+      {
+        "method": "_publish_schema_migration",
+        "line": 569,
+        "target": "self.migration_published",
+        "statement": "self.migration_published = True",
+        "canonical_state": false
+      },
+      {
+        "method": "_publish_schema_migration",
+        "line": 561,
+        "target": "self.audit",
+        "statement": "self.audit.append('schema_migration', source=event['from'], destination=event['to'], reason=event['reason'], preserve_original_evidence=event['preserve_original_evidence'])",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 573,
+        "target": "self.recent",
+        "statement": "self.recent = self.recent[-64:]",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 580,
+        "target": "self.metrics.sensorium_observations_total",
+        "statement": "self.metrics.sensorium_observations_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 581,
+        "target": "self.metrics.observations_published",
+        "statement": "self.metrics.observations_published = self.observations_published + 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 583,
+        "target": "self.observations_published",
+        "statement": "self.observations_published += 1",
+        "canonical_state": true
+      },
+      {
+        "method": "_emit",
+        "line": 572,
+        "target": "self.recent",
+        "statement": "self.recent.append(obs)",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 577,
+        "target": "self.observation_hashes",
+        "statement": "self.observation_hashes = self.observation_hashes[-512:]",
+        "canonical_state": true
+      },
+      {
+        "method": "_emit",
+        "line": 576,
+        "target": "self.observation_hashes",
+        "statement": "self.observation_hashes.append(digest)",
+        "canonical_state": true
+      },
+      {
+        "method": "_emit_derived",
+        "line": 605,
+        "target": "self.audit",
+        "statement": "self.audit.append('shadow_enforcement_block', sensor_id=sensor_id)",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 772,
+        "target": "self.invalid_observations",
+        "statement": "self.invalid_observations += 1",
+        "canonical_state": true
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 775,
+        "target": "self.audit",
+        "statement": "self.audit.append('pipeline_drop', sensor_id=sensor_id, stage=exc.stage)",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 782,
+        "target": "self.audit",
+        "statement": "self.audit.append('sensor_error', sensor_id=sensor_id, error=type(exc).__name__)",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 784,
+        "target": "self.health[sensor_id]",
+        "statement": "self.health[sensor_id] = 'degraded'",
+        "canonical_state": true
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 787,
+        "target": "self.health[sensor_id]",
+        "statement": "self.health[sensor_id] = 'quarantine'",
+        "canonical_state": true
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 721,
+        "target": "self.metrics.sensorium_anomalies_total",
+        "statement": "self.metrics.sensorium_anomalies_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 727,
+        "target": "self.metrics.sensorium_open_contradictions",
+        "statement": "self.metrics.sensorium_open_contradictions += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 731,
+        "target": "self.metrics.sensorium_uncertainty_score",
+        "statement": "self.metrics.sensorium_uncertainty_score = float((event.get('uncertainty') or {}).get('aggregated') or 0)",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 737,
+        "target": "self.metrics.sensorium_novelty_total",
+        "statement": "self.metrics.sensorium_novelty_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 743,
+        "target": "self.metrics.sensorium_policy_violations_total",
+        "statement": "self.metrics.sensorium_policy_violations_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 748,
+        "target": "self.metrics.sensorium_provenance_invalid_total",
+        "statement": "self.metrics.sensorium_provenance_invalid_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "run_forever",
+        "line": 794,
+        "target": "self.clock",
+        "statement": "self.clock = probe_clock()",
+        "canonical_state": false
+      },
+      {
+        "method": "run_forever",
+        "line": 802,
+        "target": "self.readiness_state",
+        "statement": "self.readiness_state = ext_ready",
+        "canonical_state": false
+      },
+      {
+        "method": "run_forever",
+        "line": 805,
+        "target": "self.readiness_state",
+        "statement": "self.readiness_state = 'UNVERIFIED'",
+        "canonical_state": false
+      },
+      {
+        "method": "run_forever",
+        "line": 812,
+        "target": "self.audit",
+        "statement": "self.audit.append('plugin_tick_failed', sensor_id=sensor_id)",
+        "canonical_state": false
+      }
+    ],
+    "canonical_write_count": 19
+  },
+  "candidate/octopus_sensorium/app.py": {
+    "sha256": "79a10dbd02392a381b9b262d62011f4b9c37e9f6228ac5dd951a483dfe0ba4be",
+    "self_writes": [
+      {
+        "method": "__init__",
+        "line": 73,
+        "target": "self.sm",
+        "statement": "self.sm = StateMachine()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 74,
+        "target": "self.audit",
+        "statement": "self.audit = AuditLog()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 75,
+        "target": "self.identity",
+        "statement": "self.identity = load_identity()",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 76,
+        "target": "self.nc",
+        "statement": "self.nc = None",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 77,
+        "target": "self.plugins",
+        "statement": "self.plugins: dict[str, Any] = {}",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 78,
+        "target": "self.health",
+        "statement": "self.health: dict[str, str] = {}",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 79,
+        "target": "self.recent",
+        "statement": "self.recent: list[dict[str, Any]] = []",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 80,
+        "target": "self.seen_hashes",
+        "statement": "self.seen_hashes: set[str] = set()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 81,
+        "target": "self.observations_published",
+        "statement": "self.observations_published = 0",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 82,
+        "target": "self.invalid_observations",
+        "statement": "self.invalid_observations = 0",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 83,
+        "target": "self.streams",
+        "statement": "self.streams: list[str] = []",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 84,
+        "target": "self.birth_published",
+        "statement": "self.birth_published = False",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 85,
+        "target": "self.stop_event",
+        "statement": "self.stop_event = asyncio.Event()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 86,
+        "target": "self.board_doc",
+        "statement": "self.board_doc: dict[str, Any] = {}",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 87,
+        "target": "self.registry_doc",
+        "statement": "self.registry_doc: dict[str, Any] = {}",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 88,
+        "target": "self.clock",
+        "statement": "self.clock = probe_clock()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 89,
+        "target": "self.readiness_state",
+        "statement": "self.readiness_state = 'UNVERIFIED'",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 90,
+        "target": "self.migration_published",
+        "statement": "self.migration_published = False",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 91,
+        "target": "self.offline_buffer",
+        "statement": "self.offline_buffer = OfflineBuffer()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 92,
+        "target": "self.observation_hashes",
+        "statement": "self.observation_hashes: list[str] = []",
+        "canonical_state": true
+      },
+      {
+        "method": "__init__",
+        "line": 93,
+        "target": "self.lifecycle",
+        "statement": "self.lifecycle = PluginLifecycle()",
+        "canonical_state": false
+      },
+      {
+        "method": "__init__",
+        "line": 94,
+        "target": "self.metrics",
+        "statement": "self.metrics = InProcessMetrics()",
+        "canonical_state": false
+      },
+      {
+        "method": "_set_health",
+        "line": 187,
+        "target": "self.health[sensor_id]",
+        "statement": "self.health[sensor_id] = status",
+        "canonical_state": true
+      },
+      {
+        "method": "_restore_journal_state",
+        "line": 191,
+        "target": "self.observation_hashes",
+        "statement": "self.observation_hashes = list(restored.get('observation_hashes') or [])",
+        "canonical_state": true
+      },
+      {
+        "method": "_restore_journal_state",
+        "line": 192,
+        "target": "self.observations_published",
+        "statement": "self.observations_published = int(restored.get('observations_published') or 0)",
+        "canonical_state": true
+      },
+      {
+        "method": "_restore_journal_state",
+        "line": 193,
+        "target": "self.invalid_observations",
+        "statement": "self.invalid_observations = int(restored.get('invalid_observations') or 0)",
+        "canonical_state": true
+      },
+      {
+        "method": "_restore_journal_state",
+        "line": 195,
+        "target": "self.health",
+        "statement": "self.health = dict(restored['health'])",
+        "canonical_state": true
+      },
+      {
+        "method": "_quarantine_record",
+        "line": 224,
+        "target": "self.audit",
+        "statement": "self.audit.append('quarantine_write_failed', sensor_id=sensor_id, error=type(exc).__name__)",
+        "canonical_state": false
+      },
+      {
+        "method": "_publish",
+        "line": 229,
+        "target": "self.offline_buffer",
+        "statement": "self.offline_buffer.append(subject, payload)",
+        "canonical_state": false
+      },
+      {
+        "method": "_publish",
+        "line": 234,
+        "target": "self.offline_buffer",
+        "statement": "self.offline_buffer.append(subject, payload)",
+        "canonical_state": false
+      },
+      {
+        "method": "_flush_offline_buffer",
+        "line": 252,
+        "target": "self.audit",
+        "statement": "self.audit.append('buffer_drop_stale', subject=subject)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_leg_birth",
+        "line": 269,
+        "target": "self.audit",
+        "statement": "self.audit.append('leg_birth_denied', requester=board_id)",
+        "canonical_state": false
+      },
+      {
+        "method": "load_signed",
+        "line": 275,
+        "target": "self.board_doc",
+        "statement": "self.board_doc = board.document",
+        "canonical_state": false
+      },
+      {
+        "method": "load_signed",
+        "line": 276,
+        "target": "self.registry_doc",
+        "statement": "self.registry_doc = registry.document",
+        "canonical_state": false
+      },
+      {
+        "method": "load_signed",
+        "line": 280,
+        "target": "self.audit",
+        "statement": "self.audit.append('config_loaded', board_hash=board.payload_hash, registry_hash=registry.payload_hash)",
+        "canonical_state": false
+      },
+      {
+        "method": "_instantiate_wave1",
+        "line": 308,
+        "target": "self.plugins[spec['sensor_id']]",
+        "statement": "self.plugins[spec['sensor_id']] = plugin",
+        "canonical_state": false
+      },
+      {
+        "method": "_instantiate_wave1",
+        "line": 301,
+        "target": "self.audit",
+        "statement": "self.audit.append('sensor_quarantine', sensor_id=spec['sensor_id'], reason=str(exc))",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 438,
+        "target": "self.readiness_state",
+        "statement": "self.readiness_state = 'UNVERIFIED'",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 318,
+        "target": "self.audit",
+        "statement": "self.audit.append('boot_start', identity=self.identity.as_dict(), version=__version__)",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 387,
+        "target": "self.nc",
+        "statement": "self.nc = await asyncio.wait_for(nats_connect(disconnected_cb=_disconnected, reconnected_cb=_reconnected), timeout=8)",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 425,
+        "target": "self.birth_published",
+        "statement": "self.birth_published = True",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 437,
+        "target": "self.audit",
+        "statement": "self.audit.append('boot_gates', report=report.as_dict())",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 396,
+        "target": "self.nc",
+        "statement": "self.nc = None",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 401,
+        "target": "self.audit",
+        "statement": "self.audit.append('snapshot_saved')",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 324,
+        "target": "self.audit",
+        "statement": "self.audit.append('boot_signed_config_failed', error=type(exc).__name__)",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 334,
+        "target": "self.audit",
+        "statement": "self.audit.append('isolation_fail', error=str(exc))",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 342,
+        "target": "self.audit",
+        "statement": "self.audit.append('schema_collision', error=str(exc))",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 369,
+        "target": "self.audit",
+        "statement": "self.audit.append('sensor_quarantine', sensor_id=sensor_id, reason=result.message)",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 379,
+        "target": "self.audit",
+        "statement": "self.audit.append('nats_disconnected')",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 383,
+        "target": "self.audit",
+        "statement": "self.audit.append('nats_reconnected')",
+        "canonical_state": false
+      },
+      {
+        "method": "boot",
+        "line": 395,
+        "target": "self.audit",
+        "statement": "self.audit.append('nats_connect_failed', error=type(exc).__name__)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 524,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_deferred', command=name, reason='wave0_non_diagnostic_deferred', signature_verify=signature_verify)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 450,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_forbidden', command=name, sender=body.get('sender_id'))",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 454,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_rejected', reason='unsigned_or_incomplete', command=name)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 457,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_rejected', reason='not_allowlisted', command=name)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 506,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_diagnostics', command=name, status=result.get('status'), request_id=request_id, signature_verify=signature_verify)",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 446,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_rejected', reason='invalid_json')",
+        "canonical_state": false
+      },
+      {
+        "method": "_on_command",
+        "line": 467,
+        "target": "self.audit",
+        "statement": "self.audit.append('command_trust_reject', command=name, reason=str(exc), sender=body.get('sender_id'))",
+        "canonical_state": false
+      },
+      {
+        "method": "_publish_schema_migration",
+        "line": 573,
+        "target": "self.migration_published",
+        "statement": "self.migration_published = True",
+        "canonical_state": false
+      },
+      {
+        "method": "_publish_schema_migration",
+        "line": 565,
+        "target": "self.audit",
+        "statement": "self.audit.append('schema_migration', source=event['from'], destination=event['to'], reason=event['reason'], preserve_original_evidence=event['preserve_original_evidence'])",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 578,
+        "target": "self.observations_published",
+        "statement": "self.observations_published += 1",
+        "canonical_state": true
+      },
+      {
+        "method": "_emit",
+        "line": 583,
+        "target": "self.recent",
+        "statement": "self.recent = self.recent[-64:]",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 585,
+        "target": "self.metrics.sensorium_observations_total",
+        "statement": "self.metrics.sensorium_observations_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 586,
+        "target": "self.metrics.observations_published",
+        "statement": "self.metrics.observations_published = self.observations_published",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 581,
+        "target": "self.observation_hashes",
+        "statement": "self.observation_hashes = self.observation_hashes[-512:]",
+        "canonical_state": true
+      },
+      {
+        "method": "_emit",
+        "line": 582,
+        "target": "self.recent",
+        "statement": "self.recent.append(obs)",
+        "canonical_state": false
+      },
+      {
+        "method": "_emit",
+        "line": 580,
+        "target": "self.observation_hashes",
+        "statement": "self.observation_hashes.append(digest)",
+        "canonical_state": true
+      },
+      {
+        "method": "_emit_derived",
+        "line": 609,
+        "target": "self.audit",
+        "statement": "self.audit.append('shadow_enforcement_block', sensor_id=sensor_id)",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 779,
+        "target": "self.invalid_observations",
+        "statement": "self.invalid_observations += 1",
+        "canonical_state": true
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 782,
+        "target": "self.audit",
+        "statement": "self.audit.append('pipeline_drop', sensor_id=sensor_id, stage=exc.stage)",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 788,
+        "target": "self.audit",
+        "statement": "self.audit.append('sensor_error', sensor_id=sensor_id, error=type(exc).__name__)",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 725,
+        "target": "self.metrics.sensorium_anomalies_total",
+        "statement": "self.metrics.sensorium_anomalies_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 731,
+        "target": "self.metrics.sensorium_open_contradictions",
+        "statement": "self.metrics.sensorium_open_contradictions += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 735,
+        "target": "self.metrics.sensorium_uncertainty_score",
+        "statement": "self.metrics.sensorium_uncertainty_score = float((event.get('uncertainty') or {}).get('aggregated') or 0)",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 741,
+        "target": "self.metrics.sensorium_novelty_total",
+        "statement": "self.metrics.sensorium_novelty_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 747,
+        "target": "self.metrics.sensorium_policy_violations_total",
+        "statement": "self.metrics.sensorium_policy_violations_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "_tick_sensor",
+        "line": 752,
+        "target": "self.metrics.sensorium_provenance_invalid_total",
+        "statement": "self.metrics.sensorium_provenance_invalid_total += 1",
+        "canonical_state": false
+      },
+      {
+        "method": "run_forever",
+        "line": 800,
+        "target": "self.clock",
+        "statement": "self.clock = probe_clock()",
+        "canonical_state": false
+      },
+      {
+        "method": "run_forever",
+        "line": 808,
+        "target": "self.readiness_state",
+        "statement": "self.readiness_state = ext_ready",
+        "canonical_state": false
+      },
+      {
+        "method": "run_forever",
+        "line": 811,
+        "target": "self.readiness_state",
+        "statement": "self.readiness_state = 'UNVERIFIED'",
+        "canonical_state": false
+      },
+      {
+        "method": "run_forever",
+        "line": 820,
+        "target": "self.audit",
+        "statement": "self.audit.append('plugin_tick_failed', sensor_id=sensor_id)",
+        "canonical_state": false
+      }
+    ],
+    "canonical_write_count": 14
+  }
+}

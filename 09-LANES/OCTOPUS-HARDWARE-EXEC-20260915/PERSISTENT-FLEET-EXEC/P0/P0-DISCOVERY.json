@@ -1,0 +1,175 @@
+{
+  "schema": "persistent_fleet_p0_discovery.v1",
+  "utc": "2026-09-15T03:27:37Z",
+  "mode": "READ_ONLY",
+  "sec_sot": {
+    "path": "/workspace/octopus-hq/wiring/GO-PERSISTENT-FLEET-EXEC-20260915.md",
+    "sha256": "52887e1a088d6d4e87f2a8c14879db392a647d450afe8473ea0a5e620022d268"
+  },
+  "no_enqueue": true,
+  "no_dual_commander": true,
+  "stop_before": "P1",
+  "findings": {
+    "138": {
+      "nats_server_active": false,
+      "jsz_localhost": {
+        "ok": false,
+        "raw_head": "curl: (7) Failed to connect to 127.0.0.1 port 8222 after 0 ms: Could not connect to server\n"
+      },
+      "mesh_inbox_present": true,
+      "file_queues": {
+        "autonomy_queue": "/home/ari/ofn/state/autonomy/queue.jsonl",
+        "mesh_inbox": "/home/ari/octopus-mesh/inbox (empty at observe)",
+        "mesh_outbox": "/home/ari/octopus-mesh/outbox (many dated json)",
+        "owner_dialogue": "/home/ari/ofn/state/owner_dialogue/*.jsonl",
+        "revenue_drive": "/home/ari/ofn/state/revenue-drive/* (OBSERVE ONLY \u2014 do not reuse for brain)"
+      }
+    },
+    "182": {
+      "nats_server_active": true,
+      "jsz_localhost_via_mesh_root": {
+        "ok": true,
+        "memory": 0,
+        "storage": 31726959,
+        "streams": 8,
+        "consumers": 0,
+        "messages": 68814,
+        "bytes": 31726959,
+        "config_store": null,
+        "keys": [
+          "accounts",
+          "api",
+          "bytes",
+          "config",
+          "consumers",
+          "ha_assets",
+          "limits",
+          "memory",
+          "messages",
+          "now",
+          "reserved_memory",
+          "reserved_storage",
+          "server_id",
+          "storage",
+          "streams",
+          "total"
+        ]
+      },
+      "nats_cli": "/usr/local/bin/nats\nnats: error: setup failed: nats: no servers available for connection\nnats: error: setup failed: nats: no servers available for connection\n",
+      "stream_names": [
+        {
+          "name": "FEATURE",
+          "messages": 7353,
+          "bytes": 4964388,
+          "consumer_count": 0,
+          "created": "2026-08-22T08:34:03.923340719Z",
+          "subjects": [
+            "octopus.sensor.feature.>"
+          ]
+        },
+        {
+          "name": "LEG",
+          "messages": 0,
+          "bytes": 0,
+          "consumer_count": 0,
+          "created": "2026-08-16T13:14:40.824702254Z",
+          "subjects": [
+            "octopus.leg.>"
+          ]
+        },
+        {
+          "name": "OBSERVATION",
+          "messages": 3125,
+          "bytes": 6468725,
+          "consumer_count": 0,
+          "created": "2026-08-22T08:34:03.972348097Z",
+          "subjects": [
+            "octopus.sensor.observation.>"
+          ]
+        },
+        {
+          "name": "SENSORIUM",
+          "messages": 262,
+          "bytes": 469168,
+          "consumer_count": 0,
+          "created": "2026-08-22T08:34:03.999471624Z",
+          "subjects": [
+            "octopus.sensorium.>"
+          ]
+        },
+        {
+          "name": "SENSOR_HEALTH",
+          "messages": 1071,
+          "bytes": 962162,
+          "consumer_count": 0,
+          "created": "2026-08-22T08:34:04.005934231Z",
+          "subjects": [
+            "octopus.sensor.health.>",
+            "octopus.sensor.anomaly.>"
+          ]
+        },
+        {
+          "name": "WORLD",
+          "messages": 1575,
+          "bytes": 1829637,
+          "consumer_count": 0,
+          "created": "2026-08-22T08:34:04.013246153Z",
+          "subjects": [
+            "octopus.world.>"
+          ]
+        },
+        {
+          "name": "AUDIT",
+          "messages": 55425,
+          "bytes": 17029390,
+          "consumer_count": 0,
+          "created": "2026-08-16T13:14:40.822296938Z",
+          "subjects": [
+            "octopus.audit.>"
+          ]
+        },
+        {
+          "name": "COMMAND",
+          "messages": 0,
+          "bytes": 0,
+          "consumer_count": 0,
+          "created": "2026-08-16T13:14:40.823500617Z",
+          "subjects": [
+            "octopus.command.>"
+          ]
+        }
+      ]
+    },
+    "arch_gap_closed": {
+      "note": "ARCH curl 182:8222 from 138 timed out; on-box root@182 via mesh key reaches jsz",
+      "138_to_182_8222": "UNREACHABLE",
+      "evidence_snip": "curl: (28) Connection timed out after 3002 milliseconds\n"
+    }
+  },
+  "verdicts": {
+    "NATS_ON_182": "YES",
+    "NATS_ON_138": "UNKNOWN",
+    "JETSTREAM": "YES",
+    "JETSTREAM_CONSUMER_PROOF": "PARTIAL_ZERO_CONSUMERS",
+    "NATS_MONITOR_8222_FROM_138_TO_182": "UNREACHABLE",
+    "JETSTREAM_DETAIL_182": {
+      "memory": 0,
+      "storage": 31726959,
+      "streams": 8,
+      "consumers": 0,
+      "messages": 68814,
+      "bytes": 31726959,
+      "config_store": null
+    },
+    "JETSTREAM_STREAMS": [
+      "FEATURE",
+      "LEG",
+      "OBSERVATION",
+      "SENSORIUM",
+      "SENSOR_HEALTH",
+      "WORLD",
+      "AUDIT",
+      "COMMAND"
+    ]
+  }
+}

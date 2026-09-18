@@ -1,0 +1,90 @@
+{
+  "task_id": "SEC-I1-APPLY",
+  "stamp_aest": "2026-09-16T12:54:30+10:00",
+  "apply_stamp_aest_138": "2026-09-16T12:53:53+10:00",
+  "execute_file": "SEC-I1-MAY-AUTHORIZE-EXECUTE-20260916.md",
+  "execute_sha": "f17a193ab07b47415a6d9f35f37b69f3fffe1b6b2b8f8d832d029a7b3228d34a",
+  "execute_sha_match": true,
+  "outcome": "ok",
+  "verified": {
+    "may_authorize": true,
+    "scope": "internal_only",
+    "expiry": "2026-09-30T12:47:00+10:00",
+    "customer_send": false,
+    "hold_external_intact": true,
+    "publish": false,
+    "workers_may_authorize": false
+  },
+  "before": {
+    "holds_may_authorize": false,
+    "holds_customer_send": false,
+    "holds_sha256": "13a1e79fc56da0bdf72cd6790e45c155f32c0e2bde642c4edd59bc8e2a2d8745",
+    "registry_138_may_authorize": false,
+    "registry_138_expires_at": null,
+    "may_authorize_sot_existed": false
+  },
+  "after": {
+    "holds_may_authorize": true,
+    "holds_scope": "internal_only",
+    "holds_expires": "2026-09-30T12:47:00+10:00",
+    "holds_customer_send": false,
+    "holds_sha256": "282d1faa3bf98f3de5ae2716e2cad317637cc3da8d2dd3214beb2d2f0820c26b",
+    "may_authorize_sot_sha256": "90421570ec98d0c5aa46eaa15ac7aedef728e0fdee11e3c5337e31c3c957df70",
+    "registry_138_may_authorize": true,
+    "registry_138_expires_at": "2026-09-30T12:47:00+10:00",
+    "registry_138_customer_send": false,
+    "registry_sha256": "4e208db1c3dc04bd67e499b02724d1c87556924f730c063c62f401dac6377add"
+  },
+  "verify_138": {
+    "/home/ari/ofn/state/owner_dialogue/hold_external_sot.v1.json": {
+      "may_authorize": true,
+      "scope": "internal_only",
+      "expiry": "2026-09-30T12:47:00+10:00",
+      "customer_send": false
+    },
+    "/home/ari/ofn/state/self-model/OCTOPUS-SELF-DRIVE-20260913/hold_external_sot.v1.json": {
+      "may_authorize": true,
+      "scope": "internal_only",
+      "expiry": "2026-09-30T12:47:00+10:00",
+      "customer_send": false
+    },
+    "may_authorize_sot": {
+      "may_authorize": true,
+      "scope": "internal_only",
+      "expiry": "2026-09-30T12:47:00+10:00",
+      "customer_send": false
+    },
+    "registry_138": {
+      "may_authorize": true,
+      "customer_send": false,
+      "expires_at": "2026-09-30T12:47:00+10:00",
+      "commander": true
+    }
+  },
+  "paths_touched_138": [
+    "/home/ari/ofn/state/owner_dialogue/hold_external_sot.v1.json",
+    "/home/ari/ofn/state/self-model/OCTOPUS-SELF-DRIVE-20260913/hold_external_sot.v1.json",
+    "/home/ari/ofn/state/owner_dialogue/may_authorize_sot.v1.json",
+    "/home/ari/ofn/state/fleet-nodes/registry.jsonl"
+  ],
+  "paths_mirrored": [
+    "/workspace/octopus-hq/wiring/hold_external_sot.v1.json",
+    "/workspace/octopus-hq/wiring/may_authorize_sot.v1.json",
+    "F:\\backup\\00-SEASON\\ziman-full-repair-20260910\\OCTOPUS-SELF-DRIVE-20260913\\hold_external_sot.v1.json",
+    "F:\\backup\\00-SEASON\\ziman-full-repair-20260910\\OCTOPUS-SELF-DRIVE-20260913\\may_authorize_sot.v1.json",
+    "F:\\backup\\00-SEASON\\ziman-full-repair-20260910\\OCTOPUS-SELF-DRIVE-20260913\\receipts\\sec-i1-20260916\\",
+    "F:\\backup\\09-LANES\\SEC-I1-20260916\\",
+    "/home/ari/ofn/state/receipts/sec-i1-20260916/",
+    "/home/ari/ofn/state/deep-scan/vault-mirror/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEC-I1-20260916/"
+  ],
+  "gatepolicy_note": "ziman_cycle GatePolicy has no may_authorize field; DEFAULT_LOCKS left unchanged (publish=false, external_send=none, hold_external=true)",
+  "notes": [
+    "customer_send remains false; HOLD_EXTERNAL intact",
+    "worker registry may_authorize left false",
+    "no FREEDOM / OF / marketing / MONEY / publish standing flips",
+    "SSH Step A and MONEY-BATCH not touched",
+    "idempotent re-stamp as_of 2026-09-16T12:53:53+10:00 during final verify (flags unchanged)",
+    "At expiry revert may_authorize=false unless owner renews"
+  ],
+  "receipt_md_sha256": "89f2b05d984619a224a02d1e4d0d531ca5060db01b08c0e5480fbb5ffd11c0a6"
+}

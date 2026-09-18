@@ -1,0 +1,62 @@
+{
+  "schema": "octopus.domain-publication.v1",
+  "published_utc": "2026-09-07T22:46:17.1434069Z",
+  "commit": "cb04753345516f633af0c148062cffd696bf66ec",
+  "source_branch": "codex/unlock-review-20260908",
+  "documents": [
+    {
+      "path": "F:\\backup\\07-HANDOFF\\UNLOCK-REVIEW-20260908.md",
+      "before_sha256": "a40cbf585052d830df244d0c33d167761cf91f387610fb622066866dc2273b86",
+      "after_sha256": "2fcd7bbdbcf3836af6c9e6461dd3ed647079fa024d24227370670c22337ecf93",
+      "readback_match": true
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\UNLOCK-REVIEW-20260908\\LANE-REPORT.md",
+      "before_sha256": "fba81019425009dc58e3006e6ecca3645106944c4c7100bb34a8097123abd79d",
+      "after_sha256": "68a2619c4cf263888c6ebb247d082446017acc18e2e897ac036c7d5ac38108c1",
+      "readback_match": true
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\UNLOCK-REVIEW-20260908\\OWNER-STATE.json",
+      "before_sha256": "eb4174e66b42d1b17a8de3e42be08254cd9b56648a5aa558381cd8b8cadd026e",
+      "after_sha256": "454b826d0df8cba5a369db48b9794a36b4ce125ef02b0921e12f020593d6f1fc",
+      "readback_match": true
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\UNLOCK-REVIEW-20260908\\DOMAIN-CONNECTION-PROPOSAL.md",
+      "before_sha256": null,
+      "after_sha256": "dcf49bde4dc46d22bd78591cd4160e35e019123abf28fde0e072191b82e68c6d",
+      "readback_match": true
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\UNLOCK-REVIEW-20260908\\DOMAIN-EVIDENCE-20260908.json",
+      "before_sha256": null,
+      "after_sha256": "ae40c18598d76a549c541dbfeba2c4d78bc7dbb1b21f38a658f8ff535b17c45a",
+      "readback_match": true
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\UNLOCK-REVIEW-20260908\\DOMAIN-INPUT.json",
+      "before_sha256": null,
+      "after_sha256": "7bd0917b4fc6c0c24e2111a9a1caa92e0c14173dd1ac457ef37ea974ee86cab1",
+      "readback_match": true
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\UNLOCK-REVIEW-20260908\\OWNER-DECISION-D0-PRIMARY-20260908.json",
+      "before_sha256": null,
+      "after_sha256": "0be1d5f922e4976cb02aa607efa01ec6b67e95d80c5bf93698404ef2e5d57e72",
+      "readback_match": true
+    }
+  ],
+  "runtime_input": {
+    "path": "F:\\backup\\_ops\\state\\drive\\new-domains.json",
+    "source": "F:\\wt-unlock-review-20260908\\09-LANES\\UNLOCK-REVIEW-20260908\\DOMAIN-INPUT.json",
+    "sha256": "7bd0917b4fc6c0c24e2111a9a1caa92e0c14173dd1ac457ef37ea974ee86cab1",
+    "mode": "new local input data only",
+    "consumer_execution": "not_verified"
+  },
+  "approved_primary": "ziman-gift.com.au",
+  "dns_changed": false,
+  "shopify_primary_changed": false,
+  "status": "waiting_for_shopify_login",
+  "rollback": "restore three prior mutable documentation indexes from b2eb84d; retain immutable evidence; if needed archive this newly created input with append-only rollback record"
+}

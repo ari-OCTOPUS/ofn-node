@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/fleet_node_registry.v1.schema.json",
+  "title": "fleet_node_registry.v1",
+  "description": "Registered node row for P4. Auth is credential-backed node_id — NOT hostname+machine-id alone. Never embed raw secrets; store key fingerprint / credential_id only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "node_id",
+    "lan_octet",
+    "bind_role",
+    "auth_status",
+    "credential_id",
+    "credential_fingerprint",
+    "boot_id_at_enroll",
+    "commander",
+    "may_authorize",
+    "customer_send"
+  ],
+  "properties": {
+    "schema": { "const": "fleet_node_registry.v1" },
+    "node_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable registered id (may equal lan octet string today: 100/138/… — future UUIDs OK)"
+    },
+    "lan_octet": {
+      "type": "string",
+      "pattern": "^(100|114|138|160|180|182|193)$"
+    },
+    "hostname": { "type": "string" },
+    "bind_role": { "type": "string", "minLength": 1 },
+    "capability": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "auth_status": {
+      "type": "string",
+      "enum": ["UNREGISTERED", "PENDING", "OK", "REVOKED", "CLONE_SUSPECT"]
+    },
+    "credential_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque handle to vault/mesh key slot — never the private key"
+    },
+    "credential_fingerprint": {
+      "type": "string",
+      "minLength": 8,
+      "description": "Public key fingerprint or cert thumbprint"
+    },
+    "boot_id_at_enroll": { "type": "string", "minLength": 1 },
+    "boot_id_last_seen": { "type": ["string", "null"] },
+    "machine_id_note": {
+      "type": "string",
+      "description": "Observational only — insufficient alone for LEASE"
+    },
+    "commander": { "type": "boolean" },
+    "may_authorize": { "const": false },
+    "customer_send": { "const": false },
+    "lease_eligible": { "type": "boolean", "default": false },
+    "enrolled_at": { "type": "string" },
+    "expires_at": { "type": ["string", "null"] }
+  }
+}

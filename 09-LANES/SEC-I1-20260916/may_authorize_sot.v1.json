@@ -1,0 +1,27 @@
+{
+  "schema": "may_authorize_sot.v1",
+  "as_of": "2026-09-16T12:53:53+10:00",
+  "authority": "SEC-I1-MAY-AUTHORIZE-EXECUTE",
+  "execute_sha256": "f17a193ab07b47415a6d9f35f37b69f3fffe1b6b2b8f8d832d029a7b3228d34a",
+  "may_authorize": true,
+  "scope": "internal_only",
+  "expires_at": "2026-09-30T12:47:00+10:00",
+  "commander_node_id": "138",
+  "customer_send": false,
+  "publish": false,
+  "hold_external_customer_send": "intact",
+  "deny": [
+    "customer_send",
+    "OF",
+    "ofn_marketing_timer",
+    "MONEY_BATCH_release",
+    "revenue_drive_external_send",
+    "publish_standing_flip",
+    "U3-U6",
+    "dual_commander",
+    "power_off_138",
+    "FREEDOM_beyond_I1"
+  ],
+  "meaning": "Scoped standing may_authorize=true for internal Class A / W25 green_without_reask and already-gated Class B only; auto-revert at expiry unless owner renews",
+  "revert_at_expiry_to": false
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "octopus.b-safe-library-restore.v1",
+  "owner_choice": "B interpreted as B-safe",
+  "not_executed": [
+    "RUN-ORGANISM.bat (sources OCTOPUS-flags.cmd and arms OCTOPUS_WIRE_* including outbound email)",
+    "RUN-CORTEX.bat (same flags.cmd)",
+    "Enable-ScheduledTask organism-watchdog / OCTOPUS-Cortex-Watchdog",
+    "Ollama start",
+    "WIRE_* enable",
+    "138/180 probe"
+  ],
+  "executed": [
+    "archived STOP-ORGANISM to 99-ARCHIVE/archive_STOP-ORGANISM-20260905-light-calib",
+    "started organism.py and cortex/cortex.py without flags.cmd",
+    "forced listed WIRE/outbound keys to 0 in child env so .env cannot arm VAULT_RAG/EPISTEMICS"
+  ],
+  "observed": {
+    "organism_pid": 15884,
+    "cortex_pid": 15992,
+    "8771": "127.0.0.1 listen",
+    "8772": "127.0.0.1 listen",
+    "stop_organism_present": false,
+    "watchdogs": "still Disabled"
+  },
+  "vantage": "this_host_only",
+  "asserted_ip": "192.168.0.191",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "live_organism_claim": false,
+  "production_benefit": "NOT_MEASURED"
+}

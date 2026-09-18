@@ -1,0 +1,13 @@
+{
+  "tests_run": 67,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "successful": true,
+  "scope": "local tests, not independent audit",
+  "test_hashes": {
+    "test_simulator.py": "0289fa56d7c412c33c9b6d36eab499c15c3e1dcf8d04e5de3c4e7ab83e93921e",
+    "test_analysis.py": "0cc13372f8bfee5f7a45e9259118d6e54c44b1616c0da466365754a873c307bc",
+    "test_bridge.py": "9906866e47334391282ae2f7169ced61651cf39ad2b1698e3a2c5f3ff0cb9aab"
+  }
+}

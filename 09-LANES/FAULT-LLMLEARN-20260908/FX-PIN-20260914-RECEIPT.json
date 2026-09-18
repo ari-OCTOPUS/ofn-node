@@ -1,0 +1,24 @@
+{
+  "schema": "fx-pin-daily.v1",
+  "ts": "2026-09-14T16:40:38",
+  "date": "2026-09-14",
+  "aud_usd": 0.7149,
+  "fx_usd_to_aud": 1.3988,
+  "anchor": "2026-09-14T06:00:00Z",
+  "receipt_id": "df438e74cf706cba",
+  "owner_pin_id": "FX-PIN-20260914-01",
+  "backup": "pricing_pinned.json.bak-fxpin-20260914",
+  "csv_witness": "F:\\backup\\_ops\\state\\wedge\\rba-f111-fetch-20260914.csv",
+  "gate": "fresh",
+  "verification": {
+    "procedure": "FX-1 shell recipe (agent shell only, NOT daemon)",
+    "run_id": "R-fxpin-auto-20260914",
+    "ok": true,
+    "tier": "primary",
+    "model": "deepseek-v4-flash",
+    "text": "OPERATIONAL",
+    "finish_reason": "stop",
+    "cost_usd": 1.932e-05,
+    "verified_at_local": "2026-09-14 16:41 (scheduled automation automation-ee619624, run #6; weekend gap closed — first business-day pin after Sat/Sun skips)"
+  }
+}

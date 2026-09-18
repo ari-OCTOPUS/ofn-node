@@ -1,0 +1,26 @@
+{
+  "schema": "p3_rpo_rto_addendum.v1",
+  "utc": "2026-09-15T03:43:10Z",
+  "parent_receipt": "P3-VERIFIED-RESTORE-RECEIPT.json",
+  "parent_receipt_sha256": "83d525134317e7b2de93986684309ba2bb4bd96b9ee79566e5494035bf801d11",
+  "parent_sha_prefix": "83d52513",
+  "RPO_seconds": 0,
+  "RTO_seconds": 3,
+  "measurement": {
+    "source": "P3/run.log",
+    "P3_START": "2026-09-15T03:37:08Z",
+    "P3_END": "2026-09-15T03:37:11Z",
+    "wall_seconds": 3,
+    "RPO_note": "Point-in-time snapshot of 138 fleet-memory+fleet-jobs at START; crash-consistent file set; continuous replication NOT claimed (RPO=0 at snapshot instant only).",
+    "RTO_note": "Wall time from START to END for manifest+tar stream to 180 separate path + per-file sha256 MATCH 9/9."
+  },
+  "schema_cites": {
+    "fleet_job.v1.schema.json_live_in_restore": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59",
+    "fleet_restore_manifest.v1.schema.json": "51900041868b2c7591fc0ffb3470453ed82af864da3a867ec0dd5769d6170e86",
+    "note": "ARCH live cite 49eb6c0b\u2026 is fleet_job.v1 inside restored fleet-jobs tree (not restore_manifest)."
+  },
+  "verdict_parent": "PASS",
+  "files_match": "9/9",
+  "customer_send": false,
+  "commander_node_id": "138"
+}

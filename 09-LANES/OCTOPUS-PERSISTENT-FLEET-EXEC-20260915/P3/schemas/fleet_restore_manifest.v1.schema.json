@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/fleet_restore_manifest.v1.schema.json",
+  "title": "fleet_restore_manifest.v1",
+  "description": "Verified backup/restore manifest for P3. 138=primary writer; 180=RO historical restore-copy host only — never commander.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "manifest_id",
+    "source_node_id",
+    "copy_node_id",
+    "backup_method",
+    "snapshot_sha256",
+    "created_at",
+    "verified",
+    "commander_node_id",
+    "customer_send",
+    "dual_commander"
+  ],
+  "properties": {
+    "schema": { "const": "fleet_restore_manifest.v1" },
+    "manifest_id": { "type": "string", "minLength": 1 },
+    "source_node_id": { "const": "138" },
+    "copy_node_id": { "const": "180" },
+    "backup_method": {
+      "type": "string",
+      "enum": [
+        "sqlite_online_backup",
+        "jsonl_verified_tar",
+        "restore_job_verified",
+        "other_documented"
+      ]
+    },
+    "snapshot_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "schema_version": { "type": "string" },
+    "watermark": { "type": ["string", "null"] },
+    "paths": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "snapshot": { "type": "string" },
+        "restore_target_separate": { "type": "string" }
+      }
+    },
+    "created_at": { "type": "string", "minLength": 1 },
+    "verified": { "type": "boolean" },
+    "verify_tool": { "type": ["string", "null"] },
+    "RPO_seconds": { "type": ["number", "null"], "minimum": 0 },
+    "RTO_seconds": { "type": ["number", "null"], "minimum": 0 },
+    "readback_match": { "type": ["boolean", "null"] },
+    "commander_node_id": { "const": "138" },
+    "customer_send": { "const": false },
+    "dual_commander": { "const": false }
+  }
+}

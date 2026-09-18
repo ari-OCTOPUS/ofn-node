@@ -1,0 +1,471 @@
+{
+  "schema": "octopus.debug.delivery_verification.v1",
+  "started_at_utc": "2026-09-07T00:06:27.243763+00:00",
+  "ended_at_utc": "2026-09-07T00:06:31.994403+00:00",
+  "scope": "Explicit delivery files only; no whole-vault scan, network call, runtime test or validator modification.",
+  "frontmatter_method": "Existing validate_frontmatter.py parse_frontmatter/check_note only, not scan/main.",
+  "frontmatter_validator_sha256": "d832dc760fe2289f4c09e565106c4054bb25bc254d757bab0edf92094d7cb130",
+  "frontmatter_schema_source": "schema",
+  "notes_checked": 5,
+  "local_markdown_links_checked": 16,
+  "checks_passed": 65,
+  "checks_failed": 0,
+  "checks": [
+    {
+      "name": "exists:SCOPE.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:DEBUG-REPORT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:LANE-REPORT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:NEXT-AGENT-PROMPT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:TEST-RECEIPT.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "json:TEST-RECEIPT.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:LIVE-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "json:LIVE-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:live_readback.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:CALIBRATION-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "json:CALIBRATION-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:calibration_readback.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:SOURCE-COMPARISON.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "json:SOURCE-COMPARISON.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:NODES-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "json:NODES-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:N180-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "json:N180-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:validate_delivery.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:MP-EXEC-DEBUG-HANDOFF-2026-09-07.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "exists:LANE-REPORT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "final_test_denominator",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "no_failed_skipped_or_deselected",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "candidate_sha:contracts/claim_v1.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "candidate_sha:contracts/FROZEN.lock",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "candidate_sha:ops/verifiable_claims.yaml",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "candidate_sha:tests/test_claim_contract_has_truth_source.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "candidate_sha:tests/test_claim_contract_debug_regressions.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "executed_script_sha:live_readback.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "executed_script_sha:calibration_readback.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "historical_prefix_fingerprint",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "audit_denom",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "calibration_kind_denominator",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "calibration_outcome_denominator",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "calibration_unresolved_numeric",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "preserved:F:\\wt-mp-exec-ex1-ex2-20260907\\contracts\\claim_v1.py",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "preserved:F:\\backup\\09-LANES\\MP-EXEC-EX1-EX2-20260907\\LANE-REPORT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "preserved:F:\\backup\\09-LANES\\MP-EXEC-EX1-EX2-20260907\\EX1-VERIFICATION-RECEIPT.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "f1_source_preserved",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "f1_lock_line_preserved",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "frontmatter:SCOPE.md",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "frontmatter:DEBUG-REPORT.md",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "frontmatter:LANE-REPORT.md",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "frontmatter:NEXT-AGENT-PROMPT.md",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "frontmatter:MP-EXEC-DEBUG-HANDOFF-2026-09-07.md",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "link:C:/Users/Armin/Downloads/MEGAPROMPT-OCTOPUS-v3-EXECUTABLE-2026-09-07.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/LIVE-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/CALIBRATION-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/SOURCE-COMPARISON.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/N180-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/NODES-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/DEBUG-REPORT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/NEXT-AGENT-PROMPT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/TEST-RECEIPT.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/LIVE-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/SOURCE-COMPARISON.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/N180-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/CALIBRATION-READBACK.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/LANE-REPORT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/TEST-RECEIPT.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "link:F:/backup/09-LANES/MP-DEBUG-20260907/NEXT-AGENT-PROMPT.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "latest_pointer:README.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "latest_pointer:00-LIVE-ENGINEERING-NAVIGATOR.md",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "git_diff_check_owned_paths",
+      "passed": true,
+      "detail": {
+        "exit_code": 0,
+        "scope": "five reviewed code paths"
+      }
+    },
+    {
+      "name": "original_reviewed_paths_clean",
+      "passed": true,
+      "detail": {
+        "exit_code": 0,
+        "scope": "five reviewed code paths"
+      }
+    }
+  ],
+  "manifest": [
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\SCOPE.md",
+      "bytes": 2420,
+      "raw_sha256": "00e3a14c8d48cb9fd29b27246e7f914b9327e35d62fbe8dd204ebeaa04be1ed5"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\DEBUG-REPORT.md",
+      "bytes": 15073,
+      "raw_sha256": "b95d7fab2166b2d14f3bf8b4dc7c8746bfac3c04e88f73eea0eb22e693624baf"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\LANE-REPORT.md",
+      "bytes": 5484,
+      "raw_sha256": "68e5c268fcf8e092ba7a196a2f8fe5b60d712900931e6d703a342ac735f6fe56"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\NEXT-AGENT-PROMPT.md",
+      "bytes": 8310,
+      "raw_sha256": "8cab6eac8e5d60f8588f2a3489a484b674dc82e3d243f99ef09da81e1559e177"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\TEST-RECEIPT.json",
+      "bytes": 4180,
+      "raw_sha256": "beba4653a6c6e5083f365ba977383d5afddf356be7c732689740bba67d4e364e"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\LIVE-READBACK.json",
+      "bytes": 9762,
+      "raw_sha256": "45e62a0700fb77647227be6cf0d71e95fef63bca9e98f37f43edee3650de86a1"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\live_readback.py",
+      "bytes": 5102,
+      "raw_sha256": "0eab1307afdc4b4093a6df87e8644ba2b743903b189d5865b43378773376a433"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\CALIBRATION-READBACK.json",
+      "bytes": 6367,
+      "raw_sha256": "3414ddbc57d93a1dc6b65e3eecf8188f5e60deacf9714cf56d8e4ae5cdb9f316"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\calibration_readback.py",
+      "bytes": 5492,
+      "raw_sha256": "46c2f0a85a2f7fd17369c8c9f66ce41347fee032fd2e08688176228e3437327e"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\SOURCE-COMPARISON.json",
+      "bytes": 1049,
+      "raw_sha256": "8b774ce772189ee0cb69ca3134f5097ee699b5caa958779290ecacfb39aa6992"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\NODES-READBACK.json",
+      "bytes": 3618,
+      "raw_sha256": "0aedd86dd52df6ea865024d2f834c37c1156330b7fae298f7202f54612b1e4a9"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\N180-READBACK.json",
+      "bytes": 11024,
+      "raw_sha256": "788117d07923c3408aadb63a19e9b16f8e8572b91e5dd980a16170b9e9b681e9"
+    },
+    {
+      "path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\validate_delivery.py",
+      "bytes": 7492,
+      "raw_sha256": "5b505434ca293e017b3b53f215d4927e182de456fde6f0cf99c1220f7ecc8c69"
+    },
+    {
+      "path": "C:\\Users\\Armin\\Desktop\\اختاپوس بک لپ\\OCTOPUS-LAB\\02-agent-memory-and-handoffs\\MP-EXEC-DEBUG-HANDOFF-2026-09-07.md",
+      "bytes": 3685,
+      "raw_sha256": "d1ee470680c18d0e312d61fc84b9c524983a6054809df43c29e5d2f0926302d6"
+    },
+    {
+      "path": "F:\\wt-debug-mp-ex1-ex2-20260907\\09-LANES\\MP-DEBUG-20260907\\LANE-REPORT.md",
+      "bytes": 1051,
+      "raw_sha256": "a2aea5e0dc7b8df71113a8588818291222f994f79545d2496e366ad26d2582b8"
+    },
+    {
+      "path": "F:\\wt-debug-mp-ex1-ex2-20260907\\contracts\\claim_v1.py",
+      "bytes": 11806,
+      "raw_sha256": "ff9773ec0ee3479c2147fb3426af2ec50cfcfdba37add9ed7611891ad934beea"
+    },
+    {
+      "path": "F:\\wt-debug-mp-ex1-ex2-20260907\\contracts\\FROZEN.lock",
+      "bytes": 164,
+      "raw_sha256": "9f29bc624131f90a8db57816b005b511e9b24bdd64e04d73bae1cc2c5f177028"
+    },
+    {
+      "path": "F:\\wt-debug-mp-ex1-ex2-20260907\\ops\\verifiable_claims.yaml",
+      "bytes": 2209,
+      "raw_sha256": "e46786c2517b74b6c63bbe7d2365dfe6d88372a35f30dfe99f95a58dc088c99c"
+    },
+    {
+      "path": "F:\\wt-debug-mp-ex1-ex2-20260907\\tests\\test_claim_contract_has_truth_source.py",
+      "bytes": 4912,
+      "raw_sha256": "28974e904103527b29f900a735cb10bc334a3356f603b88b74f66f8cac034960"
+    },
+    {
+      "path": "F:\\wt-debug-mp-ex1-ex2-20260907\\tests\\test_claim_contract_debug_regressions.py",
+      "bytes": 6621,
+      "raw_sha256": "6b62e5965efb7b6f3f25d2bc93e2bcc5f900f384473f2c572adabb8a50aa919d"
+    },
+    {
+      "path": "C:\\Users\\Armin\\Desktop\\اختاپوس بک لپ\\OCTOPUS-LAB\\README.md",
+      "bytes": 5789,
+      "raw_sha256": "271766600d6aea677e58507d5360f08969602168027cd30e4f1c5fc429be8903"
+    },
+    {
+      "path": "C:\\Users\\Armin\\Desktop\\اختاپوس بک لپ\\OCTOPUS-LAB\\00-LIVE-ENGINEERING-NAVIGATOR.md",
+      "bytes": 6570,
+      "raw_sha256": "ed492f35a87937bfa50c3191322a35dc8636febf7dedb6c7b051346a5aa811cf"
+    }
+  ],
+  "excluded": [
+    "Global vault validation",
+    "live node182",
+    "source loaded in RAM",
+    "production completion"
+  ],
+  "earlier_validation_attempts": [
+    {
+      "result": "FAILED_INFRASTRUCTURE",
+      "exit_code": 1,
+      "reason": "Unbounded-path git diff --check timed out after20seconds; no pass claimed. Retried with fsmonitor disabled, explicit five owned paths and60second timeout; no validator rules relaxed."
+    }
+  ]
+}

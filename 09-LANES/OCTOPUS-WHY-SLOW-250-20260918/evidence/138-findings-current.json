@@ -1,0 +1,4702 @@
+{
+ "generated_at": "2026-09-15T08:03:32Z",
+ "findings": {
+  "F-001": {
+   "finding_id": "F-001",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    }
+   ],
+   "title": "G8-021 executed but never retired — request now self-stale (base 02fb704d vs live fc993720), burns component budget each tick and paces W24 behind it",
+   "map_class": "EXECUTOR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138:/home/ari/ofn/state/ops-agent/state/canary-requests + ops-receipts.jsonl",
+    "anchor": "OPS_B_STALE_BASE have:fc993720 at 07:05:00Z",
+    "phrase": "receipt 07:05:00Z STALE_BASE on the already-executed request; executed/ count=2, 021 still in canary-requests"
+   },
+   "scores": {
+    "U": 5,
+    "R": 4,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 21.0
+  },
+  "F-002": {
+   "finding_id": "F-002",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "Executor starvation defect OW-8: 'return budget-blocked' aborts whole B8 category loop; one blocked request starves independent ready ones (g22-probe 0 receipts 34+ min)",
+   "map_class": "EXECUTOR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OW-8 runtime-proven 2026-09-15T06:38Z",
+    "phrase": "OW-8 status open; probe native-PROBE-G22-ENFORCEMENT-001.json still queued with zero dispositions",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 5,
+    "R": 4,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 20.8
+  },
+  "F-003": {
+   "finding_id": "F-003",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "114/160 reboot-orphans: evaluator+ingestion run under nohup, staged systemd units never installed (OW-4)",
+   "map_class": "EXECUTOR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/staged-units/INSTALL-PLAN-114-160.md",
+    "anchor": "STAGED, NOT APPLIED",
+    "phrase": "CURRENT-TRUTH 05:15Z block: 'systemd unit نصب نشده'; runtime: no matching units, nohup etime 15min after 01-02Z reboots",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 13.0
+  },
+  "F-004": {
+   "finding_id": "F-004",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "W24 live-ingest end-to-end still unproven: binder deploy pending + zero owner TG traffic since STRATA bind (offset was frozen 3.3d, needs one fresh owner message)",
+   "map_class": "DURABILITY",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-COMMANDER-W24-20260913/LANE-REPORT.md",
+    "anchor": "offset frozen since 2026-09-10T21:20:01Z",
+    "phrase": "tg-inbox spool 0 rows at 07:10Z; W24-BINDER-006 still in canary-requests; lane report 'needs one fresh owner message'",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 4,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 12.8
+  },
+  "F-005": {
+   "finding_id": "F-005",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    }
+   ],
+   "title": "fleet-jobs bus: 61 of 91 rows stuck non-terminal (17 QUEUED, 16 LEASED, 15 RUNNING, 13 ACK_RESULT, 13 PERSISTED) — most job types have no consumer",
+   "map_class": "EXECUTOR",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138:/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl",
+    "anchor": "state histogram 07:10Z",
+    "phrase": "Counter({'QUEUED':17,'LEASED':16,'RUNNING':15,'ACK_RESULT':13,'PERSISTED':13,'CLOSED':13,...}) — only 13 CLOSED"
+   },
+   "scores": {
+    "U": 4,
+    "R": 5,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 20.6
+  },
+  "F-006": {
+   "finding_id": "F-006",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "restore_drill NOT_RUN — the biggest hidden risk per GOV-V8's own register, unexecuted in three ruling docs + no drill artifacts on 138",
+   "map_class": "INFRA",
+   "schema_class": "RULING_UNEXECUTED",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-REVENUE-IGNITION-2026-09-05.md",
+    "anchor": "L188 'restore_drill: NOT_RUN ... بزرگ‌ترین ریسک پنهان'",
+    "phrase": "GOV-V8-SIGN-DAY1: 'restore_drill=NOT_RUN'; TEST-RESULTS: 'pending this rerun'; find on 138 returned no drill artifacts",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 5,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 15.6
+  },
+  "F-007": {
+   "finding_id": "F-007",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    }
+   ],
+   "title": "TRAFFIC-DECISION owner card open — 'the single real money unlock' (ads/outreach/market choice) blocks the entire revenue escalation",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138:/home/ari/ofn/state/revenue-drive/owner-review.json + F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "'تنها قفلِ واقعی جلوی پول'",
+    "phrase": "owner-review.json 06:01:30Z still lists TRAFFIC-DECISION owner_choice_needed"
+   },
+   "scores": {
+    "U": 4,
+    "R": 5,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 20.4
+  },
+  "F-008": {
+   "finding_id": "F-008",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "secrets unrotated (risk_accepted) + chat-pasted Claude key not deleted + 76 committed files leak IPs/board names + public repo posture",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "L60 WARNINGS + L130 sanitize backlog + CHAT_KEY_WARN",
+    "phrase": "'secrets still risk_accepted_unrotated'; 'CREDENTIAL_EXPOSURE_REQUIRES_ROTATION' (owner must delete in console); 'the sanitize backlog' 76 files",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 5,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 15.4
+  },
+  "F-009": {
+   "finding_id": "F-009",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "owner-decision backlog register: ~20 votes pending across seasons (D-0..D-3 ziman, MP-V41 ×3, EX2 go, IGN-2, GAP-023 ×4, MEGA-PLAN-01/02, ADR-041, cap30/Q-series, 3 pre-reg signatures, season-4 queue #168+P1s, R2 registry)",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/MP-CAPABILITY-GAP-01-20260907/LANE-REPORT.md (+MP-V41, MP-EX1, IGN1, 02-DECISIONS)",
+    "anchor": "'تصمیم مالک D-0..D-3' / 'سه تصمیم مالک باز ماند'",
+    "phrase": "each lane report lists its votes as open; no consolidated register exists that shows them to the owner in one card",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 12.4
+  },
+  "F-010": {
+   "finding_id": "F-010",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "G19 producer lifecycle unproven (restart/cursor-loss/rotation/truncation) + G27 WAL-or-temp-file atomicity not built",
+   "map_class": "DURABILITY",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "04:45Z 'باز: G19 lifecycle' + 'نیاز به WAL یا temp-file atomic'",
+    "phrase": "CURRENT-TRUTH open list; G27 fix only stops offset-advance-on-failure, no durability proof",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 12.6
+  },
+  "F-011": {
+   "finding_id": "F-011",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    }
+   ],
+   "title": "OW-9: B5 circuit breaker OPEN since 06:38Z, feeding failures not root-caused",
+   "map_class": "EXECUTOR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138: ops-receipts + budget_allows('B5')",
+    "anchor": "(False,'CIRCUIT_BREAKER_OPEN') 07:08Z",
+    "phrase": "live probe False; failed/op-ae56d3d1+op-f4f0c543 + ≥1 newer rejection"
+   },
+   "scores": {
+    "U": 3,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 9.8
+  },
+  "F-012": {
+   "finding_id": "F-012",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "G22 runtime behavioral proof owed: enforcement code is live but the queued negative probe has received no disposition (starved)",
+   "map_class": "EXECUTOR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/ROUND2-VERDICTS-20260915.md",
+    "anchor": "'enforcement = PENDING_PROBE'",
+    "phrase": "grep g22-probe in ops-receipts = 0 rows; probe request still queued",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 4,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 13.0
+  },
+  "F-013": {
+   "finding_id": "F-013",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "PB-1 24h continuity soak cannot PASS before 2026-09-16T04:31Z — acceptance check owed",
+   "map_class": "DURABILITY",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE.json",
+    "anchor": "'reported_status': 'IN_PROGRESS'",
+    "phrase": "earliest_sydney 2026-09-16T14:03; laptop_dependency_probe NOT_YET_IN_STORED_RECEIPT",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 4,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 13.0
+  },
+  "F-014": {
+   "finding_id": "F-014",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    }
+   ],
+   "title": "TRIO-002 + W3G30-COMBINED deploys complete the G28 arc (decision consumer, precondition freeze, CATSCOPE) — queued, execution+readback owed",
+   "map_class": "EXECUTOR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138: canary-requests/native-Z-SUCCESSOR-TRIO-002.json + W3G30",
+    "anchor": "ROUND31 'QUEUED (inside TRIO v3d) awaiting only TRIO deploy'",
+    "phrase": "both requests still in canary-requests; ROUND31 checkpoint says owner-chain final edge awaits TRIO deploy"
+   },
+   "scores": {
+    "U": 4,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 13.0
+  },
+  "F-015": {
+   "finding_id": "F-015",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "PR backlog cluster: #102 CODEOWNERS (Elahe), #106 merge, #201/#208 painting, #236-238 CODEOWNERS, #240 merge-method unauthorized, #193/194 unknown, #81 re-approval, VBAA ×3 branches unpushed, EventEnvelope blocked on SPINE vote",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/C-QUEUE-HYGIENE/LANE-REPORT.md + BIZ-LEGS + L7/L9/P-PAINTING + 00-SEASON op4-pr240",
+    "anchor": "'not merged, not restarted' / 'pending an allowed merge method'",
+    "phrase": "each report lists its PR as open/unknown; no sweep has ever reconciled them against current GitHub state",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 6.6
+  },
+  "F-016": {
+   "finding_id": "F-016",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "AUTO1 owner display phone number never supplied — fail-closed caller queue dark since 09-08 (recurring blocker in 3 handoffs)",
+   "map_class": "MIRROR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/UNLOCK-REGISTRY-2026-09-08.md",
+    "anchor": "R3-1 'صف fail-closed خاموش تا رسیدن شماره از مالک'",
+    "phrase": "registry row PROPOSED→APPROVED but number absent; MEGAPROMPT-2026-09-08-NOON 'AUTO1 منتظر شمارهٔ مالک'",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 13.0
+  },
+  "F-017": {
+   "finding_id": "F-017",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "hardware build-out T1-T6 not started per corrected DoD (4 boards still idle, NPU unused, node auth PENDING on 100/160/193/114)",
+   "map_class": "INFRA",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-HARDWARE-EXEC-20260915/LANE-REPORT.md",
+    "anchor": "'not started in this docs write'",
+    "phrase": "LANE-REPORT says T1-T6 not started; fleet-brain P4 auth map: all four 'PENDING_AUTH'; WORKER-BIND-MAP 'BOUND_DESIGN only'",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 12.4
+  },
+  "F-018": {
+   "finding_id": "F-018",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "owner physical step pending: SD-card swap + power for remaining boards ( enrollment's 'only blocker for success criterion 1')",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-HARDWARE-ENROLLMENT-20260915/LANE-REPORT.md",
+    "anchor": "'گام فیزیکی مالک (تنها مانع معیار موفقیت ۱)'",
+    "phrase": "write-pro-card.sh 'awaiting a decision' — option A prepared",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 10.0
+  },
+  "F-019": {
+   "finding_id": "F-019",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "imap customer-reply alert consumer absent: replies to the 3 sent quotes land unseen until the 6h revenue cycle happens to look",
+   "map_class": "MIRROR",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/FORGOTTEN-LEADS.md",
+    "anchor": "lead-8 'No consumer alert exists'",
+    "phrase": "octopus-imap.timer fires 1/min but no alert path from reply-arrival to owner card",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 12.8
+  },
+  "F-020": {
+   "finding_id": "F-020",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    }
+   ],
+   "title": "17 CHANNEL_AUTHORIZED packets unsent + rate-card single-source — funnel staged but stalled at owner traffic decision",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138: revenue-state.json 06:01:30Z",
+    "anchor": "counts CHANNEL_AUTHORIZED=17 SENT=3",
+    "phrase": "live revenue state; VITAL-DATA MONEY_EXECUTOR RATE_CARD_MISSING block"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 12.8
+  },
+  "F-021": {
+   "finding_id": "F-021",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "deploy keys disabled on ofn-node (G1): autonomy branches cannot push; owner toggle pending",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "GAP_G1 'DEPLOY KEYS DISABLED'",
+    "phrase": "gap row open; github=local-for-now owner decision 09-13 never revisited",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 7.0
+  },
+  "F-022": {
+   "finding_id": "F-022",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "Class B recovery armed but never executed in production (G2) — rollback path untested where it matters",
+   "map_class": "DURABILITY",
+   "schema_class": "RULING_UNEXECUTED",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "GAP_G2 'CLASS_B_EXECUTED=0'",
+    "phrase": "gap row open; containment rollback plan 'آزموده نشده' (VITAL-DATA 04:45Z block)",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 8.6
+  },
+  "F-023": {
+   "finding_id": "F-023",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "studio-consent chain 14/14 bullets unsigned (Saba+owner attestations, collection_id linkage, 182 witness receipt) — gates publish/OnlyFans/ofn-marketing legs",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/00-SEASON/PROMPT-RUNS-20260908/studio-consent/STUDIO-CONSENT-CHECKLIST.md",
+    "anchor": "L37-55 all '- [ ]'",
+    "phrase": "zero ticks in file; STUDIO-COLLECTIONS-WIRE 'still_hold': publish/OnlyFans/FeetFinder/ofn-marketing",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 8.4
+  },
+  "F-024": {
+   "finding_id": "F-024",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "missing-wirings census: 50 gaps found 09-03, only items 13/21 auto-fixed — 48 wirings still absent in memory loops",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/MISSING-WIRING-50-2026-09-03.md",
+    "anchor": "'50 missing wirings'",
+    "phrase": "census table open; only two items marked fixed",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-025": {
+   "finding_id": "F-025",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "containment rollback plan never exercised (sandbox escape/fire drill)",
+   "map_class": "DURABILITY",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "04:45Z 'containment rollback: آزموده نشده'",
+    "phrase": "open item in canonical dashboard",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 8.6
+  },
+  "F-026": {
+   "finding_id": "F-026",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "buy.nsw supplier registration: nightly-email path awaiting owner's 30-minute action (season hero item)",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "L56 buy.nsw PENDING",
+    "phrase": "CT line 56 '(owner 30-min action, PENDING)'",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 13.0
+  },
+  "F-027": {
+   "finding_id": "F-027",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "PARKED-LANES: 8 lanes locked until 'campaign verified_payment_count=1' — no first payment has ever unlocked them",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/PARKED-LANES-2026-09-03.md",
+    "anchor": "table 'PARKED'",
+    "phrase": "lock condition references verified_payment_count which is still 0",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 8.4
+  },
+  "F-028": {
+   "finding_id": "F-028",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "Ziman season TODO: PayID setup, real pricing+photography of 20 units, unit costs, competitor table — store is live with placeholder economics",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/03 - Projects/Ziman Galerry/TODO.md",
+    "anchor": "L13-25 all open",
+    "phrase": "unchecked bullets incl. PayID and 20-unit pricing",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 8.4
+  },
+  "F-029": {
+   "finding_id": "F-029",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "REV-1 shelf SKU never built + SKU C/D/E path open (Q-MARKET-COMPARE agreed path)",
+   "map_class": "REVENUE",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/Q-MARKET-COMPARE-20260905/LANE-REPORT.md",
+    "anchor": "'first SKU does not exist on disk'",
+    "phrase": "lane report Remaining; accounting parked",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 6.6
+  },
+  "F-030": {
+   "finding_id": "F-030",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "18 enrichment rows verified:false in painting leads (research pass never run) + ~19 strata leads owner never supplied",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/BIZ-LEGS-TEACH-20260905/LANE-REPORT.md + P-PAINTING-B2B-LEADS",
+    "anchor": "'(`verified:false` → researched)' / 'still missing'",
+    "phrase": "two lane reports list them open",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-031": {
+   "finding_id": "F-031",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "Google Business Profile listing pending owner login (directory legs YP/TrueLocal captcha-blocked, Hotfrog email-verify)",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/00-SEASON/DIRECTORY-YP-SUBMITTED-20260906.json",
+    "anchor": "'gbp': 'PENDING_OWNER_LOGIN'",
+    "phrase": "json row pending",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 9.0
+  },
+  "F-032": {
+   "finding_id": "F-032",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "FeetFinder KYC 0/9 uploads + OnlyFans cookie/API rejects — studio platforms blocked",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "L15-16 'KYC_BLOCKED 0/9' / 'HOLD'",
+    "phrase": "CT lines 15-16 open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 3.6
+  },
+  "F-033": {
+   "finding_id": "F-033",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "Airtasker zero leads — cause UNKNOWN, never measured (watch wired but intake empty)",
+   "map_class": "MIRROR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "11 Sep 'UNKNOWN است'",
+    "phrase": "dashboard open item",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-034": {
+   "finding_id": "F-034",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "brushline painting pipeline: 4 open phase TODOs (asset enhancement Phase 2, DA/strata signals Phase 5, Sonnet checks)",
+   "map_class": "REVENUE",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/03 - Projects/Lead-نقاشی/...brushline/60_code/src (orchestrator.py:463, gate.py:7, asset.py:66, content.py:739)",
+    "anchor": "TODO Phase 5 / Phase 2 markers",
+    "phrase": "in-code TODOs",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-035": {
+   "finding_id": "F-035",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "W24 chain documentation claims PB-4 NOT_RUN / corpus=6 — stale vs runtime (PB-4 IMPROVED 0.75v0.0, facts=371): open-work trackers contradict live state",
+   "map_class": "OBSIDIAN",
+   "schema_class": "DOC_RUNTIME_DISCREPANCY",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE.json",
+    "anchor": "'PB-4': 'NOT_RUN' vs live 371 facts",
+    "phrase": "tracker files never updated after the 09-15 closed-loop session",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-036": {
+   "finding_id": "F-036",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "engineering-entrypoint chain stale: AGENTS.md points at 09-04 while 0906/0907 exist and none reference the forensic-reorientation lane or ORIENTATION.md",
+   "map_class": "OBSIDIAN",
+   "schema_class": "DOC_RUNTIME_DISCREPANCY",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/AGENTS.md → 07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md",
+    "anchor": "'read 07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md'",
+    "phrase": "no entrypoint mentions lanes newer than 09-07; ORIENTATION.md unlinked",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-037": {
+   "finding_id": "F-037",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "August incident ledger unresolved: C-042 milli-rounding starvation (fix deferred), C-043 suspected_void, C-044 telemetry color-reasons, C-045 one-tick skew, C-046 no per-beat evidence, D6 variance, C-047-gated brain restart",
+   "map_class": "EXECUTOR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/C-042..C-046-2026-08-20.md + STATE-RECHECK",
+    "anchor": "'status: REPRODUCED_OFFLINE' / 'OPEN'",
+    "phrase": "frontmatter statuses open/reproduced for 26 days",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 3.4
+  },
+  "F-038": {
+   "finding_id": "F-038",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "owner-key chain: B1 ED25519 formal signing pending chat approval; owner-key.enc hash never reproduced; restart-activation path absent",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OWNER-KEY-STATUS-2026-08-20.md + RESTART-ACTIVATION",
+    "anchor": "'UNVERIFIED' ×2",
+    "phrase": "both files end unresolved",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 8.4
+  },
+  "F-039": {
+   "finding_id": "F-039",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "UNLOCK-REGISTRY: 15+ locks sit PROPOSED never executed (secret_rotation repurpose, OWNER_KEY, L4 rung, checkout1_poll port, money-sensor repoint, unified chat, KILL_SEAM arming...)",
+   "map_class": "GOVERNANCE",
+   "schema_class": "RULING_UNEXECUTED",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/UNLOCK-REGISTRY-2026-09-08.md",
+    "anchor": "'`PROPOSED`' rows",
+    "phrase": "registry rows PROPOSED/APPROVED without execution receipts",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-040": {
+   "finding_id": "F-040",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "freedom-v2 phase 2 open: no-witness recovery, cross-node apply, GitHub push autonomy",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "GAP 'PHASE_2_OPEN'",
+    "phrase": "gap row open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-041": {
+   "finding_id": "F-041",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "G3: load1 self-measurement extractor missing — reconcile window EXPIRED_UNOBSERVED, scoped proposal recorded not applied",
+   "map_class": "COGNITION",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "GAP_G3 'EXPIRED_UNOBSERVED'",
+    "phrase": "gap row open with recorded-but-unapplied proposal",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 6.6
+  },
+  "F-042": {
+   "finding_id": "F-042",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "JetStream consumers=0: NATS durability installed but nothing subscribes — 'NOT_CLAIMED' honesty already recorded, wiring still absent",
+   "map_class": "DURABILITY",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/LANE-REPORT.md",
+    "anchor": "'**consumers=0**'",
+    "phrase": "P6 report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-043": {
+   "finding_id": "F-043",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "sensorium in-band receipts non-canonical + clock correctness unproven",
+   "map_class": "DURABILITY",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/SENSORIUM-RECEIPT-NONCANONICAL-2026-08-18.md",
+    "anchor": "'temporary evidence, not canonical receipts'",
+    "phrase": "split-table verdict open",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-044": {
+   "finding_id": "F-044",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "WAL re-arm value REPORTED but UNVERIFIED until independent read",
+   "map_class": "DURABILITY",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "L175 'REPORTED/UNVERIFIED-until-independent-read'",
+    "phrase": "CT row open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 7.0
+  },
+  "F-045": {
+   "finding_id": "F-045",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "B-PULSE-IMAP: the exact 15875B listener file on 138 never confirmed + LANE-MATRIX naming clash unresolved",
+   "map_class": "MIRROR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/B-PULSE-IMAP/LANE-REPORT.md",
+    "anchor": "'unverified (no SSH this session)'",
+    "phrase": "both rows open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 7.0
+  },
+  "F-046": {
+   "finding_id": "F-046",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    }
+   ],
+   "title": "smartmontools.service FAILED on 138 — disk monitoring down on the node that survived a full disk crisis",
+   "map_class": "INFRA",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138: systemctl list-units --state=failed",
+    "anchor": "smartmontools loaded failed",
+    "phrase": "live unit state failed"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 9.0
+  },
+  "F-047": {
+   "finding_id": "F-047",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "S: SSD archive offline since mid-op (36.4GB of archives disconnected) — deletions were stopped, but no external target ever returned",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "disk-crisis memory + 99-ARCHIVE state",
+    "anchor": "'S: WENT OFFLINE mid-op — all archives disconnected'",
+    "phrase": "no reattach or re-verification recorded since 09-12",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 5,
+    "C": 1
+   },
+   "needs_review": false,
+   "rank": 10.2
+  },
+  "F-048": {
+   "finding_id": "F-048",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "4d consolidation tick was dead 11 days (08-23→09-03) — 'partially healed' per agent note; feed continuity never re-proven",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/MISSING-WIRING-50-2026-09-03.md",
+    "anchor": "item2 '۱۱ روز خوراک نیامده'",
+    "phrase": "census row; healing observed once, not verified as sustained",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 4.0
+  },
+  "F-049": {
+   "finding_id": "F-049",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "semantic retrieval stage pending (extractive-v1 keyword-only) — the last open intelligence blocker",
+   "map_class": "COGNITION",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "'semantic retrieval بعد از evaluator'",
+    "phrase": "open list 05:15Z",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 9.6
+  },
+  "F-050": {
+   "finding_id": "F-050",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "memory-consolidate always produces 0 semantic notes — by-design or broken edge, never determined",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "08 Sep item5 'by-design یا یال شکسته?'",
+    "phrase": "dashboard open question",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-051": {
+   "finding_id": "F-051",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "PB-4 retest owed with 371-fact corpus + held-out questions (first run n=12, powered but small)",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OW-7",
+    "phrase": "OW-7 open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 9.8
+  },
+  "F-052": {
+   "finding_id": "F-052",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "F2 capability/freshness wiring into scheduler self-model — shadow designed, never wired",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-ACTIONS.json",
+    "anchor": "F2 'SHADOW_FIRST'",
+    "phrase": "tracker READY/shadow status",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 6.6
+  },
+  "F-053": {
+   "finding_id": "F-053",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "GAP-LEDGER.jsonl canonical missing (0 rows vs 64 in markdown twin) — L6 blocker G_P1 forever open",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/L6/LANE-REPORT.md",
+    "anchor": "'Land or locate canonical'",
+    "phrase": "ASSIGNMENT-BOARD 'G_P1': 'BLOCKED_GAP_LEDGER_ABSENT'",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-054": {
+   "finding_id": "F-054",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "DEEP-SCAN-10ASPECTS sha manifest incomplete after two aborted runs (script stranded in %TEMP%)",
+   "map_class": "INFRA",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT.md",
+    "anchor": "'تکمیل manifest'",
+    "phrase": "lane report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 3.6
+  },
+  "F-055": {
+   "finding_id": "F-055",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "P6 QA seal cited but its direct file unlocatable (Q1 read-only lookup never done)",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "DOC_RUNTIME_DISCREPANCY",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-ACTIONS.json",
+    "anchor": "Q1 'READ_ONLY_LOOKUP'",
+    "phrase": "CURRENT-STATE 'seal cited but direct file not found'",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 3.0
+  },
+  "F-056": {
+   "finding_id": "F-056",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "NPU capacity unmeasured/unused: 6 benchmark PASS rows but 138 row NOT_RUN; 'nominal 42 TOPS' explicitly not usable-capacity; zero consumers",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE.json",
+    "anchor": "'NPU-138 NOT_RUN'",
+    "phrase": "matrix row open; no workload consumes NPU",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 8.4
+  },
+  "F-057": {
+   "finding_id": "F-057",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "OP-8: paid calls burn without output — measured open at 64%, no mitigation applied",
+   "map_class": "COGNITION",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "OP-8 'اندازه‌گیری‌شده و باز'",
+    "phrase": "dashboard open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 8.6
+  },
+  "F-058": {
+   "finding_id": "F-058",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "AIE pilot failed honestly; PYMDP v2 registered, never run",
+   "map_class": "COGNITION",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "'PYMDP_NOT_RUN'",
+    "phrase": "dashboard open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 2.4
+  },
+  "F-059": {
+   "finding_id": "F-059",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "4d_system graph builder not implemented (deferred); baselines unverified",
+   "map_class": "COGNITION",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/L8/LANE-REPORT.md",
+    "anchor": "'not implemented (deferred)'",
+    "phrase": "lane report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 2.4
+  },
+  "F-060": {
+   "finding_id": "F-060",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "DeepSeek provider exists as lab stub (3× NotImplementedError) in FUGU-BIZ-SPRINT while a different live deepseek adapter serves the chain — provenance ambiguity",
+   "map_class": "COGNITION",
+   "schema_class": "DOC_RUNTIME_DISCREPANCY",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/FUGU-BIZ-SPRINT-2026-08-24/lab/gateway/brainport/providers/deepseek.py:21",
+    "anchor": "'lab stub'",
+    "phrase": "stub code on disk",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 2.6
+  },
+  "F-061": {
+   "finding_id": "F-061",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "h1_buysw adapter never implemented (test skipped 'not yet implemented'; golden_response needs API key)",
+   "map_class": "REVENUE",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/MP-OPERATORS-01-20260909/worktree/tests/test_h1_buysw.py:14",
+    "anchor": "pytest.skip",
+    "phrase": "skip markers in test",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 2.4
+  },
+  "F-062": {
+   "finding_id": "F-062",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "OFN real-publish returns RULE_NOT_IMPLEMENTED across 3 mirror copies — external publish capability explicitly not built",
+   "map_class": "MIRROR",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/03 - Projects/OFN-Board/ofn/adapters/platforms/base.py:43 (+2 mirrors)",
+    "anchor": "RULE_NOT_IMPLEMENTED",
+    "phrase": "constant returned by telegram_readonly publish too",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 3.4
+  },
+  "F-063": {
+   "finding_id": "F-063",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "vbaa xfail invariant trio (INV-SUBSTRING, INV-CRYPTO, INV-DERIVED) unresolved in 4 copy locations",
+   "map_class": "GOVERNANCE",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/tests/contract/vbaa/ (+vbaa-check, pair-f-p1, pair-f-p2)",
+    "anchor": "@pytest.mark.xfail",
+    "phrase": "xfail markers duplicated ×4",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 3.6
+  },
+  "F-064": {
+   "finding_id": "F-064",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "EX1 acceptance chain: original contract NOT_PASSED, v3.1 draft unadopted, EX3 blocked, three C-contradictions (mint_evidence, schema keys, verify_chain)",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/MP-EX1-CRITERION-20260907/LANE-REPORT.md + MP-EXEC-EX1-EX2",
+    "anchor": "'**NOT_PASSED**' / 'resolution: null'",
+    "phrase": "lane reports open",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-065": {
+   "finding_id": "F-065",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "L2-L6 research lane stack blocked: blind-test gate → real recorded split (owner) → 29 verifies re-run → GAP-LEDGER — four sequential gates never opened",
+   "map_class": "COGNITION",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/L2..L6/LANE-REPORT.md",
+    "anchor": "'L3-L6 stay blocked on that gate'",
+    "phrase": "each LANE-REPORT states its blocker",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-066": {
+   "finding_id": "F-066",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "H9 test battery accrues to 2026-09-22 or n>=30/arm; analyzer one-shot verdict PENDING_CONTINUE; hardening v2 proposal needs owner GO",
+   "map_class": "COGNITION",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/H9-TESTBATTERY-20260909/LANE-REPORT.md + h9_status.json",
+    "anchor": "'PENDING_CONTINUE'",
+    "phrase": "status file pending",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 3.6
+  },
+  "F-067": {
+   "finding_id": "F-067",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "GEN-v4 lab candidates (H8 replication, 500-gen budget) not authorized — generalization program parked",
+   "map_class": "COGNITION",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/QD-LAB-GENERALIZATION-20260908/LANE-REPORT.md",
+    "anchor": "'not authorized'",
+    "phrase": "lane report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 2.4
+  },
+  "F-068": {
+   "finding_id": "F-068",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "economic-learning: zero-payment failure trio open until differing-parameter test (design-only, QUEUED); VERIFIED-outcome vocabulary extension escalated to owner",
+   "map_class": "MONEY_GATE",
+   "schema_class": "RULING_UNEXECUTED",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ECONOMIC-LEARNING-CURRENT.md",
+    "anchor": "'local failure stays OPEN' / '[ESCALATED_TO_OWNER]'",
+    "phrase": "doc rows open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-069": {
+   "finding_id": "F-069",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "money gate: no callable spend package exists — design-only; identity requirement for bare «بفرست» still an owner decision",
+   "map_class": "MONEY_GATE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/ROUND2-VERDICTS-20260915.md",
+    "anchor": "'no callable spend package exists or is claimed'",
+    "phrase": "round-2 verdict keeps the path open; gates live in source but final authority package undecided",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 12.4
+  },
+  "F-070": {
+   "finding_id": "F-070",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "B-1 bootstrap single-order payment path proposed (ERRATA-AND-UNBLOCK), never executed, owner decides",
+   "map_class": "MONEY_GATE",
+   "schema_class": "RULING_UNEXECUTED",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ERRATA-AND-UNBLOCK-2026-09-05.md",
+    "anchor": "B-1 'در این جلسه اجرا نشده'",
+    "phrase": "doc row open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 12.6
+  },
+  "F-071": {
+   "finding_id": "F-071",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "MONEY-BATCH owner card: send 5 quote packets vs owner-sends — vote never cast",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "'تأیید کنید تا از مسیر مجاز بفرستد'",
+    "phrase": "dashboard card pending (superseded in part by TRAFFIC-DECISION? both open)",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 12.8
+  },
+  "F-072": {
+   "finding_id": "F-072",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "GOV_V6_ON_MAIN=NO: governance gate + ofn/agents classification never landed on main",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "L186",
+    "phrase": "CT row open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 3.6
+  },
+  "F-073": {
+   "finding_id": "F-073",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "GOV-AUTONOMY-V3 defines an OWNER_DECISIONS_PENDING counter — never wired to any dashboard/card generator",
+   "map_class": "GOVERNANCE",
+   "schema_class": "RULING_UNEXECUTED",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-AUTONOMY-V3-2026-09-13.md",
+    "anchor": "L648 'OWNER_DECISIONS_PENDING='",
+    "phrase": "counter defined, no producer observed",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-074": {
+   "finding_id": "F-074",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "EDGE6 business loop blocked + GitHub publication remote unlocated (Telegram webapp phase0)",
+   "map_class": "MIRROR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-TELEGRAM-WEBAPP-PHASE0-2026-08-29.md",
+    "anchor": "'VERDICT=EDGE6_STILL_BLOCKED'",
+    "phrase": "verdict line open",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 6.4
+  },
+  "F-075": {
+   "finding_id": "F-075",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "L191 findings: business chain EDGE-1..14 undiagnosed, MODEL_RUNTIME_BLOCKED, forensic pointer active",
+   "map_class": "MIRROR",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-L191-FINDINGS-2026-08-28.md",
+    "anchor": "'BLOCKED_WITH_EVIDENCE'",
+    "phrase": "verdict lines open",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 3.6
+  },
+  "F-076": {
+   "finding_id": "F-076",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "unwired services: effect-zero claim paths + undeclared http.server :8765 — both 'status: active' since 08-16",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/UNWIRED-effect-zero-2026-08-16.md + UNWIRED-http8765",
+    "anchor": "'status: active'",
+    "phrase": "frontmatter active",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 3.8
+  },
+  "F-077": {
+   "finding_id": "F-077",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "COMMIT-GAP: 'cap30 restart verified' documented as false vs git — gap acknowledged, never remediated",
+   "map_class": "OBSIDIAN",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/COMMIT-GAP-2026-08-20.md",
+    "anchor": "'دروغ است'",
+    "phrase": "doc verdict open",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 3.8
+  },
+  "F-078": {
+   "finding_id": "F-078",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "HOURLY-PUSH GITWRITE-FAILED flag never deleted; auto-push path not green; owner decision owed",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/HOURLY-PUSH-EMPTY-ERR-2026-08-18.md",
+    "anchor": "'Flag GITWRITE-FAILED still not deleted'",
+    "phrase": "tail open",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 3.8
+  },
+  "F-079": {
+   "finding_id": "F-079",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "tunnels absent/stale + hold external (L191 forensic debug 'status: active')",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/06-EVIDENCE/OCTOPUS-L191-FORENSIC-DEBUG-2026-08-28.md",
+    "anchor": "frontmatter",
+    "phrase": "status active",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 2.6
+  },
+  "F-080": {
+   "finding_id": "F-080",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "INITIATIVE two-bot mr trap live and unfixed — owner TODO since 08-06 (40 days)",
+   "map_class": "EXECUTOR",
+   "schema_class": "DEBT_HIDDEN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/CORTEX-CONNECT-ALL-20260910/LANE-REPORT.md",
+    "anchor": "'زنده و هنوز رفع‌نشده، TODO مالک'",
+    "phrase": "KNOWN_OPEN_GAPS row",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-081": {
+   "finding_id": "F-081",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "8791 three-tenant contradiction unresolved (resolution: null)",
+   "map_class": "INFRA",
+   "schema_class": "DOC_RUNTIME_DISCREPANCY",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/D-S0-HUNT/LANE-REPORT.md",
+    "anchor": "'`resolution: null`'",
+    "phrase": "open contradiction",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 2.8
+  },
+  "F-082": {
+   "finding_id": "F-082",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "llama-8081 on 138: notes say live, probe said DOWN + binary absent (resolution: null) — and 180 now runs llama-lab: three claims, no reconciliation",
+   "map_class": "COGNITION",
+   "schema_class": "DOC_RUNTIME_DISCREPANCY",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-138-WIRING-20260908/LANE-REPORT.md",
+    "anchor": "'resolution: null, status: open'",
+    "phrase": "open contradiction",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 7.0
+  },
+  "F-083": {
+   "finding_id": "F-083",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "Airtasker latency/payload values unmeasured against real app push",
+   "map_class": "MIRROR",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/AIRTASKER-WATCH-20260908/LANE-REPORT.md",
+    "anchor": "'status unverified'",
+    "phrase": "lane report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-084": {
+   "finding_id": "F-084",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "C-R0 identity: workers-comp + painter licence certificates still missing from vault",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/A-R0-IDENTITY/LANE-REPORT.md",
+    "anchor": "'still missing on vault'",
+    "phrase": "lane report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 8.6
+  },
+  "F-085": {
+   "finding_id": "F-085",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "Q-MARKET: Atelier theme still Draft (unpublished after price ×1.5 exec); W9-1R call-service purchase awaiting owner",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "08 Sep items",
+    "phrase": "dashboard open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 6.8
+  },
+  "F-086": {
+   "finding_id": "F-086",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "24 verify FAILs outstanding from 09-09 GAP/VBAA round (OP-1b canonical folder + OP-2 ledger-writer root)",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "09 Sep '۲۴ FAIL باقی‌ماندهٔ verify'",
+    "phrase": "dashboard open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 6.6
+  },
+  "F-087": {
+   "finding_id": "F-087",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "N-ALIVE: find_channels.py + CATALOG.json never copied to 138 timer; season5-gates-final.json unwritten on 138",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/N-ALIVE-RUNBOOK-20260905/LANE-REPORT.md",
+    "anchor": "'still unsent' / '`status: open`'",
+    "phrase": "two open rows",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 3.8
+  },
+  "F-088": {
+   "finding_id": "F-088",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "ESP32 labels.json absent — owner named the devices but NOW tables cannot render",
+   "map_class": "OBSIDIAN",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/Q-QUALITY-SWARM-20260908/LANE-REPORT.md",
+    "anchor": "'still absent'",
+    "phrase": "lane report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 5
+   },
+   "needs_review": false,
+   "rank": 3.0
+  },
+  "F-089": {
+   "finding_id": "F-089",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "02-DECISIONS ledger: verified_in_code column unfilled; D-22/D-25 budget reconcile; D-32 signing open",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/02-DECISIONS/DECISIONS.md",
+    "anchor": "L31-33 '- [ ]'",
+    "phrase": "unchecked bullets",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 3.6
+  },
+  "F-090": {
+   "finding_id": "F-090",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "three pre-registration signatures never cast (K9 three-seed REJECT, judge-bias phase2, four-arm ablation)",
+   "map_class": "GOVERNANCE",
+   "schema_class": "RULING_UNEXECUTED",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/02-DECISIONS/PRE-REG-*.md",
+    "anchor": "'**امضا**' unticked",
+    "phrase": "unchecked signature bullets",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 2.8
+  },
+  "F-091": {
+   "finding_id": "F-091",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "D3 key rotation checklist unticked (GLM/DEEPSEEK/TG tokens)",
+   "map_class": "GOVERNANCE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/02-DECISIONS/D3-CLOSURE-ROTATE-ACCEPT-2026-08-19T0940Z.md",
+    "anchor": "L15-18 '- [ ]'",
+    "phrase": "unchecked bullets — pairs with F-008",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 5,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 10.4
+  },
+  "F-092": {
+   "finding_id": "F-092",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "08-PLANS AI-landscape research acceptance unmet (50 sources, 3 connectors)",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/08-PLANS/OCTOPUS-AI-LANDSCAPE-RESEARCH-MEGAPROMPT-2026-08-28.md",
+    "anchor": "L211-212 '- [ ]'",
+    "phrase": "unchecked acceptance bullets",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 2.4
+  },
+  "F-093": {
+   "finding_id": "F-093",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "PARALLEL-AGENTS-CONSOLIDATION 2026-07-18 checklist: merge decision, Abbas chat_id, ABN, BotFather token — 16 unticked bullets from month-2",
+   "map_class": "OBSIDIAN",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/01 - Dashboard/PARALLEL-AGENTS-CONSOLIDATION-2026-07-18.md",
+    "anchor": "L176-191",
+    "phrase": "unchecked bullets",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 2.6
+  },
+  "F-094": {
+   "finding_id": "F-094",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "N3V2-MATH: 30 formula rows untested, 9 quarantines, SIG_IV PENDING",
+   "map_class": "COGNITION",
+   "schema_class": "ABANDONED_PLAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/N3V2-MATH-20260505T031103Z/LANE-REPORT.md",
+    "anchor": "'`SIG_IV`: PENDING'",
+    "phrase": "RUN-STATE open",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 2,
+    "C": 2
+   },
+   "needs_review": false,
+   "rank": 2.4
+  },
+  "F-095": {
+   "finding_id": "F-095",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "T4 media-change MAC/DHCP strategy design + proof outstanding (hardware exec)",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-HARDWARE-EXEC-20260915/LANE-REPORT.md",
+    "anchor": "'T4 ... design + proof'",
+    "phrase": "lane report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 6.6
+  },
+  "F-096": {
+   "finding_id": "F-096",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "182 SD-slot: 128GB card undetected after 3 tries — card-or-slot fault never dispositioned",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/09-LANES/OCTOPUS-HARDWARE-ENROLLMENT-20260915/LANE-REPORT.md",
+    "anchor": "'کارت یا اسلات معیوب است'",
+    "phrase": "lane report open",
+    "checked_at": "2026-09-15T08:01:40Z"
+   },
+   "scores": {
+    "U": 1,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": false,
+   "rank": 3.8
+  },
+  "F-097": {
+   "finding_id": "F-097",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "mesh auth hardening: node_id auth PASS but PENDING_AUTH on all 4 workers + NATS password ask (season-4)",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/00-SEASON/ziman-full-repair-20260910/fleet-brain/P4-NODE-ID-AUTH-DESIGN-20260915.md",
+    "anchor": "'PASS | PENDING_AUTH' ×4",
+    "phrase": "design doc rows",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 8.6
+  },
+  "F-098": {
+   "finding_id": "F-098",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "CHECKOUT-1: zero orders with store live — no checkout funnel diagnosis ever run (251+ checks recorded)",
+   "map_class": "REVENUE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/00-SEASON/SEASON-ZIMAN-GOV-V8-EXTERNAL-HANDOFF-20260906.md + CURRENT-TRUTH",
+    "anchor": "'CHECKOUT-1 NO_ORDERS' / 'verified_cash = $0.00'",
+    "phrase": "both docs record zero orders; no funnel diagnosis receipt exists",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 12.6
+  },
+  "F-099": {
+   "finding_id": "F-099",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "WORKER-BIND 7-step exec checklist unticked (re-hash, HB paths, mesh proof, shadow-ledger rows, JetStream UNKNOWN, customer_send HOLD)",
+   "map_class": "INFRA",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "F:/backup/00-SEASON/ziman-full-repair-20260910/fleet-brain/WORKER-BIND-MAP-100-160-193-114-20260915.md",
+    "anchor": "L146-152 '- [ ]'",
+    "phrase": "7 unchecked bullets",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 12.6
+  },
+  "F-100": {
+   "finding_id": "F-100",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T07:58:21Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "deep-scan itself must become a service: this 100-list is a snapshot; without a weekly tick it rots into the exact forgetting it catalogued",
+   "map_class": "KNOWLEDGE",
+   "schema_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "this lane (CADENCE.md proposal)",
+    "anchor": "§6 megaprompt CADENCE deliverable",
+    "phrase": "no existing timer scans open-work across lanes (32 timers checked, none do this)",
+    "checked_at": "2026-09-15T08:02:29Z"
+   },
+   "scores": {
+    "U": 3,
+    "R": 4,
+    "C": 3
+   },
+   "needs_review": false,
+   "rank": 12.6
+  },
+  "R-BREAKER-B5": {
+   "finding_id": "R-BREAKER-B5",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "B5 circuit breaker OPEN: CIRCUIT_BREAKER_OPEN",
+   "map_class": "EXECUTOR",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138:probe",
+    "anchor": "B5",
+    "phrase": "{\"B5\": [false, \"CIRCUIT_BREAKER_OPEN\"], \"RY\": [true, \"OK\"]}"
+   },
+   "scores": {
+    "U": 3,
+    "R": 3,
+    "C": 4
+   },
+   "needs_review": true,
+   "rank": 9.8
+  },
+  "R-FLEETJOBS-STUCK": {
+   "finding_id": "R-FLEETJOBS-STUCK",
+   "state": "verified",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    },
+    {
+     "event": "verified",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "fleet-jobs bus: 86/103 rows non-terminal {'QUEUED': 19, 'LEASED': 18, 'RUNNING': 17, 'UNKNOWN': 2, 'REJECTED': 2, 'ACK_RESULT': 15, 'PERSISTED': 15, 'CLOSED': 15}",
+   "map_class": "EXECUTOR",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138:probe",
+    "anchor": "fleet_jobs",
+    "phrase": "{\"QUEUED\": 19, \"LEASED\": 18, \"RUNNING\": 17, \"UNKNOWN\": 2, \"REJECTED\": 2, \"ACK_RESULT\": 15, \"PERSISTED\": 15, \"CLOSED\": 15}"
+   },
+   "scores": {
+    "U": 4,
+    "R": 5,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 20.6
+  },
+  "R-UNIT-FAILED-●": {
+   "finding_id": "R-UNIT-FAILED-●",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "systemd unit FAILED: ●",
+   "map_class": "INFRA",
+   "evidence": {
+    "source_type": "runtime",
+    "path": "138:systemctl list-units --state=failed",
+    "anchor": "●",
+    "phrase": "unit ● failed"
+   },
+   "scores": {
+    "U": 2,
+    "R": 4,
+    "C": 5
+   },
+   "needs_review": true,
+   "rank": 9.0
+  },
+  "V-SW-06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md": {
+   "finding_id": "V-SW-06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word pending in 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "pending",
+    "phrase": "pending"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/LANE-REPORT.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/LANE-REPORT.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word pending in 09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/LANE-REPORT.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/LANE-REPORT.md",
+    "anchor": "pending",
+    "phrase": "pending"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/CADENCE.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/CADENCE.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word status: open in 09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/CADENCE.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/CADENCE.md",
+    "anchor": "status: open",
+    "phrase": "status: open"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/DISCREPANCIES.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/DISCREPANCIES.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/DISCREPANCIES.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/DISCREPANCIES.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/SCAN-COVERAGE.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/SCAN-COVERAGE.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word PROPOSED in 09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/SCAN-COVERAGE.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/SCAN-COVERAGE.json",
+    "anchor": "PROPOSED",
+    "phrase": "PROPOSED"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word PROPOSED in 09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.md",
+    "anchor": "PROPOSED",
+    "phrase": "PROPOSED"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word pending in 09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.json",
+    "anchor": "pending",
+    "phrase": "pending"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/RUNTIME-FINDINGS-RAW.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/RUNTIME-FINDINGS-RAW.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/RUNTIME-FINDINGS-RAW.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/RUNTIME-FINDINGS-RAW.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/ROUND2-VERDICTS-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/ROUND2-VERDICTS-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "status-word pending in 09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/ROUND2-VERDICTS-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/ROUND2-VERDICTS-20260915.md",
+    "anchor": "pending",
+    "phrase": "pending"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-1": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-1",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "Verify G8-021 witnessed execution (queued by this lane)",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-1",
+    "phrase": "Verify G8-021 witnessed execution (queued by this lane)"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-2": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-2",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "Let W24-BINDER-006 execute after G8-021",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-2",
+    "phrase": "Let W24-BINDER-006 execute after G8-021"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-3": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-3",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:01:40Z"
+    }
+   ],
+   "title": "Rebase Z-SUCCESSOR-TRIO-001 onto live c2e290fd (next stale-base wall)",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-3",
+    "phrase": "Rebase Z-SUCCESSOR-TRIO-001 onto live c2e290fd (next stale-base wall)"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-4": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-4",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "systemd units for evaluator(114) + ingestion(160)",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-4",
+    "phrase": "systemd units for evaluator(114) + ingestion(160)"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-5": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-5",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "PB-1 24h continuity PASS check",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-5",
+    "phrase": "PB-1 24h continuity PASS check"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-6": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-6",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "Revenue: first customer reply -> verified_cash",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-6",
+    "phrase": "Revenue: first customer reply -> verified_cash"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-7": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-7",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "PB-4 retest with 371-fact corpus",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-7",
+    "phrase": "PB-4 retest with 371-fact corpus"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-8": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-8",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "Executor starvation defect: blocked request halts whole category lane",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-8",
+    "phrase": "Executor starvation defect: blocked request halts whole category lane"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-9": {
+   "finding_id": "V-OW-09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json-OW-9",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "B5 circuit breaker newly OPEN (storage-cache lane)",
+   "map_class": "UNKNOWN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json",
+    "anchor": "OPEN-WORK item OW-9",
+    "phrase": "B5 circuit breaker newly OPEN (storage-cache lane)"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-FM-01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md": {
+   "finding_id": "V-FM-01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "frontmatter status=active: 01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+   "map_class": "OBSIDIAN",
+   "evidence": {
+    "source_type": "vault",
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "frontmatter status",
+    "phrase": "status: active"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md": {
+   "finding_id": "V-SW-01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "status-word pending in 01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md",
+    "anchor": "pending",
+    "phrase": "pending"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/FULL-CYCLE-20260915.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/FULL-CYCLE-20260915.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "status-word pending in 09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/FULL-CYCLE-20260915.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/FULL-CYCLE-20260915.json",
+    "anchor": "pending",
+    "phrase": "pending"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/PB1-MEASURED-STATUS.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/PB1-MEASURED-STATUS.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/PB1-MEASURED-STATUS.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/PB1-MEASURED-STATUS.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/LANE-REPORT.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/LANE-REPORT.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/LANE-REPORT.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/LANE-REPORT.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/RECONCILIATION.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/RECONCILIATION.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/RECONCILIATION.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/RECONCILIATION.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-AGENT-MEGAPROMPT.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-AGENT-MEGAPROMPT.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:02:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-AGENT-MEGAPROMPT.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-AGENT-MEGAPROMPT.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/LANE-REPORT.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/LANE-REPORT.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/LANE-REPORT.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/LANE-REPORT.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/ACTIONS-LOG.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/ACTIONS-LOG.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/ACTIONS-LOG.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/ACTIONS-LOG.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/P6-MEASURE-FOLD-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/P6-MEASURE-FOLD-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/P6-MEASURE-FOLD-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/P6-MEASURE-FOLD-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/LANE-REPORT.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/LANE-REPORT.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/LANE-REPORT.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/LANE-REPORT.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/ACTIONS-LOG.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/ACTIONS-LOG.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/ACTIONS-LOG.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/ACTIONS-LOG.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/LANE-REPORT.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/LANE-REPORT.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/LANE-REPORT.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/LANE-REPORT.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/LANE-REPORT.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/LANE-REPORT.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/LANE-REPORT.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/LANE-REPORT.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/ACCEPTANCE-MATRIX.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/ACCEPTANCE-MATRIX.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/ACCEPTANCE-MATRIX.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/ACCEPTANCE-MATRIX.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/ACCEPTANCE-MATRIX.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/ACCEPTANCE-MATRIX.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/ACCEPTANCE-MATRIX.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/ACCEPTANCE-MATRIX.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-5/PB-5-NPU-HONESTY.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-5/PB-5-NPU-HONESTY.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-5/PB-5-NPU-HONESTY.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-5/PB-5-NPU-HONESTY.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-5/PB-5-NPU-HONESTY.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-5/PB-5-NPU-HONESTY.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-5/PB-5-NPU-HONESTY.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-5/PB-5-NPU-HONESTY.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:29Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/SEC-P6-ACCEPTANCE-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/SEC-P6-ACCEPTANCE-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/SEC-P6-ACCEPTANCE-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/SEC-P6-ACCEPTANCE-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/SEC-P6-ACCEPTANCE-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/SEC-P6-ACCEPTANCE-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/SEC-P6-ACCEPTANCE-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/SEC-P6-ACCEPTANCE-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/INDEX-P0-P2-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/INDEX-P0-P2-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/INDEX-P0-P2-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/INDEX-P0-P2-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/ACCEPTANCE-MATRIX.seed.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/ACCEPTANCE-MATRIX.seed.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/ACCEPTANCE-MATRIX.seed.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/ACCEPTANCE-MATRIX.seed.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/schemas/acceptance_matrix.v1.schema.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/schemas/acceptance_matrix.v1.schema.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/schemas/acceptance_matrix.v1.schema.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-P5P6-20260915/P6/schemas/acceptance_matrix.v1.schema.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/schemas/acceptance_matrix.v1.schema.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/schemas/acceptance_matrix.v1.schema.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/schemas/acceptance_matrix.v1.schema.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/schemas/acceptance_matrix.v1.schema.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/schemas/acceptance_matrix.v1.schema.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/schemas/acceptance_matrix.v1.schema.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/schemas/acceptance_matrix.v1.schema.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P6/schemas/acceptance_matrix.v1.schema.json",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P5/INDEX-P0-P2-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P5/INDEX-P0-P2-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P5/INDEX-P0-P2-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P5/INDEX-P0-P2-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/NEXT-AGENT-MEGAPROMPT.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/NEXT-AGENT-MEGAPROMPT.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/NEXT-AGENT-MEGAPROMPT.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/NEXT-AGENT-MEGAPROMPT.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/P4-NODE-ID-AUTH-DESIGN-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/P4-NODE-ID-AUTH-DESIGN-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/P4-NODE-ID-AUTH-DESIGN-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/fleet-brain/P4-NODE-ID-AUTH-DESIGN-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P4/P4-NODE-ID-AUTH-DESIGN-20260915.md": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P4/P4-NODE-ID-AUTH-DESIGN-20260915.md",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word NOT_RUN in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P4/P4-NODE-ID-AUTH-DESIGN-20260915.md",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P4/P4-NODE-ID-AUTH-DESIGN-20260915.md",
+    "anchor": "NOT_RUN",
+    "phrase": "NOT_RUN"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  },
+  "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P4/schemas/fleet_node_registry.v1.schema.json": {
+   "finding_id": "V-SW-09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P4/schemas/fleet_node_registry.v1.schema.json",
+   "state": "open",
+   "history": [
+    {
+     "event": "open",
+     "at": "2026-09-15T08:03:32Z"
+    }
+   ],
+   "title": "status-word PENDING in 09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P4/schemas/fleet_node_registry.v1.schema.json",
+   "map_class": "OPEN_WORK",
+   "evidence": {
+    "source_type": "vault",
+    "path": "09-LANES/OCTOPUS-PERSISTENT-FLEET-EXEC-20260915/P4/schemas/fleet_node_registry.v1.schema.json",
+    "anchor": "PENDING",
+    "phrase": "PENDING"
+   },
+   "scores": {
+    "U": 2,
+    "R": 3,
+    "C": 3
+   },
+   "needs_review": true,
+   "rank": 6.6
+  }
+ }
+}

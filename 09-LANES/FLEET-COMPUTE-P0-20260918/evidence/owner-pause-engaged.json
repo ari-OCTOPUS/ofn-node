@@ -1,0 +1,37 @@
+{
+ "decision": {
+  "schema": "compute_decision.v1",
+  "at_utc": "2026-09-18T00:54:36Z",
+  "mode": "canary",
+  "owner_pause": true,
+  "reclaimed_leases": [],
+  "queued_task": "task-bbf7681c58217b48",
+  "profile": "cpu_bench",
+  "synthetic_arrival": {
+   "profile": "cpu_bench",
+   "params": {
+    "seconds": 30
+   },
+   "input_digest": "50dbf6a278ea269b6f5786613bb4ab74e406e41e57fd83104bb274940061d6f3",
+   "idempotency_key": "paused-test-20260918",
+   "enqueued": true
+  },
+  "chosen_node": null,
+  "chosen_score": null,
+  "reason": "NO_ADMISSIBLE_NODE",
+  "evaluated": [
+   {
+    "node_id": "114",
+    "admit": false,
+    "verdict": "DENIED",
+    "reasons": [
+     "NODE_NOT_ALLOWED"
+    ],
+    "score": -Infinity,
+    "capable": true,
+    "headroom": null
+   }
+  ]
+ },
+ "dispatched": null
+}

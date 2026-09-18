@@ -1,0 +1,606 @@
+{
+  "schema": "octopus.handoff.source_index.v1",
+  "created_at_utc": "2026-09-15T04:19:11.4259088Z",
+  "verification_scope": "LOCAL_FILE_HASHES_AND_CONTENT_ONLY",
+  "live_node_contact": false,
+  "source_count": 40,
+  "sources": [
+    {
+      "id": "user_context",
+      "original_path": "C:\\Users\\Armin\\.codex\\attachments\\82c3ce41-434d-484b-b86f-7be3112d902d\\pasted-text.txt",
+      "snapshot_path": "sources/user/pasted-text.txt",
+      "category": "USER_SUPPLIED_HISTORY",
+      "sha256": "1157099898b65cafa97ee8e36d150484476210381e850c442e44f30bd9e582f1",
+      "bytes": 16895,
+      "read_at_utc": "2026-09-15T04:19:07.5329463Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "agents",
+      "original_path": "F:\\backup\\AGENTS.md",
+      "snapshot_path": "sources/governance/AGENTS.md",
+      "category": "CURRENT_LOCAL_CONTRACT",
+      "sha256": "577fdef0b8f8ed7609c523ca847599e8fce580d3fa9a8a0a80c618b58dc44a9a",
+      "bytes": 7791,
+      "read_at_utc": "2026-09-15T04:19:07.5472164Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "freedom",
+      "original_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\GOV-FREEDOM-V2-2026-09-13.md",
+      "snapshot_path": "sources/governance/GOV-FREEDOM-V2.md",
+      "category": "CURRENT_LOCAL_CONTRACT",
+      "sha256": "7462068c08ddd7b045f735203301ffede0183fc3e17b0d61544dc793f5f251b0",
+      "bytes": 11952,
+      "read_at_utc": "2026-09-15T04:19:07.5932122Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "old_next",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\NEXT-AGENT-MEGAPROMPT.md",
+      "snapshot_path": "sources/exec/NEXT-AGENT-MEGAPROMPT.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "7ab84e03df7ca708abeb8cb4178c2d7cf10bc00e9b17a20d2c41588c26508f07",
+      "bytes": 10372,
+      "read_at_utc": "2026-09-15T04:19:07.6622045Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "old_report",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\LANE-REPORT.md",
+      "snapshot_path": "sources/exec/LANE-REPORT.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "37dc36b3eefc23da809246918fe362da33d4b72c36118a7f786528bd6baebc27",
+      "bytes": 1072,
+      "read_at_utc": "2026-09-15T04:19:07.7781039Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p0",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P0\\P0-DISCOVERY.json",
+      "snapshot_path": "sources/exec/P0/P0-DISCOVERY.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "a2bd6c1233e7eb6d348cb9bdb36d2267c7b9e12d629dd1fedfce9db31964e4d9",
+      "bytes": 4923,
+      "read_at_utc": "2026-09-15T04:19:08.0437597Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p1",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P1\\receipts\\P1-DRY-PERSIST-RECEIPT.json",
+      "snapshot_path": "sources/exec/P1/receipts/P1-DRY-PERSIST-RECEIPT.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "a3d586b5ef2f5ca6aa4ee358f7a710a7e3dfa1a169190b48db97a89d1fcf9c3d",
+      "bytes": 1428,
+      "read_at_utc": "2026-09-15T04:19:08.1180733Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p2",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P2\\P2-DRY-BOOTSTRAP-RECEIPT.json",
+      "snapshot_path": "sources/exec/P2/P2-DRY-BOOTSTRAP-RECEIPT.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "8cb8c296039209c25730106c571d4a489ff87d1982939b6942a364c7075166fc",
+      "bytes": 1397,
+      "read_at_utc": "2026-09-15T04:19:08.2242084Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p2_source",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P2\\fleet_job_sm.py",
+      "snapshot_path": "sources/exec/P2/fleet_job_sm.py",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "6ce7fd1609b672d9f33e52a543a623eb5103e5e9077744cf3a452967b3f311e2",
+      "bytes": 7090,
+      "read_at_utc": "2026-09-15T04:19:08.3110922Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p3",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P3\\P3-VERIFIED-RESTORE-RECEIPT.json",
+      "snapshot_path": "sources/exec/P3/P3-VERIFIED-RESTORE-RECEIPT.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "83d525134317e7b2de93986684309ba2bb4bd96b9ee79566e5494035bf801d11",
+      "bytes": 3477,
+      "read_at_utc": "2026-09-15T04:19:08.3892425Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p3_timing",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P3\\P3-RPO-RTO-ADDENDUM.json",
+      "snapshot_path": "sources/exec/P3/P3-RPO-RTO-ADDENDUM.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "5262d4eae4531b9b76cfcbc3068a3abbdc86cb2993c6a6b61f29a1604d656335",
+      "bytes": 1256,
+      "read_at_utc": "2026-09-15T04:19:08.5461841Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p4",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P4\\P4-NODE-AUTH-RECEIPT.json",
+      "snapshot_path": "sources/exec/P4/P4-NODE-AUTH-RECEIPT.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "d8844e96dcd9b6f81bba3825af9a9128347a123fc298cefacab9c565e5da2036",
+      "bytes": 3513,
+      "read_at_utc": "2026-09-15T04:19:08.6826836Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p4_gate",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P4\\SEC-NODE-ID-AUTH-ADDENDUM-20260915.md",
+      "snapshot_path": "sources/exec/P4/SEC-NODE-ID-AUTH-ADDENDUM-20260915.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "db62b3357c24f464b047926a51132829f08f7dc9222f58bcf4df033d59f2a0a9",
+      "bytes": 2867,
+      "read_at_utc": "2026-09-15T04:19:09.0082392Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p4_matrix",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P4\\P4-7ROW-MATRIX.json",
+      "snapshot_path": "sources/exec/P4/P4-7ROW-MATRIX.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "bbf340969a0eb6c921f019c56934e120d25babd92c49a86d7250920c74136498",
+      "bytes": 3335,
+      "read_at_utc": "2026-09-15T04:19:09.1136487Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p5",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P5\\P5-E2E-RECEIPT.json",
+      "snapshot_path": "sources/exec/P5/P5-E2E-RECEIPT.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "4ea146a86481707f15a726ba26d85b3c029d87079b68deb73f9fd84c462838b2",
+      "bytes": 2360,
+      "read_at_utc": "2026-09-15T04:19:09.2085536Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p5_gate",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P5\\SEC-P5-JOB-PATH-GATE-20260915.md",
+      "snapshot_path": "sources/exec/P5/SEC-P5-JOB-PATH-GATE-20260915.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "3e8bd525748531e747761cfaa4345b8a39af8758ea3bf7c565e3da1ea8ba27ec",
+      "bytes": 2840,
+      "read_at_utc": "2026-09-15T04:19:09.2785895Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p5_contract",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P5\\P5-JOB-PATH-CONTRACT-20260915.md",
+      "snapshot_path": "sources/exec/P5/P5-JOB-PATH-CONTRACT-20260915.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "5d12e068568cdcc694ac1c8de6c5e36c623832727244814a36303ed7862c82d7",
+      "bytes": 6173,
+      "read_at_utc": "2026-09-15T04:19:09.5367554Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p5_qa",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P5\\QA-P5-E2E-20260915.md",
+      "snapshot_path": "sources/exec/P5/QA-P5-E2E-20260915.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "76b6d7daacdba4bca55f3ecf6fff96a53fd0ce38f0cfb3147f40c6a9538c8275",
+      "bytes": 3647,
+      "read_at_utc": "2026-09-15T04:19:09.5892479Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p5_result",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P5\\worker-result-job-8f635a12d2cd4228.json",
+      "snapshot_path": "sources/exec/P5/worker-result-job-8f635a12d2cd4228.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "7f9d04a6669d7dc6f51f322d4c1595584924f0e5896adc6352a8fd8c641fca70",
+      "bytes": 385,
+      "read_at_utc": "2026-09-15T04:19:09.6001312Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p5_excerpt",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P5\\job-excerpt-job-8f635a12d2cd4228.jsonl",
+      "snapshot_path": "sources/exec/P5/job-excerpt-job-8f635a12d2cd4228.jsonl",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "c97fba92ac831a8629efc10947e11424dafd6c75e13780fd7e272a802d3e1419",
+      "bytes": 4317,
+      "read_at_utc": "2026-09-15T04:19:09.6563219Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p6_gate",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\SEC-P6-ACCEPTANCE-20260915.md",
+      "snapshot_path": "sources/exec/P6/SEC-P6-ACCEPTANCE-20260915.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+      "bytes": 3389,
+      "read_at_utc": "2026-09-15T04:19:09.7028609Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p6_design",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+      "snapshot_path": "sources/exec/P6/P6-ACCEPTANCE-MATRIX-DESIGN-20260915.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b",
+      "bytes": 7571,
+      "read_at_utc": "2026-09-15T04:19:09.8847427Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p6_align",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\P6-SEC-ALIGN-20260915.md",
+      "snapshot_path": "sources/exec/P6/P6-SEC-ALIGN-20260915.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "b9b11af974d781521d564f799125f8b91477f399cf65324d9f0f37efbac14b73",
+      "bytes": 635,
+      "read_at_utc": "2026-09-15T04:19:09.8989056Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p6_schema",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\schemas\\acceptance_matrix.v1.schema.json",
+      "snapshot_path": "sources/exec/P6/schemas/acceptance_matrix.v1.schema.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "91bacbc63d793c11a4a61180206b564130aa9e2a8b93eec7f9c78df9822bf321",
+      "bytes": 2800,
+      "read_at_utc": "2026-09-15T04:19:09.9353092Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "p6_matrix",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\ACCEPTANCE-MATRIX.json",
+      "snapshot_path": "sources/exec/P6/ACCEPTANCE-MATRIX.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "5de63c27613822d5f6cacfcc32e65bafd81887d15ef499d0eb04697a7446d938",
+      "bytes": 6958,
+      "read_at_utc": "2026-09-15T04:19:10.2187795Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "pb1",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\PB-1\\PB-1-INTERMEDIATE-RECEIPT.json",
+      "snapshot_path": "sources/exec/P6/PB-1/PB-1-INTERMEDIATE-RECEIPT.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "c5753aad3d58e2a7f5a701ec48fc89b93751281b82b913e246d44e4715bcf4ee",
+      "bytes": 2007,
+      "read_at_utc": "2026-09-15T04:19:10.3246161Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "pb2",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\PB-2\\PB-2-CRASH-IDEMPOTENCY.json",
+      "snapshot_path": "sources/exec/P6/PB-2/PB-2-CRASH-IDEMPOTENCY.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "dde89381e525db3d75fb01917f2b91c7ab849e21bbda826017919d8de65b4356",
+      "bytes": 2043,
+      "read_at_utc": "2026-09-15T04:19:10.4414527Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "pb3",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\PB-3\\PB-3-RESTORE.json",
+      "snapshot_path": "sources/exec/P6/PB-3/PB-3-RESTORE.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "a01027b62e635827a1559128761205c9bdc6e0d8166d4b97382e3186d178a88c",
+      "bytes": 3539,
+      "read_at_utc": "2026-09-15T04:19:10.4826099Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "pb4",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\PB-4\\PB-4-ANSWER-MEMORY-AB.json",
+      "snapshot_path": "sources/exec/P6/PB-4/PB-4-ANSWER-MEMORY-AB.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "845e0c3c70b8e2ead87b0f4e347660b0f720b812df5a770e14bf5694d402f2e6",
+      "bytes": 870,
+      "read_at_utc": "2026-09-15T04:19:10.5002758Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "pb5",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\PB-5\\PB-5-NPU-HONESTY.json",
+      "snapshot_path": "sources/exec/P6/PB-5/PB-5-NPU-HONESTY.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "d2ca81a124a8d727b1eb372cd59359d9074f893c929e0fc79bcb7a34d74bf54f",
+      "bytes": 2289,
+      "read_at_utc": "2026-09-15T04:19:10.5251281Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "pb6",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\P6\\PB-6\\PB-6-SEVEN-ROW-EXPAND.json",
+      "snapshot_path": "sources/exec/P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "7cfd9a14e39667f2207c181c80cd92a6200fe4e43cdcbc635e375290ec6b3ac4",
+      "bytes": 4155,
+      "read_at_utc": "2026-09-15T04:19:10.6066123Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "worker_bind",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-PERSISTENT-FLEET-EXEC-20260915\\fleet-brain\\WORKER-BIND-MAP-100-160-193-114-20260915.md",
+      "snapshot_path": "sources/exec/fleet-brain/WORKER-BIND-MAP-100-160-193-114-20260915.md",
+      "category": "STORED_EVIDENCE_OR_CONTRACT",
+      "sha256": "960d6d33e72b9de480f6670c85011842ffd2d3c66ee07296f017a9d41ac73326",
+      "bytes": 7213,
+      "read_at_utc": "2026-09-15T04:19:10.8874733Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "npu_matrix",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-HARDWARE-EXEC-20260915\\T2-PILOT\\T2-NPU-INFERENCE-MATRIX.json",
+      "snapshot_path": "sources/hw/T2-PILOT/T2-NPU-INFERENCE-MATRIX.json",
+      "category": "STORED_BENCHMARK",
+      "sha256": "d13f19285482a2a346b8b26979f2341c8f7a4ccef50c281967e47cabfc469df5",
+      "bytes": 1362,
+      "read_at_utc": "2026-09-15T04:19:10.9896138Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "npu_source",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-HARDWARE-EXEC-20260915\\T2-PILOT\\src\\rknn_infer_bench.c",
+      "snapshot_path": "sources/hw/T2-PILOT/src/rknn_infer_bench.c",
+      "category": "SOURCE_REVIEW_NOT_LOADED_CODE_PROOF",
+      "sha256": "f02b884cc44273bf6949fb3df7507ea1bbe54c753372195fb57dc2a496d9465f",
+      "bytes": 5410,
+      "read_at_utc": "2026-09-15T04:19:11.0524652Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "npu193",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-HARDWARE-EXEC-20260915\\T2-PILOT\\193-infer-bench.txt",
+      "snapshot_path": "sources/hw/T2-PILOT/193-infer-bench.txt",
+      "category": "STORED_BENCHMARK",
+      "sha256": "a8268fb7d609b91c331c56b27077ecdf9cda1028f6e868fdd3c1dafb1356b83d",
+      "bytes": 747,
+      "read_at_utc": "2026-09-15T04:19:11.1388707Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "hb100",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-HARDWARE-EXEC-20260915\\WORKER-CONNECT\\worker-100.json",
+      "snapshot_path": "sources/hw/WORKER-CONNECT/worker-100.json",
+      "category": "STORED_HEARTBEAT",
+      "sha256": "f95433955ce01d18b8db5ac479aa47ed4c5a14ad4d855377f8df86f47f7b3d3f",
+      "bytes": 341,
+      "read_at_utc": "2026-09-15T04:19:11.1750877Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "hb160",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-HARDWARE-EXEC-20260915\\WORKER-CONNECT\\worker-160.json",
+      "snapshot_path": "sources/hw/WORKER-CONNECT/worker-160.json",
+      "category": "STORED_HEARTBEAT",
+      "sha256": "2c0f172fbdd3347df0675ea299361a58bfb2c93c94bb06938d8e4b399bae38da",
+      "bytes": 337,
+      "read_at_utc": "2026-09-15T04:19:11.1922542Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "hb193",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-HARDWARE-EXEC-20260915\\WORKER-CONNECT\\worker-193.json",
+      "snapshot_path": "sources/hw/WORKER-CONNECT/worker-193.json",
+      "category": "STORED_HEARTBEAT",
+      "sha256": "5185855bd0942fa55e3e3da3b23618eda8b27edf48ade01ad3cbd1a66d27b51a",
+      "bytes": 348,
+      "read_at_utc": "2026-09-15T04:19:11.2048665Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "hb114",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-HARDWARE-EXEC-20260915\\WORKER-CONNECT\\worker-114.json",
+      "snapshot_path": "sources/hw/WORKER-CONNECT/worker-114.json",
+      "category": "STORED_HEARTBEAT",
+      "sha256": "1e45fbef0938e61cb83075dd1ffb0555ce01f07e1c86362abbddc850d3e257ef",
+      "bytes": 333,
+      "read_at_utc": "2026-09-15T04:19:11.2501445Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    },
+    {
+      "id": "parent_exec_gate",
+      "original_path": "F:\\backup\\09-LANES\\OCTOPUS-HARDWARE-EXEC-20260915\\PERSISTENT-FLEET-EXEC\\GO-PERSISTENT-FLEET-EXEC-20260915.md",
+      "snapshot_path": "sources/governance/GO-PERSISTENT-FLEET-EXEC.md",
+      "category": "STORED_GATE",
+      "sha256": "52887e1a088d6d4e87f2a8c14879db392a647d450afe8473ea0a5e620022d268",
+      "bytes": 6369,
+      "read_at_utc": "2026-09-15T04:19:11.3495481Z",
+      "hash_verified": true,
+      "runtime_reexecuted": false,
+      "signature_verified": false
+    }
+  ],
+  "internal_references": [
+    {
+      "source_id": "old_next",
+      "origin": "P6 matrix",
+      "expected_sha256": "7ab84e03df7ca708abeb8cb4178c2d7cf10bc00e9b17a20d2c41588c26508f07",
+      "actual_sha256": "7ab84e03df7ca708abeb8cb4178c2d7cf10bc00e9b17a20d2c41588c26508f07",
+      "match": true
+    },
+    {
+      "source_id": "p6_design",
+      "origin": "P6 matrix",
+      "expected_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b",
+      "actual_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b",
+      "match": true
+    },
+    {
+      "source_id": "p6_align",
+      "origin": "P6 matrix",
+      "expected_sha256": "b9b11af974d781521d564f799125f8b91477f399cf65324d9f0f37efbac14b73",
+      "actual_sha256": "b9b11af974d781521d564f799125f8b91477f399cf65324d9f0f37efbac14b73",
+      "match": true
+    },
+    {
+      "source_id": "p6_gate",
+      "origin": "P6 matrix",
+      "expected_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+      "actual_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+      "match": true
+    },
+    {
+      "source_id": "p6_schema",
+      "origin": "P6 matrix",
+      "expected_sha256": "91bacbc63d793c11a4a61180206b564130aa9e2a8b93eec7f9c78df9822bf321",
+      "actual_sha256": "91bacbc63d793c11a4a61180206b564130aa9e2a8b93eec7f9c78df9822bf321",
+      "match": true
+    },
+    {
+      "source_id": "p5_gate",
+      "origin": "P5 receipt",
+      "expected_sha256": "3e8bd525748531e747761cfaa4345b8a39af8758ea3bf7c565e3da1ea8ba27ec",
+      "actual_sha256": "3e8bd525748531e747761cfaa4345b8a39af8758ea3bf7c565e3da1ea8ba27ec",
+      "match": true
+    },
+    {
+      "source_id": "p5_contract",
+      "origin": "P5 receipt",
+      "expected_sha256": "5d12e068568cdcc694ac1c8de6c5e36c623832727244814a36303ed7862c82d7",
+      "actual_sha256": "5d12e068568cdcc694ac1c8de6c5e36c623832727244814a36303ed7862c82d7",
+      "match": true
+    },
+    {
+      "source_id": "p4",
+      "origin": "P5 receipt",
+      "expected_sha256": "d8844e96dcd9b6f81bba3825af9a9128347a123fc298cefacab9c565e5da2036",
+      "actual_sha256": "d8844e96dcd9b6f81bba3825af9a9128347a123fc298cefacab9c565e5da2036",
+      "match": true
+    },
+    {
+      "source_id": "pb1",
+      "origin": "P6 PB-1",
+      "expected_sha256": "c5753aad3d58e2a7f5a701ec48fc89b93751281b82b913e246d44e4715bcf4ee",
+      "actual_sha256": "c5753aad3d58e2a7f5a701ec48fc89b93751281b82b913e246d44e4715bcf4ee",
+      "match": true
+    },
+    {
+      "source_id": "pb2",
+      "origin": "P6 PB-2",
+      "expected_sha256": "dde89381e525db3d75fb01917f2b91c7ab849e21bbda826017919d8de65b4356",
+      "actual_sha256": "dde89381e525db3d75fb01917f2b91c7ab849e21bbda826017919d8de65b4356",
+      "match": true
+    },
+    {
+      "source_id": "pb3",
+      "origin": "P6 PB-3",
+      "expected_sha256": "a01027b62e635827a1559128761205c9bdc6e0d8166d4b97382e3186d178a88c",
+      "actual_sha256": "a01027b62e635827a1559128761205c9bdc6e0d8166d4b97382e3186d178a88c",
+      "match": true
+    },
+    {
+      "source_id": "pb4",
+      "origin": "P6 PB-4",
+      "expected_sha256": "845e0c3c70b8e2ead87b0f4e347660b0f720b812df5a770e14bf5694d402f2e6",
+      "actual_sha256": "845e0c3c70b8e2ead87b0f4e347660b0f720b812df5a770e14bf5694d402f2e6",
+      "match": true
+    },
+    {
+      "source_id": "pb5",
+      "origin": "P6 PB-5",
+      "expected_sha256": "d2ca81a124a8d727b1eb372cd59359d9074f893c929e0fc79bcb7a34d74bf54f",
+      "actual_sha256": "d2ca81a124a8d727b1eb372cd59359d9074f893c929e0fc79bcb7a34d74bf54f",
+      "match": true
+    },
+    {
+      "source_id": "pb6",
+      "origin": "P6 PB-6",
+      "expected_sha256": "7cfd9a14e39667f2207c181c80cd92a6200fe4e43cdcbc635e375290ec6b3ac4",
+      "actual_sha256": "7cfd9a14e39667f2207c181c80cd92a6200fe4e43cdcbc635e375290ec6b3ac4",
+      "match": true
+    }
+  ],
+  "reference_mismatch_count": 0,
+  "missing_direct_evidence": [
+    {
+      "id": "p6_qa_seal",
+      "name": "QA-P6-ACCEPTANCE-20260915.md",
+      "cited_sha256": "f9c68553c1bb898baee29c093f07d50c216936b10295be4adcaa5235f59f246b",
+      "status": "REFERENCED_NOT_LOCALLY_VERIFIED",
+      "cited_by": [
+        "old_report",
+        "user_context"
+      ]
+    },
+    {
+      "id": "w24_current_state",
+      "status": "USER_REPORTED_OPEN_NOT_RUNTIME_VERIFIED"
+    }
+  ]
+}

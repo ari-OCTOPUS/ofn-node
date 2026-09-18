@@ -1,0 +1,173 @@
+{
+  "schema": "octopus-runtime-migration-matrix.v1",
+  "observed_utc_window": "2026-09-04T10:31:37Z/2026-09-04T10:31:39Z",
+  "scope": ["laptop", "node138", "node180"],
+  "evidence_rule": "Fresh read-only service metadata; no ExecStart, environment, command arguments, state contents, or secrets read.",
+  "components": [
+    {
+      "runtime_identity": {"node": "node138", "unit": "ofn.service", "pid": 2986361, "working_directory": "/home/ari/ofn", "fragment_path": "/etc/systemd/system/ofn.service", "active_state": "active", "sub_state": "running"},
+      "code": {"root": "/home/ari/ofn", "branch": "main", "head_observed": "2cd67aa43a73d6f9cf4e9a62d7e96cd52502d51e", "loaded_revision": "unverified", "selected_tests": "90 passed, 0 failed, 0 skipped"},
+      "state": {"classification": "mutable_advisory_and_runtime_unknown", "advisory_bundle": "state/self-model/organism-shadow/{journal.jsonl,checkpoint.json,OWNER-INBOX.md}", "writer_cadence": "not measured in this probe", "consistency": "inter-run hash/mtime guarded snapshot"},
+      "configuration": {"names_only": ["ofn.service", "ofn-heartbeat.service", "octopus-bridge.service", "octopus-control-router.service", "octopus-cycle-settler.service", "octopus-router.service", "octopus-supervisor.service", "octopus-verify-dispatcher.service"], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "service graph not inferred from sanitized metadata", "active_now": true},
+      "migration": {"target": "node180:/opt/octopus/drill-001 (archived after validation)", "transfer": "bounded advisory bundle; code commit 4bbfccf3b94192615c603a0ce87973d81bcbb1e1", "health": "A/B drill passed; production target unbound", "rollback": "dated archive plus unchanged /home/ari/ofn", "cutover_authority": "not granted"},
+      "status": "source_observed_drill_verified_cutover_unverified"
+    },
+    {
+      "runtime_identity": {"node": "node138", "unit": "octopus-bridge.service", "pid": 2986615, "working_directory": "/home/ari/octopus-bridge", "fragment_path": "/etc/systemd/system/octopus-bridge.service", "active_state": "active", "sub_state": "running"},
+      "code": {"root": "/home/ari/octopus-bridge", "revision": "unmeasured"},
+      "state": {"classification": "unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "unknown from sanitized probe", "active_now": true},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not measured", "rollback": "preserve source", "cutover_authority": "not granted"},
+      "status": "unverified"
+    },
+    {
+      "runtime_identity": {"node": "node138", "units": ["hypno-fugu-mini.service", "ofn-heartbeat.service", "octopus-control-router.service", "octopus-cycle-settler.service", "octopus-router.service", "octopus-supervisor.service", "octopus-verify-dispatcher.service"], "active_state": "active", "sub_state": "running"},
+      "code": {"root": "mixed_or_not_exposed_by_sanitized_unit_metadata", "revision": "unmeasured"},
+      "state": {"classification": "unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "unknown", "active_now": true},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not measured", "rollback": "preserve source", "cutover_authority": "not granted"},
+      "status": "unverified"
+    },
+    {
+      "runtime_identity": {"node": "node180", "unit": "octopus-afferent-lab.service", "pid": 4218, "working_directory": "/opt/octopus/lab", "fragment_path": "/etc/systemd/system/octopus-afferent-lab.service", "active_state": "active", "sub_state": "running"},
+      "code": {"root": "/opt/octopus/lab", "branch": "backup/board180-20260830", "head_observed": "28209effa84af68a85ab60329c77dca81c6cea00", "revision_role": "separate archival/source candidate"},
+      "state": {"classification": "mutable_lab_state_unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "unknown from sanitized probe", "active_now": true},
+      "migration": {"target": "none; root protected", "transfer": "none", "health": "not measured", "rollback": "preserve source", "cutover_authority": "not granted"},
+      "status": "preserved_unverified"
+    },
+    {
+      "runtime_identity": {"node": "node180", "unit": "octopus-organism-lab.service", "pid": 42687, "working_directory": "/opt/octopus/lab", "fragment_path": "/etc/systemd/system/octopus-organism-lab.service", "active_state": "active", "sub_state": "running"},
+      "code": {"root": "/opt/octopus/lab", "branch": "backup/board180-20260830", "head_observed": "28209effa84af68a85ab60329c77dca81c6cea00", "revision_role": "separate archival/source candidate"},
+      "state": {"classification": "mutable_lab_state_unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "unknown from sanitized probe", "active_now": true},
+      "migration": {"target": "none; root protected", "transfer": "none", "health": "not measured", "rollback": "preserve source", "cutover_authority": "not granted"},
+      "status": "preserved_unverified"
+    },
+    {
+      "runtime_identity": {"node": "node180", "unit": "octopus-gateway.service", "pid": 641, "working_directory": "/opt/octopus/gateway", "fragment_path": "/etc/systemd/system/octopus-gateway.service", "active_state": "active", "sub_state": "running"},
+      "code": {"root": "/opt/octopus/gateway", "revision": "unmeasured"},
+      "state": {"classification": "external_or_unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "unknown", "active_now": true},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not measured", "rollback": "preserve source", "cutover_authority": "not granted"},
+      "status": "unverified"
+    },
+    {
+      "runtime_identity": {"node": "node180", "unit": "octopus-llama-lab.service", "pid": 368880, "working_directory": "/opt/octopus", "fragment_path": "/etc/systemd/system/octopus-llama-lab.service", "active_state": "active", "sub_state": "running"},
+      "code": {"root": "/opt/octopus", "revision": "unmeasured"},
+      "state": {"classification": "unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "unknown", "active_now": true},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not measured", "rollback": "preserve source", "cutover_authority": "not granted"},
+      "status": "unverified"
+    },
+    {
+      "runtime_identity": {"node": "node180", "unit": "octopus-mesh.service", "active_state": "not observed active in named-unit probe"},
+      "code": {"root": "/root/octopus-mesh", "branch": "master", "head_observed": "17bcff3f50bec92e381d31539f3645d31f8fd95b", "revision_role": "unknown mixed state/source tree"},
+      "state": {"classification": "actively_written_unknown", "writer_cadence": "recent writes observed previously; not measured in this probe"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "no named service binding observed; other processes not excluded", "active_now": "unknown"},
+      "migration": {"target": "none; root protected", "transfer": "none", "health": "not measured", "rollback": "preserve source", "cutover_authority": "not granted"},
+      "status": "preserved_unverified"
+    },
+    {
+      "runtime_identity": {"node": "laptop", "unit": null, "pid": null, "working_directory": null, "observation": "not connected in this phase"},
+      "code": {"root": "F:/backup and local _ops projections", "revision": "unmeasured"},
+      "state": {"classification": "vault_and_conceptual_projection", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "requires local read-only inventory", "active_now": "unknown"},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not measured", "rollback": "preserve vault and atlas", "cutover_authority": "not granted"},
+      "status": "unverified"
+    },
+    {
+      "runtime_identity": {"node": "laptop", "unit": null, "pid": null, "working_directory": "F:/backup/_ops", "observation": "local metadata-only inventory 2026-09-04"},
+      "code": {"root": "F:/backup/_ops/organism.py", "revision": "unmeasured", "bytes": 110858, "sha256": "96ebc447c0c0d6b847d0fc192f31235f0d140c100f4eda32f3433db27d426b22", "mtime_utc": "2026-08-25T03:03:25.7046908Z"},
+      "state": {"classification": "unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "not inferred from file presence", "active_now": "unknown"},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not run", "rollback": "preserve vault", "cutover_authority": "not granted"},
+      "status": "metadata_only_unverified"
+    },
+    {
+      "runtime_identity": {"node": "laptop", "unit": null, "pid": null, "working_directory": "F:/backup/_ops/cortex", "observation": "local metadata-only inventory 2026-09-04"},
+      "code": {"root": "F:/backup/_ops/cortex", "revision": "unmeasured", "file_count": 99, "bytes": 1663294, "newest_mtime_utc": "2026-08-25T02:30:44.9909178Z"},
+      "state": {"classification": "unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "not inferred from file presence", "active_now": "unknown"},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not run", "rollback": "preserve vault", "cutover_authority": "not granted"},
+      "status": "metadata_only_unverified"
+    },
+    {
+      "runtime_identity": {"node": "laptop", "unit": null, "pid": null, "working_directory": "F:/backup/_ops/live", "observation": "local metadata-only inventory 2026-09-04"},
+      "code": {"root": "F:/backup/_ops/live", "revision": "unmeasured", "file_count": 2, "bytes": 148671, "newest_mtime_utc": "2026-08-12T11:40:47.6548142Z"},
+      "state": {"classification": "unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "not inferred from file presence", "active_now": "unknown"},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not run", "rollback": "preserve vault", "cutover_authority": "not granted"},
+      "status": "metadata_only_unverified"
+    },
+    {
+      "runtime_identity": {"node": "laptop", "unit": null, "pid": null, "working_directory": "F:/backup/_ops/telegram_center", "observation": "local metadata-only inventory 2026-09-04"},
+      "code": {"root": "F:/backup/_ops/telegram_center", "revision": "unmeasured", "file_count": 191, "bytes": 4950227, "newest_mtime_utc": "2026-08-29T04:13:31.2711302Z"},
+      "state": {"classification": "external_or_mutable_unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": ["surface-routing.json"], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "Telegram/wire relationship unverified; no execution performed", "active_now": "unknown"},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not run", "rollback": "preserve vault", "cutover_authority": "not granted"},
+      "status": "metadata_only_unverified"
+    },
+    {
+      "runtime_identity": {"node": "laptop", "unit": null, "pid": null, "working_directory": "F:/backup/_ops/board_cp", "observation": "local metadata-only inventory 2026-09-04"},
+      "code": {"root": "F:/backup/_ops/board_cp", "revision": "unmeasured", "file_count": 14, "bytes": 58190, "newest_mtime_utc": "2026-08-16T06:42:47.8830293Z"},
+      "state": {"classification": "unknown", "writer_cadence": "not measured"},
+      "configuration": {"names_only": [], "secret_fingerprint": "not collected"},
+      "interfaces": {"protocol_or_dependency": "not inferred from file presence", "active_now": "unknown"},
+      "migration": {"target": "unplanned", "transfer": "none", "health": "not run", "rollback": "preserve vault", "cutover_authority": "not granted"},
+      "status": "metadata_only_unverified"
+    }
+  ],
+  "protected_roots": ["node138:/home/ari/ofn", "node180:/opt/octopus/lab", "node180:/root/octopus-mesh", "laptop:F:/backup", "laptop:OCTOPUS-LAB"],
+  "systemd_dependency_probe": {
+    "observed_utc_window": "2026-09-04T10:45:14Z/2026-09-04T10:45:17Z",
+    "fields": ["Id", "Requires", "Wants", "After", "Before", "PartOf", "BindsTo", "BoundBy", "ActiveState", "SubState", "WorkingDirectory", "FragmentPath"],
+    "node138": {
+      "ofn.service": {"requires": ["ofn-boot.service", "system.slice", "sysinit.target", "-.mount"], "wants": ["cloudflared.service", "tmp.mount", "network-online.target", "-.mount"], "after": ["cloudflared.service", "ofn-boot.service", "network-online.target"]},
+      "octopus-bridge.service": {"requires": ["system.slice", "-.mount", "sysinit.target"], "wants": ["network-online.target"], "after": ["network-online.target"]},
+      "ofn-heartbeat.service": {"requires": ["sysinit.target", "system.slice"], "wants": ["network-online.target"], "after": ["network-online.target"]},
+      "octopus-control-router.service": {"requires": ["sysinit.target", "system.slice"], "wants": ["tmp.mount", "network-online.target", "-.mount"]},
+      "octopus-cycle-settler.service": {"requires": ["sysinit.target", "system.slice"], "wants": ["-.mount", "tmp.mount", "network-online.target"]},
+      "octopus-router.service": {"requires": ["sysinit.target", "system.slice"], "wants": ["network-online.target", "-.mount", "tmp.mount"]},
+      "octopus-supervisor.service": {"requires": ["sysinit.target", "system.slice"], "wants": ["network-online.target", "-.mount", "tmp.mount"]},
+      "octopus-verify-dispatcher.service": {"requires": ["sysinit.target", "system.slice"], "wants": ["tmp.mount", "-.mount", "network-online.target"]},
+      "hypno-fugu-mini.service": {"requires": ["sysinit.target", "system.slice", "-.mount"], "wants": ["tmp.mount", "-.mount", "network-online.target"]}
+    },
+    "node180": {
+      "octopus-afferent-lab.service": {"requires": ["system.slice", "sysinit.target", "-.mount"], "wants": ["tmp.mount", "-.mount", "octopus-organism-lab.service"], "after": ["octopus-organism-lab.service"]},
+      "octopus-organism-lab.service": {"requires": ["sysinit.target", "-.mount", "system.slice"], "wants": ["-.mount", "tmp.mount", "octopus-llama-lab.service"], "after": ["octopus-llama-lab.service"], "before": ["octopus-afferent-lab.service"]},
+      "octopus-gateway.service": {"requires": ["-.mount", "system.slice", "sysinit.target"], "wants": ["network-online.target"], "after": ["network-online.target"]},
+      "octopus-llama-lab.service": {"requires": ["system.slice", "sysinit.target", "-.mount"], "wants": ["-.mount", "tmp.mount"], "before": ["octopus-organism-lab.service"]}
+    },
+    "interpretation": "Unit-level dependency names are observed; code roots, sockets, ports, state ownership, and external edges remain unverified. No unit was changed."
+  },
+  "completed_drill_evidence": {
+    "A": {"result": "PASSED", "archive": "node138:/home/ari/archive_drill-001-20260904T1022Z/RESULT.json", "sha256": "6a9d4b6949f7c7cbd05decc6e9fb233f7558959238602be66ab9aa3e32d6808c"},
+    "B": {"result": "PASSED", "archive": "node180:/opt/octopus/archive_drill-001-B-20260904T1028Z/RESULT.json", "sha256": "066ea43509c77e630ad171bf01de18669117ee3b7cfc0edd0645b286484c789b"}
+  },
+  "global_verdict": "advisory_restore_drill_complete; full_organism_migration_unverified",
+  "blocking_items": [
+    "GitHub origin push rejected HTTP 403 for ari322; no remote change.",
+    "Service loaded revision and component dependency/state ownership remain unverified.",
+    "No fresh owner decision authorizes service bind/start/restart or production cutover.",
+    "Node180 role remains UNDECIDED; existing roots are protected."
+  ],
+  "next_safe_actions": [
+    "Repair GitHub authorization, then rerun one fresh origin preflight before the already-approved rescue-branch/fast-forward push.",
+    "Perform read-only inventory of laptop _ops projections and node service dependency/state metadata.",
+    "For each matrix row, obtain a separate owner decision before activation or cutover."
+  ]
+}

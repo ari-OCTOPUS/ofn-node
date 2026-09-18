@@ -1,0 +1,47 @@
+{
+  "schema": "octopus.arbiter-envelope.v1",
+  "node_id": "octopus-continuity-180-session-claim",
+  "asserted_ip": {
+    "session_claim": "192.168.0.180",
+    "ethernet": "169.254.163.233",
+    "wifi": "192.168.0.191",
+    "source": "Get-NetIPAddress this session"
+  },
+  "identity_contradiction": {
+    "status": "open",
+    "resolution": null,
+    "note": "session claims 180/.180; Ethernet is APIPA; Wi-Fi is .191. No system_wide claim."
+  },
+  "vantage": "quality_brain_local",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "h1_verdict": "NOT_RUN",
+  "h1_not": ["PASS", "FAIL", "INCONCLUSIVE"],
+  "why_not_run": [
+    "body_not_on_this_lane: n3b runner and n3-candidate live under F:/octo-exec, not L7 owns_paths",
+    "assert_ready_to_preregister FAIL on three source files (CRLF text-hash != byte-hash)",
+    "N3V2 runner allowlist accepts only 271828 and 141421; new seed 314159 requires a runner edit L7 must not make"
+  ],
+  "scientific_trial_executed": false,
+  "self_cert_rerun": {
+    "passed": 8,
+    "failed": 0,
+    "command": "python -B -X utf8 -m pytest F:\\backup\\tests\\contract\\test_memabl_obs_preflight_hash_selfcert.py -q --noconftest",
+    "elapsed_s": 0.34
+  },
+  "halt_file": {
+    "path": "F:\\ofn-node\\HALT",
+    "exists": false
+  },
+  "prereg_path": "09-LANES/L7/MEMABL-OBS-PREREG-314159.json",
+  "thresholds_path": "09-LANES/L7/MEMABL-OBS-THRESHOLDS-LOCKED-314159.json",
+  "seed": 314159,
+  "evidence": [
+    "09-LANES/L7/MEMABL-OBS-PREREG-314159.json",
+    "09-LANES/L7/MEMABL-OBS-THRESHOLDS-LOCKED-314159.json",
+    "09-LANES/L7/MEMABL-OBS-PROMPT2-RUN-COMMAND.md",
+    "tests/contract/test_memabl_obs_preflight_hash_selfcert.py"
+  ],
+  "wire_flags_changed": false,
+  "revenue_sent_booking_written": false
+}

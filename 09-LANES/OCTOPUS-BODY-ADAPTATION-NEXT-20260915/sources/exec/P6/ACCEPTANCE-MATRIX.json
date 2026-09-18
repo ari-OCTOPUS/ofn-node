@@ -1,0 +1,125 @@
+{
+    "overall_notes":  "PC measure complete for PB-1..PB-6 evidence packs. overall OPEN until QA seal. PB-1 IN_PROGRESS (no early 24h PASS). HOLD customer_send.",
+    "jetstream_consumers":  0,
+    "design_sha256":  "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b",
+    "sec_align_sha256":  "b9b11af974d781521d564f799125f8b91477f399cf65324d9f0f37efbac14b73",
+    "dual_commander":  false,
+    "sec_p6_sha256":  "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+    "bus":  "jsonl_138",
+    "schema_sha256":  "91bacbc63d793c11a4a61180206b564130aa9e2a8b93eec7f9c78df9822bf321",
+    "schema":  "acceptance_matrix.v1",
+    "proposal_sha256":  "e5cacff06435af1d6da95d339d4e4dbb58c09b32384758dfa33bc6f805053ba9",
+    "next_sha256":  "7ab84e03df7ca708abeb8cb4178c2d7cf10bc00e9b17a20d2c41588c26508f07",
+    "blockers":  [
+                     "PB-1 requires \u003e=24.0h wall-clock before PASS",
+                     "PB-4 retrieval A/B path not wired",
+                     "QA seal required before overall acceptance / laptop-free claim",
+                     "JetStream consumers=0; NATS_DURABILITY=NOT_CLAIMED"
+                 ],
+    "tests":  [
+                  {
+                      "id":  "PB-1",
+                      "started_at":  "2026-09-15T04:03:36Z",
+                      "caveats":  [
+                                      "START ONLY — PASS only after \u003e=24.0h wall-clock",
+                                      "sample job-432175b362774fae CLOSED on jsonl_138-\u003e100"
+                                  ],
+                      "notes":  "critical_path laptop_required=false; laptop_dependency_probe NOT_YET for full soak",
+                      "witness_receipt_path":  "P6/PB-1/PB-1-INTERMEDIATE-RECEIPT.json",
+                      "name":  "Continuity without laptop (\u003e=24h wall-clock)",
+                      "wall_clock_hours":  0,
+                      "status":  "IN_PROGRESS",
+                      "witness_receipt_sha256":  "c5753aad3d58e2a7f5a701ec48fc89b93751281b82b913e246d44e4715bcf4ee",
+                      "ended_at":  null
+                  },
+                  {
+                      "id":  "PB-2",
+                      "started_at":  "2026-09-15T04:03:45Z",
+                      "caveats":  [
+
+                                  ],
+                      "notes":  "kill mid-lease sleep on 100; UNKNOWN terminal; side_effects=0; idempotency rehit; never power off 138",
+                      "witness_receipt_path":  "P6/PB-2/PB-2-CRASH-IDEMPOTENCY.json",
+                      "name":  "Worker restart / brief disconnect",
+                      "wall_clock_hours":  null,
+                      "status":  "PASS",
+                      "witness_receipt_sha256":  "dde89381e525db3d75fb01917f2b91c7ab849e21bbda826017919d8de65b4356",
+                      "ended_at":  "2026-09-15T04:03:49Z"
+                  },
+                  {
+                      "id":  "PB-3",
+                      "started_at":  null,
+                      "caveats":  [
+                                      "reverify of P3 copy; live 138 not overwritten"
+                                  ],
+                      "notes":  "180 /opt/octopus-restore-copies/p3-20260915T033708Z 9/9 MATCH; RPO=0 RTO=3 from addendum 5262d4ea; parent 83d52513",
+                      "witness_receipt_path":  "P6/PB-3/PB-3-RESTORE.json",
+                      "name":  "Restore separate path + RPO/RTO",
+                      "wall_clock_hours":  null,
+                      "status":  "PASS",
+                      "witness_receipt_sha256":  "a01027b62e635827a1559128761205c9bdc6e0d8166d4b97382e3186d178a88c",
+                      "ended_at":  null
+                  },
+                  {
+                      "id":  "PB-4",
+                      "started_at":  null,
+                      "caveats":  [
+
+                                  ],
+                      "notes":  "no retrieval QA harness / frozen prompt set; fleet_facts rows=1 dry only; DENY invent scores",
+                      "witness_receipt_path":  "P6/PB-4/PB-4-ANSWER-MEMORY-AB.json",
+                      "name":  "Answer-with-memory A/B",
+                      "wall_clock_hours":  null,
+                      "status":  "NOT_RUN",
+                      "witness_receipt_sha256":  "845e0c3c70b8e2ead87b0f4e347660b0f720b812df5a770e14bf5694d402f2e6",
+                      "ended_at":  null
+                  },
+                  {
+                      "id":  "PB-5",
+                      "started_at":  null,
+                      "caveats":  [
+                                      "138 NOT_RUN organism_optional_last retained",
+                                      "nominal RK3588 ~6 TOPS/board only — DENY usable-42"
+                                  ],
+                      "notes":  "fold T2 matrix d13f1928… 6/7 PASS; measured latency/fps where PASS",
+                      "witness_receipt_path":  "P6/PB-5/PB-5-NPU-HONESTY.json",
+                      "name":  "NPU honesty",
+                      "wall_clock_hours":  null,
+                      "status":  "PASS",
+                      "witness_receipt_sha256":  "d2ca81a124a8d727b1eb372cd59359d9074f893c929e0fc79bcb7a34d74bf54f",
+                      "ended_at":  null
+                  },
+                  {
+                      "id":  "PB-6",
+                      "started_at":  null,
+                      "caveats":  [
+                                      "193 bind_role=model_infer does NOT claim T3 model-server service"
+                                  ],
+                      "notes":  "fixed denominator 7; auth OK + HB HEALTHY all rows; RAM/temp recorded",
+                      "witness_receipt_path":  "P6/PB-6/PB-6-SEVEN-ROW-EXPAND.json",
+                      "name":  "Expand seven-row matrix",
+                      "wall_clock_hours":  null,
+                      "status":  "PASS",
+                      "witness_receipt_sha256":  "7cfd9a14e39667f2207c181c80cd92a6200fe4e43cdcbc635e375290ec6b3ac4",
+                      "ended_at":  null
+                  }
+              ],
+    "created_at":  "2026-09-15T03:59:18Z",
+    "matrix_id":  "p6-20260915",
+    "overall":  "OPEN",
+    "controls":  {
+                     "deny_revenue_queues":  true,
+                     "may_authorize":  false,
+                     "no_dual_commander":  true,
+                     "hold_customer_send":  true,
+                     "deny_usable_42_TOPS":  true,
+                     "deny_193_model_server_claim":  true,
+                     "never_power_off_138":  true,
+                     "stop_for_QA":  true,
+                     "no_jetstream_consumer_created":  true
+                 },
+    "customer_send":  false,
+    "nats_durability":  "NOT_CLAIMED",
+    "commander_node_id":  "138",
+    "updated_at":  "2026-09-15T04:05:19Z"
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "hold_external_sot.v1",
+  "as_of": "2026-09-13T18:45+10:00",
+  "authority": "owner_GO_W25",
+  "customer_send": false,
+  "publish": false,
+  "go_b4": false,
+  "safe_to_claim": false,
+  "approve_pat_widen": false,
+  "meaning": "HOLD_EXTERNAL blocks customer/public send only; internal green proceeds",
+  "green_without_reask": [
+    "internal_drafts",
+    "decision_request_hash_bind",
+    "glass_persist_owner_bot",
+    "go_w24_binder_fresh_confirm",
+    "schema_ratify_w21",
+    "healthz_read",
+    "non_tcb_canary",
+    "smartmon_read",
+    "rate_card_docs_only",
+    "tender_docs_only"
+  ],
+  "deny": [
+    "customer_call_sms_email_tg",
+    "go_b4_until_named_account",
+    "money_invent_verified_cash",
+    "portal_submit",
+    "sca_directory_scrape",
+    "secrets_paste",
+    "tfn_read",
+    "approve_pat_widen",
+    "supervisor_byte_overwrite",
+    "dirty_reset_clean",
+    "wire_flag_flip"
+  ]
+}

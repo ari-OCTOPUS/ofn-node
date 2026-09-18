@@ -1,0 +1,4 @@
+ایجنت بعدی: ابتدا این فایل را کامل بخوان و همان مأموریت را اجرا کن:
+F:/backup/09-LANES/S2-ARCHITECT-HANDOFF-20260917/PROMPT-AND-DATA.md
+سپس verify_bundle.py، EXPERIMENT-PROTOCOL.md و MATURITY-GATES.json را مصرف کن.
+از S1 ادامه بده؛ کارهای تأییدشده را تکرار نکن و هیچ معیار/اختیاری را برای سبزشدن نتیجه تغییر نده.

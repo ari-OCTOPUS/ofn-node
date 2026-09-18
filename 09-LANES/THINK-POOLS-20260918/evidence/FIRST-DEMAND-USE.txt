@@ -1,0 +1,20 @@
+=== FIRST REAL DEMAND CONSUMPTION (live funnel item, live brain) ===
+{
+ "schema": "demand_use.v1",
+ "at_utc": "2026-09-18T02:12:13Z",
+ "consumer": "lead_reply_draft",
+ "provider": "local-llamacpp-180",
+ "model": "qwen3-0.6b-q4_0",
+ "tier": "standard",
+ "lead_id": "1c0fdaae927d",
+ "ok": true,
+ "reply_chars": 710,
+ "est_out_tokens": 177,
+ "est_cost_usd": 0.0,
+ "cost_is_estimate": true,
+ "latency_s": 2.91,
+ "reply_head": "The customer is a professional who is interested in a painting project. The customer is a professional who is interested in a painting project. The customer is "
+}
+
+=== tier=strong variant (quality path) ===
+strong tier picks: gemini gemini-3.1-pro-preview ( PIN_BLOCKED(sakana-fugu=EXHAUSTED)_FALLBACK )

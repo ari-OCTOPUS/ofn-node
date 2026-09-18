@@ -1,0 +1,7 @@
+/usr/bin/python3
+Python 3.13.5
+/usr/bin/git
+git version 2.47.3
+               total        used        free      shared  buff/cache   available
+Mem:            3910         222        3475           7         264        3688
+0.00 0.02 0.00 1/176 2685

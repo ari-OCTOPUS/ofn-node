@@ -1,0 +1,399 @@
+{
+  "schema": "octopus.channel-rank.v1",
+  "ts_utc": "2026-09-05T10:12:28Z",
+  "network": false,
+  "send": false,
+  "flags_touched": false,
+  "catalog_sha256": "161b082671e84d4d80d3e4fef4e38062c8ff9e5ff0c754ac3680cf57f67a4038",
+  "contradictions_open": [
+    {
+      "topic": "painting_lead_count",
+      "values": [
+        {
+          "n": 8,
+          "source": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8-REVENUE-IGNITION-2026-09-05.md:92"
+        },
+        {
+          "n": 55,
+          "source": "07-HANDOFF/BIZ-LEGS-PLAN-2026-09-05.md:12 (other lane; read-only cite)"
+        }
+      ],
+      "resolution": null,
+      "status": "open"
+    }
+  ],
+  "rank": [
+    {
+      "id": "leg-ziman-http",
+      "leg": "ziman",
+      "class": "mesh",
+      "feeds": [
+        "ziman"
+      ],
+      "score": 100,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "healthz_200_layer4_2026-09-05",
+      "customer_job": "gift buyer on Shopify",
+      "find_mode": "healthz + TRAFFIC-1 + storefront receipts",
+      "contact": "propose_only"
+    },
+    {
+      "id": "ziman-storefront",
+      "leg": "ziman",
+      "class": "shopify",
+      "feeds": [
+        "ziman"
+      ],
+      "score": 95,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\CHECKOUT-1-README-20260905.md",
+      "mesh_health": "n/a",
+      "customer_job": "public storefront buyer",
+      "find_mode": "named product URL already on disk; no new scrape",
+      "contact": "propose_only"
+    },
+    {
+      "id": "tg-channel-traffic",
+      "leg": "ziman+studio",
+      "class": "telegram",
+      "feeds": [
+        "ziman",
+        "studio",
+        "onlyfans"
+      ],
+      "score": 90,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\TRAFFIC1-2026-09-05\\TRAFFIC1-SEND1-RECEIPT.json",
+      "mesh_health": "n/a",
+      "customer_job": "public channel viewers → shop or studio",
+      "find_mode": "ledger dispatch_receipt.v1",
+      "contact": "propose_only"
+    },
+    {
+      "id": "studio-tg-post1",
+      "leg": "studio",
+      "class": "telegram",
+      "feeds": [
+        "studio",
+        "onlyfans"
+      ],
+      "score": 85,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\STUDIO-POST1-RECEIPT.json",
+      "mesh_health": "n/a",
+      "customer_job": "studio viewers toward OF",
+      "find_mode": "studio.post.receipt.v1 message_id=33",
+      "contact": "propose_only"
+    },
+    {
+      "id": "of-novasolesau",
+      "leg": "studio",
+      "class": "onlyfans",
+      "feeds": [
+        "onlyfans"
+      ],
+      "score": 80,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\profiles\\ONLYFANS-CONNECT.md",
+      "mesh_health": "n/a",
+      "customer_job": "paying fans",
+      "find_mode": "inbound from already-linked surfaces (X, later TG). No cookie API. No OF scrape.",
+      "contact": "feeder_surfaces_only_no_of_api"
+    },
+    {
+      "id": "x-novasolmate",
+      "leg": "studio",
+      "class": "x",
+      "feeds": [
+        "onlyfans"
+      ],
+      "score": 75,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\profiles\\SOCIAL-HANDLES.md",
+      "mesh_health": "n/a",
+      "customer_job": "route to OF profile",
+      "find_mode": "already cross-linked; treat as OF feeder, not a new scrape",
+      "contact": "propose_only"
+    },
+    {
+      "id": "leg-studio-http",
+      "leg": "studio",
+      "class": "mesh",
+      "feeds": [
+        "studio",
+        "onlyfans"
+      ],
+      "score": 70,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "healthz_200_layer4_2026-09-05",
+      "customer_job": "studio / Nova Soles traffic toward OF and TG",
+      "find_mode": "healthz + studio telegram receipts",
+      "contact": "propose_only"
+    },
+    {
+      "id": "tg-owner-card",
+      "leg": "owner",
+      "class": "telegram",
+      "feeds": [],
+      "score": 40,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\IGN1-2026-09-05\\IGN1-CLOSEOUT-RECEIPT.json",
+      "mesh_health": "n/a",
+      "customer_job": "none — owner",
+      "find_mode": "IGN-1 closeout",
+      "contact": "not_a_customer_channel"
+    },
+    {
+      "id": "leg-lead-http",
+      "leg": "painting",
+      "class": "mesh",
+      "feeds": [
+        "painting"
+      ],
+      "score": 35,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "healthz_200_layer4_2026-09-05",
+      "customer_job": "painting lead → quote",
+      "find_mode": "score existing leads; outreach_permission unknown → no contact",
+      "contact": "blocked_outreach_permission_unknown"
+    },
+    {
+      "id": "paint-leads-pool",
+      "leg": "painting",
+      "class": "crm",
+      "feeds": [
+        "painting"
+      ],
+      "score": 30,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\GOV-V8-REVENUE-IGNITION-2026-09-05.md",
+      "mesh_health": "n/a",
+      "customer_job": "existing researched leads",
+      "find_mode": "rank pool only; both counts kept; no phone/email out",
+      "contact": "blocked_outreach_permission_unknown"
+    },
+    {
+      "id": "paint-ch-telegram",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": [
+        "painting"
+      ],
+      "score": 25,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "n/a",
+      "customer_job": "inbound painting lead via existing TG bot",
+      "find_mode": "seed row connection=connected outbound_enabled=0 — sense only",
+      "contact": "connected_outbound_disabled"
+    },
+    {
+      "id": "ziman-checkout-1",
+      "leg": "ziman",
+      "class": "shopify",
+      "feeds": [
+        "ziman"
+      ],
+      "score": 20,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\CHECKOUT-1-README-20260905.md",
+      "mesh_health": "n/a",
+      "customer_job": "none — owner self-purchase path test",
+      "find_mode": "catalog only; buyer=owner so not a customer find",
+      "contact": "not_a_customer_channel"
+    },
+    {
+      "id": "paint-ch-website",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": [
+        "painting"
+      ],
+      "score": 15,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "n/a",
+      "customer_job": "contact form (not built)",
+      "find_mode": "seed planned; GOV-V8 says form not built",
+      "contact": "form_not_built"
+    },
+    {
+      "id": "paint-ch-google",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": [
+        "painting"
+      ],
+      "score": 12,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "n/a",
+      "customer_job": "local Google Business inbound",
+      "find_mode": "seed planned; no consumer receipt",
+      "contact": "planned_no_consumer"
+    },
+    {
+      "id": "feetfinder-novasolesau",
+      "leg": "studio",
+      "class": "feetfinder",
+      "feeds": [
+        "onlyfans"
+      ],
+      "score": 10,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\profiles\\SOCIAL-HANDLES.md",
+      "mesh_health": "n/a",
+      "customer_job": "feet market → OF",
+      "find_mode": "KYC_BLOCKED — catalog only, no harvest",
+      "contact": "kyc_blocked"
+    },
+    {
+      "id": "paint-ch-facebook",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": [
+        "painting"
+      ],
+      "score": 8,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "n/a",
+      "customer_job": "neighbourhood inbound",
+      "find_mode": "seed planned; no official token",
+      "contact": "planned_no_consumer"
+    },
+    {
+      "id": "paint-ch-instagram",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": [
+        "painting"
+      ],
+      "score": 8,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "n/a",
+      "customer_job": "before/after inbound",
+      "find_mode": "seed planned; no official token",
+      "contact": "planned_no_consumer"
+    },
+    {
+      "id": "fb-novasoles-tbd",
+      "leg": "studio",
+      "class": "facebook",
+      "feeds": [
+        "onlyfans",
+        "studio"
+      ],
+      "score": 5,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\profiles\\SOCIAL-HANDLES.md",
+      "mesh_health": "n/a",
+      "customer_job": "route to OF when handle exists",
+      "find_mode": "handle TBD — owner creating; no scrape",
+      "contact": "handle_tbd"
+    },
+    {
+      "id": "ig-novasoles-tbd",
+      "leg": "studio",
+      "class": "instagram",
+      "feeds": [
+        "onlyfans",
+        "studio"
+      ],
+      "score": 5,
+      "receipt_on_disk": true,
+      "receipt_path": "F:\\backup\\06-EVIDENCE\\OCTOPUS-OWNER-BOARD-2026-08-24\\profiles\\SOCIAL-HANDLES.md",
+      "mesh_health": "n/a",
+      "customer_job": "route to OF when handle exists",
+      "find_mode": "handle TBD — owner creating; no scrape",
+      "contact": "handle_tbd"
+    },
+    {
+      "id": "paint-ch-tiktok",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": [
+        "painting"
+      ],
+      "score": 4,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "n/a",
+      "customer_job": "short video inbound",
+      "find_mode": "seed planned outbound_enabled=0",
+      "contact": "planned_no_consumer"
+    },
+    {
+      "id": "paint-ch-email",
+      "leg": "painting",
+      "class": "painting_marketing",
+      "feeds": [
+        "painting"
+      ],
+      "score": 3,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "n/a",
+      "customer_job": "quote follow-up",
+      "find_mode": "seed planned; auto_email stays closed",
+      "contact": "auto_email_closed"
+    },
+    {
+      "id": "leg-owner-http",
+      "leg": "owner",
+      "class": "mesh",
+      "feeds": [],
+      "score": 0,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "healthz_200_layer4_2026-09-05",
+      "customer_job": "none — owner panel",
+      "find_mode": "healthz only; not a customer channel",
+      "contact": "not_a_customer_channel"
+    },
+    {
+      "id": "mesh-bridge",
+      "leg": "bridge",
+      "class": "mesh",
+      "feeds": [],
+      "score": 0,
+      "receipt_on_disk": false,
+      "receipt_path": null,
+      "mesh_health": "healthz_200_layer4_2026-09-05",
+      "customer_job": "none — octopus_bridge",
+      "find_mode": "healthz only",
+      "contact": "not_a_customer_channel"
+    }
+  ],
+  "customer_find_now": [
+    "leg-ziman-http",
+    "ziman-storefront",
+    "tg-channel-traffic",
+    "studio-tg-post1",
+    "x-novasolmate",
+    "leg-studio-http"
+  ],
+  "of_feeders_now": [
+    "tg-channel-traffic",
+    "studio-tg-post1",
+    "x-novasolmate",
+    "leg-studio-http"
+  ],
+  "leg_feeders_now": {
+    "ziman": [
+      "leg-ziman-http",
+      "ziman-storefront",
+      "tg-channel-traffic"
+    ],
+    "painting": [],
+    "studio": [
+      "tg-channel-traffic",
+      "studio-tg-post1",
+      "leg-studio-http"
+    ]
+  }
+}

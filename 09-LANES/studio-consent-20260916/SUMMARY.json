@@ -1,0 +1,106 @@
+{
+  "at_utc": "2026-09-16T03:43:32Z",
+  "studio_sqlite": "/home/ari/.local/share/ofn/studio.sqlite",
+  "studio_sha256": "b6c429968ee1946c7d31e7b91d739051eda391cff7d0934c67cc6279b3071f15",
+  "collections": [
+    {
+      "collection_id": "album-0001",
+      "title": "label_hash:c8ff03f42c55",
+      "slug": "album-0001",
+      "sensitivity": "restricted",
+      "created_at": 1785939708,
+      "tenant_id": "studio",
+      "genre": ""
+    },
+    {
+      "collection_id": "album-0002",
+      "title": "label_hash:c60d8e634169",
+      "slug": "album-0002",
+      "sensitivity": "restricted",
+      "created_at": 1786009176,
+      "tenant_id": "studio",
+      "genre": ""
+    },
+    {
+      "collection_id": "album-unlock-20260822",
+      "title": "unlock-queue",
+      "slug": "album-unlock-20260822",
+      "sensitivity": "general",
+      "created_at": 1787402492,
+      "tenant_id": "studio",
+      "genre": ""
+    }
+  ],
+  "counts": {
+    "collections": 3,
+    "media_items_total": 22,
+    "media_direct_on_target_collections": 2,
+    "media_unassigned": 20,
+    "draft_media_unlock": 23,
+    "unique_media_via_unlock_drafts": 22,
+    "media_on_album_0001": 0,
+    "media_on_album_0002": 2,
+    "media_on_album_unlock_direct": 0
+  },
+  "media_ids_album_unlock_via_drafts_max30": [
+    "shot-0001",
+    "shot-0002",
+    "shot-0003",
+    "shot-0004",
+    "shot-0005",
+    "shot-0006",
+    "shot-0007",
+    "shot-0008",
+    "shot-0009",
+    "shot-0010",
+    "shot-0011",
+    "shot-0012",
+    "shot-0013",
+    "shot-0014",
+    "shot-0015",
+    "shot-0016",
+    "shot-0017",
+    "shot-0018",
+    "shot-0019",
+    "shot-0020",
+    "shot-0021",
+    "shot-0022"
+  ],
+  "media_ids_restricted_direct": [
+    "shot-0002",
+    "shot-0020"
+  ],
+  "note": "album-unlock-20260822 has 0 media_items.collection_id rows; 22 unique shot-* bound via draft_media.media_ref paths. album-0001 has 0 media. album-0002 has 2 media direct.",
+  "files": {
+    "collections-138.csv": {
+      "sha256": "05b4af4e6e92821cc1adca3c062425216bccb9b81f57972620b66bf51e10fc47",
+      "bytes": 304,
+      "path_on_138": "/tmp/studio-consent-20260916/collections-138.csv"
+    },
+    "media-items-attest-bind-138.csv": {
+      "sha256": "ee6f2924f3c4a5420a4625cd7fc243e7739e13051da61750a28bc925f0d59260",
+      "bytes": 4772,
+      "path_on_138": "/tmp/studio-consent-20260916/media-items-attest-bind-138.csv"
+    },
+    "media-items-direct-collection-138.csv": {
+      "sha256": "46795fed948aa8a6aaf1eb098025d3e4651e5ad7877530a094624690fb65c6c5",
+      "bytes": 460,
+      "path_on_138": "/tmp/studio-consent-20260916/media-items-direct-collection-138.csv"
+    },
+    "draft-media-unlock-138.csv": {
+      "sha256": "c0b35914a8c83c09074fe2ea68540d151262eac2d2f8a31cb3d1b746c16dd7bb",
+      "bytes": 2024,
+      "path_on_138": "/tmp/studio-consent-20260916/draft-media-unlock-138.csv"
+    },
+    "media-album-unlock-20260822-138.csv": {
+      "sha256": "ee6f2924f3c4a5420a4625cd7fc243e7739e13051da61750a28bc925f0d59260",
+      "bytes": 4772,
+      "path_on_138": "/tmp/studio-consent-20260916/media-album-unlock-20260822-138.csv"
+    },
+    "media-restricted-albums-138.csv": {
+      "sha256": "ebda6338c252df4f8a21b0a4538386bff52ebb3d581a55b59a47d0fbfed48ac9",
+      "bytes": 627,
+      "path_on_138": "/tmp/studio-consent-20260916/media-restricted-albums-138.csv"
+    }
+  }
+}

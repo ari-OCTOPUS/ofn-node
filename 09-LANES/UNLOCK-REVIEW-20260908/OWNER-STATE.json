@@ -1,0 +1,455 @@
+{
+  "schema": "octopus.unlock-review.owner-state.v1",
+  "lane": "UNLOCK-REVIEW-20260908",
+  "status": "approved_waiting_for_shopify_login",
+  "selection": {
+    "origin": "direct user structured answer in current task",
+    "verbatim": "۱) بررسی وضعیت واقعی و ادامهٔ قفل‌ها، یکی‌یکی با رأی من (پیشنهاد)",
+    "recorded_utc": "2026-09-07T22:20:07.6893260Z",
+    "scope": "verify actual status, continue owner decisions one at a time"
+  },
+  "pending_input": {
+    "id": "SHOPIFY_LOGIN",
+    "question": "در تب بازشده وارد حساب فروشگاه زیمان شو و سپس وارد شدم بنویس",
+    "answer": null,
+    "kind": "authentication_dependency_not_repeat_approval"
+  },
+  "confirmed_existing_votes": [
+    {
+      "id": "L23",
+      "recorded_vote": "باز کن با رسید",
+      "observed_value": false,
+      "field": "standing_go.locks.hold_external",
+      "verification_scope": "board spec and change receipt"
+    },
+    {
+      "id": "L24",
+      "recorded_vote": "تا ۱۰-۰۷",
+      "observed_value": "2026-10-07T00:00:00Z",
+      "verification_scope": "board standing spec"
+    },
+    {
+      "id": "L25",
+      "recorded_vote": "نمی‌خرم — NOT_PAID ثبت شود",
+      "observed_value": "NOT_PAID",
+      "verification_scope": "board resolution receipt; calibration consumption unverified"
+    }
+  ],
+  "new_operational_approval": {
+    "id": "D0_PRIMARY_DOMAIN_20260908",
+    "primary_domain": "ziman-gift.com.au",
+    "status": "APPROVED",
+    "receipt": "OWNER-DECISION-D0-PRIMARY-20260908.json"
+  },
+  "registry_rows": [
+    {
+      "id": "L01",
+      "label": "چاپ/ارسال secret",
+      "recorded_status": "`KEEP` ابدی",
+      "live_status": "not_independently_verified",
+      "source_note": "GOV-V8 قفل دائم"
+    },
+    {
+      "id": "L02",
+      "label": "حذف/بازنویسی زنجیرهٔ رسید",
+      "recorded_status": "`KEEP` ابدی",
+      "live_status": "not_independently_verified",
+      "source_note": "GOV-V8 قفل دائم"
+    },
+    {
+      "id": "L03",
+      "label": "PASS بی‌رسید",
+      "recorded_status": "`KEEP` ابدی",
+      "live_status": "not_independently_verified",
+      "source_note": "GOV-V8 قفل دائم"
+    },
+    {
+      "id": "L04",
+      "label": "`secret_rotation`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L05",
+      "label": "`partner_precondition`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L06",
+      "label": "`wire_publish`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L07",
+      "label": "`owner_release`",
+      "recorded_status": "`PROPOSED`=KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L08",
+      "label": "`kill_switch`",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L09",
+      "label": "`D1`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L10",
+      "label": "`D7`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L11",
+      "label": "`OWNER_KEY`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L12",
+      "label": "`miner_isolation`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L13",
+      "label": "`OCTOPUS_WIRE_*` ممنوع",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L14",
+      "label": "`OFN_WIRE_*`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L15",
+      "label": "`OBSERVATORY`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L16",
+      "label": "`CORTEX_HYPOTHESIS`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L17",
+      "label": "`auto_email`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L18",
+      "label": "`PRODUCTION`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L19",
+      "label": "L2 OWNER-CANCEL cash-gate",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L20",
+      "label": "L3",
+      "recorded_status": "AUTO",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L21",
+      "label": "L4",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L22",
+      "label": "`MAY_AUTHORIZE=false`",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L23",
+      "label": "`hold_external=true`",
+      "recorded_status": "`VERIFIED` (پکت‌سطحی: اولین mint ۰۹-۰۸)",
+      "live_status": "spec_and_change_receipt_verified",
+      "verification_scope": {
+        "standing_spec_hold_external": false,
+        "first_new_child_packet": "not_collected",
+        "external_effect": "not_verified"
+      }
+    },
+    {
+      "id": "L24",
+      "label": "standing GO (انقضا 09-14)",
+      "recorded_status": "`EXECUTED`",
+      "live_status": "standing_spec_expiry_verified",
+      "verification_scope": {
+        "expires_at": "2026-10-07T00:00:00Z",
+        "future_renewal": "not_claimed"
+      }
+    },
+    {
+      "id": "L25",
+      "label": "msg38 (انقضا 09-08T12:10Z)",
+      "recorded_status": "`EXECUTED`",
+      "live_status": "resolution_receipt_verified",
+      "verification_scope": {
+        "resolution": "NOT_PAID",
+        "calibration_consumption": "not_collected",
+        "drive_view": "conflicting_locked"
+      }
+    },
+    {
+      "id": "L26",
+      "label": "L1 scoring (09-08)",
+      "recorded_status": "AUTO",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L27",
+      "label": "HALT-ALL",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L28",
+      "label": "STOP-ORGANISM",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L29",
+      "label": "STOP-CORTEX",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L30",
+      "label": "STOP-TG-CENTER",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L31",
+      "label": "WATCHDOG-STALL-REVIVE",
+      "recorded_status": "DONE",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L32",
+      "label": "cap_monthly",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L33",
+      "label": "life_currency_daily_cap",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L34",
+      "label": "daily_message_cap",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L35",
+      "label": "daily_spend_cap_aud",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L36",
+      "label": "paid_ads",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L37",
+      "label": "human_gate_aud",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L38",
+      "label": "explore_pct",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L39",
+      "label": "on_cap_reached",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L40",
+      "label": "fugu/paid-calls quota",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L41",
+      "label": "`EXTERNAL_ACTIONS=0`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L42",
+      "label": "`OCTOPUS_BRAIN_CALL_SHARE=0.6`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L43",
+      "label": "`OCTOPUS_TG_VOICE_KEEP_AUDIO`",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L44",
+      "label": "`OCTOPUS_WHISPER_ALLOW_DOWNLOAD`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L45",
+      "label": "`OCTOPUS_WIRE_MINING_OS`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L46",
+      "label": "`OCTOPUS_WIRE_POCKETSMITH`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L47",
+      "label": "`OCTOPUS_WIRE_PS_WRITEBACK`",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L48",
+      "label": "`IMPROVE_REFRACTORY_H`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L49",
+      "label": "`OCTOPUS_IMPROVE_REFRACTORY_H`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L50",
+      "label": "checkout1_poll مسیر لینوکس",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L51",
+      "label": "حسگر پول miswired",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L52",
+      "label": "METABOLIC-OBS",
+      "recorded_status": "`PROPOSED` ← مرحله ۲",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L53",
+      "label": "`OCTOPUS_UNIFIED_CHAT=0`",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L54",
+      "label": "epistemics default-OFF",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L55",
+      "label": "spine flag-off",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L56",
+      "label": "مینی‌اپ public URL",
+      "recorded_status": "`PROPOSED` ← وابسته به دامنه",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L57",
+      "label": "brain_core shadow",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L58",
+      "label": "4d_system",
+      "recorded_status": "KEEP",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L59",
+      "label": "TG listener (Q9)",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L60",
+      "label": "presence-bot",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L61",
+      "label": "hooks governance silent",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    },
+    {
+      "id": "L62",
+      "label": "KILL_SEAM unarmed",
+      "recorded_status": "`PROPOSED`",
+      "live_status": "not_independently_verified"
+    }
+  ],
+  "findings": [
+    "REGISTRY_COUNT_62_VS_CLAIMED_63",
+    "DRIVE_DISK_8_VS_STATE_4",
+    "QUEUE_CONSUMER_NOT_IDENTIFIED",
+    "REWARD_COUNTS_NON_PASS",
+    "VISUAL_NOT_EXECUTION_WITNESS",
+    "DAILY_RECOVERY_NOT_CONFIRMED"
+  ],
+  "runtime_consumption_of_this_file": "not_wired_or_verified",
+  "resolved_inputs": [
+    {
+      "id": "D0_NEW_DOMAIN_NAMES",
+      "answer": [
+        "ziman-gift.com.au",
+        "ziman-gift.shop"
+      ],
+      "source": "DOMAIN-EVIDENCE-20260908.json",
+      "status": "owner_provided_and_dns_observed"
+    }
+  ]
+}

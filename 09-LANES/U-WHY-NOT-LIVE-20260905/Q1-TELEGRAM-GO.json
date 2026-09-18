@@ -1,0 +1,54 @@
+{
+  "schema": "octopus.layer4-one-by-one-go.v1",
+  "queue_item": 1,
+  "channel": "Telegram",
+  "channel_scope": "production_cards_only",
+  "recorded_at": "2026-09-05T16:16:37+10:00",
+  "lane": "U-WHY-NOT-LIVE-20260905",
+  "owner_prompt_fa": "دونه دونه بپرس و باز کن",
+  "owner_answer": "open_record",
+  "owner_answer_ui": "باز کن — فقط گیت تلگرام را ثبت کن (ارسال نمی‌رود)",
+  "gate": {
+    "name": "HOLD_EXTERNAL",
+    "action": "lift_recorded_for_telegram_cards_only",
+    "live_effect": "closed",
+    "send": false,
+    "flags_cmd": false,
+    "auto_email": 0,
+    "OCTOPUS_WIRE_LEAD_OUTBOUND": 0,
+    "OCTOPUS_WIRE_star": "unchanged_closed"
+  },
+  "contradiction": {
+    "status": "open",
+    "resolution": null,
+    "a": {
+      "value": "HOLD_EXTERNAL still true for Telegram / live OF / paid ads without separate GO",
+      "source": "01-TRUTH/SEASON-5-2026-09-04.md"
+    },
+    "b": {
+      "value": "owner one-by-one Q1 open_record — Telegram cards gate recorded on this laptop vault",
+      "source": "09-LANES/U-WHY-NOT-LIVE-20260905/Q1-TELEGRAM-GO.json"
+    },
+    "note": "138 Season 5 register was not rewritten this hour. This file does not overwrite 01-TRUTH."
+  },
+  "not_executed": [
+    "Telegram send",
+    "email",
+    "POST to customer",
+    "enable OCTOPUS_WIRE_*",
+    "source OCTOPUS-flags.cmd",
+    "RUN-ORGANISM.bat",
+    "write revenue/sent/booking",
+    "rewrite 01-TRUTH/SEASON-5-2026-09-04.md"
+  ],
+  "arbiter": {
+    "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+    "asserted_ip": "192.168.0.191",
+    "vantage": "this_host_vault_write",
+    "scope": "this_host_only",
+    "claim_type": "owner_decision_record",
+    "not_node180": true
+  },
+  "live_organism_claim": false,
+  "grade": "E0"
+}

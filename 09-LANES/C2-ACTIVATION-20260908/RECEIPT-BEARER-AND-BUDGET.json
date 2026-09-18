@@ -1,0 +1,18 @@
+{
+ "receipt_id": "C2-BEARER-AND-BUDGET-20260908",
+ "ts_utc": "2026-09-08T04:18:19Z",
+ "owner_votes": [
+  "bearer: بساز و هر دو طرف نصب کن",
+  "BUDGET.json: بساز",
+  "airtasker alerts: روشن کردم"
+ ],
+ "bearer": {
+  "value_printed": false,
+  "source": "existing",
+  "138_side": "OCTOPUS_BRIDGE_API_KEY in ~/.config/ofn/octopus-bridge.env (existing reused — no 138 change, no restart needed)",
+  "laptop_side": "OCTOPUS_BOARD_CP_BEARER + OCTOPUS_BOARD_CP=1 appended to _ops/OCTOPUS-flags.cmd (daemon+server read it; picks up on next daemon restart per round-6 pattern)"
+ },
+ "flags_cmd_pre_sha": "56d1e3e031988fbf9e3881e0bcd024144f1c263a844da4a98fc0bb78b415d149",
+ "flags_cmd_post_sha": "e960f1c0b466fc9edba2d8abe590583e56164fc3f3b404c37b7c34e2da5229c4",
+ "budget_json": "_ops/budget/BUDGET.json created (advisory-v1, consumer=E0)"
+}

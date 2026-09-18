@@ -1,0 +1,929 @@
+diff --git a/ofn/adapters/fake_executor.py b/ofn/adapters/fake_executor.py
+index 13ef63c6..e685d9d7 100644
+--- a/ofn/adapters/fake_executor.py
++++ b/ofn/adapters/fake_executor.py
+@@ -47,8 +47,14 @@ import os
+ import time
+ from dataclasses import dataclass
+ from pathlib import Path
++from datetime import datetime, timezone
+ 
+ from .owner_decision import OwnerDecision, validate
++from ..kernel.canonical_budget import (
++    POLICY_ID, CURRENCY, CANONICAL_LIMITS, BudgetLimits, BudgetRequest, BudgetUsage,
++    admit_spend, effective_limits,
++)
++from ..kernel.errors import FailClosedError
+ 
+ RECEIPT_SCHEMA = "execution_receipt.v1"
+ RECEIPTS_FILENAME = "execution_receipts.jsonl"
+@@ -148,7 +154,10 @@ def execute_with_approval(decision: OwnerDecision, approval: Approval,
+                           policy_available: bool = True,
+                           witness_available: bool = True, *,
+                           state_dir: str | None = None,
+-                          now_utc: str = "") -> dict:
++                          now_utc: str = "",
++                          budget_request: BudgetRequest | None = None,
++                          budget_usage: BudgetUsage | None = None,
++                          runtime_limits: BudgetLimits | None = None) -> dict:
+     """Run the gate, call the provider at most once, return the receipt.
+ 
+     `now_utc` freezes the clock for tests; without it the wall clock is
+@@ -161,6 +170,30 @@ def execute_with_approval(decision: OwnerDecision, approval: Approval,
+     path = _receipts_path(state_dir)
+     prior = _load_receipts(path)
+ 
++    # The built-in fake costs nothing. Any supplied monetary scenario must
++    # pass D-2, and another provider cannot inherit the fake's zero-cost fact.
++    budget_reason = "fake-zero-cost"
++    budget_allowed = type(provider) is FakeProvider and budget_request is None
++    budget_limits = CANONICAL_LIMITS
++    try:
++        budget_limits = effective_limits(runtime_limits)
++    except FailClosedError:
++        budget_allowed, budget_reason = False, "budget-input-invalid"
++    if not budget_allowed:
++        try:
++            epoch = int(datetime.strptime(now, "%Y-%m-%dT%H:%M:%SZ")
++                        .replace(tzinfo=timezone.utc).timestamp())
++            verdict = admit_spend(request=budget_request, usage=budget_usage,
++                                  now_epoch_s=epoch, runtime_limits=runtime_limits)
++            budget_allowed, budget_reason = verdict.allowed, verdict.reason
++            budget_limits = verdict.limits
++            if budget_request is not None and budget_request.task_id != decision.run_id:
++                budget_allowed, budget_reason = False, "budget-task-mismatch"
++        except (FailClosedError, ValueError, TypeError, AttributeError):
++            budget_allowed, budget_reason = False, "budget-input-invalid"
++    if type(provider) is not FakeProvider:
++        budget_allowed, budget_reason = False, "real-transport-not-implemented"
++
+     rule = ""
+     if not policy_available:
+         rule = "policy-unavailable"
+@@ -190,6 +223,8 @@ def execute_with_approval(decision: OwnerDecision, approval: Approval,
+              and r.get("idempotency_key") == decision.idempotency_key
+              for r in prior):
+         rule = "duplicate-idempotency-key"
++    elif not budget_allowed:
++        rule = budget_reason
+ 
+     receipt = {
+         "schema": RECEIPT_SCHEMA,
+@@ -199,6 +234,14 @@ def execute_with_approval(decision: OwnerDecision, approval: Approval,
+         "approver_user_id": approval.approver_user_id,
+         "recorded_at": now,
+         "provider_called": False,
++        "budget": {
++            "policy_id": POLICY_ID, "reason": budget_reason,
++            "currency": CURRENCY, "scope": "api_spending",
++            "limits": {"monthly": budget_limits.monthly,
++                       "rolling_24h": budget_limits.rolling_24h,
++                       "per_task": budget_limits.per_task},
++            "reservation_created": False,
++        },
+     }
+ 
+     if rule:
+diff --git a/ofn/adapters/fleet_observation.py b/ofn/adapters/fleet_observation.py
+new file mode 100644
+index 00000000..c5d35b67
+--- /dev/null
++++ b/ofn/adapters/fleet_observation.py
+@@ -0,0 +1,65 @@
++"""Consume a bounded read-only census; liveness never grants job authority."""
++from __future__ import annotations
++import hashlib
++import json
++from datetime import datetime
++from pathlib import Path
++from ofn.kernel.self_model import classify_freshness
++
++NODES = ('138', '180', '182', '100', '160', '193', '114')
++MAX_BYTES = 65536
++
++def reject_constant(value):
++    raise ValueError('nonfinite_json_constant')
++
++def read_census(path: Path, now_epoch: float) -> dict:
++    result = {'schema':'octopus.fleet-self-model.v1', 'status':'UNKNOWN',
++              'source':str(path), 'source_sha256':None, 'observed_node_count':0,
++              'signature_verified':False, 'may_authorize':False, 'nodes':[]}
++    try:
++        with path.open('rb') as stream:
++            body = stream.read(MAX_BYTES + 1)
++        if len(body) > MAX_BYTES:
++            raise ValueError('census_too_large')
++        result['source_sha256'] = hashlib.sha256(body).hexdigest()
++        data = json.loads(body, parse_constant=reject_constant)
++        if data.get('schema') != 'octopus.fleet-observation.v1':
++            raise ValueError('unsupported_census_schema')
++        rows = data['nodes']
++        if not isinstance(rows,list) or len(rows) != len(NODES):
++            raise ValueError('incomplete_roster')
++        indexed = {row['node_id']:row for row in rows}
++        if len(indexed) != len(rows) or set(indexed) != set(NODES):
++            raise ValueError('invalid_roster')
++        output = []
++        for node in NODES:
++            row = indexed[node]
++            role = row.get('declared_role')
++            if role is not None and (not isinstance(role,str) or not role.strip() or len(role)>128):
++                raise ValueError('invalid_declared_role')
++            state = 'UNKNOWN'
++            observed = None
++            if row.get('status') == 'AUTHENTICATED_OBSERVATION' and type(row.get('ssh_returncode')) is int and row['ssh_returncode'] == 0:
++                observation = row['observation']
++                stamp = datetime.fromisoformat(observation['observed_at_utc'].replace('Z','+00:00'))
++                if stamp.tzinfo is None or any(not isinstance(observation.get(field),str)
++                        or not observation[field].strip() or len(observation[field])>255
++                        for field in ('hostname','boot_id')):
++                    raise ValueError('incomplete_node_identity')
++                observed = stamp.timestamp()
++                freshness, _ = classify_freshness(observed, now_epoch, 180)
++                state = {'healthy':'OBSERVED','stale':'STALE'}.get(freshness,'UNKNOWN')
++            output.append({'node_id':node,'observation_status':state,
++                           'observed_epoch':observed,'job_status':'UNKNOWN',
++                           'role_status':'DECLARED','declared_role':role,
++                           'authority':'NONE','signature_verified':False})
++        result['nodes'] = output
++        result['observed_node_count'] = sum(r['observation_status'] == 'OBSERVED' for r in output)
++        result['status'] = 'OBSERVED' if result['observed_node_count'] == len(NODES) else 'PARTIAL'
++        result['trust_boundary'] = 'Local census file reports SSH observations; content hash is not a signature or independent job witness.'
++    except (OSError,ValueError,TypeError,KeyError,AttributeError,OverflowError) as exc:
++        result['status'] = 'UNKNOWN'
++        result['error_type'] = type(exc).__name__
++        result['nodes'] = []
++        result['observed_node_count'] = 0
++    return result
+diff --git a/ofn/adapters/revenue_run.py b/ofn/adapters/revenue_run.py
+new file mode 100644
+index 00000000..2dc9bb6a
+--- /dev/null
++++ b/ofn/adapters/revenue_run.py
+@@ -0,0 +1,134 @@
++"""RevenueRun v1: read-only receipt-chain validation, never authorization.
++
++Uses the existing execution receipt canonicalization. Digests bind bytes;
++they do not authenticate a provider, owner release, or independent witness.
++No function here writes a ledger, dispatches, or marks VERIFIED_CASH.
++"""
++from __future__ import annotations
++
++import re
++from collections.abc import Iterable
++
++from ofn.adapters.receipt import stamp_receipt, verify_receipt
++from ofn.kernel.errors import FailClosedError
++
++SCHEMA = "revenue_run.v1"
++LEGS = frozenset({"ziman", "painting", "studio"})
++STAGES = (
++    "lead_captured", "enriched", "qualified", "offer_drafted",
++    "owner_released", "dispatched", "replied", "quote_or_order", "settled_cash",
++)
++GENESIS = "0" * 64
++_SHA = re.compile(r"[0-9a-f]{64}\Z")
++_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}\Z")
++_FIELDS = frozenset({
++    "schema", "run_id", "leg", "stage", "prev_receipt_sha", "policy_sha",
++    "evidence_sha", "producer_id", "recorded_at_epoch_s", "mode",
++    "witness_id", "witness_receipt_sha", "receipt_sha256",
++})
++
++
++def _require_sha(value: object, field: str, *, genesis: bool = False) -> None:
++    if not isinstance(value, str) or not _SHA.fullmatch(value):
++        raise FailClosedError(f"invalid {field}")
++    if value == GENESIS and not genesis:
++        raise FailClosedError(f"placeholder {field}")
++
++
++def _require_id(value: object, field: str) -> None:
++    if not isinstance(value, str) or not _ID.fullmatch(value):
++        raise FailClosedError(f"invalid opaque {field}")
++
++
++def _validate_record(record: object) -> dict:
++    if not isinstance(record, dict) or set(record) != _FIELDS:
++        raise FailClosedError("RevenueRun fields missing or unknown")
++    if record["schema"] != SCHEMA:
++        raise FailClosedError("unsupported RevenueRun schema")
++    for field in ("run_id", "producer_id"):
++        _require_id(record[field], field)
++    if (not isinstance(record["leg"], str) or record["leg"] not in LEGS
++            or not isinstance(record["stage"], str) or record["stage"] not in STAGES):
++        raise FailClosedError("unknown RevenueRun leg or stage")
++    if record["mode"] not in ("dry_run", "live_observation"):
++        raise FailClosedError("invalid RevenueRun mode")
++    for field in ("policy_sha", "evidence_sha", "receipt_sha256"):
++        _require_sha(record[field], field)
++    _require_sha(record["prev_receipt_sha"], "prev_receipt_sha", genesis=True)
++    epoch = record["recorded_at_epoch_s"]
++    if type(epoch) is not int or epoch < 0:
++        raise FailClosedError("invalid recorded_at_epoch_s")
++    if record["stage"] == "settled_cash":
++        if record["mode"] != "live_observation":
++            raise FailClosedError("dry-run cannot claim settled_cash")
++        _require_id(record["witness_id"], "witness_id")
++        _require_sha(record["witness_receipt_sha"], "witness_receipt_sha")
++        if record["witness_id"] == record["producer_id"]:
++            raise FailClosedError("settlement witness must differ from producer")
++        if record["witness_receipt_sha"] == record["evidence_sha"]:
++            raise FailClosedError("witness must reference a separate receipt")
++    elif record["witness_id"] is not None or record["witness_receipt_sha"] is not None:
++        raise FailClosedError("v1 settlement witness fields only apply at settlement")
++    verify_receipt(record)
++    return record
++
++
++def replay(records: Iterable[dict], *, expected_policy_sha: str) -> dict:
++    """Validate one run against the caller's independently supplied policy hash.
++
++    An ordered prefix is useful evidence, not a completed run. Even a full
++    chain is only structurally valid: referenced source receipts and witness
++    identity must be verified outside this byte-integrity contract.
++    """
++    _require_sha(expected_policy_sha, "expected_policy_sha")
++    previous = GENESIS
++    identity = None
++    last_epoch = -1
++    count = 0
++    used_evidence = set()
++    for raw in records:
++        record = _validate_record(raw)
++        if count >= len(STAGES) or record["stage"] != STAGES[count]:
++            raise FailClosedError("RevenueRun stage skipped, repeated, or reordered")
++        current_identity = (record["run_id"], record["leg"], record["mode"])
++        if identity is None:
++            identity = current_identity
++        if current_identity != identity:
++            raise FailClosedError("RevenueRun identity changed")
++        if record["policy_sha"] != expected_policy_sha:
++            raise FailClosedError("RevenueRun policy does not match pinned policy")
++        if record["prev_receipt_sha"] != previous:
++            raise FailClosedError("RevenueRun predecessor mismatch")
++        if record["recorded_at_epoch_s"] < last_epoch:
++            raise FailClosedError("RevenueRun timestamp moved backwards")
++        if record["evidence_sha"] in used_evidence:
++            raise FailClosedError("RevenueRun source evidence reused across stages")
++        used_evidence.add(record["evidence_sha"])
++        previous = record["receipt_sha256"]
++        last_epoch = record["recorded_at_epoch_s"]
++        count += 1
++    if identity is None:
++        raise FailClosedError("RevenueRun requires at least one receipt")
++    return {
++        "schema": SCHEMA, "status": "STRUCTURE_VALID", "run_id": identity[0],
++        "leg": identity[1], "mode": identity[2], "receipt_count": count,
++        "last_stage": STAGES[count - 1], "head_receipt_sha": previous,
++        "chain_complete": count == len(STAGES), "cash_verified": False,
++        "external_evidence_status": "UNVERIFIED", "may_authorize": False,
++    }
++
++
++def make_receipt(*, run_id: str, leg: str, stage: str, prev_receipt_sha: str,
++                 policy_sha: str, evidence_sha: str, producer_id: str,
++                 recorded_at_epoch_s: int, mode: str = "dry_run",
++                 witness_id: str | None = None,
++                 witness_receipt_sha: str | None = None) -> dict:
++    """Bind a stage observation; replay must still validate its predecessors."""
++    record = stamp_receipt({
++        "schema": SCHEMA, "run_id": run_id, "leg": leg, "stage": stage,
++        "prev_receipt_sha": prev_receipt_sha, "policy_sha": policy_sha,
++        "evidence_sha": evidence_sha, "producer_id": producer_id,
++        "recorded_at_epoch_s": recorded_at_epoch_s, "mode": mode,
++        "witness_id": witness_id, "witness_receipt_sha": witness_receipt_sha,
++    })
++    return _validate_record(record)
+diff --git a/ofn/adapters/self_model_producer.py b/ofn/adapters/self_model_producer.py
+index 015cf88a..f4be9a9a 100644
+--- a/ofn/adapters/self_model_producer.py
++++ b/ofn/adapters/self_model_producer.py
+@@ -40,6 +40,7 @@ from typing import Any, Callable, Mapping, Sequence
+ from ofn.kernel import self_model
+ from ofn.kernel.self_model import Reading
+ from ofn.adapters import organism_shadow, runtime_provenance
++from ofn.adapters.fleet_observation import read_census
+ from shadow_homeostasis import pipeline as shadow_pipeline
+ 
+ SCHEMA_ID = "octopus.self-model.v3"
+@@ -434,6 +435,7 @@ def produce(
+     git_runner: GitRunner | None = None,
+     unit_prober: UnitProber | None = None,
+     runtime_wired: Mapping[str, bool] | None = None,
++    fleet_census_path: Path | str | None = None,
+ ) -> dict[str, Any]:
+     """Generate the self-model envelope from real (or injected) producers."""
+     now_epoch = (clock or default_clock)()
+@@ -498,7 +500,7 @@ def produce(
+     }
+     if not all(witness.get("matched") is True for witness in witnesses.values()):
+         warnings.append("runtime_code_witness_unverified")
+-    return {
++    envelope = {
+         "schema": SCHEMA_ID,
+         "generated_at": rfc3339(now_epoch),
+         "generated_epoch": now_epoch,
+@@ -515,6 +517,13 @@ def produce(
+         "organism_shadow": shadow,
+         "runtime_provenance": witnesses,
+     }
++    if fleet_census_path is not None:
++        envelope["fleet"] = read_census(Path(fleet_census_path), now_epoch)
++        if envelope["fleet"]["status"] != "OBSERVED":
++            envelope["warnings"] = sorted(set(envelope["warnings"] + ["fleet_observations_incomplete"]))
++        # Observation coverage is separate from work, health and authority.
++        # No fleet input can upgrade the existing organism status.
++    return envelope
+ 
+ 
+ def semantic_digest(envelope: Mapping[str, Any]) -> str:
+@@ -563,6 +572,8 @@ def main(argv: Sequence[str] | None = None) -> int:
+     parser = argparse.ArgumentParser(
+         description="Generate the machine-written system self-model.")
+     parser.add_argument("--repo", default=".")
++    parser.add_argument("--fleet-census", default=None,
++                        help="optional read-only authenticated census JSON; never a job or authorization witness")
+     parser.add_argument(
+         "--output",
+         default=None,
+@@ -573,7 +584,7 @@ def main(argv: Sequence[str] | None = None) -> int:
+     output = Path(args.output) if args.output else (
+         repo_root / "state" / "self-model" / "SYSTEM-SELF-MODEL.json")
+ 
+-    envelope = produce(repo_root=repo_root)
++    envelope = produce(repo_root=repo_root, fleet_census_path=args.fleet_census)
+     try:
+         envelope["organism_shadow_persistence"] = organism_shadow.record_assessment(
+             envelope["organism_shadow"], output.parent / "organism-shadow",
+diff --git a/ofn/kernel/callbudget.py b/ofn/kernel/callbudget.py
+index 9b144a51..e63258f2 100644
+--- a/ofn/kernel/callbudget.py
++++ b/ofn/kernel/callbudget.py
+@@ -38,6 +38,7 @@ from typing import Mapping
+ 
+ from .errors import FailClosedError
+ from .routing import Rung
++from .canonical_budget import BudgetLimits, BudgetRequest, BudgetUsage, admit_spend
+ 
+ DAY = 86_400
+ 
+@@ -118,6 +119,19 @@ class CallBudget:
+         left = self.remaining(rung, now_epoch_s)
+         return True if left is None else left > 0
+ 
++    def allows_spend(self, rung: Rung, now_epoch_s: int, *,
++                     request: BudgetRequest, usage: BudgetUsage | None,
++                     runtime_limits: BudgetLimits | None = None) -> bool:
++        """Both independent ceilings must pass; this does not reserve money.
++
++        Existing ``allows`` is only a call-count check. Paid adapters must
++        use this composed check with fresh ledger usage before reservation.
++        No monetary limit is inferred from a model's call count.
++        """
++        return self.allows(rung, now_epoch_s) and admit_spend(
++            request=request, usage=usage, now_epoch_s=now_epoch_s,
++            runtime_limits=runtime_limits).allowed
++
+     def record(self, rung: Rung, now_epoch_s: int) -> None:
+         """Counted whether or not the call succeeded.
+ 
+diff --git a/ofn/kernel/canonical_budget.py b/ofn/kernel/canonical_budget.py
+new file mode 100644
+index 00000000..9b91c0da
+--- /dev/null
++++ b/ofn/kernel/canonical_budget.py
+@@ -0,0 +1,112 @@
++"""D-2 dollar ceilings, in exact hundredths; pure admission, never authority.
++
++This is the single source of API monetary ceiling values. The owner clarified
++USD on 2026-09-17. Request and usage must both name USD; business quote values
++are outside this scope. No currency conversion or paid call occurs here.
++Usage is a fresh, complete ledger snapshot supplied by an adapter. Admission
++does NOT reserve funds; a real transport must reserve atomically before send.
++The monthly window is a UTC calendar month, and the daily window rolls 24h.
++"""
++from __future__ import annotations
++
++from dataclasses import dataclass
++
++from .errors import FailClosedError
++
++POLICY_ID = "S1-OWNER-RULINGS-20260917/D-2"
++CURRENCY = "USD"
++
++
++def _amount(value: object) -> int:
++    if type(value) is not int or value < 0:
++        raise FailClosedError("budget amounts must be non-negative exact integers")
++    return value
++
++
++@dataclass(frozen=True)
++class BudgetLimits:
++    monthly: int
++    rolling_24h: int
++    per_task: int
++
++    def __post_init__(self) -> None:
++        for value in (self.monthly, self.rolling_24h, self.per_task):
++            _amount(value)
++
++
++# One canonical file, no fallback copies in executors or call-count guards.
++CANONICAL_LIMITS = BudgetLimits(monthly=10_000, rolling_24h=1_000, per_task=200)
++
++
++def effective_limits(runtime: BudgetLimits | None = None) -> BudgetLimits:
++    if runtime is None:
++        return CANONICAL_LIMITS
++    if type(runtime) is not BudgetLimits:
++        raise FailClosedError("runtime budget limits are invalid")
++    return BudgetLimits(*(min(a, b) for a, b in zip(
++        (CANONICAL_LIMITS.monthly, CANONICAL_LIMITS.rolling_24h,
++         CANONICAL_LIMITS.per_task),
++        (runtime.monthly, runtime.rolling_24h, runtime.per_task))))
++
++
++@dataclass(frozen=True)
++class BudgetRequest:
++    task_id: str
++    currency: str
++    amount: int  # Conservative upper bound, not an optimistic cost estimate.
++
++
++@dataclass(frozen=True)
++class BudgetUsage:
++    task_id: str
++    currency: str
++    observed_at_epoch_s: int
++    monthly: int
++    rolling_24h: int
++    per_task: int
++    complete: bool  # Includes outstanding reservations and unknown outcomes.
++
++
++@dataclass(frozen=True)
++class BudgetVerdict:
++    allowed: bool
++    reason: str
++    limits: BudgetLimits
++    policy_id: str = POLICY_ID
++
++
++def admit_spend(*, request: BudgetRequest, usage: BudgetUsage | None,
++                now_epoch_s: int, runtime_limits: BudgetLimits | None = None
++                ) -> BudgetVerdict:
++    """Intersect all ceilings; unknown, stale or cross-task usage denies.
++
++Zero is a real ceiling, never unlimited. Calling this twice is not a
++reservation. The caller must obtain fresh usage under its ledger lock.
++"""
++    limits = effective_limits(runtime_limits)
++
++    def deny(reason: str) -> BudgetVerdict:
++        return BudgetVerdict(False, reason, limits)
++
++    if type(request) is not BudgetRequest or type(usage) is not BudgetUsage:
++        return deny("budget-evidence-missing")
++    if type(now_epoch_s) is not int or now_epoch_s < 0:
++        return deny("budget-clock-invalid")
++    if type(usage.observed_at_epoch_s) is not int or usage.observed_at_epoch_s != now_epoch_s:
++        return deny("budget-evidence-stale")
++    if usage.complete is not True:
++        return deny("budget-evidence-incomplete")
++    if not isinstance(request.task_id, str) or not request.task_id.strip() or request.task_id != usage.task_id:
++        return deny("budget-task-mismatch")
++    if request.currency != CURRENCY or usage.currency != CURRENCY:
++        return deny("budget-currency-mismatch")
++    try:
++        amount = _amount(request.amount)
++        for spent in (usage.monthly, usage.rolling_24h, usage.per_task):
++            _amount(spent)
++    except FailClosedError:
++        return deny("budget-amount-invalid")
++    for name in ("monthly", "rolling_24h", "per_task"):
++        if getattr(usage, name) + amount > getattr(limits, name):
++            return deny("budget-" + name + "-exceeded")
++    return BudgetVerdict(True, "budget-fits", limits)
+diff --git a/tests/test_canonical_budget.py b/tests/test_canonical_budget.py
+new file mode 100644
+index 00000000..a92782eb
+--- /dev/null
++++ b/tests/test_canonical_budget.py
+@@ -0,0 +1,137 @@
++"""D-2 tests use fake cost scenarios; no measured spending or network calls."""
++from dataclasses import replace
++from datetime import datetime, timezone
++
++import pytest
++
++from ofn.adapters.fake_executor import FakeProvider, execute_with_approval
++from ofn.kernel.callbudget import CallBudget
++from ofn.kernel.canonical_budget import (
++    CANONICAL_LIMITS, BudgetLimits, BudgetRequest, BudgetUsage, admit_spend,
++    effective_limits,
++)
++from ofn.kernel.errors import FailClosedError
++from ofn.kernel.routing import Rung
++from tests.test_executor_fake import NOW, make_approval, make_decision
++
++EPOCH = int(datetime.strptime(NOW, "%Y-%m-%dT%H:%M:%SZ")
++            .replace(tzinfo=timezone.utc).timestamp())
++REQUEST = BudgetRequest("run-138-1", "USD", 200)
++USAGE = BudgetUsage("run-138-1", "USD", EPOCH, 0, 0, 0, True)
++
++
++def admit(request=REQUEST, usage=USAGE, **kw):
++    return admit_spend(request=request, usage=usage, now_epoch_s=EPOCH, **kw)
++
++
++def test_owner_ceilings_are_exact_usd_cents():
++    assert CANONICAL_LIMITS == BudgetLimits(10000, 1000, 200)
++    assert admit().allowed
++    assert not admit(replace(REQUEST, amount=201)).allowed
++
++
++@pytest.mark.parametrize("field,spent", [("monthly", 9800), ("rolling_24h", 800), ("per_task", 0)])
++def test_exact_boundary_allowed_one_cent_over_denied(field, spent):
++    usage = replace(USAGE, **{field: spent})
++    assert admit(usage=usage).allowed
++    assert admit(usage=replace(usage, **{field: spent + 1})).reason == "budget-" + field + "-exceeded"
++
++
++@pytest.mark.parametrize("runtime", [BudgetLimits(100, 1000, 200), BudgetLimits(10000, 100, 200), BudgetLimits(10000, 1000, 100)])
++def test_each_stricter_runtime_dimension_wins(runtime):
++    assert not admit(runtime_limits=runtime).allowed
++
++
++def test_larger_runtime_caps_never_expand_owner_policy():
++    assert effective_limits(BudgetLimits(99999, 99999, 99999)) == CANONICAL_LIMITS
++    assert not admit(replace(REQUEST, amount=201), runtime_limits=BudgetLimits(99999, 99999, 99999)).allowed
++
++
++def test_zero_runtime_cap_is_not_unlimited():
++    limits = BudgetLimits(0, 0, 0)
++    assert not admit(runtime_limits=limits).allowed
++    assert admit(replace(REQUEST, amount=0), runtime_limits=limits).allowed
++
++
++@pytest.mark.parametrize("bad", [True, False, -1, 0.1, "0", None, float("nan"), float("inf")])
++def test_invalid_numbers_cannot_coerce_into_permission(bad):
++    assert not admit(replace(REQUEST, amount=bad)).allowed
++    assert not admit(usage=replace(USAGE, monthly=bad)).allowed
++    with pytest.raises(FailClosedError):
++        BudgetLimits(bad, 1000, 200)
++
++
++@pytest.mark.parametrize("usage", [None, replace(USAGE, complete=False), replace(USAGE, complete=1),
++    replace(USAGE, observed_at_epoch_s=EPOCH - 1), replace(USAGE, observed_at_epoch_s=EPOCH + 1),
++    replace(USAGE, observed_at_epoch_s=True), replace(USAGE, task_id="other"),
++    replace(USAGE, currency="AUD")])
++def test_unknown_stale_unbound_usage_denies(usage):
++    assert not admit(usage=usage).allowed
++
++
++def test_aud_business_values_are_outside_api_usd_policy():
++    assert not admit(replace(REQUEST, currency="AUD"), replace(USAGE, currency="AUD")).allowed
++
++
++def test_composed_callbudget_preserves_both_independent_guards():
++    budget = CallBudget(caps={Rung.REMOTE: 1})
++    assert budget.allows_spend(Rung.REMOTE, EPOCH, request=REQUEST, usage=USAGE)
++    assert not budget.allows_spend(Rung.REMOTE, EPOCH, request=REQUEST, usage=None)
++    assert not budget.allows_spend(Rung.REMOTE, EPOCH, request=REQUEST, usage=replace(USAGE, monthly=10000))
++    budget.record(Rung.REMOTE, EPOCH)
++    assert not budget.allows_spend(Rung.REMOTE, EPOCH, request=REQUEST, usage=USAGE)
++    assert budget.grants_send() is False
++
++
++@pytest.mark.parametrize("cost_request,usage,limits", [
++    (replace(REQUEST, amount=201), USAGE, None),
++    (REQUEST, None, None),
++    (REQUEST, USAGE, BudgetLimits(100, 1000, 200)),
++    (replace(REQUEST, task_id="other"), replace(USAGE, task_id="other"), None),
++])
++def test_fake_executor_denial_is_persisted_before_any_provider_call(tmp_path, cost_request, usage, limits):
++    decision, provider = make_decision(), FakeProvider()
++    receipt = execute_with_approval(decision, make_approval(decision), provider,
++        state_dir=str(tmp_path), now_utc=NOW, budget_request=cost_request,
++        budget_usage=usage, runtime_limits=limits)
++    assert receipt["status"] == "DENIED"
++    assert not receipt["provider_called"] and not provider.calls
++    assert receipt["budget"]["currency"] == "USD"
++    assert (tmp_path / "execution_receipts.jsonl").read_text().strip()
++
++
++def test_fake_provider_admission_is_not_a_real_transport_authorization(tmp_path):
++    class AnotherProvider(FakeProvider):
++        pass
++    provider, decision = AnotherProvider(), make_decision()
++    receipt = execute_with_approval(decision, make_approval(decision), provider,
++        state_dir=str(tmp_path), now_utc=NOW, budget_request=REQUEST, budget_usage=USAGE)
++    assert receipt["rule"] == "real-transport-not-implemented"
++    assert not provider.calls
++
++
++def test_fake_zero_cost_receipt_preserves_stricter_limits(tmp_path):
++    decision = make_decision()
++    receipt = execute_with_approval(decision, make_approval(decision), FakeProvider(),
++        state_dir=str(tmp_path), now_utc=NOW, runtime_limits=BudgetLimits(0, 0, 0))
++    assert receipt["status"] == "EXECUTED"
++    assert receipt["budget"]["reason"] == "fake-zero-cost"
++    assert receipt["budget"]["limits"] == {"monthly": 0, "rolling_24h": 0, "per_task": 0}
++    assert receipt["budget"]["reservation_created"] is False
++
++
++def test_valid_cost_scenario_reaches_only_fake_provider(tmp_path):
++    decision, provider = make_decision(), FakeProvider()
++    receipt = execute_with_approval(decision, make_approval(decision), provider,
++        state_dir=str(tmp_path), now_utc=NOW, budget_request=REQUEST, budget_usage=USAGE)
++    assert receipt["status"] == "EXECUTED" and len(provider.calls) == 1
++    assert receipt["budget"]["reason"] == "budget-fits"
++    assert receipt["budget"]["reservation_created"] is False
++
++
++def test_invalid_runtime_limits_deny_even_zero_cost_fake(tmp_path):
++    decision, provider = make_decision(), FakeProvider()
++    receipt = execute_with_approval(decision, make_approval(decision), provider,
++        state_dir=str(tmp_path), now_utc=NOW, runtime_limits={})
++    assert receipt["rule"] == "budget-input-invalid"
++    assert not provider.calls
+diff --git a/tests/test_fleet_observation.py b/tests/test_fleet_observation.py
+new file mode 100644
+index 00000000..2d63f8a2
+--- /dev/null
++++ b/tests/test_fleet_observation.py
+@@ -0,0 +1,88 @@
++import copy
++import json
++from pathlib import Path
++from tempfile import TemporaryDirectory
++from unittest import TestCase
++from ofn.adapters.fleet_observation import read_census, NODES
++from ofn.adapters.self_model_producer import produce
++
++class FleetObservationTests(TestCase):
++    def setUp(self):
++        self.tmp = TemporaryDirectory()
++        self.addCleanup(self.tmp.cleanup)
++        self.path = Path(self.tmp.name)/'census.json'
++        self.data = {'schema':'octopus.fleet-observation.v1','nodes':[
++            {'node_id':n,'status':'AUTHENTICATED_OBSERVATION','ssh_returncode':0,
++             'declared_role':'test','observation':{'observed_at_utc':'2026-09-17T00:00:00Z',
++             'hostname':'fixture-'+n,'boot_id':'fixture-boot'}} for n in NODES]}
++        self.now = 1789603200.0
++
++    def run_census(self):
++        self.path.write_text(json.dumps(self.data),encoding='utf-8')
++        return read_census(self.path,self.now)
++
++    def test_fresh_coverage_does_not_grant_authority_or_jobs(self):
++        result=self.run_census()
++        self.assertEqual(result['observed_node_count'],7)
++        self.assertFalse(result['may_authorize'])
++        self.assertFalse(result['signature_verified'])
++        self.assertTrue(all(n['job_status']=='UNKNOWN' for n in result['nodes']))
++
++    def test_stale_is_not_observed(self):
++        self.now += 181
++        result=self.run_census()
++        self.assertEqual(result['observed_node_count'],0)
++        self.assertEqual(result['status'],'PARTIAL')
++
++    def test_future_is_unknown(self):
++        self.now -= 6
++        self.assertEqual(self.run_census()['observed_node_count'],0)
++
++    def test_duplicate_and_missing_fail_closed(self):
++        self.data['nodes'][-1]=copy.deepcopy(self.data['nodes'][0])
++        self.assertEqual(self.run_census()['status'],'UNKNOWN')
++
++    def test_missing_identity_invalidates_census(self):
++        del self.data['nodes'][0]['observation']['boot_id']
++        self.assertEqual(self.run_census()['status'],'UNKNOWN')
++
++    def test_malformed_identity_invalidates_census(self):
++        for value in (True,{},' ',42):
++            with self.subTest(value=value):
++                self.data['nodes'][0]['observation']['hostname']=value
++                self.assertEqual(self.run_census()['status'],'UNKNOWN')
++
++    def test_nonfinite_and_wrong_role_fail_closed(self):
++        for value in (float('nan'), True, {}, ' '):
++            with self.subTest(value=value):
++                self.data['nodes'][0]['declared_role']=value
++                self.assertEqual(self.run_census()['status'],'UNKNOWN')
++
++    def test_failed_ssh_never_counts(self):
++        self.data['nodes'][0]['ssh_returncode']=255
++        self.assertEqual(self.run_census()['observed_node_count'],6)
++
++    def test_boolean_returncode_is_not_zero(self):
++        self.data['nodes'][0]['ssh_returncode']=False
++        self.assertEqual(self.run_census()['observed_node_count'],6)
++
++    def test_bounded_read(self):
++        self.path.write_bytes(b' '*65537)
++        self.assertEqual(read_census(self.path,self.now)['status'],'UNKNOWN')
++
++    def test_missing_input_unknown(self):
++        self.assertEqual(read_census(self.path,self.now)['status'],'UNKNOWN')
++
++    def test_timezone_required(self):
++        self.data['nodes'][0]['observation']['observed_at_utc']='2026-09-17T00:00:00'
++        self.assertEqual(self.run_census()['status'],'UNKNOWN')
++
++    def test_real_producer_consumes_census_without_status_upgrade(self):
++        self.run_census()
++        arguments=dict(clock=lambda:self.now,repo_root=Path(__file__).resolve().parents[1],
++                       git_runner=lambda *a:None,unit_prober=lambda u:(None,'unmeasured'))
++        baseline=produce(**arguments)
++        actual=produce(**arguments,fleet_census_path=self.path)
++        self.assertEqual(actual['fleet']['observed_node_count'],7)
++        self.assertEqual(actual['status'],baseline['status'])
++        self.assertEqual(actual['data']['authority'],baseline['data']['authority'])
+diff --git a/tests/test_revenue_run.py b/tests/test_revenue_run.py
+new file mode 100644
+index 00000000..ac625ee1
+--- /dev/null
++++ b/tests/test_revenue_run.py
+@@ -0,0 +1,138 @@
++"""Contract fixtures are test-only; none represent actual leads or money."""
++import hashlib
++import json
++import subprocess
++import sys
++
++import pytest
++
++from ofn.adapters.receipt import stamp_receipt, verify_receipt
++from ofn.adapters.revenue_run import GENESIS, STAGES, make_receipt, replay
++from ofn.kernel.errors import FailClosedError
++
++
++def sha(value):
++    return hashlib.sha256(value.encode()).hexdigest()
++
++
++POLICY = sha("test-only policy")
++
++
++def chain(leg="painting", mode="live_observation", count=9):
++    records = []
++    previous = GENESIS
++    for index, stage in enumerate(STAGES[:count]):
++        row = make_receipt(
++            run_id="test-only-run", leg=leg, stage=stage,
++            prev_receipt_sha=previous, policy_sha=POLICY,
++            evidence_sha=sha("test-only evidence " + stage),
++            producer_id="test-producer", recorded_at_epoch_s=index,
++            mode=mode, witness_id="test-witness" if index == 8 else None,
++            witness_receipt_sha=sha("test-only witness") if index == 8 else None,
++        )
++        records.append(row)
++        previous = row["receipt_sha256"]
++    return records
++
++
++def restamp(row, **changes):
++    body = {k: v for k, v in row.items() if k != "receipt_sha256"}
++    body.update(changes)
++    return stamp_receipt(body)
++
++
++@pytest.mark.parametrize("leg", ["ziman", "painting", "studio"])
++def test_all_legs_full_structural_replay_never_verifies_cash(leg):
++    records = chain(leg)
++    result = replay(records, expected_policy_sha=POLICY)
++    assert result["chain_complete"] is True
++    assert result["cash_verified"] is False
++    assert result["may_authorize"] is False
++    assert result["external_evidence_status"] == "UNVERIFIED"
++    assert verify_receipt(records[-1]) == result["head_receipt_sha"]
++
++
++def test_dry_run_prefix_stays_incomplete():
++    result = replay(chain(mode="dry_run", count=4), expected_policy_sha=POLICY)
++    assert result["last_stage"] == "offer_drafted"
++    assert result["chain_complete"] is False
++
++
++@pytest.mark.parametrize("changes", [
++    {"run_id": "other-run"}, {"leg": "studio"}, {"mode": "dry_run"},
++    {"policy_sha": sha("different policy")}, {"prev_receipt_sha": GENESIS},
++    {"stage": "qualified"}, {"recorded_at_epoch_s": -1},
++    {"recorded_at_epoch_s": True}, {"evidence_sha": GENESIS},
++    {"schema": "revenue_run.v2"}, {"run_id": "raw personal data @ invalid"},
++    {"leg": []}, {"stage": {}}, {"policy_sha": 1},
++    {"witness_id": "inapplicable-witness"}, {"cash_verified": True},
++])
++def test_bad_fields_or_chain_bindings_fail_closed(changes):
++    records = chain(count=2)
++    records[1] = restamp(records[1], **changes)
++    with pytest.raises(FailClosedError):
++        replay(records, expected_policy_sha=POLICY)
++
++
++@pytest.mark.parametrize("mutation", ["skip", "repeat", "reorder", "tamper", "reuse", "backwards"])
++def test_chain_negative_cases(mutation):
++    records = chain()
++    if mutation == "skip":
++        del records[1]
++    elif mutation == "repeat":
++        records.append(records[-1])
++    elif mutation == "reorder":
++        records[1], records[2] = records[2], records[1]
++    elif mutation == "tamper":
++        records[1]["producer_id"] = "mutated-without-restamping"
++    elif mutation == "reuse":
++        records[1] = restamp(records[1], evidence_sha=records[0]["evidence_sha"])
++    elif mutation == "backwards":
++        records[2] = restamp(records[2], recorded_at_epoch_s=0)
++    with pytest.raises(FailClosedError):
++        replay(records, expected_policy_sha=POLICY)
++
++
++@pytest.mark.parametrize("changes", [
++    {"mode": "dry_run"}, {"witness_id": None},
++    {"witness_id": "test-producer"}, {"witness_receipt_sha": GENESIS},
++    {"witness_receipt_sha": sha("test-only evidence settled_cash")},
++])
++def test_settlement_needs_live_observation_and_separate_witness(changes):
++    records = chain()
++    records[-1] = restamp(records[-1], **changes)
++    with pytest.raises(FailClosedError):
++        replay(records, expected_policy_sha=POLICY)
++
++
++def test_missing_digest_and_empty_chain_rejected():
++    records = chain(count=1)
++    del records[0]["receipt_sha256"]
++    for rows in (records, []):
++        with pytest.raises(FailClosedError):
++            replay(rows, expected_policy_sha=POLICY)
++
++
++def test_independent_policy_is_required():
++    with pytest.raises(FailClosedError):
++        replay(chain(), expected_policy_sha=sha("unknown policy"))
++
++
++@pytest.mark.parametrize("trailer", ["", "\n", "{invalid PRIVATE-MARKER}\n"])
++def test_cli_reads_without_writing_and_never_skips_corruption(tmp_path, trailer):
++    path = tmp_path / "test-only.jsonl"
++    contents = "".join(json.dumps(row) + "\n" for row in chain(count=4)) + trailer
++    path.write_text(contents, encoding="utf-8")
++    before = path.read_bytes()
++    result = subprocess.run(
++        [sys.executable, "-m", "tools.replay_revenue_run", str(path),
++         "--policy-sha", POLICY], capture_output=True, text=True, check=False,
++    )
++    assert path.read_bytes() == before
++    assert "PRIVATE-MARKER" not in result.stderr
++    if trailer:
++        assert result.returncode == 2
++        assert json.loads(result.stderr)["status"] == "INVALID"
++    else:
++        assert result.returncode == 0
++        assert json.loads(result.stdout)["chain_complete"] is False
+diff --git a/tools/replay_revenue_run.py b/tools/replay_revenue_run.py
+new file mode 100644
+index 00000000..80e61947
+--- /dev/null
++++ b/tools/replay_revenue_run.py
+@@ -0,0 +1,34 @@
++"""Read-only CLI: python -m tools.replay_revenue_run PATH --policy-sha SHA."""
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++from pathlib import Path
++
++from ofn.adapters.revenue_run import replay
++from ofn.kernel.errors import FailClosedError
++
++
++def main(argv=None) -> int:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("path", type=Path)
++    parser.add_argument("--policy-sha", required=True)
++    args = parser.parse_args(argv)
++    try:
++        with args.path.open(encoding="utf-8") as stream:
++            # Never skip malformed or blank ledger entries.
++            result = replay((json.loads(line) for line in stream),
++                            expected_policy_sha=args.policy_sha)
++    except (OSError, ValueError, TypeError, FailClosedError) as exc:
++        # Do not echo malformed source text, file contents, or possible PII.
++        print(json.dumps({"status": "INVALID", "error_type": type(exc).__name__,
++                          "cash_verified": False, "may_authorize": False}),
++              file=sys.stderr)
++        return 2
++    print(json.dumps(result, sort_keys=True))
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

@@ -1,0 +1,89 @@
+{
+  "schema": "p3_verified_restore_receipt.v1",
+  "utc": "2026-09-15T03:37:11Z",
+  "sec_sot_sha": "52887e1a088d6d4e87f2a8c14879db392a647d450afe8473ea0a5e620022d268",
+  "mode": "VERIFIED_RESTORE_COPY",
+  "source": {
+    "node_id": "138",
+    "trees": [
+      "fleet-memory",
+      "fleet-jobs"
+    ]
+  },
+  "dest": {
+    "node_id": "180",
+    "role": "verified_restore_copies_ONLY",
+    "path": "/opt/octopus-restore-copies/p3-20260915T033708Z",
+    "note": "separate non-prod path under /opt/octopus-restore-copies \u2014 NOT primary SoT"
+  },
+  "commander_node_id": "138",
+  "dual_commander": false,
+  "customer_send": false,
+  "method": "sha256_manifest_then_tar_stream_then_per_file_sha256_match",
+  "deny": [
+    "open-DB file copy as backup proof",
+    "180 sole writer",
+    "auto failover",
+    "power off 138"
+  ],
+  "file_results": [
+    {
+      "rel": "fleet-memory/fleet_facts.jsonl",
+      "status": "MATCH",
+      "expected": "adff9efbec2e1e682977750e0c2e4c87e9c41b65ea136edf5a741dc2badf0d6d",
+      "got": "adff9efbec2e1e682977750e0c2e4c87e9c41b65ea136edf5a741dc2badf0d6d"
+    },
+    {
+      "rel": "fleet-memory/schemas/fleet_decision.v1.schema.json",
+      "status": "MATCH",
+      "expected": "ef61d791fb527020210fa3e7f41d965e0d61b10c494606241f7e084566519115",
+      "got": "ef61d791fb527020210fa3e7f41d965e0d61b10c494606241f7e084566519115"
+    },
+    {
+      "rel": "fleet-memory/schemas/fleet_fact.v1.schema.json",
+      "status": "MATCH",
+      "expected": "db44a3f0c674c7308135498412ab1835d2ab4df3c0e801b0ea8d2a31747418cb",
+      "got": "db44a3f0c674c7308135498412ab1835d2ab4df3c0e801b0ea8d2a31747418cb"
+    },
+    {
+      "rel": "fleet-memory/schemas/fleet_hypothesis.v1.schema.json",
+      "status": "MATCH",
+      "expected": "0ee946f450590fffa2061414712cbc5804b117f1c86f9b8d97342e031c577686",
+      "got": "0ee946f450590fffa2061414712cbc5804b117f1c86f9b8d97342e031c577686"
+    },
+    {
+      "rel": "fleet-jobs/__pycache__/fleet_job_sm.cpython-313.pyc",
+      "status": "MATCH",
+      "expected": "f24c2ff8d7f4bbe3356a59aa5fe5e8400022c939daefa29570302a100a8a6329",
+      "got": "f24c2ff8d7f4bbe3356a59aa5fe5e8400022c939daefa29570302a100a8a6329"
+    },
+    {
+      "rel": "fleet-jobs/fleet_job_sm.py",
+      "status": "MATCH",
+      "expected": "6ce7fd1609b672d9f33e52a543a623eb5103e5e9077744cf3a452967b3f311e2",
+      "got": "6ce7fd1609b672d9f33e52a543a623eb5103e5e9077744cf3a452967b3f311e2"
+    },
+    {
+      "rel": "fleet-jobs/fleet_jobs.jsonl",
+      "status": "MATCH",
+      "expected": "a71a8888d10911508180fd21a26ac4598208a47d3169edced0025bdd82ed693f",
+      "got": "a71a8888d10911508180fd21a26ac4598208a47d3169edced0025bdd82ed693f"
+    },
+    {
+      "rel": "fleet-jobs/idempotency_index.json",
+      "status": "MATCH",
+      "expected": "0d99b91ca7c781ea906ada349414d9b7299fe812bfbb298744365b170a138fac",
+      "got": "0d99b91ca7c781ea906ada349414d9b7299fe812bfbb298744365b170a138fac"
+    },
+    {
+      "rel": "fleet-jobs/schemas/fleet_job.v1.schema.json",
+      "status": "MATCH",
+      "expected": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59",
+      "got": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59"
+    }
+  ],
+  "verdict": "PASS",
+  "files_total": 9,
+  "files_match": 9,
+  "180_probe": "octopus-continuity-180\nRESTORE_TREE_OK\ntotal 12\ndrwxr-xr-x 3 root root 4096 Sep 15 03:37 .\ndrwxr-xr-x 5 root root 4096 Sep 15 03:37 ..\ndrwxr-xr-x 3 root root 4096 Sep 15 03:37 p3-20260915T033708Z\n"
+}

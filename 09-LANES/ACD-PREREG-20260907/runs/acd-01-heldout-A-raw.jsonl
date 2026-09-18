@@ -1,0 +1,60 @@
+{"seq": 1, "instance": "ACD-01-held_out-01", "run": 1, "level": "none", "raw": "{\"answer\": 0.42}", "judge": "PASS"}
+{"seq": 2, "instance": "ACD-01-held_out-01", "run": 2, "level": "none", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL"}
+{"seq": 3, "instance": "ACD-01-held_out-01", "run": 3, "level": "none", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL"}
+{"seq": 4, "instance": "ACD-01-held_out-01", "run": 4, "level": "none", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL"}
+{"seq": 5, "instance": "ACD-01-held_out-01", "run": 5, "level": "none", "raw": "{\"answer\": 0.42}", "judge": "PASS"}
+{"seq": 6, "instance": "ACD-01-held_out-02", "run": 1, "level": "none", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 7, "instance": "ACD-01-held_out-02", "run": 2, "level": "none", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 8, "instance": "ACD-01-held_out-02", "run": 3, "level": "none", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 9, "instance": "ACD-01-held_out-02", "run": 4, "level": "none", "raw": "{\"answer\": {\"intent_score\": 0.6}}", "judge": "FAIL"}
+{"seq": 10, "instance": "ACD-01-held_out-02", "run": 5, "level": "none", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 11, "instance": "ACD-01-held_out-03", "run": 1, "level": "none", "raw": "{\"answer\": 0.82}", "judge": "PASS"}
+{"seq": 12, "instance": "ACD-01-held_out-03", "run": 2, "level": "none", "raw": "{\"answer\": 0.82}", "judge": "PASS"}
+{"seq": 13, "instance": "ACD-01-held_out-03", "run": 3, "level": "none", "raw": "{\"answer\": 0.82}", "judge": "PASS"}
+{"seq": 14, "instance": "ACD-01-held_out-03", "run": 4, "level": "none", "raw": "{\"answer\": 0.82}", "judge": "PASS"}
+{"seq": 15, "instance": "ACD-01-held_out-03", "run": 5, "level": "none", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL"}
+{"seq": 16, "instance": "ACD-01-held_out-04", "run": 1, "level": "rename", "raw": "{\"answer\": 0.74}", "judge": "PASS"}
+{"seq": 17, "instance": "ACD-01-held_out-04", "run": 2, "level": "rename", "raw": "{\"answer\": 0.74}", "judge": "PASS"}
+{"seq": 18, "instance": "ACD-01-held_out-04", "run": 3, "level": "rename", "raw": "{\"answer\": 0.74}", "judge": "PASS"}
+{"seq": 19, "instance": "ACD-01-held_out-04", "run": 4, "level": "rename", "raw": "{\"answer\": 0.74}", "judge": "PASS"}
+{"seq": 20, "instance": "ACD-01-held_out-04", "run": 5, "level": "rename", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL"}
+{"seq": 21, "instance": "ACD-01-held_out-05", "run": 1, "level": "rename", "raw": "{\"answer\": 0.8}", "judge": "PASS"}
+{"seq": 22, "instance": "ACD-01-held_out-05", "run": 2, "level": "rename", "raw": "{\"answer\": 0.8}", "judge": "PASS"}
+{"seq": 23, "instance": "ACD-01-held_out-05", "run": 3, "level": "rename", "raw": "{\"answer\": 0.8}", "judge": "PASS"}
+{"seq": 24, "instance": "ACD-01-held_out-05", "run": 4, "level": "rename", "raw": "{\"answer\": 0.8}", "judge": "PASS"}
+{"seq": 25, "instance": "ACD-01-held_out-05", "run": 5, "level": "rename", "raw": "{\"answer\": 0.8}", "judge": "PASS"}
+{"seq": 26, "instance": "ACD-01-held_out-06", "run": 1, "level": "type", "raw": "{\"answer\": 0.65}", "judge": "PASS"}
+{"seq": 27, "instance": "ACD-01-held_out-06", "run": 2, "level": "type", "raw": "{\"answer\": 0.65}", "judge": "PASS"}
+{"seq": 28, "instance": "ACD-01-held_out-06", "run": 3, "level": "type", "raw": "{\"answer\": 0.65}", "judge": "PASS"}
+{"seq": 29, "instance": "ACD-01-held_out-06", "run": 4, "level": "type", "raw": "{\"answer\": 0.65}", "judge": "PASS"}
+{"seq": 30, "instance": "ACD-01-held_out-06", "run": 5, "level": "type", "raw": "{\"answer\": 0.65}", "judge": "PASS"}
+{"seq": 31, "instance": "ACD-01-held_out-07", "run": 1, "level": "type", "raw": "{\"answer\": {\"intent_score\": 0.7}}", "judge": "FAIL"}
+{"seq": 32, "instance": "ACD-01-held_out-07", "run": 2, "level": "type", "raw": "{\"answer\": 0.7}", "judge": "PASS"}
+{"seq": 33, "instance": "ACD-01-held_out-07", "run": 3, "level": "type", "raw": "{\"answer\": null, \"missing\": true}", "judge": "FAIL"}
+{"seq": 34, "instance": "ACD-01-held_out-07", "run": 4, "level": "type", "raw": "{\"answer\": 0.7}", "judge": "PASS"}
+{"seq": 35, "instance": "ACD-01-held_out-07", "run": 5, "level": "type", "raw": "{\"answer\": 0.7}", "judge": "PASS"}
+{"seq": 36, "instance": "ACD-01-held_out-08", "run": 1, "level": "both", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 37, "instance": "ACD-01-held_out-08", "run": 2, "level": "both", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 38, "instance": "ACD-01-held_out-08", "run": 3, "level": "both", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 39, "instance": "ACD-01-held_out-08", "run": 4, "level": "both", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 40, "instance": "ACD-01-held_out-08", "run": 5, "level": "both", "raw": "{\"answer\": 0.6}", "judge": "PASS"}
+{"seq": 41, "instance": "ACD-01-held_out-09", "run": 1, "level": "both", "raw": "{\"answer\": 0.95}", "judge": "PASS"}
+{"seq": 42, "instance": "ACD-01-held_out-09", "run": 2, "level": "both", "raw": "{\"answer\": 0.95}", "judge": "PASS"}
+{"seq": 43, "instance": "ACD-01-held_out-09", "run": 3, "level": "both", "raw": "{\"answer\": 0.95}", "judge": "PASS"}
+{"seq": 44, "instance": "ACD-01-held_out-09", "run": 4, "level": "both", "raw": "{\"answer\": 0.95}", "judge": "PASS"}
+{"seq": 45, "instance": "ACD-01-held_out-09", "run": 5, "level": "both", "raw": "{\"answer\": 0.95}", "judge": "PASS"}
+{"seq": 46, "instance": "ACD-01-held_out-10", "run": 1, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.3}}", "judge": "FAIL"}
+{"seq": 47, "instance": "ACD-01-held_out-10", "run": 2, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS"}
+{"seq": 48, "instance": "ACD-01-held_out-10", "run": 3, "level": "invalid", "raw": "{\"answer\": \"null, \"missing\": true\"}", "judge": "FAIL"}
+{"seq": 49, "instance": "ACD-01-held_out-10", "run": 4, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS"}
+{"seq": 50, "instance": "ACD-01-held_out-10", "run": 5, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS"}
+{"seq": 51, "instance": "ACD-01-held_out-11", "run": 1, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.48}}", "judge": "FAIL"}
+{"seq": 52, "instance": "ACD-01-held_out-11", "run": 2, "level": "invalid", "raw": "{\"answer\": \"null\", \"missing\": true}", "judge": "FAIL"}
+{"seq": 53, "instance": "ACD-01-held_out-11", "run": 3, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS"}
+{"seq": 54, "instance": "ACD-01-held_out-11", "run": 4, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.48}}", "judge": "FAIL"}
+{"seq": 55, "instance": "ACD-01-held_out-11", "run": 5, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS"}
+{"seq": 56, "instance": "ACD-01-held_out-12", "run": 1, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS"}
+{"seq": 57, "instance": "ACD-01-held_out-12", "run": 2, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS"}
+{"seq": 58, "instance": "ACD-01-held_out-12", "run": 3, "level": "invalid", "raw": "{\"answer\": null, \"missing\": true}", "judge": "PASS"}
+{"seq": 59, "instance": "ACD-01-held_out-12", "run": 4, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.12}}", "judge": "FAIL"}
+{"seq": 60, "instance": "ACD-01-held_out-12", "run": 5, "level": "invalid", "raw": "{\"answer\": {\"intent_score\": 0.12}}", "judge": "FAIL"}

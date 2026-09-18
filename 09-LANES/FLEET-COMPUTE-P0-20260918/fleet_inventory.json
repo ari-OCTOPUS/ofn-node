@@ -1,0 +1,18 @@
+{
+  "schema": "fleet_inventory.v1",
+  "generated_utc": "2026-09-17T23:58:00Z",
+  "notes": "Verified live 2026-09-18 by ssh probe (all 7 boards answered) and cross-checked against 06-EVIDENCE/FLEET-HEARTBEAT-CANONICAL.md matrix + 09-LANES/OCTOPUS-FLEET-AUDIT-20260918/LANE-REPORT.md. Roles here are DECLARED, not discovered: the scan's rule is that placement must be capability-driven, so declared_role is advisory only until capability records land.",
+  "keys": {
+    "id_ed25519": "~/.ssh/id_ed25519",
+    "piggybank_id_ed25519": "~/.ssh/piggybank_id_ed25519"
+  },
+  "nodes": [
+    { "id": "138", "ip": "192.168.0.138", "user": "ari", "key": "id_ed25519", "role": "Revenue Engine / control-plane coordinator", "control_plane": true, "enabled": true },
+    { "id": "180", "ip": "192.168.0.180", "user": "root", "key": "id_ed25519", "role": "Fleet Telemetry & Observatory", "control_plane": true, "enabled": true },
+    { "id": "182", "ip": "192.168.0.182", "user": "root", "key": "id_ed25519", "role": "Remote Witness & Audit Latch", "control_plane": true, "enabled": true },
+    { "id": "193", "ip": "192.168.0.193", "user": "root", "key": "id_ed25519", "role": "Hypothesis & Market Research (model_infer :8193)", "control_plane": false, "enabled": true },
+    { "id": "114", "ip": "192.168.0.114", "user": "root", "key": "id_ed25519", "role": "Hardware Discovery", "control_plane": false, "enabled": true },
+    { "id": "100", "ip": "192.168.0.100", "user": "root", "key": "piggybank_id_ed25519", "role": "Coding Worker & Sandbox (knowledge_retrieve)", "control_plane": false, "enabled": true },
+    { "id": "160", "ip": "192.168.0.160", "user": "root", "key": "piggybank_id_ed25519", "role": "Shadow Verification & Watchdog", "control_plane": false, "enabled": true }
+  ]
+}

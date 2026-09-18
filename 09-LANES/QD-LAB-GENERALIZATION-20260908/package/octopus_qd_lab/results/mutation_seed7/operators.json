@@ -1,0 +1,26 @@
+{
+  "line": {
+    "attempts": 0,
+    "admitted": 0,
+    "new_cells": 0,
+    "survived_batch": 0
+  },
+  "xover": {
+    "attempts": 0,
+    "admitted": 0,
+    "new_cells": 0,
+    "survived_batch": 0
+  },
+  "mut": {
+    "attempts": 48000,
+    "admitted": 13368,
+    "new_cells": 3561,
+    "survived_batch": 13312
+  },
+  "random": {
+    "attempts": 0,
+    "admitted": 0,
+    "new_cells": 0,
+    "survived_batch": 0
+  }
+}

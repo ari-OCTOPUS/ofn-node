@@ -1,0 +1,52 @@
+{
+  "schema": "octopus.flags-open.receipt.v1",
+  "ts_utc": "2026-09-05T10:16:00Z",
+  "lane": "N-ALIVE-RUNBOOK-20260905",
+  "gov_version": "V8",
+  "ladder": "L0",
+  "network": false,
+  "send": false,
+  "ssh_138": false,
+  "organism_restarted": false,
+  "owner_answers": {
+    "supersede_paper": "replace_paper",
+    "laptop_zeros": ["studio_llm"],
+    "effect_138": ["hold_tg_all"],
+    "outbound_customers": ["of_browser_post"]
+  },
+  "flipped_on_this_host": [
+    {
+      "key": "STUDIO_LLM_CLOUD_VIA_ROUTER",
+      "from": "0",
+      "to": "1",
+      "file": "_ops/OCTOPUS-flags.cmd",
+      "line": 1487
+    }
+  ],
+  "pre_image_sha256": "5471b96b1b0285940429548e7416181cdcb7b76b3e79d0c6e38d8fb0f34143d7",
+  "post_image_sha256": "8ab19fba0895a6085d13abbc91683fe3b192888bbd650ef87246add5135f6493",
+  "pre_bytes": 78076,
+  "post_bytes": 78077,
+  "byte_delta_note": "expected 0 for 0→1 same width; +1 observed, unverified (possible newline). Content check: only STUDIO_LLM_CLOUD_VIA_ROUTER changed among the four watched keys.",
+  "left_zero": [
+    "EXTERNAL_ACTIONS",
+    "OCTOPUS_WHISPER_ALLOW_DOWNLOAD",
+    "FUGU_VIA_CENTRAL_GATE",
+    "OCTOPUS_IMPROVE_REFRACTORY_H",
+    "IMPROVE_REFRACTORY_H"
+  ],
+  "never_opened": [
+    "OFN_ONLYFANS_HTTP_ARM",
+    "OFN_KEEP_GATES_OPEN",
+    "auto_email",
+    "AUTOSENDER_ARMED",
+    "secrets",
+    "AGENTS.md LADDER"
+  ],
+  "paper_gos": [
+    "OWNER-GO-HOLD-TELEGRAM-ALL-2026-09-05.md",
+    "OWNER-GO-OF-BROWSER-POST-2026-09-05.md"
+  ],
+  "effective_after": "process restart that sources OCTOPUS-flags.cmd — not done this session",
+  "rollback": "set STUDIO_LLM_CLOUD_VIA_ROUTER=0 in _ops/OCTOPUS-flags.cmd (restore pre_image_sha256 5471b96b…) · delete this receipt last if rolling back the record is wanted — do not rewrite earlier receipts"
+}

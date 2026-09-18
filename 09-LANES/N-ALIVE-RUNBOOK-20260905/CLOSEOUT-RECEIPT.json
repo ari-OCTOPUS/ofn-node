@@ -1,0 +1,22 @@
+{
+  "schema": "next-to-alive-closeout/1",
+  "lane": "N-ALIVE-RUNBOOK-20260905",
+  "source_sha256": "5682F05291CFC960121C17E449BC31ADE7480304AA5BFA50D28B96138AE44E04",
+  "closed_at_local": "2026-09-05T19:57+10",
+  "phase_A": "not_fresh_on_138; AUTOSENDER_ARMED=UNKNOWN; prior U-WHY probe cited",
+  "phase_B": "done_this_lane; SEASON-5 markdown not overwritten",
+  "phase_C": "not_run; GO-TOKEN empty (channel/recipient/surface/payload_sha256/expiry missing)",
+  "phase_D_verdict_this_runbook": "BLOCKED_NO_OWNER_GO",
+  "already_existing_other_lane": {
+    "verdict": "ALIVE_ONE_CHANNEL_PROVEN",
+    "source": "06-EVIDENCE/IGN1-2026-09-05/IGN1-CLOSEOUT-RECEIPT.json",
+    "note": "Different execution. This runbook does not inherit that PASS. Both values kept."
+  },
+  "not_done": [
+    "SSH 138 Phase A remasure",
+    "flag change",
+    "send",
+    "rewrite 01-TRUTH/SEASON-5-2026-09-04.md"
+  ],
+  "why_no_send": "Runbook Phase C requires a filled 30-minute GO-TOKEN. Owner max-freedom line did not supply recipient, payload hash, or expiry. D2=B still clocks L1 to 2026-09-07T08:19:19Z for external audience."
+}

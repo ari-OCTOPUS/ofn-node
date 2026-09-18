@@ -1,0 +1,13 @@
+active
+● nats-server.service - NATS Server with JetStream (OCTOPUS Sensorium)
+     Loaded: loaded (/etc/systemd/system/nats-server.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-09-15 01:20:50 UTC; 2h 6min ago
+ Invocation: c5aab1bdb45d4141b5fe1085fa2a066a
+   Main PID: 745 (nats-server)
+      Tasks: 13 (limit: 4658)
+     Memory: 61.2M (max: 512M, available: 450.7M, peak: 72.2M)
+        CPU: 44.722s
+     CGroup: /system.slice/nats-server.service
+             └─745 /usr/bin/nats-server -c /etc/nats/nats-server.conf
+
+Notice: journal has been rotated since unit was started, output may be incomplete.

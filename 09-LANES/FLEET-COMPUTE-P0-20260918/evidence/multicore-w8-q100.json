@@ -1,0 +1,51 @@
+{
+ "decision": {
+  "schema": "compute_decision.v1",
+  "at_utc": "2026-09-18T00:28:41Z",
+  "mode": "canary",
+  "owner_pause": false,
+  "reclaimed_leases": [],
+  "queued_task": "task-a10d92dbdef66fd5",
+  "profile": "cpu_bench",
+  "synthetic_arrival": {
+   "profile": "cpu_bench",
+   "params": {
+    "workers": 8,
+    "block_mb": 2,
+    "seconds": 40
+   },
+   "input_digest": "3f83e0cc38a59da166a1dfda90ef7a185d260fa715430566d04610abc9887ac8",
+   "idempotency_key": "auto-cpu_bench-2026-09-18T00:28:39Z",
+   "enqueued": true
+  },
+  "chosen_node": "114",
+  "chosen_score": 202.24,
+  "reason": null,
+  "evaluated": [
+   {
+    "node_id": "114",
+    "admit": true,
+    "verdict": "ADMIT",
+    "reasons": [],
+    "score": 202.24,
+    "capable": true,
+    "headroom": {
+     "cores": 8,
+     "usable_cores": 7,
+     "load1": 0.68,
+     "cpu_pct": 0.4,
+     "hottest_millic": 25000,
+     "mem_avail_mb": 3654
+    }
+   }
+  ]
+ },
+ "dispatched": {
+  "ok": true,
+  "status": "SUCCEEDED",
+  "duplicate": false,
+  "output_digest": "d519fa154c3ea3c9",
+  "cgroup_envelope": "VERIFIED",
+  "duration_s": 40.296
+ }
+}

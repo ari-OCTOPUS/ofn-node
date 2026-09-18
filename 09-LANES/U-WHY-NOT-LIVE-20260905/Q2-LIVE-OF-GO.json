@@ -1,0 +1,59 @@
+{
+  "schema": "octopus.layer4-one-by-one-go.v1",
+  "queue_item": 2,
+  "channel": "live OF",
+  "channel_scope": "live_of_only",
+  "recorded_at": "2026-09-05T16:17:28+10:00",
+  "recorded_at_source": "Get-Date this session",
+  "lane": "U-WHY-NOT-LIVE-20260905",
+  "owner_prompt_fa": "دونه دونه بپرس و باز کن",
+  "owner_answer": "open_record",
+  "owner_answer_ui": "باز کن — فقط گیت live OF را ثبت کن (منتشر نمی‌شود)",
+  "gate": {
+    "name": "HOLD_EXTERNAL",
+    "action": "lift_recorded_for_live_of_only",
+    "live_effect": "closed",
+    "send": false,
+    "publish": false,
+    "flags_cmd": false,
+    "auto_email": 0,
+    "OCTOPUS_WIRE_LEAD_OUTBOUND": 0,
+    "OCTOPUS_WIRE_star": "unchanged_closed"
+  },
+  "prior_q1": {
+    "channel": "Telegram",
+    "source": "09-LANES/U-WHY-NOT-LIVE-20260905/Q1-TELEGRAM-GO.json",
+    "send": false
+  },
+  "contradiction": {
+    "status": "open",
+    "resolution": null,
+    "a": {
+      "value": "HOLD_EXTERNAL still true for Telegram / live OF / paid ads without separate GO",
+      "source": "01-TRUTH/SEASON-5-2026-09-04.md"
+    },
+    "b": {
+      "value": "owner one-by-one Q2 open_record — live OF gate recorded on this laptop vault",
+      "source": "09-LANES/U-WHY-NOT-LIVE-20260905/Q2-LIVE-OF-GO.json"
+    },
+    "note": "138 Season 5 register was not rewritten this hour."
+  },
+  "not_executed": [
+    "live OF publish",
+    "Telegram send",
+    "enable OCTOPUS_WIRE_*",
+    "source OCTOPUS-flags.cmd",
+    "write revenue/sent/booking",
+    "rewrite 01-TRUTH/SEASON-5-2026-09-04.md"
+  ],
+  "arbiter": {
+    "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+    "asserted_ip": "192.168.0.191",
+    "vantage": "this_host_vault_write",
+    "scope": "this_host_only",
+    "claim_type": "owner_decision_record",
+    "not_node180": true
+  },
+  "live_organism_claim": false,
+  "grade": "E0"
+}

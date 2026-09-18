@@ -1,0 +1,64 @@
+رأی‌ها ثبت شد. پنج حکم مالک به زبان اول‌شخص تو آماده‌اند (هرکدام را می‌توانی واژه‌به‌واژه وارد vault کنی و امضا بزنی)، و پشتشان چارتر مأموریت بعدی. سه ورودی در انتها هنوز از خودت می‌خواهد — بدون آن‌ها دو پای blind می‌مانند.
+
+***
+
+## بستهٔ احکام مالک — S1-OWNER-RULINGS-20260917
+
+متن زیر به نیابت تو نوشته شده؛ امضا = «— آری، مالک».
+
+### D-1 — پنجرهٔ واحد ریاستارت ۱۸۲ (GO)
+
+> من، مالک ارگانیسم، اجرای **پنجرهٔ واحد ریاستارتِ سنسوریوم ۱۸۲** را مجاز می‌کنم. باندل دیپلوی = سه وصلهٔ یک‌جا: batch-commit (اثبات‌شده ۹.۲×)، emission-fix برای G13 (app.py:784) و سیم‌کردن pruning/retention. شرط‌های غیرقابل مذاکره: (۱) rehearsal کامل روی replica پیش از لمس سرویس زنده، (۲) تست kill-9 وسط batch برای تعیین پنجرهٔ دوام، (۳) جاروی کامل نوشتارهای مستقیم به state (نه فقط سنسور ۰۹۹)، (۴) پس از ریاستارت: snapshot فعلی با شاهد من genesis anchor جدید شود و پنجرهٔ تاریخی seq 3,021,357–3,054,411 در divergence ledger به‌عنوان `KNOWN_UNREPLAYABLE` ثبت گردد — **بازنویسی ژورنال مطلقاً ممنوع**. معیار موفقیت: RSS < آستانهٔ تعریف‌شده در T+1h و verify از baseline جدید = OK. — آری
+
+### D-2 — سقف بودجهٔ کانونیکال واحد
+
+> پنج عدد متناقض از این لحظه ملغی‌اند. منبع واحد حقیقت: **$100/mo + $10/24h + per-task cap $2** در یک فایل کانونیکال، و هر محدودیت سخت‌ترِ runtime همیشه حاکم است (most-restrictive-wins). این فایل تنها مرجع fake_executor، callbudget و هر executor آینده است. رأی من نهایی است و محدودتر می‌شود، گشادتر هرگز بدون رأی جدید. — آری
+
+### D-3 — بدنهٔ transport روی fake_executor
+
+> پیش‌شرط قبلی لغو می‌شود: ساخت **بدنهٔ واقعی transport** روی fake_executor مجاز است. قیود: تا اولین settled_cash، فقط dry-run-with-real-capability (قابلیت حجیم واقعی، ارسال واقعی پشت release دوگامیِ من)؛ Ziman تا رأی جداگانه hold_external=True می‌ماند؛ هر artifact به source task + model digest + test receipt قفل شود. — آری
+
+### D-4 — فعال‌سازی سه‌گانهٔ درآمد (Trident)
+
+> هر سه پای — **Ziman، Painting، Studio** — میزبان RevenueRun می‌شوند. قانون مسابقه: اولین پایی که run_id کامل از lead تا settled_cash با receipt زنجیره‌ای و witness مستقل ببندد، **canary مرجع سیزن** است و الگویش روی دو پای دیگر کپی می‌شود. ترتیب عملیاتی: Ziman جلو (rail پرداخت آماده)، Painting دوم (intake/quote دارد، closure پرداخت می‌خواهد)، Studio سوم. **سیزن Painting رسماً فعال اعلام می‌شود** (پاسخ به I8/GAP-051). برای Studio، هويت/offer/channel را در همین بسته می‌دهم — اگر ندادم، لِین مجاز است چارچوب پیشنهادی owner-ready بسازد ولی هیچ انتشار بیرونی نکند. — آری
+
+### D-5 — حالت Maximum-Aggressive سیزن
+
+> از این لحظه سیزن در **حالت تهاجمی حداکثری** اجرا می‌شود: بدون deadline از پیش‌تعریف‌شده (Done = receipt، نه تقویم)، لِین‌های موازی بدون سقف تعداد، بودجهٔ حلقهٔ self-coding موقتاً از ۳ PR/24h به ۶ PR/24h، و denylist به‌جای بست‌های زمان‌بندی‌شده. **چهار چیز هرگز با حالت تهاجمی عوض نمی‌شود:** HALT-ALL fail-closed · ready ≠ authorized و may_authorize=False ساختاری · هیچ ادعا بدون رسید (پنجرهٔ شاهد ۲۴ساعتهٔ W1 دست‌نخورده می‌ماند — سرعت بالاتر از صداقت رسید مجاز نیست) · append-only و no-secret. نقض هرکدام = halt خودکار لِین، نه اخطار. — آری
+
+**نامهٔ امضانشده (تصمیم تو بلد نشد):** دریل reboot swap روی ۱۳۸ هنوز `GO/HOLD` ندارد. در D-5 من عمداً ثبتش نکردم.
+
+***
+
+## چارتر مأموریت بعدی: S1-TRIDENT-FLEET
+
+**هدف محوری (رأی ۴ تو):** self-model از ۱ نود به **حداقل ۴ نود — هدف تهاجمی ۵ نود** (138/180/182 + 100 و 160 هم‌زمان؛ 193 بعد از foundation) — و هم‌زمان Trident RevenueRun.
+
+### ماتریس لِین‌ها (همگی موازی، همین حالا قفل می‌شوند)
+
+| لِین | مأموریت | رسید خروجی |
+|---|---|---|
+| T1 | پنجرهٔ ریاستارت ۱۸۲ (پس از امضای D-1): rehearsal → bundle → deploy → rebaseline | `RESTART-WINDOW-CLOSED` |
+| T2 | FleetManifest v1 هر ۷ نود (نقش ناشناخته = UNKNOWN) + heartbeat امضاشده | `FLEET-MANIFEST-SEEDED` |
+| T3 | سیم‌کشی self-model به 182 و 180 (نزدیک‌ترین witnessها) | `SELF-MODEL-4N` |
+| T4 | شغل اول ۱۰۰/۱۶۰: sandbox code + shadow verify — اولین manifestشان از روی شغل واقعی ساخته شود | `DORMANT-2-JOB-1` |
+| T5 | RevenueRun contract مشترک (run_id chain + prev_receipt_sha + policy_sha) — قرارداد قبل از قابلیت | `REVENUE-RUN-V1-FROZEN` |
+| T6 | Ziman canary: رفع GAP-014/048 (scope توکن Pi) با رأی موجود | `ZIMAN-RUN-ATTEMPT-1` |
+| T7 | Painting: closure مسیر intake→payment، ۸ لید پایلوت ۱۳۸ | `PAINTING-RUN-ATTEMPT-1` |
+| T8 | Studio: چارچوب identity/offer/channel به‌صورت owner-ready proposal (تهاجمی ولی بدون خروج بیرونی) | `STUDIO-OWNER-READY-PACK` |
+| T9 | دریل‌ها: kill-switch drill با شاهد ۱۸۲ + restore drill از آخرین mirror به replica | `DRILLS-2OF2` |
+| T10 | فایل کانونیکال سقف‌ها + wiring به executors (اجرای D-2) | `BUDGETS-CANONICAL-1FILE` |
+
+### تعریف موفقیت فاز
+
+سیزی که تمام شود وقتی: self-model ≥4 نود را ببیند · یک run_id از یکی از سه پای تا cash بسته شود · هر دو drill receipt داشته باشند. تا قبل از آن، هر ادعای «تمام شد» fail است.
+
+***
+
+## سه ورودی که از خودت می‌خواهد
+
+۱. **GO یا HOLD روی دریل reboot سوآپ ۱۳۸** (تنها رأی امضانشده).
+۲. **Studio:** سه کلمهٔ هویت، offer، کانال — حتی خام. بدونش T8 فقط چارچوب می‌سازد.
+۳. **تأیید D-1..D-5** (یا اصلاح هر خط) — بعد از آن لِین‌ها آزاد می‌شوند.
+
+جواب بده: امضای حکم‌ها + GO/HOLD سوآپ + سه کلمهٔ Studio.

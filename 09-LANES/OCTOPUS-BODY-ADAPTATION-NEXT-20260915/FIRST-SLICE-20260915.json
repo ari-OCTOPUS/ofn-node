@@ -1,0 +1,77 @@
+{
+  "BUILT_AND_LIVE": [
+    {
+      "file": "/home/ari/ofn/state/fleet-scheduler/fleet_scheduler.py",
+      "first_cycle": "2026-09-15T04:31:06Z",
+      "id": "fleet-scheduler",
+      "job_type": "knowledge_retrieve (new, not echo probe)",
+      "laptop_dependency": false,
+      "status": "LIVE — 2 jobs fully closed autonomously (job-a4c67fc6, job-8051e5f1)",
+      "timer": "octopus-fleet-scheduler.timer (every 30min)",
+      "where": "138"
+    },
+    {
+      "answer_quality": "honest — corpus has only 1 fact, so answers are limited",
+      "corpus": "fleet_facts.jsonl (1 fact — P1 dry bootstrap)",
+      "file": "/home/ari/ofn/state/fleet-scheduler/fleet_retrieve.py",
+      "id": "fleet-retrieve",
+      "retrieval": "keyword-overlap over real corpus, returns source fact_id/body_hash/at/node_id",
+      "status": "LIVE — first retrieval job job-571bee6b CLOSED with result_hash a8c86839",
+      "where": "138 (dispatches to 100)"
+    },
+    {
+      "file": "/opt/octopus-worker/t3_model.py",
+      "id": "T3-model",
+      "model": "extractive-v1 (real extractive summarizer, not an echo)",
+      "port": 8193,
+      "status": "LIVE — health endpoint returns {status:ok, model:extractive-v1}",
+      "systemd": "attempted but inactive; running via nohup; needs persistent service install",
+      "test_result": {
+        "answer": "3 emails were sent to painting leads verified_cash is zero dollars",
+        "confidence": 0.5,
+        "latency_ms": 0.71,
+        "model_sha": "7bada20497d81444",
+        "query": "revenue funnel status"
+      },
+      "tested_from_138": true,
+      "where": "193"
+    }
+  ],
+  "GOV_VERSION": "V8",
+  "LADDER": "L2",
+  "REMAINING_FOR_PB4": [
+    "corpus is only 1 fact — needs real documents ingested (F1 on 160)",
+    "PB-4 A/B harness not built yet",
+    "T3 systemd service needs to be made persistent (currently nohup)"
+  ],
+  "WHAT_THIS_ACHIEVES": [
+    "138 now has an autonomous job producer/consumer that creates, dispatches, executes and closes real internal jobs every 30 minutes WITHOUT laptop involvement",
+    "The fleet-jobs bus (jsonl_138) now has a consumer — the PB-1 24h soak can start from NOW with actual automatic operation",
+    "Node 100 has a real retrieval job type (knowledge_retrieve) that queries the actual fleet-memory corpus",
+    "Node 193 has a real model service (extractive-v1) that processes typed requests from 138"
+  ],
+  "at_utc": "2026-09-15T04:35:23Z",
+  "at_utc_method": "date -u",
+  "customer_send": false,
+  "go_b4": false,
+  "hold_external": true,
+  "owner_decisions_2026_09_15": [
+    {
+      "a": "همرو الان تموم کن نه 24 ساعت",
+      "q": "scheduler",
+      "recorded_as": "BUILD_NOW"
+    },
+    {
+      "a": "job_type جدید",
+      "q": "retrieve job_type",
+      "recorded_as": "KNOWLEDGE_RETRIEVE_TYPE"
+    },
+    {
+      "a": "مدل متن کوچک",
+      "q": "T3 model",
+      "recorded_as": "SMALL_TEXT_MODEL"
+    }
+  ],
+  "receipt_file": "FIRST-SLICE-20260915.json",
+  "schema": "octopus.body-adaptation.first-slice.v1"
+}

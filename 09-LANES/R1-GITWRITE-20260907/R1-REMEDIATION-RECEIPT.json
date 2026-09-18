@@ -1,0 +1,46 @@
+{
+  "schema": "r1.gitwrite.remediation.receipt.v1",
+  "lane_id": "R1-GITWRITE-20260907",
+  "order": "owner GO 2026-09-07 («gO») on R1 card (v4.1 §18.5)",
+  "authority": "GOV_VERSION=V8 · LADDER=L2 · zero external network effects; writes limited to E:\\germline (offbox backup), TEMP debris, lane dir, and one process-kill of a measured-stalled bundle",
+  "incident": {
+    "flag": "F:/backup/_ops/backup/GITWRITE-FAILED.flag — '2026-09-07_035021 git-write lock TIMEOUT after 40 attempts'",
+    "recorded_clear_condition": "handshake/emit_cycle.py OWNER_PENDING: 'GITWRITE-FAILED.flag stays until AUTO hourly path is green' (held-deliberately; envelope may_clear_gitwrite_flag=False)",
+    "symptom_chain_measured": [
+      "germline-hourly task: push --all to E:/germline/vault.git REF_REJECTED (not INC-2 permission) — push-diagnostics cycle 20260907T114907: phase=all exit 1 REF_REJECTED elapsed 251006ms; phase=tags exit 1 REF_REJECTED",
+      "two non-FF refs: refs/heads/w1-money (offbox 700316f7a6 vs local 2256a1e924 — amend-twins: same message, same parent 2d6f95b, local newer by +14 lines in 09-LANES/W1-MONEY/EVIDENCE.md) and refs/tags/pre-deploy-2026-07-25 (offbox 9c49f174 vs local dab81a82; tags reject on 'already exists')",
+      "every failing run fell to full-repo bundle fallback (~3GB over 9.1GB .git on IO-pathological F:) — the 11:49 run's bundle stalled at 19,417 bytes for >90 min (two ls measurements 15s apart: zero growth; pack-objects ~0.19 CPU-s per 20s wall)",
+      "next hourly run then hit Enter-GitWriteLock TIMEOUT (40 attempts) -> GITWRITE-FAILED flag (03:50:21) + task result 2147946720; germline-daily failing since 2026-09-01 (last green daily manifest stamp 2026-09-01_0330, bundle 2,957,837,785 bytes, drill PASS)",
+      "hourly.log: continuous 'FAIL push failed AND bundle fallback failed' at least since 2026-09-06 18:49"
+    ]
+  },
+  "actions_performed": [
+    {
+      "what": "offbox ref surgery WITH preservation (E:/germline/vault.git only)",
+      "detail": "created refs/backup/preserved-20260907-w1-money -> 700316f7a6bc23c65f129f258aeb0ef5dde1d0e4 and refs/backup/preserved-20260907-tag-pre-deploy -> 9c49f17490ab466d9fe7a88458b0283e7b75cf39; then update-ref refs/heads/w1-money -> 2256a1e924b7a6f2cbfaf90aec7ab058f7dcd715 and refs/tags/pre-deploy-2026-07-25 -> dab81a828c9546ad7e36141b6f3a23858e6ce0a8; reflog retains prior values",
+      "data_loss": "none — local 2256a1e is the later amend of the same change (superset content); old tips preserved under refs/backup/"
+    },
+    {
+      "what": "killed measured-stalled bundle processes",
+      "detail": "PIDs 3532+18440 (git bundle create --all, started 11:53:22) and 13772 (git pack-objects) — evidence: 19,417-byte bundle.lock unchanged over 90 min. Parent task script then exited its fail-path cleanly (finally -> Exit-GitWriteLock): lock file removed at ~13:21, hourly.log entry '13:21:32 FAIL push failed AND bundle fallback failed' confirms clean unwind",
+      "justification": "v4.1 §14 'don't kill a healthy holder' — this holder was stalled, not healthy (zero progress measurement above); v4.1 §14 also demands evidence before recovery actions"
+    },
+    {
+      "what": "spine push to germline remote (closes 3-day unpushed-spine gap)",
+      "detail": "git push E:/germline/octopus.git rescue/octopus-live-tree-20260821: 6fd777d..c74464d (FF verified via merge-base --is-ancestor before push)",
+      "result": "offbox octopus.git rescue tip now c74464dfde70976eb809fa9ec5c970550b4ee1a7d"
+    },
+    {
+      "what": "manual verification run of germline-hourly.ps1 (as owner user)",
+      "detail": "powershell -File germline-hourly.ps1 -> rc=0; hourly.log '2026-09-07 13:33:23 OK push +state'; lock dir clean afterwards (flag only)",
+      "result": "push --all and --tags both green after surgery (dry-runs: 0 rejections; tags 'Everything up-to-date')"
+    }
+  ],
+  "pending_close_condition": {
+    "flag_clear": "NOT cleared yet — recorded condition requires the AUTO (scheduled) hourly path green. Background monitor armed for the 13:49:04 scheduled run; on 'OK' entry the flag may be cleared with receipt per the held-deliberately decision",
+    "daily_recovery": "germline-daily (03:30) expected to recover tomorrow now that lock collisions are gone; verify manifest stamp update"
+  },
+  "fencing_assessment": "git-serialize.ps1 already implements: create-exclusive handle lock, bounded retry with backoff, stale-steal (120s) that fails safe on live handles, fail-loud flag. Residual gap (documented, not implemented): no monotonic fencing token in writer payloads; with single-host single-writer design the practical risk is the full-bundle fallback duration, not split-brain. Structural recommendations (owner cards): (a) fallback bundle is unfit for hourly cadence on this hardware — consider incremental bundles (git bundle create --since=) or raising FALLBACK_MIN_HOURS; (b) repo diet R5 (9.1GB .git incl. 345MB .mimosa) directly shortens fsck/bundle times",
+  "counters": "EXTERNAL_ACTIONS=0 · NEW_LAN_LISTENERS=0 · MAY_AUTHORIZE=false",
+  "rollback": "refs/backup/preserved-20260907-* hold prior offbox values (restore via update-ref); spine push is FF-only (rewind via octopus.git reflog if ever needed); killed processes were temp-file writers only"
+}

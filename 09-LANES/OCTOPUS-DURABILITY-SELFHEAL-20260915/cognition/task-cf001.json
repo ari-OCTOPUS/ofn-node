@@ -1,0 +1,9 @@
+{
+  "task": "Edit the file ofn/agents/tests/test_glass_routing_smoke.py. It contains exactly 3 placeholder lines. Replace each one with real test code. Copy each anchor string EXACTLY character-for-character from between the quotes below, including leading spaces.\n\nop 1: anchor is EXACTLY this string: \"    assert True  # PLACEHOLDER-B3\"\nnew is EXACTLY this string: \"    import glass_runner\\n    r = glass_runner._route_owner_message(\\\"تایید کارت aabbccdd11223344\\\", known=KNOWN)\\n    assert r[\\\"route\\\"] == \\\"B3\\\"\"\n\nop 2: anchor is EXACTLY this string: \"    assert True  # PLACEHOLDER-MONEY\"\nnew is EXACTLY this string: \"    import glass_runner\\n    r = glass_runner._route_owner_message(\\\"بفرست\\\", known=KNOWN)\\n    assert r[\\\"route\\\"] == \\\"MONEY\\\"\"\n\nop 3: anchor is EXACTLY this string: \"    assert True  # PLACEHOLDER-EMPTY\"\nnew is EXACTLY this string: \"    import glass_runner\\n    r = glass_runner._route_owner_message(\\\"\\\", known=KNOWN)\\n    assert r[\\\"route\\\"] is None\"",
+  "task_family": "CF-001-GLASS-ROUTING-SMOKE",
+  "target": "ofn/agents/tests/test_glass_routing_smoke.py",
+  "tests": ["ofn/agents/tests/test_glass_routing_smoke.py"],
+  "rationale": "Replace placeholder asserts with real routing assertions (B3 hash confirm, bare money word, empty) — real coverage for the routing deployed 2026-09-15.",
+  "requested_by": "octopus-commander/2026-09-15",
+  "at_utc": "2026-09-15T08:25:00Z"
+}

@@ -1,0 +1,86 @@
+{
+  "copied_at_utc": "2026-09-17T09:14:57.850899+00:00",
+  "destination": "F:\\backup\\09-LANES\\S1-MATURITY-20260917",
+  "files": [
+    {
+      "path": "collect_fleet.py",
+      "sha256": "1c6bdc014eee5cb8efe2711eab1adf750de557e5461fa2316261102f080200b7"
+    },
+    {
+      "path": "evaluate_w1.py",
+      "sha256": "91e60f1c6c3f46805eaee407f344d65e7f2a5bbf345cea9feb0339053e605458"
+    },
+    {
+      "path": "FLEET-OBSERVATION.json",
+      "sha256": "2af93ff09050953d038c1266573e0f77df66bcf45d09b966eac50350007b411b"
+    },
+    {
+      "path": "LANE-REPORT.md",
+      "sha256": "364d263542eb263bef68c7ab85cd1c1653fd5ed8b6673b15d0c338c378056e5b"
+    },
+    {
+      "path": "MIRROR-RESTORE-RECEIPT.json",
+      "sha256": "b5c94f2983a54bcefd2874b62725bce767f8e28172cc7382f261b58552f2ac28"
+    },
+    {
+      "path": "mirror_restore_drill.py",
+      "sha256": "108bede5e6b627b0afa691a2270ee43581e7b32fc0e8d929038c434f6039121c"
+    },
+    {
+      "path": "OWNER-SCOPE.json",
+      "sha256": "70f458b74b0fc383a5c740093887c4d5c264abf57d40cdd00b2b9ee38d166871"
+    },
+    {
+      "path": "SCOPE.md",
+      "sha256": "b5772d28ff81bd7b4b1e5d629e56864ab7608cb4e4fa8f66d4efbbdd5d325cc3"
+    },
+    {
+      "path": "SUPPLIED-CHARTER.txt",
+      "sha256": "efd56436f17ccf07fec57f161afff40e82d2d6bf0d7e3efb60fba545ea7d979f"
+    },
+    {
+      "path": "test_evaluate_w1.py",
+      "sha256": "ab9e1a04ab519cd9863da58d0baaa938ef090f2c88e6d13b0da48e10a078f9d8"
+    },
+    {
+      "path": "test_w1_auditable.py",
+      "sha256": "2a646002e5b094c2cffe0a3c10d5cade4d5374febd2ece3b6550339b30b05734"
+    },
+    {
+      "path": "W1-OBSERVED.jsonl",
+      "sha256": "208c94fa7d6b6e04785813bbee0af1e84a49cda907ba12a2cfbf48f1f0da841d"
+    },
+    {
+      "path": "W1-SIDECAR-INTENT.json",
+      "sha256": "4cd70d1c884c4643010338b0502d765671fe19cb80d370a8f23cb50b09130312"
+    },
+    {
+      "path": "W1-SIDECAR-LAUNCH.json",
+      "sha256": "a937a843a31a727eae48059c5a2fc748d79f7c23b612a1780bc6d624065bae20"
+    },
+    {
+      "path": "W1-SIDECAR-OBSERVED.jsonl",
+      "sha256": "12d84216edf655d808f681ae3350842ccb40ffffe35debf16929be7eef1ab8a0"
+    },
+    {
+      "path": "W1-SIDECAR-VERDICT.json",
+      "sha256": "885bf5656ff793d7c057589bfa3b96abfb6ddd4f9863b27e65b10906c8829837"
+    },
+    {
+      "path": "W1-TEST-RECEIPT.json",
+      "sha256": "b4d913f9e89590375171eddec281ab0ae35b58952e361222d0b10b92b522d3a5"
+    },
+    {
+      "path": "W1-VERDICT.json",
+      "sha256": "9309b19aa5b3565fd0b9d1d9127aac7f28144320fc15386d8ed79e1b6284bd50"
+    },
+    {
+      "path": "w1_auditable.py",
+      "sha256": "00488082df90e6af42172d9836e7d35f4daa8ef9253619ec470b13058546ecca"
+    }
+  ],
+  "integration_commit": "31a39ee6",
+  "source_baseline": "fe0c55e0a952e0048ff6bd3ddb8ab9419cd1dc0d",
+  "overwrite": false,
+  "live_deployment": false
+}

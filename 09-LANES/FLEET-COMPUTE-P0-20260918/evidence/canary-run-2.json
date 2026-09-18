@@ -1,0 +1,47 @@
+{
+ "decision": {
+  "schema": "compute_decision.v1",
+  "at_utc": "2026-09-18T00:23:26Z",
+  "mode": "canary",
+  "owner_pause": false,
+  "reclaimed_leases": [],
+  "queued_task": "task-9899614295aa1414",
+  "profile": "cpu_bench",
+  "synthetic_arrival": {
+   "profile": "cpu_bench",
+   "params": {},
+   "input_digest": "446b3676ba98edb70667829947c8292f66e336ab3f53054d3d198c635308a13a",
+   "idempotency_key": "auto-cpu_bench-2026-09-18T00:23:24Z",
+   "enqueued": true
+  },
+  "chosen_node": "114",
+  "chosen_score": 205.087,
+  "reason": null,
+  "evaluated": [
+   {
+    "node_id": "114",
+    "admit": true,
+    "verdict": "ADMIT",
+    "reasons": [],
+    "score": 205.087,
+    "capable": true,
+    "headroom": {
+     "cores": 8,
+     "usable_cores": 7,
+     "load1": 0.35,
+     "cpu_pct": 1.0,
+     "hottest_millic": 24071,
+     "mem_avail_mb": 3640
+    }
+   }
+  ]
+ },
+ "dispatched": {
+  "ok": true,
+  "status": "SUCCEEDED",
+  "duplicate": false,
+  "output_digest": "67a416e20747a90f",
+  "cgroup_envelope": "VERIFIED",
+  "duration_s": 10.028
+ }
+}

@@ -1,0 +1,10 @@
+0c703032dc410252ee1beab14cf640c6fcc188794cfd81c08b4ac716c8727585  /opt/octopus-restore-copies/p3-20260915T033708Z/p3-fleet-state.tar
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-jobs/schemas/fleet_job.v1.schema.json
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-jobs/idempotency_index.json
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-jobs/fleet_jobs.jsonl
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-jobs/__pycache__/fleet_job_sm.cpython-313.pyc
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-jobs/fleet_job_sm.py
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-memory/schemas/fleet_decision.v1.schema.json
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-memory/schemas/fleet_fact.v1.schema.json
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-memory/schemas/fleet_hypothesis.v1.schema.json
+/opt/octopus-restore-copies/p3-20260915T033708Z/state/fleet-memory/fleet_facts.jsonl

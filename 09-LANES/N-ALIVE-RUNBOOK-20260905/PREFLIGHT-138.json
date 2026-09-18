@@ -1,0 +1,33 @@
+{
+  "schema": "preflight-138/1",
+  "lane": "N-ALIVE-RUNBOOK-20260905",
+  "this_host": "DESKTOP-KA9RFN5 / 192.168.0.191",
+  "fresh_138_ssh_this_session": false,
+  "A1_gates": {
+    "file_on_this_vault": false,
+    "cited": "09-LANES/U-WHY-NOT-LIVE-20260905/PLAN-EXECUTE-RECEIPT.json gates_probe",
+    "keys_reported": ["ads_budget", "as_of", "cognitive_wake", "four_drafts", "google_publish", "gst_display", "laptop_role", "m5_owner_release", "owner", "painting", "schema", "shipping_policy", "social", "ssh_inter_board", "studio"],
+    "HOLD_EXTERNAL_key": false,
+    "m5_owner_release": "ACTIVE_REAL_SEND_AUTHORIZED",
+    "as_of": "2026-09-04T04:30:00Z",
+    "freshness": "prior_receipt_not_rehashed_here"
+  },
+  "A2_autosender": {
+    "verdict": "UNKNOWN",
+    "reason": "no fresh 138 timer/unit census this session; runbook stop rule applies"
+  },
+  "A3_telegram_path": {
+    "verdict": "UNKNOWN",
+    "note": "IGN-1 send was a manual script on 138 with HALT test first; that does not answer whether a flag-triggered loop exists now"
+  },
+  "A4_ledger": {
+    "last_row_this_session": "not_read",
+    "prior_ign1": "06-EVIDENCE/IGN1-2026-09-05/IGN1-CLOSEOUT-RECEIPT.json message_id=1676 sent_at_utc=2026-09-05T06:53:37Z"
+  },
+  "A5_rollback": {
+    "season5_md": "not touched; no pre-image write required",
+    "phase_c_files": "not opened"
+  },
+  "AUTOSENDER_ARMED": "UNKNOWN",
+  "hard_stop": "AUTOSENDER_ARMED != false → no flag change; skip to Phase D per runbook"
+}

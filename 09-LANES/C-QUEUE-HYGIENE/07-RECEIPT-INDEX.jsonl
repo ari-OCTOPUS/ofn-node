@@ -1,0 +1,14 @@
+{"ts":"2026-09-03T09:00:00Z","kind":"git","command":"git rev-parse --show-toplevel; git rev-parse HEAD; git branch --show-current","exit":0,"cwd":"F:/backup","artifact":"09-LANES/C-QUEUE-HYGIENE/01-RUNTIME-TRUTH-CURRENT.md"}
+{"ts":"2026-09-03T09:00:00Z","kind":"git","command":"git status --porcelain","exit":0,"cwd":"F:/backup","artifact":"09-LANES/C-QUEUE-HYGIENE/receipts/git-porcelain-20260903T0900Z.txt","porcelain_lines":423}
+{"ts":"2026-09-03T09:00:00Z","kind":"inventory","command":"Get-Process | Export-Csv; Get-NetTCPConnection -State Listen; Get-ScheduledTask","exit":0,"artifacts":["receipts/processes-20260903T0900Z.csv","receipts/listen-20260903T0900Z.csv","receipts/scheduled-tasks-20260903T0900Z.csv"],"counts":{"process":362,"listen":38,"tasks":205}}
+{"ts":"2026-09-03T09:02:18Z","kind":"doctor-hash","command":"Get-FileHash SHA256 on doctor artifacts","exit":0,"artifact":"09-LANES/C-QUEUE-HYGIENE/01-RUNTIME-TRUTH-CURRENT.md"}
+{"ts":"2026-09-03T09:05:00Z","kind":"pytest","command":"python -m pytest --collect-only -q _ops/tests -k doctor|owner_absence|telegram_glass|cockpit|outbox|worker","exit":3,"elapsed_s":275.99,"note":"INTERNALERROR test_adr033_control_plane.py sys.exit"}
+{"ts":"2026-09-03T09:09:00Z","kind":"pytest","command":"python -m pytest -q _ops/tests -k same","exit":3,"elapsed_s":11.12,"note":"no tests ran"}
+{"ts":"2026-09-03T09:10:00Z","kind":"pytest","command":"python -m pytest -q --tb=line six named doctor/cockpit/outbox files","exit":0,"elapsed_s":3.89,"summary":"5 passed in 2.48s","artifact":"receipts/pytest-narrow-20260903T0910Z.txt"}
+{"ts":"2026-09-03T09:10:00Z","kind":"runtime-truth","artifact":"receipts/runtime-truth-20260903T0900Z.json"}
+{"ts":"2026-09-03T09:10:00Z","kind":"test-matrix","artifact":"receipts/test-matrix-20260903T0910Z.json"}
+{"ts":"2026-09-03T09:13:57Z","kind":"git","command":"git rev-parse HEAD; git status --porcelain","exit":0,"porcelain_lines":426,"artifact":"receipts/git-porcelain-20260903T0912Z.txt"}
+{"ts":"2026-09-03T09:13:57Z","kind":"runtime-truth","artifact":"receipts/runtime-truth-20260903T0912Z.json","note":"8776 pid 25636->6912; porcelain 423 vs 426 open"}
+{"ts":"2026-09-03T09:14:00Z","kind":"pytest","command":"python -m pytest -q --tb=line six named files","exit":0,"elapsed_s":3.67,"summary":"5 passed in 1.98s","artifact":"receipts/pytest-narrow-20260903T0912Z.txt"}
+{"ts":"2026-09-03T09:14:00Z","kind":"test-matrix","artifact":"receipts/test-matrix-20260903T0912Z.json"}
+{"ts":"2026-09-03T09:14:00Z","kind":"ingest","lane_a":"06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/LANE-A-R0-BUSINESS-IDENTITY-2026-09-03.md","lane_b":"06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/LANE-B-PULSE-IMAP-DIAGNOSIS-2026-09-03.md"}

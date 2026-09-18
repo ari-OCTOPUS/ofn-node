@@ -1,0 +1,24 @@
+T0_START 2026-09-15T03:11:29Z
+=== node 138 ===
+node=138 exit=0
+=== node 180 ===
+node=180 exit=0
+=== node 182 ===
+node=182 exit=0
+=== node 100 ===
+node=100 exit=0
+=== node 160 ===
+node=160 exit=0
+=== node 193 ===
+node=193 exit=0
+=== node 114 ===
+node=114 exit=0
+wrote /tmp/t0-receipts-20260915/fleet-inventory-t0.json rows 7
+138 trixie librknnrt=3 octopus-bridge.service,octopus-control-router.serv OK
+180 trixie librknnrt=0 octopus-afferent-lab.service,octopus-gateway.servi OK
+182 trixie librknnrt=0 octopus-fusiond.service,octopus-metacontrol.servic OK
+100 trixie librknnrt=0 NONE OK
+160 trixie librknnrt=0 NONE OK
+193 trixie librknnrt=0 NONE OK
+114 trixie librknnrt=0 NONE OK
+T0_END 2026-09-15T03:11:42Z

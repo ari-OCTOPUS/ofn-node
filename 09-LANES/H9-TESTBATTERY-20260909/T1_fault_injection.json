@@ -1,0 +1,148 @@
+{
+ "test": "T1_failclosed_corruption",
+ "method": "unit-level archive_seed on tmp copies; real memory file untouched",
+ "locked_criteria": {
+  "case_pass": "no crash AND (seed_error OR structurally valid non-fabricated seed); 100k case < 60s",
+  "overall": "FAIL if any required case fails; PARTIAL if only extras fail"
+ },
+ "cases": [
+  {
+   "case": "missing_file",
+   "required": true,
+   "elapsed_s": 0.0001,
+   "no_crash": true,
+   "exception": null,
+   "seed_error": "FileNotFoundError",
+   "n_store": 0,
+   "n_seeded": 0,
+   "structurally_valid": true,
+   "fabricated": false,
+   "pass": true
+  },
+  {
+   "case": "corrupt_json_midline",
+   "required": true,
+   "elapsed_s": 0.0054,
+   "no_crash": false,
+   "exception": "JSONDecodeError: Invalid control character at: line 1 column 47 (char 46)",
+   "seed_error": null,
+   "n_store": null,
+   "n_seeded": 0,
+   "structurally_valid": false,
+   "fabricated": false,
+   "pass": false
+  },
+  {
+   "case": "row_without_gist",
+   "required": true,
+   "elapsed_s": 0.0059,
+   "no_crash": true,
+   "exception": null,
+   "seed_error": null,
+   "n_store": 3,
+   "n_seeded": 3,
+   "structurally_valid": true,
+   "fabricated": false,
+   "pass": true
+  },
+  {
+   "case": "salience_nan",
+   "required": true,
+   "elapsed_s": 0.0059,
+   "no_crash": true,
+   "exception": null,
+   "seed_error": null,
+   "n_store": 3,
+   "n_seeded": 3,
+   "structurally_valid": true,
+   "fabricated": false,
+   "pass": true
+  },
+  {
+   "case": "salience_string",
+   "required": true,
+   "elapsed_s": 0.0064,
+   "no_crash": false,
+   "exception": "ValueError: could not convert string to float: 'high'",
+   "seed_error": null,
+   "n_store": null,
+   "n_seeded": 0,
+   "structurally_valid": false,
+   "fabricated": false,
+   "pass": false
+  },
+  {
+   "case": "empty_file",
+   "required": true,
+   "elapsed_s": 0.0001,
+   "no_crash": true,
+   "exception": null,
+   "seed_error": null,
+   "n_store": 0,
+   "n_seeded": 0,
+   "structurally_valid": true,
+   "fabricated": false,
+   "pass": true
+  },
+  {
+   "case": "row_not_dict",
+   "required": false,
+   "elapsed_s": 0.0056,
+   "no_crash": false,
+   "exception": "AttributeError: 'list' object has no attribute 'get'",
+   "seed_error": null,
+   "n_store": null,
+   "n_seeded": 0,
+   "structurally_valid": false,
+   "fabricated": false,
+   "pass": false
+  },
+  {
+   "case": "invalid_utf8",
+   "required": false,
+   "elapsed_s": 0.0062,
+   "no_crash": false,
+   "exception": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 21: invalid start byte",
+   "seed_error": null,
+   "n_store": null,
+   "n_seeded": 0,
+   "structurally_valid": false,
+   "fabricated": false,
+   "pass": false
+  },
+  {
+   "case": "memory_is_dir",
+   "required": false,
+   "elapsed_s": 0.0001,
+   "no_crash": true,
+   "exception": null,
+   "seed_error": "PermissionError",
+   "n_store": 0,
+   "n_seeded": 0,
+   "structurally_valid": true,
+   "fabricated": false,
+   "pass": true
+  },
+  {
+   "case": "big_100k",
+   "required": true,
+   "rows": 100000,
+   "elapsed_s": 0.491,
+   "bar_s": 60.0,
+   "exception": null,
+   "n_store": 100000,
+   "n_seeded": 3,
+   "pass": true
+  }
+ ],
+ "required_failures": [
+  "corrupt_json_midline",
+  "salience_string"
+ ],
+ "extra_failures": [
+  "row_not_dict",
+  "invalid_utf8"
+ ],
+ "verdict": "FAIL",
+ "ran_at_utc": "2026-09-08T11:47:18Z"
+}

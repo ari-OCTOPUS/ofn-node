@@ -1,0 +1,28 @@
+T1_START 2026-09-15T03:15:19Z
+=== provision 100 ===
+need_py=0 need_git=0
+APT_SKIP_100 already present
+HEARTBEAT_EXIT_100=0
+=== provision 160 ===
+need_py=0 need_git=0
+APT_SKIP_160 already present
+HEARTBEAT_EXIT_160=0
+=== provision 193 ===
+need_py=0 need_git=1
+APT_INSTALL git on 193
+APT_EXIT_193=0
+HEARTBEAT_EXIT_193=0
+=== provision 114 ===
+need_py=1 need_git=1
+APT_INSTALL python3 git on 114
+APT_EXIT_193=0
+HEARTBEAT_EXIT_193=0
+=== provision 114 ===
+need_py=1 need_git=1
+APT_INSTALL python3 git on 114
+APT_EXIT_114=100
+HEARTBEAT_EXIT_114=127
+T1_END 2026-09-15T03:15:42Z
+APT_EXIT_114=0
+HEARTBEAT_EXIT_114=0
+T1_END 2026-09-15T03:16:32Z

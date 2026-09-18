@@ -1,0 +1,4 @@
+collection_id,title,slug,sensitivity,created_at,tenant_id,genre
+album-0001,label_hash:c8ff03f42c55,album-0001,restricted,1785939708,studio,
+album-0002,label_hash:c60d8e634169,album-0002,restricted,1786009176,studio,
+album-unlock-20260822,unlock-queue,album-unlock-20260822,general,1787402492,studio,

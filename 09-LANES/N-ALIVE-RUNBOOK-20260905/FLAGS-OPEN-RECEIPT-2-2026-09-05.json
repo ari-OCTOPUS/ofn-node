@@ -1,0 +1,43 @@
+{
+  "schema": "octopus.flags-open.receipt.v1",
+  "ts_utc": "2026-09-05T10:22:00Z",
+  "lane": "N-ALIVE-RUNBOOK-20260905",
+  "gov_version": "V8",
+  "ladder": "L0",
+  "network": false,
+  "send": false,
+  "ssh_138": false,
+  "organism_restarted": false,
+  "owner_answers": {
+    "reload": ["organism_306"],
+    "file_next": ["fugu_gate"],
+    "node_next": ["memory_138"]
+  },
+  "flipped_on_this_host": [
+    {
+      "key": "FUGU_VIA_CENTRAL_GATE",
+      "from": "0",
+      "to": "1",
+      "file": "_ops/OCTOPUS-flags.cmd",
+      "line": 1486
+    }
+  ],
+  "pre_image_sha256": "8ab19fba0895a6085d13abbc91683fe3b192888bbd650ef87246add5135f6493",
+  "post_image_sha256": "731227ea75563a28ba77a862cd6287a7ddf29c4b6438fe2a43173ed4e4a1ad44",
+  "pre_bytes": 78077,
+  "post_bytes": 78077,
+  "blocked": {
+    "organism_306": "ORGANISM-306-BLOCKED.md",
+    "reason": "launcher parent dead; opslib.py wiring.py live_loop.py center.py missing"
+  },
+  "paper_gos": [
+    "OWNER-GO-MEMORY-138-2026-09-05.md"
+  ],
+  "left_zero": [
+    "EXTERNAL_ACTIONS",
+    "OCTOPUS_WHISPER_ALLOW_DOWNLOAD",
+    "OCTOPUS_IMPROVE_REFRACTORY_H",
+    "IMPROVE_REFRACTORY_H"
+  ],
+  "rollback": "set FUGU_VIA_CENTRAL_GATE=0 (pre sha256 8ab19fba…) · do not write STOP-ORGANISM"
+}

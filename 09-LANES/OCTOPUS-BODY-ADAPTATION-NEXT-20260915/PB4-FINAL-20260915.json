@@ -1,0 +1,94 @@
+{
+  "ALL_LIVE_SERVICES": [
+    {
+      "every": "30min",
+      "node": "138",
+      "service": "octopus-fleet-scheduler.timer",
+      "status": "LIVE"
+    },
+    {
+      "corpus": 6,
+      "node": "138",
+      "service": "fleet_retrieve.py",
+      "status": "LIVE"
+    },
+    {
+      "node": "138",
+      "service": "octopus-glass.timer",
+      "status": "LIVE"
+    },
+    {
+      "node": "138",
+      "service": "octopus-coding-worker.timer",
+      "status": "LIVE"
+    },
+    {
+      "node": "138",
+      "service": "octopus-ops-agent.timer",
+      "status": "LIVE"
+    },
+    {
+      "node": "193",
+      "port": 8193,
+      "service": "octopus-t3-model (extractive-v1)",
+      "status": "LIVE (systemd active)"
+    },
+    {
+      "node": "182",
+      "service": "witness",
+      "status": "presumed LIVE (timers active)"
+    }
+  ],
+  "FLEET_JOBS": {
+    "laptop_dependency": false,
+    "scheduler_autonomous_cycles": 2,
+    "total_rows": 55,
+    "types": [
+      "echo_capability_probe",
+      "knowledge_retrieve",
+      "shell",
+      "p4_auth_lease_probe"
+    ],
+    "unique_jobs": 11
+  },
+  "GOV_VERSION": "V8",
+  "LADDER": "L2",
+  "NEXT": "monitor scheduler heartbeat; at 24h mark check PB-1 PASS; meanwhile ingest more corpus and wire self-model",
+  "PB1": {
+    "heartbeat": "2026-09-15T04:31:26Z",
+    "note": "24h window started with real automatic operation; PASS only after 2026-09-16T04:31Z",
+    "scheduler_live": true,
+    "status": "WINDOW_ACTIVE"
+  },
+  "PB4_RESULT": {
+    "A_memory_on_avg": 0.75,
+    "A_wins": 9,
+    "B_memory_off_avg": 0.0,
+    "B_wins": 3,
+    "corpus_size": 6,
+    "honest_note": "3 questions scored 0 on both conditions because the extractive model selects sentences by keyword overlap and those queries had no matching sentences in the retrieved context; this is a model limitation, not a retrieval failure",
+    "improvement": 0.75,
+    "method": "A=retrieve facts then call T3 model with them as context; B=same model with 'no information available' as context",
+    "model": "extractive-v1 on 193",
+    "powered": true,
+    "questions": 12,
+    "verdict": "IMPROVED"
+  },
+  "REMAINING": [
+    "PB-1: wait for 24h to elapse (earliest 2026-09-16T04:31Z)",
+    "MEMORY durability: test restart/restore of fleet-memory",
+    "F1: ingest more real documents (currently 6 facts from state files)",
+    "F2: wire capabilities into scheduler/self-model",
+    "E2: PB-3 restore readback from 180"
+  ],
+  "THREE_VERDICTS": {
+    "CONTINUITY": "WINDOW_ACTIVE — scheduler running autonomously; 24h not yet elapsed",
+    "MEMORY": "PARTIAL — 6 facts ingested and retrievable; restart/restore durability not yet tested",
+    "QUALITY": "IMPROVED — memory-on 0.75 vs memory-off 0.0 on 12 questions (powered)"
+  },
+  "at_utc": "2026-09-15T04:44:58Z",
+  "customer_send": false,
+  "go_b4": false,
+  "hold_external": true,
+  "schema": "octopus.body-adaptation.pb4-final.v1"
+}

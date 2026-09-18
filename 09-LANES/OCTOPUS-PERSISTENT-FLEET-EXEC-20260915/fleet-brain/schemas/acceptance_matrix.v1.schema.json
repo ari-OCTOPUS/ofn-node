@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/acceptance_matrix.v1.schema.json",
+  "title": "acceptance_matrix.v1",
+  "description": "P6 owner acceptance matrix for PB-1…PB-6. Honest PASS/FAIL/NOT_RUN/UNKNOWN/IN_PROGRESS. No early PASS on PB-1 without wall-clock ≥24h. HOLD customer_send.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "matrix_id",
+    "created_at",
+    "next_sha256",
+    "commander_node_id",
+    "customer_send",
+    "overall",
+    "tests"
+  ],
+  "properties": {
+    "schema": { "const": "acceptance_matrix.v1" },
+    "matrix_id": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "minLength": 1 },
+    "updated_at": { "type": "string" },
+    "next_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "NEXT megaprompt SoT (expect 7ab84e03…)"
+    },
+    "proposal_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "commander_node_id": { "const": "138" },
+    "customer_send": { "const": false },
+    "dual_commander": { "const": false },
+    "overall": {
+      "type": "string",
+      "enum": ["OPEN", "IN_PROGRESS", "PASS", "PASS_WITH_CAVEAT", "FAIL", "NOT_RUN"]
+    },
+    "overall_notes": { "type": "string" },
+    "tests": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/pb_row" }
+    }
+  },
+  "$defs": {
+    "pb_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "status",
+        "witness_receipt_sha256",
+        "started_at",
+        "ended_at",
+        "notes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": ["PB-1", "PB-2", "PB-3", "PB-4", "PB-5", "PB-6"]
+        },
+        "name": { "type": "string", "minLength": 1 },
+        "status": {
+          "type": "string",
+          "enum": ["NOT_RUN", "IN_PROGRESS", "PASS", "PASS_WITH_CAVEAT", "FAIL", "UNKNOWN"]
+        },
+        "witness_receipt_path": { "type": ["string", "null"] },
+        "witness_receipt_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^([a-f0-9]{64})?$"
+        },
+        "started_at": {
+          "type": ["string", "null"],
+          "description": "UTC wall clock; required non-null when IN_PROGRESS or PASS for PB-1"
+        },
+        "ended_at": { "type": ["string", "null"] },
+        "wall_clock_hours": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "PB-1: must be ≥24 for PASS; no early PASS"
+        },
+        "caveats": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

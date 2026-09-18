@@ -1,0 +1,95 @@
+{
+  "schema": "p4_role_matrix.v1",
+  "stamp_utc": "2026-09-15T03:44:56Z",
+  "arch_design_sha256": "8b0a5e03c4df626cb735a54ba16e0a02c948f23c9a9066d7fe0354e107316cd2",
+  "sec_addendum_sha256": "db62b3357c24f464b047926a51132829f08f7dc9222f58bcf4df033d59f2a0a9",
+  "registry_schema_sha256": "47d76eeb9639689388d9737cdaeb5dc6b7f3ba2c1377fbd18af5ca8b718d9bb2",
+  "method": "mesh_ssh",
+  "credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+  "rows": [
+    {
+      "node_id": "138",
+      "bind_role": "commander",
+      "auth_status": "OK",
+      "lease_eligible": false,
+      "commander": true,
+      "may_authorize": false,
+      "customer_send": false,
+      "credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "boot_id_at_enroll": "4f3f2c05-5703-4cbb-92c3-6fed8ff708bd",
+      "hostname": "DietPi"
+    },
+    {
+      "node_id": "180",
+      "bind_role": "quality_restore_copy_RO",
+      "auth_status": "OK",
+      "lease_eligible": false,
+      "commander": false,
+      "may_authorize": false,
+      "customer_send": false,
+      "credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "boot_id_at_enroll": "94c9f38e-495b-4ff7-a5d2-f902c618e4fd",
+      "hostname": "octopus-continuity-180"
+    },
+    {
+      "node_id": "182",
+      "bind_role": "lab_witness",
+      "auth_status": "OK",
+      "lease_eligible": false,
+      "commander": false,
+      "may_authorize": false,
+      "customer_send": false,
+      "credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "boot_id_at_enroll": "7a4e237a-8c2c-40e2-a429-f39ebbe21551",
+      "hostname": "sensorium-opi5pro"
+    },
+    {
+      "node_id": "100",
+      "bind_role": "knowledge_retrieve",
+      "auth_status": "OK",
+      "lease_eligible": true,
+      "commander": false,
+      "may_authorize": false,
+      "customer_send": false,
+      "credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "boot_id_at_enroll": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a",
+      "hostname": "octopus-compute-100"
+    },
+    {
+      "node_id": "160",
+      "bind_role": "knowledge_prep",
+      "auth_status": "OK",
+      "lease_eligible": true,
+      "commander": false,
+      "may_authorize": false,
+      "customer_send": false,
+      "credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "boot_id_at_enroll": "bacb05a6-b351-4531-a232-371d3a32c2a6",
+      "hostname": "octopus-compute-160"
+    },
+    {
+      "node_id": "193",
+      "bind_role": "model_infer",
+      "auth_status": "OK",
+      "lease_eligible": true,
+      "commander": false,
+      "may_authorize": false,
+      "customer_send": false,
+      "credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "boot_id_at_enroll": "92a8e9fd-d7cd-4b91-a1a9-af8d92a2f46b",
+      "hostname": "octopus-model-plus-193"
+    },
+    {
+      "node_id": "114",
+      "bind_role": "eval_batch",
+      "auth_status": "OK",
+      "lease_eligible": true,
+      "commander": false,
+      "may_authorize": false,
+      "customer_send": false,
+      "credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+      "boot_id_at_enroll": "b7a638d4-adb7-4f15-a1d6-01986fa65c69",
+      "hostname": "octopus-pro-114"
+    }
+  ]
+}

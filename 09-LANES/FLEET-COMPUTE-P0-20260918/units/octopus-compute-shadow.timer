@@ -1,0 +1,13 @@
+[Unit]
+Description=OCTOPUS fleet-compute shadow decision cycle timer (every 5 min)
+Documentation=file:///home/ari/ofn/state/fleet-compute/decisions.jsonl
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Persistent=true
+Unit=octopus-compute-shadow.service
+
+[Install]
+WantedBy=timers.target

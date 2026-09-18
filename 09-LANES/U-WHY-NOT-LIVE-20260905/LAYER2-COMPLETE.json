@@ -1,0 +1,83 @@
+{
+  "schema": "octopus.layer2-complete.v1",
+  "measured_at": "2026-09-05T15:59:33+10:00",
+  "measured_at_utc": "2026-09-05T05:59:33Z",
+  "vantage": "ssh_from_laptop_191",
+  "scope": "node138_only",
+  "claim_type": "observation",
+  "live_organism_claim": false,
+  "layer": 2,
+  "ssh_exit": 0,
+  "canonical_body": "node138",
+  "status": "complete",
+  "pass": true,
+  "ofn_legs_healthz_200": true,
+  "leg_roles": {
+    "8791": "ziman",
+    "8792": "lead",
+    "8793": "studio",
+    "8794": "owner",
+    "role_source": "F:/ofn-node/ofn/config.py:294"
+  },
+  "8796_cmd": "python3 -m octopus_bridge.run",
+  "8796_pid": 2986615,
+  "ofn_pid": 2986361,
+  "remote": {
+    "ss": {
+      "8791": [
+        "LISTEN 0      5          127.0.0.1:8791       0.0.0.0:*    users:((\"python3\",pid=2986361,fd=42))"
+      ],
+      "8792": [
+        "LISTEN 0      5          127.0.0.1:8792       0.0.0.0:*    users:((\"python3\",pid=2986361,fd=43))"
+      ],
+      "8793": [
+        "LISTEN 0      5          127.0.0.1:8793       0.0.0.0:*    users:((\"python3\",pid=2986361,fd=44))"
+      ],
+      "8794": [
+        "LISTEN 0      5          127.0.0.1:8794       0.0.0.0:*    users:((\"python3\",pid=2986361,fd=45))"
+      ],
+      "8796": [
+        "LISTEN 0      5          127.0.0.1:8796       0.0.0.0:*    users:((\"python3\",pid=2986615,fd=6))"
+      ]
+    },
+    "healthz": {
+      "8791": {
+        "port": 8791,
+        "http": 200,
+        "ok": true,
+        "err": null,
+        "n": 12
+      },
+      "8792": {
+        "port": 8792,
+        "http": 200,
+        "ok": true,
+        "err": null,
+        "n": 12
+      },
+      "8793": {
+        "port": 8793,
+        "http": 200,
+        "ok": true,
+        "err": null,
+        "n": 12
+      },
+      "8794": {
+        "port": 8794,
+        "http": 200,
+        "ok": true,
+        "err": null,
+        "n": 12
+      },
+      "8796": {
+        "port": 8796,
+        "http": 200,
+        "ok": true,
+        "err": null,
+        "n": 38
+      }
+    }
+  },
+  "node180": "auth_failed_not_in_this_layer",
+  "source": "verify_layer2.py"
+}

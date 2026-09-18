@@ -1,0 +1,25 @@
+[Unit]
+Description=OCTOPUS fleet-compute CANARY cycle (Phase 2: one board, cgroup-bounded, real dispatch)
+Documentation=file:///home/ari/ofn/state/fleet-compute/cockpit.json
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn/state/fleet-compute
+# Phase 2 soak. Conservative on purpose: one node (114, pinned by
+# allowed_nodes in compute_config.canary.json), two cores' worth of quota
+# (CPUQuota=200%), a bounded 30 s task, one task per cycle. The board has been
+# measured at 23-29 C idle and 29.6 C peak under a sustained 4-core load.
+ExecStart=/usr/bin/python3 /home/ari/ofn/tools/compute_scheduler.py --config /home/ari/ofn/state/fleet-compute/compute_config.canary.json --state /home/ari/ofn/state/fleet-compute --once --auto-enqueue --auto-profile cpu_bench --auto-seconds 30 --auto-workers 8 --cgroup-quota 200%
+TimeoutStartSec=300
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+CPUWeight=50
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

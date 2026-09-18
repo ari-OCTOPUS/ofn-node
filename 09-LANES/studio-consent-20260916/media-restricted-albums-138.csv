@@ -1,0 +1,3 @@
+media_id,collection_id,attest_bind_collection,via,mime,byte_size,has_original,added_at,archived_at,rating,taken_at,taken_source,category,path_rel,path_file_count
+shot-0002,album-0002,album-0002,collection_id=album-0002|draft_media:album-unlock-20260822,image/jpeg,162171,1,1786003238,,0,1783075331,file,,studio/shot-0002/0-1600.jpg;studio/shot-0002/0-320.jpg;studio/shot-0002/0-original.jpg,3
+shot-0020,album-0002,album-0002,collection_id=album-0002|draft_media:album-unlock-20260822,image/jpeg,588339,1,1786112921,,0,1785843409,file,,studio/shot-0020/0-1600.jpg;studio/shot-0020/0-320.jpg;studio/shot-0020/0-original.jpg,3

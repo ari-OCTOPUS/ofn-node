@@ -1,0 +1,37 @@
+{
+  "schema": "auth_proof_index.v1",
+  "verifier": "138",
+  "method": "mesh_ssh",
+  "mesh_credential_fingerprint": "SHA256:vuyFXOS/CAXrxWbXlQSgq9eDB+MklKq1KkGJW4435as",
+  "verified_at": "2026-09-15T03:44:56Z",
+  "commander_node_id": "138",
+  "may_authorize": false,
+  "customer_send": false,
+  "proofs": {
+    "100": {
+      "auth_status": "OK",
+      "path": "proofs/auth_proof.v1.100.json",
+      "hostname": "octopus-compute-100",
+      "boot_id": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a"
+    },
+    "160": {
+      "auth_status": "OK",
+      "path": "proofs/auth_proof.v1.160.json",
+      "hostname": "octopus-compute-160",
+      "boot_id": "bacb05a6-b351-4531-a232-371d3a32c2a6"
+    },
+    "193": {
+      "auth_status": "OK",
+      "path": "proofs/auth_proof.v1.193.json",
+      "hostname": "octopus-model-plus-193",
+      "boot_id": "92a8e9fd-d7cd-4b91-a1a9-af8d92a2f46b"
+    },
+    "114": {
+      "auth_status": "OK",
+      "path": "proofs/auth_proof.v1.114.json",
+      "hostname": "octopus-pro-114",
+      "boot_id": "b7a638d4-adb7-4f15-a1d6-01986fa65c69"
+    }
+  },
+  "all_ok": true
+}

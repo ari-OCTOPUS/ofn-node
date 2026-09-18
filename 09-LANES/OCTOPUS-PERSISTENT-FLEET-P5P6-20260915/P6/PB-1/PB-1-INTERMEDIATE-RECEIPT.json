@@ -1,0 +1,66 @@
+{
+    "schema": "PB-1-INTERMEDIATE-RECEIPT",
+    "status": "CLOSED",
+    "window_start_utc": "2026-09-15T04:03:36Z",
+    "window_end_utc": "2026-09-16T04:17:42Z",
+    "wall_clock_hours_elapsed_at_write": 24.235,
+    "pass_rule": "PASS only after >=24.0 real wall-clock hours; this receipt is START ONLY",
+    "sample_job": {
+        "job_id": "job-432175b362774fae",
+        "idempotency_key": "pb1-sample-100-1789445016",
+        "final_state": "CLOSED",
+        "worker_node_id": "100",
+        "result_hash": "20f96048585c74e3d8dc46e64b155eb4a6654833a0abfd9ed852d89ecc5a2875",
+        "receipt_id": "rcpt-pb1-job-432175b362774fae",
+        "hostname": "octopus-compute-100",
+        "boot_id": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a",
+        "external_effects": 0
+    },
+    "critical_path_inventory": [
+        {
+            "step": "enqueue",
+            "host": "138",
+            "component": "fleet_job_sm.create_job",
+            "laptop_required": false
+        },
+        {
+            "step": "queue",
+            "host": "138",
+            "component": "/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl",
+            "laptop_required": false
+        },
+        {
+            "step": "lease_authority",
+            "host": "138",
+            "component": "fleet_job_sm.transition LEASED",
+            "laptop_required": false
+        },
+        {
+            "step": "worker_compute",
+            "host": "100",
+            "component": "echo_capability_probe result write",
+            "laptop_required": false
+        },
+        {
+            "step": "receipt_writer",
+            "host": "138",
+            "component": "ACK_RESULT->PERSISTED->CLOSED",
+            "laptop_required": false
+        }
+    ],
+    "laptop_in_critical_path": false,
+    "laptop_dependency_probe": "NOT_YET â€” full probe requires soak window; orchestration SSH from laptop is out-of-band witness only",
+    "bus": "jsonl_138",
+    "nats_durability": "NOT_CLAIMED",
+    "jetstream_consumers": 0,
+    "customer_send": false,
+    "commander_node_id": "138",
+    "dual_commander": false,
+    "sec_p6_sha256": "9cd862efcad4ee98cb021913c1a92ab5d1fc7766915ce47e2a646bcbb72c9c3c",
+    "design_sha256": "4dea603014747a966bfaf9da3dd40b2378f283b462b4ed83923095920140851b",
+    "last_watch_tick_utc": "2026-09-16T04:20:45Z",
+    "last_watch_note": "soak watch >=24h: adopted PC_CLOSE PASS_WITH_CAVEAT; matrix ac4dbb18...; routine delete next; HOLD customer_send",
+    "final_outcome": "PASS_WITH_CAVEAT",
+    "close_receipt_path": "P6/PB-1/PB-1-CLOSE-RECEIPT-20260916.json",
+    "close_receipt_sha256": "8a24e456395a808397f49f1e660934ea565017e54ce41dc9b9222db9ad9c03fb"
+}

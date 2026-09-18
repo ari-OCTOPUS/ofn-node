@@ -1,0 +1,65 @@
+--- a/src/octopus_sensorium/snapshot.py
++++ b/src/octopus_sensorium/snapshot.py
+@@ -73,18 +73,52 @@
+     return seq
+ 
+ 
++class JournalWriteError(OSError):
++    """Durability is uncertain. Stop the writer; do not advance live state."""
++
++
+ def append_event(event: dict[str, Any], journal: Path = DEFAULT_JOURNAL) -> dict[str, Any]:
+-    journal.parent.mkdir(parents=True, exist_ok=True)
+-    seq = _last_seq(journal)
+-    event = {"seq": seq + 1, **event}
+-    line = json.dumps(event, separators=(",", ":"), ensure_ascii=False) + "\n"
+-    fd = os.open(journal, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o640)
++    return append_events([event], journal)[0]
++
++
++def append_events(events: list[dict[str, Any]], journal: Path = DEFAULT_JOURNAL) -> list[dict[str, Any]]:
++    """Single-writer batch, durable before return. No acknowledgment before fsync.
++
++    Explicit API only: callers must not project/publish any event before return.
++    The live app still uses append_event; batched consumer integration is separate.
++    """
++    if len(events) > 100:
++        raise ValueError("journal batch exceeds 100 events")
++    if not events:
++        return []
+     try:
+-        os.write(fd, line.encode("utf-8"))
+-        os.fsync(fd)
+-    finally:
+-        os.close(fd)
+-    return event
++        journal.parent.mkdir(parents=True, exist_ok=True)
++        if journal.exists() and journal.stat().st_size:
++            with journal.open("rb") as handle:
++                handle.seek(-1, os.SEEK_END)
++                if handle.read(1) != b"\n":
++                    raise OSError("torn journal tail requires explicit recovery; append refused")
++        seq = _last_seq(journal)
++        # The caller cannot override the journal sequence.
++        records = [{"seq": seq + offset, **{k: v for k, v in event.items() if k != "seq"}}
++                   for offset, event in enumerate(events, 1)]
++        lines = [(json.dumps(event, separators=(",", ":"), ensure_ascii=False) + "\n").encode("utf-8")
++                 for event in records]
++        fd = os.open(journal, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o640)
++        try:
++            for line in lines:
++                pending = memoryview(line)
++                while pending:
++                    written = os.write(fd, pending)
++                    if written <= 0:
++                        raise OSError("journal write made no progress")
++                    pending = pending[written:]
++            os.fsync(fd)
++        finally:
++            os.close(fd)
++        return records
++    except OSError as exc:
++        raise JournalWriteError("event journal durability uncertain") from exc
+ 
+ 
+ def load_events(journal: Path = DEFAULT_JOURNAL, after_seq: int = 0) -> list[dict[str, Any]]:

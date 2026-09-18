@@ -1,0 +1,1057 @@
+﻿src,target_raw,reason
+_portable-build/vault/03 - Projects/اونلی فنز/PROJECT.md,../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29,wikilink_target_not_found
+_portable-build/vault/03 - Projects/اونلی فنز/PROJECT.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_portable-build/vault/03 - Projects/اونلی فنز/06 - Ops & Runtime/AGENT-CONTROL-INTERFACE.md,PROJECT-F-CONTROL-MANIFEST.json,wikilink_target_not_found
+_portable-build/vault/03 - Projects/اونلی فنز/00 - Control/SYNTH-05-FINAL-PACKAGE-2026-07-20.md,PROJECT-F-CONTROL-MANIFEST.json,wikilink_target_not_found
+_ops/ARMING-ORDER-2026-07-29.md,../00%20-%20Inbox/AGENT_QUESTIONS.md,mdlink_target_not_found
+_ops/CROSS-SESSION-BRIEF-2026-07-30-orphans.md,../contracts/adapter,wikilink_target_not_found
+_ops/INTERACTION-CONTRACT.md,../06%20-%20Architecture%20Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT.md,mdlink_target_not_found
+_ops/MEGAPROMPT-MIND-2026-07-28.md,../00%20-%20Inbox/AGENT_QUESTIONS.md,mdlink_target_not_found
+_ops/cortex/plans/OCTOPUS-LOOP-CLOSURE-TELEGRAM-2026-08-21.md,../state/debug/tree-divergence.json,wikilink_target_not_found
+_ops/cortex/plans/OCTOPUS-LOOP-CLOSURE-TELEGRAM-2026-08-21.md,../state/debug/capability-matrix.json,wikilink_target_not_found
+_ops/cortex/plans/OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md,06-EVIDENCE/INCIDENT-CENTER-HANG-2026-08-21,wikilink_target_not_found
+_ops/cortex/plans/OCTOPUS-MILESTONE-CORRECTION-2026-08-21.md,06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21,wikilink_target_not_found
+_Duplicates/03 - Projects/Accounting/Accounting/PROJECT.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_Duplicates/03 - Projects/Accounting/Accounting/importer/README.md,ARCHITECT_CHARTER,wikilink_target_not_found
+_Duplicates/03 - Projects/Accounting/Accounting/docs/Ecosystem-Rollout-Plan.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_Duplicates/03 - Projects/Accounting/Accounting/docs/Ecosystem-Rollout-Plan.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_archive-binaries/04 - Architect System/architect/architect.md,fake-link-for-security,mdlink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"Kaduk et al., 2025, Psychophysiology",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"Frontiers in Psychology, recommendations",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,ClinicalTrials.gov NCT05680337,wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"Phys.org, May 2025",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,IJQF 2025,wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,arXiv 2508.20348,wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"MintMCP, AI agent security 2026",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,Microsoft Open Source Blog,wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,Stanford Law CodeX,wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"Strata.io, HITL 2026 Guide",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"""1"", ""2"", ""3"", ""4"", ""5""",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"""بله"", ""خیر""",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"""خانه"", ""کار"", ""جای دیگر""",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"InlineKeyboardButton(""E — مستحکم"", callback_data=""tag:E""),
+        InlineKeyboardButton(""S — حدس"", callback_data=""tag:S""),
+        InlineKeyboardButton(""P — استعاره"", callback_data=""tag:P""),",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"""۱"", ""۲"", ""۳"", ""۴"", ""۵""",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"""بله"", ""خیر""",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"""خانه"", ""محل کار"", ""جای دیگر""",wikilink_target_not_found
+_archive-binaries/00 - Inbox/windows_czkawka_gui_gtk_412/سایر.md,"InlineKeyboardButton(""E — مستحکم (فیزیولوژی)"", callback_data=""tag:E""),
+        InlineKeyboardButton(""S — حدس/گمانه"", callback_data=""tag:S""),
+        InlineKeyboardButton(""P — استعاره/چارچوب"", callback_data=""tag:P""),",wikilink_target_not_found
+_Archive/_program-deliverables/MEGAPROMPT-HANDOFF-2026-07-25.md,project_c6-first-ignition,wikilink_target_not_found
+_Archive/_code/Accounting/importer/README.md,ARCHITECT_CHARTER,wikilink_target_not_found
+_Archive/_agent_audit_output/20_security_architecture_review_2026-07-16.md,_ops/dashboard/server.py,mdlink_target_not_found
+_Archive/_agent_audit_output/20_security_architecture_review_2026-07-16.md,_ops/RUN-ORGANISM.bat,mdlink_target_not_found
+_Archive/_agent_audit_output/20_security_architecture_review_2026-07-16.md,_ops/live/server.py,mdlink_target_not_found
+_Archive/_agent_audit_output/20_security_architecture_review_2026-07-16.md,_ops/dashboard/server.py,mdlink_target_not_found
+_Archive/worktree-dirty-2026-08-01/octopus-completion-integration-03aa20/VERDICT_QUEUE.md,_ops/SESSION-2026-07-27-W1-W5\,wikilink_target_not_found
+_Archive/NBB-Project-Scan-2026-07-11/PROJECT_STATE.md,../CLAUDE.md,mdlink_target_not_found
+_Archive/NBB-Project-Scan-2026-07-11/PROJECT_STATE.md,../tests/test_import_lint.py,mdlink_target_not_found
+_Archive/NBB-Project-Scan-2026-07-11/PROJECT_STATE.md,SELF_IMPROVEMENT_DOCTRINE.md,mdlink_target_not_found
+_Archive/NBB-Project-Scan-2026-07-11/PROJECT_STATE.md,../CLAUDE.md,mdlink_target_not_found
+_Archive/NBB-Project-Scan-2026-07-11/PROJECT_STATE.md,SECOND-BRAIN-BUILD-PLAN.md,mdlink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/01-Project/BRAIN-UPGRADE-LOOP,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/01-Project/OBSIDIAN-SYNC,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/02-Research/Report - Architect - Adversarial Review v3 2026-07-04,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v3-proposal,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/02-Research/SCOUT-SUMMARY,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/02-Research/Report - Vault Relationship Map 2026-07-04 v3,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/04-Docs/AUDIT-PHASE3,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/MYCOLEDGER-REBUILD-CHARTER-proposal,wikilink_target_not_found
+_Archive/Logs/architect-PROJECT-ActiveContext-archive-2026-08-06.md,../../04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/01-Project/M0.5-RESTORE-RUNBOOK-proposal,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/01-Project/M0.5-RESTORE-RUNBOOK-proposal,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/learning-engine/STARTUP-CHECKLIST.yaml,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/01-Project/HANDOFF - قلب و آگاهی,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/02-Research/SCOUT-SUMMARY,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/02-Research/Report - 20 AGI Architectures 2026,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,04 - Architect System/architect/02-Research/Report - Architect - Adversarial Review v3 2026-07-04,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-16.md,../_ops/OCTOPUS-flags.cmd,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../00 - Inbox/2026-07-23 VAULT-TIDY-PLAN,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../00 - Inbox/2026-07-23 OBSIDIAN-GRAPH-SETUP,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../04 - Architect System/ANALYSES/2026-07-20_LEGS-DEEP-SCAN,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../_ops/AUTO-LOOP-LOG,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../04 - Architect System/octopus-build-prompts/GLM-PARALLEL-PROMPTS-2026-07-18,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../00 - Inbox/راهنمای ساده — تلگرام و دو بات اختاپوس,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../00 - Inbox/2026-07-18 OCTOPUS — کارهای انسانی (فقط دستِ مالک),wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../00 - Inbox/2026-07-18 OCTOPUS — چک‌لیست تعمیرات (اندام به اندام),wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../00 - Inbox/2026-07-18 OCTOPUS — تحلیل بستهٔ طراحی معماری با استعاره,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-07-29.md,../_ops/OCTOPUS-flags.cmd,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-08-04.md,../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-08-04.md,../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-08-04.md,../OCTOPUS-DOCTOR/00-INDEX/REVISION-2026-07-29,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-08-04.md,../OCTOPUS-DOCTOR/70-نسخه‌ها/نسخه-2026-07-29-نصب-و-سیم‌کشی,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-08-05.md,wikilinks,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,09-LANES/N-ALIVE-RUNBOOK-20260905/FLAGS-OPEN-RECEIPT-2-2026-09-05.json,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,09-LANES/N-ALIVE-RUNBOOK-20260905/FLAGS-OPEN-RECEIPT-2026-09-05.json,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,09-LANES/N-ALIVE-RUNBOOK-20260905/CHANNEL-RANK.json,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,09-LANES/T-LANE-TRIAGE-20260905/OWNER-ANSWERS-2026-09-05.json,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../09-LANES/D-S0-HUNT/doctor_schema_probe.py,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../09-LANES/D-S0-HUNT/harvest_boundary_probe.py,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../06-EVIDENCE/DEEP-WALK-20260829/safe-tests/SAFE-TESTS-RUN-RECEIPT,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../_ops/flag_drift.py,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/MEGAPROMPT-3-RESULT.json,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/MEGAPROMPT-2-RESULT.json,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/INDEPENDENT-VERDICT.json,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../_ops/lab/full_loop_flash/__init__,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../_ops/shadow_homeostasis/__init__,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../06-EVIDENCE/canonical/decisions/a2-001-state-2026-08-18.json,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../06-EVIDENCE/SECRET-INVENTORY-REDACTED-2026-08-18,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../04-SYSTEMS/DECISIONS-REGISTRY.yaml,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,../07 - Knowledge/شناخت-اختاپوس/34-SEED-AGENT-OWNER-COCKPIT-2026-08-08,wikilink_target_not_found
+_Archive/Logs/HANDOFF-archive-2026-09-07.md,06-EVIDENCE/DEEP-WALK-20260829/safe-tests/SAFE-TESTS-RUN-RECEIPT,wikilink_target_not_found
+_Archive/docs/math/EQUATION-REGISTRY.md,t,mdlink_target_not_found
+_Archive/deploy-preserve-2026-07-31/pre-switch/VERDICT_QUEUE.md,_ops/SESSION-2026-07-27-W1-W5\,wikilink_target_not_found
+PRE-0/ROTATION_CHECKLIST.md,04 - Architect System/architect/01-Project/SECRETS-ROTATION-CHECKLIST,wikilink_target_not_found
+PRE-0/ROTATION_CHECKLIST.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+PRE-0/ROTATION_CHECKLIST.md,INGEST-EXCLUDED-SECRETS,wikilink_target_not_found
+OCTOPUS/ARCHITECTURE-BIBLE.md,events bus,wikilink_target_not_found
+OCTOPUS/CURRENT-TRUTH.md,06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21,wikilink_target_not_found
+OCTOPUS/Operations/2026-08-28-L191-Complete-v4/00-MOC.md,01-REPOSITORY-BASELINES,wikilink_target_not_found
+OCTOPUS/Operations/2026-08-28-L191-Complete-v4/00-MOC.md,04-T0-REALITY-LOCK,wikilink_target_not_found
+OCTOPUS/Operations/2026-08-28-L191-Complete-v4/00-MOC.md,05-RUNTIME-PATH,wikilink_target_not_found
+OCTOPUS/Operations/2026-08-28-L191-Complete-v4/00-MOC.md,07-SAFETY-COST-GUARDS,wikilink_target_not_found
+node_modules/xml-js/README.md,/synopsis.png?raw=true,mdlink_target_not_found
+node_modules/nanoid/README.md,./README.ja.md,mdlink_target_not_found
+node_modules/nanoid/README.md,./README.ru.md,mdlink_target_not_found
+node_modules/nanoid/README.md,./README.zh-CN.md,mdlink_target_not_found
+node_modules/nanoid/README.md,./README.id-ID.md,mdlink_target_not_found
+node_modules/nanoid/README.md,./README.ko.md,mdlink_target_not_found
+node_modules/nanoid/README.md,./README.ar.md,mdlink_target_not_found
+docs/octopus-surgery/09-OWNER-ACTION-RUNBOOK.md,PUBLIC-RECONCILIATION.yaml,wikilink_target_not_found
+docs/octopus-surgery/09-OWNER-ACTION-RUNBOOK.md,receipts/verification-03-hermetic-full-suite.json,wikilink_target_not_found
+docs/octopus-surgery/09-OWNER-ACTION-RUNBOOK.md,12-90-PERCENT-GATES.yaml,wikilink_target_not_found
+docs/octopus-surgery/20-SEASON-2026-0901-RECONCILIATION.md,06-REALITY-MANIFEST,wikilink_target_not_found
+docs/octopus-surgery/20-SEASON-2026-0901-RECONCILIATION.md,06-REALITY-MANIFEST,wikilink_target_not_found
+docs/octopus-surgery/CHECKPOINT.md,06-REALITY-MANIFEST.yaml,wikilink_target_not_found
+docs/octopus-surgery/INDEX.md,06-REALITY-MANIFEST.yaml,wikilink_target_not_found
+docs/octopus-surgery/INDEX.md,07-TRACEABILITY-MATRIX.csv,wikilink_target_not_found
+docs/octopus-surgery/INDEX.md,receipts/BASELINE-20260830T064824Z.json,wikilink_target_not_found
+docs/octopus-surgery/INDEX.md,receipts/COGNITION-AUTHORITY-TESTS-20260830T071344Z.log,wikilink_target_not_found
+docs/octopus-surgery/INDEX.md,receipts/SURGERY-COGNITION-AUTHORITY-DENYLIST-20260830T071700Z.json,wikilink_target_not_found
+docs/octopus-surgery/specs/DRAWDOWN-ENFORCER-BACKLOG-CONTRACT.md,"old_ts, huge_aud",wikilink_target_not_found
+docs/octopus-surgery/specs/DRAWDOWN-ENFORCER-BACKLOG-CONTRACT.md,"old_ts, huge_aud",wikilink_target_not_found
+docs/octopus-surgery/specs/DRAWDOWN-ENFORCER-BACKLOG-CONTRACT.md,"old_ts, huge_aud",wikilink_target_not_found
+agent-prompts/OCTOPUS-DATAFLOW-WIRING-PROMPT.md,"a,b",wikilink_target_not_found
+agent-prompts/_PROJECT_INSTRUCTIONS.md,03 - Projects/Lead-نقاشی/PROJECT\,wikilink_target_not_found
+agent-prompts/_PROJECT_INSTRUCTIONS.md,03 - Projects/Ziman Galerry/PROJECT\,wikilink_target_not_found
+agent-prompts/_PROJECT_INSTRUCTIONS.md,03 - Projects/Mining/PROJECT\,wikilink_target_not_found
+agent-prompts/_PROJECT_INSTRUCTIONS.md,03 - Projects/Crypto - etoro/PROJECT\,wikilink_target_not_found
+agent-prompts/_PROJECT_INSTRUCTIONS.md,03 - Projects/Accounting/PROJECT\,wikilink_target_not_found
+agent-prompts/_PROJECT_INSTRUCTIONS.md,03 - Projects/اونلی فنز/PROJECT\,wikilink_target_not_found
+agent-prompts/_PROJECT_INSTRUCTIONS.md,04 - Architect System/architect/PROJECT\,wikilink_target_not_found
+agent-prompts/_PROJECT_INSTRUCTIONS.md,07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\,wikilink_target_not_found
+99-ARCHIVE/nbb-cp-evidence-20260815/NIGHT-SYNC-C008-COLLISION.md,18-SYNC-FINAL-REPORT,wikilink_target_not_found
+4d_system/MASTER_UPGRADE_REPORT.md,t,wikilink_target_not_found
+4d_system/MASTER_UPGRADE_REPORT.md,t\,wikilink_target_not_found
+4d_system/nbb-cp-kre/README-FA.md,wikilink,wikilink_target_not_found
+4d_system/nbb-cp-kre/README.md,wikilink,wikilink_target_not_found
+4d_system/nbb-cp-kre/REGISTRY.md,wikilink,wikilink_target_not_found
+4d_system/docs/B6-SOG-INTEGRATION-STEP1.md,schemas/b6.sog.proposal.v1.json,mdlink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-روزانه.md,...,wikilink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-منبع.md,یادداشت پروژه,wikilink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-منبع.md,X,wikilink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-منبع.md,Y,wikilink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-یادداشت-اتمیک.md,یادداشت۱,wikilink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-یادداشت-اتمیک.md,یادداشت۲,wikilink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-یادداشت-اتمیک.md,جدول-لنگرها,wikilink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-یادداشت-اتمیک.md,X,wikilink_target_not_found
+4D-Vault/📎-قالب‌ها/قالب-یادداشت-اتمیک.md,Y,wikilink_target_not_found
+4D-Vault/ر/Welcome.md,create a link,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,shadow-observability,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,self-model-gain,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,private-control-channel,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,epistemic-asymmetry,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,temporal-identifiability,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,censoring-not-dropping,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,null-model-pressure,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,leakage-budget,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,mode-stability,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,dual-track-evaluator,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,reflection-gate,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,shadow-orchestrator,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,first-person-router,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,epistemic-censor,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,reflective-dither-regulator,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,provenance-dither,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,temporal-shadow-tomography,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,counterfactual-self-surgery,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,adversarial-shadow-firewall,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,mode-locked-stabilizer,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,censored-consensus,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,null-model-rejection,wikilink_target_not_found
+4D-Vault/07-تحلیل-پژوهش/سنتز-SOG-جامع.md,hypotheses-sog,wikilink_target_not_found
+4D-Vault/06-منابع-داده/داده-مصنوعی.md,null model,wikilink_target_not_found
+4D-Vault/03-فلسفه/اصل-۳-سطح.md,کاتالوگ-سایه‌ها,wikilink_target_not_found
+4D-Vault/01-مفاهیم-ریاضی/E-shadow.md,برداشت_من_از_دو_فایل,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,Governor,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,PulseCore,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,MycoCardium,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,Shadow Catalog,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,نگاشتِ صحیح — ضربان، velocity و تورمِ gauge,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,Synthesis اولیه — همریختیِ سه‌سیستمی و پرامپتِ خوداگاهی,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,"KB — Emotion, Intuition, Collective Feeling v1.0",wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,SOG,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,TLI,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-خودتنظیم‌گری-و-خودآگاهی.md,Shadow Catalog,wikilink_target_not_found
+4D-Vault/00-MOC/MOC-فلسفه.md,کاتالوگ-سایه‌ها,wikilink_target_not_found
+09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-CONNECTION-PROPOSAL.md,OWNER-DECISION-D0-PRIMARY-20260908.json,wikilink_target_not_found
+09-LANES/UNLOCK-REVIEW-20260908/LANE-REPORT.md,DOMAIN-EXECUTION-STEP3-FINAL.json,wikilink_target_not_found
+09-LANES/UNLOCK-REVIEW-20260908/LANE-REPORT.md,TLS-POLL-LOG.jsonl,wikilink_target_not_found
+09-LANES/UNLOCK-REVIEW-20260908/LANE-REPORT.md,OWNER-DECISION-D0-PRIMARY-20260908.json,wikilink_target_not_found
+09-LANES/UNLOCK-REVIEW-20260908/LANE-REPORT.md,OWNER-DECISION-D0-PRIMARY-20260908.json,wikilink_target_not_found
+09-LANES/UNLOCK-REVIEW-20260908/LANE-REPORT.md,DOMAIN-EVIDENCE-20260908.json,wikilink_target_not_found
+09-LANES/U-WHY-NOT-LIVE-20260905/DIAGNOSIS.md,09-LANES/U-WHY-NOT-LIVE-20260905/HOST-PROBE-20260905.json,wikilink_target_not_found
+09-LANES/U-WHY-NOT-LIVE-20260905/DIAGNOSIS.md,09-LANES/U-WHY-NOT-LIVE-20260905/B-SAFE-RESTORE-RECEIPT.json,wikilink_target_not_found
+09-LANES/U-WHY-NOT-LIVE-20260905/DIAGNOSIS.md,09-LANES/U-WHY-NOT-LIVE-20260905/CAUSE-OF-LOOP-DEATH.json,wikilink_target_not_found
+09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/DISCREPANCIES-II.md,شناخت-اختاپوس/61-...,wikilink_target_not_found
+09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/TERRITORY-REPORT-4d-vault.md,shadow-observability,wikilink_target_not_found
+09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md,CURRENT-STATE.json,mdlink_target_not_found
+09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md,NEXT-ACTIONS.json,mdlink_target_not_found
+09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md,SOURCE-INDEX.json,mdlink_target_not_found
+09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md,ARTIFACT-MANIFEST.json,mdlink_target_not_found
+09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/README.md,scripts/verify-packet.ps1,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/02-REGRESSIONS-AND-CORRECTIONS.md,09-LANES/N3V2-MATH-20260905T031103Z/EVIDENCE-INDEX.json,wikilink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/02-REGRESSIONS-AND-CORRECTIONS.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/CONFLICTS-AND-BLOCKERS.md,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/02-REGRESSIONS-AND-CORRECTIONS.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/MATH-DIAGNOSTIC-RECEIPT-V3.json,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/03-CANDIDATE-TESTS.md,09-LANES/N3V2-MATH-20260905T031103Z/EVIDENCE-INDEX.json,wikilink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/03-CANDIDATE-TESTS.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/MATH-UPGRADE-RECEIPT-v4.json,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/03-CANDIDATE-TESTS.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/FORMULA-REGISTRY-v3.json,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/03-CANDIDATE-TESTS.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/IMPLEMENTATION-MAP.md,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/04-MEMABL-AND-MEMORY.md,09-LANES/N3V2-MATH-20260905T031103Z/EVIDENCE-INDEX.json,wikilink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/04-MEMABL-AND-MEMORY.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/MEMORY-TWO-CYCLE-RESULT.json,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/04-MEMABL-AND-MEMORY.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/DOCTOR-CLOSURE-RESULT.json,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/05-MULTIOBJECTIVE.md,09-LANES/N3V2-MATH-20260905T031103Z/EVIDENCE-INDEX.json,wikilink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/05-MULTIOBJECTIVE.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/MULTIOBJECTIVE-RESULTS-FINAL.json,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/05-MULTIOBJECTIVE.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/PARETO-AND-TRADEOFFS.md,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/06-HANDOFF.md,09-LANES/N3V2-MATH-20260905T031103Z/EVIDENCE-INDEX.json,wikilink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/06-HANDOFF.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/NEXT-AGENT-HANDOFF.md,mdlink_target_not_found
+09-LANES/N3V2-MATH-20260905T031103Z/06-HANDOFF.md,F:/octo-exec/N3V2-MATH-20260905T031103Z/MANIFEST.sha256,mdlink_target_not_found
+09-LANES/MP-DEBUG-20260907/DEBUG-REPORT.md,<C:/Users/Armin/Downloads/MEGAPROMPT-OCTOPUS-v3-EXECUTABLE-2026-09-07.md>,mdlink_target_not_found
+09-LANES/MP-DEBUG-20260907/DEBUG-REPORT.md,<F:/backup/09-LANES/MP-DEBUG-20260907/LIVE-READBACK.json>,mdlink_target_not_found
+09-LANES/MP-DEBUG-20260907/DEBUG-REPORT.md,<F:/backup/09-LANES/MP-DEBUG-20260907/CALIBRATION-READBACK.json>,mdlink_target_not_found
+09-LANES/MP-DEBUG-20260907/DEBUG-REPORT.md,<F:/backup/09-LANES/MP-DEBUG-20260907/SOURCE-COMPARISON.json>,mdlink_target_not_found
+09-LANES/MP-DEBUG-20260907/DEBUG-REPORT.md,<F:/backup/09-LANES/MP-DEBUG-20260907/N180-READBACK.json>,mdlink_target_not_found
+09-LANES/MP-DEBUG-20260907/DEBUG-REPORT.md,<F:/backup/09-LANES/MP-DEBUG-20260907/NODES-READBACK.json>,mdlink_target_not_found
+09-LANES/LIVE-PATH-GATE-AUDIT-20260917/LANE-REPORT.md,GOV-V8-ACK,wikilink_target_not_found
+09-LANES/L7/LANE-REPORT.md,09-LANES/L7/MEMABL-OBS-PREREG-314159,wikilink_target_not_found
+09-LANES/L7/LANE-REPORT.md,09-LANES/L7/MEMABL-OBS-THRESHOLDS-LOCKED-314159,wikilink_target_not_found
+09-LANES/L7/LANE-REPORT.md,09-LANES/L7/MEMABL-OBS-PROMPT2-STOP-RECEIPT,wikilink_target_not_found
+09-LANES/EMERGENCE-SAFE-SURGERY-20260916/LANE-REPORT.md,CONSTITUTIONAL-ZONES,wikilink_target_not_found
+09-LANES/EMERGENCE-SAFE-SURGERY-20260916/LANE-REPORT.md,LIVE-ORGANISM-MAP,wikilink_target_not_found
+09-LANES/EMERGENCE-SAFE-SURGERY-20260916/LANE-REPORT.md,PolicyGate,wikilink_target_not_found
+09 - People/_Index - People.md,...,wikilink_target_not_found
+07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md,09-LANES/H-HANDOFF-RECONCILE-20260905/SOURCE-AND-OBSERVATION-RECEIPT.json,wikilink_target_not_found
+07-HANDOFF/EX1-CRITERION-AMENDMENT-2026-09-07.md,09-LANES/MP-EX1-CRITERION-20260907/EX1-CRITERION-PROPOSAL.json,wikilink_target_not_found
+07-HANDOFF/OCTOPUS-STATE-20260905-RECONCILED.md,09-LANES/H-HANDOFF-RECONCILE-20260905/SOURCE-AND-OBSERVATION-RECEIPT.json,wikilink_target_not_found
+07-HANDOFF/U-LAYER4-CHANNEL-SELECTION-2026-09-05.md,09-LANES/U-WHY-NOT-LIVE-20260905/LAYER2-COMPLETE,wikilink_target_not_found
+07-HANDOFF/U-LAYER4-CHANNEL-SELECTION-2026-09-05.md,09-LANES/U-WHY-NOT-LIVE-20260905/LAYER3-RECEIPT,wikilink_target_not_found
+07-HANDOFF/UNLOCK-REVIEW-20260908.md,09-LANES/UNLOCK-REVIEW-20260908/OWNER-DECISION-D0-PRIMARY-20260908.json,wikilink_target_not_found
+07-HANDOFF/UNLOCK-REVIEW-20260908.md,09-LANES/UNLOCK-REVIEW-20260908/DOMAIN-EVIDENCE-20260908.json,wikilink_target_not_found
+07-HANDOFF/UNLOCK-REVIEW-20260908.md,09-LANES/UNLOCK-REVIEW-20260908/OWNER-STATE.json,wikilink_target_not_found
+07-HANDOFF/UNLOCK-REVIEW-20260908.md,09-LANES/UNLOCK-REVIEW-20260908/RECEIPT.json,wikilink_target_not_found
+07 - Knowledge/10 رویکرد فلسفی شرکت‌های بزرگ AI در پرورش مدل.md,04 - Architect System/architect/02-Research/Report - Architect - Adversarial Review v3 2026-07-04,wikilink_target_not_found
+07 - Knowledge/FPGA-Reflex-Layer.md,OCTOPUS-BODY-v1,wikilink_target_not_found
+07 - Knowledge/FPGA-Reflex-Layer.md,Arm-3-Sensor-Reflex,wikilink_target_not_found
+07 - Knowledge/FPGA-Reflex-Layer.md,PolicyGate,wikilink_target_not_found
+07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT.md,../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/00-README-START-HERE.md,../../00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents\,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/00-README-START-HERE.md,../../00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery\,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/00-README-START-HERE.md,../../00 - Inbox/2026-08-15 REPORT — Forgotten Gaps for Next Agent\,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/35-DEPLOYMENT-INTERVENTION-2026-08-10.md,34-SEED-AGENT-OWNER-COCKPIT-2026-08-08,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/35-NEXT-AGENT-MEGAPROMPT-2026-08-08-FINAL.md,34-SEED-AGENT-OWNER-COCKPIT-2026-08-08,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/62-WORKER-AGENT-DIRECTIVE-0-8-2026-08-16.md,../../04-SYSTEMS/DECISIONS-REGISTRY.yaml,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md,../../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md,../../06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md,../../06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/80-CHAT-OWNER-ORDERS-WAVES-A-F-RESTART-2026-08-21.md,../../06-EVIDENCE/TELEGRAM-DEEP-DEBUG-2026-08-21/RESTART-CONTROLLED-2026-08-21,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/81B-OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21.md,../../06-EVIDENCE/OCTOPUS-PRESERVATION-2026-08-21T2138/SOURCE-MANIFEST,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/81B-OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21.md,../../06-EVIDENCE/OCTOPUS-NEXT-AGENT-HANDOFF-2026-08-21/CURRENT-TRUTH.json,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/82-EXPEDITED-BOUNDED-LIVE-ROLLOUT-2026-08-22.md,../../06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/POST-ACTIVATION-SUMMARY,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/82-EXPEDITED-BOUNDED-LIVE-ROLLOUT-2026-08-22.md,../../06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/POST-SOAK-PRIORITY,wikilink_target_not_found
+07 - Knowledge/شناخت-اختاپوس/82-EXPEDITED-BOUNDED-LIVE-ROLLOUT-2026-08-22.md,../../06-EVIDENCE/OCTOPUS-EXPEDITED-LIVE-ROLLOUT-2026-08-22/SIDE-EFFECT-ACCOUNTING,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/CONNECTIONS-MAP.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/CONNECTIONS-MAP.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/CONNECTIONS-MAP.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/SYSTEM-STATE-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,04 - Architect System/MYCELIAL-MASTER-SPEC\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/AUTONOMOUS-RUN-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/01-fable5-codepack-wave1-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,04 - Architect System/MYCELIAL-MASTER-SPEC\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/02-fable5-codepack-wave2-3-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,04 - Architect System/MYCELIAL-MASTER-SPEC\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/03-mycelial-spec-reflexion-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/04-git-init-runbook-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/05-ai-agent-eng-2026-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/06-opsec-rotation-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/07-review-packet-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/08-agent-orchestration-durability-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/EXPERIENCE-LEDGER.md,00 - Inbox/build-proposals/09-memory-rag-systems-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/HEARTBEAT.md,00 - Inbox/scout-digests/2026-07-06 experience-review v2\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/TWO-BRAIN-CONTROL-BLUEPRINT.md,00 - Inbox/SYSTEM-STATE-2026-07-05\,wikilink_target_not_found
+07 - Knowledge/_memory-blueprints/TWO-BRAIN-CONTROL-BLUEPRINT.md,_memory/EXPERIENCE-LEDGER\,wikilink_target_not_found
+07 - Knowledge/_audit/KNOWLEDGE_MAP.md,wikilink,wikilink_target_not_found
+07 - Knowledge/_audit/KNOWLEDGE_MAP.md,04 - Architect System/…/Report - Architect - Adversarial Review v3 2026-07-04,wikilink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#t1-t12-test-sweep-results-all-green,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#owners-fact-check-of-first-council,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#owners-fact-check-of-first-council,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#t1-t12-test-sweep-results-all-green,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#owners-fact-check-of-first-council,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#contradiction-registry-update,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#t1-t12-test-sweep-results-all-green,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#contradiction-registry-update,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#t1-t12-test-sweep-results-all-green,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/GPT-5.6 Sol Second Council Report.md,octopus-updated-briefing.md#r1-r29-megaprompt-matrix-for-next-agent,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/matrix/R1-R29 Final Priority Matrix v2.0.md,file:///home/user/workspace/OCTOPUS-MASTER-AUDIT-FINAL.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/matrix/R1-R29 Final Priority Matrix v2.0.md,file:///home/user/workspace/model-council-2-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/matrix/R1-R29 Final Priority Matrix v2.0.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/matrix/R1-R29 Final Priority Matrix v2.0.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/matrix/R1-R29 Final Priority Matrix v2.0.md,file:///home/user/workspace/OCTOPUS-MASTER-AUDIT-FINAL.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/matrix/R1-R29 Final Priority Matrix v2.0.md,file:///home/user/workspace/model-council-2-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/matrix/R1-R29 Final Priority Matrix v2.0.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/matrix/R1-R29 Final Priority Matrix v2.0.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/council-1/Claude Sonnet 5.0 Council 1 Report.md,file:///home/user/workspace/octopus-architecture-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/council-1/Claude Sonnet 5.0 Council 1 Report.md,file:///home/user/workspace/octopus-architecture-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-architecture-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-structural-audit-bilingual.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#owners-fact-check-of-first-council,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#owners-fact-check-of-first-council,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-architecture-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-architecture-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-architecture-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-architecture-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#four-agent-perspective-comparison,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#four-agent-perspective-comparison,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#owners-fact-check-of-first-council,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#r1-r29-megaprompt-matrix-for-next-agent,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#r1-r29-megaprompt-matrix-for-next-agent,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#contradiction-registry-update,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md#owners-fact-check-of-first-council,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/uploaded_attachments/38c5d80e713f45198959473d0ece471e/paste.txt,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-architecture-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-updated-briefing.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/model-council-2-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Master Audit — Final Consolidation.original.md,file:///home/user/workspace/octopus-structural-audit-bilingual.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-synthesis.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gpt_5_6_sol.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-gemini_3_1_pro.md,mdlink_target_not_found
+07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/sources/audits/OCTOPUS Structural Audit — Bilingual (FA EN).md,file:///home/user/workspace/model-council-claude_sonnet_5_0.md,mdlink_target_not_found
+07 - Knowledge/genome-system/INDEX.md,07 - Knowledge/genome-system/plan.yaml,wikilink_target_not_found
+06-EVIDENCE/C-043-INCONSISTENT-ROUNDING-2026-08-20.md,C-045 در CONTRADICTIONS,wikilink_target_not_found
+06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20.md,../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+06-EVIDENCE/D6-BETWEEN-RUN-VARIANCE-2026-08-20.md,../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-V3-S0-PROFILE-2026-08-16.md,../03 - Projects/NBB-Control-Plane/src/nbb_cp/kernel/invariants.py,wikilink_target_not_found
+06-EVIDENCE/SERVICE-INVENTORY-AND-MIGRATION-MATRIX-2026-08-18.md,SECRET-INVENTORY-REDACTED-2026-08-18,wikilink_target_not_found
+06-EVIDENCE/SIGN-ALL-PENDING-CEREMONY-2026-08-20.md,../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+06-EVIDENCE/STATE-RECHECK-2026-08-20.md,../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+06-EVIDENCE/T14-PERIOD-PROVENANCE-2026-08-20.md,C-045,wikilink_target_not_found
+06-EVIDENCE/T34-KEY-IDENTITY-2026-08-20.md,B1-APPLIED-UNSIGNED-2026-08-20-ERRATA,wikilink_target_not_found
+06-EVIDENCE/T36-D6-RECORD-2026-08-20.md,../../02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+06-EVIDENCE/T37-T38-T39-DIRECTIVE-6-2026-08-20.md,BITEMPORAL-SPINE-SPEC-2026-08-20,wikilink_target_not_found
+06-EVIDENCE/UNWIRED-4d-consolidation-2026-08-16.md,4d_system/brain/consolidation.py,wikilink_target_not_found
+06-EVIDENCE/UNWIRED-4d-consolidation-2026-08-16.md,4d_system/brain/daemon.py,wikilink_target_not_found
+06-EVIDENCE/UNWIRED-effect-zero-2026-08-16.md,_ops/state/tg-send-log.jsonl,wikilink_target_not_found
+06-EVIDENCE/UNWIRED-effect-zero-2026-08-16.md,4d_system/outputs/daemon_state.json,wikilink_target_not_found
+06-EVIDENCE/TELEGRAM-CLOSED-LOOP-2026-08-20/A0-BASELINE.md,A0-BASELINE.json,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/03-OWNER-DECIDE-12-FIELDS.md,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/owner_decision.p2,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/04-TRANSMIT-PATH-A.md,06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/WAVE0/octopus_reply_outbox.py,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/06-IDEMPOTENCY-AND-RECEIPTS.md,06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/WAVE0/octopus_reply_outbox.py,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/09-FOUR-INDEPENDENT-FIXES.md,_ops/flag_drift.py,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/10-RUNTIME-ACTIVATION-PLAN.md,03 - Projects/OFN-Board/deploy/systemd/ofn.service,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/02-RUNTIME-PROVENANCE.md,06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/settle-138/obs182_extract,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/03-WITNESS-CONTRACT.md,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/witness_mint.p2,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/03-WITNESS-CONTRACT.md,06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/oracle-182/isolated-once/octopus_witness_worker,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/06-P2-FIELD-OWNERSHIP.md,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/owner_decision.p2,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/06-P2-FIELD-OWNERSHIP.md,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/field-provenance,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/07-TEST-CENSUS.md,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/test_witness_mint.p2,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/07-TEST-CENSUS.md,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/test_owner_decision_fake.p2,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-182-EVIDENCE/07-TEST-CENSUS.md,06-EVIDENCE/BOARD-180-REPLY-REPAIR-2026-08-27/oracle-182/isolated-once/test_182_once_independent,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/01-HOST-ROLE.md,03 - Projects/OFN-Board/deploy/systemd/ofn.service,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/03-RUNTIME-PROVENANCE.md,03 - Projects/OFN-Board/deploy/systemd/ofn.service,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/04-OFN-BASELINE.md,03 - Projects/OFN-Board/ofn/config.py,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/05-REUSE-MAP.md,03 - Projects/OFN-Board/ofn/node.py,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/07-P2-12-FIELDS.md,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/runtime-provenance-20260828T230743Z/owner_decision.p2,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/07-P2-12-FIELDS.md,03 - Projects/OFN-Board/ofn/node.py,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/09-TELEGRAM-CONSENT.md,03 - Projects/OFN-Board/ofn/config.py,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/09-TELEGRAM-CONSENT.md,03 - Projects/OFN-Board/ofn/adapters/consent_store.py,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/10-T1-T5-STATUS.md,03 - Projects/OFN-Board/docs/runbooks/NTP,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/NODE-138-EVIDENCE/11-CONTRADICTIONS.md,06-EVIDENCE/OCTOPUS-REUSE-AUDIT-2026-08-29/P2-DISCOVERY/contradictions.csv,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEASON-GOV-V8-ZIMAN-DASHBOARD.md,GOV-V8-ACK,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/SEASON-GOV-V8-ZIMAN-DASHBOARD.md,TEACH-FREE-PROMO-TOKENS-20260905,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/SIG-IV-FINDINGS-2026-08-21.md,INDEPENDENT-VERDICT.json,wikilink_target_not_found
+06-EVIDENCE/OCTOPUS-INDEPENDENT-VERIFIER-KIT-2026-08-21/SIG-IV-FINDINGS-2026-08-21.md,MEGAPROMPT-1-REQUIRED-OUTPUT.json,wikilink_target_not_found
+06-EVIDENCE/canonical/inbox/custodian-191-health-ledger-2026-08-18.md,../receipts/custodian-191-20260818T030354p10.json,wikilink_target_not_found
+06-EVIDENCE/canonical/decisions/a2-001-proposed-canonical-binding-2026-08-18.md,a2-001-proposed-canonical-binding-2026-08-18.json,wikilink_target_not_found
+06-EVIDENCE/canonical/contradictions/a2-001-custodian-stale-vs-quarantined-pass-2026-08-18.md,../canonical/decisions/a2-001-development-canonical-owner-approved-2026-08-18.json,wikilink_target_not_found
+06-EVIDENCE/BOARD2-ZIMAN-PHOTO-MATCH-2026-08-24/OWNER-BRIEF-FA-REMAINING.md,../BOARD2-ZIMAN-GALLERY-PHOTOS-2026-08-23,wikilink_target_not_found
+06-EVIDENCE/BITEMPORAL-SPINE-SPEC-2026-08-20/README.md,HC-WM-MC-WAVE0-2026-08-20,wikilink_target_not_found
+06 - Architecture Maps/ARCHITECTURE-SOT.md,../03 - Projects/research-spec-compiler/adr/ADR-040-conversation-hub-unified-chat\,wikilink_target_not_found
+06 - Architecture Maps/AUTONOMY-MATRIX-2026-07-16.md,../_ops/OCTOPUS-flags.cmd,wikilink_target_not_found
+06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-09.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-09.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-09.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+06 - Architecture Maps/OCTOPUS-25-A-کنترلِ-پاها-2026-07-29.md,...,wikilink_target_not_found
+06 - Architecture Maps/OCTOPUS-25-A-کنترلِ-پاها-2026-07-29.md,{...},wikilink_target_not_found
+06 - Architecture Maps/SYSTEM_MAP.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+06 - Architecture Maps/TG-SPLIT-INNER-OUTER-2026-07-29.md,../OCTOPUS-DOCTOR/40-اندام‌ها/ORG-08-شهود,wikilink_target_not_found
+06 - Architecture Maps/TG-SPLIT-INNER-OUTER-2026-07-29.md,../_ops/telegram_center/surface-routing.json,mdlink_target_not_found
+06 - Architecture Maps/_Index - Architecture Maps.md,04 - Architect System/BIO-SYNTHESIS-MAP\,wikilink_target_not_found
+05 - Agents/AGENT_REGISTRY.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+05 - Agents/AGENT_REGISTRY.md,03 - Projects/WLOS - Weight Loss OS/PROJECT\,wikilink_target_not_found
+05 - Agents/AGENT_REGISTRY.md,_memory/EXPERIENCE-LEDGER\,wikilink_target_not_found
+05 - Agents/AGENT_REGISTRY.md,01 - Dashboard/Brain\,wikilink_target_not_found
+05 - Agents/AGENT_REGISTRY.md,04 - Architect System/architect/04-Docs/Prompt - System Dashboard Artifact\,wikilink_target_not_found
+05 - Agents/Research Scout Fleet.md,04 - Architect System/architect/PROJECT\,wikilink_target_not_found
+05 - Agents/Research Scout Fleet.md,03 - Projects/Crypto - etoro/PROJECT\,wikilink_target_not_found
+05 - Agents/Research Scout Fleet.md,03 - Projects/Mining/PROJECT\,wikilink_target_not_found
+05 - Agents/Research Scout Fleet.md,03 - Projects/Lead-نقاشی/PROJECT\,wikilink_target_not_found
+05 - Agents/Research Scout Fleet.md,03 - Projects/Ziman Galerry/PROJECT\,wikilink_target_not_found
+05 - Agents/Research Scout Fleet.md,03 - Projects/Accounting/PROJECT\,wikilink_target_not_found
+05 - Agents/Research Scout Fleet.md,07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\,wikilink_target_not_found
+05 - Agents/Research Scout Fleet.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+05 - Agents/Vault Cartographer.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+05 - Agents/Vault Cartographer.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+05 - Agents/Vault-Cartographer-LIMB.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+04 - Architect System/2026-07-09 ARACHNE-RECONCILIATION — Unified Agent Contract.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+04 - Architect System/2026-07-09 ARACHNE-RECONCILIATION — Unified Agent Contract.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+04 - Architect System/2026-07-09 FRONTIER-BENCHMARK — top AI architectures → Octopus improvements.md,00,mdlink_target_not_found
+04 - Architect System/BIO-SYNTHESIS-MAP.md,04 - Architect System/architect/01-Project/HANDOFF - قلب و آگاهی,wikilink_target_not_found
+04 - Architect System/BIO-SYNTHESIS-MAP.md,04 - Architect System/architect/01-Project/HANDOFF - قلب و آگاهی,wikilink_target_not_found
+04 - Architect System/BIO-SYNTHESIS-MAP.md,04 - Architect System/architect/01-Project/HANDOFF - قلب و آگاهی,wikilink_target_not_found
+04 - Architect System/GOVERNOR-MUSE-APPLIED+HANDOFF.md,00-Home,wikilink_target_not_found
+04 - Architect System/GOVERNOR-MUSE-APPLIED+HANDOFF.md,00-Home,wikilink_target_not_found
+04 - Architect System/GOVERNOR-MUSE-SYSTEM-INDEX.md,00-Home,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,03 - Projects/Accounting/PROJECT\,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,03 - Projects/Lead-نقاشی/PROJECT\,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,03 - Projects/Crypto - etoro/PROJECT\,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,03 - Projects/Mining/PROJECT\,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,03 - Projects/Ziman Galerry/PROJECT\,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,03 - Projects/اونلی فنز/PROJECT\,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\,wikilink_target_not_found
+04 - Architect System/MYCELIAL-MASTER-SPEC.md,04 - Architect System/architect/PROJECT\,wikilink_target_not_found
+04 - Architect System/SURVIVAL-ARCHITECTURE.md,SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+04 - Architect System/SURVIVAL-ARCHITECTURE.md,SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+04 - Architect System/scripts/README.md,wikilink,wikilink_target_not_found
+04 - Architect System/octopus-completion-2026-07-24/02-PARALLEL-COMPLETION-PLAN.md,...,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/GLM-MAPPER-PROMPTSET.md,wikilink,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/GLM-MAPPER-PROMPTSET.md,wikilink,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/GLM-MAPPER-PROMPTSET.md,wikilink,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/GLM-MAPPER-PROMPTSET.md,wikilink,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/GLM-MAPPER-PROMPTSET.md,survival-gateway,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/GLM-MAPPER-PROMPTSET.md,07 - Knowledge/genome-system/ledger/ledger.jsonl,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/GLM-MAPPER-PROMPTSET.md,07 - Knowledge/genome-system/STATUS.json,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN.md,04 - Architect System/octopus-build-prompts/HH-P0-SOG-MATH-LOCK\,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN.md,04 - Architect System/octopus-build-prompts/HH-P1-LIVE-PRODUCERS\,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN.md,04 - Architect System/octopus-build-prompts/HH-P2-INTERFACE-RATIFY\,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN.md,04 - Architect System/octopus-build-prompts/HH-P3-GOVERNOR-AUTOREGULATION\,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN.md,04 - Architect System/octopus-build-prompts/HH-P4-CONTROL-LAW-SIM\,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN.md,04 - Architect System/octopus-build-prompts/HH-P5-SHADOW-WIRING\,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN.md,04 - Architect System/octopus-build-prompts/HH-P6-DOCTOR-SETPOINT\,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN.md,04 - Architect System/octopus-build-prompts/HH-P7-COCKPIT-ACCEPTANCE\,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/TG-FIX-PACK-2026-07-29.md,_ops/telegram_center/surface-routing.json,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/TG-FIX-PACK-2026-07-29.md,...,wikilink_target_not_found
+04 - Architect System/octopus-build-prompts/TG-FIX-PACK-2026-07-29.md,{...},wikilink_target_not_found
+03 - Projects/_Index - Projects.md,03 - Projects/Lead-نقاشی/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,03 - Projects/Mining/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,03 - Projects/Crypto - etoro/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,03 - Projects/Accounting/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,03 - Projects/Ziman Galerry/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,03 - Projects/اونلی فنز/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,04 - Architect System/architect/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,04 - Architect System/architect/ARCHITECT_CHARTER\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,03 - Projects/VibeGuard/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,03 - Projects/WLOS - Weight Loss OS/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,07 - Knowledge/Time-Architecture/PROJECT\,wikilink_target_not_found
+03 - Projects/_Index - Projects.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/اونلی فنز/PROJECT.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/اونلی فنز/06 - Ops & Runtime/AGENT-CONTROL-INTERFACE.md,PROJECT-F-CONTROL-MANIFEST.json,wikilink_target_not_found
+03 - Projects/اونلی فنز/00 - Control/SYNTH-05-FINAL-PACKAGE-2026-07-20.md,PROJECT-F-CONTROL-MANIFEST.json,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Channels/CH-04\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Channels/CH-07\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Channels/CH-10\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Channels/CH-11\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Channels/CH-14\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Channels/CH-16\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Channels/CH-17\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-CHANNEL-REGISTRY\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Architecture/Dataflow\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Architecture/Backbone\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Architecture/Admin-UI\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Build Waves/Wave-1\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Build Waves/Wave-2\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Build Waves/Wave-3\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Build Waves/Wave-4\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,OCTOPUS-WAVE5-HARDENING-PLAN\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Build Waves/Wave-6\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,PROGRAM-CHARTER\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,RACI\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,UNIFIED-DECISION-REGISTER\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,SOURCE-OF-TRUTH-MATRIX\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,POLICY-STATUS-REGISTER\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Architecture/Dataflow\,wikilink_target_not_found
+03 - Projects/_OCTOPUS-PMO/MOC-OCTOPUS-System.md,Build Waves/Wave-4\,wikilink_target_not_found
+03 - Projects/Ziman Galerry/PROJECT.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Ziman Galerry/ZIMAN-SYSTEM-MAP.md,Ziman-System.canvas,wikilink_target_not_found
+03 - Projects/Ziman Galerry/docs/ZIMAN-SYSTEM-MAP.md,Ziman-System.canvas,wikilink_target_not_found
+03 - Projects/VibeGuard/00-START-HERE.md,chat-ingest/README\,wikilink_target_not_found
+03 - Projects/VibeGuard/Project-Specification.md,truncated N chars,wikilink_target_not_found
+03 - Projects/VibeGuard/chat-ingest/02-security-engine.md,truncated N chars,wikilink_target_not_found
+03 - Projects/Mining/VERDICT_QUEUE.md,03 - Projects/Mining/Hardware Registry & Runbook\,wikilink_target_not_found
+03 - Projects/Mining/VERDICT_QUEUE.md,03 - Projects/Mining/Coin Scouting Framework\,wikilink_target_not_found
+03 - Projects/Mining/04 - Research/2026-07-14 1512 solar-swarm-mining-research.md,sandbox:///mnt/agents/output/moutai_price.csv,mdlink_target_not_found
+03 - Projects/Mining/04 - Research/2026-07-14 1512 solar-swarm-mining-research.md,sandbox:///mnt/agents/output/moutai_chart.png,mdlink_target_not_found
+03 - Projects/Mining/04 - Research/2026-07-14 1512 solar-swarm-mining-research.md,sandbox:///mnt/agents/output/aapl_analyst_ratings.csv,mdlink_target_not_found
+03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/03 - SCORE-Screening-and-Forensics.md,"""SENSE لایه ۰۲ — کاندید dedup-شده""",wikilink_target_not_found
+03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/03 - SCORE-Screening-and-Forensics.md,گیت انسانی → ACT لایه ۰۶,wikilink_target_not_found
+03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/09 - EXIT-Liquidity-and-Accounting.md,HUMAN GATE — R8<br/>مالک تأیید/رد,wikilink_target_not_found
+03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/09 - EXIT-Liquidity-and-Accounting.md,Air-gapped signer — R4<br/>امضای tx، gas = hard-gate تک‌رخدادی,wikilink_target_not_found
+03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/_STATUS-and-HANDOFF.md,05 - ADVERSARIAL-DEFENSES,wikilink_target_not_found
+03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/_STATUS-and-HANDOFF.md,06 - ADVERSARIAL-DEFENSES,wikilink_target_not_found
+03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/_STATUS-and-HANDOFF.md,08 - ADVERSARIAL-DEFENSES,wikilink_target_not_found
+03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture/_STATUS-and-HANDOFF.md,^,wikilink_target_not_found
+03 - Projects/Lead-نقاشی/Lead-نقاشی.md,Atlas/Home MOC,wikilink_target_not_found
+03 - Projects/Lead-نقاشی/Lead-نقاشی.md,...,wikilink_target_not_found
+03 - Projects/Lead-نقاشی/Lead-نقاشی.md,...,wikilink_target_not_found
+03 - Projects/Crypto - etoro/CRYPTO_ARCHITECTURE_v1_2026-07-04.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+03 - Projects/Crypto - etoro/CRYPTO_ARCHITECTURE_v1_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Crypto - etoro/DecisionLog.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Crypto - etoro/L7_FLEET_DESIGN_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Crypto - etoro/MASTER_ARCHITECTURE_PROMPT_2026-07-04.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+03 - Projects/Crypto - etoro/MASTER_ARCHITECTURE_PROMPT_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Crypto - etoro/Portfolio Registry.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Crypto - etoro/PROJECT.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Crypto - etoro/docs/L7_FLEET_DESIGN_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Crypto - etoro/docs/MASTER_ARCHITECTURE_PROMPT_2026-07-04.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+03 - Projects/Crypto - etoro/docs/MASTER_ARCHITECTURE_PROMPT_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/PROJECT.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/_ecosystem/FINANCIAL-OS-BLUEPRINT-v1.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/_archive/original-dropin-2026-07-13/FINANCIAL-OS-BLUEPRINT-v1.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/_archive/original-dropin-2026-07-13/CryptoEtoro-Handoff/03_docs/L7_FLEET_DESIGN_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/_archive/original-dropin-2026-07-13/CryptoEtoro-Handoff/03_docs/MASTER_ARCHITECTURE_PROMPT_2026-07-04.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+03 - Projects/Accounting/_archive/original-dropin-2026-07-13/CryptoEtoro-Handoff/03_docs/MASTER_ARCHITECTURE_PROMPT_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/obsidian/00-MOC-Accounting-System.md,../contracts/adapter.yaml,wikilink_target_not_found
+03 - Projects/Accounting/obsidian/02-Data-Flow.md,../contracts/adapter.yaml,wikilink_target_not_found
+03 - Projects/Accounting/importer/README.md,ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/docs/Ecosystem-Rollout-Plan.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/docs/Ecosystem-Rollout-Plan.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/CryptoEtoro/03_docs/L7_FLEET_DESIGN_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+03 - Projects/Accounting/CryptoEtoro/03_docs/MASTER_ARCHITECTURE_PROMPT_2026-07-04.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+03 - Projects/Accounting/CryptoEtoro/03_docs/MASTER_ARCHITECTURE_PROMPT_2026-07-04.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+02-DECISIONS/OPEN-VERDICTS.md,../01-TRUTH/CONTRADICTIONS.md\,wikilink_target_not_found
+02-DECISIONS/OPEN-VERDICTS.md,../01-TRUTH/CONTRADICTIONS.md\,wikilink_target_not_found
+02-DECISIONS/OPEN-VERDICTS.md,../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/README\,wikilink_target_not_found
+02-DECISIONS/OPEN-VERDICTS.md,../07 - Knowledge/OCTOPUS-COUNCIL-2-2026-08-15/01-FORGOTTEN-GAPS\,wikilink_target_not_found
+02-DECISIONS/OWNER-RULINGS-2026-08-20-CHAT.md,PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+02-DECISIONS/OWNER-RULINGS-2026-08-20-CHAT.md,../06-EVIDENCE/K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+01 - Dashboard/Brain.md,04 - Architect System/architect/01-Project/BRAIN-UPGRADE-LOOP,wikilink_target_not_found
+01 - Dashboard/Brain.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+01 - Dashboard/Brain.md,03 - Projects/Lead-نقاشی/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,03 - Projects/Mining/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,03 - Projects/Crypto - etoro/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,03 - Projects/Accounting/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,03 - Projects/Ziman Galerry/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,03 - Projects/اونلی فنز/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,07 - Knowledge/Time-Architecture/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,04 - Architect System/architect/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Brain.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v3-proposal,wikilink_target_not_found
+01 - Dashboard/Brain.md,04 - Architect System/architect/01-Project/MYCOLEDGER-REBUILD-CHARTER-proposal,wikilink_target_not_found
+01 - Dashboard/Brain.md,04 - Architect System/architect/01-Project/BRAIN-UPGRADE-LOOP,wikilink_target_not_found
+01 - Dashboard/Domains Status.md,03 - Projects/Accounting/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Domains Status.md,03 - Projects/Lead-نقاشی/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Domains Status.md,03 - Projects/Mining/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Domains Status.md,03 - Projects/Crypto - etoro/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Domains Status.md,03 - Projects/Ziman Galerry/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Domains Status.md,03 - Projects/اونلی فنز/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Domains Status.md,04 - Architect System/architect/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Domains Status.md,07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\,wikilink_target_not_found
+01 - Dashboard/Home.md,Projects.base,wikilink_target_not_found
+01 - Dashboard/Home.md,Inbox.base,wikilink_target_not_found
+01 - Dashboard/Home.md,04 - Architect System/architect/00-Home,wikilink_target_not_found
+01 - Dashboard/Home.md,04 - Architect System/architect/00-Home,wikilink_target_not_found
+01 - Dashboard/VERDICT_QUEUE.md,_ops/SESSION-2026-07-27-W1-W5\,wikilink_target_not_found
+00 - Inbox/2026-07-06 0159 replication-kit-final-report.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+00 - Inbox/2026-07-06 0237 review-deep-gap-v2.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v2,wikilink_target_not_found
+00 - Inbox/2026-07-06 1325 MASTER-COWORK-STRATEGY.md,01 - Dashboard/HANDOFF\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1325 MASTER-COWORK-STRATEGY.md,_memory/EXPERIENCE-LEDGER\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1325 MASTER-COWORK-STRATEGY.md,05 - Agents/RATIFIED-TASKS\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1450 HYBRID-SPEC — ژنوم واحد.md,_launchpad/second-brain-live/control-brain/adapters/business/base.py,mdlink_target_not_found
+00 - Inbox/2026-07-06 1450 HYBRID-SPEC — ژنوم واحد.md,_launchpad/second-brain-live/control-brain/adapters/business/base.py,mdlink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,04 - Architect System/architect/02-Research/Report - Vault Relationship Map 2026-07-04 v3,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,04 - Architect System/architect/02-Research/Report - Vault Relationship Map 2026-07-04 v3,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,01 - Dashboard/HANDOFF\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,01 - Dashboard/Home\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,01 - Dashboard/Brain\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,02 - Life OS/Weekly Review\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,00 - Inbox/2026-07-06 1821 STATE-MAP — چهار جریان موازی و آشتی با طرح قبلی\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,00 - Inbox/2026-07-06 1450 HYBRID-SPEC — ژنوم واحد\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,00 - Inbox/2026-07-06 0245 MASTER-ARCHITECTURE-SPEC-v1.4-draft\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,00 - Inbox/2026-07-06 1410 COHERENCE-AUDIT-PITCH-draft\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,00 - Inbox/AGENT_QUESTIONS\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,00 - Inbox/DOCTOR-SYNTHESIS\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,00 - Inbox/2026-07-06 PROBE-MERGE\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,03 - Projects/_Index - Projects\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,03 - Projects/Lead-نقاشی/PROJECT\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,03 - Projects/Crypto - etoro/PROJECT\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,03 - Projects/Accounting/docs/Ecosystem-Rollout-Plan\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,03 - Projects/Ziman Galerry/ZIMAN-SYSTEM-MAP\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,04 - Architect System/architect/ARCHITECT_CHARTER\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,04 - Architect System/MYCELIAL-MASTER-SPEC\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,04 - Architect System/GOVERNOR-MUSE-SYSTEM-INDEX\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,05 - Agents/Research Scout Fleet\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,05 - Agents/Mycelium Scout\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,06 - Architecture Maps/SYSTEM_MAP\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,06 - Architecture Maps/ECOSYSTEM\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,07 - Knowledge/genome-system/INDEX\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,07 - Knowledge/Time-Architecture/theory\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,07 - Knowledge/_doctor-research/_INDEX\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,_memory/EXPERIENCE-LEDGER\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,_memory/HEARTBEAT\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,_memory/TWO-BRAIN-CONTROL-BLUEPRINT\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,_memory/FRANKENSTEIN-BUILD-PLAN\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,_memory/CONNECTIONS-MAP\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,_memory/LIVING-BRAIN-BLUEPRINT\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,10 - Telegram processing/SOP\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,10 - Telegram processing/ROUTING\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,_Templates/project\,wikilink_target_not_found
+00 - Inbox/2026-07-06 1911 Vault Relationship Map v4.md,04 - Architect System/architect/02-Research/Report - Vault Relationship Map 2026-07-04 v3,wikilink_target_not_found
+00 - Inbox/2026-07-07 1544 گزارش مهندسی چندایجنتی — بازبینی، تعمیر، آمادگی دیپلوی.md,00 - Inbox/AGENT_QUESTIONS\,wikilink_target_not_found
+00 - Inbox/2026-07-07 1815 گزارش جلسه ۲۷ — اجرای دستور کار جلسه ۲۶.md,05 - Agents/RATIFIED-TASKS\,wikilink_target_not_found
+00 - Inbox/2026-07-07 1815 گزارش جلسه ۲۷ — اجرای دستور کار جلسه ۲۶.md,04 - Architect System/architect/01-Project/M0.5-RESTORE-RUNBOOK-proposal\,wikilink_target_not_found
+00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT.md,04 - Architect System/architect/01-Project/M0.5-RESTORE-RUNBOOK-proposal,wikilink_target_not_found
+00 - Inbox/2026-07-07 2110 OCTOPUS-MASTER-PLAN v1.md,04 - Architect System/architect/01-Project/M0.5-RESTORE-RUNBOOK-proposal,wikilink_target_not_found
+00 - Inbox/2026-07-29 2200 MEGAPROMPT — ۲۵ زمینهٔ بهبود اختاپوس (پژوهشی، propose-only).md,OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,06 - Architecture Maps/OCTOPUS-COLLABORATOR-INTERACTION-CONTRACT\,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,_ops/INTERACTION-CONTRACT\,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,_ops/DISCOVERY-PROTOCOL\,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,_ops/CAPABILITY-JOURNAL\,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,_ops/EVIDENCE-LADDER\,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,_ops/ROUTE-POLICY\,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,03 - Projects/research-spec-compiler/adr/ADR-023-octopus-collaborator\,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,00 - Inbox/2026-08-11 OWNER — Focus AI Core Hidden Capabilities\,wikilink_target_not_found
+00 - Inbox/2026-08-11 SESSION — Talk Discovery Implemented.md,01 - Dashboard/HANDOFF\,wikilink_target_not_found
+00 - Inbox/2026-08-12 MEGAPROMPT — Discovery Wire Missing Connections (Junior-Safe).md,_ops/effector_registry.py,wikilink_target_not_found
+00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md,_ops/dark_capabilities.py,wikilink_target_not_found
+00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md,_ops/flag_drift.py,wikilink_target_not_found
+00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md,_ops/orphan_scan.py,wikilink_target_not_found
+00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md,_ops/effector_registry.py,wikilink_target_not_found
+00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md,_ops/capability_registry.py,wikilink_target_not_found
+00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md,_ops/capabilities/*.json,wikilink_target_not_found
+00 - Inbox/2026-08-15 DISCOVERY — Hidden Capabilities Catalog.md,00 - Inbox/_scratch-dark.json,wikilink_target_not_found
+00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery.md,_ops/dark_capabilities,wikilink_target_not_found
+00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery.md,_ops/orphan_scan,wikilink_target_not_found
+00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery.md,_ops/effector_registry,wikilink_target_not_found
+00 - Inbox/2026-08-15 MEGAPROMPT — Hidden Capabilities Discovery.md,_ops/capability_registry,wikilink_target_not_found
+00 - Inbox/2026-08-15 NIGHT — Activation & Test Session (all gates).md,../01-TRUTH/CONTRADICTIONS\,wikilink_target_not_found
+00 - Inbox/2026-08-15 SELF-CONTAINED — Architecture Deep-Scan for External Agents.md,03 - Projects/research-spec-compiler/adr,wikilink_target_not_found
+00 - Inbox/2026-08-16 DAY-INDEX (MOC).md,../04-SYSTEMS/DECISIONS-REGISTRY.yaml,wikilink_target_not_found
+00 - Inbox/2026-08-18 NOTE — A2-001 binding transfer awaiting 180 ACK.md,../06-EVIDENCE/canonical/receipts/TO-180-A2-001-binding-transfer-2026-08-18.json,wikilink_target_not_found
+00 - Inbox/2026-08-18 NOTE — A2-001 development_canonical owner-approved.md,../06-EVIDENCE/canonical/decisions/a2-001-development-canonical-owner-approved-2026-08-18.json,wikilink_target_not_found
+00 - Inbox/2026-08-18 NOTE — Continuation state + P3 cycle.md,../06-EVIDENCE/canonical/receipts/P3-scheduled-cycle-observed-2026-08-18.json,wikilink_target_not_found
+00 - Inbox/2026-08-18 NOTE — DEV-182-0001 automation review.md,../06-EVIDENCE/canonical/receipts/DEV-182-0001-review-2026-08-18.json,wikilink_target_not_found
+00 - Inbox/2026-08-18 NOTE — Laptop service inventory for .180 (awaiting owner).md,../06-EVIDENCE/SECRET-INVENTORY-REDACTED-2026-08-18,wikilink_target_not_found
+00 - Inbox/2026-08-18 NOTE — Laptop service inventory for .180 (awaiting owner).md,../06-EVIDENCE/SECRET-INVENTORY-REDACTED-2026-08-18,wikilink_target_not_found
+00 - Inbox/2026-08-18 NOTE — P3 hourly push error capture.md,../04 - Architect System/scripts/germline-hourly.ps1,wikilink_target_not_found
+00 - Inbox/2026-08-18 NOTE — TO-180 A2-001 canonical binding.md,../06-EVIDENCE/canonical/inbox/TO-180-A2-001-binding.json,wikilink_target_not_found
+00 - Inbox/2026-08-20 NOTE — signing card and k9 prereg.md,02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+00 - Inbox/2026-08-20 NOTE — signing card and k9 prereg.md,02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+00 - Inbox/AGENT_QUESTIONS.md,04 - Architect System/architect/_meta/knowledge-inventory,wikilink_target_not_found
+00 - Inbox/AGENT_QUESTIONS.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v1,wikilink_target_not_found
+00 - Inbox/AGENT_QUESTIONS.md,04 - Architect System/architect/01-Project/SECRETS-ROTATION-CHECKLIST,wikilink_target_not_found
+00 - Inbox/AGENT_QUESTIONS.md,02-DECISIONS/PRE-REG-K9-THREE-SEED-2026-08-20,wikilink_target_not_found
+00 - Inbox/DEEP-DOUBLECHECK-2026-07-08.md,wikilink,wikilink_target_not_found
+00 - Inbox/NONMD-TRIAGE-PLAN-2026-07-06.md,...,wikilink_target_not_found
+00 - Inbox/Prompt - Security Ops G-01.md,04 - Architect System/architect/01-Project/SECRETS-ROTATION-CHECKLIST,wikilink_target_not_found
+00 - Inbox/Prompt - خواندن کامل سیستم و آشتی زمان‌بند 2026-07-05.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/Prompt - خواندن کامل سیستم و آشتی زمان‌بند 2026-07-05.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,01 - Dashboard/Brain\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,05 - Agents/AGENT_REGISTRY\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,_memory/HEARTBEAT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,01 - Dashboard/Domains Status\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,03 - Projects/Ziman Galerry/PROJECT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,03 - Projects/Accounting/PROJECT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,03 - Projects/Lead-نقاشی/PROJECT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,03 - Projects/Mining/PROJECT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,03 - Projects/Crypto - etoro/PROJECT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,03 - Projects/Ziman Galerry/PROJECT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,03 - Projects/اونلی فنز/PROJECT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\,wikilink_target_not_found
+00 - Inbox/SYSTEM-STATE-2026-07-05.md,04 - Architect System/architect/PROJECT\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1655 selfimprove.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1744 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Adversarial Review v3 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1744 selfimprove.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v3-proposal,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1744 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Open Questions 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1744 selfimprove.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1744 selfimprove.md,04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v3-proposal,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1744 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Open Questions 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1744 selfimprove.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1850 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Adversarial Review v3 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1850 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Open Questions 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1911 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Open Questions 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1911 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Open Questions 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1922 selfimprove.md,00 - Inbox/scout-digests/2026-07-04 1835 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1922 selfimprove.md,00 - Inbox/scout-digests/2026-07-04 1826 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1922 selfimprove.md,00 - Inbox/scout-digests/2026-07-04 1906 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 1922 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Adversarial Review v3 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2008 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Open Questions 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2008 selfimprove.md,00 - Inbox/scout-digests/2026-07-04 1744 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2008 selfimprove.md,00 - Inbox/scout-digests/2026-07-04 1911 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2008 selfimprove.md,00 - Inbox/scout-digests/2026-07-04 1850 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2008 selfimprove.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2008 selfimprove.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2019 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Open Questions 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2019 selfimprove.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2023 selfimprove-safety.md,04 - Architect System/architect/01-Project/SECRETS-ROTATION-CHECKLIST,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2023 selfimprove-safety.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2041 selfimprove-safety.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2054 selfimprove-safety.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2104 selfimprove.md,04 - Architect System/architect/02-Research/Report - Architect - Open Questions 2026-07-04,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2104 selfimprove.md,04 - Architect System/architect/02-Research/SCOUT-C,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 2128 selfimprove.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 exec-digest.md,00 - Inbox/scout-digests/2026-07-04 1744 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 exec-digest.md,00 - Inbox/scout-digests/2026-07-04 philosophy\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 exec-digest.md,00 - Inbox/scout-digests/2026-07-04 2054 selfimprove-safety\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 exec-digest.md,00 - Inbox/scout-digests/2026-07-04 1911 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 exec-digest.md,00 - Inbox/scout-digests/2026-07-04 2031 selfimprove-memory\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 exec-digest.md,00 - Inbox/scout-digests/2026-07-04 2050 selfimprove-memory\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 exec-digest.md,00 - Inbox/scout-digests/2026-07-04 2049 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 exec-digest.md,00 - Inbox/scout-digests/2026-07-04 2008 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-04 synthesis.md,04 - Architect System/architect/01-Project/SECRETS-ROTATION-CHECKLIST,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-05 1214 selfimprove.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-05 1249 selfimprove-safety.md,04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-05 1312 selfimprove.md,00 - Inbox/scout-digests/2026-07-05 1259 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-05 1312 selfimprove.md,00 - Inbox/scout-digests/2026-07-04 1744 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-05 1312 selfimprove.md,00 - Inbox/scout-digests/2026-07-05 1238 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-05 1312 selfimprove.md,00 - Inbox/scout-digests/2026-07-05 1229 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-05 crypto.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/scout-digests/2026-07-06 markets.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/scout-digests/_Mycorrhizal Map.md,04 - Architect System/architect/02-Research/Report - Vault Relationship Map 2026-07-04 v3,wikilink_target_not_found
+00 - Inbox/scout-digests/_Mycorrhizal Map.md,00 - Inbox/scout-digests/2026-07-05 mycelium\,wikilink_target_not_found
+00 - Inbox/scout-digests/_Mycorrhizal Map.md,00 - Inbox/scout-digests/2026-07-05 1229 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_Mycorrhizal Map.md,00 - Inbox/scout-digests/2026-07-05 1206 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_README - Scout Digests.md,Scout Digests.base,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 1744 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 philosophy\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 2054 selfimprove-safety\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 1922 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 1835 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-05 1219 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 1655 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-05 1238 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-05 1304 selfimprove-safety\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-05 1339 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-05 1248 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 2040 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 2041 selfimprove-safety\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 1911 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 2049 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 2050 selfimprove-memory\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 2031 selfimprove-memory\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-05 1259 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-05 1339 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-05 1321 selfimprove\,wikilink_target_not_found
+00 - Inbox/scout-digests/_TRIAGE-BOARD.md,00 - Inbox/scout-digests/2026-07-04 2008 selfimprove\,wikilink_target_not_found
+00 - Inbox/build-proposals/03-mycelial-spec-reflexion-2026-07-05.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/build-proposals/04-git-init-runbook-2026-07-05.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/build-proposals/04-git-init-runbook-2026-07-05.md,04 - Architect System/scripts/gitleaks.toml,wikilink_target_not_found
+00 - Inbox/build-proposals/04-git-init-runbook-2026-07-05.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/build-proposals/04-git-init-runbook-2026-07-05.md,04 - Architect System/architect/ARCHITECT_CHARTER,wikilink_target_not_found
+00 - Inbox/build-proposals/07-review-packet-2026-07-05.md,00 - Inbox/build-proposals/01-fable5-codepack-wave1-2026-07-05\,wikilink_target_not_found
+00 - Inbox/build-proposals/07-review-packet-2026-07-05.md,00 - Inbox/build-proposals/02-fable5-codepack-wave2-3-2026-07-05\,wikilink_target_not_found
+00 - Inbox/build-proposals/07-review-packet-2026-07-05.md,00 - Inbox/build-proposals/03-mycelial-spec-reflexion-2026-07-05\,wikilink_target_not_found
+00 - Inbox/build-proposals/07-review-packet-2026-07-05.md,00 - Inbox/build-proposals/04-git-init-runbook-2026-07-05\,wikilink_target_not_found
+00 - Inbox/build-proposals/07-review-packet-2026-07-05.md,00 - Inbox/build-proposals/05-ai-agent-eng-2026-2026-07-05\,wikilink_target_not_found
+00 - Inbox/build-proposals/07-review-packet-2026-07-05.md,00 - Inbox/build-proposals/06-opsec-rotation-2026-07-05\,wikilink_target_not_found

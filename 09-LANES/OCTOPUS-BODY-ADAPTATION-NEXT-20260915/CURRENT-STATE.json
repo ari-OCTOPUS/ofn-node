@@ -1,0 +1,235 @@
+{
+  "schema": "octopus.body_adaptation.handoff_state.v1",
+  "observed_at_utc": "2026-09-15T04:19:11.4587733Z",
+  "scope": "STORED_LOCAL_EVIDENCE_REVIEW",
+  "live_runtime_verified": false,
+  "success_criteria": [
+    "better_answers",
+    "usable_durable_memory",
+    "laptop_independent_continuity"
+  ],
+  "overall": "OPEN",
+  "continuity": {
+    "reported_status": "IN_PROGRESS",
+    "started_at_utc": "2026-09-15T04:03:36Z",
+    "earliest_time_only_utc": "2026-09-16T04:03:36Z",
+    "earliest_sydney": "2026-09-16T14:03:36+10:00",
+    "elapsed_time_alone_sufficient": false,
+    "laptop_dependency_probe": "NOT_YET_IN_STORED_RECEIPT",
+    "automatic_scheduler_proven_by_this_review": false,
+    "preserve_prior_window": true
+  },
+  "path": {
+    "commander": "138",
+    "bus": "jsonl_138",
+    "p5_job_id": "job-8f635a12d2cd4228",
+    "p5_type": "echo_capability_probe",
+    "p5_recorded_state": "CLOSED",
+    "p5_qa": "PASS_WITH_CAVEAT",
+    "actual_retrieval_proven": false,
+    "nats_durability": "NOT_CLAIMED",
+    "jetstream_consumers_at_snapshot": 0
+  },
+  "acceptance_rows": [
+    {
+      "id": "PB-1",
+      "reported_status": "IN_PROGRESS",
+      "receipt_source_id": "pb1",
+      "caveats": [
+        "START ONLY — PASS only after >=24.0h wall-clock",
+        "sample job-432175b362774fae CLOSED on jsonl_138->100"
+      ],
+      "carry_forward_notes": "critical_path laptop_required=false; laptop_dependency_probe NOT_YET for full soak"
+    },
+    {
+      "id": "PB-2",
+      "reported_status": "PASS",
+      "receipt_source_id": "pb2",
+      "caveats": [],
+      "carry_forward_notes": "kill mid-lease sleep on 100; UNKNOWN terminal; side_effects=0; idempotency rehit; never power off 138"
+    },
+    {
+      "id": "PB-3",
+      "reported_status": "PASS",
+      "receipt_source_id": "pb3",
+      "caveats": [
+        "reverify of P3 copy; live 138 not overwritten"
+      ],
+      "carry_forward_notes": "180 /opt/octopus-restore-copies/p3-20260915T033708Z 9/9 MATCH; RPO=0 RTO=3 from addendum 5262d4ea; parent 83d52513"
+    },
+    {
+      "id": "PB-4",
+      "reported_status": "NOT_RUN",
+      "receipt_source_id": "pb4",
+      "caveats": [],
+      "carry_forward_notes": "no retrieval QA harness / frozen prompt set; fleet_facts rows=1 dry only; DENY invent scores"
+    },
+    {
+      "id": "PB-5",
+      "reported_status": "PASS",
+      "receipt_source_id": "pb5",
+      "caveats": [
+        "138 NOT_RUN organism_optional_last retained",
+        "nominal RK3588 ~6 TOPS/board only — DENY usable-42"
+      ],
+      "carry_forward_notes": "fold T2 matrix d13f1928… 6/7 PASS; measured latency/fps where PASS"
+    },
+    {
+      "id": "PB-6",
+      "reported_status": "PASS",
+      "receipt_source_id": "pb6",
+      "caveats": [
+        "193 bind_role=model_infer does NOT claim T3 model-server service"
+      ],
+      "carry_forward_notes": "fixed denominator 7; auth OK + HB HEALTHY all rows; RAM/temp recorded"
+    }
+  ],
+  "review_limits": [
+    {
+      "id": "PB2-SCOPE",
+      "finding": "sleep stand-in killed; manual UNKNOWN; lease expires in 2099",
+      "implication": "real consumer crash recovery and short lease expiry not established"
+    },
+    {
+      "id": "PB3-SCOPE",
+      "finding": "9/9 file match; RPO=0 at snapshot; 3 seconds manifest/transfer/check",
+      "implication": "service recovery time and continuous RPO not established"
+    },
+    {
+      "id": "NPU-CORRECTNESS",
+      "finding": "pseudo-image plus checksum; no gold reference",
+      "implication": "runtime execution evidence distinct from semantic output correctness"
+    },
+    {
+      "id": "NPU-HARNESS",
+      "finding": "loop can break on error but statistics use loops and final STATUS=PASS remains unconditional",
+      "implication": "repair new benchmark version; no claim historical runs actually failed"
+    },
+    {
+      "id": "P4-IDENTITY",
+      "finding": "shared client mesh key; strict-hostkey method recorded",
+      "implication": "no independent per-worker signing or HMAC claim"
+    },
+    {
+      "id": "P6-QA",
+      "finding": "seal cited but direct file not found in inspected lane tree",
+      "implication": "cannot claim independently verified QA seal here"
+    }
+  ],
+  "npus": {
+    "denominator": 7,
+    "reported_pass": 6,
+    "not_run": [
+      "138"
+    ],
+    "rows": [
+      {
+        "node": "138",
+        "status": "NOT_RUN",
+        "note": "organism_optional_last"
+      },
+      {
+        "node": "180",
+        "status": "PASS",
+        "latency_ms_mean": 19.83,
+        "latency_ms_p50": 20.095,
+        "latency_ms_p95": 20.762,
+        "throughput_fps": 50.429
+      },
+      {
+        "node": "182",
+        "status": "PASS",
+        "latency_ms_mean": 16.815,
+        "latency_ms_p50": 16.811,
+        "latency_ms_p95": 17.053,
+        "throughput_fps": 59.472
+      },
+      {
+        "node": "100",
+        "status": "PASS",
+        "latency_ms_mean": 20.638,
+        "latency_ms_p50": 20.846,
+        "latency_ms_p95": 23.657,
+        "throughput_fps": 48.454
+      },
+      {
+        "node": "160",
+        "status": "PASS",
+        "latency_ms_mean": 20.613,
+        "latency_ms_p50": 20.255,
+        "latency_ms_p95": 24.26,
+        "throughput_fps": 48.513
+      },
+      {
+        "node": "193",
+        "status": "PASS",
+        "latency_ms_mean": 19.909,
+        "latency_ms_p50": 20.346,
+        "latency_ms_p95": 20.541,
+        "throughput_fps": 50.23
+      },
+      {
+        "node": "114",
+        "status": "PASS",
+        "latency_ms_mean": 21.954,
+        "latency_ms_p50": 20.542,
+        "latency_ms_p95": 40.871,
+        "throughput_fps": 45.549
+      }
+    ],
+    "usable_42_tops_claim": false,
+    "semantic_correctness": "UNVALIDATED_IN_REVIEWED_BENCHMARK",
+    "reexecution_this_turn": false
+  },
+  "roles": [
+    {
+      "node": "138",
+      "role": "sole_commander_writer"
+    },
+    {
+      "node": "180",
+      "role": "quality_restore_readonly"
+    },
+    {
+      "node": "182",
+      "role": "witness_existing_sensorium"
+    },
+    {
+      "node": "100",
+      "role": "knowledge_retrieve"
+    },
+    {
+      "node": "160",
+      "role": "knowledge_prep"
+    },
+    {
+      "node": "193",
+      "role": "model_infer"
+    },
+    {
+      "node": "114",
+      "role": "eval_batch"
+    }
+  ],
+  "governance": {
+    "p5_go": "RECORDED",
+    "p6_go": "RECORDED",
+    "repeat_general_go_request": false,
+    "customer_send": "HOLD",
+    "may_authorize": false,
+    "dual_commander": false,
+    "power_off_138": false,
+    "mac_dhcp": "DOCS_ONLY",
+    "new_operational_job_types": "CHECK_SCOPED_GATE_BEFORE_DEPLOY",
+    "normal_class_a": "PROCEED",
+    "normal_class_b": "WITNESS_THEN_SINGLE_NODE_CANARY"
+  },
+  "next_actions": [
+    "reconcile_active_owner_and_runtime_path",
+    "verify_continuity_has_real_scheduler_and_dependency_evidence",
+    "build_real_retrieval_and_PB4_heldout_harness",
+    "build_T3_service_in_separate_owned_slice",
+    "measure_real_worker_recovery_and_semantic_restore",
+    "wire_measured_capabilities_into_existing_scheduler_and_self_model"
+  ]
+}

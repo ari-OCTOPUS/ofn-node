@@ -1,0 +1,3450 @@
+{
+ "schema": "octopus.deep-scan.seed.v1",
+ "lane": "OCTOPUS-WHY-SLOW-250-20260918",
+ "items": [
+  {
+   "id": "W-026",
+   "title": "[CONFIRMED] برای ۳۵ درخواست فقط ۳ فالوآپ ثبت شده — زنجیرهٔ پیگیری عملاً وجود ندارد",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/sent-log.jsonl",
+    "anchor": "W-026"
+   },
+   "evidence_of_unfinished": "sent-log: followup_1 = 3 ردیف در برابر packet+quote = 35",
+   "U": 4,
+   "R": 4,
+   "C": 5
+  },
+  {
+   "id": "W-002",
+   "title": "[CONFIRMED] دو کارت MONEY-BATCH واقعی هنوز PENDING هستند و ۹ بستهٔ quote آماده در صف آن‌ها خوابیده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-ask-registry.json",
+    "anchor": "W-002"
+   },
+   "evidence_of_unfinished": "رجیستر کارت‌ها: d3c0fdea (09-17T23:29) و 2d90365e (09-18T00:00) با sent_ok=true و state=PENDING؛ بسته‌ها QP-20260917/18",
+   "U": 5,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-006",
+   "title": "[CONFIRMED] قیف ۰۹-۱۶T06:15Z به بعد کاملاً خشک شده: ۳۵ درخواست تا آن روز، صفر ارسال در ۰۹-۱۷ و ۰۹-۱۸",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/sent-log.jsonl (by day)",
+    "anchor": "W-006"
+   },
+   "evidence_of_unfinished": "sent-log: 10/8/10/11 ارسال در 4 روز و سپس هیچ؛ درحالی‌که 9 بستهٔ تازه staged است",
+   "U": 5,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-015",
+   "title": "[CONFIRMED] فروشگاه زنده است ولی ۴۸۲ بررسی پیاپی صفر سفارش داشته — تقاضا تولید نمی‌شود، نه اینکه تحویل خراب باشد",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-review.json @09-18T00:00Z",
+    "anchor": "W-015"
+   },
+   "evidence_of_unfinished": "owner-review.json: store LIVE but 482 consecutive zero-order checks",
+   "U": 5,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-005",
+   "title": "[CONFIRMED] شمارنده‌های قیف چهار عدد ناسازگار می‌دهند: ۹۴ مجاز، ۳ در حالت SENT، ۳۹ ردیف sent-log، ۱۰۳ staged",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/revenue-state.json",
+    "anchor": "sent-log.jsonl"
+   },
+   "evidence_of_unfinished": "revenue-state.counts (94/3) + sent-log (39) + season-meter (103/3) — واحدها به هم نمی‌خورند",
+   "U": 3,
+   "R": 4,
+   "C": 5
+  },
+  {
+   "id": "W-008",
+   "title": "[CONFIRMED] هیچ ردیابی bounce/open/reply برای ارسال‌ها وجود ندارد؛ موفقیت کمپین قابل اندازه‌گیری نیست",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/outbound-effects.sqlite3",
+    "anchor": "W-008"
+   },
+   "evidence_of_unfinished": "outbound-effects.sqlite3 با ۰ بایت در 09-16T22:53 ساخته شده و خالی مانده",
+   "U": 4,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-010",
+   "title": "[CONFIRMED] مصرف‌کنندهٔ آلارم پاسخ مشتری وجود ندارد؛ پاسخ‌ها تا چرخهٔ ۶ ساعته دیده نمی‌شوند",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/FORGOTTEN-LIST (F-019)",
+    "anchor": "W-010"
+   },
+   "evidence_of_unfinished": "F-019: imap customer-reply alert consumer absent — replies land unseen until the 6h cycle",
+   "U": 4,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-016",
+   "title": "[CONFIRMED] CHECKOUT-1: با ۲۵۱+ بررسی، هیچ تشخیصی روی قیف خرید اجرا نشده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "00-SEASON/SEASON-ZIMAN-GOV-V8-EXTERNAL-HANDOFF-20260906.md (F-098)",
+    "anchor": "W-016"
+   },
+   "evidence_of_unfinished": "F-098: zero orders with store live — no checkout funnel diagnosis ever run",
+   "U": 4,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-027",
+   "title": "[CONFIRMED] مصرف‌کنندهٔ تصمیم به‌جای dispatch روی تصمیم‌های بی‌تسک می‌چرخد: ۲۰۷۸ تلاش در ۲.۵ روز، ۶۶ بار در ساعت",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/owner_dialogue/decision_consumption.jsonl",
+    "anchor": "W-027"
+   },
+   "evidence_of_unfinished": "decision_consumption.jsonl: 2078 ردیف DECISION_NO_TASK_RETRYABLE روی ۵ کلید",
+   "U": 4,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-034",
+   "title": "[CONFIRMED] تعداد پاسخ‌های واقعی به ۳۵ درخواست فقط ۱ است (~۳٪)؛ پیام‌ها احتمالاً ضعیف یا نامرتبط‌اند",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/sent-log.jsonl",
+    "anchor": "W-034"
+   },
+   "evidence_of_unfinished": "۱ reply_1 در برابر 35 ارسال؛ نرخ ذکرشده در هیچ ردیفی ثبت نشده",
+   "U": 4,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-S04",
+   "title": "[PARTIAL] بازوی زیمن با hold_external معلق است؛ نیمی از ظرفیت درآمدی از ارسال بیرونی معاف مانده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-REVENUE-R1-20260918/PROMPT-REVENUE-R1.md",
+    "anchor": "W-S04"
+   },
+   "evidence_of_unfinished": "PROMPT-REVENUE-R1: Ziman hold_external=true تا حکم جدا",
+   "U": 4,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-S07",
+   "title": "[CONFIRMED] پاسخ اولین مشتری ~۵.۹ ساعت بی‌جواب مانده — SLA پاسخ وجود ندارد",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/sent-log.jsonl (trigger REPLY_DETECTED)",
+    "anchor": "F-019"
+   },
+   "evidence_of_unfinished": "reply مشتری 09-16T00:22:06Z شناسایی شد؛ reply_1 در 06:15:59Z ارسال شد",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-040",
+   "title": "[CONFIRMED] تقاضای ورودی هیچ ابزار اندازه‌گیری ندارد جز شمارندهٔ ارسال — بازخورد بازار صفر است",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/season-meter.json",
+    "anchor": "W-040"
+   },
+   "evidence_of_unfinished": "meter فقط شمارندهٔ ارسال/staged دارد؛ هیچ نرخ تبدیل یا پاسخ موفق ثبت نمی‌شود",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-045",
+   "title": "[CONFIRMED] شمارش «authorized_with_contact=94» در برابر «sent=3» یعنی ۹۱ سرنخ مجاز هنوز پیام نگرفته‌اند",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/season-meter.json",
+    "anchor": "W-045"
+   },
+   "evidence_of_unfinished": "season-meter: authorized 94 / staged 103 / sent-state 3",
+   "U": 4,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-060",
+   "title": "[PARTIAL] ۸ روز «نه درآمد» با ۳ روز ارسال شدید نشان می‌دهد پیام‌ها به مشتری واقعی نرسیده‌اند (یا جواب نگرفته) — فرض مخاطب غلط است",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "sent-log",
+    "anchor": "season-meter"
+   },
+   "evidence_of_unfinished": "هم‌زمانی ۳۵ ارسال و صفر سفارش/۱ پاسخ",
+   "U": 4,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-S02",
+   "title": "[PARTIAL] قیف تقاضا دوره‌های طولانی مرده بوده (enrich attempted:0 تکرارشونده)",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "state/legs/lead-inbox (رجوع R1)",
+    "anchor": "revenue-drive/lead-emails.jsonl"
+   },
+   "evidence_of_unfinished": "شمارندهٔ enrich صفر شده و lead-emails تا 09-13 فریز بود",
+   "U": 4,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-S03",
+   "title": "[CONFIRMED] پیشنهاد (offer) هرگز iterate نشد — نسخهٔ اولیه بدون بازخورد ماند",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (season audit)",
+    "anchor": "offer-experiments.json"
+   },
+   "evidence_of_unfinished": "ممیزی سیزن: offer never iterated; فقط subject-v1 ساخته شد",
+   "U": 4,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-133",
+   "title": "[CONFIRMED] پایگاه اثر خروجی (outbound-effects) صفر بایت است — هیچ outcome از ارسال‌ها به یادگیری نمی‌رسد",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/outbound-effects.sqlite3",
+    "anchor": "W-133"
+   },
+   "evidence_of_unfinished": "outbound-effects.sqlite3 = 0 bytes (mtime 09-16T22:53)",
+   "U": 4,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-134",
+   "title": "[CONFIRMED] هیچ سیم‌کشی از پاسخ مشتری به ردیف یادگیری وجود ندارد؛ حلقهٔ بازار→یادگیری بسته نیست",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive (ls)",
+    "anchor": "octopus-learningfeeder.timer"
+   },
+   "evidence_of_unfinished": "هیچ فایل feedback→learning در قیف؛ learningfeeder فقط روی منابع عمومی کار می‌کند",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-S09",
+   "title": "[CONFIRMED] دانش پراکنده باعث می‌شود هر ایجنت از صفر جهت‌گیری کند؛ هزینهٔ بازکشف در هر نشست ثابت است",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md",
+    "anchor": "F-036"
+   },
+   "evidence_of_unfinished": "ENGINEERING-ENTRYPOINT برای همین ساخته شد ولی به 09-04 اشاره می‌کند (F-036)",
+   "U": 4,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-S12",
+   "title": "[CONFIRMED] الگوی متاکار-قبل-از-تقاضا واقعاً رخ داده و ORDER-LAW در واکنش به آن نوشته شد",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (season correction 09-15, commit 686550b)",
+    "anchor": "W-S12"
+   },
+   "evidence_of_unfinished": "MEGAPROMPT-SEASON-CORRECTION: ORDER-LAW (no meta-work before daily demand receipt)",
+   "U": 4,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-001",
+   "title": "[CONFIRMED] کارت TRAFFIC-DECISION که تنها قفل واقعی پول نامیده شده، ۴.۸ روز باز مانده است",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-ask-sent.json",
+    "anchor": "owner-review.json"
+   },
+   "evidence_of_unfinished": "کارت 09-13T05:01:56Z ارسال شده (http_200) و تا امروز رأیی برایش ثبت نشده؛ خودِ رجیستر آن را single real money unlock می‌نامد",
+   "U": 5,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-042",
+   "title": "[CONFIRMED] سیزن-لاگ ۸ روز پیاپی «نه درآمد» ثبت کرده — الگوی سیستمی، نه بدشانسی یک روز",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (season audit 09-15) یادداشت ممیزی سیزن",
+    "anchor": "W-042"
+   },
+   "evidence_of_unfinished": "memory/audit: 8 straight days نه درآمد in a revenue season",
+   "U": 5,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-013",
+   "title": "[CONFIRMED] پوشهٔ campaign از ۰۹-۱۳ خالی است؛ پشت ارسال‌ها هیچ ساختار کمپینی (هدف/بازه/معیار) نیست",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/campaign/",
+    "anchor": "W-013"
+   },
+   "evidence_of_unfinished": "ls state/revenue-drive/campaign: خالی (mtime 09-13T05:16)",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-017",
+   "title": "[PARTIAL] چرخهٔ درآمد ۶ ساعته است ولی تایمر quote هر ۳۰ دقیقه می‌زند؛ هر تأیید مالک تا ۶ ساعت در چرخهٔ بعدی می‌افتد",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138: systemctl list-timers",
+    "anchor": "W-017"
+   },
+   "evidence_of_unfinished": "octopus-revenue-drive.timer هر 6h؛ octopus-quote.timer هر ~30min",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-022",
+   "title": "[CONFIRMED] ۲۹ سرنخ فقط-تلفنی با یادداشت «هیچ خروجی به هیچ شکل» در صف مانده‌اند — کانال تماس خریداری نشده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/phone-only-queue.jsonl",
+    "anchor": "W-022"
+   },
+   "evidence_of_unfinished": "phone-only-queue.jsonl: 29 ردیف، note=NO outbound of any kind",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-023",
+   "title": "[NEEDS_EVIDENCE] ~۱۹ سرنخ استراتا که مالک باید تأمین می‌کرد هرگز نیامد — منبع تقاضا نیمه‌خالی",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/BIZ-LEGS-TEACH-20260905/LANE-REPORT.md (F-030)",
+    "anchor": "W-023"
+   },
+   "evidence_of_unfinished": "F-030: ~19 strata leads owner never supplied",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-025",
+   "title": "[CONFIRMED] تنها یک آزمایش پیشنهاد (subject-v1) ساخته شده و نتیجه‌اش هیچ‌جا به ارسال‌ها گره نخورده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/offer-experiments.json",
+    "anchor": "sent-log.jsonl"
+   },
+   "evidence_of_unfinished": "offer-experiments.json (09-15) یک experiment دارد؛ sent-log فیلد variant ندارد",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-028",
+   "title": "[CONFIRMED] ۵ کلید تصمیمِ چرخان، بازماندهٔ erratum over-ACK 09-16T20:25 هستند — دفتر تصمیم آلوده شده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/owner_dialogue/owner_decision.v1.jsonl",
+    "anchor": "decision_consumption.jsonl"
+   },
+   "evidence_of_unfinished": "کلید ad927b75 (۱۵۲۰ تلاش) در 09-16T20:25:12Z ساخته شده؛ سه ردیف owner_decision همان لحظه NOT owner vote علامت خورده",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-029",
+   "title": "[PARTIAL] قاعدهٔ «parked lane دوباره از مالک نمی‌پرسد» (AUTONOMY_V3 §9) احتمالاً یادآوری کارت‌های معلق را هم خفه کرده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/revenue-state.json",
+    "anchor": "W-029"
+   },
+   "evidence_of_unfinished": "revenue-state.note: parked lanes do not re-ask the owner every cycle (V3 section 9)",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-030",
+   "title": "[CONFIRMED] هیچ ددلاین/اسکالیشنی روی کارت‌های مالک نیست؛ TRAFFIC-DECISION پیش‌نمونهٔ ۴.۸ روز سکوت است",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-ask-registry.json",
+    "anchor": "W-030"
+   },
+   "evidence_of_unfinished": "کارت 09-13 باز است و هیچ قاعدهٔ ددلاینی در state پیدا نشد",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-031",
+   "title": "[CONFIRMED] sent-log فیلد variant/segment ندارد — انتساب پاسخ به پیشنهاد ناممکن است",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/sent-log.jsonl",
+    "anchor": "W-031"
+   },
+   "evidence_of_unfinished": "ساختار ردیف‌ها: at/kind/packet/payload_sha16/to_domain — بدون variant",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-033",
+   "title": "[CONFIRMED] هیچ لاگ bounce/undeliverable در پوشهٔ قیف نیست؛ ارسال‌های مرده دیده نمی‌شوند",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/",
+    "anchor": "W-033"
+   },
+   "evidence_of_unfinished": "ls revenue-drive: هیچ bounce/undeliverable؛ outbound-effects.sqlite3 خالی",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-223",
+   "title": "[CONFIRMED] کانال تلفن برای B2B غایب است در حالی که تلفن کانال اصلی پیمانکار/استراتا است",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/phone-only-queue.jsonl",
+    "anchor": "owner-decisions (CARD2)"
+   },
+   "evidence_of_unfinished": "DIDWW خریداری نشده؛ phone-only-queue بی‌خروجی",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-231",
+   "title": "[NEEDS_EVIDENCE] شبکهٔ شخصی مالک (ارزان‌ترین کانال B2B) به‌عنوان کانال صفر استفاده نشده",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/ (ls)",
+    "anchor": "W-231"
+   },
+   "evidence_of_unfinished": "هیچ فایل warm-network/intro در state",
+   "U": 3,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-037",
+   "title": "[NEEDS_EVIDENCE] Airtasker صفر سرنخ می‌دهد و علتش هرگز اندازه‌گیری نشده",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-033)",
+    "anchor": "W-037"
+   },
+   "evidence_of_unfinished": "F-033: Airtasker zero leads — cause UNKNOWN, never measured (watch wired but intake empty)",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-044",
+   "title": "[CONFIRMED] ۲۹ سرنخ تلفنی بدون هیچ خروجی، سهم ۳۰٪ بانک سرنخ را بی‌استفاده گذاشته",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/phone-only-queue.jsonl",
+    "anchor": "W-044"
+   },
+   "evidence_of_unfinished": "phone-only-queue 29 ردیف؛ کانال تماس خریده نشده (DIDWW معلق)",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-046",
+   "title": "[PARTIAL] پیام‌های ارسالی قالب یکسان دارند و شخصی‌سازی بازار (NSW strata) محدود است",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/offer-experiments.json",
+    "anchor": "owner-review.json"
+   },
+   "evidence_of_unfinished": "owner-review: market derived from own files؛ template subject-v1 واحد",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-049",
+   "title": "[NEEDS_EVIDENCE] جدول رقبا وجود ندارد؛ قیمت‌گذاری بدون مرجع بازار انجام شده",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "03 - Projects/Ziman Galerry/TODO.md (F-028)",
+    "anchor": "W-049"
+   },
+   "evidence_of_unfinished": "F-028: competitor table open در Ziman TODO",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-051",
+   "title": "[PARTIAL] کانال ایمیل فقط ۶۸ مخاطب دارد و هیچ growth loop (اشتراک/محتوای ورودی) ندارد",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/season-meter.json",
+    "anchor": "W-051"
+   },
+   "evidence_of_unfinished": "emails_known=68 از 97",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-052",
+   "title": "[PARTIAL] هیچ تست بازار (پیام به ۲۰ سرنخ جدید با ۳ پیام مختلف) طراحی نشده؛ فرض‌ها بی‌آزمون می‌مانند",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/",
+    "anchor": "W-052"
+   },
+   "evidence_of_unfinished": "هیچ فایل experiment/tests در قیف بجز subject-v1 نیست",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-054",
+   "title": "[PARTIAL] پاسخ‌دقیق به سؤال مشتری اول (کدام ساختمان) مستند نشده که چرخهٔ بعدی آن را ببیند",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/sent-log.jsonl",
+    "anchor": "W-054"
+   },
+   "evidence_of_unfinished": "فقط trigger پاسخ ثبت شده؛ محتوای پاسخ/نیاز مشتری در دفتر قیف نیست",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-059",
+   "title": "[CONFIRMED] همهٔ اندازه‌گیری‌ها روی «فرستاده شد» متمرکزند نه «پاسخ آمد» — معیار انگیزشی اشتباه",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/season-meter.json",
+    "anchor": "W-059"
+   },
+   "evidence_of_unfinished": "season-meter فقط sent/staged می‌شمارد؛ هیچ ستون نرخ پاسخ",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-081",
+   "title": "[CONFIRMED] بانک سرنخ از ۰۹-۱۶ رشد نکرده — ماشین تولید سرنخ جدید خواب است",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/lead-emails.jsonl (mtime)",
+    "anchor": "W-081"
+   },
+   "evidence_of_unfinished": "lead-emails.jsonl mtime=09-16T21:14 و از آن پس تغییری ندارد؛ lead-enrich-cursor ثابت",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-062",
+   "title": "[NEEDS_EVIDENCE] SKU قهرمان REV-1 هرگز ساخته نشد؛ مسیر SKU C/D/E هم باز مانده",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/Q-MARKET-COMPARE-20260905/LANE-REPORT.md (F-029)",
+    "anchor": "W-062"
+   },
+   "evidence_of_unfinished": "F-029: REV-1 shelf SKU never built + SKU C/D/E path open",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-063",
+   "title": "[NEEDS_EVIDENCE] بستهٔ پیشنهاد نقاشی هیچ نمونه‌کار/کیس‌استادی ندارد",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-063"
+   },
+   "evidence_of_unfinished": "هیچ portfolio/case فایل در revenue-drive یا offer",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-071",
+   "title": "[PARTIAL] پیام‌ها #A/B ندارند جز subject؛ بدنِ پیام هرگز آزمون نشد",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/offer-experiments.json",
+    "anchor": "W-071"
+   },
+   "evidence_of_unfinished": "offer-experiments فقط subject-v1 دارد",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-074",
+   "title": "[NEEDS_EVIDENCE] موجودی صفرِ محصولات قهرمان تا ۰۹-۱۷ ادامه داشت؛ فروش بالقوه صفر شد",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "A2 receipts on 138 (needs re-check)",
+    "anchor": "W-074"
+   },
+   "evidence_of_unfinished": "memory: SHELF-1: 2 hero products ZERO STOCK (fixed A2 09-17 receipts)",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-083",
+   "title": "[NEEDS_EVIDENCE] شمارهٔ تماس نمایشی مالک (AUTO1) هرگز تأمین نشد؛ صف تماس fail-closed از ۰۹-۰۸ خاموش است",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/UNLOCK-REGISTRY-2026-09-08.md (F-016)",
+    "anchor": "W-083"
+   },
+   "evidence_of_unfinished": "F-016: AUTO1 owner display phone number never supplied — fail-closed caller queue dark since 09-08 (recurring blocker in 3 handoffs)",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-084",
+   "title": "[CONFIRMED] خرید سرویس تماس DIDWW (حدود $۲۰) هم‌چنان اقدام مالک است و هیچ کارتی برایش در رجیستر نیست",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-decisions.jsonl",
+    "anchor": "owner-ask-registry.json"
+   },
+   "evidence_of_unfinished": "تصمیم CARD2_CALL_SERVICE=A_DIDWW (09-15)؛ رجیستر کارت‌ها فقط MONEY-BATCH/TRAFFIC/TEST دارد",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-092",
+   "title": "[CONFIRMED] erratum over-ACK: برای ۵ کارت ردیف ACK نشست درحالی‌که مالک فقط ۲ کارت را نام برده بود — ۳ رأی جعلی وارد دفتر شد",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/owner_dialogue/owner_decision.v1.jsonl",
+    "anchor": "W-092"
+   },
+   "evidence_of_unfinished": "owner_decision.v1.jsonl: سه ردیف با note «NOT owner vote» @09-16T20:25:59Z",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-093",
+   "title": "[CONFIRMED] هیچ قاعدهٔ رفتار برای غیبت مالک (absence) وجود ندارد که تصمیم‌های کم‌ریسک را جلو ببرد",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:systemctl list-timers",
+    "anchor": "ls state/revenue-drive"
+   },
+   "evidence_of_unfinished": "octopus-absence.timer زنده است ولی هیچ سیاست default-action در state نیست",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-094",
+   "title": "[PARTIAL] حالت گزارش important-only نویز را کم کرد ولی با قاعدهٔ no-re-ask ترکیب شد و سکوت تصمیم ساخت",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-decisions.jsonl",
+    "anchor": "revenue-state.json"
+   },
+   "evidence_of_unfinished": "owner-decisions: OWNER_REPORT_MODE=IMPORTANT_ONLY (09-16) + قاعدهٔ V3 §9 در revenue-state.note",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-097",
+   "title": "[CONFIRMED] هیچ مکانیزم դեadline/expiry برای ردیف‌های رأی باز نیست؛ رجیستر رأی می‌تواند بی‌نهایت رشد کند",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/MP-CAPABILITY-GAP-01-20260907 (F-009)",
+    "anchor": "W-097"
+   },
+   "evidence_of_unfinished": "F-009 backlog + رجیستر بدون فیلد expires_at",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-106",
+   "title": "[CONFIRMED] هیچ کارتی برای برداشتن hold زیمن وجود ندارد؛ یک قفل راهبردی بدون مسیر رأی مانده",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-ask-registry.json",
+    "anchor": "W-106"
+   },
+   "evidence_of_unfinished": "owner-ask-registry: هیچ کارت ZIMAN/HOLD",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-108",
+   "title": "[PARTIAL] کارت‌های معلق مالک هیچ خلاصهٔ «پیامد ادامهٔ انتظار» ندارند — مالک هزینهٔ تأخیر را نمی‌بیند",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-review.json",
+    "anchor": "W-108"
+   },
+   "evidence_of_unfinished": "ساختار owner-review.items فقط why دارد نه cost-of-delay",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-S05",
+   "title": "[NEEDS_EVIDENCE] فرمت رأی «تأیید <8hex>» تازه (09-17) است و نرخ تبدیل کارت→رأی هرگز اندازه‌گیری نشده",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner_ask.py.bak-buttons-20260917T232557Z",
+    "anchor": "owner-ask-registry.json"
+   },
+   "evidence_of_unfinished": "دکمه‌های inline + decision id از 09-17T23:25 اضافه شده (بکاپ bak-buttons-20260917T232557Z)",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-112",
+   "title": "[PARTIAL] هر اثر خارجی رسید + pre-image می‌خواهد؛ سربار دائم روی هر قدم ارسال",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md §GOV-V7 حفاظ‌ها",
+    "anchor": "W-112"
+   },
+   "evidence_of_unfinished": "AGENTS.md حفاظ: pre-image پیش از هر نوشتن روی نود + «رسید یا rollback»",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-115",
+   "title": "[NEEDS_EVIDENCE] رجیستر UNLOCK با ۱۵+ قفل PROPOSED که هرگز EXECUTED نشده — دروازه‌های بازنشده انبار شده‌اند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/UNLOCK-REGISTRY-2026-09-08.md (F-039)",
+    "anchor": "W-115"
+   },
+   "evidence_of_unfinished": "F-039: UNLOCK-REGISTRY: 15+ locks sit PROPOSED never executed",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-120",
+   "title": "[CONFIRMED] کلید B5 (circuit breaker) باز است و مسیر repair مربوطه قطار FAIL تولید می‌کند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:ops-receipts",
+    "anchor": "budget_allows('B5') (F-011)"
+   },
+   "evidence_of_unfinished": "F-011 + R-BREAKER-B5: (False,'CIRCUIT_BREAKER_OPEN')",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-121",
+   "title": "[CONFIRMED] نقص starvation اجراکننده (OW-8): یک درخواست بلاک‌شده کل دستهٔ B8 را می‌خواباند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json (F-002)",
+    "anchor": "W-121"
+   },
+   "evidence_of_unfinished": "F-002: 'return budget-blocked' aborts whole category loop; g22-probe 34+ min بدون رسید",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-122",
+   "title": "[NEEDS_EVIDENCE] TRIO-002 و W3G30 (مصرف‌کنندهٔ تصمیم + precondition freeze + CATSCOPE) دیپلوی‌نشده در صف مانده",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138: canary-requests/native-Z-SUCCESSOR-TRIO-002.json (F-014)",
+    "anchor": "W-122"
+   },
+   "evidence_of_unfinished": "F-014: TRIO-002 + W3G30-COMBINED — queued, execution+readback owed",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-128",
+   "title": "[CONFIRMED] هیچ SLA/انقضا روی آیتم‌های حاکمیتی باز وجود ندارد (رأی، دروازه، قفل) — صف باز بی‌کران رشد می‌کند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "F-009",
+    "anchor": "F-039"
+   },
+   "evidence_of_unfinished": "F-009 (۲۰ رأی) + F-039 (15+ قفل) + F-040 هر سه بدون expires_at",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-131",
+   "title": "[PARTIAL] از ۱۸۷ ردیف واقعی فقط ۱۴۱ ردیف learnable است؛ ۲۵٪ دادهٔ تصمیم بی‌کلید می‌ماند",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json",
+    "anchor": "W-131"
+   },
+   "evidence_of_unfinished": "CYCLE-STTL-001: real_rows=187, learnable_rows=141",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-132",
+   "title": "[CONFIRMED] تنها کلید چندردیفی، متناقض است (هم accept هم reject روی یک پیشنهاد) — حافظه روی آن اجباراً برای یک ردیف غلط می‌شود",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json",
+    "anchor": "W-132"
+   },
+   "evidence_of_unfinished": "mixed_polarity_key: 646d80a894ad3e8f (accept+reject on same proposal)",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-135",
+   "title": "[PARTIAL] recorder تصمیم فقط از ۰۹-۱۷ کلید می‌نویسد؛ همهٔ ردیف‌های قبل بی‌کلیدند و قابل یادگیری نیستند",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-REVENUE-R1-20260918/PROMPT-REVENUE-R1.md",
+    "anchor": "W-135"
+   },
+   "evidence_of_unfinished": "PROMPT-REVENUE-R1: recorder حالا decision_key را می‌نویسد",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-141",
+   "title": "[CONFIRMED] فایل حافظهٔ ایجنت‌ها از سقف خودش بزرگ‌تر است (۵۴.۸KB در برابر سقف ۲۴.۴KB) — حافظه بریده می‌شود",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "env: C:/Users/Armin/.zcode/.../memory/MEMORY.md",
+    "anchor": "W-141"
+   },
+   "evidence_of_unfinished": "هشدار سیستم: MEMORY.md 54.8KB > 24.4KB limit — only part loaded",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-143",
+   "title": "[CONFIRMED] حکم یادگیری در دو چرخه هیچ تغییری نکرده (delta 0/0/0) — گرادیان صفر",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/LOO-cycle1.json",
+    "anchor": "W-143"
+   },
+   "evidence_of_unfinished": "LOO delta_vs_prev: changed 0, on 0, off 0",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-146",
+   "title": "[CONFIRMED] entry-point پروژه به سند ۰۹-۰۴ اشاره می‌کند در حالی که ۰۹-۰۶/۰۹-۰۷ هم وجود دارند و هیچ‌کدام لِین‌های جدید را نمی‌بینند",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md → 07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md (F-036)",
+    "anchor": "W-146"
+   },
+   "evidence_of_unfinished": "F-036: engineering-entrypoint chain stale: AGENTS.md points at 09-04",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-160",
+   "title": "[PARTIAL] خود deep-scan باید سرویس شود وگرنه به همان فراموشی‌ای که فهرست کرده برمی‌گردد",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/CADENCE.md (F-100)",
+    "anchor": "W-160"
+   },
+   "evidence_of_unfinished": "F-100: deep-scan itself must become a service; CADENCE.md proposal",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-161",
+   "title": "[CONFIRMED] رجیستر ۱۶۰ موردی بدهی با ۰ resolved / ۰ executed عملاً فقط انباشت است",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/deep-scan/DASHBOARD.json",
+    "anchor": "W-161"
+   },
+   "evidence_of_unfinished": "DASHBOARD: by_state open 65 / verified 95 / executed 0 / resolved 0",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-164",
+   "title": "[PARTIAL] ۵ سند «نقطهٔ ورود» موازی وجود دارد؛ جهت‌گیری ایجنت مبهم است",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "07-HANDOFF",
+    "anchor": "06-EVIDENCE"
+   },
+   "evidence_of_unfinished": "ENGINEERING-ENTRYPOINT + HANDOFF + CURRENT-TRUTH×2 + VITAL",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-S10",
+   "title": "[CONFIRMED] دو فایل CURRENT-TRUTH زنده هم‌زمان وجود دارند؛ انتخاب توسط mtime است نه قاعده",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "OCTOPUS/CURRENT-TRUTH"
+   },
+   "evidence_of_unfinished": "memory: TWO live CURRENT-TRUTH files (OCTOPUS/ + 06-EVIDENCE/)",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-S11",
+   "title": "[CONFIRMED] بخش بزرگی از وال بی‌اتصال است (۶۶٪ از ۴۲.۸GB)، پس دانش برای تصمیم‌گیری عملاً نامرئی است",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT.md",
+    "anchor": "W-S11"
+   },
+   "evidence_of_unfinished": "deep-scan 10-aspects: 66% of 42.84GB vault UNCONNECTED",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-187",
+   "title": "[PARTIAL] تولید megapromptهای متعدد در ۰۷-HANDOFF نشان می‌دهد بخشی از توجه صرف طراحی مأموریت جایگزین خود مأموریت شده",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "07-HANDOFF/ (ls)",
+    "anchor": "W-187"
+   },
+   "evidence_of_unfinished": "07-HANDOFF: MEGAPROMPT-NEXT-AGENT، TRANSFORMATION-REVENUE، CORTEX-CONNECT-ALL، PARALLEL-PROMPT، NEXT-AGENT×۲",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-188",
+   "title": "[CONFIRMED] ۴۸۲ بررسی صفر-سفارش یعنی ساعت‌ها رصد بدون هیچ اقدام تولید تقاضا",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-review.json",
+    "anchor": "W-188"
+   },
+   "evidence_of_unfinished": "owner-review: 482 consecutive zero-order checks",
+   "U": 3,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-194",
+   "title": "[CONFIRMED] هیچ سند/قاعده‌ای برای تقسیم زمان بین کار درآمدی و متاکار وجود ندارد",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "07-HANDOFF",
+    "anchor": "138:state"
+   },
+   "evidence_of_unfinished": "هیچ فایل time-budget/policy در state یا 07-HANDOFF",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-195",
+   "title": "[PARTIAL] ORDER-LAW هیچ ابزار اجرایی ندارد (فقط سند)؛ نقض آن دوباره قابل تکرار است",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (season correction)",
+    "anchor": "ls state"
+   },
+   "evidence_of_unfinished": "سند ORDER-LAW در megaprompt؛ هیچ گیت کدی در state یافت نشد",
+   "U": 3,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-198",
+   "title": "[CONFIRMED] داشبورد جهت‌گیری (DASHBOARD.json) سه روز کهنه است؛ اعداد جهت‌گیری با واقعیت هم‌گام نیست",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/deep-scan/DASHBOARD.json",
+    "anchor": "W-198"
+   },
+   "evidence_of_unfinished": "DASHBOARD.json generated_at=09-15T08:03Z در برابر امروز 09-18",
+   "U": 3,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-003",
+   "title": "[PARTIAL] انتخاب SEND_YOURSELF توسط مالک در 09-16 ارسال ماشینی را به رأی دسته‌به‌دسته گره زده و کار را به مالک منتقل کرده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-decisions.jsonl @09-16T02:52Z",
+    "anchor": "W-003"
+   },
+   "evidence_of_unfinished": "تصمیم SEC-I6-MONEY-BATCH-EXECUTE با approve_sending=false و customer_outbound=false ثبت شده",
+   "U": 4,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-011",
+   "title": "[NEEDS_EVIDENCE] meter چهار پاسخ شناسایی‌شده نشان می‌دهد ولی sent-log فقط یک reply_1 دارد — سرنوشت ۳ پاسخ نامعلوم است",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/season-meter.json",
+    "anchor": "sent-log.jsonl"
+   },
+   "evidence_of_unfinished": "season-meter replies_detected=4 در برابر sent-log که یک پاسخ ارسالی ثبت کرده",
+   "U": 4,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-019",
+   "title": "[CONFIRMED] تبلیغ پولی و هر خرید ترافیک در مرز سرخ است؛ تولید تقاضا به ۶۸ ایمیل سرد محدود مانده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-review.json",
+    "anchor": "W-019"
+   },
+   "evidence_of_unfinished": "TRAFFIC-DECISION گزینه‌ها: بودجهٔ ads = RED، outreach مالک = RED",
+   "U": 4,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-S13",
+   "title": "[PARTIAL] نجات زیرساخت (OOM/EROFS/SD/برق) ساعت‌های جلسه را بلعیده و کار درآمدی را عقب انداخته",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/A7-SWAP-DRILL-20260918",
+    "anchor": "RES-05C"
+   },
+   "evidence_of_unfinished": "EROFS incident + OOM-182 + swap drill + disk crisis همه در بازهٔ 09-12..09-18",
+   "U": 4,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-236",
+   "title": "[CONFIRMED] صفر اعتبارسنجی بیرونی: هیچ پیشنهادی هرگز پذیرفته یا رد نشده (۰ برد، ۱ پاسخ)",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:season-meter.json",
+    "anchor": "sent-log.jsonl"
+   },
+   "evidence_of_unfinished": "sent-log: 1 reply؛ season-meter: verified_cash 0",
+   "U": 4,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-043",
+   "title": "[PARTIAL] مرز RED روی ارتباط عمومی، کانال‌های تقاضای ارزان را هم قفل می‌کند",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md",
+    "anchor": "owner-review.json"
+   },
+   "evidence_of_unfinished": "قاعدهٔ GOV: public comms = RED؛ ارسال واقعی دومرحله‌ای",
+   "U": 4,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-080",
+   "title": "[CONFIRMED] هیچ کانال ورودی ترافیک به فروشگاه وصل نیست: تبلیغ ممنوع، SEO و شبکه‌های اجتماعی صفر",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-review.json",
+    "anchor": "ls state/"
+   },
+   "evidence_of_unfinished": "store LIVE با ۴۸۲ بررسی صفر-سفارش؛ هیچ فایل ads/seo/social در state نیست",
+   "U": 4,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-061",
+   "title": "[NEEDS_EVIDENCE] اقتصاد زیمن Placeholder است: قیمت واقعی/عکس ۲۰ واحد/بهای تمام‌شده باز است",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "03 - Projects/Ziman Galerry/TODO.md (F-028)",
+    "anchor": "W-061"
+   },
+   "evidence_of_unfinished": "F-028: PayID setup, real pricing+photography of 20 units, unit costs, competitor table — all open",
+   "U": 4,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-090",
+   "title": "[CONFIRMED] کل دفتر رأی مالک در ۵ روز فقط ۱۷ ردیف است — نرخ تصمیم‌گیری انسانی (~۲.۶/روز) با سرعت ماشین هم‌تراز نیست",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-decisions.jsonl",
+    "anchor": "W-090"
+   },
+   "evidence_of_unfinished": "owner-decisions.jsonl: 17 ردیف از 09-13 تا 09-17",
+   "U": 4,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-096",
+   "title": "[CONFIRMED] همهٔ مرزهای سرخ (خرید، ارتباط عمومی، فروش) روی یک نفر متمرکزند؛ هیچ تفویض/نماینده‌ای تعریف نشده",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md",
+    "anchor": "138:owner-review.json"
+   },
+   "evidence_of_unfinished": "AGENTS.md §10 + owner-review options (ads=purchase/public comms=RED)",
+   "U": 4,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-110",
+   "title": "[CONFIRMED] حجم کار مالک (۲۰ رأی معلق + اقدام‌های فیزیکی + خریدها) با ظرفیت واقعی او (چند دقیقه در روز) هم‌خوان نیست",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "F-009",
+    "anchor": "F-016"
+   },
+   "evidence_of_unfinished": "ترکیب F-009 + F-016/F-018/F-026 + خرید DIDWW",
+   "U": 4,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-S06",
+   "title": "[CONFIRMED] رجیستر ~۲۰ رأی معلق مالک در فصل‌های مختلف، بزرگ‌ترین صف انتظار سیستم است",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/MP-CAPABILITY-GAP-01-20260907/LANE-REPORT.md",
+    "anchor": "F-009"
+   },
+   "evidence_of_unfinished": "F-009: owner-decision backlog register: ~20 votes pending (D-0..D-3, MP-V41, EX2, IGN-2, GAP-023, MEGA-PLAN, ADR-041)",
+   "U": 4,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-111",
+   "title": "[CONFIRMED] آزادسازی دومرحله‌ای برای هر دستهٔ ارسال، فرکانس ارسال را به فرکانس رأی مالک گره می‌زند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-REVENUE-R1-20260918/PROMPT-REVENUE-R1.md",
+    "anchor": "W-111"
+   },
+   "evidence_of_unfinished": "PROMPT-REVENUE-R1: sending is two-step release; owner vote per batch",
+   "U": 4,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-S08",
+   "title": "[CONFIRMED] نبود تصمیم تکرارشونده، یادگیری را صفر نگه داشته: تنها کلید تکرارشونده همان کلید متناقض است",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/LOO-cycle1.json",
+    "anchor": "W-S08"
+   },
+   "evidence_of_unfinished": "LOO cycle1: n=141, changed=1, on=138/off=139 → MEMORY_HURTS؛ mixed_polarity_keys=[646d80a894ad3e8f]",
+   "U": 4,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-147",
+   "title": "[CONFIRMED] runtime دقیقاً worktree را اجرا می‌کند نه commit را — commit رفتار را توصیف نمی‌کند",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (DC-03D) 06-EVIDENCE/board138 dirty overlay",
+    "anchor": "W-147"
+   },
+   "evidence_of_unfinished": "DC-03D: glass/imap/selfmodel ExecStart into /home/ari/ofn؛ 5 tracked dirty (+1222/-551)",
+   "U": 4,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-004",
+   "title": "[NEEDS_EVIDENCE] گیت پول فقط طرح دارد و بستهٔ خرجِ قابل‌فراخوان وجود ندارد؛ هیچ اقدام پولی واقعی end-to-end اجرا نشده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ERRATA-AND-UNBLOCK",
+    "anchor": "F-069/F-070"
+   },
+   "evidence_of_unfinished": "F-069 (money gate: no callable spend package exists, design-only) و F-070 (B-1 پیشنهاد شد، اجرا نشد)",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-007",
+   "title": "[PARTIAL] سقف روزانهٔ ۱۰ ارسال با حساب ناسازگار رعایت شده (روزی ۱۱ ردیف) — اثبات بی‌قاعدگی در گیت سقف",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/channel-authorization.json",
+    "anchor": "sent-log"
+   },
+   "evidence_of_unfinished": "sent-log 09-16 روز ۱۱ ردیف دارد در حالی که daily_cap=10 در channel-authorization.json است",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-012",
+   "title": "[PARTIAL] rate card وجود ندارد و همین RATE_CARD_MISSING را به گیت PRICE_VALIDATED می‌بندد",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/channel-authorization.json",
+    "anchor": "F-020"
+   },
+   "evidence_of_unfinished": "channel-authorization.json شرط اول: no price without a valid rate card",
+   "U": 3,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-018",
+   "title": "[PARTIAL] capability-school-revenue با عنوان ترافیک درآمدی روزانه فقط یک بار در ۲۴ ساعت اجرا شده",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138: systemctl list-timers (capability-school-revenue.timer)",
+    "anchor": "W-018"
+   },
+   "evidence_of_unfinished": "last run 09-17T00:21 (24h ago), next 09-18T00:24",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-020",
+   "title": "[NEEDS_EVIDENCE] ثبت تأمین‌کنندهٔ buy.nsw با اقدام ۳۰ دقیقه‌ای مالک معلق است (آیتم قهرمان سیزن)",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-026)",
+    "anchor": "W-020"
+   },
+   "evidence_of_unfinished": "F-026: buy.nsw supplier registration: nightly-email path awaiting owner's 30-minute action",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-021",
+   "title": "[NEEDS_EVIDENCE] تم آتلیه پس از اجرای قیمت‌ها همچنان Draft است — ممکن است بخشی از ویترین منتشر نشده باشد",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-085)",
+    "anchor": "W-021"
+   },
+   "evidence_of_unfinished": "F-085: Atelier theme still Draft (unpublished after price ×1.5 exec)",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-024",
+   "title": "[NEEDS_EVIDENCE] ۱۸ ردیف enrichment نقاشی verified:false مانده — اطلاعات تماس نیمه‌تأیید",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/BIZ-LEGS-TEACH-20260905/LANE-REPORT.md",
+    "anchor": "W-024"
+   },
+   "evidence_of_unfinished": "F-030: 18 enrichment rows verified:false in painting leads (research pass never run)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-032",
+   "title": "[PARTIAL] دستهٔ ۱۰ quote در یک ثانیه (09-16T00:01:22Z) — الگوی blast که ریسک deliverability دارد",
+   "map_class": "T1-money-path",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/sent-log.jsonl",
+    "anchor": "W-032"
+   },
+   "evidence_of_unfinished": "۱۰ ردیف quote با timestamp یکسان",
+   "U": 3,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-201",
+   "title": "[CONFIRMED] restore_drill هرگز اجرا نشده — بزرگ‌ترین ریسک پنهان به تعبیر رجیستر خودِ GOV-V8",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8 (F-006)",
+    "anchor": "W-201"
+   },
+   "evidence_of_unfinished": "F-006: restore_drill NOT_RUN — unexecuted in three ruling docs",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-202",
+   "title": "[NEEDS_EVIDENCE] بررسی وضعیت دیسک (smartmontools) روی ۱۳۸ FAILED است — نودی که بحران دیسک را دیده بی‌پایش است",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138: systemctl list-units --state=failed (F-046)",
+    "anchor": "W-202"
+   },
+   "evidence_of_unfinished": "F-046: smartmontools.service FAILED on 138",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-203",
+   "title": "[CONFIRMED] ۱۳۸ هیچ بک‌اند snapshot ندارد (ext4 روی eMMC تک‌نقطه) — بازیابی فقط دستی است",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (DC-03E0)",
+    "anchor": "W-203"
+   },
+   "evidence_of_unfinished": "DC-03E0: NO snapshot backend exists (ext4 on one eMMC; btrfs/LVM/ZFS absent)",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-209",
+   "title": "[CONFIRMED] نود درآمد (۱۳۸) با load ۱.۰-۱.۵ مداوم کار می‌کند — سرِ ظرفیت، هر کار سنگین ریسک تأخیر دارد",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/FLEET-HEARTBEAT-CANONICAL.md",
+    "anchor": "W-209"
+   },
+   "evidence_of_unfinished": "heartbeat pulses: 138 load1=1.19/1.2/1.1/0.98 در دقیقه‌های متوالی",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-210",
+   "title": "[PARTIAL] آینهٔ وضعیت پول (mirror 138→182) با کهنگی ~۹.۳ ساعت گزارش می‌شود",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json",
+    "anchor": "W-210"
+   },
+   "evidence_of_unfinished": "STTL cycle health: mirror_freshness FRESH seq=1 age=9.3h",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-211",
+   "title": "[CONFIRMED] بازیابی کلاس B هرگز در production اجرا نشده — مسیر rollback در لحظهٔ واقعی آزموده نیست",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-022)",
+    "anchor": "W-211"
+   },
+   "evidence_of_unfinished": "F-022: Class B recovery armed but never executed in production (G2)",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-213",
+   "title": "[NEEDS_EVIDENCE] ارزیاب ۱۱۴ و ingestion ۱۶۰ با nohup اجرا می‌شوند و units آن‌ها نصب نشده — ریسک reboot",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915 (F-003)",
+    "anchor": "W-213"
+   },
+   "evidence_of_unfinished": "F-003: 114/160 reboot-orphans: staged systemd units never installed (OW-4)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-214",
+   "title": "[CONFIRMED] تایمر heartbeat تا امروز هرگز اجرا نشده بود (LAST=-) — تازه نصب شده",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138: systemctl list-timers",
+    "anchor": "W-214"
+   },
+   "evidence_of_unfinished": "systemctl list-timers: octopus-heartbeat.timer LAST=-",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-218",
+   "title": "[NEEDS_EVIDENCE] پرچم GITWRITE-FAILED در مسیر push ساعتی هرگز پاک نشد؛ push خودکار سبز نیست",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/HOURLY-PUSH-EMPTY-ERR-2026-08-18.md (F-078)",
+    "anchor": "W-218"
+   },
+   "evidence_of_unfinished": "F-078: HOURLY-PUSH GITWRITE-FAILED flag never deleted",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-219",
+   "title": "[PARTIAL] مصرف‌کنندهٔ JetStream در ۰۹-۱۵ صفر بود (durability بدون مشتری) — الان vault-pulse وجود دارد ولی تاریخچهٔ سکوت جدی است",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/FLEET-HEARTBEAT-CANONICAL.md",
+    "anchor": "F-042"
+   },
+   "evidence_of_unfinished": "F-042 (consumers=0 at 09-15) در برابر heartbeat که durable=vault-pulse را نشان می‌دهد",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-S14",
+   "title": "[CONFIRMED] آرشیو ۳۶.۴ گیگابایتی روی S: آفلاین است و ۲۶۶ هزار فایل در دسترس نیست",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE",
+    "anchor": "99-ARCHIVE state (F-047)"
+   },
+   "evidence_of_unfinished": "disk crisis: S: went offline mid-op; deletions stopped",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-222",
+   "title": "[PARTIAL] تنها کانال مشتری ایمیل است؛ هیچ کانال پیام‌رسان/وب برای پاسخ سریع وجود ندارد",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md",
+    "anchor": "138:state/revenue-drive"
+   },
+   "evidence_of_unfinished": "کانال‌ها: email (customer)، Telegram (owner)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-224",
+   "title": "[NEEDS_EVIDENCE] پیشنهادها هیچ لینک پذیرش/رد یک‌کلیکی ندارند؛ پاسخ نیازمند نوشتن ایمیل است",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/sent-log.jsonl",
+    "anchor": "W-224"
+   },
+   "evidence_of_unfinished": "QP packets بدون لینک accept/decline در sent-log",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-225",
+   "title": "[NEEDS_EVIDENCE] هیچ auto-acknowledgement برای ورودی مشتری وجود ندارد؛ سکوت اولیه حس بی‌اعتمادی می‌سازد",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-225"
+   },
+   "evidence_of_unfinished": "no auto-reply file in revenue-drive",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-226",
+   "title": "[NEEDS_EVIDENCE] وضعیت reputation دامنهٔ ارسال (SPF/DKIM/DMARC) نامعلوم است — ریسک اسپم روی کل کانال",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-226"
+   },
+   "evidence_of_unfinished": "هیچ فایل dns/spf/dkim در قیف",
+   "U": 3,
+   "R": 2,
+   "C": 2
+  },
+  {
+   "id": "W-227",
+   "title": "[NEEDS_EVIDENCE] هیچ مدیریت opt-out/unsubscribe وجود ندارد — ریسک انطباقی (AU Spam Act) روی ارسال سرد",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-227"
+   },
+   "evidence_of_unfinished": "هیچ فایل unsubscribe در قیف",
+   "U": 2,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-228",
+   "title": "[NEEDS_EVIDENCE] هیچ مسیر رزرو/تقویم برای جلسه با مشتری وجود ندارد",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-228"
+   },
+   "evidence_of_unfinished": "no booking file",
+   "U": 2,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-232",
+   "title": "[PARTIAL] هدف اصلی در میانهٔ سیزن بازتعریف شد (GOAL_PRIMARY=REDEFINED) — ریسک churn معیار و توجه",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-decisions.jsonl",
+    "anchor": "W-232"
+   },
+   "evidence_of_unfinished": "owner-decisions: GOAL_PRIMARY=REDEFINED @09-16T08:38Z؛ CARD3 کتابچه CLOSED",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-234",
+   "title": "[NEEDS_EVIDENCE] اندازهٔ بازار هدف (strata NSW) هیچ‌جا اندازه‌گیری نشده — حتی تخمین مرتبهٔ بزرگی نیست",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-234"
+   },
+   "evidence_of_unfinished": "هیچ فایل market-size در state یا plans",
+   "U": 3,
+   "R": 2,
+   "C": 2
+  },
+  {
+   "id": "W-237",
+   "title": "[NEEDS_EVIDENCE] پیش‌نیازهای مجوز/بیمهٔ کار نقاشی (workers-comp + painter licence) در وال نیست — احتمال رد صلاحیت پیمانکاری",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/A-R0-IDENTITY/LANE-REPORT.md (F-084)",
+    "anchor": "W-237"
+   },
+   "evidence_of_unfinished": "F-084: C-R0 identity: workers-comp + painter licence certificates still missing",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-238",
+   "title": "[NEEDS_EVIDENCE] مسیر دریافت پرداخت (PayID/فاکتور رسمی) برای زیمن آماده نیست",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "03 - Projects/Ziman Galerry/TODO.md (F-028)",
+    "anchor": "W-238"
+   },
+   "evidence_of_unfinished": "F-028: PayID setup open در Ziman TODO",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-036",
+   "title": "[PARTIAL] بانک سرنخ ۹۷تایی روی ۲ منبع متمرکز است؛ تنوع منبع تقاضا کم است",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:season-meter.json",
+    "anchor": "phone-only-queue.jsonl"
+   },
+   "evidence_of_unfinished": "leads_total=97، emails_known=68، phone_only=29 — منبع: دو مسیر ثابت",
+   "U": 3,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-038",
+   "title": "[NEEDS_EVIDENCE] پروفایل Google Business با لاگین مالک معلق است — کانال کشف محلی خاموش",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "00-SEASON/DIRECTORY-YP-SUBMITTED-20260906.json (F-031)",
+    "anchor": "W-038"
+   },
+   "evidence_of_unfinished": "F-031: GBP listing pending owner login (YP/TrueLocal captcha-blocked, Hotfrog email-verify)",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-041",
+   "title": "[NEEDS_EVIDENCE] خرید از کانال دولتی (buy.nsw) به اقدام مالک گره خورده و از ۰۸-۲۴ باز مانده",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "W-041"
+   },
+   "evidence_of_unfinished": "F-026 + season hero item",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-047",
+   "title": "[PARTIAL] هیچ تعریف ICP/پرسونای خریدار وجود ندارد؛ لیست از خود فایل‌ها مشتق شده",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-review.json",
+    "anchor": "W-047"
+   },
+   "evidence_of_unfinished": "owner-review: market derived from own files (B2B painting-services contracts NSW)",
+   "U": 3,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-048",
+   "title": "[PARTIAL] مسیر ارجاع/معرفی (referral) از مشتری موجود طراحی نشده — پایهٔ تقاضای B2B نادیده",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-048"
+   },
+   "evidence_of_unfinished": "هیچ فایل referral در revenue-drive نیست",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-053",
+   "title": "[NEEDS_EVIDENCE] تقاضای محلی (Sydney/NSW) نیازمند حضور جغرافیایی و اثبات محلی است که هیچ‌کدام ثبت نشده",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/A-R0-IDENTITY/LANE-REPORT.md (F-084)",
+    "anchor": "W-053"
+   },
+   "evidence_of_unfinished": "هیچ مدرک آدرس/ABN/licence در سند تقاضا؛ F-084: workers-comp + painter licence missing",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-055",
+   "title": "[PARTIAL] هیچ کانال پیام‌رسان/وب‌فرم برای پاسخ آسان مشتری وجود ندارد؛ پاسخ باید ایمیل بزند",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md",
+    "anchor": "revenue-drive"
+   },
+   "evidence_of_unfinished": "کانال‌ها: email (customer), Telegram (owner)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-057",
+   "title": "[NEEDS_EVIDENCE] تقاضای فصلی/زمانی مدل نشده — چه ماه‌هایی سفارش نقاشی/هدیه اوج دارد؟",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138",
+    "anchor": "00-SEASON (بدون فایل فصلی تقاضا)"
+   },
+   "evidence_of_unfinished": "هیچ سند فصل تقاضا در revenue-drive",
+   "U": 2,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-058",
+   "title": "[NEEDS_EVIDENCE] شبکهٔ توزیع زیمن (گالری/هدیه‌فروشی) هیچ اقدام توسعه‌ای ندارد",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-058"
+   },
+   "evidence_of_unfinished": "no distributor/wholesale files in revenue-drive",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-082",
+   "title": "[NEEDS_EVIDENCE] تقاضای آنلاین/بین‌المللی آتلیه (مارکت‌پلیس/اینستاگرام) هیچ کانالی ندارد",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-082"
+   },
+   "evidence_of_unfinished": "هیچ فایل marketplace/social در state یا کسب‌وکار",
+   "U": 2,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-064",
+   "title": "[PARTIAL] قیمت‌ها یک‌بار ×۱.۵ شد و هیچ آزمایش حساسیت قیمت نداشته",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE (Atelier price exec)",
+    "anchor": "offer-experiments.json"
+   },
+   "evidence_of_unfinished": "memory: prices ×1.5 executed 35 products; هیچ experiment قیمتی در قیف نیست",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-065",
+   "title": "[PARTIAL] ۸ بسته از ۹ بستهٔ آمادهٔ ارسال، تکراری/قدیمی (QP-20260917/18 در برابر QP-20260913) هستند — بسته‌های کهنه بازچرخه می‌شوند",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-ask-registry.json",
+    "anchor": "W-065"
+   },
+   "evidence_of_unfinished": "رجیستر کارت‌ها: دسهٔ جدید QP-20260918 vs reply به QP-20260913-3991",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-066",
+   "title": "[NEEDS_EVIDENCE] هیچ شرط/گارانتی/ترمز ریسک در پیشنهاد نیست که پاسخ را آسان کند",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-066"
+   },
+   "evidence_of_unfinished": "هیچ فایل terms/guarantee در قیف",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-067",
+   "title": "[PARTIAL] مبلغ/محدودهٔ پروژه در quoteها روشن نیست (rate card غایب) — مشتری نمی‌داند چه می‌خرد",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "channel-authorization.json",
+    "anchor": "W-067"
+   },
+   "evidence_of_unfinished": "RATE_CARD_MISSING → PRICE_VALIDATED بسته",
+   "U": 3,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-068",
+   "title": "[NEEDS_EVIDENCE] هیچ مسیر رزرو/زمان‌بندی (booking) برای مشتری B2B وجود ندارد",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-068"
+   },
+   "evidence_of_unfinished": "هیچ فایل booking/scheduling",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-069",
+   "title": "[NEEDS_EVIDENCE] پیشنهاد زیمن/آتلیه و پیشنهاد نقاشی از هم بی‌خبرند؛ هیچ بستهٔ متقاطع (cross-sell) نیست",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "05-BUSINESSES",
+    "anchor": "revenue-drive"
+   },
+   "evidence_of_unfinished": "دو مسیر جدا، بدون ارجاع متقابل",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-070",
+   "title": "[NEEDS_EVIDENCE] زمان پاسخ‌دهی تعهدشده (SLA) به مشتری اعلام نمی‌شود",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-070"
+   },
+   "evidence_of_unfinished": "هیچ SLA در متون پیشنهاد",
+   "U": 2,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-075",
+   "title": "[NEEDS_EVIDENCE] هیچ محصول/خدمت «ورودی» ارزان برای اولین خرید وجود ندارد (همه‌چیز پروژه‌ای است)",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "05-BUSINESSES",
+    "anchor": "offer files"
+   },
+   "evidence_of_unfinished": "قیمت‌نامهٔ خدمات نقاشی پروژه‌محور؛ آتلیه اقلام هدیه دارد ولی فانل ورودی ندارد",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-077",
+   "title": "[PARTIAL] بستهٔ quote برای همه یکسان است (یک template) و بخش هزینه‌اش خالی می‌ماند",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "sent-log",
+    "anchor": "channel-auth"
+   },
+   "evidence_of_unfinished": "QP-20260913-* همه از یک قالب؛ rate card غایب",
+   "U": 3,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-079",
+   "title": "[NEEDS_EVIDENCE] بازار هدیه (زیمن) فصل‌بندی کریسمس/نوروز ندارد در حالی که تقویم درآمدی حیاتی است",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-079"
+   },
+   "evidence_of_unfinished": "هیچ فایل فصل‌بندی فروش",
+   "U": 2,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-086",
+   "title": "[NEEDS_EVIDENCE] کلیدهای deploy روی ofn-node غیرفعال‌اند (G1) و شاخه‌های autonomy نمی‌توانند push کنند",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-021)",
+    "anchor": "W-086"
+   },
+   "evidence_of_unfinished": "F-021: deploy keys disabled on ofn-node (G1) — owner toggle pending",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-091",
+   "title": "[PARTIAL] دو ردیف از چهار رأی آخر تست self-addressed بوده، نه تصمیم واقعی — کانال رأی با تست اشغال می‌شود",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-decisions.jsonl",
+    "anchor": "owner-ask-registry.json"
+   },
+   "evidence_of_unfinished": "owner-decisions.jsonl: rows TEST-SELF-1/2 (09-17T23:26) و رجیستر: MONEY-BATCH-TEST2",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-095",
+   "title": "[PARTIAL] فارسی‌سازی کارت‌ها فقط از ۰۹-۱۷T23:29 فعال شده؛ همهٔ کارت‌های قبلی احتمالاً برای مالک سخت‌تر بوده‌اند",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner_ask.py.bak-fa-20260917T232901Z",
+    "anchor": "W-095"
+   },
+   "evidence_of_unfinished": "owner_ask.py.bak-fa-20260917T232901Z (نسخهٔ fa در 23:29 همان شب)",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-098",
+   "title": "[CONFIRMED] شمارندهٔ OWNER_DECISIONS_PENDING در GOV-AUTONOMY-V3 تعریف شده ولی به هیچ داشبوردی وصل نیست",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-AUTONOMY-V3 (F-073)",
+    "anchor": "W-098"
+   },
+   "evidence_of_unfinished": "F-073: OWNER_DECISIONS_PENDING counter — never wired to any dashboard/card generator",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-099",
+   "title": "[PARTIAL] دو کارت MONEY-BATCH پشت سر هم (۰۹-۱۷ و ۰۹-۱۸) همان درخواست را تکرار می‌کنند — ریسک خستگی مالک",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-ask-registry.json",
+    "anchor": "W-099"
+   },
+   "evidence_of_unfinished": "رجیستر: d3c0fdea و 2d90365e هر دو id=MONEY-BATCH با بستهٔ متفاوت",
+   "U": 2,
+   "R": 3,
+   "C": 5
+  },
+  {
+   "id": "W-100",
+   "title": "[CONFIRMED] تلگرام تنها کانال مالک است؛ قطع شدن آن یعنی صفر تصمیم (بدون کانال دوم)",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md",
+    "anchor": "state/revenue-drive (فقط email برای مشتری)"
+   },
+   "evidence_of_unfinished": "AGENTS.md: outbound only via Telegram path؛ هیچ SMS/email-fallback در state",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-101",
+   "title": "[PARTIAL] کارت TRAFFIC-DECISION سه گزینهٔ سنگین (بودجه ads / لیست outreach / انتخاب بازار) می‌دهد — هزینهٔ شناختی بالا = تأخیر",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-review.json",
+    "anchor": "W-101"
+   },
+   "evidence_of_unfinished": "owner-review.items[0]: سه گزینه با تصمیم‌های راهبردی",
+   "U": 3,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-102",
+   "title": "[PARTIAL] رأی مالک در یک پیام دسته‌ای («همشو موافقم») نشان می‌دهد او batch-prefer است ولی کارت‌ها تکی فرستاده می‌شوند",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-decisions.jsonl",
+    "anchor": "W-102"
+   },
+   "evidence_of_unfinished": "owner-decisions: سه تصمیم CARD1/2/3 با verbatim «همشو موافقم» در یک لحظه (09-15T21:30)",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-103",
+   "title": "[PARTIAL] پاسخ مالک با پارس متن exact (`go:<id>:<channel>`) است؛ یک غلط تایپی یعنی رأی گم می‌شود",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner_reply.py",
+    "anchor": "owner-decisions.jsonl"
+   },
+   "evidence_of_unfinished": "owner-decisions: callback rows با متن go:deadbeef:email؛ پارسر در owner_reply.py",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-104",
+   "title": "[PARTIAL] مالک «director بدون جزئیات فنی» است ولی بعضی کارت‌ها همچنان متن فنی/طولانی دارند",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE (senior-agent rulings)",
+    "anchor": "owner-review.json"
+   },
+   "evidence_of_unfinished": "حکم نقش مالک (senior-agent memory) + کارت TRAFFIC با متن سه‌گزینه‌ای طولانی",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-109",
+   "title": "[PARTIAL] هر رأی مالک فقط یک‌بار مصرف می‌شود؛ هیچ pre-authorization دوره‌ای (مثلاً هفتگی) وجود ندارد",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/ (ls)",
+    "anchor": "W-109"
+   },
+   "evidence_of_unfinished": "هیچ فایل standing-authorization در state/revenue-drive",
+   "U": 3,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-113",
+   "title": "[CONFIRMED] کارهای کلاس B بدون شاهد اجرا نمی‌شوند و شاهد (۱۸۲) یک صف مشترک دارد — همهٔ deployها سریال می‌شوند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md (GOV-FREEDOM-V2)",
+    "anchor": "F-006"
+   },
+   "evidence_of_unfinished": "GOV-FREEDOM-V2: شاهد پیش از deploy کلاس B الزامی؛ F-006: restore_drill وابسته به شاهد",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-116",
+   "title": "[CONFIRMED] فاز ۲ آزادی (no-witness recovery، cross-node apply، push autonomy) هنوز باز است — ظرفیت ماشین کامل استفاده نمی‌شود",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-040)",
+    "anchor": "W-116"
+   },
+   "evidence_of_unfinished": "F-040: freedom-v2 phase 2 open",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-117",
+   "title": "[CONFIRMED] رجیستر PARKED: ۸ lane تا «verified_payment_count=1» قفل‌اند — اولین پرداخت هرگز نیامده، پس قفل خودتقویت‌شونده است",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/PARKED-LANES (F-027)",
+    "anchor": "W-117"
+   },
+   "evidence_of_unfinished": "F-027: PARKED-LANES: 8 lanes locked until campaign verified_payment_count=1",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-118",
+   "title": "[NEEDS_EVIDENCE] پوشهٔ محرمانه‌زدایی نشده: ۷۶ فایل commit‌شده IP/نام‌های داخلی را لو می‌دهد و با status risk_accepted رها شده",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-008)",
+    "anchor": "W-118"
+   },
+   "evidence_of_unfinished": "F-008: 76 committed files leak IPs/board names + public repo posture",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-119",
+   "title": "[NEEDS_EVIDENCE] گیت G8-021 به‌صورت request کهنه خودزنده می‌ماند و هر tick بودجهٔ کامپوننت می‌سوزاند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:/home/ari/ofn/state/ops-agent/state (F-001)",
+    "anchor": "W-119"
+   },
+   "evidence_of_unfinished": "F-001 (open, U5R4): G8-021 executed but never retired — request now self-stale",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-123",
+   "title": "[NEEDS_EVIDENCE] ۲۴ verify FAIL از دورهٔ GAP/VBAA باز مانده؛ بدهی کیفیت روی مسیر تصمیم‌گیری سایه انداخته",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-086)",
+    "anchor": "W-123"
+   },
+   "evidence_of_unfinished": "F-086: 24 verify FAILs outstanding from 09-09 GAP/VBAA round",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-125",
+   "title": "[NEEDS_EVIDENCE] زنجیرهٔ پذیرش EX1 با NOT_PASSED و سه تناقض ثبت‌نشده رها شده",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/MP-EX1-CRITERION-20260907/LANE-REPORT.md (F-064)",
+    "anchor": "W-125"
+   },
+   "evidence_of_unfinished": "F-064: EX1 acceptance chain: NOT_PASSED, v3.1 unadopted, EX3 blocked, three C-contradictions",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-127",
+   "title": "[PARTIAL] کارهای پارک‌شده به دلیل قاعدهٔ «blocked is a decision, not a defect» هیچ مرور دوره‌ای ندارند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md",
+    "anchor": "W-127"
+   },
+   "evidence_of_unfinished": "AGENTS.md §4: Blocked is a decision, not a defect",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-S15",
+   "title": "[PARTIAL] هزینهٔ اصطکاک رسید/شاهد با کار درآمدی هم‌مقیاس شده؛ حجم رسید بر حجم اثر می‌چربد",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/receipts.jsonl (size)",
+    "anchor": "sent-log.jsonl"
+   },
+   "evidence_of_unfinished": "receipts.jsonl=111KB در برابر ۳۹ ارسال ثبت‌شده در همان بازه",
+   "U": 3,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-136",
+   "title": "[PARTIAL] شرط تولید سیگنال (سطح‌کردن دوبارهٔ یک پیشنهاد با کلید مشترک) وابسته به رفتار مالک است، نه تولیدکننده — نرخ رشد سیگنال کند",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json",
+    "anchor": "W-136"
+   },
+   "evidence_of_unfinished": "next_single_action: surface the same proposal twice WITH decision_key",
+   "U": 3,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-137",
+   "title": "[NEEDS_EVIDENCE] حافظهٔ معنایی همیشه صفر نوت می‌سازد؛ یا by-design است یا یال شکسته — هنوز تعیین نشده",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-050)",
+    "anchor": "W-137"
+   },
+   "evidence_of_unfinished": "F-050: memory-consolidate always produces 0 semantic notes — never determined",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-144",
+   "title": "[PARTIAL] ریسک روش‌شناسی: چرخهٔ یادگیری قبلاً fixture آموزشی را به‌عنوان holdout استفاده کرده بود",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-144"
+   },
+   "evidence_of_unfinished": "memory: never reuse training fixtures as holdout (learning falsified 09-17)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-148",
+   "title": "[CONFIRMED] ۵ فایل tracked روی runtime آلوده است و self_model_producer سه بدنهٔ واگرا دارد",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (DC-03D)",
+    "anchor": "W-148"
+   },
+   "evidence_of_unfinished": "DC-03D: 5 tracked dirty؛ self_model has THREE divergent bodies (win/main/runtime)",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-149",
+   "title": "[PARTIAL] ۵۱۸۴ فایل untracked (۱۰۷MB، ۹۸٪ state) روی runtime — سطح state از git جدا شده",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (DC-03D)",
+    "anchor": "W-149"
+   },
+   "evidence_of_unfinished": "DC-03D: untracked 5184 files/107.1MB, 98% state/",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-150",
+   "title": "[NEEDS_EVIDENCE] پیش‌بینی‌ها/آمار trackers با runtime اختلاف دارند (PB-4 در سند NOT_RUN، زنده IMPROVED)",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE (F-035)",
+    "anchor": "W-150"
+   },
+   "evidence_of_unfinished": "F-035: open-work trackers contradict live stat",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-151",
+   "title": "[NEEDS_EVIDENCE] یک سند مستندات به‌صراحت «دروغ» علامت خورده (COMMIT-GAP) و هرگز اصلاح نشد",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/COMMIT-GAP-2026-08-20.md (F-077)",
+    "anchor": "W-151"
+   },
+   "evidence_of_unfinished": "F-077: 'cap30 restart verified' documented as false vs git — gap acknowledged, never remediated",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-152",
+   "title": "[NEEDS_EVIDENCE] از ۵۰ سیم‌کشی گم‌شده فقط ۲ مورد خودکار رفع شد؛ ۴۸ سیم‌کشی هنوز غایب است",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/MISSING-WIRING-50 (F-024)",
+    "anchor": "W-152"
+   },
+   "evidence_of_unfinished": "F-024: missing-wirings census: 50 gaps, only items 13/21 auto-fixed",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-153",
+   "title": "[NEEDS_EVIDENCE] consolidation tick چهار‌بعدی ۱۱ روز مرده بود و پیوستگی خوراکش دوباره اثبات نشده",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/MISSING-WIRING-50 (F-048)",
+    "anchor": "W-153"
+   },
+   "evidence_of_unfinished": "F-048: 4d consolidation tick was dead 11 days (08-23→09-03)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-156",
+   "title": "[NEEDS_EVIDENCE] آرتیفکت‌های N-ALIVE هرگز به ۱۳۸ کپی نشدند (find_channels.py + CATALOG.json)",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/N-ALIVE-RUNBOOK-20260905/LANE-REPORT.md (F-087)",
+    "anchor": "W-156"
+   },
+   "evidence_of_unfinished": "F-087: N-ALIVE: find_channels.py + CATALOG.json never copied to 138 timer",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-162",
+   "title": "[PARTIAL] ۴۷ فایل با status-word باز (pending/NOT_RUN) در رجیستر بدهی — وضعیت‌ها فقط کلمه‌اند نه ماشین‌خوان",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/deep-scan/findings-current.json",
+    "anchor": "W-162"
+   },
+   "evidence_of_unfinished": "findings: 47 OPEN_WORK items (V-SW-*) با status-word",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-165",
+   "title": "[NEEDS_EVIDENCE] _ops با ۳۳۱۴ فایل هرگز اسکن نشده — مغز عملیاتی قدیم خارج از دید است",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/MEGAPROMPT-DEEP-SCAN-250.md",
+    "anchor": "W-165"
+   },
+   "evidence_of_unfinished": "DEEP-SCAN-250 survey: _ops 3314 files, never scanned",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-166",
+   "title": "[NEEDS_EVIDENCE] 4D-Vault با ۳۰۵۵ فایل اسکن‌نشده رها مانده",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/MEGAPROMPT-DEEP-SCAN-250.md",
+    "anchor": "W-166"
+   },
+   "evidence_of_unfinished": "DEEP-SCAN-250 survey: 4D-Vault 3055 files",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-168",
+   "title": "[PARTIAL] سرشماری DEEP-SCAN-250 که برای همین هدف (بدهی پنهان) سفارش شد، معلق مانده",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/",
+    "anchor": "W-168"
+   },
+   "evidence_of_unfinished": "memory + prompt: DEEP-SCAN-250 SUSPENDED by season-correction order-law",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-170",
+   "title": "[CONFIRMED] آینهٔ germline روی CIFS لپ‌تاپ ۹۹٪ پر است (۵.۴GB آزاد) و پشتیبان‌گیری را محدود می‌کند",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (DC-03E0)",
+    "anchor": "W-170"
+   },
+   "evidence_of_unfinished": "DC-03E0: germline remote = CIFS mount 99% full (5.4G free)",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-171",
+   "title": "[PARTIAL] ۱۲ ناهمخوانی وال↔runtime در سرشماری ثبت شده و الگو ادامه دارد (runtime جلوتر از سند)",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.json",
+    "anchor": "W-171"
+   },
+   "evidence_of_unfinished": "FORGOTTEN-100: 12 vault↔runtime discrepancies",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-183",
+   "title": "[CONFIRMED] موجود زندهٔ ارگانیسم نمی‌تواند وال را بخواند؛ آینهٔ وال به‌عنوان منبع اختیاری SKIPPED شده",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/deep-scan/ (vault-mirror)",
+    "anchor": "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915"
+   },
+   "evidence_of_unfinished": "deep-scan ledger note: vault mirror optional-source (SKIPPED_OPTIONAL_SOURCE_UNAVAILABLE)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-184",
+   "title": "[PARTIAL] دو CURRENT-TRUTH و چند نقشهٔ کانونیک موازی، هزینهٔ انتخاب مسیر درست را در هر نشست تحمیل می‌کند",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "anchor": "OCTOPUS/CURRENT-TRUTH"
+   },
+   "evidence_of_unfinished": "mtime تصمیم‌گیر است؛ هر دو فایل زنده‌اند (OCTOPUS/ + 06-EVIDENCE/)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-185",
+   "title": "[PARTIAL] در ۲۶۰ کامیت سیزن، نشانه‌های حاکمیتی (۱۴۸) بیش از نشانه‌های درآمدی (۸۳) است",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "git log (vault) — proxy analysis",
+    "anchor": "W-185"
+   },
+   "evidence_of_unfinished": "git log since 09-07: governance-keyword commits=148، revenue=83، infra=76 (پروکسی هم‌پوشان)",
+   "U": 3,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-186",
+   "title": "[CONFIRMED] ریتم کامیت سیزن نایکنواخت است: ۵۳ و ۵۰ در دو روز اول، سپس ۷/۵/۲ در میانه — فروپاشی ظرفیت",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "git log --date=format",
+    "anchor": "W-186"
+   },
+   "evidence_of_unfinished": "commit counts: 09-09:7، 09-10:5، 09-12:2، 09-14:8",
+   "U": 3,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-189",
+   "title": "[PARTIAL] واحد پیشرفت (cycle record) فقط از ۰۹-۱۷ رسمی شد؛ قبل از آن پیشرفت غیرقابل شمارش بود",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json",
+    "anchor": "W-189"
+   },
+   "evidence_of_unfinished": "STTL-001 اولین cycle record رسمی است (09-17T18:21)",
+   "U": 3,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-190",
+   "title": "[PARTIAL] ۲۰+ تایمر فعال با فواصل دقیقه‌ای، سطح عملیاتی بزرگی می‌سازد که هر خرابی آن توجه می‌خواهد",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138: systemctl list-timers",
+    "anchor": "W-190"
+   },
+   "evidence_of_unfinished": "systemctl list-timers: 25+ واحد فعال",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-191",
+   "title": "[CONFIRMED] روز بحران دیسک (۰۹-۱۲) کل ظرفیت یک روز را خورد و آرشیو هنوز برنگشته",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE",
+    "anchor": "99-ARCHIVE state (F-047)"
+   },
+   "evidence_of_unfinished": "F-047 + disk crisis: F: 0.05→61.39GB، 36.42GB منتقل شد، S: وسط کار قطع شد",
+   "U": 3,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-193",
+   "title": "[PARTIAL] عصر ۰۹-۱۷ صرف ساخت هاب NATS/فلیت شد؛ همان بازه صفر ارسال درآمدی ثبت شده",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "git log",
+    "anchor": "138:sent-log.jsonl"
+   },
+   "evidence_of_unfinished": "commits 09-17: 34؛ sent-log 09-17: 0",
+   "U": 3,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-196",
+   "title": "[PARTIAL] مرور هفتگی با مالک فقط از ۰۹-۱۸ خودکار شده؛ شش هفتهٔ قبل آن بی‌مرور بود",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-FLEET-AUDIT-20260918",
+    "anchor": "schtasks"
+   },
+   "evidence_of_unfinished": "W1 verdict automation 09-18 (one-shot timer + scheduled task)",
+   "U": 2,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-197",
+   "title": "[PARTIAL] هیچ خلاصهٔ دوره‌ای (digest) برای مالک وجود ندارد؛ ارتباط فقط کارت تصمیم است",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138: systemctl list-timers",
+    "anchor": "W-197"
+   },
+   "evidence_of_unfinished": "لیست تایمرها: هیچ digest timer؛ فقط owner-ask هر ۱۰ دقیقه",
+   "U": 2,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "W-S01",
+   "title": "[CONFIRMED] کل تاریخ بدون حتی یک تومان درآمد تأییدشده",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:season-meter.json",
+    "anchor": "revenue-state.json"
+   },
+   "evidence_of_unfinished": "verified_cash=0.0 در meter فصل و revenue-state.verified_cash_aud",
+   "U": 5,
+   "R": 1,
+   "C": 5
+  },
+  {
+   "id": "W-204",
+   "title": "[NEEDS_EVIDENCE] ۴ برد هنوز بی‌استفاده‌اند و auth نودهای ۱۰۰/۱۶۰/۱۹۳/۱۱۴ معلق است",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-HARDWARE-EXEC-20260915/LANE-REPORT.md (F-017)",
+    "anchor": "W-204"
+   },
+   "evidence_of_unfinished": "F-017: hardware build-out T1-T6 not started (4 boards idle, NPU unused, node auth PENDING)",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-205",
+   "title": "[NEEDS_EVIDENCE] احراز هویت مش نودها (node_id) روی ۴ کارگر PENDING_AUTH است",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "00-SEASON/ziman-full-repair-20260910/fleet-brain/P4 (F-097)",
+    "anchor": "W-205"
+   },
+   "evidence_of_unfinished": "F-097: mesh auth hardening: PASS but PENDING_AUTH on all 4 workers",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-206",
+   "title": "[NEEDS_EVIDENCE] NPU (ظرفیت محاسباتی رایگان نودها) صفر مصرف دارد",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915 (F-056)",
+    "anchor": "W-206"
+   },
+   "evidence_of_unfinished": "F-056: NPU capacity unmeasured/unused; zero consumers; 138 row NOT_RUN",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-212",
+   "title": "[NEEDS_EVIDENCE] طرح rollback مهار (sandbox escape/fire drill) هرگز تمرین نشده",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-025)",
+    "anchor": "W-212"
+   },
+   "evidence_of_unfinished": "F-025: containment rollback plan never exercised",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-220",
+   "title": "[CONFIRMED] تیر state روی ۱۳۸ (۱۰۵MB) هرگز quiesce نشده؛ هیچ snapshot سازگار از state وجود ندارد",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES (DC-03E0)",
+    "anchor": "W-220"
+   },
+   "evidence_of_unfinished": "DC-03E0: the 105MB state tier needs quiesce; ~10 subsystems wrote 21 files in 10 min",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-221",
+   "title": "[PARTIAL] قواعد شکنندهٔ سخت‌افزاری (شروع نکردن مجدد برق، کارت ۳۲GB قبل از reboot) ریسک عملیاتی دائمی می‌سازند",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-HARDWARE-ENROLLMENT-20260915",
+    "anchor": "memory"
+   },
+   "evidence_of_unfinished": "hardware rules: never power-cycle 138؛ 32GB card must leave Plus before reboot",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-233",
+   "title": "[PARTIAL] سقف بودجهٔ ۱۰۰$/ماه عملاً خرید ترافیک پولی را محدود می‌کند (حتی اگر ads مجاز شود)",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md (GOV-V8)",
+    "anchor": "api-budget"
+   },
+   "evidence_of_unfinished": "GOV-V8 ceiling USD100/mo؛ month_spent 0.89",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-235",
+   "title": "[NEEDS_EVIDENCE] اعتبارسنجی پرسونا با خریدار واقعی انجام نشده؛ پرسونا فرضی است",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-235"
+   },
+   "evidence_of_unfinished": "purchase-persona فرضی؛ هیچ مصاحبه/پاسخ بازار ثبت نشده",
+   "U": 2,
+   "R": 2,
+   "C": 2
+  },
+  {
+   "id": "W-239",
+   "title": "[PARTIAL] ورود به پلتفرم Airtasker ناموفق بود (تنها ایمیل رضایت Google آمد) و تکرار نشد",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE (airtasker diagnosis)",
+    "anchor": "W-239"
+   },
+   "evidence_of_unfinished": "memory/audit: only Google consent mail؛ no alert ever arrived; our airtasker branch is live",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-039",
+   "title": "[NEEDS_EVIDENCE] مسیرهای دایرکتوری (YP/TrueLocal/Hotfrog) به کپچا و ایمیل-ورایف خورده‌اند و نیمه‌کاره مانده‌اند",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "00-SEASON/DIRECTORY-YP-SUBMITTED-20260906.json",
+    "anchor": "W-039"
+   },
+   "evidence_of_unfinished": "F-031: captcha-blocked + email-verify pending",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-056",
+   "title": "[NEEDS_EVIDENCE] نظارت بر تقاضا فقط از سمت ماست؛ هیچ سیگنال خرید/جستجو (Google/سایت) رصد نمی‌شود",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/ (ls)",
+    "anchor": "W-056"
+   },
+   "evidence_of_unfinished": "هیچ فایل search-demand در state نیست",
+   "U": 2,
+   "R": 2,
+   "C": 5
+  },
+  {
+   "id": "W-072",
+   "title": "[NEEDS_EVIDENCE] هیچ قیمت‌گذاری مبتنی بر ارزش/نتیجه (نه ساعت کاری) طراحی نشده",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-072"
+   },
+   "evidence_of_unfinished": "بدون rate card/value pricing سند",
+   "U": 2,
+   "R": 2,
+   "C": 2
+  },
+  {
+   "id": "W-073",
+   "title": "[PARTIAL] آفر نقاشی روی یک بازار (strata) متمرکز است ولی منابع لیست از همان بازار هم محدود است",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "owner-review.json",
+    "anchor": "W-073"
+   },
+   "evidence_of_unfinished": "owner-review: market derived from own files (strata NSW)",
+   "U": 2,
+   "R": 2,
+   "C": 4
+  },
+  {
+   "id": "W-076",
+   "title": "[NEEDS_EVIDENCE] هیچ نشانی از بازخورد مشتریان قبلی (رضایت/رتبه) وجود ندارد",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-076"
+   },
+   "evidence_of_unfinished": "هیچ feedback/review file",
+   "U": 2,
+   "R": 2,
+   "C": 2
+  },
+  {
+   "id": "W-078",
+   "title": "[NEEDS_EVIDENCE] زمان تحویل/ظرفیت اعلام نمی‌شود؛ B2B به تاریخ نیاز دارد",
+   "map_class": "T3-offer-product",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-078"
+   },
+   "evidence_of_unfinished": "هیچ capacity/timeline فایل",
+   "U": 2,
+   "R": 2,
+   "C": 2
+  },
+  {
+   "id": "W-087",
+   "title": "[NEEDS_EVIDENCE] زنجیرهٔ studio-consent با ۱۴/۱۴ بولت امضانشده، انتشار استودیو را قفل کرده",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "00-SEASON/PROMPT-RUNS-20260908/studio-consent (F-023)",
+    "anchor": "W-087"
+   },
+   "evidence_of_unfinished": "F-023: studio-consent chain 14/14 bullets unsigned (Saba+owner attestations)",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-105",
+   "title": "[PARTIAL] تصمیم «هر دو کسب‌وکار هم‌زمان» توجه مالک را نصف می‌کند و هیچ‌کدام full-speed نیست",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "138:state/revenue-drive/owner-decisions.jsonl",
+    "anchor": "W-105"
+   },
+   "evidence_of_unfinished": "owner-decisions: PHASE4_FOOT_ORDER=BOTH_SIMULTANEOUS (09-16T09:52)",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-107",
+   "title": "[NEEDS_EVIDENCE] اقدام فیزیکی مالک (کارت SD/برق بردهای باقی‌مانده) از ۰۹-۱۵ معلق است",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-HARDWARE-ENROLLMENT-20260915/LANE-REPORT.md (F-018)",
+    "anchor": "W-107"
+   },
+   "evidence_of_unfinished": "F-018: owner physical step pending: SD-card swap + power for remaining boards",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-114",
+   "title": "[CONFIRMED] دو دروازهٔ بلاک‌شدهٔ دائمی (secret_rotation، OWNER_KEY) روی چند آیتم سایه انداخته‌اند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md",
+    "anchor": "W-114"
+   },
+   "evidence_of_unfinished": "AGENTS.md §4: do not open blocked gates",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-129",
+   "title": "[CONFIRMED] قفل‌های «secret_rotation» و «OWNER_KEY» به دلیل نبود مسیر اجرا، عملاً انتخاب‌های باز را فریز کرده‌اند",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "AGENTS.md §4",
+    "anchor": "W-129"
+   },
+   "evidence_of_unfinished": "AGENTS.md: do not open blocked gates: secret_rotation, OWNER_KEY",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-138",
+   "title": "[NEEDS_EVIDENCE] بازیابی معنایی هنوز extractive-v1 (keyword-only) است — آخرین بلاکر هوش باز مانده",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-049)",
+    "anchor": "W-138"
+   },
+   "evidence_of_unfinished": "F-049: semantic retrieval stage pending (extractive-v1 keyword-only)",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-139",
+   "title": "[NEEDS_EVIDENCE] PB-4 (حافظهٔ پاسخ‌دهی) با corpus جدید هرگز دوباره آزمون نشد",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json (OW-7)",
+    "anchor": "W-139"
+   },
+   "evidence_of_unfinished": "F-051: PB-4 retest owed with 371-fact corpus + held-out questions",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-140",
+   "title": "[NEEDS_EVIDENCE] سیم‌کشی ظرفیت/تازگی (F2) به self-model فقط طراحی شده و هرگز وصل نشد",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-ACTIONS (F-052)",
+    "anchor": "W-140"
+   },
+   "evidence_of_unfinished": "F-052: F2 capability/freshness wiring — shadow designed, never wired",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-142",
+   "title": "[NEEDS_EVIDENCE] دو قابلیت کشف‌شده (fake_executor، external_witness SILENT_FLIP) بدون سیم‌کشی مانده‌اند",
+   "map_class": "T6-learning",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE (capability census 09-17)",
+    "anchor": "W-142"
+   },
+   "evidence_of_unfinished": "census 09-17: fake_executor/external_witness SILENT_FLIP unwired (grep-verified)",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-167",
+   "title": "[NEEDS_EVIDENCE] سیزده کپی .claude (۲۳GB) تکرار سیستم است و فضای مدیریتی می‌خورد",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT.md",
+    "anchor": "W-167"
+   },
+   "evidence_of_unfinished": "deep-scan 10-aspects: .claude 13 vault copies 23.1GB",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-176",
+   "title": "[NEEDS_EVIDENCE] ۶۴٪ فراخوان‌های پولی بدون خروجی می‌سوزند (OP-8) و هیچ کاهشی اعمال نشده",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-057)",
+    "anchor": "W-176"
+   },
+   "evidence_of_unfinished": "F-057: OP-8: paid calls burn without output — measured open at 64%",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-178",
+   "title": "[NEEDS_EVIDENCE] قابلیت انتشار خارجی OFN هرگز ساخته نشد (RULE_NOT_IMPLEMENTED در ۳ کپی)",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "03 - Projects/OFN-Board/ofn/adapters/platforms/base.py:43 (F-062)",
+    "anchor": "W-178"
+   },
+   "evidence_of_unfinished": "F-062: OFN real-publish returns RULE_NOT_IMPLEMENTED across 3 mirror copies",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-180",
+   "title": "[NEEDS_EVIDENCE] زنجیرهٔ EDGE-1..14 در L191 هرگز تشخیص داده نشد و MODEL_RUNTIME_BLOCKED باز است",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-L191-FINDINGS-2026-08-28.md (F-075)",
+    "anchor": "W-180"
+   },
+   "evidence_of_unfinished": "F-075: L191 findings: business chain EDGE-1..14 undiagnosed",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-182",
+   "title": "[NEEDS_EVIDENCE] چرخهٔ عمر producer (restart/cursor-loss/rotation) و atomicity WAL ساخته نشده — ریسک از‌دست‌رفتن داده",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-010)",
+    "anchor": "W-182"
+   },
+   "evidence_of_unfinished": "F-010: G19 producer lifecycle unproven + G27 WAL-or-temp-file atomicity not built",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-192",
+   "title": "[PARTIAL] روزهای enrollment سخت‌افزار (۰۹-۱۴/۱۵) صرف بردها شد نه درآمد",
+   "map_class": "T9-attention-priority",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-HARDWARE-ENROLLMENT-20260915",
+    "anchor": "git log"
+   },
+   "evidence_of_unfinished": "commits 09-14: 8، mass hardware lane reports (ENROLLMENT/HARDWARE-EXEC)",
+   "U": 2,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-208",
+   "title": "[NEEDS_EVIDENCE] سرویس‌های unwired (effect-zero claim paths + http.server اعلام‌نشده) از ۰۸-۱۶ active مانده‌اند",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/UNWIRED-* (F-076)",
+    "anchor": "W-208"
+   },
+   "evidence_of_unfinished": "F-076: unwired services: 'status: active' since 08-16",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-229",
+   "title": "[NEEDS_EVIDENCE] مشتری هیچ سطح وضعیت/پیگیری (چه شد پرونده من؟) ندارد",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-229"
+   },
+   "evidence_of_unfinished": "no status page/file",
+   "U": 1,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-230",
+   "title": "[NEEDS_EVIDENCE] کانال SMS/واتس‌اپ برای یادآوری/فالوآپ استفاده نمی‌شود",
+   "map_class": "T11-channels",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "—",
+    "anchor": "W-230"
+   },
+   "evidence_of_unfinished": "no sms/whatsapp artifacts",
+   "U": 1,
+   "R": 3,
+   "C": 2
+  },
+  {
+   "id": "W-124",
+   "title": "[NEEDS_EVIDENCE] سه xfail در ۴ کپی مختلف ماژول VBAA باقی است — تناقض کیفیت در چند نسخه",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "tests/contract/vbaa/ (F-063)",
+    "anchor": "W-124"
+   },
+   "evidence_of_unfinished": "F-063: vbaa xfail invariant trio unresolved in 4 copy locations",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-126",
+   "title": "[NEEDS_EVIDENCE] ستون verified_in_code در دفتر 02-DECISIONS هرگز پر نشده — ردیابی تصمیم→کد قطع است",
+   "map_class": "T5-governance-friction",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "02-DECISIONS/DECISIONS.md (F-089)",
+    "anchor": "W-126"
+   },
+   "evidence_of_unfinished": "F-089: 02-DECISIONS ledger verified_in_code column unfilled",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-154",
+   "title": "[NEEDS_EVIDENCE] ledger کانونیک GAP وجود ندارد (۰ ردیف در برابر ۶۴ ردیف نسخهٔ markdown) — L6 برای همیشه باز",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/L6/LANE-REPORT.md (F-053)",
+    "anchor": "W-154"
+   },
+   "evidence_of_unfinished": "F-053: GAP-LEDGER.jsonl canonical missing",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-155",
+   "title": "[NEEDS_EVIDENCE] مُهر QA فاز P6 استناد شده ولی فایل مستقیمش پیدا نمی‌شود",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-ACTIONS (F-055)",
+    "anchor": "W-155"
+   },
+   "evidence_of_unfinished": "F-055: P6 QA seal cited but its direct file unlocatable",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-157",
+   "title": "[NEEDS_EVIDENCE] فایل listener imap روی ۱۳۸ (۱۵۸۷۵B) هرگز تأیید نشد و نام‌گذاری lane-matrix تناقض دارد",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/B-PULSE-IMAP/LANE-REPORT.md (F-045)",
+    "anchor": "W-157"
+   },
+   "evidence_of_unfinished": "F-045: B-PULSE-IMAP: the exact 15875B listener file never confirmed + naming clash",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-158",
+   "title": "[NEEDS_EVIDENCE] سه ادعای متناقض درباره llama روی ۱۳۸/۱۸۰ وجود دارد و هیچ‌کدام بازconciliation نشده (resolution: null)",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-138-WIRING-20260908/LANE-REPORT.md (F-082)",
+    "anchor": "W-158"
+   },
+   "evidence_of_unfinished": "F-082: llama-8081 three claims, no reconciliation",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-159",
+   "title": "[NEEDS_EVIDENCE] تناقض سه‌مستأجری پورت ۸۷۹۱ با resolution: null رها شده و مسیر callback را مبهم می‌کند",
+   "map_class": "T7-agent-architecture",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/D-S0-HUNT/LANE-REPORT.md (F-081)",
+    "anchor": "W-159"
+   },
+   "evidence_of_unfinished": "F-081: 8791 three-tenant contradiction unresolved",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-169",
+   "title": "[NEEDS_EVIDENCE] manifest اسکن ۱۰وجهی پس از دو اجرای ناتمام ناقص مانده",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT.md (F-054)",
+    "anchor": "W-169"
+   },
+   "evidence_of_unfinished": "F-054: DEEP-SCAN-10ASPECTS sha manifest incomplete after two aborted runs",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-174",
+   "title": "[NEEDS_EVIDENCE] سازندهٔ گراف 4d_system هرگز پیاده نشد و baselineها تأییدنشده ماند",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/L8/LANE-REPORT.md (F-059)",
+    "anchor": "W-174"
+   },
+   "evidence_of_unfinished": "F-059: 4d_system graph builder not implemented (deferred)",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-181",
+   "title": "[NEEDS_EVIDENCE] ۲۸۰ ردیف فرمول N3V2-MATH با ۳۰ ردیف آزمون‌نشده و ۹ قرنطینه رها شده",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/N3V2-MATH-20260505T031103Z/LANE-REPORT.md (F-094)",
+    "anchor": "W-181"
+   },
+   "evidence_of_unfinished": "F-094: N3V2-MATH: 30 formula rows untested, 9 quarantines, SIG_IV PENDING",
+   "U": 1,
+   "R": 3,
+   "C": 3
+  },
+  {
+   "id": "W-207",
+   "title": "[NEEDS_EVIDENCE] تونل‌ها/مسیرهای دسترسی خارجی غایب یا کهنه‌اند و hold_external فعال است",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-L191-FORENSIC-DEBUG-2026-08-28.md (F-079)",
+    "anchor": "W-207"
+   },
+   "evidence_of_unfinished": "F-079: tunnels absent/stale + hold external",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-216",
+   "title": "[NEEDS_EVIDENCE] کارت ۱۲۸GB روی ۱۸۲ در سه تلاش شناسایی نشد — کارت یا اسلات بدون تعیین‌تکلیف",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-HARDWARE-ENROLLMENT-20260915 (F-096)",
+    "anchor": "W-216"
+   },
+   "evidence_of_unfinished": "F-096: 182 SD-slot: 128GB card undetected after 3 tries",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-217",
+   "title": "[NEEDS_EVIDENCE] استراتژی MAC/DHCP برای تغییر رسانه (T4) طراحی/اثبات نشده",
+   "map_class": "T10-infra-fleet",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-HARDWARE-EXEC-20260915 (F-095)",
+    "anchor": "W-217"
+   },
+   "evidence_of_unfinished": "F-095: T4 media-change MAC/DHCP strategy design + proof outstanding",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-240",
+   "title": "[NEEDS_EVIDENCE] باتری آزمون H9 تا ۰۹-۲۲ ادامه دارد و حکم analyzer معلق است — برنامهٔ تحقیق معلق",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/H9-TESTBATTERY-20260909/LANE-REPORT.md (F-066)",
+    "anchor": "W-240"
+   },
+   "evidence_of_unfinished": "F-066: H9 test battery accrues to 2026-09-22; verdict PENDING_CONTINUE",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-241",
+   "title": "[NEEDS_EVIDENCE] برنامهٔ تعمیم QD (GEN-v4) مجاز نشده و پارک مانده",
+   "map_class": "T12-buffer-external",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/QD-LAB-GENERALIZATION-20260908/LANE-REPORT.md (F-067)",
+    "anchor": "W-241"
+   },
+   "evidence_of_unfinished": "F-067: GEN-v4 lab candidates not authorized — generalization program parked",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-050",
+   "title": "[NEEDS_EVIDENCE] تحقیق چشم‌انداز AI بازار (۸-PLANS) پذیرش‌نشده مانده — ورودی استراتژی تقاضا ناقص",
+   "map_class": "T2-demand-market",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "08-PLANS/OCTOPUS-AI-LANDSCAPE-RESEARCH-MEGAPROMPT-2026-08-28 (F-092)",
+    "anchor": "W-050"
+   },
+   "evidence_of_unfinished": "F-092: 50 sources, 3 connectors acceptance unmet",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-085",
+   "title": "[NEEDS_EVIDENCE] امضای owner-key (B1 ED25519) از چت معلق مانده و hash کیس هرگز بازتولید نشده",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OWNER-KEY-STATUS-2026-08-20.md (F-038)",
+    "anchor": "W-085"
+   },
+   "evidence_of_unfinished": "F-038: owner-key chain: B1 formal signing pending chat approval; owner-key.enc hash never reproduced",
+   "U": 2,
+   "R": 1,
+   "C": 3
+  },
+  {
+   "id": "W-088",
+   "title": "[NEEDS_EVIDENCE] KYC استودیو (FeetFinder 0/9 + OnlyFans HOLD) صد درصد وابسته به اقدام مالک است",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-032)",
+    "anchor": "W-088"
+   },
+   "evidence_of_unfinished": "F-032: FeetFinder KYC 0/9 uploads + OnlyFans cookie/API rejects",
+   "U": 2,
+   "R": 1,
+   "C": 3
+  },
+  {
+   "id": "W-089",
+   "title": "[NEEDS_EVIDENCE] سه امضای pre-registration (K9، judge-bias phase2، four-arm ablation) هرگز زده نشده",
+   "map_class": "T4-owner-dependency",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "02-DECISIONS/PRE-REG-*.md (F-090)",
+    "anchor": "W-089"
+   },
+   "evidence_of_unfinished": "F-090: three pre-registration signatures never cast",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-172",
+   "title": "[NEEDS_EVIDENCE] لیبل‌های ESP32 غایب است؛ جداول مالک رندر نمی‌شوند",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/Q-QUALITY-SWARM-20260908/LANE-REPORT.md (F-088)",
+    "anchor": "W-172"
+   },
+   "evidence_of_unfinished": "F-088: ESP32 labels.json absent",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-173",
+   "title": "[NEEDS_EVIDENCE] چک‌لیست PARALLEL-AGENTS از ۰۷-۱۸ با ۱۶ بولت باز مانده (ماه دوم)",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/PARALLEL-AGENTS-CONSOLIDATION-2026-07-18.md (F-093)",
+    "anchor": "W-173"
+   },
+   "evidence_of_unfinished": "F-093: PARALLEL-AGENTS-CONSOLIDATION checklist 16 unticked bullets",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-177",
+   "title": "[NEEDS_EVIDENCE] خلبان AIE صادقانه fail شد و PYMDP v2 ثبت‌شده ولی هرگز اجرا نشد",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-058)",
+    "anchor": "W-177"
+   },
+   "evidence_of_unfinished": "F-058: AIE pilot failed honestly; PYMDP v2 registered, never run",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  },
+  {
+   "id": "W-179",
+   "title": "[NEEDS_EVIDENCE] حلقهٔ کسب‌وکار EDGE6 مسدود و remote انتشار GitHub نامکشوف مانده",
+   "map_class": "T8-knowledge-debt",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "06-EVIDENCE/OCTOPUS-TELEGRAM-WEBAPP-PHASE0-2026-08-29.md (F-074)",
+    "anchor": "W-179"
+   },
+   "evidence_of_unfinished": "F-074: EDGE6 business loop blocked + GitHub publication remote unlocated",
+   "U": 1,
+   "R": 2,
+   "C": 3
+  }
+ ]
+}

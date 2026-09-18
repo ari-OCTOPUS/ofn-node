@@ -1,0 +1,265 @@
+{
+  "schema": "octopus.debug.live_readback.v1",
+  "local_started_at_utc": "2026-09-06T23:43:44.892318+00:00",
+  "local_ended_at_utc": "2026-09-06T23:43:47.813946+00:00",
+  "probe_script_path": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\live_readback.py",
+  "probe_script_sha256": "0eab1307afdc4b4093a6df87e8644ba2b743903b189d5865b43378773376a433",
+  "script_bytes": 5102,
+  "script_transmission": "exact saved file bytes supplied as subprocess stdin; no shell text conversion",
+  "ssh_attempts": 1,
+  "ssh_exit_code": 0,
+  "stderr_present": false,
+  "board_probe": {
+    "schema": "read_only.audit_verification.v2",
+    "started_at_utc": "2026-09-06T23:43:47.752604+00:00",
+    "hostname": "DietPi",
+    "loaded_process_revision": "UNKNOWN",
+    "runtime_imports": 0,
+    "remote_writes_requested": 0,
+    "repo_heads": {
+      "/home/ari/octopus-mesh": "d5d2f7264c6a7db594be667aed3dfb44d4fa8c7c",
+      "/home/ari/ofn": "a1f0fa8061fd6b7529ba6c37f7ddb0032a4ed546"
+    },
+    "service_probe_started_at_utc": "2026-09-06T23:43:47.757502+00:00",
+    "ofn_service": {
+      "exit_code": 0,
+      "properties": {
+        "MainPID": "3706256",
+        "ExecMainStartTimestamp": "Sun 2026-09-06 22:22:11 UTC",
+        "WorkingDirectory": "/home/ari/ofn",
+        "ActiveState": "active",
+        "SubState": "running"
+      },
+      "loaded_source_revision": "UNKNOWN",
+      "observed_at_utc": "2026-09-06T23:43:47.776161+00:00"
+    },
+    "snapshot": {
+      "path": "/home/ari/octopus-mesh/audit/audit.jsonl",
+      "read_started_at_utc": "2026-09-06T23:43:47.776196+00:00",
+      "read_ended_at_utc": "2026-09-06T23:43:47.811294+00:00",
+      "fstat_before": {
+        "size_bytes": 30245852,
+        "inode": 391780,
+        "device": 45825,
+        "mtime_ns": 1788738221779645700
+      },
+      "fstat_after": {
+        "size_bytes": 30245852,
+        "inode": 391780,
+        "device": 45825,
+        "mtime_ns": 1788738221779645700
+      },
+      "path_stat_after": {
+        "size_bytes": 30245852,
+        "inode": 391780,
+        "device": 45825,
+        "mtime_ns": 1788738221779645700
+      },
+      "read_bytes": 30245852,
+      "complete_initial_bound": true,
+      "sha256": "0fa64552a08a8e68e1978fea48654036258884cd63e86308109b0642333238b2",
+      "checks": {
+        "line_count": 196462,
+        "record_count": 196462,
+        "parse_errors": 0,
+        "first_seq": 1,
+        "last_seq": 196462,
+        "seq_non_increment_breaks": 0,
+        "seq_duplicates": 0,
+        "ends_newline": true,
+        "target_records": {
+          "194298": {
+            "line": 194298,
+            "safe_fields": {
+              "event": "standing_go_halted",
+              "reason": "calibration_error_ge_0.5",
+              "seq": 194298,
+              "calib_tail": [
+                "unresolved",
+                "confirmed",
+                "unresolved"
+              ]
+            },
+            "fields_present": {
+              "loaded_source_revision": false,
+              "consumer_path": false,
+              "read_receipt_id": false,
+              "calib_tail": true,
+              "reason_code": false,
+              "mint_evidence": false
+            },
+            "mint_evidence_calib_tail_present": false,
+            "raw_line_sha256": "2622cf331684990b4254a061f3e2985859ae23f8a4c6f7e3346047a4c996cf82"
+          },
+          "194329": {
+            "line": 194329,
+            "safe_fields": {
+              "event": "standing_go_minted",
+              "reason": "internal_pulse",
+              "seq": 194329
+            },
+            "fields_present": {
+              "loaded_source_revision": false,
+              "consumer_path": false,
+              "read_receipt_id": false,
+              "calib_tail": false,
+              "reason_code": false,
+              "mint_evidence": false
+            },
+            "mint_evidence_calib_tail_present": false,
+            "raw_line_sha256": "57b89fa1bdf7d9cbac0eb991e8a50a30df4e4810ef143588988ae25359aa0acb"
+          }
+        }
+      }
+    },
+    "historical_prefix": {
+      "requested_bytes": 30047320,
+      "read_bytes": 30047320,
+      "expected_sha256": "029afbb112400a6b6eefd234c2efdc3b2dd1f9c267a138816f83a09fdc83009c",
+      "sha256": "029afbb112400a6b6eefd234c2efdc3b2dd1f9c267a138816f83a09fdc83009c",
+      "checks": {
+        "line_count": 195097,
+        "record_count": 195097,
+        "parse_errors": 0,
+        "first_seq": 1,
+        "last_seq": 195097,
+        "seq_non_increment_breaks": 0,
+        "seq_duplicates": 0,
+        "ends_newline": true,
+        "target_records": {
+          "194298": {
+            "line": 194298,
+            "safe_fields": {
+              "event": "standing_go_halted",
+              "reason": "calibration_error_ge_0.5",
+              "seq": 194298,
+              "calib_tail": [
+                "unresolved",
+                "confirmed",
+                "unresolved"
+              ]
+            },
+            "fields_present": {
+              "loaded_source_revision": false,
+              "consumer_path": false,
+              "read_receipt_id": false,
+              "calib_tail": true,
+              "reason_code": false,
+              "mint_evidence": false
+            },
+            "mint_evidence_calib_tail_present": false,
+            "raw_line_sha256": "2622cf331684990b4254a061f3e2985859ae23f8a4c6f7e3346047a4c996cf82"
+          },
+          "194329": {
+            "line": 194329,
+            "safe_fields": {
+              "event": "standing_go_minted",
+              "reason": "internal_pulse",
+              "seq": 194329
+            },
+            "fields_present": {
+              "loaded_source_revision": false,
+              "consumer_path": false,
+              "read_receipt_id": false,
+              "calib_tail": false,
+              "reason_code": false,
+              "mint_evidence": false
+            },
+            "mint_evidence_calib_tail_present": false,
+            "raw_line_sha256": "57b89fa1bdf7d9cbac0eb991e8a50a30df4e4810ef143588988ae25359aa0acb"
+          }
+        }
+      },
+      "matches_expected_sha256": true
+    },
+    "writer_source": [
+      {
+        "path": "/home/ari/octopus-mesh/bin/octopus_common.py",
+        "status": "READ_SOURCE_ONLY",
+        "file_sha256": "74ff5dd0423471138a43d455a22c76a3fa94cefc34e25209c5113500f052c115",
+        "functions": [
+          {
+            "name": "audit_append",
+            "line": 108,
+            "end_line": 134,
+            "source_sha256": "d35edc1a89172838274b4d07478e87bd795b8e84cf3cb7b4f527eaa575d3bbab",
+            "contains_sha256": false,
+            "contains_prev_hash": false,
+            "contains_flock": true,
+            "contains_fsync": true,
+            "contains_sort_keys": true
+          }
+        ]
+      },
+      {
+        "path": "/home/ari/octopus-mesh/bin/octomesh_common.py",
+        "status": "READ_SOURCE_ONLY",
+        "file_sha256": "4310cda5379ab892d38d670e241f6253f683c78929f7f7a907e2ad26c77b1ad1",
+        "functions": [
+          {
+            "name": "audit_append",
+            "line": 115,
+            "end_line": 145,
+            "source_sha256": "167031fa12652fe271061dec160b304f5e9db0590a3a843787f222ecff6cb871",
+            "contains_sha256": false,
+            "contains_prev_hash": false,
+            "contains_flock": true,
+            "contains_fsync": true,
+            "contains_sort_keys": false
+          }
+        ]
+      }
+    ],
+    "interpretation": {
+      "historical_prefix_match": "unchanged relative to prior captured fingerprint only; not historic authenticity or tamperproof evidence",
+      "seq_continuity": "does not prove a cryptographic hash chain",
+      "service_status": "selected service properties only; source HEAD is not loaded process revision"
+    },
+    "ended_at_utc": "2026-09-06T23:43:49.908843+00:00"
+  },
+  "gov_version": "V8",
+  "ladder": "L2",
+  "lane_id": "MP-DEBUG-20260907",
+  "github_pull_request": {
+    "command": "gh pr view 224 --json number,url,state,isDraft,headRefName,headRefOid,baseRefName,mergeCommit,mergedAt,statusCheckRollup",
+    "working_directory": "F:\\wt-mp-exec-ex1-ex2-20260907",
+    "observation_timestamp_utc": null,
+    "observation_interval": "After initial board probe ended 2026-09-06T23:41:23.145802+00:00 (board clock); before second probe local start 2026-09-06T23:43:44.892318+00:00. Cross-host clocks are not treated as synchronized.",
+    "number": 224,
+    "url": "https://github.com/ari-OCTOPUS/ofn-node/pull/224",
+    "state": "MERGED",
+    "isDraft": false,
+    "headRefName": "rescue/wo-align-20260906",
+    "headRefOid": "c7e664621fa5fde5165d3334aa49a2761e9d0f8a",
+    "baseRefName": "main",
+    "mergeCommit": {
+      "oid": "b8340d0e757a7563583d99672b2912c30db03af3"
+    },
+    "mergedAt": "2026-09-06T21:48:24Z",
+    "checks_summary": {
+      "check_runs": 18,
+      "completed": 18,
+      "success": 18,
+      "pending": 0,
+      "failure": 0
+    },
+    "interpretation": "This pull request is merged. Its checks apply to the PR revision and do not establish board-loaded source or the new EX2 contract deployment."
+  },
+  "mutations": {
+    "remote_requested": [],
+    "local_files_created": [
+      "live_readback.py",
+      "LIVE-READBACK.json"
+    ],
+    "historical_evidence_edited": false
+  },
+  "audit_verdict": {
+    "historical_prefix": "MATCHES_PRIOR_CAPTURED_FINGERPRINT",
+    "seq_integrity": "PASS_FOR_OBSERVED_BYTES",
+    "hash_chain": "NOT_IMPLEMENTED_IN_INSPECTED_WRITERS",
+    "ex1_original_acceptance": "NOT_SATISFIED_MISSING_REQUIRED_RAW_FIELDS",
+    "ofn_service": "ACTIVE_RUNNING_IN_SELECTED_PROPERTY_PROBE",
+    "loaded_source_revision": "UNKNOWN",
+    "timestamp_note": "Local wrapper and board timestamps retain their own clocks; no cross-host ordering or synchronization claim."
+  }
+}

@@ -1,0 +1,30 @@
+/home/ari/octopus-mesh/inbox:
+total 8
+drwx------  2 ari ari 4096 Sep 15 03:00 .
+drwx------ 25 ari ari 4096 Sep  4 14:38 ..
+
+/home/ari/octopus-mesh/outbox:
+total 804
+drwx------  2 ari ari 28672 Sep 15 03:13 .
+drwx------ 25 ari ari  4096 Sep  4 14:38 ..
+-rw-------  1 ari ari   712 Sep  4 15:00 2026-09-04T15-00-25.953955Z__48bbc1d3-6dc7-4d6f-b4f8-9d953e2709b0.json
+-rw-------  1 ari ari   712 Sep  4 15:00 2026-09-04T15-00-25.958721Z__f1654dda-33f9-43cf-b8c2-6d0658d540fa.json
+-rw-------  1 ari ari   712 Sep  4 16:00 2026-09-04T16-00-21.444517Z__83ec8fa2-046b-4094-b138-6127f2f861b3.json
+-rw-------  1 ari ari   712 Sep  4 16:00 2026-09-04T16-00-21.449104Z__95e404b5-236b-43af-a142-b4c6e54bf01f.json
+-rw-------  1 ari ari   712 Sep  4 16:00 2026-09-04T16-00-21.452607Z__bd006d2b-2ae0-4219-ae0d-41b02202d275.json
+-rw-------  1 ari ari   712 Sep  4 17:00 2026-09-04T17-00-04.172208Z__a63a2e96-c436-41d6-9b38-24d02a1b3f30.json
+-rw-------  1 ari ari   712 Sep  4 17:00 2026-09-04T17-00-04.192554Z__2cdf5494-6012-4a2b-880c-b0103202a2ed.json
+-rw-------  1 ari ari   712 Sep  4 17:00 2026-09-04T17-00-04.203872Z__afcb5a0a-6d39-4184-8d8c-e4e243dee092.json
+-rw-------  1 ari ari   701 Sep  4 17:15 2026-09-04T17-15-22.685069Z__f287fa22-7dbb-4fc9-b38a-69a4c83b479a.json
+-rw-------  1 ari ari   712 Sep  4 18:00 2026-09-04T18-00-19.459230Z__d13583cb-04fe-4476-88f9-48746f9c6d13.json
+-rw-------  1 ari ari   712 Sep  4 18:00 2026-09-04T18-00-19.469091Z__ec4c20e5-ace2-466f-a544-4f562076374f.json
+-rw-------  1 ari ari   712 Sep  4 18:00 2026-09-04T18-00-19.472399Z__f0cfb6cf-b979-405d-9523-b43062a42ac2.json
+-rw-------  1 ari ari   712 Sep  4 19:00 2026-09-04T19-00-26.175700Z__60971450-d07b-433d-bde7-2f0f4508cc90.json
+-rw-------  1 ari ari   712 Sep  4 19:00 2026-09-04T19-00-26.182350Z__40f4ec40-7d0b-4e33-b633-7cee1cc36de0.json
+-rw-------  1 ari ari   712 Sep  4 19:00 2026-09-04T19-00-26.186040Z__d9987cc4-feb4-4afc-8013-d26c38955158.json
+-rw-------  1 ari ari   701 Sep  4 19:00 2026-09-04T19-00-26.190149Z__668e720f-f811-4550-8dcf-24c795548d2a.json
+-rw-------  1 ari ari   712 Sep  4 20:00 2026-09-04T20-00-07.052693Z__cbb1c946-39f7-4d82-b9de-9b25dcbf7944.json
+-rw-------  1 ari ari   712 Sep  4 20:00 2026-09-04T20-00-07.056617Z__1e5074c6-d20a-4c62-b330-c5cfa31cd446.json
+-rw-------  1 ari ari   712 Sep  4 20:00 2026-09-04T20-00-07.060270Z__d8991a7a-7f84-4f4b-b48d-f260c7601bac.json
+-rw-------  1 ari ari   712 Sep  4 20:00 2026-09-04T20-00-07.063912Z__edd17db3-e3b6-4384-9a05-62327acc92e0.json
+-rw-------  1 ari ari   712 Sep  4 20:00 2026-09-04T20-00-07.067845Z__29da075c-1a4e-4e20-91d7-f80c40ed00e0.json

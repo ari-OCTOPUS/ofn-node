@@ -1,0 +1,16 @@
+{
+  "schema": "octopus.domain-auth-check.v1",
+  "observed_utc": "2026-09-07T22:48:43.5344882Z",
+  "approved_primary": "ziman-gift.com.au",
+  "shop_myshopify_domain": "pwqytn-kp.myshopify.com",
+  "browser": "Codex In-app Browser",
+  "user_reported_login": "done",
+  "observed_result": "authenticated account lacks permission for selected Shopify store",
+  "target_url": "https://admin.shopify.com/store/pwqytn-kp/settings/domains",
+  "subsequent_state": "user has entered Google sign-in flow for Shopify",
+  "pending": "login with account that manages selected store",
+  "dns_mutated": false,
+  "shopify_mutated": false,
+  "credential_values_recorded": false,
+  "approval_reasked": false
+}

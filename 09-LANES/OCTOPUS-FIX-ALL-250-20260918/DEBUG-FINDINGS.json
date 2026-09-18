@@ -1,0 +1,73 @@
+{
+ "schema": "octopus.debug-findings.v1",
+ "lane": "OCTOPUS-FIX-ALL-250-20260918",
+ "generated_at": "2026-09-18T00:48:00Z",
+ "note": "نقص‌های تازه‌کشف‌شدهٔ مسیر تأیید مالک — خارج از ۲۵۰ مورد تشخیص (addendum، شماره‌گذاری W-251+)",
+ "findings": [
+  {
+   "id": "W-251",
+   "title": "گارد تپ تکراری وجود ندارد؛ execute_money_batch idempotent نیست",
+   "reason": "پکت‌ها در SEND_QUEUE بازنویسی می‌شوند و ارسال بی‌قید انجام می‌شود؛ تپ دوباره = ایمیل دوباره به همان لیدها",
+   "evidence": [
+    "138:state/revenue-drive/money_tools.py:69-121",
+    "E2E: DUPLICATE_TAP_IGNORED receipt"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "grade": "E3",
+   "state": "FIXED_RECEIPTED",
+   "fix": "guard پیش از dispatch + receipt",
+   "impact": 5,
+   "fixability": 4
+  },
+  {
+   "id": "W-252",
+   "title": "کارت چندگزینه‌ای فقط یک دکمهٔ تأیید داشت → انتخاب گزینه در دادهٔ رأی حمل نمی‌شد",
+   "reason": "سه تأیید مالک ثبت شد ولی گزینه نامعلوم ماند (خطر تفسیر به‌نفع خود)",
+   "evidence": [
+    "138:owner-decisions.jsonl (option=None برای 3 رأی)",
+    "E2E: option=2 پس از رفع"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "grade": "E3",
+   "state": "FIXED_RECEIPTED",
+   "fix": "دکمهٔ opt:<did>:<n> + ثبت option",
+   "impact": 4,
+   "fixability": 4
+  },
+  {
+   "id": "W-253",
+   "title": "کلید ضدتکرار ارسال کارت، ساعتی بود (at[:13]) → کارت تازهٔ همان ساعت خفه می‌شد",
+   "reason": "کارت نهایی MONEY-BATCH (۱۰ بسته) هرگز ارسال نشد چون کارت قبلی همان ساعت رفته بود",
+   "evidence": [
+    "138:owner_ask.py key=id@at[:13]",
+    "re-run پس از رفع: new_cards_sent=[]"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "grade": "E3",
+   "state": "FIXED_RECEIPTED",
+   "fix": "کلید محتوا-محور",
+   "impact": 3,
+   "fixability": 4
+  },
+  {
+   "id": "W-254",
+   "title": "تأخیر دریافت تأیید ~۱۰ دقیقه (دو تایمر ۵ دقیقه‌ای سری) — تجربهٔ «دریافت نمی‌کند»",
+   "reason": "تپ 00:37:03 تا 00:40:25 بی‌واکنش ماند؛ مالک نتیجه گرفت خوانده نمی‌شود",
+   "evidence": [
+    "138:tg-inbox.jsonl at 00:37:03 + cursor 10 در 00:40:25",
+    "timers: 1min پس از رفع"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "grade": "E3",
+   "state": "FIXED_RECEIPTED",
+   "fix": "drop-in تایمر ۱ دقیقه‌ای برای گلاس و owner-reply",
+   "impact": 3,
+   "fixability": 4
+  }
+ ],
+ "incident": {
+  "what": "تعویض کلید dedupe بدون مهاجرت رکوردهای قبلی → ارسال دوبارهٔ ۱۱ کارت به مالک",
+  "remediation": "پیام شفاف + SUPERSEDED کهنه‌ها + تثبیت کلید",
+  "lesson": "مهاجرت رکوردهای کلید باید قبل از سوئیچ انجام شود"
+ }
+}

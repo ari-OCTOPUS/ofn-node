@@ -1,0 +1,58 @@
+{
+  "ALL_VERDICTS": {
+    "CONTINUITY": "WINDOW_ACTIVE (capaware scheduler running; PB-1 24h from 04:31Z)",
+    "MEMORY": "PASS (durability tested; restore readback from 180 verified; 23 facts retrievable)",
+    "QUALITY": "IMPROVED (PB-4: A=0.75 B=0.0, n=12, powered)"
+  },
+  "COMPLETED": [
+    {
+      "design": "if stats[failed]>0 or stats[spool_errors]>0 then don't advance offset; Telegram re-delivers on next poll",
+      "id": "G27-producer-durability",
+      "preimage": "glass_runner.py.pre-g27s-20260915",
+      "sha": "ddee3da4 -> 02fb704da2d4190a",
+      "what": "cycle() no longer advances offset past a failed spool write"
+    },
+    {
+      "file": "/home/ari/ofn/state/fleet-scheduler/BODY-MAP.json",
+      "id": "BODY-MAP",
+      "unwired": [
+        "160",
+        "114"
+      ],
+      "what": "7-node body map with measured capabilities and consumers",
+      "wired": 5
+    },
+    {
+      "id": "capaware-scheduler",
+      "unit_updated": "ExecStart changed from fleet_scheduler.py to capaware_scheduler.py",
+      "what": "fleet-scheduler.timer now uses capaware_scheduler.py which reads node-capabilities.json and selects worker by measured capability"
+    },
+    {
+      "facts_lines": 23,
+      "hash_match": true,
+      "id": "PB3-restore-readback",
+      "jobs_lines": 61,
+      "semantic_query": "verified_cash -> 2 hits (revenue_state)",
+      "snapshot_path_on_180": "/opt/octopus-restore-copies/pb3-fleet-1789448364",
+      "what": "fleet-memory + fleet-jobs snapshotted to 180; hash match; semantic query works"
+    }
+  ],
+  "G8_DEPLOY_ATTEMPT": {
+    "issue": "retire bug fixed (c2e290fd); G8 back in queue; ops-agent will retry on next tick",
+    "status": "REQUEUED"
+  },
+  "GOV_VERSION": "V8",
+  "LADDER": "L2",
+  "NEXT": "monitor ops-agent tick for G8 deploy; if witness available it will execute",
+  "REMAINING": [
+    "G8 deploy: requeued, waiting for ops-agent tick with witness",
+    "W24 binder deploy: queued after G8 (dependency)",
+    "160 and 114: PRESENT_UNWIRED — need service installation",
+    "PB-4 with better model: extractive-v1 is keyword-based; a real LLM would show more improvement"
+  ],
+  "at_utc": "2026-09-15T04:59:49Z",
+  "customer_send": false,
+  "go_b4": false,
+  "hold_external": true,
+  "schema": "octopus.body-adaptation.independent-work.v1"
+}

@@ -1,0 +1,98 @@
+{
+  "schema": "octopus.ex1.criterion_eval.v1",
+  "lane": "MP-EX1-CRITERION-20260907",
+  "gov_version": "V8",
+  "ladder": "L2",
+  "kind": "advisor_proposal_input",
+  "order_sha256": "ca736a4724ddac884fd39108dc6089e907fba6f1439ba61ff71cc7681cdaa4e3",
+  "literal_ex1_pass": false,
+  "expects": {
+    "both_records_exist": true,
+    "calib_tail_194298_matches_report": true,
+    "reason_code_in_both_records": false,
+    "provenance_trio_in_194298": false,
+    "provenance_trio_in_194329": false,
+    "mint_evidence_calib_tail_on_194329": false,
+    "specified_verify_chain_ok": false,
+    "seq_monotonic_on_observed_bytes": true
+  },
+  "existence": {
+    "seq_194298_in_live": true,
+    "seq_194329_in_live": true,
+    "event_194298": "standing_go_halted",
+    "event_329": "standing_go_minted",
+    "event_194298_matches": true,
+    "event_194329_matches": true,
+    "line_equals_seq_298": true,
+    "line_equals_seq_329": true,
+    "prefix_same_events": true,
+    "raw_line_sha256_194298": "2622cf331684990b4254a061f3e2985859ae23f8a4c6f7e3346047a4c996cf82",
+    "raw_line_sha256_194329": "57b89fa1bdf7d9cbac0eb991e8a50a30df4e4810ef143588988ae25359aa0acb"
+  },
+  "record_194298": {
+    "reason": "calibration_error_ge_0.5",
+    "reason_matches_report": true,
+    "calib_tail": [
+      "unresolved",
+      "confirmed",
+      "unresolved"
+    ],
+    "calib_tail_matches_report": true,
+    "reason_code_present_live": false,
+    "reason_code_present_prefix": false,
+    "reason_is_not_reason_code": true
+  },
+  "record_194329": {
+    "reason": "internal_pulse",
+    "reason_matches": true,
+    "calib_tail_present_live": false,
+    "mint_evidence_present_live": false,
+    "mint_evidence_calib_tail_present": false,
+    "owner_go_id_in_ex1_receipt_row": "STANDING-GO-INTERNAL-CYCLES-2026-09-06-03",
+    "owner_go_id_in_debug_safe_fields": false,
+    "debug_safe_field_filter": [
+      "event",
+      "reason",
+      "reason_code",
+      "seq",
+      "calib_tail"
+    ],
+    "owner_go_id_status": "measured_in_ex1_receipt_only_debug_probe_filtered_it"
+  },
+  "provenance": {
+    "194298": {
+      "loaded_source_revision": {
+        "live": false,
+        "prefix": false
+      },
+      "consumer_path": {
+        "live": false,
+        "prefix": false
+      },
+      "read_receipt_id": {
+        "live": false,
+        "prefix": false
+      }
+    },
+    "194329": {
+      "loaded_source_revision": {
+        "live": false,
+        "prefix": false
+      },
+      "consumer_path": {
+        "live": false,
+        "prefix": false
+      },
+      "read_receipt_id": {
+        "live": false,
+        "prefix": false
+      }
+    }
+  },
+  "sources": {
+    "live_readback": "F:\\backup\\09-LANES\\MP-DEBUG-20260907\\LIVE-READBACK.json",
+    "ex1_receipt": "F:\\backup\\09-LANES\\MP-EXEC-EX1-EX2-20260907\\EX1-VERIFICATION-RECEIPT.json",
+    "live_sha256": "45e62a0700fb77647227be6cf0d71e95fef63bca9e98f37f43edee3650de86a1",
+    "ex1_sha256": "21dbcd17d9cd5c11f8287bbca2bfdb2efffa793623dce42d9c12189e6cc18408"
+  }
+}

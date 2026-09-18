@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://octopus.local/schemas/fleet_hypothesis.v1.schema.json",
+  "title": "fleet_hypothesis.v1",
+  "description": "Tier C hypothesis/summary. Promote to fact only after 180 quality gate; never sole SoT on 180.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "hyp_id",
+    "summary_hash",
+    "model_id",
+    "prompt_hash",
+    "source_fact_ids",
+    "confidence",
+    "quality_gate",
+    "commander_node_id",
+    "customer_send"
+  ],
+  "properties": {
+    "schema": { "const": "fleet_hypothesis.v1" },
+    "hyp_id": { "type": "string", "minLength": 1 },
+    "summary_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "model_id": { "type": "string", "minLength": 1 },
+    "prompt_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "source_fact_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "quality_gate": {
+      "type": "string",
+      "enum": ["pending_180", "pass_180", "reject_180"]
+    },
+    "soft_ttl": { "type": ["string", "null"] },
+    "commander_node_id": { "const": "138" },
+    "customer_send": { "const": false }
+  }
+}

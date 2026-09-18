@@ -1,0 +1,64 @@
+{
+  "schema": "octopus.mirror-replica-drill.v1",
+  "observed_at_utc": "2026-09-17T09:08:50.464215+00:00",
+  "status": "BYTE_RESTORE_AND_PARSE_VERIFIED",
+  "manifest_sha256": "0628dafdbdd727121bdeea0a3298fae2a061812fc08d303d51a97c3f64726d4d",
+  "signature_verified": true,
+  "files": [
+    {
+      "path": "api-budget/budget-ledger.jsonl",
+      "sha256": "5d09c95cf1b758ae8d4c138e18b8182e9c3db9e5d953828f6858d3c4a2a1a357",
+      "bytes": 64145,
+      "json_records": 89,
+      "source_unchanged": true
+    },
+    {
+      "path": "api-budget/config/api-budget-contract.json",
+      "sha256": "543ce56604e3bc105cd30d6a4be1985b1f1970f90f943d0788982a0733c3e8dc",
+      "bytes": 656,
+      "json_records": 1,
+      "source_unchanged": true
+    },
+    {
+      "path": "api-budget/config/discovered-models.json",
+      "sha256": "cfb938950dbd7d1ddbf84a003de4bf1c12562a0db8bc73ef2549185a3fff2f61",
+      "bytes": 6866,
+      "json_records": 1,
+      "source_unchanged": true
+    },
+    {
+      "path": "api-budget/config/provider-health.json",
+      "sha256": "898bea271ca11118d3b54b5a6ad79581fc53cf025aff553d79d673e61824b0be",
+      "bytes": 2365,
+      "json_records": 1,
+      "source_unchanged": true
+    },
+    {
+      "path": "api-budget/config/provider-health.jsonl",
+      "sha256": "b7c6db9091779a615e7151b6376aa345bcc19da9bfbc2eb9ea1f2cb2aa54d004",
+      "bytes": 31682,
+      "json_records": 14,
+      "source_unchanged": true
+    },
+    {
+      "path": "api-budget/config/provider-routes.json",
+      "sha256": "a2623b7fdad5a4b6f8eb3100ee57a59cec5d17de3fde152b1b4cd8b37d31a8fb",
+      "bytes": 929,
+      "json_records": 1,
+      "source_unchanged": true
+    },
+    {
+      "path": "revenue-drive/season-meter.json",
+      "sha256": "14964b887c61b170110afbe6bec946d0268f4c107a165c76df444e96410eb04f",
+      "bytes": 264,
+      "json_records": 1,
+      "source_unchanged": true
+    }
+  ],
+  "tampered_copy_hash_rejected": true,
+  "replica": "/root/s1-maturity-mirror-replica-20260917",
+  "source": "/var/lib/mirror-138/incoming/20260917T082254Z-e1s1",
+  "runtime_restore_valid": false,
+  "replay_valid": false,
+  "scope": "signed mirror bytes and JSON readability only; live consumer replay NOT_RUN"
+}

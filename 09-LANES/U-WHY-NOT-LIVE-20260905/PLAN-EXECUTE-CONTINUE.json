@@ -1,0 +1,95 @@
+{
+  "schema": "octopus.next-to-alive-continue.v1",
+  "measured_at": "2026-09-05T16:28:54+10:00",
+  "measured_at_source": "Get-Date after last 138 ssh probe this session",
+  "prior_receipt": "PLAN-EXECUTE-RECEIPT.json measured_at=2026-09-05T16:25:09+10:00",
+  "lane": "U-WHY-NOT-LIVE-20260905",
+  "owner_quote_fa": "پلن بپین همرو انجام بده متوقف نشو",
+  "send": false,
+  "138_written": false,
+  "flags_enabled_by_this_agent": false,
+  "live_organism_claim": false,
+  "alive": false,
+  "arbiter": {
+    "node_id": "laptop-vault / DESKTOP-KA9RFN5",
+    "vantage": "ssh_ro_138 plus tunnel GET",
+    "scope": "this_host_only plus node138 via ssh_ro",
+    "claim_type": "observation",
+    "not_node180": true
+  },
+  "step1_gates_json": {
+    "path": "/home/ari/octopus-mesh/state/season/season5-gates-final.json",
+    "exists": true,
+    "has_HOLD_EXTERNAL_key": false,
+    "m5_owner_release": "ACTIVE_REAL_SEND_AUTHORIZED",
+    "ads_budget": "ZERO_UNTIL_OWNER_SAYS",
+    "painting": "SEASON_5_ACTIVE",
+    "rewrite_executed": false,
+    "rewrite_reason": "key HOLD_EXTERNAL is not in this JSON; inventing it is forbidden; m5 already ACTIVE_REAL_SEND_AUTHORIZED"
+  },
+  "step1_markdown_hold": {
+    "SEASON-5-2026-09-04.md_line_12": "HOLD_EXTERNAL | Still true for Telegram / live OF / paid ads without separate GO",
+    "SEASON.md_line_8": "HOLD_EXTERNAL for Telegram / live OF / paid ads until separate GO",
+    "rewrite_executed": false
+  },
+  "telegram_runtime": {
+    "telegram_blocked.json": {
+      "path": "/home/ari/octopus-mesh/state/telegram_blocked.json",
+      "status": "TELEGRAM_BLOCKED_CONFIG",
+      "adapter": "fake",
+      "as_of": "2026-08-26T12:52:49.146+00:00"
+    },
+    "bridge_heartbeat_restart_count": 4460,
+    "bridge_heartbeat_source": "/home/ari/octopus-mesh/state/heartbeats/octopus-telegram-bridge.json",
+    "canonical_finding_local": "F:/ofn-node/docs/spine-138/TELEGRAM-CANONICAL-FINDING.md",
+    "canonical_finding_claim": "SENDER SHADOW; POLLER zero; no automated producer"
+  },
+  "claims_ledger": {
+    "path": "/home/ari/ofn/data/state/legs/claims-ledger.jsonl",
+    "n": 480,
+    "claim_unique": 10,
+    "no_telegram_send_claim": true,
+    "last_flag_rows_at": "2026-09-05T06:00:01Z",
+    "last_flag_values": {
+      "flag:OCTOPUS_WIRE_LEAD_OUTBOUND": 1,
+      "flag:OCTOPUS_WIRE_LEAD_OUTBOUND_WAL": 1,
+      "flag:OFN_WIRE_OUTBOUND": 1,
+      "flag:OCTOPUS_BRIDGE_OUTBOUND_ENABLED": 1
+    },
+    "note": "observation of existing 138 ledger; this agent did not set these flags"
+  },
+  "contradictions": [
+    {
+      "status": "open",
+      "resolution": null,
+      "a": {"value": "HOLD_EXTERNAL still true", "source": "138 SEASON-5-2026-09-04.md:12"},
+      "b": {"value": "m5_owner_release=ACTIVE_REAL_SEND_AUTHORIZED; no HOLD_EXTERNAL key", "source": "138 season5-gates-final.json"}
+    },
+    {
+      "status": "open",
+      "resolution": null,
+      "a": {"value": "outbound flags value 1", "source": "138 claims-ledger.jsonl last rows 2026-09-05T06:00:01Z"},
+      "b": {"value": "TELEGRAM_BLOCKED_CONFIG adapter=fake", "source": "138 telegram_blocked.json"}
+    }
+  ],
+  "executed": [
+    "tunnel /healthz five ports 200 ok (PLAN-EXECUTE-RECEIPT.json)",
+    "ssh identity DietPi eth0 192.168.0.138",
+    "gates JSON key census",
+    "HOLD line extract from two season notes",
+    "claims-ledger claim-name census n=480",
+    "last outbound flag values",
+    "telegram_blocked.json + bridge heartbeat keys"
+  ],
+  "not_executed": [
+    "rewrite season5-gates-final.json",
+    "rewrite SEASON-5 markdown HOLD_EXTERNAL",
+    "change telegram_blocked.json",
+    "Telegram send",
+    "POST to ofn",
+    "enable laptop OCTOPUS_WIRE_*",
+    "source OCTOPUS-flags.cmd",
+    "write revenue/sent/booking in this vault",
+    "SSH to 180"
+  ]
+}

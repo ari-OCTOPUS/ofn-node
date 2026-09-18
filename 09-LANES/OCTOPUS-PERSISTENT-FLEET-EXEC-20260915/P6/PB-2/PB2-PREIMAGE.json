@@ -1,0 +1,8 @@
+{
+  "stamp_utc": "2026-09-15T04:03:44Z",
+  "ledger_bytes": 16492,
+  "ledger_sha256": "0c045dff2aabad9c08b602c23a53dab10add5936e4c43e5f05ab1e27f7272bb7",
+  "index_sha256": "64c3bde423469a8385772e3514612aa11c4b9a3ba407cf7ed6123563500c7704",
+  "jetstream_consumers": 0,
+  "nats_durability": "NOT_CLAIMED"
+}

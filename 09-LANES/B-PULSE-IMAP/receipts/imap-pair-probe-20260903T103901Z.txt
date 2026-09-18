@@ -1,0 +1,80 @@
+lane=B-PULSE-IMAP
+measured_at_utc=2026-09-03T10:39:01Z
+hostname=DESKTOP-KA9RFN5
+wifi_ip=192.168.0.191
+wifi_alias=Wi-Fi
+vantage=this_host_only
+scope=this_host_only
+claim_type=runtime
+ssh=none
+imap_connect=none
+listener_started=none
+mail_sent=none
+pid_self=27752 argv=F:\backup\09-LANES\B-PULSE-IMAP\imap_pair_probe.py
+banner=do not run
+---identity---
+ofn_branch=fix/demand-harvest
+ofn_head=34e63a04c5df4a948361f48b306e2a3f5188d42f
+note=191_is_not_180; claimed board-180 stopped if wifi is .191
+---listener-static---
+listener_path=F:\ofn-node\ofn\agents\imap_listener.py
+listener_exists=true
+listener_bytes=15875
+cycle_def=true
+cycle_lineno=281
+has_dunder_main=true
+dunder_main_lineno=345
+imap4_ssl_count=1
+imap_host=imap.gmail.com
+imap_port=993
+select_mailbox=INBOX
+state_mailbox_default=INBOX
+bind_or_listen_calls=0
+imports_imaplib=true
+mailbox_means=remote_gmail_folder_name_not_local_bind
+job_class_from_code=oneshot_client_poll — cycle() then exit via __main__
+---git---
+listener_tracked=untracked
+listener_git_detail=?? ofn/agents/imap_listener.py
+recipe_tracked=untracked
+recipe_git_detail=?? tools/install_systemd.sh
+---recipe-static---
+recipe_exists=true
+recipe_bytes=1817
+recipe_type_oneshot=true
+recipe_imap_exec=mk_svc imap     "python3 $AGENTS/imap_listener.py"
+recipe_imap_timer=mk_timer imap "*:0/15"
+recipe_wire_env_name_present=true
+recipe_wire_note=name_only_not_enabled_this_session
+---138-prior-file---
+ssh_receipt_exists=true
+ssh_receipt_path=F:\backup\09-LANES\B-PULSE-IMAP\SSH-RO-RECEIPT.md
+ssh_this_session=none — prefer prior receipt; no new SSH
+138_job_class_file=oneshot+timer FILE_VERIFIED from SSH-RO-RECEIPT.md
+138_143_993_file=absent FILE_VERIFIED from receipts/listen-138-20260903T0932Z.csv
+---this-host-listen-143-993---
+listen_143=absent
+listen_993=absent
+---this-host-imap-named-process---
+imap_named_process_count=1
+imap_proc=pid=28448 name=powershell.exe cmd=powershell.exe -NoProfile -NonInteractive -Command "
+$ErrorActionPreference = 'SilentlyContinue'
+$hits = Get-CimInstance Win32_Process | Where-Object {
+  $_.Name -match 'imap|dovecot' -or (
+    $_.CommandLine -and $_.CommandLine -match 'imap_listener|imaplib'
+  )
+} | ForEach-Object {
+  [pscustomobject]@{
+    ProcessId = [int]$_.ProcessId
+    Name = [string]$_.Name
+    CommandLine = [string]$_.CommandLine
+  }
+}
+if (-not $hits) { '[]' } else { @($hits) | ConvertTo-Json -Compress -Depth 3 }
+"
+---pair---
+same_species=gmail_imap_client_oneshot_poll
+not_species=local_imap_daemon_bind_143_993
+138_exact_bytes_match=unverified (no SSH this session, no fetch)
+banner_again=do not run
+forbidden_done=none

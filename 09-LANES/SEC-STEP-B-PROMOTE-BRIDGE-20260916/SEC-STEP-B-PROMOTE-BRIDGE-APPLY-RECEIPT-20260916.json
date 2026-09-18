@@ -1,0 +1,146 @@
+{
+  "schema": "sec_step_b_promote_bridge_apply_receipt.v1",
+  "task_id": "SEC-STEP-B-PROMOTE-BRIDGE-APPLY",
+  "stamp_aest": "2026-09-16T13:06:34+10:00",
+  "outcome": "ok",
+  "authority": {
+    "execute_md": "SEC-STEP-B-PROMOTE-BRIDGE-EXECUTE-20260916.md",
+    "execute_sha256": "f506b159ee67bccbe138a1791d4a0a40d1ccfb6644fa5c0e02873256aeb2ffd9",
+    "execute_match": true,
+    "design_md": "STEP-B-PROMOTE-BRIDGE-DESIGN-20260916.md",
+    "design_sha256": "87fc6f3d7beff1bf137763654579ccd7ee92e2655aa4069e58e2cee7c403d219",
+    "design_match": true,
+    "ssh_step_a_sha256": "4c2215b9c6920f91b08a7186e2f05bc67ed99d6075900d7a317c225bd8bde812",
+    "ssh_step_a_match": true
+  },
+  "schemas": {
+    "fleet_promote_request.v1": {
+      "path_hq": "wiring/fleet-brain/schemas/fleet_promote_request.v1.schema.json",
+      "path_138": "/home/ari/ofn/state/fleet-memory/schemas/fleet_promote_request.v1.schema.json",
+      "sha256": "ffa63bda03c33d5273480f120b1024913076e9e8387413d36704c620b4019718",
+      "match_design_stub": true
+    },
+    "fleet_promote_receipt.v1": {
+      "path_hq": "wiring/fleet-brain/schemas/fleet_promote_receipt.v1.schema.json",
+      "path_138": "/home/ari/ofn/state/fleet-memory/schemas/fleet_promote_receipt.v1.schema.json",
+      "sha256": "7bbf716a13d9bb712c30f6fa2622ce34d717a7583775eaacfb3806b2cb78d379",
+      "match_design_stub": true
+    }
+  },
+  "bridge": {
+    "path_138": "/home/ari/ofn/state/fleet-memory/fleet_promote_bridge.py",
+    "sha256": "cd00c2fcce84dfdbda50fc23fb040631f6e216e58ccda759ded095f7faa2eea6",
+    "commander_node_id": "138",
+    "pilot_enabled": [
+      [
+        "retrieve",
+        "100"
+      ],
+      [
+        "echo_capability_probe",
+        "100"
+      ]
+    ],
+    "deferred": [
+      [
+        "prep",
+        "160"
+      ],
+      [
+        "model_infer",
+        "193"
+      ],
+      [
+        "eval_batch",
+        "114"
+      ]
+    ]
+  },
+  "e2e": {
+    "outcome": "PASS",
+    "fact_id": "fact-b1e8d328bff54e46",
+    "decision_id": "dec-fc4948d35b5a4e40",
+    "promote_id": "prm-3bb4aada75c44519",
+    "job_id": "job-d7af47b150bc4135",
+    "worker_node_id": "100",
+    "type": "retrieve",
+    "final_state": "CLOSED",
+    "external_effects": 0,
+    "customer_send": false,
+    "bus": "SHADOW_LOCAL_JSONL",
+    "receipt_id": "rcpt-stepb-job-d7af47b150bc4135"
+  },
+  "negative_tests": {
+    "commerce_type_deny": {
+      "result": "PASS",
+      "reject_reason": "COMMERCE_TYPE_DENY type=shopify_sync",
+      "promote_id": "prm-neg-commerce-67354bd9"
+    },
+    "commerce_ziman_deny": {
+      "result": "PASS",
+      "reject_reason": "COMMERCE_TYPE_DENY type=ziman_gallery_push"
+    },
+    "duplicate_ack_seen": {
+      "result": "PASS",
+      "outcome": "ACK_SEEN",
+      "job_id": "job-d7af47b150bc4135",
+      "promote_id": "prm-dup-bff54e46"
+    },
+    "expired_decision_deny": {
+      "result": "PASS",
+      "reject_reason": "DECISION_EXPIRED"
+    },
+    "non_138_enqueue_deny": {
+      "result": "PASS",
+      "reject_reason": "NON_138_ENQUEUE local_node_id=180"
+    },
+    "prep_160_deferred": {
+      "result": "PASS",
+      "reject_reason": "PILOT_DEFERRED type=prep worker=160"
+    }
+  },
+  "proofs": {
+    "external_effects": 0,
+    "customer_send": false,
+    "bus": "SHADOW_LOCAL_JSONL",
+    "commander_node_id": "138",
+    "jetstream_promote": false,
+    "jetstream_consumer_create": false,
+    "prep_160_enabled": false,
+    "model_infer_193_enabled": false,
+    "eval_batch_114_enabled": false,
+    "job_states": [
+      "QUEUED",
+      "QUEUED",
+      "LEASED",
+      "RUNNING",
+      "ACK_RESULT",
+      "PERSISTED",
+      "CLOSED"
+    ],
+    "idempotency_key": "promote:fact-b1e8d328bff54e46:retrieve:fa46a4525651b78245ebdf5aa4aa0083e6c9b6113b30bb1f87cb1edf6a6500e9",
+    "selftest_result_sha256": "18bbdc17c272bfac89e51f73aa9adb44106827d98fbaced09c3a617e8a46bde7"
+  },
+  "paths_138": {
+    "bridge": "/home/ari/ofn/state/fleet-memory/fleet_promote_bridge.py",
+    "selftest": "/home/ari/ofn/state/fleet-memory/step_b_selftest.py",
+    "facts": "/home/ari/ofn/state/fleet-memory/fleet_facts.jsonl",
+    "decisions": "/home/ari/ofn/state/fleet-memory/fleet_decisions.jsonl",
+    "promotes": "/home/ari/ofn/state/fleet-memory/fleet_promotes.jsonl",
+    "spent": "/home/ari/ofn/state/fleet-memory/promote_decision_spent.json",
+    "jobs": "/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl"
+  },
+  "deny_intact": [
+    "commerce types",
+    "JetStream promote / consumer create",
+    "prep\u2192160 / model_infer\u2192193 / eval_batch\u2192114",
+    "laptop/180/182 promote writer",
+    "dual-commander",
+    "power-off 138",
+    "customer_send=true",
+    "flood auto-promote"
+  ],
+  "receipt_md_sha256": "cb1443ab4c35536aabc75086b7d6abbb823bb2c5885784bca660b7c1f267dc29",
+  "receipt_json_sha256_note": "recomputed after md seal",
+  "receipt_md_file_note": "sha is of markdown body excluding the receipt_md_sha256 line"
+}

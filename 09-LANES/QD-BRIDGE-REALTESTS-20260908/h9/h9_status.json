@@ -1,0 +1,42 @@
+{
+ "checked_at_utc": "2026-09-08T11:50:32Z",
+ "prereg_sha256_16": "4938d82e740ef6ce",
+ "runs_pre_intervention": 5,
+ "runs_post_wiring": 7,
+ "arms": {
+  "T": {
+   "n": 6,
+   "decisiveness": 1.0,
+   "pick_valid": 1.0,
+   "brain_ok": 1.0,
+   "final_call_dist": {
+    "no": 4,
+    "yes": 2
+   },
+   "t_actually_seeded": 6,
+   "mission_mix": {
+    "store_order_check": 2,
+    "shelf_check_zm_gallery_0013": 2,
+    "organism_liveness_check": 2
+   },
+   "mean_duration_ms": 26122
+  },
+  "R": {
+   "n": 1,
+   "decisiveness": 1.0,
+   "pick_valid": 1.0,
+   "brain_ok": 1.0,
+   "final_call_dist": {
+    "yes": 1
+   },
+   "t_actually_seeded": 0,
+   "mission_mix": {
+    "organism_liveness_check": 1
+   },
+   "mean_duration_ms": 26880
+  }
+ },
+ "verdict": "PENDING_CONTINUE",
+ "verdict_detail": "",
+ "window_rule": "n>=30/arm or 2026-09-22T23:59Z"
+}

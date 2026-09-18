@@ -1,0 +1,33 @@
+{
+  "schema": "next15.a10a13.pilot.v1",
+  "n_pairs": 10,
+  "arm_success": {
+    "B0": 6,
+    "B1": 4,
+    "C1": 10
+  },
+  "effect_C1_minus_B0_pp": 40,
+  "effect_C1_minus_B1_pp": 60,
+  "memory_ids_consumed_unique": [
+    "mem_1850a00920837834",
+    "mem_6f97adb79fa0e40a",
+    "mem_8b51f7a1159fc085",
+    "mem_ae56d26429341cef",
+    "mem_f471d7a45ad5c74b"
+  ],
+  "ablation_possible": true,
+  "a12": {
+    "system_generated_proposals": [
+      {
+        "proposal_id": "EXP-LES-intermediate-s-10080b6e",
+        "title": "test a differing outreach parameter (subject line / timing) on the silent segment"
+      }
+    ],
+    "independent_check": true,
+    "scope_note": "proposals are system-generated versioned artifacts; executable-patch generation remains open (not claimed)"
+  },
+  "power_statement": "n=10 DEV fixtures, engineering pilot per plan (harness debugging) — UNDERPOWERED, no research claim",
+  "state_dir": "C:\\Users\\Armin\\AppData\\Local\\Temp\\pilot-pof6f1fq",
+  "A10_PASS": true,
+  "A13_STATUS": "PILOT_RUN_DEV_SCOPE"
+}

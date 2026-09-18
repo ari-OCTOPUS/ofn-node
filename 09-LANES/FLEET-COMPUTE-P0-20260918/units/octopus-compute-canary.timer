@@ -1,0 +1,13 @@
+[Unit]
+Description=OCTOPUS fleet-compute canary timer (Phase 2 soak, every 10 min)
+Documentation=file:///home/ari/ofn/state/fleet-compute/receipts.jsonl
+
+[Timer]
+OnBootSec=8min
+OnUnitActiveSec=10min
+AccuracySec=60s
+Persistent=true
+Unit=octopus-compute-canary.service
+
+[Install]
+WantedBy=timers.target

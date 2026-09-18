@@ -1,0 +1,36 @@
+{
+  "schema": "p1_dry_persist_receipt.v1",
+  "utc": "2026-09-15T03:34:45Z",
+  "mode": "DRY_PERSIST",
+  "external_effects": 0,
+  "customer_send": false,
+  "commander_node_id": "138",
+  "sec_sot_sha": "52887e1a088d6d4e87f2a8c14879db392a647d450afe8473ea0a5e620022d268",
+  "arch_apply_support_sha": "3b02f54d0d333bc58ab6dd5a77d16a5327f317950acc20641743090f83bcc2bc",
+  "arch_schema_design_sha": "299c7e9039bbe11a75b5cb205ebf6696dd1389965ca96e6163948fbc862ace50",
+  "persisted": {
+    "path": "/home/ari/ofn/state/fleet-memory/fleet_facts.jsonl",
+    "fact_id": "fact-p1-dry-20260915T033445Z",
+    "fact_sha256": "9ccfe84c27f4564addbe116ac7756c31508e7b8d67ccd905a00044146021615f",
+    "body_hash": "90ad9ba8eaf24d90d873837587dbedeb23dd17f5a2255c220e89996d53edc700"
+  },
+  "schema_shas": {
+    "fleet_decision.v1.schema.json": "ef61d791fb527020210fa3e7f41d965e0d61b10c494606241f7e084566519115",
+    "fleet_fact.v1.schema.json": "db44a3f0c674c7308135498412ab1835d2ab4df3c0e801b0ea8d2a31747418cb",
+    "fleet_hypothesis.v1.schema.json": "0ee946f450590fffa2061414712cbc5804b117f1c86f9b8d97342e031c577686"
+  },
+  "deny": [
+    "no overwrite memory.sqlite",
+    "no SENSORIUM/AUDIT stuffing",
+    "no C->A without pass_180",
+    "no dual-commander",
+    "no revenue queue reuse",
+    "STOP before P2"
+  ],
+  "roles_aligned_arch_6ff4ee5a": {
+    "100": "retrieve",
+    "160": "prep",
+    "193": "model_infer",
+    "114": "eval_batch"
+  }
+}

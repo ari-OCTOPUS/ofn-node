@@ -1,0 +1,277 @@
+{
+ "mission": "OCTOPUS-UNIFIED-RECOVERY-AND-SURGICAL-ROADMAP-20260917",
+ "generated_utc": "2026-09-16T23:55:00Z",
+ "generated_by": "local executor agent (ZCode), lane UNIFIED-RECON-20260917",
+ "evidence_note": "every edge carries its evidence; absence of an edge is recorded as UNKNOWN, never as absence of relation",
+ "nodes": {
+  "repos": [
+   {
+    "id": "ofn-node",
+    "meta": {
+     "main_head": "dba9971a802653b4f56a1194da49e49551e04c54",
+     "branches": 164,
+     "tracked_paths": 3454,
+     "visibility": "public"
+    }
+   },
+   {
+    "id": "Armin",
+    "meta": {
+     "main_head": "41933de1fd1160a2f082b3ed2ec457c00f9bbf4f3",
+     "branches": 3,
+     "tracked_paths": 5,
+     "visibility": "public"
+    }
+   },
+   {
+    "id": "langar",
+    "meta": {
+     "main_head": "ec039bb7cd79eb96096bf87080e625ef0b3904f5",
+     "branches": 3,
+     "tracked_paths": 97,
+     "visibility": "public"
+    }
+   },
+   {
+    "id": "vbaa-patches",
+    "meta": {
+     "main_head": "16d3bff320a9bb0a4b27c221f559a8e235cec177",
+     "branches": 4,
+     "tracked_paths": 31,
+     "visibility": "public"
+    }
+   }
+  ],
+  "runtime_nodes": [
+   {
+    "id": "board138",
+    "meta": {
+     "verified_live": "2026-09-16T23:47Z ssh read-only: octopus-* timers ticking",
+     "role": "always-on octopus fleet + painting engine host"
+    }
+   },
+   {
+    "id": "board180",
+    "meta": {
+     "role": "octopus-mesh scoring (per Armin SCAN.md)",
+     "verified_live": "UNKNOWN_not_checked_this_session"
+    }
+   },
+   {
+    "id": "board182",
+    "meta": {
+     "role": "remote witness",
+     "verified_live": "UNKNOWN_not_checked_this_session"
+    }
+   }
+  ],
+  "business_legs": [
+   "painting",
+   "ziman",
+   "studio"
+  ],
+  "vault": {
+   "id": "F:/backup",
+   "canonical_per_owner": true,
+   "current_truth_canonical": "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (per D-34 / MIRROR-01 owner GO 2026-09-02, pointer stubs converted)"
+  },
+  "prs_highlight": [
+   "ofn-node#71",
+   "ofn-node#259",
+   "ofn-node#260",
+   "ofn-node#261",
+   "ofn-node#262",
+   "ofn-node#248",
+   "Armin#1",
+   "Armin#2",
+   "langar#1",
+   "langar#2"
+  ]
+ },
+ "edges": [
+  {
+   "from": "Armin:SCAN.md",
+   "rel": "documents",
+   "to": "painting-leg",
+   "evidence": "SCAN.md merged in Armin#2 (merge sha 4193de1, verified via GET 2026-09-16): 'This repository is not the live painting lead engine. Runtime painting on 138 is packs/lead.yaml + web/lead.html in ari322/ofn-node.'",
+   "grade": "E1-doc"
+  },
+  {
+   "from": "ofn-node:packs/lead.yaml + web/lead.html",
+   "rel": "implements",
+   "to": "painting-leg",
+   "evidence": "both paths tracked on ofn-node main@dba9971 (git ls-tree this session) AND live on board138 (ls -la 2026-09-16T23:47Z, 2760B + 45361B, mtime Sep 2)",
+   "grade": "E3"
+  },
+  {
+   "from": "ofn-node",
+   "rel": "deployed_to",
+   "to": "board138",
+   "evidence": "ssh read-only 2026-09-16T23:47Z: octopus-autonomy-supervisor.timer, octopus-coding-worker.timer, octopus-budget-monitor.timer, ofn-bridge-watchdog.timer + 8 more all passing LAST/PASSED within minutes",
+   "grade": "E2"
+  },
+  {
+   "from": "board180",
+   "rel": "hosts",
+   "to": "octopus-mesh-scoring",
+   "evidence": "Armin SCAN.md claim only \u2014 NOT verified on host this session",
+   "grade": "E0-doc-claim"
+  },
+  {
+   "from": "langar",
+   "rel": "no_interface_found",
+   "to": "ofn-node",
+   "evidence": "grep -rn 'import ofn|from ofn' over langar @ec039bb = zero hits; zero langar references on ofn-node main (git grep); no langar unit/service on board138 (systemctl+ls 2026-09-16T23:47Z). 180/182 not re-checked this session (audit of 2026-08-27 says absent there too) \u2014 recorded UNKNOWN for those hosts",
+   "grade": "E2-negative"
+  },
+  {
+   "from": "langar:langar_bot.service",
+   "rel": "deployable_but_not_deployed",
+   "to": "runtime_nodes",
+   "evidence": "service file tracked in repo (git ls-files) but no matching unit on 138 (verified live); audit PR langar#1 (merged) records same for 138/180/182 on 2026-08-27",
+   "grade": "E2"
+  },
+  {
+   "from": "vbaa-patches:_ops/vbaa/*",
+   "rel": "NOT_adopted_on",
+   "to": "ofn-node:main",
+   "evidence": "git ls-tree _ops/vbaa on ofn-node main@dba9971 = 0 paths; git grep ArtifactAdmission/ArgumentProvenance/executor_handle_firewall on main = 1 doc mention only (docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/octopus-deep-scan-10-aspects.md)",
+   "grade": "E2-negative"
+  },
+  {
+   "from": "vbaa-patches:tests/contract/vbaa",
+   "rel": "gap:no_transfer_contract",
+   "to": "ofn-node",
+   "evidence": "no path, import, test or receipt links the three primitives into the runtime body; contract exists only inside vbaa-patches repo; this is the GAP the mission told us to record, not build",
+   "grade": "E2-negative"
+  },
+  {
+   "from": "ofn-node:06-EVIDENCE,07-HANDOFF,09-LANES,.obsidian",
+   "rel": "parallel_divergent_body",
+   "to": "vault:F:/backup",
+   "evidence": "187 repo paths checked against same paths in vault: 180 vault-missing, 7 exist and ALL 7 differ (mirror-comparison.csv). Repo vault-structure is a parallel body, not a path-mirror",
+   "grade": "E3"
+  },
+  {
+   "from": "vault:9 pointer stubs",
+   "rel": "mirrors",
+   "to": "vault:06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+   "evidence": "stub text: 'CURRENT-TRUTH \u2014 POINTER (converted 2026-09-02, MIRROR-01 / D-34 \u00a7B-3, owner GO)'; canonical path stated in stub; old content hash-pinned at 99-ARCHIVE/mirror-cleanup-20260902",
+   "grade": "E2"
+  },
+  {
+   "from": "vault:OCTOPUS/CURRENT-TRUTH.md",
+   "rel": "auto_surface",
+   "to": "vault:canonical CURRENT-TRUTH",
+   "evidence": "frontmatter type: octopus-auto, 'auto-generated: 2026-09-16T23:41:29Z' (3 min before this session); 39.6KB vs canonical 92KB; machine-written coherence surface, NOT a manual duplicate",
+   "grade": "E2"
+  },
+  {
+   "from": "vault:01-TRUTH/CURRENT-TRUTH.md",
+   "rel": "UNKNOWN_status",
+   "to": "vault:canonical CURRENT-TRUTH",
+   "evidence": "4337B, mtime 2026-09-16T07:50Z \u2014 not a pointer stub, not the canonical path; role unestablished this session",
+   "grade": "E1"
+  },
+  {
+   "from": "ofn-node#71",
+   "rel": "blocks",
+   "to": "landing:release-p0",
+   "evidence": "PR get this session: state=open, mergeable_state=blocked, review_decision absent, 8 Elahe-z approvals DISMISSED (2026-09-14 Elahe-z, 2026-09-16T21:22:38Z aram-ui); body self-declares MERGE BLOCKER + PAINT-L5-001 contradiction vs CURRENT-TRUTH",
+   "grade": "E2"
+  },
+  {
+   "from": "ofn-node#248",
+   "rel": "contradicts",
+   "to": "ofn-node#261",
+   "evidence": "#248 = tools/log_outcome.py (notes-based CRM writer, 231 lines) vs #261 = migrations only (call_log table + seed, zero writer); zero shared files \u2014 conflict is at the DATA layer; resolving needs a third connecting PR that does not exist (RECON-ANSWERS-20260917 section D + PR files via API)",
+   "grade": "E2"
+  },
+  {
+   "from": "langar:_verify/",
+   "rel": "shadow_copy_drift_candidate",
+   "to": "langar:langar-pro",
+   "evidence": "_verify/db.py (18KB shadow) exists @ec039bb; merged audit langar#1 documents schema v3 vs v8 divergence and a P1 synthesizer call-signature bug; drift re-confirmed as files-present, behavior diff not re-measured this session",
+   "grade": "E1"
+  },
+  {
+   "from": "langar:.fuse_hidden0000000e00000001",
+   "rel": "hygiene",
+   "to": "langar",
+   "evidence": "FUSE temp artifact TRACKED in git (git ls-files) \u2014 committed by accident",
+   "grade": "E2"
+  },
+  {
+   "from": "owner:GOV-V8",
+   "rel": "supersedes",
+   "to": "owner:GOV-V7(partial:ladder+budget+wire)",
+   "evidence": "AGENTS.md GOV-V8 section: ladder L0..L4 governs wire/outgoing/budget; three permanent locks remain",
+   "grade": "E2-doc"
+  },
+  {
+   "from": "owner:R2-3(2026-09-08)",
+   "rel": "retired",
+   "to": "OBSERVATORY,CORTEX_HYPOTHESIS,email-channel",
+   "evidence": "AGENTS.md section 4 output boundaries",
+   "grade": "E2-doc"
+  }
+ ],
+ "unknowns_recorded": [
+  "board180/board182 runtime state not re-verified this session",
+  "langar P1 synthesizer signature bug: documented by merged audit, not re-measured",
+  "01-TRUTH/CURRENT-TRUTH.md role",
+  "PR#71 CI on head 2c5b99b not re-run this session (last known from RECON-ANSWERS: 6 pre-existing main reds locally)",
+  "secret alert #1/#2 validity=unknown (rotation ruled 'later' by owner 2026-09-17 per session memory \u2014 unverified from repo)"
+ ],
+ "recovery_addendum_edges": [
+  {
+   "from": "board138:/home/ari/ofn (HEAD 63938eb, branch main, 45 dirty)",
+   "rel": "diverges_from",
+   "to": "ofn-node:GitHub main dba9971",
+   "evidence": "ssh read-only 2026-09-17: rev-parse HEAD + branch + status count; ls-remote GitHub same day",
+   "grade": "E2"
+  },
+  {
+   "from": "ofn-node:budget/opslib.py:20",
+   "rel": "reads",
+   "to": "file:OFN_ROOT/HALT-ALL",
+   "evidence": "git grep on main: HALT_FLAG = OFN_ROOT / 'HALT-ALL'; documented switch in vault AGENTS.md says F:\\ofn-node\\HALT -> doc/code divergence (OD-4 mismatch #4 confirmed from source)",
+   "grade": "E2"
+  },
+  {
+   "from": "ofn-node:agents/{capability_token,release_pipeline,outbound_worker}",
+   "rel": "calls",
+   "to": "ofn-node:budget/opslib.master_halted()",
+   "evidence": "git grep master_halted on main (non-test): capability_token.py:87, release_pipeline.py:106+184, outbound_worker.py:214+451 (+campaign-scoped flag in imap_listener.py:43,180 - separate)",
+   "grade": "E2"
+  },
+  {
+   "from": "ofn-node:165 branches",
+   "rel": "unmerged_with_unique_content",
+   "to": "ofn-node:main",
+   "evidence": "branch analysis today: only 8/165 fully merged; 157 ahead of main (top: executor-safety 213, durability-snapshot 213, rescue/octopus-live-tree 209, incidents 126, landing/p0 10); see BRANCH-ANALYSIS.csv",
+   "grade": "E3"
+  },
+  {
+   "from": ".github/CODEOWNERS",
+   "rel": "authorizes",
+   "to": "reviewers Elahe-z + aram-ui (either alone; GOV-V6 2026-09-03)",
+   "evidence": "file content read on main today",
+   "grade": "E2"
+  },
+  {
+   "from": ".github/workflows/observation-contract.yml + observatory-fixture.yml",
+   "rel": "naming_contradicts",
+   "to": "owner:R2-3 retirement of OBSERVATORY concept",
+   "evidence": "workflow states=active (API) vs AGENTS.md section 4 retired list",
+   "grade": "E2-doc"
+  },
+  {
+   "from": "ofn-node:revenue body (lead_email_extract, revenue_state, log_outcome, migrations)",
+   "rel": "branch/runtime_only",
+   "to": "main",
+   "evidence": "git ls-files: none tracked on main; engine core (packs/lead.yaml, web/lead.html) IS on main+138",
+   "grade": "E2-negative"
+  }
+ ]
+}

@@ -1,0 +1,126 @@
+--- a/src/octopus_sensorium/app.py
++++ b/src/octopus_sensorium/app.py
+@@ -46,7 +46,7 @@
+ from octopus_sensorium.sensors.system_resources import SystemResourcesSensor
+ from octopus_sensorium.sensors.thermal import ThermalSensor
+ from octopus_sensorium.sensors.base import SensorError
+-from octopus_sensorium.snapshot import append_event, load_latest, replay, save_snapshot
++from octopus_sensorium.snapshot import JournalWriteError, append_event, load_latest, replay, save_snapshot
+ from octopus_sensorium.state_machine import AgentState, StateMachine
+ from octopus_sensorium.status import BoardStatus
+ from octopus_sensorium.telemetry.metrics import InProcessMetrics
+@@ -179,6 +179,13 @@
+         finally:
+             sock.close()
+ 
++    def _set_health(self, sensor_id: str, status: str) -> None:
++        """Commit health before exposing it to snapshots or consumers."""
++        if self.health.get(sensor_id) == status:
++            return
++        append_event({"kind": "health", "sensor_id": sensor_id, "status": status})
++        self.health[sensor_id] = status
++
+     def _restore_journal_state(self) -> None:
+         restored = replay(after_seq=0, initial={})
+         self.observation_hashes = list(restored.get("observation_hashes") or [])
+@@ -290,7 +297,7 @@
+                 plugin = cls(spec)
+             except SensorError as exc:
+                 LOG.error("plugin refused to start %s: %s", spec.get("sensor_id"), exc)
+-                self.health[spec["sensor_id"]] = "quarantine"
++                self._set_health(spec["sensor_id"], "quarantine")
+                 self.audit.append("sensor_quarantine", sensor_id=spec["sensor_id"], reason=str(exc))
+                 try:
+                     self.lifecycle.mark(spec["sensor_id"], PluginState.DISCOVERED)
+@@ -341,8 +348,7 @@
+         for sensor_id, plugin in list(self.plugins.items()):
+             discovery = await plugin.discover()
+             if not discovery.present:
+-                self.health[sensor_id] = "unavailable"
+-                append_event({"kind": "health", "sensor_id": sensor_id, "status": "unavailable"})
++                self._set_health(sensor_id, "unavailable")
+                 continue
+             await plugin.initialise(plugin.manifest)
+             try:
+@@ -351,17 +357,15 @@
+                 pass
+             result = await plugin.self_test()
+             if result.passed:
+-                self.health[sensor_id] = "healthy"
++                self._set_health(sensor_id, "healthy")
+                 tested.append(sensor_id)
+-                append_event({"kind": "health", "sensor_id": sensor_id, "status": "healthy"})
+                 try:
+                     self.lifecycle.mark(sensor_id, PluginState.SELF_TESTED)
+                     self.lifecycle.mark(sensor_id, PluginState.ACTIVE)
+                 except Exception:
+                     pass
+             else:
+-                self.health[sensor_id] = "quarantine"
+-                append_event({"kind": "health", "sensor_id": sensor_id, "status": "quarantine"})
++                self._set_health(sensor_id, "quarantine")
+                 self.audit.append("sensor_quarantine", sensor_id=sensor_id, reason=result.message)
+                 try:
+                     self.lifecycle.mark(sensor_id, PluginState.QUARANTINED)
+@@ -569,18 +573,18 @@
+         self.migration_published = True
+ 
+     async def _emit(self, sensor_id: str, obs: dict[str, Any]) -> None:
+-        self.recent.append(obs)
+-        self.recent = self.recent[-64:]
+         digest = (obs.get("provenance") or {}).get("content_hash")
++        append_event({"kind": "obs", "sensor_id": sensor_id, "content_hash": digest})
++        self.observations_published += 1
+         if digest:
+             self.observation_hashes.append(digest)
+             self.observation_hashes = self.observation_hashes[-512:]
+-        append_event({"kind": "obs", "sensor_id": sensor_id, "content_hash": digest})
++        self.recent.append(obs)
++        self.recent = self.recent[-64:]
+         persist_observation(sensor_id, obs)
+         self.metrics.sensorium_observations_total += 1
+-        self.metrics.observations_published = self.observations_published + 1
++        self.metrics.observations_published = self.observations_published
+         await self._publish(f"octopus.sensor.observation.{sensor_id}", obs)
+-        self.observations_published += 1
+         await self._feed_meta("observation", obs, f"octopus.sensor.observation.{sensor_id}")
+ 
+     async def _feed_meta(self, kind: str, payload: dict[str, Any], subject: str = "") -> None:
+@@ -768,12 +772,14 @@
+                     obs["is_environment_feature"] = False
+                     await self._emit("OCT-SENSE-051", obs)
+                 plugin.consecutive_failures = 0
++        except JournalWriteError:
++            raise
+         except PipelineError as exc:
++            append_event({"kind": "invalid_obs", "sensor_id": sensor_id, "stage": exc.stage})
+             self.invalid_observations += 1
+             self.metrics.drop(exc.stage)
+             plugin.consecutive_failures += 1
+             self.audit.append("pipeline_drop", sensor_id=sensor_id, stage=exc.stage)
+-            append_event({"kind": "invalid_obs", "sensor_id": sensor_id, "stage": exc.stage})
+             persist_quarantine(sensor_id=sensor_id, stage=exc.stage, reason=exc.message)
+             if not (plugin.manifest.get("publication") or {}).get("shadow_only"):
+                 self._quarantine_record(sensor_id, exc.stage)
+@@ -781,10 +787,10 @@
+             plugin.consecutive_failures += 1
+             self.audit.append("sensor_error", sensor_id=sensor_id, error=type(exc).__name__)
+             if plugin.consecutive_failures >= 3:
+-                self.health[sensor_id] = "degraded"
++                self._set_health(sensor_id, "degraded")
+             can_quarantine = (plugin.manifest.get("publication") or {}).get("can_quarantine")
+             if plugin.consecutive_failures >= 10 and can_quarantine is not False:
+-                self.health[sensor_id] = "quarantine"
++                self._set_health(sensor_id, "quarantine")
+ 
+     async def run_forever(self) -> None:
+         await self.boot()
+@@ -807,6 +813,8 @@
+             for sensor_id, plugin in self.plugins.items():
+                 try:
+                     await self._tick_sensor(sensor_id, plugin)
++                except JournalWriteError:
++                    raise
+                 except Exception:
+                     LOG.exception("plugin tick failed sensor_id=%s", sensor_id)
+                     self.audit.append("plugin_tick_failed", sensor_id=sensor_id)

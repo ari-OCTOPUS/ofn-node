@@ -1,0 +1,22 @@
+{
+  "schema": "octopus.debug.source_comparison.v1",
+  "started_at_utc": "2026-09-06T23:48:04.9090015Z",
+  "ended_at_utc": "2026-09-06T23:48:06.0448464Z",
+  "method": "gh api repos/ari-OCTOPUS/ofn-node/compare/<base>...<head>, selected JSON fields",
+  "exit_code": 0,
+  "base": "a1f0fa8061fd6b7529ba6c37f7ddb0032a4ed546",
+  "head": "b8340d0e757a7563583d99672b2912c30db03af3",
+  "comparison": {
+    "ahead_by": 2,
+    "behind_by": 7,
+    "html_url": "https://github.com/ari-OCTOPUS/ofn-node/compare/a1f0fa8061fd6b7529ba6c37f7ddb0032a4ed546...b8340d0e757a7563583d99672b2912c30db03af3",
+    "merge_base_sha": "1b53773a47b6af71b8b643df61cfa13454cd1340",
+    "status": "diverged",
+    "total_commits": 2
+  },
+  "interpretation": "Remote commit graph only. Neither commit is an ancestor of the other; working-tree content parity and loaded revision remain unknown. No fetch, merge or deploy performed.",
+  "earlier_local_ancestry_attempt": {
+    "exit_code": 128,
+    "reason": "merge commit object unavailable locally; not evidence of non-ancestry"
+  }
+}

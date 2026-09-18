@@ -1,0 +1,24 @@
+{
+ "schema": "demand_use.v1",
+ "at_utc": "2026-09-18T02:15:51Z",
+ "consumer": "lead_reply_draft",
+ "provider": "gemini",
+ "model": "gemini-3.1-pro-preview",
+ "tier": "strong",
+ "lead_id": "1c0fdaae927d",
+ "ok": true,
+ "reply_chars": 105,
+ "est_out_tokens": 26,
+ "est_cost_usd": 1e-05,
+ "cost_is_estimate": true,
+ "latency_s": 7.77,
+ "reply_head": "Could you please let us know which building or site you need painted so we can prepare an accurate quote?",
+ "failover_tried": [
+  {
+   "provider": "gemini",
+   "model": "gemini-3.1-pro-preview",
+   "chars": 105
+  }
+ ],
+ "failures_before_success": 0
+}

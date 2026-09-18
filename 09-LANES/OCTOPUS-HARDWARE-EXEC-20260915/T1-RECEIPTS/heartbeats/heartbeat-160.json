@@ -1,0 +1,18 @@
+{
+  "schema": "hw_exec_t1_heartbeat.v1",
+  "utc": "2026-09-15T03:15:21Z",
+  "hostname": "octopus-compute-160",
+  "uname": {
+    "system": "Linux",
+    "node": "octopus-compute-160",
+    "release": "6.1.115-vendor-rk35xx",
+    "version": "#1 SMP Mon Apr  6 11:36:06 UTC 2026",
+    "machine": "aarch64",
+    "processor": ""
+  },
+  "python": "3.13.5",
+  "git": "git version 2.47.3",
+  "boot_id": "bacb05a6-b351-4531-a232-371d3a32c2a6",
+  "loadavg": "0.21 0.11 0.04 1/174 1603",
+  "mem_available_kb": 3800984
+}

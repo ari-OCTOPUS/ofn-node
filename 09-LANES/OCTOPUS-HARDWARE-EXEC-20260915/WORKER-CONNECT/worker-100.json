@@ -1,0 +1,13 @@
+{
+  "schema": "octopus_worker_heartbeat.v1",
+  "node_id": "100",
+  "role": "retrieve",
+  "hostname": "octopus-compute-100",
+  "boot_id": "1d9d56a9-9591-451e-bdbe-a04f2c898a3a",
+  "utc": "2026-09-15T03:32:24Z",
+  "temp_c": "32.4",
+  "loadavg": "0.06 0.03 0.00",
+  "mem_available_kb": 3777580,
+  "commander": false,
+  "may_authorize": false
+}

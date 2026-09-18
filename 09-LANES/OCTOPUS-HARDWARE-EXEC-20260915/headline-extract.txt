@@ -1,0 +1,8 @@
+Copy-ready replacement for the headline
+
+در دامپ ذخیره‌شده، درایور RKNPU برای هر هفت برد شناسایی شده است. ظرفیت اسمی اعلام‌شده برای
+این خانواده ۶ TOPS به‌ازای هر تراشه و جمع اسمی هفت برد ۴۲ TOPS است. اجرای واقعی مدل، ظرفیت
+پایدار قابل‌استفاده و میزان استفاده فعلی هنوز در این بسته اندازه‌گیری نشده‌اند. وضعیت:
+NPU_ENUMERATION_RECORDED=7/7؛ NPU_INFERENCE=NOT_MEASURED؛ NPU_UTILIZATION=UNKNOWN؛
+FLEET_THROUGHPUT=NOT_MEASURED. TOPS واحد تعداد عملیات است، نه ترافلاپس.
+

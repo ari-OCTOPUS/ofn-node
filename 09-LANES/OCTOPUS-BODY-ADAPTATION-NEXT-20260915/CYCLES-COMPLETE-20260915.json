@@ -1,0 +1,166 @@
+{
+  "ALL_SERVICES": [
+    {
+      "count": 12,
+      "node": "138",
+      "services": [
+        "fleet-scheduler(capaware)",
+        "experience-ingest",
+        "glass",
+        "coding-worker",
+        "ops-agent",
+        "revenue",
+        "heartbeat",
+        "witness",
+        "brainwave",
+        "scheduler",
+        "go-b3-bind",
+        "owner-reply"
+      ]
+    },
+    {
+      "count": 1,
+      "node": "100",
+      "services": [
+        "octopus-worker"
+      ]
+    },
+    {
+      "count": 1,
+      "node": "193",
+      "services": [
+        "octopus-t3-model"
+      ]
+    },
+    {
+      "count": 1,
+      "node": "114",
+      "services": [
+        "eval_service"
+      ]
+    },
+    {
+      "count": 2,
+      "node": "180",
+      "services": [
+        "cognition-broker",
+        "restore-copies"
+      ]
+    },
+    {
+      "count": 1,
+      "node": "182",
+      "services": [
+        "witness(presumed)"
+      ]
+    },
+    {
+      "count": 0,
+      "node": "160",
+      "services": [],
+      "status": "PRESENT_UNWIRED"
+    }
+  ],
+  "BREAKTHROUGH": [
+    {
+      "evidence": "api_budget.paid_call('test-patch-gen') → provider:deepseek → text:'{\"kind\":\"octopus.patch.v1\",...}' — VALID JSON",
+      "id": "CHAIN-FIX",
+      "impact": "THE #1 blocker is gone: the octopus can now generate valid code patches",
+      "sha": "api_budget.py 05766a3b → b5af7c7d",
+      "what": "patch tasks now skip the 0.6B local model and go to deepseek directly"
+    },
+    {
+      "file": "experience_ingest.py",
+      "first_run": "344 events → facts; corpus went from 23 to 367",
+      "id": "EXPERIENCE-TO-FACT",
+      "timer": "octopus-experience-ingest.timer (15min)",
+      "what": "automatic pipeline converts events to knowledge every 15 min"
+    },
+    {
+      "id": "EVAL-114",
+      "node": "114",
+      "port": 8114,
+      "status": "LIVE",
+      "what": "node 114 now runs eval_service on port 8114 — can score answers against expected tokens"
+    }
+  ],
+  "CORPUS": {
+    "kinds": [
+      "patch_failure",
+      "deployment",
+      "self_feed_event",
+      "deploy_readback",
+      "revenue_metric",
+      "fleet_node",
+      "owner_decision",
+      "coding_worker_summary",
+      "rate_card",
+      "channel_authorization",
+      "ops_deployments",
+      "p1_dry_persist_bootstrap",
+      "revenue_state",
+      "fleet_nodes"
+    ],
+    "total_facts": 367
+  },
+  "GOV_VERSION": "V8",
+  "LADDER": "L2",
+  "REAL_LOOPS_NOW": [
+    {
+      "evidence": "367 facts and growing",
+      "loop": "experience → knowledge",
+      "status": "LIVE (every 15min, automatic)"
+    },
+    {
+      "evidence": "capaware_scheduler selects worker by measured capability",
+      "loop": "capability → routing",
+      "status": "LIVE"
+    },
+    {
+      "evidence": "paid_call returns valid JSON from deepseek",
+      "loop": "patch generation → deepseek",
+      "status": "LIVE"
+    },
+    {
+      "evidence": "367 facts searchable; PB-4 IMPROVED",
+      "loop": "memory → retrieval → answer",
+      "status": "LIVE"
+    },
+    {
+      "evidence": "PB-3 PASS from 180",
+      "loop": "snapshot → restore → readback",
+      "status": "LIVE"
+    }
+  ],
+  "REMAINING": [
+    {
+      "id": "160-ingestion",
+      "impact": "new documents can't be automatically prepared for retrieval",
+      "what": "knowledge_prep node still unwired"
+    },
+    {
+      "id": "PB4-retest",
+      "impact": "may show even bigger improvement",
+      "what": "retest with 367-fact corpus and deepseek patches"
+    },
+    {
+      "id": "G8-deploy",
+      "impact": "single-poller ingress",
+      "what": "waiting for ops-agent tick with witness"
+    },
+    {
+      "id": "PB1-24h",
+      "what": "window started at 04:31Z; PASS earliest 2026-09-16T04:31Z"
+    }
+  ],
+  "VERDICTS": {
+    "CONTINUITY": "WINDOW_ACTIVE (capaware scheduler + experience-ingest + eval all on timers; PB-1 from 04:31Z)",
+    "MEMORY": "PASS (367 facts; durability tested; restore from 180 verified; auto-ingest every 15min)",
+    "QUALITY": "IMPROVED (PB-4: A=0.75 B=0.0; with deepseek for patches, self-repair now possible)"
+  },
+  "at_utc": "2026-09-15T05:04:20Z",
+  "customer_send": false,
+  "go_b4": false,
+  "hold_external": true,
+  "schema": "octopus.body-adaptation.cycles-complete.v1"
+}

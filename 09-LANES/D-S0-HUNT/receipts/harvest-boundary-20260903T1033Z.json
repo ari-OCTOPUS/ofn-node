@@ -1,0 +1,516 @@
+{
+  "schema": "octopus.d-s0-hunt.harvest-boundary.v1",
+  "lane": "D-S0-HUNT",
+  "measured_at_utc": "2026-09-03T10:34:54Z",
+  "host": "DESKTOP-KA9RFN5",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "network": "none",
+  "started": {
+    "ofn.run": false,
+    "demand_harvest": false,
+    "ingest_server": false,
+    "buynsw-harvester": false
+  },
+  "ofn_root": "F:\\ofn-node",
+  "run_py": {
+    "path": "F:\\ofn-node\\ofn\\run.py",
+    "bytes": 28701,
+    "import_count": 55,
+    "imports": [
+      "__future__.annotations",
+      "os",
+      "signal",
+      "sys",
+      "threading",
+      "time",
+      "datetime.datetime",
+      "datetime.timezone",
+      "pathlib.Path",
+      "__version__",
+      "config",
+      "adapters.advisor.Advisor",
+      "adapters.audience_store.AudienceStore",
+      "adapters.boot.BootSupervisor",
+      "kernel.callbudget.CallBudget",
+      "adapters.consent_store.ConsentStore",
+      "adapters.facts.FactStore",
+      "adapters.http_api.ApiApp",
+      "adapters.http_api.HostMap",
+      "adapters.http_api.serve",
+      "adapters.ledger.Ledger",
+      "adapters.lead_store.LeadStore",
+      "adapters.marketing_inbox.MarketingInbox",
+      "adapters.marketing_store.MarketingStore",
+      "adapters.media.MediaStore",
+      "adapters.outbox.Outbox",
+      "adapters.packloader.load_dir",
+      "adapters.products.ProductStore",
+      "adapters.studio_store.StudioStore",
+      "adapters.studio_assistant.StudioAssistantStore",
+      "adapters.watchdog.HealthGate",
+      "adapters.watchdog.Notifier",
+      "adapters.watchdog.beat",
+      "adapters.watchdog.watchdog_interval_s",
+      "adapters.remote_brain.RemoteBrain",
+      "adapters.router.ModelRouter",
+      "adapters.router.RulesBrain",
+      "kernel.quota.NodeQuota",
+      "kernel.routing.Rung",
+      "kernel.tenancy.TenantRegistry",
+      "node.Node",
+      "worker.OWNER_ASK_TASK",
+      "worker.WorkQueue",
+      "worker.Worker",
+      "worker.loop",
+      "adapters.owner_asks.OwnerAskStore",
+      "adapters.inbound_rate.InboundRateLimiter",
+      "adapters.connector_metrics.ConnectorMetrics",
+      "fugu_core.memory.Memory",
+      "adapters.platforms.telegram_readonly.TelegramReadOnlyAdapter",
+      "adapters.pilot.PilotState",
+      "adapters.pilot.ReadOnlyPilot",
+      "adapters.cockpit_v2_read_model.CockpitV2ReadModel",
+      "adapters.cockpit_v2_read_model.semantic_etag",
+      "adapters.commerce_connector.CommerceConnector"
+    ],
+    "harvest_imap_buynsw_import_hits": [],
+    "harvest_imap_buynsw_import_line_hits": [],
+    "wired_into_run": false
+  },
+  "harvest_module_paths": [
+    {
+      "rel": "ofn/agents/demand_harvest.py",
+      "bytes": 13259,
+      "via": "ofn/agents filename"
+    },
+    {
+      "rel": "ofn/agents/h1_buysw.py",
+      "bytes": 6664,
+      "via": "ofn/agents filename"
+    },
+    {
+      "rel": "ofn/agents/h1_buysw_dom.py",
+      "bytes": 12536,
+      "via": "ofn/agents filename"
+    },
+    {
+      "rel": "ofn/agents/h1_harvest.py",
+      "bytes": 5424,
+      "via": "ofn/agents filename"
+    },
+    {
+      "rel": "ofn/agents/imap_listener.py",
+      "bytes": 15875,
+      "via": "ofn/agents filename"
+    },
+    {
+      "rel": "ofn/agents/nsw_ocp_harvest.py",
+      "bytes": 5167,
+      "via": "ofn/agents filename"
+    },
+    {
+      "rel": "ofn/agents/seek_harvest.py",
+      "bytes": 4247,
+      "via": "ofn/agents filename"
+    },
+    {
+      "rel": "tools/buynsw-harvester",
+      "kind": "dir",
+      "file_count": 8,
+      "via": "known harvest tree"
+    },
+    {
+      "rel": "tools/ingest_buynsw_batch.py",
+      "bytes": 2142,
+      "via": "known harvest tree"
+    }
+  ],
+  "harvest_modules": {
+    "ofn/agents/demand_harvest.py": {
+      "path": "F:\\ofn-node\\ofn\\agents\\demand_harvest.py",
+      "exists": true,
+      "bytes": 13259,
+      "has_dunder_main": false,
+      "urls": [
+        "https://tenders.nsw.gov.au/?event=public.api.",
+        "https://tenders.nsw.gov.au/?event=public.api.tender.search"
+      ],
+      "flag_names": [],
+      "port_literals": [],
+      "bind_or_listen_lines": [],
+      "dead_source_hits": [
+        {
+          "pattern": "DEAD SOURCE",
+          "line": 1,
+          "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1)."
+        },
+        {
+          "pattern": "dead source",
+          "line": 1,
+          "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1)."
+        }
+      ]
+    },
+    "ofn/agents/h1_harvest.py": {
+      "path": "F:\\ofn-node\\ofn\\agents\\h1_harvest.py",
+      "exists": true,
+      "bytes": 5424,
+      "has_dunder_main": false,
+      "urls": [
+        "https://tenders.nsw.gov.au/?event=public.api.list"
+      ],
+      "flag_names": [],
+      "port_literals": [],
+      "bind_or_listen_lines": [],
+      "dead_source_hits": [
+        {
+          "pattern": "DEAD SOURCE",
+          "line": 1,
+          "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1)."
+        },
+        {
+          "pattern": "dead source",
+          "line": 1,
+          "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1)."
+        }
+      ]
+    },
+    "ofn/agents/h1_buysw.py": {
+      "path": "F:\\ofn-node\\ofn\\agents\\h1_buysw.py",
+      "exists": true,
+      "bytes": 6664,
+      "has_dunder_main": false,
+      "urls": [
+        "https://tenders.nsw.gov.au/?event=public.api.tender.view&RFTUUID={rftuuid}"
+      ],
+      "flag_names": [],
+      "port_literals": [],
+      "bind_or_listen_lines": [],
+      "dead_source_hits": [
+        {
+          "pattern": "DEAD SOURCE",
+          "line": 1,
+          "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1; 4th candidate, D-34 §B-4)."
+        },
+        {
+          "pattern": "dead source",
+          "line": 1,
+          "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1; 4th candidate, D-34 §B-4)."
+        }
+      ]
+    },
+    "ofn/agents/h1_buysw_dom.py": {
+      "path": "F:\\ofn-node\\ofn\\agents\\h1_buysw_dom.py",
+      "exists": true,
+      "bytes": 12536,
+      "has_dunder_main": false,
+      "urls": [],
+      "flag_names": [],
+      "port_literals": [],
+      "bind_or_listen_lines": [],
+      "dead_source_hits": []
+    },
+    "ofn/agents/nsw_ocp_harvest.py": {
+      "path": "F:\\ofn-node\\ofn\\agents\\nsw_ocp_harvest.py",
+      "exists": true,
+      "bytes": 5167,
+      "has_dunder_main": false,
+      "urls": [
+        "https://data.open-contracting.org/en/publication/11",
+        "https://data.open-contracting.org/en/publication/11/download",
+        "https://data.open-contracting.org/en/publication/11"
+      ],
+      "flag_names": [],
+      "port_literals": [],
+      "bind_or_listen_lines": [],
+      "dead_source_hits": [
+        {
+          "pattern": "DEAD SOURCE",
+          "line": 1,
+          "quote": "\"\"\"DEAD SOURCE (as a lead module — the upstream itself is alive; see below)"
+        },
+        {
+          "pattern": "dead source",
+          "line": 1,
+          "quote": "\"\"\"DEAD SOURCE (as a lead module — the upstream itself is alive; see below)"
+        }
+      ]
+    },
+    "ofn/agents/seek_harvest.py": {
+      "path": "F:\\ofn-node\\ofn\\agents\\seek_harvest.py",
+      "exists": true,
+      "bytes": 4247,
+      "has_dunder_main": false,
+      "urls": [
+        "https://www.seek.com.au/painter-jobs/in-sydney-nsw"
+      ],
+      "flag_names": [],
+      "port_literals": [],
+      "bind_or_listen_lines": [],
+      "dead_source_hits": []
+    },
+    "ofn/agents/imap_listener.py": {
+      "path": "F:\\ofn-node\\ofn\\agents\\imap_listener.py",
+      "exists": true,
+      "bytes": 15875,
+      "has_dunder_main": true,
+      "urls": [],
+      "flag_names": [],
+      "port_literals": [],
+      "bind_or_listen_lines": [],
+      "dead_source_hits": []
+    },
+    "tools/ingest_buynsw_batch.py": {
+      "path": "F:\\ofn-node\\tools\\ingest_buynsw_batch.py",
+      "exists": true,
+      "bytes": 2142,
+      "has_dunder_main": true,
+      "urls": [],
+      "flag_names": [],
+      "port_literals": [],
+      "bind_or_listen_lines": [],
+      "dead_source_hits": []
+    }
+  },
+  "ingest_server_candidates": {
+    "tools/buynsw-harvester/ingest_server.py": {
+      "exists": false,
+      "path": "F:\\ofn-node\\tools\\buynsw-harvester\\ingest_server.py",
+      "bytes": 0
+    },
+    "tools/ingest_server.py": {
+      "exists": false,
+      "path": "F:\\ofn-node\\tools\\ingest_server.py",
+      "bytes": 0
+    },
+    "ingest_server.py": {
+      "exists": false,
+      "path": "F:\\ofn-node\\ingest_server.py",
+      "bytes": 0
+    }
+  },
+  "dead_source_hit_count": 14,
+  "dead_source_file_count": 9,
+  "dead_source_hits": [
+    {
+      "rel": "tests/test_chaos_owner_absent.py",
+      "abs": "F:\\ofn-node\\tests\\test_chaos_owner_absent.py",
+      "line": 39,
+      "patterns": [
+        "dead_source"
+      ],
+      "quote": "def test_dead_source_classifies_unknown(self):"
+    },
+    {
+      "rel": "ofn/agents/demand_harvest.py",
+      "abs": "F:\\ofn-node\\ofn\\agents\\demand_harvest.py",
+      "line": 1,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1)."
+    },
+    {
+      "rel": "ofn/agents/h1_buysw.py",
+      "abs": "F:\\ofn-node\\ofn\\agents\\h1_buysw.py",
+      "line": 1,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1; 4th candidate, D-34 §B-4)."
+    },
+    {
+      "rel": "ofn/agents/h1_harvest.py",
+      "abs": "F:\\ofn-node\\ofn\\agents\\h1_harvest.py",
+      "line": 1,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1)."
+    },
+    {
+      "rel": "ofn/agents/nsw_ocp_harvest.py",
+      "abs": "F:\\ofn-node\\ofn\\agents\\nsw_ocp_harvest.py",
+      "line": 1,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"\"\"DEAD SOURCE (as a lead module — the upstream itself is alive; see below)"
+    },
+    {
+      "rel": "ofn/kernel/source_health.py",
+      "abs": "F:\\ofn-node\\ofn\\kernel\\source_health.py",
+      "line": 1,
+      "patterns": [
+        "dead-source"
+      ],
+      "quote": "\"\"\"source_health — dead-source and rate-limit vocabulary (pure kernel)."
+    },
+    {
+      "rel": "ofn/kernel/source_health.py",
+      "abs": "F:\\ofn-node\\ofn\\kernel\\source_health.py",
+      "line": 20,
+      "patterns": [
+        "dead source"
+      ],
+      "quote": "UNKNOWN = \"UNKNOWN\" # dead source / network error / no witness"
+    },
+    {
+      "rel": "ofn/kernel/source_health.py",
+      "abs": "F:\\ofn-node\\ofn\\kernel\\source_health.py",
+      "line": 41,
+      "patterns": [
+        "dead source"
+      ],
+      "quote": "status=None means no response exists at all (dead source, timeout,"
+    },
+    {
+      "rel": "docs/octopus-os/02-AGENT-CONTRACTS.yaml",
+      "abs": "F:\\ofn-node\\docs\\octopus-os\\02-AGENT-CONTRACTS.yaml",
+      "line": 24,
+      "patterns": [
+        "dead_source"
+      ],
+      "quote": "dead_source_labels: \"see PR #70 (D-31 step 1): h1_buysw/h1_harvest/demand_harvest + nsw_ocp parked\""
+    },
+    {
+      "rel": "docs/octopus-surgery/governance/2026-09-02/receipts/DEAD-SOURCE-LABELS-20260902.json",
+      "abs": "F:\\ofn-node\\docs\\octopus-surgery\\governance\\2026-09-02\\receipts\\DEAD-SOURCE-LABELS-20260902.json",
+      "line": 3,
+      "patterns": [
+        "dead-source"
+      ],
+      "quote": "\"receipt_id\": \"DEAD-SOURCE-LABELS-20260902\","
+    },
+    {
+      "rel": "docs/octopus-surgery/governance/2026-09-02/receipts/DEAD-SOURCE-LABELS-20260902.json",
+      "abs": "F:\\ofn-node\\docs\\octopus-surgery\\governance\\2026-09-02\\receipts\\DEAD-SOURCE-LABELS-20260902.json",
+      "line": 7,
+      "patterns": [
+        "dead-source"
+      ],
+      "quote": "\"scope_measured\": \"origin/main @67359a6 (worktree F:\\\\wt-dsl, branch chore/dead-source-labels-20260902); docstrings of ofn/agents/{h1_buysw…"
+    },
+    {
+      "rel": "docs/octopus-surgery/governance/2026-09-02/receipts/DEAD-SOURCE-LABELS-20260902.json",
+      "abs": "F:\\ofn-node\\docs\\octopus-surgery\\governance\\2026-09-02\\receipts\\DEAD-SOURCE-LABELS-20260902.json",
+      "line": 9,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"action\": \"D-31 step 1 — DEAD SOURCE docstring labels, no code change\","
+    },
+    {
+      "rel": "docs/octopus-surgery/architecture/2026-09-02/receipts/HALT-CHAOS-20260902.json",
+      "abs": "F:\\ofn-node\\docs\\octopus-surgery\\architecture\\2026-09-02\\receipts\\HALT-CHAOS-20260902.json",
+      "line": 15,
+      "patterns": [
+        "dead source"
+      ],
+      "quote": "\"ofn/kernel/source_health.py\": \"pure vocabulary: dead source/None→UNKNOWN (never FALSE); 403→PARKED (policy, no retry); 429/5xx→bounded enu…"
+    },
+    {
+      "rel": "docs/octopus-surgery/architecture/2026-09-02/receipts/HALT-CHAOS-20260902.json",
+      "abs": "F:\\ofn-node\\docs\\octopus-surgery\\architecture\\2026-09-02\\receipts\\HALT-CHAOS-20260902.json",
+      "line": 17,
+      "patterns": [
+        "dead-source"
+      ],
+      "quote": "\"tests/test_chaos_owner_absent.py\": \"7 blueprint §11 scenarios: dead-source=UNKNOWN; arm-timeout→siblings continue; rate-limit bounded→PARK…"
+    }
+  ],
+  "dead_source_first_per_file": [
+    {
+      "rel": "tests/test_chaos_owner_absent.py",
+      "abs": "F:\\ofn-node\\tests\\test_chaos_owner_absent.py",
+      "line": 39,
+      "patterns": [
+        "dead_source"
+      ],
+      "quote": "def test_dead_source_classifies_unknown(self):"
+    },
+    {
+      "rel": "ofn/agents/demand_harvest.py",
+      "abs": "F:\\ofn-node\\ofn\\agents\\demand_harvest.py",
+      "line": 1,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1)."
+    },
+    {
+      "rel": "ofn/agents/h1_buysw.py",
+      "abs": "F:\\ofn-node\\ofn\\agents\\h1_buysw.py",
+      "line": 1,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1; 4th candidate, D-34 §B-4)."
+    },
+    {
+      "rel": "ofn/agents/h1_harvest.py",
+      "abs": "F:\\ofn-node\\ofn\\agents\\h1_harvest.py",
+      "line": 1,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"\"\"DEAD SOURCE — labeled 2026-09-02 (D-31 step 1)."
+    },
+    {
+      "rel": "ofn/agents/nsw_ocp_harvest.py",
+      "abs": "F:\\ofn-node\\ofn\\agents\\nsw_ocp_harvest.py",
+      "line": 1,
+      "patterns": [
+        "DEAD SOURCE",
+        "dead source"
+      ],
+      "quote": "\"\"\"DEAD SOURCE (as a lead module — the upstream itself is alive; see below)"
+    },
+    {
+      "rel": "ofn/kernel/source_health.py",
+      "abs": "F:\\ofn-node\\ofn\\kernel\\source_health.py",
+      "line": 1,
+      "patterns": [
+        "dead-source"
+      ],
+      "quote": "\"\"\"source_health — dead-source and rate-limit vocabulary (pure kernel)."
+    },
+    {
+      "rel": "docs/octopus-os/02-AGENT-CONTRACTS.yaml",
+      "abs": "F:\\ofn-node\\docs\\octopus-os\\02-AGENT-CONTRACTS.yaml",
+      "line": 24,
+      "patterns": [
+        "dead_source"
+      ],
+      "quote": "dead_source_labels: \"see PR #70 (D-31 step 1): h1_buysw/h1_harvest/demand_harvest + nsw_ocp parked\""
+    },
+    {
+      "rel": "docs/octopus-surgery/governance/2026-09-02/receipts/DEAD-SOURCE-LABELS-20260902.json",
+      "abs": "F:\\ofn-node\\docs\\octopus-surgery\\governance\\2026-09-02\\receipts\\DEAD-SOURCE-LABELS-20260902.json",
+      "line": 3,
+      "patterns": [
+        "dead-source"
+      ],
+      "quote": "\"receipt_id\": \"DEAD-SOURCE-LABELS-20260902\","
+    },
+    {
+      "rel": "docs/octopus-surgery/architecture/2026-09-02/receipts/HALT-CHAOS-20260902.json",
+      "abs": "F:\\ofn-node\\docs\\octopus-surgery\\architecture\\2026-09-02\\receipts\\HALT-CHAOS-20260902.json",
+      "line": 15,
+      "patterns": [
+        "dead source"
+      ],
+      "quote": "\"ofn/kernel/source_health.py\": \"pure vocabulary: dead source/None→UNKNOWN (never FALSE); 403→PARKED (policy, no retry); 429/5xx→bounded enu…"
+    }
+  ],
+  "note": "ABSENT on this laptop is body_not_on_this_host, not system-wide missing. Laptop != board 180."
+}

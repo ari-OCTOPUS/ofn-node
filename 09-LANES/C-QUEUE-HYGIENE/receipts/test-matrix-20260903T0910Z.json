@@ -1,0 +1,36 @@
+{
+  "schema": "octopus.test-matrix.v1",
+  "measured_at": "2026-09-03T09:10:00Z",
+  "interpreter": "C:\\Program Files\\Python313\\python.exe",
+  "cwd": "F:/backup",
+  "rows": [
+    {
+      "command": "Test-Path F:\\backup\\tests\\test_repair_api.py",
+      "result": "False",
+      "exit": 0,
+      "note": "checklist target ABSENT on vault"
+    },
+    {
+      "command": "python -m pytest --collect-only -q F:\\backup\\_ops\\tests -k \"doctor or owner_absence or telegram_glass or cockpit or outbox or worker\"",
+      "exit": 3,
+      "elapsed_s": 275.99,
+      "note": "INTERNALERROR: _ops/tests/test_adr033_control_plane.py calls sys.exit during import. Tail also said: 7 tests collected in 203.83s"
+    },
+    {
+      "command": "python -m pytest -q F:\\backup\\_ops\\tests -k \"doctor or owner_absence or telegram_glass or cockpit or outbox or worker\" --tb=no",
+      "exit": 3,
+      "elapsed_s": 11.12,
+      "note": "same INTERNALERROR; no tests ran in 9.52s"
+    },
+    {
+      "command": "python -m pytest -q --tb=line test_doctor.py test_doctor_link.py test_cockpit.py test_cockpit_truthful.py test_event_bridge_outbox.py test_dual_outbox_contract_c05.py",
+      "exit": 0,
+      "elapsed_s": 3.89,
+      "summary": "5 passed in 2.48s",
+      "log": "receipts/pytest-narrow-20260903T0910Z.txt"
+    }
+  ],
+  "owner_absence_tests": "0 files matched on vault",
+  "telegram_glass_tests": "unverified (not isolated this run)",
+  "unittest_used": false
+}

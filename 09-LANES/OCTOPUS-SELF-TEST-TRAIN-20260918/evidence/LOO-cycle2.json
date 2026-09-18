@@ -1,0 +1,38 @@
+{
+  "schema": "octopus.sttl.loo.v1",
+  "lane": "OCTOPUS-SELF-TEST-TRAIN-20260918",
+  "cycle": 2,
+  "at": "2026-09-18T04:39Z (run completed; persisted 2026-09-18 after the background job finished)",
+  "method": "exact leave-one-out on the organism's own outcome store (decision derived from memory, not attached to it) — no train/test leakage, one held-out decision at a time",
+  "run_a": {
+    "n": 187,
+    "changed": 1,
+    "correct_on": 184,
+    "correct_off": 185,
+    "HONEST_VERDICT": "MEMORY_HURTS"
+  },
+  "run_b": {
+    "n": 143,
+    "changed": 1,
+    "correct_on": 140,
+    "correct_off": 141,
+    "VERDICT": "MEMORY_HURTS"
+  },
+  "CLAIM_REALITY_LOO": false,
+  "the_one_flipping_decision": {
+    "key": "prop:rc_ad44e3153e766f33|leg:research",
+    "real_outcome": "accept",
+    "memory_off_says": "proceed",
+    "memory_on_says": "proceed",
+    "note": "with memory ON the single changed decision is answered wrong; the only recurring learnable key in this store is itself the conflicting accept+reject case, so 'learning' currently adds no information on real data"
+  },
+  "implication": [
+    "the reality-learning claim stays FALSE at n=187 as it was at n=141 — a larger sample did not rescue it",
+    "the memory gate must not be treated as a revenue lever or as evidence of capability",
+    "the honest next question is not 'tune the gate' but 'why does the store contain one recurring key that contradicts itself' (data quality of the outcome keys), which is a data problem, not a model problem"
+  ],
+  "honesty": {
+    "status": "preserved failure — no partial credit",
+    "earlier_invalid_pilot": "a 10/10 'memory helps' pilot from an earlier session was invalidated (train/test leakage in fixtures + a statically attached action); it is not cited here"
+  }
+}

@@ -1,0 +1,214 @@
+{
+ "items": [
+  {
+   "id": "BW-01",
+   "title": "painting_call_log (canonical CRM table, merged #248) has zero readers",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-01"
+   },
+   "evidence_of_unfinished": "the CRM data the owner asked for is written but never displayed",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-02",
+   "title": "v_account_last_call view unread → stage never updates on the card",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-02"
+   },
+   "evidence_of_unfinished": "Elahe's own note confirmed; now measured",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-03",
+   "title": "AUTO_DISCOVERY_TAG has zero consumers in the runtime",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-03"
+   },
+   "evidence_of_unfinished": "unverified discovered leads cannot be filtered out of the call list",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-04",
+   "title": "think_pool (evidence-based provider health) may have no consumer",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-04"
+   },
+   "evidence_of_unfinished": "provider routing may still trust a stale status",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-05",
+   "title": "six octopus-mesh services run continuously with no receipt trail",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-05"
+   },
+   "evidence_of_unfinished": "a second organism runs with dark I/O",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-06",
+   "title": "cognition_factory frozen since 09-15 (877 lines)",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-06"
+   },
+   "evidence_of_unfinished": "a brain that stopped being fed",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-07",
+   "title": "durability + of-draft-queue + fleet-memory + fleet-nodes + glass state frozen 09-15/16",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-07"
+   },
+   "evidence_of_unfinished": "five state areas are tombstones",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-08",
+   "title": "100 is effectively idle (load 0.02, 48G free, 8 cores) while 138 runs saturated",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-08"
+   },
+   "evidence_of_unfinished": "the fleet's spare capacity is unused",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-09",
+   "title": "182 witness runs 27 services at load 1.68",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-09"
+   },
+   "evidence_of_unfinished": "witness headroom must be protected",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-10",
+   "title": "outbound-effects.sqlite3 still 0 bytes (no outcome wiring)",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-10"
+   },
+   "evidence_of_unfinished": "learning loop for outreach still open (W-012)",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-11",
+   "title": "packet store still reports 0 sent vs 39 message rows",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-11"
+   },
+   "evidence_of_unfinished": "send path does not persist packet state",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-12",
+   "title": "staged units on 114/160 still uninstalled (F-003)",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-12"
+   },
+   "evidence_of_unfinished": "two lanes of compute sit unused",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-13",
+   "title": "no reader for fleet-memory facts (frozen)",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-13"
+   },
+   "evidence_of_unfinished": "memory layer dark",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-14",
+   "title": "owner decisions still single-channel (Telegram only)",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-14"
+   },
+   "evidence_of_unfinished": "a TG outage freezes every gated action",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  },
+  {
+   "id": "BW-15",
+   "title": "no standing send-authorization; every batch needs a vote",
+   "map_class": "BRAIN-WIRING",
+   "class": "OPEN_WORK",
+   "source": {
+    "path": "09-LANES/OCTOPUS-BRAIN-WIRING-SCAN-20260918/GAP-REGISTER.json",
+    "anchor": "BW-15"
+   },
+   "evidence_of_unfinished": "the measured #1 growth blocker (WHY-SLOW R1)",
+   "U": 4,
+   "R": 3,
+   "C": 4
+  }
+ ]
+}

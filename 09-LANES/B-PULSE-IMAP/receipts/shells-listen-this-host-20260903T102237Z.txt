@@ -1,0 +1,31 @@
+lane=B-PULSE-IMAP
+measured_at_utc=2026-09-03T10:22:37Z
+hostname=DESKTOP-KA9RFN5
+wifi_ip=192.168.0.191
+wifi_alias=Wi-Fi
+lan_192_ip=192.168.0.191
+vantage=this_host_only
+scope=this_host_only
+claim_type=runtime
+bind=none started=none ssh=none client_socket=none
+pid_self=24852 argv=F:\backup\09-LANES\B-PULSE-IMAP\shells_listen_probe.py
+source=Get-NetTCPConnection -State Listen + Win32_Process.CommandLine
+---four-rooms---
+port,bind,pid,process,cmdline
+8791,127.0.0.1,2324,python.exe,"C:\Program Files\Python313\python.exe" tools/buynsw-harvester/ingest_server.py --port 8791 --allow-no-auth
+8792,absent,-,-,absent
+8793,absent,-,-,absent
+8794,absent,-,-,absent
+---neighbours---
+8795,absent,-,-,absent
+8796,absent,-,-,absent
+8771,127.0.0.1,22936,python.exe,python  -X utf8 organism.py
+8772,127.0.0.1,22584,python.exe,python  -X utf8 cortex\cortex.py
+8773,127.0.0.1,11992,python.exe,python  -X utf8 live\server.py
+8774,127.0.0.1,19176,python.exe,"C:\Program Files\Python313\python.exe" -X utf8 F:\backup\_ops\telegram_center\miniapp_gateway.py 
+8775,absent,-,-,absent
+8776,127.0.0.1,14092,python.exe,python  -X utf8 telegram_center\center.py
+8777,127.0.0.1,22936,python.exe,python  -X utf8 organism.py
+8895,absent,-,-,absent
+143,absent,-,-,absent
+993,absent,-,-,absent

@@ -1,0 +1,439 @@
+{
+  "created_at_utc": "2026-09-17T09:28:57.161922+00:00",
+  "files": [
+    {
+      "path": "evidence/s1/LANE-REPORT.md",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/LANE-REPORT.md",
+      "sha256": "364d263542eb263bef68c7ab85cd1c1653fd5ed8b6673b15d0c338c378056e5b",
+      "bytes": 7775,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/s1/OWNER-SCOPE.json",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/OWNER-SCOPE.json",
+      "sha256": "70f458b74b0fc383a5c740093887c4d5c264abf57d40cdd00b2b9ee38d166871",
+      "bytes": 1839,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/s1/FLEET-OBSERVATION.json",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/FLEET-OBSERVATION.json",
+      "sha256": "2af93ff09050953d038c1266573e0f77df66bcf45d09b966eac50350007b411b",
+      "bytes": 6811,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/s1/W1-SIDECAR-LAUNCH.json",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/W1-SIDECAR-LAUNCH.json",
+      "sha256": "a937a843a31a727eae48059c5a2fc748d79f7c23b612a1780bc6d624065bae20",
+      "bytes": 505,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/s1/W1-SIDECAR-VERDICT.json",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/W1-SIDECAR-VERDICT.json",
+      "sha256": "885bf5656ff793d7c057589bfa3b96abfb6ddd4f9863b27e65b10906c8829837",
+      "bytes": 445,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/s1/MIRROR-RESTORE-RECEIPT.json",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/MIRROR-RESTORE-RECEIPT.json",
+      "sha256": "b5c94f2983a54bcefd2874b62725bce767f8e28172cc7382f261b58552f2ac28",
+      "bytes": 2269,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/s1/W1-TEST-RECEIPT.json",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/W1-TEST-RECEIPT.json",
+      "sha256": "b4d913f9e89590375171eddec281ab0ae35b58952e361222d0b10b92b522d3a5",
+      "bytes": 1695,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/s1/DELIVERY-RECEIPT.json",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/DELIVERY-RECEIPT.json",
+      "sha256": "ddd8de776369c9045c1b711344ec23f1730737e66050d02f8ae032cf0ac5d50c",
+      "bytes": 2899,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/observation/evaluate_w1.py",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/evaluate_w1.py",
+      "sha256": "91e60f1c6c3f46805eaee407f344d65e7f2a5bbf345cea9feb0339053e605458",
+      "bytes": 4650,
+      "kind": "reference_tool_not_auto_execute",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/observation/w1_auditable.py",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/w1_auditable.py",
+      "sha256": "00488082df90e6af42172d9836e7d35f4daa8ef9253619ec470b13058546ecca",
+      "bytes": 3138,
+      "kind": "reference_tool_not_auto_execute",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/observation/collect_fleet.py",
+      "original_path": "F:/backup/09-LANES/S1-MATURITY-20260917/collect_fleet.py",
+      "sha256": "1c6bdc014eee5cb8efe2711eab1adf750de557e5461fa2316261102f080200b7",
+      "bytes": 3047,
+      "kind": "reference_tool_not_auto_execute",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/ofn/adapters/fake_executor.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/adapters/fake_executor.py",
+      "sha256": "df2e254b601849911b7791f9a5c235cd639fd2e698bce6484fb1cef7bf4e6958",
+      "bytes": 10720,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/ofn/adapters/self_model_producer.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/adapters/self_model_producer.py",
+      "sha256": "28b11b875e046c404d74f66d76f487eaf07fe7bd4b49b2b22ff2665b6629c887",
+      "bytes": 25346,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/ofn/adapters/fleet_observation.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/adapters/fleet_observation.py",
+      "sha256": "459f08ba07ce679b0087396afc277304094db6cbc426cd2798765bfdc7c634e3",
+      "bytes": 3514,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/ofn/adapters/revenue_run.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/adapters/revenue_run.py",
+      "sha256": "b64286bd345d8ccef72f56cd84e2f171ba50ec757b8d44f1fc810b735f74bf22",
+      "bytes": 6406,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/ofn/kernel/callbudget.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/kernel/callbudget.py",
+      "sha256": "df7a5100d8f3980eecd8ab022faa355c007a626c46ec333c9a2c4165b658def5",
+      "bytes": 6870,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/ofn/kernel/canonical_budget.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/kernel/canonical_budget.py",
+      "sha256": "588e411f7e76209cf8de297fbc5fe15efade8f65fc5c0cb43870e58a03653933",
+      "bytes": 4131,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/tests/test_fleet_observation.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/tests/test_fleet_observation.py",
+      "sha256": "c0f4446195ae421ace4c50b48d8c1088090cf88cc2f2cba8afe60d5639710d22",
+      "bytes": 3964,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/tests/test_revenue_run.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/tests/test_revenue_run.py",
+      "sha256": "4c24ae2baf2b0f84dde0cd0a9448030b5028ebcca8fccb7ccb4466dc5ca8a621",
+      "bytes": 5220,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/tests/test_canonical_budget.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/tests/test_canonical_budget.py",
+      "sha256": "13474ad218620861af8e3d1bfd686515c90ba44122f9ad4d1c870d0b3b5efb00",
+      "bytes": 6507,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/integrated/tools/replay_revenue_run.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/tools/replay_revenue_run.py",
+      "sha256": "29af80afeda986793db6cf3877612f82931a874667bec562b361d97a1212fe39",
+      "bytes": 1217,
+      "kind": "candidate_code",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/integration/LANE-REPORT.md",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/09-LANES/S1-FLEET-SELF-MODEL-20260917/LANE-REPORT.md",
+      "sha256": "f8920ca6d5b4e7f70aa95f34b338b42921ef1d974856862911940090294d6dd9",
+      "bytes": 3158,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/integration/SOURCE-RECEIPT.json",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/09-LANES/S1-FLEET-SELF-MODEL-20260917/SOURCE-RECEIPT.json",
+      "sha256": "dd6c78843a728b1a504595fe8f24015a264937ffa1eaf01193d92f699198d452",
+      "bytes": 2203,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/integration/integration-tests.xml",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/09-LANES/S1-FLEET-SELF-MODEL-20260917/integration-tests.xml",
+      "sha256": "2e4788b46e3e3119e02295abb586c7317b2eb3d2155d9b42ede5273dc779f9e0",
+      "bytes": 18890,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/integration/executor-purity-tests.xml",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/09-LANES/S1-FLEET-SELF-MODEL-20260917/executor-purity-tests.xml",
+      "sha256": "f663a9082d30d6656f7322e6affa35ebf86b052a48cfe932e6f64d21d336c3f0",
+      "bytes": 3096,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/ofn/agents/learning_feeder.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/agents/learning_feeder.py",
+      "sha256": "1434cf3b6bbdd9d1bbf1c9b0f4f79e1ca5043beedcf31902503c72804381387e",
+      "bytes": 5003,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/ofn/learning/lessons.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/learning/lessons.py",
+      "sha256": "0f57c41a87102e6b635d52bc38603c7b441a79ba7b9047dfe2b91365dd921fd1",
+      "bytes": 4817,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/ofn/learning/chain.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/learning/chain.py",
+      "sha256": "7433013024e54e0dfb37ba67983c3a5355a1554a08a47faff0625f1b2aa46420",
+      "bytes": 2319,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/ofn/learning/cli.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/learning/cli.py",
+      "sha256": "5aeea680fcc744ef004b02f681703a6b6572621510b0fd7e2f12bada984dba52",
+      "bytes": 9298,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/ofn/learning/experiments.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/learning/experiments.py",
+      "sha256": "fc859683b4a07620930ffbe1bffd27f42caba7791e42ddd18a73794acce18dea",
+      "bytes": 4164,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/ofn/adapters/router.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/adapters/router.py",
+      "sha256": "b06774d664fc86f0abbadab1b14bf013477ad041dd822ba29331e1f7bfac9d29",
+      "bytes": 11965,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/ofn/adapters/ledger.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/ofn/adapters/ledger.py",
+      "sha256": "411188b977ead2b08aa7192f972f3692321ffc0d79f641d94b6e9e4396199be1",
+      "bytes": 8003,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/octopus_recovery/restore_drill.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/octopus_recovery/restore_drill.py",
+      "sha256": "7dea932cebc825ed6e8f410566dd32aa29cf04eb56b78a573375eeac36c4ea49",
+      "bytes": 7206,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/existing/octopus_survival/loop.py",
+      "original_path": "F:/wt-s1-fleet-self-model-20260917/octopus_survival/loop.py",
+      "sha256": "b842daf11fd9f5bccfc57be827013c49e044638a4e9756488a233c1501d9e03e",
+      "bytes": 9205,
+      "kind": "existing_source_not_proof_of_live_consumer",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/LANE-REPORT.md",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/LANE-REPORT.md",
+      "sha256": "d99f8a6a6ded30d058683cf40bed230deadbbce2467e289c34c49822f3bef059",
+      "bytes": 10639,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/NODE160-WITNESS.md",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/NODE160-WITNESS.md",
+      "sha256": "8842f2bb4cdb7497debe4d8b46f733a8867253c09024433506b4d82bbf472e26",
+      "bytes": 1856,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/SOURCE-HASHES.json",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/SOURCE-HASHES.json",
+      "sha256": "42ceea118f435c5808f44e2eb4ccfef93b36cf3ee051e77c0dbd66d24c4ecec7",
+      "bytes": 636,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/ACCEPTANCE-PREREGISTRATION.json",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/ACCEPTANCE-PREREGISTRATION.json",
+      "sha256": "52124b7fd3c2e919e2d366560b27f67e0d8fbe8c8027ddbc97ce3b5b415af7da",
+      "bytes": 1954,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/STATE-WRITE-CENSUS.json",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/STATE-WRITE-CENSUS.json",
+      "sha256": "57789619a098e8bc98fee12712778f1245cffebae6fd2136dc041ed1db92e8b5",
+      "bytes": 38056,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/candidate-final-junit.xml",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/candidate-final-junit.xml",
+      "sha256": "beb2cdad1a88e255a80f4b71c07429950f4f50e724cf50b8ed0539dd13b9539d",
+      "bytes": 2699,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/original-junit.xml",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/original-junit.xml",
+      "sha256": "7b166baf12ba3eab72dc1622f25c366214f5c015a10a7f1cd0170e0e8b355107",
+      "bytes": 9256,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/linux-run-01/RESULT.json",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/linux-run-01/RESULT.json",
+      "sha256": "e1b6343aa237faf61503d2beb33dc6e9d51efa34d1f61cff58a7a5d2b08b41c8",
+      "bytes": 3335,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/sensorium/node160-witness/linux-run-01/RESULT.json",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/node160-witness/linux-run-01/RESULT.json",
+      "sha256": "a44941b6d7a402ca6309a9001cca8842bd16fc7e69db3a7381c4a6780f73ef93",
+      "bytes": 3337,
+      "kind": "historical_evidence",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/app.py.patch",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/app.py.patch",
+      "sha256": "50c4f6c222adc3c1cf9e251f67380b1251aff5403bc001d9013672cca5dcdb38",
+      "bytes": 6609,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/snapshot.py.patch",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/snapshot.py.patch",
+      "sha256": "ca2c3e2ac36507e3c491255243832f1d15176d5c1671003b5a64765f3d825f26",
+      "bytes": 2749,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/test_transition_contract.py",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/test_transition_contract.py",
+      "sha256": "8e3807f8153475012a9697659e9a5a991b656e13fe25f5f9a8dea2a0238d84b6",
+      "bytes": 10730,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/linux_rehearsal.py",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/linux_rehearsal.py",
+      "sha256": "59346388786d87b69fdcc9af561c0da0d907482001ce827fe71c8b6669012db5",
+      "bytes": 7470,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/original/app.py",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/original/app.py",
+      "sha256": "0386a4ddebc1c57c11541f852c446015124f085d06afb3250a6dc50902f75e8e",
+      "bytes": 40322,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/original/snapshot.py",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/original/snapshot.py",
+      "sha256": "d9c8ce85167ced9df59f320a382ca23a879ebf21f1b13be87041a86c7cd35a98",
+      "bytes": 8628,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/original/state_machine.py",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/original/state_machine.py",
+      "sha256": "95ee5d33a3e227b236ba230c7e2412e5ba616806c5ecbfd473e8b2ea8e309537",
+      "bytes": 2297,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/candidate/octopus_sensorium/app.py",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/candidate/octopus_sensorium/app.py",
+      "sha256": "79a10dbd02392a381b9b262d62011f4b9c37e9f6228ac5dd951a483dfe0ba4be",
+      "bytes": 40522,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "source/sensorium/candidate/octopus_sensorium/snapshot.py",
+      "original_path": "F:/s1-t1-rehearsal-20260917/09-LANES/S1-T1-REHEARSAL-20260917/candidate/octopus_sensorium/snapshot.py",
+      "sha256": "48cfac2e6a0cde62b86af08a8ca7843aac12e2ff113d9d52a20877c2acdd4824",
+      "bytes": 10225,
+      "kind": "candidate_or_reference_not_deploy_bundle",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/revenue/STUDIO-OWNER-READY-PACK.md",
+      "original_path": "F:/ofn-revenue-contract-20260917/09-LANES/S1-REVENUE-CONTRACT-20260917/STUDIO-OWNER-READY-PACK.md",
+      "sha256": "40d2306bcc0c76f26540c3ac030d63416f99e57d4d7a359d4a845b0fe021387c",
+      "bytes": 4863,
+      "kind": "administrative_candidate",
+      "deployable_as_bundle": false
+    },
+    {
+      "path": "evidence/revenue/REVENUE-RUN-V1.md",
+      "original_path": "F:/ofn-revenue-contract-20260917/09-LANES/S1-REVENUE-CONTRACT-20260917/REVENUE-RUN-V1.md",
+      "sha256": "427b954ea125e495120d1a2b45f0fdf6ba7ee12b36e1a8da93d78f013235034d",
+      "bytes": 3466,
+      "kind": "administrative_candidate",
+      "deployable_as_bundle": false
+    }
+  ],
+  "raw_dataset_included": false,
+  "credentials_included": false
+}

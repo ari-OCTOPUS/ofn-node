@@ -1,0 +1,91 @@
+﻿root,role,git,branch,head12,remote_origin,dirty_entries,repo_mtime,recorded_utc
+F:\.obsidian,aux,-,,,,,2026-08-30,2026-09-17T01:34:15Z
+F:\.zcode,aux,-,,,,,2026-07-17,2026-09-17T01:34:15Z
+F:\4d_system,aux,-,,,,,2026-07-13,2026-09-17T01:34:15Z
+F:\Docker,aux,-,,,,,2026-09-04,2026-09-17T01:34:15Z
+F:\OCTOPUS-SURVIVAL-BACKUP-2026-08-19,aux,-,,,,,2026-08-19,2026-09-17T01:34:15Z
+F:\_______Black Box,aux,git,master,48bd97585fda,,0,2026-09-17,2026-09-17T01:34:15Z
+F:\_octopus-reconcile-20260830,aux,-,,,,,2026-08-30,2026-09-17T01:34:15Z
+F:\_octopus-scan-20260830,aux,-,,,,,2026-08-30,2026-09-17T01:34:15Z
+F:\_ops,aux,-,,,,,2026-07-19,2026-09-17T01:34:15Z
+F:\backup,vault-canonical,git,rescue/octopus-live-tree-20260821,0effbf18e703,,1471,2026-09-17,2026-09-17T01:34:15Z
+F:\backup_snapshots,aux,-,,,,,2026-07-16,2026-09-17T01:34:15Z
+F:\claude-export,aux,-,,,,,2026-07-17,2026-09-17T01:34:15Z
+F:\hardware-handoff-review-20260915,aux,git,codex/hardware-handoff-review-20260915,1eb5b1010a40,,1,2026-09-15,2026-09-17T01:34:15Z
+F:\home,aux,-,,,,,2026-09-13,2026-09-17T01:34:15Z
+F:\kre-out,aux,-,,,,,2026-08-03,2026-09-17T01:34:15Z
+F:\nonexistent,aux,-,,,,,2026-08-16,2026-09-17T01:34:15Z
+F:\octo-exec,aux,-,,,,,2026-09-05,2026-09-17T01:34:15Z
+F:\octopus-body-adaptation-next-20260915,aux,git,codex/body-adaptation-next-20260915,1eb5b1010a40,,1,2026-09-15,2026-09-17T01:34:15Z
+F:\octopus-campaign-20260830,aux,-,,,,,2026-09-13,2026-09-17T01:34:15Z
+F:\octopus-forensic-reorientation-20260915,aux,git,codex/forensic-reorientation-20260915,1eb5b1010a40,,1,2026-09-15,2026-09-17T01:34:15Z
+F:\octopus-governance-final,aux,-,,,,,2026-09-02,2026-09-17T01:34:15Z
+F:\octopus-phase0-reports,aux,-,,,,,2026-07-22,2026-09-17T01:34:15Z
+F:\octopus-test-runs,aux,-,,,,,2026-07-22,2026-09-17T01:34:15Z
+F:\octopus-untracked-safety-2026-07-22,aux,-,,,,,2026-07-22,2026-09-17T01:34:15Z
+F:\octopus-wire,aux,git,ofn/wire,ca038d42a1f2,https://github.com/ari322/ofn-node.git,0,2026-09-17,2026-09-17T01:34:15Z
+F:\ofn-node,aux,git,fix/opslib-import-boundary,0da921b1b9ee,https://github.com/ari-OCTOPUS/ofn-node.git,246,2026-09-17,2026-09-17T01:34:15Z
+F:\romajan,aux,git,master,496a2cd6d2e0,,0,2026-09-17,2026-09-17T01:34:15Z
+F:\this,aux,-,,,,,2026-07-23,2026-09-17T01:34:15Z
+F:\tmp,aux,-,,,,,2026-09-14,2026-09-17T01:34:15Z
+F:\tmp-aggr-refresh,aux,-,,,,,2026-09-10,2026-09-17T01:34:15Z
+F:\tmp-audit10h-prtests,aux,-,,,,,2026-09-09,2026-09-17T01:34:15Z
+F:\tmp-audit10h-red,aux,-,,,,,2026-09-09,2026-09-17T01:34:15Z
+F:\wt-110b,worktree(ofn-node lane),git,port/110b-send-path-tests-20260917,92ab548a8447,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-17,2026-09-17T01:34:15Z
+F:\wt-110v2,worktree(ofn-node lane),-,,,,,2026-09-03,2026-09-17T01:34:15Z
+F:\wt-affective-integration-plan-20260906,worktree(ofn-node lane),git,codex/affective-integration-plan-20260906,692decb05851,,11,2026-09-06,2026-09-17T01:34:15Z
+F:\wt-audit10h-build-20260909,worktree(ofn-node lane),git,codex/audit10h-build-20260909,3065bb8733cd,,51213,2026-09-09,2026-09-17T01:34:15Z
+F:\wt-autonomy-completion-20260913,worktree(ofn-node lane),git,codex/autonomy-completion-20260913,2ccf9ec7fc98,,21,2026-09-13,2026-09-17T01:34:15Z
+F:\wt-autonomy-full-20260912,worktree(ofn-node lane),git,agent/autonomy-full-20260912-181321,9f4a1185da6e,,0,2026-09-12,2026-09-17T01:34:15Z
+F:\wt-autonomy-runtime-20260913,worktree(ofn-node lane),git,agent/autonomy-runtime-20260913-013905,3a9133472bfe,,0,2026-09-13,2026-09-17T01:34:15Z
+F:\wt-autonomy-tcb-recovery-20260913,worktree(ofn-node lane),git,codex/autonomy-tcb-recovery-20260913,e553a6f77d2d,,0,2026-09-13,2026-09-17T01:34:15Z
+F:\wt-b2-push,worktree(ofn-node lane),git,cursor/painting-public-lead-form-01b4,88f13c70dbcb,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-08,2026-09-17T01:34:15Z
+F:\wt-buysw-v03,worktree(ofn-node lane),git,fix/buysw-bridge-v03,2aac8f3312e9,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-03,2026-09-17T01:34:15Z
+F:\wt-capability-school-20260905,worktree(ofn-node lane),git,codex/capability-school-20260905,17f761518dde,,34,2026-09-05,2026-09-17T01:34:15Z
+F:\wt-cheap-first-loop-20260906,worktree(ofn-node lane),git,codex/cheap-first-loop-20260906,692decb05851,,50894,2026-09-06,2026-09-17T01:34:15Z
+F:\wt-consolidation-20260915,worktree(ofn-node lane),git,agent/octopus-final-sync-20260915-211213,19796f3b0dee,,0,2026-09-15,2026-09-17T01:34:15Z
+F:\wt-cortex-connect-all-20260910,worktree(ofn-node lane),git,codex/cortex-connect-all-20260910,0f7977a2828d,,44033,2026-09-10,2026-09-17T01:34:15Z
+F:\wt-debug-mp-ex1-ex2-20260907,worktree(ofn-node lane),git,codex/debug-mp-ex1-ex2-20260907,ba5d239fa776,https://github.com/ari-OCTOPUS/ofn-node.git,6,2026-09-07,2026-09-17T01:34:15Z
+F:\wt-docs,worktree(ofn-node lane),git,docs/octopus-os-pack-20260902,7337ddd9bcb5,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-dsl,worktree(ofn-node lane),git,chore/dead-source-labels-20260902,bbaac4c840c9,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-economic-learning,worktree(ofn-node lane),git,HEAD,45dd9133dc36,https://github.com/ari-OCTOPUS/ofn-node.git,2,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-eti-action-canary-20260912,worktree(ofn-node lane),git,agent/eti-action-canary-20260912-170130,12c98a459edf,,0,2026-09-12,2026-09-17T01:34:15Z
+F:\wt-eti-shadow-20260911,worktree(ofn-node lane),git,agent/eti-shadow-20260911-181948,c499688bfa8c,,1,2026-09-11,2026-09-17T01:34:15Z
+F:\wt-executor-safety-20260915,worktree(ofn-node lane),git,codex/executor-safety-20260915,c0bd322b811d,,0,2026-09-15,2026-09-17T01:34:15Z
+F:\wt-gate,worktree(ofn-node lane),-,,,,,2026-09-03,2026-09-17T01:34:15Z
+F:\wt-goal-governance-census-20260906,worktree(ofn-node lane),git,codex/goal-governance-census-20260906,692decb05851,,1,2026-09-06,2026-09-17T01:34:15Z
+F:\wt-gov6,worktree(ofn-node lane),-,,,,,2026-09-03,2026-09-17T01:34:15Z
+F:\wt-halt,worktree(ofn-node lane),git,feat/halt-run-gate-chaos-20260902,2ab1fe7ce0b8,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-incidents,worktree(ofn-node lane),git,docs/octopus-os-incidents-20260902,a753505ddc12,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-landing,worktree(ofn-node lane),git,landing/release-p0-20260902,c41df9372f78,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-leads-verify-20260905,worktree(ofn-node lane),git,feat/leads-master-73,38b8c0b4400d,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-05,2026-09-17T01:34:15Z
+F:\wt-main-check,worktree(ofn-node lane),git,HEAD,dba9971a8026,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-17,2026-09-17T01:34:15Z
+F:\wt-mp-exec-ex1-ex2-20260907,worktree(ofn-node lane),git,codex/mp-exec-ex1-ex2-20260907,ba5d239fa776,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-07,2026-09-17T01:34:15Z
+F:\wt-native-cognition-20260913,worktree(ofn-node lane),git,autonomy/native-cognition-20260913,ff1061f5077a,,5,2026-09-13,2026-09-17T01:34:15Z
+F:\wt-next-20260911-mirror,worktree(ofn-node lane),git,codex/next-20260911-mirror,cbe029d3bd45,,51221,2026-09-11,2026-09-17T01:34:15Z
+F:\wt-octopus-hardware-discovery-20260915,worktree(ofn-node lane),git,codex/hardware-discovery-20260915,2d6b823cb191,,17,2026-09-15,2026-09-17T01:34:15Z
+F:\wt-p1,worktree(ofn-node lane),git,feat/p1-envelope-runstore-20260902,3d52d7d1aabc,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-p37,worktree(ofn-node lane),git,fix/p37-final,0cf684d50b0c,https://github.com/ari-OCTOPUS/ofn-node.git,2,2026-09-01,2026-09-17T01:34:15Z
+F:\wt-parallel-complete-20260911,worktree(ofn-node lane),git,codex/parallel-complete-20260911,b35197f83944,,45301,2026-09-11,2026-09-17T01:34:15Z
+F:\wt-pr71,worktree(ofn-node lane),git,pr71-rebase,2c5b99baa6dd,https://github.com/ari-OCTOPUS/ofn-node.git,1,2026-09-17,2026-09-17T01:34:15Z
+F:\wt-remote-witness-20260913,worktree(ofn-node lane),git,codex/remote-witness-182-20260913,4b29c28681c6,,0,2026-09-13,2026-09-17T01:34:15Z
+F:\wt-rev,worktree(ofn-node lane),git,feat/campaign-envelope-20260902,81f154f974e4,https://github.com/ari-OCTOPUS/ofn-node.git,1,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-revenue-megaplan-20260905,worktree(ofn-node lane),git,codex/revenue-megaplan-20260905,50d15e4f43bc,,50876,2026-09-05,2026-09-17T01:34:15Z
+F:\wt-rootfix-20260916,worktree(ofn-node lane),git,rootfix/phase1-rca-20260916,bb286c028e2c,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-16,2026-09-17T01:34:15Z
+F:\wt-s2b-c,worktree(ofn-node lane),-,,,,,2026-09-01,2026-09-17T01:34:15Z
+F:\wt-self-awareness,worktree(ofn-node lane),git,HEAD,00e9b9150e55,https://github.com/ari-OCTOPUS/ofn-node.git,4,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-self-completing-doctor,worktree(ofn-node lane),git,lane/self-completing-doctor,44129564c46a,https://github.com/ari-OCTOPUS/ofn-node.git,1,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-sm,worktree(ofn-node lane),-,,,,,2026-09-03,2026-09-17T01:34:15Z
+F:\wt-t04,worktree(ofn-node lane),git,t04-gap-scan-tmp,b10f23f1545c,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-tg-claim-audit-20260910,worktree(ofn-node lane),git,HEAD,1f941fe0e721,,51215,2026-09-10,2026-09-17T01:34:15Z
+F:\wt-transform-revenue-20260911,worktree(ofn-node lane),git,codex/transform-revenue-20260911,32175fa68737,,51217,2026-09-11,2026-09-17T01:34:15Z
+F:\wt-waiver,worktree(ofn-node lane),git,feat/waiver-send-gate-test-20260902,a5f7a6c7067c,https://github.com/ari-OCTOPUS/ofn-node.git,0,2026-09-02,2026-09-17T01:34:15Z
+F:\wt-wild-arena-20260913,worktree(ofn-node lane),git,codex/wild-arena-20260913,d936e07cca10,,0,2026-09-13,2026-09-17T01:34:15Z
+F:\wt-ziman-cycle-repair-20260910,worktree(ofn-node lane),git,repair/ziman-cycle-4-readiness,06e7f6462e92,https://github.com/ari-OCTOPUS/ofn-node.git,4,2026-09-10,2026-09-17T01:34:15Z
+F:\wt-ziman-round2-seam-20260906,worktree(ofn-node lane),git,codex/ziman-round2-seam-20260906,692decb05851,,50894,2026-09-06,2026-09-17T01:34:15Z
+F:\zz,aux,-,,,,,2026-08-31,2026-09-17T01:34:15Z
+F:\recon-clones-20260917\Armin,recon-isolated-clone,git,main,4193de1fd116,https://github.com/ari-OCTOPUS/Armin.git,0,2026-09-17,2026-09-17T01:34:15Z
+F:\recon-clones-20260917\langar,recon-isolated-clone,git,main,ec039bb7cd79,https://github.com/ari-OCTOPUS/langar.git,0,2026-09-17,2026-09-17T01:34:15Z
+F:\recon-clones-20260917\vbaa-patches,recon-isolated-clone,git,main,16d3bff320a9,https://github.com/ari-OCTOPUS/vbaa-patches.git,2,2026-09-17,2026-09-17T01:34:15Z
+F:\recon-clones-20260917\ofn-node-main,recon-isolated-clone,git,main-recon,dba9971a8026,F:/ofn-node,0,2026-09-17,2026-09-17T01:34:15Z
+C:\Users\Armin\.zcode,agent-config-memories,-,,,,,2026-08-20,2026-09-17T01:34:15Z

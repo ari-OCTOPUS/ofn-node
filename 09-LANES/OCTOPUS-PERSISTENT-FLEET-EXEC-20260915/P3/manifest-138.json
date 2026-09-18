@@ -1,0 +1,67 @@
+{
+  "schema": "p3_restore_manifest.v1",
+  "utc": "2026-09-15T03:37:09Z",
+  "source_host": "138",
+  "commander_node_id": "138",
+  "files": [
+    {
+      "path": "/home/ari/ofn/state/fleet-memory/fleet_facts.jsonl",
+      "rel": "fleet-memory/fleet_facts.jsonl",
+      "sha256": "adff9efbec2e1e682977750e0c2e4c87e9c41b65ea136edf5a741dc2badf0d6d",
+      "bytes": 455
+    },
+    {
+      "path": "/home/ari/ofn/state/fleet-memory/schemas/fleet_decision.v1.schema.json",
+      "rel": "fleet-memory/schemas/fleet_decision.v1.schema.json",
+      "sha256": "ef61d791fb527020210fa3e7f41d965e0d61b10c494606241f7e084566519115",
+      "bytes": 1149
+    },
+    {
+      "path": "/home/ari/ofn/state/fleet-memory/schemas/fleet_fact.v1.schema.json",
+      "rel": "fleet-memory/schemas/fleet_fact.v1.schema.json",
+      "sha256": "db44a3f0c674c7308135498412ab1835d2ab4df3c0e801b0ea8d2a31747418cb",
+      "bytes": 1192
+    },
+    {
+      "path": "/home/ari/ofn/state/fleet-memory/schemas/fleet_hypothesis.v1.schema.json",
+      "rel": "fleet-memory/schemas/fleet_hypothesis.v1.schema.json",
+      "sha256": "0ee946f450590fffa2061414712cbc5804b117f1c86f9b8d97342e031c577686",
+      "bytes": 1308
+    },
+    {
+      "path": "/home/ari/ofn/state/fleet-jobs/__pycache__/fleet_job_sm.cpython-313.pyc",
+      "rel": "fleet-jobs/__pycache__/fleet_job_sm.cpython-313.pyc",
+      "sha256": "f24c2ff8d7f4bbe3356a59aa5fe5e8400022c939daefa29570302a100a8a6329",
+      "bytes": 9573
+    },
+    {
+      "path": "/home/ari/ofn/state/fleet-jobs/fleet_job_sm.py",
+      "rel": "fleet-jobs/fleet_job_sm.py",
+      "sha256": "6ce7fd1609b672d9f33e52a543a623eb5103e5e9077744cf3a452967b3f311e2",
+      "bytes": 7090
+    },
+    {
+      "path": "/home/ari/ofn/state/fleet-jobs/fleet_jobs.jsonl",
+      "rel": "fleet-jobs/fleet_jobs.jsonl",
+      "sha256": "a71a8888d10911508180fd21a26ac4598208a47d3169edced0025bdd82ed693f",
+      "bytes": 7207
+    },
+    {
+      "path": "/home/ari/ofn/state/fleet-jobs/idempotency_index.json",
+      "rel": "fleet-jobs/idempotency_index.json",
+      "sha256": "0d99b91ca7c781ea906ada349414d9b7299fe812bfbb298744365b170a138fac",
+      "bytes": 140
+    },
+    {
+      "path": "/home/ari/ofn/state/fleet-jobs/schemas/fleet_job.v1.schema.json",
+      "rel": "fleet-jobs/schemas/fleet_job.v1.schema.json",
+      "sha256": "49eb6c0be2f4a9afbd0520feba4cff00500bab73f4b5eae7a89695138ab70d59",
+      "bytes": 1710
+    }
+  ],
+  "deny": [
+    "open-file sqlite copy as backup proof",
+    "dual-commander",
+    "180 sole writer"
+  ]
+}

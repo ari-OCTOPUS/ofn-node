@@ -1,0 +1,51 @@
+{
+  "schema": "octopus.domain-execution-step.v1",
+  "step": "1_shopify_domain_added",
+  "observed_utc": "2026-09-07T22:58:38.1910597Z",
+  "authority": "OWNER-DECISION-D0-PRIMARY-20260908.json",
+  "shop_admin_handle": "ziman-gift",
+  "shop_original_myshopify": "pwqytn-kp.myshopify.com",
+  "domain": "ziman-gift.com.au",
+  "domain_id": "143263268964",
+  "admin_url": "https://admin.shopify.com/store/ziman-gift/settings/domains/143263268964",
+  "result": "DOMAIN_ADDED_NEEDS_SETUP",
+  "provider_observed_in_shopify": "GoDaddy",
+  "type_observed": "Redirects to ziman-gift.com",
+  "dns_instructions": {
+    "remove": [
+      {
+        "type": "A",
+        "name": "@",
+        "value": "13.248.243.5"
+      }
+    ],
+    "update": [
+      {
+        "type": "A",
+        "name": "@",
+        "from": "76.223.105.230",
+        "to": "23.227.38.65"
+      },
+      {
+        "type": "CNAME",
+        "name": "www",
+        "from": "ziman-gift.com.au",
+        "to": "shops.myshopify.com"
+      }
+    ]
+  },
+  "automatic_connect": {
+    "clicked": true,
+    "observed_result": "button remained loading; no resulting provider tab observed",
+    "dns_effect": "not_verified"
+  },
+  "manual_path": {
+    "observed_dns_management_url": "https://dcc.godaddy.com/control/portfolio",
+    "current_page": "GoDaddy sign in",
+    "status": "waiting_for_owner_login"
+  },
+  "primary_changed": false,
+  "dns_changed_by_agent": false,
+  "tls": "not_provisioned_in_shopify",
+  "next": "After GoDaddy login recheck DNS and Shopify before manual change; automatic action outcome was not proven"
+}

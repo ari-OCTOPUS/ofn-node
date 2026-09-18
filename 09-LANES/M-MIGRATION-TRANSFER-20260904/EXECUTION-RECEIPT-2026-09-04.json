@@ -1,0 +1,75 @@
+{
+  "schema": "octopus-migration-execution-receipt.v1",
+  "observed_utc": "2026-09-04T10:42:51Z",
+  "authorization": "OWNER DECISION — GO-MIRROR-DRILL, confirmed in chat",
+  "mirror": {
+    "source": "node138:/home/ari/ofn",
+    "head": "2cd67aa43a73d6f9cf4e9a62d7e96cd52502d51e",
+    "origin_main_before": "e00c8ed5be7ec6609c600bb7a5bc3b99ace3c3e9",
+    "preflight": "PASS",
+    "ahead": 5,
+    "behind": 0,
+    "rescue_branch": "138-main-20260904",
+    "result": "BLOCKED_403_REMOTE_AUTHORIZATION",
+    "remote_changed": false,
+    "untracked_preserved": 28,
+    "sensitive_committed_path_hits": 0
+  },
+  "drill": {
+    "order": "A_then_B",
+    "code_commit": "4bbfccf3b94192615c603a0ce87973d81bcbb1e1",
+    "timer_stopped": false,
+    "ofn_service_stopped": false,
+    "A": {
+      "status": "PASSED",
+      "source": "node138:/home/ari/ofn",
+      "target_archive": "/home/ari/archive_drill-001-20260904T1022Z",
+      "result_sha256": "6a9d4b6949f7c7cbd05decc6e9fb233f7558959238602be66ab9aa3e32d6808c",
+      "producer_exit": 0,
+      "main_suite": "PASS",
+      "fault_gate": "FAIL_CLOSED",
+      "source_rehash": "UNCHANGED"
+    },
+    "B": {
+      "status": "PASSED",
+      "source": "node138:/home/ari/ofn",
+      "target_archive": "/opt/octopus/archive_drill-001-B-20260904T1028Z",
+      "result_sha256": "066ea43509c77e630ad171bf01de18669117ee3b7cfc0edd0645b286484c789b",
+      "producer_exit": 0,
+      "main_suite": "PASS",
+      "fault_gate": "FAIL_CLOSED",
+      "source_rehash": "UNCHANGED",
+      "node180_role": "UNDECIDED",
+      "service_binding": "NONE_OBSERVED_BY_DESIGN"
+    }
+  },
+  "phase4_runtime_matrix": {
+    "path": "F:/backup/09-LANES/M-MIGRATION-TRANSFER-20260904/RUNTIME-MATRIX-2026-09-04.json",
+    "sha256": "98b0ddfd10058f5d828d951110d6a3c7dbfb0059f51d93137c80893c579a4f9f",
+    "observed_utc_window": "2026-09-04T10:45:14Z/2026-09-04T10:45:17Z",
+    "component_rows": 14,
+    "probe_scope": "sanitized WorkingDirectory/FragmentPath/MainPID/ActiveState/SubState only",
+    "result": "MATRIX_RECORDED_UNVERIFIED_GAPS"
+  },
+  "documentation_sync": {
+    "scope": "pointer-only Obsidian/handoff notes; no runtime or state mutation",
+    "local_obsidian": {
+      "path": "C:/Users/Armin/Desktop/اختاپوس بک لپ/OCTOPUS-LAB/02-agent-memory-and-handoffs/MIGRATION-HANDOFF-2026-09-04.md",
+      "sha256": "df8315e46d0ad404973d29d6293ea445cb2bbc03877e89a86d4c2740326d78ea"
+    },
+    "node138": {"path": "/home/ari/migration-handoff-20260904/README.md", "sha256": "df8315e46d0ad404973d29d6293ea445cb2bbc03877e89a86d4c2740326d78ea", "mode": "0600"},
+    "node180": {"path": "/opt/octopus/migration-handoff-20260904/README.md", "sha256": "df8315e46d0ad404973d29d6293ea445cb2bbc03877e89a86d4c2740326d78ea", "mode": "0600"}
+  },
+  "post_documentation_readback": {
+    "node138": {"observed_utc": "2026-09-04T10:42:49Z", "ofn_service": "active", "octopus_selfmodel_timer": "active", "drill_root": "absent", "source_head": "2cd67aa43a73d6f9cf4e9a62d7e96cd52502d51e"},
+    "node180": {"observed_utc": "2026-09-04T10:42:51Z", "octopus_afferent_lab": "active", "octopus_organism_lab": "active", "drill_root": "absent", "lab_head": "28209effa84af68a85ab60329c77dca81c6cea00", "mesh_head": "17bcff3f50bec92e381d31539f3645d31f8fd95b"},
+    "result": "services_and_protected_roots_unchanged"
+  },
+  "limitations": [
+    "The drill proves isolated advisory source/state portability, not full-organism service cutover.",
+    "The long-running ofn.service loaded revision remains unverified.",
+    "GitHub mirror remains stale until the origin credential/authorization is repaired by the owner.",
+    "No service, timer, wire, gate, secret, message, payment, or production cutover was changed."
+  ],
+  "rollback": "A and B are preserved under dated archive_ paths; source /home/ari/ofn and its advisory state were rehashed unchanged."
+}

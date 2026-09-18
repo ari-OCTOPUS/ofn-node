@@ -1,0 +1,309 @@
+{
+  "schema": "octopus.node_readback.v1",
+  "lane_id": "MP-DEBUG-20260907",
+  "order": "MP-EXEC-ORDER-v3",
+  "gov_version": "V8",
+  "ladder": "L2",
+  "requested_node": "node180",
+  "connection": {
+    "ssh_alias": "root",
+    "configured_hostname": "192.168.0.180",
+    "configured_user": "root",
+    "config_provenance": {
+      "path": "C:/Users/Armin/.ssh/config",
+      "fields": "Host / HostName / User only",
+      "verified_by": "Parent agent read these exact configuration fields and supplied the alias; this subagent did not read configuration payloads.",
+      "received_parent_instruction": "Use configured Host root for node180; no alias for node182 and no guessed target."
+    },
+    "options": {
+      "BatchMode": "yes",
+      "ConnectTimeout_seconds": 20,
+      "ServerAliveInterval_seconds": 5,
+      "ServerAliveCountMax": 3,
+      "StrictHostKeyChecking": "yes",
+      "UpdateHostKeys": "no",
+      "pseudo_terminal": false
+    },
+    "remote_command": "OCTOPUS_READBACK_TARGET=board180 python3 -B -",
+    "remote_probe_budget_seconds": 15,
+    "per_subprocess_timeout_max_seconds": 3,
+    "attempt_count": 1,
+    "retry_count": 0
+  },
+  "local_utc_started": "2026-09-06T23:46:52.7637991Z",
+  "local_utc_finished": "2026-09-06T23:46:54.6941862Z",
+  "ssh_exit_code": 0,
+  "tool_chunk_id": "3a1db0",
+  "observation": {
+    "hostname": "octopus-continuity-180",
+    "listener_scan": {
+      "exit_code": 0,
+      "ports": [
+        8081,
+        9101
+      ],
+      "scope": "TCP LISTEN sockets visible to current SSH identity; missing PID ownership may reflect permission"
+    },
+    "listeners": [
+      {
+        "local_address": "0.0.0.0:8081",
+        "owners": [
+          {
+            "pid": 861304,
+            "process_name": "llama-server.f2"
+          }
+        ],
+        "port": 8081
+      }
+    ],
+    "method": "read-only systemctl unit state and ss listener identity; no restart; no HTTP model generation",
+    "model_ctx": [
+      {
+        "actor": "unobserved",
+        "ctx_size": 8192,
+        "pid": 861304,
+        "process_name": "llama-server.f2",
+        "status": "measured_numeric_ctx_only"
+      }
+    ],
+    "quality_or_closed_loop": "unobserved",
+    "unit_scan": {
+      "cap": 32,
+      "exit_code": 0,
+      "matched_count": 16,
+      "scope": "loaded units, not all installed unit files",
+      "selector": "loaded service units whose names match llama|octopus|sensorium|world|mesh|ofn|witness"
+    },
+    "units": [
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "Tue 2026-08-25 06:49:16 UTC",
+          "ActiveState": "active",
+          "ExecMainStartTimestamp": "Tue 2026-08-25 06:49:16 UTC",
+          "Id": "octopus-afferent-lab.service",
+          "MainPID": "4218",
+          "SubState": "running"
+        },
+        "unit": "octopus-afferent-lab.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "Wed 2026-08-26 23:28:21 UTC",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:46:34 UTC",
+          "Id": "octopus-cognitive-worker.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-cognitive-worker.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:44:46 UTC",
+          "Id": "octopus-drain.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-drain.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "Tue 2026-08-25 05:30:13 UTC",
+          "ActiveState": "active",
+          "ExecMainStartTimestamp": "Tue 2026-08-25 05:30:08 UTC",
+          "Id": "octopus-first-stage-proof.service",
+          "MainPID": "0",
+          "SubState": "exited"
+        },
+        "unit": "octopus-first-stage-proof.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "Tue 2026-08-25 05:30:09 UTC",
+          "ActiveState": "active",
+          "ExecMainStartTimestamp": "Tue 2026-08-25 05:30:09 UTC",
+          "Id": "octopus-gateway.service",
+          "MainPID": "641",
+          "SubState": "running"
+        },
+        "unit": "octopus-gateway.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "activating",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:46:51 UTC",
+          "Id": "octopus-heartbeat.service",
+          "MainPID": "887140",
+          "SubState": "start"
+        },
+        "unit": "octopus-heartbeat.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:00:20 UTC",
+          "Id": "octopus-life-currency.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-life-currency.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "Sun 2026-09-06 12:18:27 UTC",
+          "ActiveState": "active",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 12:18:27 UTC",
+          "Id": "octopus-llama-lab.service",
+          "MainPID": "861304",
+          "SubState": "running"
+        },
+        "unit": "octopus-llama-lab.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:45:10 UTC",
+          "Id": "octopus-mesh-consume.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-mesh-consume.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:46:51 UTC",
+          "Id": "octopus-mesh-heartbeat.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-mesh-heartbeat.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:00:01 UTC",
+          "Id": "octopus-mesh-send.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-mesh-send.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:45:06 UTC",
+          "Id": "octopus-mirror.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-mirror.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "Tue 2026-08-25 13:17:33 UTC",
+          "ActiveState": "active",
+          "ExecMainStartTimestamp": "Tue 2026-08-25 13:17:33 UTC",
+          "Id": "octopus-organism-lab.service",
+          "MainPID": "42687",
+          "SubState": "running"
+        },
+        "unit": "octopus-organism-lab.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:45:01 UTC",
+          "Id": "octopus-reply-outbox.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-reply-outbox.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "Thu 2026-09-03 14:10:28 UTC",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Thu 2026-09-03 14:10:28 UTC",
+          "Id": "octopus-soak-lab.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-soak-lab.service"
+      },
+      {
+        "exit_code": 0,
+        "properties": {
+          "ActiveEnterTimestamp": "",
+          "ActiveState": "inactive",
+          "ExecMainStartTimestamp": "Sun 2026-09-06 23:00:01 UTC",
+          "Id": "octopus-soak-witness.service",
+          "MainPID": "0",
+          "SubState": "dead"
+        },
+        "unit": "octopus-soak-witness.service"
+      }
+    ],
+    "utc_finished": "2026-09-06T23:46:54.646932+00:00",
+    "utc_started": "2026-09-06T23:46:53.776413+00:00",
+    "whole_organism_health": "unobserved",
+    "witness_sensorium_file_metadata": {
+      "reason": "No exact witness/sensorium artifact path supplied in MP-EXEC-ORDER-v3; no path guessed and no ledger payload read.",
+      "status": "unobserved"
+    }
+  },
+  "verdict": {
+    "status": "healthy_for_observed_scope",
+    "scope": "Read-only transport and selected service/listener/context metadata only; no application request or actual decision-loop test",
+    "model_process_present": true,
+    "model_unit": "octopus-llama-lab.service",
+    "service_pid_matches_8081_listener": true,
+    "observed_pid": 861304,
+    "observed_numeric_ctx_size": 8192,
+    "bb2_actor": "unobserved",
+    "model_quality": "unobserved",
+    "whole_organism_health": "unobserved",
+    "node182_status": "unobserved",
+    "inactive_unit_interpretation": "Inactive/dead is a measured systemd state, not sufficient by itself to classify a worker as failed or idle_waiting. Exit results, scheduling/trigger contract, expected cadence and actual work were not collected.",
+    "activation_interpretation": "Heartbeat activating/start was a transient observed state; its eventual outcome was not measured.",
+    "endpoint_boundary": "Listener PID and ctx were sampled successively within the recorded interval, not atomically; no model generation was requested."
+  },
+  "preserved_prior_receipt": "F:/backup/09-LANES/MP-DEBUG-20260907/NODES-READBACK.json",
+  "relation_to_prior_receipt": "Adds a successful configured-alias observation for node180; does not alter the failed guessed-alias observations or imply node182 was probed successfully.",
+  "mutations": {
+    "local": [
+      "Add N180-READBACK.json only"
+    ],
+    "remote_file_writes": 0,
+    "service_or_timer_changes": 0,
+    "http_model_generations": 0,
+    "existing_receipts_overwritten": 0,
+    "sensitive_output_policy": "No secrets, environment files, complete process command lines, service ExecStart arguments or log payloads were printed or copied. Process argv was inspected only to extract a numeric context-size flag."
+  },
+  "next_safe_action": "Retain BB-2 actor and O-5 model quality as unobserved. This metadata observation is not authorization to replace/restart a model or to label the real decision loop healthy.",
+  "rollback": "Keep this historical receipt; append a newer observation or correction if needed."
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "owner-ratify-gate9.v1",
+  "id": "OWNER-RATIFY-GATE9-MISSION-RUNNER-20260905",
+  "lane": "T-LANE-TRIAGE-20260905",
+  "decided_at_local": "2026-09-05T19:40+10",
+  "decided_at_utc": "2026-09-05T09:40:00Z",
+  "decided_by": "owner (this chat, AskQuestion d4b)",
+  "allow_sanctum": true,
+  "scope": "this_file_this_sha256_only",
+  "file": "_ops/os_v1/mission_runner.py",
+  "sha256": "522AB60E53591293EFB2CFAE3797AC2AA1C9953AEFBE90990A2A3D16C8FA816A",
+  "lines": 303,
+  "shown_in": "09-LANES/T-LANE-TRIAGE-20260905/GATE-9-SEE-DIFF.md",
+  "does_not": [
+    "set PatchSet.gate default allow_sanctum=True",
+    "authorize a later sanctum file or a later hash of this file",
+    "authorize send, payment, or flag enable"
+  ]
+}

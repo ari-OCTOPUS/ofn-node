@@ -1,0 +1,174 @@
+﻿==== NODE 138 ====
+ssh : root@192.168.0.138: Permission denied (publickey).
+At C:\Users\Armin\AppData\Local\Temp\ps-script-41378e41-4069-4575-965b-f386ae46865d.ps1:89 char:8
++   $r = ssh -o BatchMode=yes -o ConnectTimeout=25 board138 $cmd 2>&1
++        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (root@192.168.0....ed (publickey).:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+DietPi
+PRETTY_NAME=Debian GNU/Linux 13 (trixie)
+VERSION_CODENAME=trixie
+BOOT_ID=4f3f2c05-5703-4cbb-92c3-6fed8ff708bd
+octopus-bridge.service
+octopus-control-router.service
+octopus-cycle-settler.service
+octopus-router.service
+octopus-supervisor.service
+octopus-verify-dispatcher.service
+ofn-heartbeat.service
+ofn.service
+19
+/usr/lib/aarch64-linux-gnu/librknnrt.so
+/usr/lib/librknnrt.so
+/usr/lib/librknnrt.so.1
+/dev/dri/renderD128
+/dev/dri/renderD129
+of:NnpuT(null)Crockchip,rk3588-rknpu
+Python 3.13.5
+git version 2.47.3
+
+==== NODE 180 ====
+2026-09-15T03:05:58Z
+DietPi
+PRETTY_NAME=Debian GNU/Linux 13 (trixie)
+VERSION_CODENAME=trixie
+BOOT_ID=4f3f2c05-5703-4cbb-92c3-6fed8ff708bd
+octopus-bridge.service
+octopus-control-router.service
+octopus-cycle-settler.service
+octopus-router.service
+octopus-supervisor.service
+octopus-verify-dispatcher.service
+ofn-heartbeat.service
+ofn.service
+19
+/usr/lib/aarch64-linux-gnu/librknnrt.so
+/usr/lib/librknnrt.so
+/usr/lib/librknnrt.so.1
+/dev/dri/renderD128
+/dev/dri/renderD129
+of:NnpuT(null)Crockchip,rk3588-rknpu
+Python 3.13.5
+git version 2.47.3
+
+==== NODE 182 ====
+2026-09-15T03:05:59Z
+DietPi
+PRETTY_NAME=Debian GNU/Linux 13 (trixie)
+VERSION_CODENAME=trixie
+BOOT_ID=4f3f2c05-5703-4cbb-92c3-6fed8ff708bd
+octopus-bridge.service
+octopus-control-router.service
+octopus-cycle-settler.service
+octopus-router.service
+octopus-supervisor.service
+octopus-verify-dispatcher.service
+ofn-heartbeat.service
+ofn.service
+19
+/usr/lib/aarch64-linux-gnu/librknnrt.so
+/usr/lib/librknnrt.so
+/usr/lib/librknnrt.so.1
+/dev/dri/renderD128
+/dev/dri/renderD129
+of:NnpuT(null)Crockchip,rk3588-rknpu
+Python 3.13.5
+git version 2.47.3
+
+==== NODE 100 ====
+2026-09-15T03:06:00Z
+DietPi
+PRETTY_NAME=Debian GNU/Linux 13 (trixie)
+VERSION_CODENAME=trixie
+BOOT_ID=4f3f2c05-5703-4cbb-92c3-6fed8ff708bd
+octopus-bridge.service
+octopus-control-router.service
+octopus-cycle-settler.service
+octopus-router.service
+octopus-supervisor.service
+octopus-verify-dispatcher.service
+ofn-heartbeat.service
+ofn.service
+19
+/usr/lib/aarch64-linux-gnu/librknnrt.so
+/usr/lib/librknnrt.so
+/usr/lib/librknnrt.so.1
+/dev/dri/renderD128
+/dev/dri/renderD129
+of:NnpuT(null)Crockchip,rk3588-rknpu
+Python 3.13.5
+git version 2.47.3
+
+==== NODE 160 ====
+2026-09-15T03:06:00Z
+DietPi
+PRETTY_NAME=Debian GNU/Linux 13 (trixie)
+VERSION_CODENAME=trixie
+BOOT_ID=4f3f2c05-5703-4cbb-92c3-6fed8ff708bd
+octopus-bridge.service
+octopus-control-router.service
+octopus-cycle-settler.service
+octopus-router.service
+octopus-supervisor.service
+octopus-verify-dispatcher.service
+ofn-heartbeat.service
+ofn.service
+19
+/usr/lib/aarch64-linux-gnu/librknnrt.so
+/usr/lib/librknnrt.so
+/usr/lib/librknnrt.so.1
+/dev/dri/renderD128
+/dev/dri/renderD129
+of:NnpuT(null)Crockchip,rk3588-rknpu
+Python 3.13.5
+git version 2.47.3
+
+==== NODE 193 ====
+2026-09-15T03:06:00Z
+DietPi
+PRETTY_NAME=Debian GNU/Linux 13 (trixie)
+VERSION_CODENAME=trixie
+BOOT_ID=4f3f2c05-5703-4cbb-92c3-6fed8ff708bd
+octopus-bridge.service
+octopus-control-router.service
+octopus-cycle-settler.service
+octopus-router.service
+octopus-supervisor.service
+octopus-verify-dispatcher.service
+ofn-heartbeat.service
+ofn.service
+19
+/usr/lib/aarch64-linux-gnu/librknnrt.so
+/usr/lib/librknnrt.so
+/usr/lib/librknnrt.so.1
+/dev/dri/renderD128
+/dev/dri/renderD129
+of:NnpuT(null)Crockchip,rk3588-rknpu
+Python 3.13.5
+git version 2.47.3
+
+==== NODE 114 ====
+2026-09-15T03:06:01Z
+DietPi
+PRETTY_NAME=Debian GNU/Linux 13 (trixie)
+VERSION_CODENAME=trixie
+BOOT_ID=4f3f2c05-5703-4cbb-92c3-6fed8ff708bd
+octopus-bridge.service
+octopus-control-router.service
+octopus-cycle-settler.service
+octopus-router.service
+octopus-supervisor.service
+octopus-verify-dispatcher.service
+ofn-heartbeat.service
+ofn.service
+19
+/usr/lib/aarch64-linux-gnu/librknnrt.so
+/usr/lib/librknnrt.so
+/usr/lib/librknnrt.so.1
+/dev/dri/renderD128
+/dev/dri/renderD129
+of:NnpuT(null)Crockchip,rk3588-rknpu
+Python 3.13.5
+git version 2.47.3
+

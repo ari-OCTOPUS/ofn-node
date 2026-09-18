@@ -1,0 +1,34 @@
+{
+  "schema": "octopus.stale-beat-fix.v1",
+  "lane": "U-WHY-NOT-LIVE-20260905",
+  "vantage": "this_host_only",
+  "asserted_ip": "192.168.0.191",
+  "scope": "this_host_only",
+  "claim_type": "observation",
+  "live_organism_claim": false,
+  "before": {
+    "source": "debug-f16420.log runId=stale-beat-2 + ORGANISM-STATE.json",
+    "api_ts": "2026-09-04T14:46:26",
+    "post_write_state": false,
+    "post_snapshot": true,
+    "post_memory_read": "OK",
+    "profile": "paper-full"
+  },
+  "after": {
+    "source": "debug-f16420.log runId=post-fix + GET http://127.0.0.1:8771/api/organism",
+    "organism_pid": 18452,
+    "api_ts": "2026-09-05T15:42:08",
+    "tick_phase": "after_snapshot",
+    "beat": 61575,
+    "started": "2026-09-05T15:41:32",
+    "early_write_http_bound": true,
+    "early_write_after_snapshot": true,
+    "profile": "bare"
+  },
+  "not_executed": [
+    "OCTOPUS-flags.cmd",
+    "RUN-ORGANISM.bat",
+    "Enable-ScheduledTask",
+    "Ollama start"
+  ]
+}

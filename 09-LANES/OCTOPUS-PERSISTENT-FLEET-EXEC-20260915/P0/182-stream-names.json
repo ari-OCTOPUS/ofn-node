@@ -1,0 +1,87 @@
+{
+  "account": "$G",
+  "streams": [
+    {
+      "name": "FEATURE",
+      "messages": 7353,
+      "bytes": 4964388,
+      "consumer_count": 0,
+      "created": "2026-08-22T08:34:03.923340719Z",
+      "subjects": [
+        "octopus.sensor.feature.>"
+      ]
+    },
+    {
+      "name": "LEG",
+      "messages": 0,
+      "bytes": 0,
+      "consumer_count": 0,
+      "created": "2026-08-16T13:14:40.824702254Z",
+      "subjects": [
+        "octopus.leg.>"
+      ]
+    },
+    {
+      "name": "OBSERVATION",
+      "messages": 3125,
+      "bytes": 6468725,
+      "consumer_count": 0,
+      "created": "2026-08-22T08:34:03.972348097Z",
+      "subjects": [
+        "octopus.sensor.observation.>"
+      ]
+    },
+    {
+      "name": "SENSORIUM",
+      "messages": 262,
+      "bytes": 469168,
+      "consumer_count": 0,
+      "created": "2026-08-22T08:34:03.999471624Z",
+      "subjects": [
+        "octopus.sensorium.>"
+      ]
+    },
+    {
+      "name": "SENSOR_HEALTH",
+      "messages": 1071,
+      "bytes": 962162,
+      "consumer_count": 0,
+      "created": "2026-08-22T08:34:04.005934231Z",
+      "subjects": [
+        "octopus.sensor.health.>",
+        "octopus.sensor.anomaly.>"
+      ]
+    },
+    {
+      "name": "WORLD",
+      "messages": 1575,
+      "bytes": 1829637,
+      "consumer_count": 0,
+      "created": "2026-08-22T08:34:04.013246153Z",
+      "subjects": [
+        "octopus.world.>"
+      ]
+    },
+    {
+      "name": "AUDIT",
+      "messages": 55425,
+      "bytes": 17029390,
+      "consumer_count": 0,
+      "created": "2026-08-16T13:14:40.822296938Z",
+      "subjects": [
+        "octopus.audit.>"
+      ]
+    },
+    {
+      "name": "COMMAND",
+      "messages": 0,
+      "bytes": 0,
+      "consumer_count": 0,
+      "created": "2026-08-16T13:14:40.823500617Z",
+      "subjects": [
+        "octopus.command.>"
+      ]
+    }
+  ],
+  "stream_count": 8
+}

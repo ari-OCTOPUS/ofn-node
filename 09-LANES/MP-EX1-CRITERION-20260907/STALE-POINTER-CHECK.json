@@ -1,0 +1,24 @@
+{
+  "schema": "octopus.ex1.stale_pointer_check.v1",
+  "H-STALE-1": {
+    "proposal_status_open": false,
+    "proposal_status_archived": true,
+    "current_says_not_passed": true,
+    "three_literal_pass": false,
+    "three_ex3": false
+  },
+  "H-STALE-2": {
+    "exec_blockers_none": true,
+    "exec_next_ex3": true,
+    "historical_left_intact": true,
+    "current_forbids_ex3": true,
+    "our_next_forbids_silent_ex3": true
+  },
+  "H-STALE-3": {
+    "debug_next_still_says_write_criterion": true,
+    "debug_file_not_edited": true,
+    "our_next_is_parked": true
+  },
+  "current_surfaces_ok": true,
+  "stale_reproduced": false
+}
