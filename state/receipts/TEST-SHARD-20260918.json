@@ -1,0 +1,49 @@
+{
+  "acceptance": "fleet ledger receipts.jsonl has test_shard SUCCEEDED on 3 distinct boards (>=2 required)",
+  "agent_version": "1.2.1-testshard-clockbase",
+  "at": "2026-09-18T03:02:26+00:00",
+  "bugs_found_and_fixed": [
+    "cross-field: shard_index>=shard_count passed validation -> generic spec cross_check hook",
+    "clock base: run_task ctx deadline_mono is time.time() (not monotonic); workload now budgets from max_seconds \u2014 live OverflowError task-f09a28425d3e574c a2",
+    "payload deps: pytest bundle needed py.py (single module) and root packages octopus_exec/octopus_observation/octopus_recovery/octopus_survival/shadow_homeostasis/contracts/web"
+  ],
+  "deployed_to": {
+    "100": "f87efd6e",
+    "114": "f87efd6e",
+    "160": "f87efd6e",
+    "193": "f87efd6e"
+  },
+  "notes": "failure delta vs 138 baseline (14) is env-dependent tests (state paths/services absent on workers); shared queue also drained 2 stale canary cpu_bench tasks (one ran on 160)",
+  "paired_test": "tests/test_compute_worker_test_shard.py \u2014 12-red -> 13-green (12 + wall-clock regression)",
+  "postimage_sha256": "f87efd6eeda025f98648416929e0b2f2d85ff14ed96953d1516add698570a4fe",
+  "preimage_sha256": "feaaf8d882f170a0957a468941e44a7825a597ed5266696c9fb08f59c0279bf3",
+  "profile": "test_shard v1 (allowlist: root/shard_index/shard_count/pylib; cross-check SHARD_INDEX_GE_COUNT)",
+  "results": [
+    {
+      "elapsed_s": 19.45,
+      "node": "100",
+      "shard": "0/6",
+      "summary": "58 failed, 1552 passed, 4 skipped, 3 errors in 13.74s"
+    },
+    {
+      "elapsed_s": 27.88,
+      "node": "160",
+      "shard": "2/6",
+      "summary": "63 failed, 1550 passed, 1 skipped, 1 warning, 3 errors in 18.05s"
+    },
+    {
+      "elapsed_s": 26.75,
+      "node": "193",
+      "shard": "1/6",
+      "summary": "62 failed, 1549 passed, 3 skipped, 1 warning, 3 errors in 17.13s"
+    }
+  ],
+  "schema": "octopus.receipt.v1",
+  "suite": {
+    "collected": 9700,
+    "per_shard": 1617,
+    "shard_count": 6
+  },
+  "what": "RUN-TO-COMPLETION item 5 \u2014 test_shard profile + first real work on idle boards",
+  "worker_source_of_truth": "state/fleet-compute/compute_worker.py"
+}
