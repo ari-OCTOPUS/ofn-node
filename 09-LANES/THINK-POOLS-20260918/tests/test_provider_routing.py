@@ -101,3 +101,27 @@ class TestBrainportToken(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTierGating(unittest.TestCase):
+    def test_strong_tier_excludes_the_free_small_model(self):
+        """Executing found this: 'free first' sent STRONG to a 0.6B local model."""
+        d = pr.decide(pin=None, states=LIVE_ALL, tier="strong")
+        self.assertNotEqual(d["chosen"], "local-llamacpp-180")
+        self.assertNotIn("local-llamacpp-180", d["order"])
+        self.assertEqual(d["min_rank"], 1)
+
+    def test_bulk_tier_still_prefers_free(self):
+        d = pr.decide(pin=None, states=LIVE_ALL, tier="standard")
+        self.assertEqual(d["chosen"], "local-llamacpp-180")
+        self.assertEqual(d["min_rank"], 0)
+
+    def test_pin_to_weak_provider_is_overridden_for_strong_tier(self):
+        d = pr.decide(pin="local-llamacpp-180", states=LIVE_ALL, tier="frontier")
+        self.assertNotEqual(d["chosen"], "local-llamacpp-180")
+        self.assertIn("UNDERPOWERED", d["reason"])
+
+    def test_strong_tier_with_only_weak_provider_yields_nothing(self):
+        states = {"local-llamacpp-180": {"state": "LIVE", "paid": False}}
+        d = pr.decide(pin=None, states=states, tier="strong")
+        self.assertIsNone(d["chosen"])

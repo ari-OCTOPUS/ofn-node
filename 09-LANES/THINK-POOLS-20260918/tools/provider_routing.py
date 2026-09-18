@@ -41,6 +41,26 @@ LEDGER = BASE / "config" / "brain-routing.jsonl"
 # Registry name -> the token brainport uses in its own model map.
 BRAINPORT_TOKENS = {"sakana-fugu": "fugu", "deepseek": "deepseek"}
 
+# How much thinking a provider is fit for. Found by executing: routing "free
+# first" sent the STRONG tier to a 0.6B local model, which would trade the
+# owner's strong pool for zero cost. Free-first is correct for bulk work and
+# wrong for reasoning, so the tier now gates the candidate set.
+TIER_RANK = {"default": 0, "standard": 0, "cheap": 0,
+             "strong": 1, "hard": 1, "reasoning": 1,
+             "frontier": 2}
+PROVIDER_MAX_RANK = {
+    "local-llamacpp-180": 0,   # qwen3-0.6b: adequate for bulk, not for reasoning
+    "sakana-fugu": 2,
+    "deepseek": 2,
+    "openai": 2,
+    "anthropic": 2,
+    "gemini": 2,
+}
+
+
+def min_rank_for(tier: str | None) -> int:
+    return TIER_RANK.get((tier or "default").strip().lower(), 1)
+
 
 def _utc() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -86,18 +106,30 @@ def usage_counts() -> dict:
     return usage
 
 
-def decide(pin: str | None = None, states: dict | None = None) -> dict:
-    """Full routing decision over the whole registry."""
+def decide(pin: str | None = None, states: dict | None = None, tier: str | None = None) -> dict:
+    """Full routing decision over the whole registry.
+
+    `tier` gates the candidate set: a tier that needs real reasoning excludes
+    providers not fit for it (the free 0.6B local model), even though they are
+    first in the general order.
+    """
     if states is None:
         states, probed_at = latest_states()
     else:
         probed_at = None
     usage = usage_counts()
     order = tp.routing_order(states, usage=usage)
+    min_rank = min_rank_for(tier)
+    if min_rank > 0:
+        order = [n for n in order if PROVIDER_MAX_RANK.get(n, 2) >= min_rank]
 
     pin_state = (states.get(pin) or {}).get("state") if pin else None
-    if pin and pin_state == "LIVE":
+    pin_fit = pin is None or PROVIDER_MAX_RANK.get(pin, 2) >= min_rank
+    if pin and pin_state == "LIVE" and pin_fit:
         chosen, reason = pin, "PIN_ROUTABLE"
+    elif pin and pin_state == "LIVE" and not pin_fit:
+        chosen = order[0] if order else None
+        reason = f"PIN_UNDERPOWERED_FOR_TIER({tier})_FALLBACK"
     elif pin and pin_state:
         chosen = order[0] if order else None
         reason = f"PIN_BLOCKED({pin}={pin_state})_FALLBACK"
@@ -110,6 +142,8 @@ def decide(pin: str | None = None, states: dict | None = None) -> dict:
     return {
         "schema": "brain_routing.v1",
         "at_utc": _utc(),
+        "tier": tier,
+        "min_rank": min_rank,
         "pin": pin,
         "pin_state": pin_state,
         "chosen": chosen,
