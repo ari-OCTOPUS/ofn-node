@@ -1,0 +1,7 @@
+[Unit]
+Description=OCTOPUS event watcher: mesh events dir
+
+[Path]
+PathChanged=/home/ari/octopus-mesh/state/events
+[Install]
+WantedBy=paths.target

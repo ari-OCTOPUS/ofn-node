@@ -1,0 +1,12 @@
+[Unit]
+Description=OCTOPUS W1 verdict timer (fires once 2026-09-18 09:20Z)
+
+[Timer]
+OnCalendar=2026-09-18 09:20:00
+Persistent=false
+RemainAfterElapse=false
+AccuracySec=30s
+Unit=octopus-w1-verdict.service
+
+[Install]
+WantedBy=timers.target

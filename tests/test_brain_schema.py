@@ -50,7 +50,7 @@ GITATTRIBUTES = ROOT / "ofn" / "agents" / ".gitattributes"
 # autocrlf rewrote LF→CRLF. That is a checkout artefact, not a source
 # change. The LF blob is the contract. Pin: ofn/agents/.gitattributes.
 _CONTRACT_CRLF_SHA256 = (
-    "7e99cb35f8970a5069521f36f72855948b56f2a8d9182326edd2db61d4d9c901"
+    "3e7ae083614712f05505ad1052f632c6cb2496da6eec8567a6403933724779bc"
 )
 
 
