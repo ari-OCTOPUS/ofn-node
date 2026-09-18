@@ -1,0 +1,27 @@
+{
+  "schema": "fx-pin-daily.v1",
+  "ts": "2026-09-18T16:40:47",
+  "date": "2026-09-18",
+  "aud_usd": 0.7126,
+  "fx_usd_to_aud": 1.40331,
+  "anchor": "2026-09-18T06:00:00Z",
+  "receipt_id": "3219c70775f89ff6",
+  "owner_pin_id": "FX-PIN-20260918-01",
+  "backup": "pricing_pinned.json.bak-fxpin-20260918",
+  "csv_witness": "F:\\backup\\_ops\\state\\wedge\\rba-f111-fetch-20260918.csv",
+  "gate": "fresh",
+  "verification": {
+    "procedure": "FX-1 shell recipe (agent shell only, NOT daemon)",
+    "run_id": "R-fxpin-auto-20260918",
+    "ok": true,
+    "tier": "local",
+    "model": "qwen2.5:1.5b",
+    "text": "Operational",
+    "finish_reason": null,
+    "cost_usd": 0.0,
+    "paid_verified": false,
+    "paid_blocker": "quota_stop-fugu — STOP-FUGU flag UNCHANGED since 2026-09-15 05:56:32 (day 4)",
+    "note": "fourth consecutive day the fugu path is manually stopped; FX gate itself fresh — pin deliverable green; incident owner should either clear the flag with a verified-usage fix or route paid traffic to another provider (owner provider-freedom permission R4-2 stands)",
+    "verified_at_local": "2026-09-18 16:41 (scheduled automation automation-ee619624, run #10)"
+  }
+}
