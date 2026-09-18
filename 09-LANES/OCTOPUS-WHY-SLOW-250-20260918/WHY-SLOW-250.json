@@ -1,0 +1,5151 @@
+{
+ "schema": "octopus.why-slow-250.v1",
+ "generated_at": "2026-09-18T00:40:00Z",
+ "lane": "OCTOPUS-WHY-SLOW-250-20260918",
+ "mission": "کشف علت رشد کند اختاپوس — چک‌لیست ۲۵۰ موردی با دلیل",
+ "quota_check": {
+  "T1-money-path": {
+   "count": 35,
+   "min": 35,
+   "ok": true
+  },
+  "T2-demand-market": {
+   "count": 30,
+   "min": 30,
+   "ok": true
+  },
+  "T3-offer-product": {
+   "count": 20,
+   "min": 20,
+   "ok": true
+  },
+  "T4-owner-dependency": {
+   "count": 30,
+   "min": 30,
+   "ok": true
+  },
+  "T5-governance-friction": {
+   "count": 20,
+   "min": 20,
+   "ok": true
+  },
+  "T6-learning": {
+   "count": 15,
+   "min": 15,
+   "ok": true
+  },
+  "T7-agent-architecture": {
+   "count": 20,
+   "min": 20,
+   "ok": true
+  },
+  "T8-knowledge-debt": {
+   "count": 20,
+   "min": 20,
+   "ok": true
+  },
+  "T9-attention-priority": {
+   "count": 15,
+   "min": 15,
+   "ok": true
+  },
+  "T10-infra-fleet": {
+   "count": 25,
+   "min": 25,
+   "ok": true
+  },
+  "T11-channels": {
+   "count": 10,
+   "min": 10,
+   "ok": true
+  },
+  "T12-buffer-external": {
+   "count": 10,
+   "min": 10,
+   "ok": true
+  }
+ },
+ "total": 250,
+ "verdict_counts": {
+  "CONFIRMED_BLOCKER": 79,
+  "PARTIAL": 67,
+  "UNVERIFIED": 100,
+  "REFUTED": 4
+ },
+ "grade_counts": {
+  "E3": 52,
+  "E2": 45,
+  "E1": 138,
+  "E0": 15
+ },
+ "seeds": 15,
+ "non_seeds": 235,
+ "entries": [
+  {
+   "id": "W-026",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "برای ۳۵ درخواست فقط ۳ فالوآپ ثبت شده — زنجیرهٔ پیگیری عملاً وجود ندارد",
+   "reason": "sent-log: followup_1 = 3 ردیف در برابر packet+quote = 35",
+   "verify_against": [
+    "138:state/revenue-drive/sent-log.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 4,
+   "rank_IxF": 16,
+   "owner_decision_needed": false,
+   "unblock_2liner": "فالوآپ دوم/سوم با بازهٔ ۳ و ۷ روز به‌صورت خودکار برای همهٔ غیرپاسخ‌دهندگان",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-002",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "دو کارت MONEY-BATCH واقعی هنوز PENDING هستند و ۹ بستهٔ quote آماده در صف آن‌ها خوابیده",
+   "reason": "رجیستر کارت‌ها: d3c0fdea (09-17T23:29) و 2d90365e (09-18T00:00) با sent_ok=true و state=PENDING؛ بسته‌ها QP-20260917/18",
+   "verify_against": [
+    "138:state/revenue-drive/owner-ask-registry.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 5,
+   "fixability_1_5": 3,
+   "rank_IxF": 15,
+   "owner_decision_needed": true,
+   "unblock_2liner": "همین حالا یک یادآوری کوتاه با دو دکمه (تأیید ارسال ماشین / خودم می‌فرستم) — کارت‌ها تازه‌اند و زنده",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-006",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "قیف ۰۹-۱۶T06:15Z به بعد کاملاً خشک شده: ۳۵ درخواست تا آن روز، صفر ارسال در ۰۹-۱۷ و ۰۹-۱۸",
+   "reason": "sent-log: 10/8/10/11 ارسال در 4 روز و سپس هیچ؛ درحالی‌که 9 بستهٔ تازه staged است",
+   "verify_against": [
+    "138:state/revenue-drive/sent-log.jsonl (by day)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 5,
+   "fixability_1_5": 3,
+   "rank_IxF": 15,
+   "owner_decision_needed": false,
+   "unblock_2liner": "گره release را با یک کارت تأییدِ از‌پیش‌آماده در هر ۶ ساعت باز کن؛ سکوت ۱.۸ روزه = صفر آموخته",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-015",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "فروشگاه زنده است ولی ۴۸۲ بررسی پیاپی صفر سفارش داشته — تقاضا تولید نمی‌شود، نه اینکه تحویل خراب باشد",
+   "reason": "owner-review.json: store LIVE but 482 consecutive zero-order checks",
+   "verify_against": [
+    "138:state/revenue-drive/owner-review.json @09-18T00:00Z"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 5,
+   "fixability_1_5": 3,
+   "rank_IxF": 15,
+   "owner_decision_needed": false,
+   "unblock_2liner": "تولید تقاضا را از مسیر outreach فعلی جدا کن: یک کانال ترافیک (حتی ارگانیک) راه بینداز",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-005",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "شمارنده‌های قیف چهار عدد ناسازگار می‌دهند: ۹۴ مجاز، ۳ در حالت SENT، ۳۹ ردیف sent-log، ۱۰۳ staged",
+   "reason": "revenue-state.counts (94/3) + sent-log (39) + season-meter (103/3) — واحدها به هم نمی‌خورند",
+   "verify_against": [
+    "138:state/revenue-drive/revenue-state.json",
+    "sent-log.jsonl",
+    "season-meter.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 4,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک تابع reconcile با واحد واحد (packet-state) بساز و شمارنده‌های موازی را حذف کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-008",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "هیچ ردیابی bounce/open/reply برای ارسال‌ها وجود ندارد؛ موفقیت کمپین قابل اندازه‌گیری نیست",
+   "reason": "outbound-effects.sqlite3 با ۰ بایت در 09-16T22:53 ساخته شده و خالی مانده",
+   "verify_against": [
+    "138:state/revenue-drive/outbound-effects.sqlite3"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "دو ستون effect (bounce/open/reply) به DB خالی اضافه و از لاگ imap پر کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-010",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "مصرف‌کنندهٔ آلارم پاسخ مشتری وجود ندارد؛ پاسخ‌ها تا چرخهٔ ۶ ساعته دیده نمی‌شوند",
+   "reason": "F-019: imap customer-reply alert consumer absent — replies land unseen until the 6h cycle",
+   "verify_against": [
+    "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/FORGOTTEN-LIST (F-019)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "همان آلارم F-019 را بساز؛ تایمر imap هر ۱۵ دقیقه موجود است، فقط مصرف‌کننده ندارد",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-016",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "CHECKOUT-1: با ۲۵۱+ بررسی، هیچ تشخیصی روی قیف خرید اجرا نشده",
+   "reason": "F-098: zero orders with store live — no checkout funnel diagnosis ever run",
+   "verify_against": [
+    "00-SEASON/SEASON-ZIMAN-GOV-V8-EXTERNAL-HANDOFF-20260906.md (F-098)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک اجرای تشخیصی checkout (add-to-cart تا پرداخت) ثبت‌شده انجام بده — فقط-خواندنی",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-027",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "مصرف‌کنندهٔ تصمیم به‌جای dispatch روی تصمیم‌های بی‌تسک می‌چرخد: ۲۰۷۸ تلاش در ۲.۵ روز، ۶۶ بار در ساعت",
+   "reason": "decision_consumption.jsonl: 2078 ردیف DECISION_NO_TASK_RETRYABLE روی ۵ کلید",
+   "verify_against": [
+    "138:state/owner_dialogue/decision_consumption.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "سه‌گانهٔ رفع: (۱) تصمیم‌های بی‌تسک را terminal کن (۲) backoff نمایی بگذار (۳) به task-registry وصل کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-034",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "تعداد پاسخ‌های واقعی به ۳۵ درخواست فقط ۱ است (~۳٪)؛ پیام‌ها احتمالاً ضعیف یا نامرتبط‌اند",
+   "reason": "۱ reply_1 در برابر 35 ارسال؛ نرخ ذکرشده در هیچ ردیفی ثبت نشده",
+   "verify_against": [
+    "138:state/revenue-drive/sent-log.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "message-quality را از تعداد جدا کن: نمونهٔ پیام‌ها را بازخوانی و با یک نسخهٔ شخصی‌سازی‌شده A/B کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-S04",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "بازوی زیمن با hold_external معلق است؛ نیمی از ظرفیت درآمدی از ارسال بیرونی معاف مانده",
+   "reason": "PROMPT-REVENUE-R1: Ziman hold_external=true تا حکم جدا",
+   "verify_against": [
+    "09-LANES/OCTOPUS-REVENUE-R1-20260918/PROMPT-REVENUE-R1.md"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یک کارت جدا برای برداشتن hold یا حداقل برای کانال‌های کم‌ریسک زیمن",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-S07",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "پاسخ اولین مشتری ~۵.۹ ساعت بی‌جواب مانده — SLA پاسخ وجود ندارد",
+   "reason": "reply مشتری 09-16T00:22:06Z شناسایی شد؛ reply_1 در 06:15:59Z ارسال شد",
+   "verify_against": [
+    "138:state/revenue-drive/sent-log.jsonl (trigger REPLY_DETECTED)",
+    "F-019"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "آلارم پاسخ با تایمر ۱۵ دقیقه‌ای imap + قاعدهٔ «هر پاسخ مشتری <۱۰ دقیقه به کانال مالک»",
+   "verified_this_session": true,
+   "seeded": true
+  },
+  {
+   "id": "W-040",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "تقاضای ورودی هیچ ابزار اندازه‌گیری ندارد جز شمارندهٔ ارسال — بازخورد بازار صفر است",
+   "reason": "meter فقط شمارندهٔ ارسال/staged دارد؛ هیچ نرخ تبدیل یا پاسخ موفق ثبت نمی‌شود",
+   "verify_against": [
+    "138:state/revenue-drive/season-meter.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "نرخ‌های قیف را در meter اضافه کن: delivered→replied→quoted→won",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-045",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "شمارش «authorized_with_contact=94» در برابر «sent=3» یعنی ۹۱ سرنخ مجاز هنوز پیام نگرفته‌اند",
+   "reason": "season-meter: authorized 94 / staged 103 / sent-state 3",
+   "verify_against": [
+    "138:state/revenue-drive/season-meter.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "۹۱ سرنخ در صف = ظرفیت خالی؛ گلوگاه release است نه بانک سرنخ",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-060",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "۸ روز «نه درآمد» با ۳ روز ارسال شدید نشان می‌دهد پیام‌ها به مشتری واقعی نرسیده‌اند (یا جواب نگرفته) — فرض مخاطب غلط است",
+   "reason": "هم‌زمانی ۳۵ ارسال و صفر سفارش/۱ پاسخ",
+   "verify_against": [
+    "sent-log",
+    "season-meter"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "۵ سرنخ را دستی اعتبارسنجی کن (تماس/ایمیل تأیید) قبل از ارسال دسته‌ای بعدی",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-S02",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "قیف تقاضا دوره‌های طولانی مرده بوده (enrich attempted:0 تکرارشونده)",
+   "reason": "شمارندهٔ enrich صفر شده و lead-emails تا 09-13 فریز بود",
+   "verify_against": [
+    "state/legs/lead-inbox (رجوع R1)",
+    "revenue-drive/lead-emails.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "پاس enrich را به تایمر بستهٔ مستقل تبدیل کن تا سکوت نکند",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-S03",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "پیشنهاد (offer) هرگز iterate نشد — نسخهٔ اولیه بدون بازخورد ماند",
+   "reason": "ممیزی سیزن: offer never iterated; فقط subject-v1 ساخته شد",
+   "verify_against": [
+    "09-LANES (season audit)",
+    "offer-experiments.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "offer را به یک چرخهٔ ۲هفته‌ای با معیار پاسخ ببند (نسخهٔ B اجباری)",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-133",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "پایگاه اثر خروجی (outbound-effects) صفر بایت است — هیچ outcome از ارسال‌ها به یادگیری نمی‌رسد",
+   "reason": "outbound-effects.sqlite3 = 0 bytes (mtime 09-16T22:53)",
+   "verify_against": [
+    "138:state/revenue-drive/outbound-effects.sqlite3"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "ارسال/پاسخ/سکوت را به‌عنوان سه outcome واقعی در همان DB بنویس",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-134",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "هیچ سیم‌کشی از پاسخ مشتری به ردیف یادگیری وجود ندارد؛ حلقهٔ بازار→یادگیری بسته نیست",
+   "reason": "هیچ فایل feedback→learning در قیف؛ learningfeeder فقط روی منابع عمومی کار می‌کند",
+   "verify_against": [
+    "138:state/revenue-drive (ls)",
+    "octopus-learningfeeder.timer"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "پاسخ مشتری = outcome با decision_key؛ به outcomes.db تزریق کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-S09",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "دانش پراکنده باعث می‌شود هر ایجنت از صفر جهت‌گیری کند؛ هزینهٔ بازکشف در هر نشست ثابت است",
+   "reason": "ENGINEERING-ENTRYPOINT برای همین ساخته شد ولی به 09-04 اشاره می‌کند (F-036)",
+   "verify_against": [
+    "07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md",
+    "F-036"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک entry-point زندهٔ ماشینی (STATE.json) بساز که ایجنت فقط آن را بخواند",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-S12",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "الگوی متاکار-قبل-از-تقاضا واقعاً رخ داده و ORDER-LAW در واکنش به آن نوشته شد",
+   "reason": "MEGAPROMPT-SEASON-CORRECTION: ORDER-LAW (no meta-work before daily demand receipt)",
+   "verify_against": [
+    "09-LANES (season correction 09-15, commit 686550b)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 3,
+   "rank_IxF": 12,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قانون را به یک گیت ماشینی تبدیل کن: بدون رسید روزانهٔ تقاضا، کار متا در صف نمی‌آید",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-001",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "کارت TRAFFIC-DECISION که تنها قفل واقعی پول نامیده شده، ۴.۸ روز باز مانده است",
+   "reason": "کارت 09-13T05:01:56Z ارسال شده (http_200) و تا امروز رأیی برایش ثبت نشده؛ خودِ رجیستر آن را single real money unlock می‌نامد",
+   "verify_against": [
+    "138:state/revenue-drive/owner-ask-sent.json",
+    "owner-review.json",
+    "F-007"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 5,
+   "fixability_1_5": 2,
+   "rank_IxF": 10,
+   "owner_decision_needed": true,
+   "unblock_2liner": "کارت را با ۳ گزینهٔ زمان‌دار و پیش‌فرض مشخص دوباره بفرست؛ بدون ددلاین، ۴.۸ روز می‌شود ۱۰ روز",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-042",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "سیزن-لاگ ۸ روز پیاپی «نه درآمد» ثبت کرده — الگوی سیستمی، نه بدشانسی یک روز",
+   "reason": "memory/audit: 8 straight days نه درآمد in a revenue season",
+   "verify_against": [
+    "09-LANES (season audit 09-15) یادداشت ممیزی سیزن"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 5,
+   "fixability_1_5": 2,
+   "rank_IxF": 10,
+   "owner_decision_needed": false,
+   "unblock_2liner": "ریشه در نرخ تبدیل و نبود کانال است؛ ۸ روز سکوت = گلوگاه ساختاری",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-013",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "پوشهٔ campaign از ۰۹-۱۳ خالی است؛ پشت ارسال‌ها هیچ ساختار کمپینی (هدف/بازه/معیار) نیست",
+   "reason": "ls state/revenue-drive/campaign: خالی (mtime 09-13T05:16)",
+   "verify_against": [
+    "138:state/revenue-drive/campaign/"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "campaign را با هدف عددی (n ارسال → n پاسخ) و معیار توقف پر کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-017",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "چرخهٔ درآمد ۶ ساعته است ولی تایمر quote هر ۳۰ دقیقه می‌زند؛ هر تأیید مالک تا ۶ ساعت در چرخهٔ بعدی می‌افتد",
+   "reason": "octopus-revenue-drive.timer هر 6h؛ octopus-quote.timer هر ~30min",
+   "verify_against": [
+    "138: systemctl list-timers"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "مسیر ارسالِ پس از تأیید را از چرخه جدا کن: مصرف کارت تأییدشده در <۱۰ دقیقه",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-022",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "۲۹ سرنخ فقط-تلفنی با یادداشت «هیچ خروجی به هیچ شکل» در صف مانده‌اند — کانال تماس خریداری نشده",
+   "reason": "phone-only-queue.jsonl: 29 ردیف، note=NO outbound of any kind",
+   "verify_against": [
+    "138:state/revenue-drive/phone-only-queue.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "DIDWW ($20 credit، رأی مالک) یا حداقل اسکریپت تماس انسانی برای همین ۲۹ سرنخ",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-023",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "~۱۹ سرنخ استراتا که مالک باید تأمین می‌کرد هرگز نیامد — منبع تقاضا نیمه‌خالی",
+   "reason": "F-030: ~19 strata leads owner never supplied",
+   "verify_against": [
+    "09-LANES/BIZ-LEGS-TEACH-20260905/LANE-REPORT.md (F-030)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-025",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "تنها یک آزمایش پیشنهاد (subject-v1) ساخته شده و نتیجه‌اش هیچ‌جا به ارسال‌ها گره نخورده",
+   "reason": "offer-experiments.json (09-15) یک experiment دارد؛ sent-log فیلد variant ندارد",
+   "verify_against": [
+    "138:state/revenue-drive/offer-experiments.json",
+    "sent-log.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "فیلد variant را به sent-log اضافه و نتیجهٔ subject-v1 را بعد از n=۲۰ ارسال قضاوت کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-028",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "۵ کلید تصمیمِ چرخان، بازماندهٔ erratum over-ACK 09-16T20:25 هستند — دفتر تصمیم آلوده شده",
+   "reason": "کلید ad927b75 (۱۵۲۰ تلاش) در 09-16T20:25:12Z ساخته شده؛ سه ردیف owner_decision همان لحظه NOT owner vote علامت خورده",
+   "verify_against": [
+    "138:state/owner_dialogue/owner_decision.v1.jsonl",
+    "decision_consumption.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "۵ ردیف آلوده را با یادداشت erratum به state=VOID ببر تا حلقه بخوابد",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-029",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "قاعدهٔ «parked lane دوباره از مالک نمی‌پرسد» (AUTONOMY_V3 §9) احتمالاً یادآوری کارت‌های معلق را هم خفه کرده",
+   "reason": "revenue-state.note: parked lanes do not re-ask the owner every cycle (V3 section 9)",
+   "verify_against": [
+    "138:state/revenue-drive/revenue-state.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یادآوری از re-ask جدا شود: کارت باز = یادآوری روزی یک بار، lane پارک‌شده = سکوت",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-030",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "هیچ ددلاین/اسکالیشنی روی کارت‌های مالک نیست؛ TRAFFIC-DECISION پیش‌نمونهٔ ۴.۸ روز سکوت است",
+   "reason": "کارت 09-13 باز است و هیچ قاعدهٔ ددلاینی در state پیدا نشد",
+   "verify_against": [
+    "138:state/revenue-drive/owner-ask-registry.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قاعدهٔ ۴۸ ساعت: کارت بی‌رأی → یادآوری با خلاصهٔ پیامد؛ ۹۶ ساعت → اسکالیشن به کانال دوم",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-031",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "sent-log فیلد variant/segment ندارد — انتساب پاسخ به پیشنهاد ناممکن است",
+   "reason": "ساختار ردیف‌ها: at/kind/packet/payload_sha16/to_domain — بدون variant",
+   "verify_against": [
+    "138:state/revenue-drive/sent-log.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "variant + segment را در زمان ارسال قفل کن (append-only، بدون بازنویسی گذشته)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-033",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "هیچ لاگ bounce/undeliverable در پوشهٔ قیف نیست؛ ارسال‌های مرده دیده نمی‌شوند",
+   "reason": "ls revenue-drive: هیچ bounce/undeliverable؛ outbound-effects.sqlite3 خالی",
+   "verify_against": [
+    "138:state/revenue-drive/"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "بازگشتی‌های imap را به یک فایل bounce.jsonl بنویس و در شمارش سرنخ کسر کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-223",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "کانال تلفن برای B2B غایب است در حالی که تلفن کانال اصلی پیمانکار/استراتا است",
+   "reason": "DIDWW خریداری نشده؛ phone-only-queue بی‌خروجی",
+   "verify_against": [
+    "138:state/revenue-drive/phone-only-queue.jsonl",
+    "owner-decisions (CARD2)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "DIDWW $20 یا شمارهٔ موجود مالک به‌عنوان شمارهٔ کاری",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-231",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "شبکهٔ شخصی مالک (ارزان‌ترین کانال B2B) به‌عنوان کانال صفر استفاده نشده",
+   "reason": "هیچ فایل warm-network/intro در state",
+   "verify_against": [
+    "138:state/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-037",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "Airtasker صفر سرنخ می‌دهد و علتش هرگز اندازه‌گیری نشده",
+   "reason": "F-033: Airtasker zero leads — cause UNKNOWN, never measured (watch wired but intake empty)",
+   "verify_against": [
+    "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-033)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-044",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "۲۹ سرنخ تلفنی بدون هیچ خروجی، سهم ۳۰٪ بانک سرنخ را بی‌استفاده گذاشته",
+   "reason": "phone-only-queue 29 ردیف؛ کانال تماس خریده نشده (DIDWW معلق)",
+   "verify_against": [
+    "138:state/revenue-drive/phone-only-queue.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "DIDWW $20 یا اسکریپت تماس انسانی — ۲۹ سرنخ روی میز",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-046",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "پیام‌های ارسالی قالب یکسان دارند و شخصی‌سازی بازار (NSW strata) محدود است",
+   "reason": "owner-review: market derived from own files؛ template subject-v1 واحد",
+   "verify_against": [
+    "138:state/revenue-drive/offer-experiments.json",
+    "owner-review.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "دو نسخهٔ پیام (strata vs insurer) با تفاوت واقعی ارزش‌پیشنهادی بساز",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-049",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "جدول رقبا وجود ندارد؛ قیمت‌گذاری بدون مرجع بازار انجام شده",
+   "reason": "F-028: competitor table open در Ziman TODO",
+   "verify_against": [
+    "03 - Projects/Ziman Galerry/TODO.md (F-028)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-051",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "کانال ایمیل فقط ۶۸ مخاطب دارد و هیچ growth loop (اشتراک/محتوای ورودی) ندارد",
+   "reason": "emails_known=68 از 97",
+   "verify_against": [
+    "138:state/revenue-drive/season-meter.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک قالب محتوای صنعتی (checklist تعمیر/نگهداری) برای جمع‌آوری ایمیل ورودی",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-052",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "هیچ تست بازار (پیام به ۲۰ سرنخ جدید با ۳ پیام مختلف) طراحی نشده؛ فرض‌ها بی‌آزمون می‌مانند",
+   "reason": "هیچ فایل experiment/tests در قیف بجز subject-v1 نیست",
+   "verify_against": [
+    "138:state/revenue-drive/"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک تست مینیمال ۳×۲۰ با معیار پاسخ بساز و نتیجه را در campaign ثبت کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-054",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "پاسخ‌دقیق به سؤال مشتری اول (کدام ساختمان) مستند نشده که چرخهٔ بعدی آن را ببیند",
+   "reason": "فقط trigger پاسخ ثبت شده؛ محتوای پاسخ/نیاز مشتری در دفتر قیف نیست",
+   "verify_against": [
+    "138:state/revenue-drive/sent-log.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "به ازای هر پاسخ، یک ردیف نیاز مشتری در دفتر قیف ثبت کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-059",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "همهٔ اندازه‌گیری‌ها روی «فرستاده شد» متمرکزند نه «پاسخ آمد» — معیار انگیزشی اشتباه",
+   "reason": "season-meter فقط sent/staged می‌شمارد؛ هیچ ستون نرخ پاسخ",
+   "verify_against": [
+    "138:state/revenue-drive/season-meter.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "تعریف روز موفق = پاسخ دریافتی (نه ارسال)؛ در کارت روزانه به مالک همین را نشان بده",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-081",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "بانک سرنخ از ۰۹-۱۶ رشد نکرده — ماشین تولید سرنخ جدید خواب است",
+   "reason": "lead-emails.jsonl mtime=09-16T21:14 و از آن پس تغییری ندارد؛ lead-enrich-cursor ثابت",
+   "verify_against": [
+    "138:state/revenue-drive/lead-emails.jsonl (mtime)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "استخراج سرنخ را به یک تایمر روزانه با هدف +n سرنخ/روز ببند و در meter ثبت کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-062",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "SKU قهرمان REV-1 هرگز ساخته نشد؛ مسیر SKU C/D/E هم باز مانده",
+   "reason": "F-029: REV-1 shelf SKU never built + SKU C/D/E path open",
+   "verify_against": [
+    "09-LANES/Q-MARKET-COMPARE-20260905/LANE-REPORT.md (F-029)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-063",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "بستهٔ پیشنهاد نقاشی هیچ نمونه‌کار/کیس‌استادی ندارد",
+   "reason": "هیچ portfolio/case فایل در revenue-drive یا offer",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-071",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "پیام‌ها #A/B ندارند جز subject؛ بدنِ پیام هرگز آزمون نشد",
+   "reason": "offer-experiments فقط subject-v1 دارد",
+   "verify_against": [
+    "138:state/revenue-drive/offer-experiments.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "نسخهٔ بدن پیام B با تمرکز روی درد (خسارت/زمان) بساز",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-074",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "موجودی صفرِ محصولات قهرمان تا ۰۹-۱۷ ادامه داشت؛ فروش بالقوه صفر شد",
+   "reason": "memory: SHELF-1: 2 hero products ZERO STOCK (fixed A2 09-17 receipts)",
+   "verify_against": [
+    "A2 receipts on 138 (needs re-check)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-083",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "شمارهٔ تماس نمایشی مالک (AUTO1) هرگز تأمین نشد؛ صف تماس fail-closed از ۰۹-۰۸ خاموش است",
+   "reason": "F-016: AUTO1 owner display phone number never supplied — fail-closed caller queue dark since 09-08 (recurring blocker in 3 handoffs)",
+   "verify_against": [
+    "01 - Dashboard/UNLOCK-REGISTRY-2026-09-08.md (F-016)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-084",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "خرید سرویس تماس DIDWW (حدود $۲۰) هم‌چنان اقدام مالک است و هیچ کارتی برایش در رجیستر نیست",
+   "reason": "تصمیم CARD2_CALL_SERVICE=A_DIDWW (09-15)؛ رجیستر کارت‌ها فقط MONEY-BATCH/TRAFFIC/TEST دارد",
+   "verify_against": [
+    "138:state/revenue-drive/owner-decisions.jsonl",
+    "owner-ask-registry.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یک کارت DIDWW با لینک خرید و مبلغ دقیق بفرست (money=RED پس فقط مالک)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-092",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "erratum over-ACK: برای ۵ کارت ردیف ACK نشست درحالی‌که مالک فقط ۲ کارت را نام برده بود — ۳ رأی جعلی وارد دفتر شد",
+   "reason": "owner_decision.v1.jsonl: سه ردیف با note «NOT owner vote» @09-16T20:25:59Z",
+   "verify_against": [
+    "138:state/owner_dialogue/owner_decision.v1.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "۵ ردیف را به VOID ببر و قاعدهٔ «ACK فقط با نقل قول متنی مالک» را اعمال کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-093",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "هیچ قاعدهٔ رفتار برای غیبت مالک (absence) وجود ندارد که تصمیم‌های کم‌ریسک را جلو ببرد",
+   "reason": "octopus-absence.timer زنده است ولی هیچ سیاست default-action در state نیست",
+   "verify_against": [
+    "138:systemctl list-timers",
+    "ls state/revenue-drive"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "سیاست غیبت: وقتی مالک >۴۸h نیست، فقط اقدام‌های internal-green با log اجرا شوند",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-094",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "حالت گزارش important-only نویز را کم کرد ولی با قاعدهٔ no-re-ask ترکیب شد و سکوت تصمیم ساخت",
+   "reason": "owner-decisions: OWNER_REPORT_MODE=IMPORTANT_ONLY (09-16) + قاعدهٔ V3 §9 در revenue-state.note",
+   "verify_against": [
+    "138:state/revenue-drive/owner-decisions.jsonl",
+    "revenue-state.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یادآوری روزانه کارت‌های باز = خبر مهم (استثنا روی important-only)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-097",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "هیچ مکانیزم դեadline/expiry برای ردیف‌های رأی باز نیست؛ رجیستر رأی می‌تواند بی‌نهایت رشد کند",
+   "reason": "F-009 backlog + رجیستر بدون فیلد expires_at",
+   "verify_against": [
+    "09-LANES/MP-CAPABILITY-GAP-01-20260907 (F-009)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "فیلد expires_at به هر رأی باز اضافه کن؛ بعد از expiry = پیش‌فرض محافظه‌کارانه",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-106",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "هیچ کارتی برای برداشتن hold زیمن وجود ندارد؛ یک قفل راهبردی بدون مسیر رأی مانده",
+   "reason": "owner-ask-registry: هیچ کارت ZIMAN/HOLD",
+   "verify_against": [
+    "138:state/revenue-drive/owner-ask-registry.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "کارت «Ziman: ادامهٔ hold یا آزادسازی محدود» را بساز",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-108",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "کارت‌های معلق مالک هیچ خلاصهٔ «پیامد ادامهٔ انتظار» ندارند — مالک هزینهٔ تأخیر را نمی‌بیند",
+   "reason": "ساختار owner-review.items فقط why دارد نه cost-of-delay",
+   "verify_against": [
+    "138:state/revenue-drive/owner-review.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک خط به هر کارت: «هر روز تأخیر ≈ n فرصت ازدست‌رفته» (از اعداد قیف)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-S05",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "فرمت رأی «تأیید <8hex>» تازه (09-17) است و نرخ تبدیل کارت→رأی هرگز اندازه‌گیری نشده",
+   "reason": "دکمه‌های inline + decision id از 09-17T23:25 اضافه شده (بکاپ bak-buttons-20260917T232557Z)",
+   "verify_against": [
+    "138:state/revenue-drive/owner_ask.py.bak-buttons-20260917T232557Z",
+    "owner-ask-registry.json"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": true
+  },
+  {
+   "id": "W-112",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "هر اثر خارجی رسید + pre-image می‌خواهد؛ سربار دائم روی هر قدم ارسال",
+   "reason": "AGENTS.md حفاظ: pre-image پیش از هر نوشتن روی نود + «رسید یا rollback»",
+   "verify_against": [
+    "AGENTS.md §GOV-V7 حفاظ‌ها"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک ابزار خودکار receipt_for_send بساز که سربار را به یک فراخوان تابع کاهش دهد",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-115",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "رجیستر UNLOCK با ۱۵+ قفل PROPOSED که هرگز EXECUTED نشده — دروازه‌های بازنشده انبار شده‌اند",
+   "reason": "F-039: UNLOCK-REGISTRY: 15+ locks sit PROPOSED never executed",
+   "verify_against": [
+    "01 - Dashboard/UNLOCK-REGISTRY-2026-09-08.md (F-039)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-120",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "کلید B5 (circuit breaker) باز است و مسیر repair مربوطه قطار FAIL تولید می‌کند",
+   "reason": "F-011 + R-BREAKER-B5: (False,'CIRCUIT_BREAKER_OPEN')",
+   "verify_against": [
+    "138:ops-receipts",
+    "budget_allows('B5') (F-011)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "root-cause-3 (mv از منبع readonly) را رفع و cycle را تأیید کن تا کلید قانونی بسته شود",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-121",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "نقص starvation اجراکننده (OW-8): یک درخواست بلاک‌شده کل دستهٔ B8 را می‌خواباند",
+   "reason": "F-002: 'return budget-blocked' aborts whole category loop; g22-probe 34+ min بدون رسید",
+   "verify_against": [
+    "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json (F-002)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "دسته را به صف مستقل هر request تبدیل کن (کد موجود است، deploy لازم)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-122",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "TRIO-002 و W3G30 (مصرف‌کنندهٔ تصمیم + precondition freeze + CATSCOPE) دیپلوی‌نشده در صف مانده",
+   "reason": "F-014: TRIO-002 + W3G30-COMBINED — queued, execution+readback owed",
+   "verify_against": [
+    "138: canary-requests/native-Z-SUCCESSOR-TRIO-002.json (F-014)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-128",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "هیچ SLA/انقضا روی آیتم‌های حاکمیتی باز وجود ندارد (رأی، دروازه، قفل) — صف باز بی‌کران رشد می‌کند",
+   "reason": "F-009 (۲۰ رأی) + F-039 (15+ قفل) + F-040 هر سه بدون expires_at",
+   "verify_against": [
+    "F-009",
+    "F-039",
+    "F-040"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قاعدهٔ انقضا: هر آیتم باز باید owner+deadline داشته باشد وگرنه UNVERIFIED_PARKS",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-131",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "از ۱۸۷ ردیف واقعی فقط ۱۴۱ ردیف learnable است؛ ۲۵٪ دادهٔ تصمیم بی‌کلید می‌ماند",
+   "reason": "CYCLE-STTL-001: real_rows=187, learnable_rows=141",
+   "verify_against": [
+    "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "recorder باید برای همهٔ ردیف‌ها کلید بسازد (نه فقط مسیر جدید)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-132",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "تنها کلید چندردیفی، متناقض است (هم accept هم reject روی یک پیشنهاد) — حافظه روی آن اجباراً برای یک ردیف غلط می‌شود",
+   "reason": "mixed_polarity_key: 646d80a894ad3e8f (accept+reject on same proposal)",
+   "verify_against": [
+    "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "کلید متناقض را با تفکیک context (زمان/نسخه) به دو کلید بشکن + قاعدهٔ polarity consistency",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-135",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "recorder تصمیم فقط از ۰۹-۱۷ کلید می‌نویسد؛ همهٔ ردیف‌های قبل بی‌کلیدند و قابل یادگیری نیستند",
+   "reason": "PROMPT-REVENUE-R1: recorder حالا decision_key را می‌نویسد",
+   "verify_against": [
+    "09-LANES/OCTOPUS-REVENUE-R1-20260918/PROMPT-REVENUE-R1.md"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "backfill سبک: برای ردیف‌های قابل بازسازی گذشته کلید مشتق کن (با علامت derived)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-141",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "فایل حافظهٔ ایجنت‌ها از سقف خودش بزرگ‌تر است (۵۴.۸KB در برابر سقف ۲۴.۴KB) — حافظه بریده می‌شود",
+   "reason": "هشدار سیستم: MEMORY.md 54.8KB > 24.4KB limit — only part loaded",
+   "verify_against": [
+    "env: C:/Users/Armin/.zcode/.../memory/MEMORY.md"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "نمایه را به یک خط <۲۰۰ کاراکتر خلاصه کن و جزئیات را به فایل‌های موضوعی ببر",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-143",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "حکم یادگیری در دو چرخه هیچ تغییری نکرده (delta 0/0/0) — گرادیان صفر",
+   "reason": "LOO delta_vs_prev: changed 0, on 0, off 0",
+   "verify_against": [
+    "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/LOO-cycle1.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "معیار موفقیت چرخه = رشد n کلیدهای تکراری غیرمتناقض (نه فقط verdict)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-146",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "entry-point پروژه به سند ۰۹-۰۴ اشاره می‌کند در حالی که ۰۹-۰۶/۰۹-۰۷ هم وجود دارند و هیچ‌کدام لِین‌های جدید را نمی‌بینند",
+   "reason": "F-036: engineering-entrypoint chain stale: AGENTS.md points at 09-04",
+   "verify_against": [
+    "AGENTS.md → 07-HANDOFF/ENGINEERING-ENTRYPOINT-2026-09-04.md (F-036)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "AGENTS.md را به یک entry-point زنده وصل کن (نه تاریخ‌دار)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-160",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "خود deep-scan باید سرویس شود وگرنه به همان فراموشی‌ای که فهرست کرده برمی‌گردد",
+   "reason": "F-100: deep-scan itself must become a service; CADENCE.md proposal",
+   "verify_against": [
+    "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/CADENCE.md (F-100)"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "تایمر هفتگیِ deep-scan را فعال کن (تایمر وجود دارد: octopus-deep-scan Monday 04:00Z — تأیید اجرا)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-161",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "رجیستر ۱۶۰ موردی بدهی با ۰ resolved / ۰ executed عملاً فقط انباشت است",
+   "reason": "DASHBOARD: by_state open 65 / verified 95 / executed 0 / resolved 0",
+   "verify_against": [
+    "138:state/deep-scan/DASHBOARD.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قاعدهٔ جریان: هر هفته n مورد باید به executed/resolved برود وگرنه رشد انبار",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-164",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "۵ سند «نقطهٔ ورود» موازی وجود دارد؛ جهت‌گیری ایجنت مبهم است",
+   "reason": "ENGINEERING-ENTRYPOINT + HANDOFF + CURRENT-TRUTH×2 + VITAL",
+   "verify_against": [
+    "07-HANDOFF",
+    "06-EVIDENCE",
+    "01 - Dashboard"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک فایل STATE.json ماشینی به‌عنوان تنها منبع جهت‌گیری",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-S10",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "دو فایل CURRENT-TRUTH زنده هم‌زمان وجود دارند؛ انتخاب توسط mtime است نه قاعده",
+   "reason": "memory: TWO live CURRENT-TRUTH files (OCTOPUS/ + 06-EVIDENCE/)",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "OCTOPUS/CURRENT-TRUTH"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یکی را کانونیک اعلام و دیگری را pointer تک‌خطی کن",
+   "verified_this_session": true,
+   "seeded": true
+  },
+  {
+   "id": "W-S11",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "بخش بزرگی از وال بی‌اتصال است (۶۶٪ از ۴۲.۸GB)، پس دانش برای تصمیم‌گیری عملاً نامرئی است",
+   "reason": "deep-scan 10-aspects: 66% of 42.84GB vault UNCONNECTED",
+   "verify_against": [
+    "09-LANES/OCTOPUS-DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT.md"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قلمروهای پرحاصل را به نقشهٔ دانش وصل کن (index + links) نه اسکن تازه",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-187",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "تولید megapromptهای متعدد در ۰۷-HANDOFF نشان می‌دهد بخشی از توجه صرف طراحی مأموریت جایگزین خود مأموریت شده",
+   "reason": "07-HANDOFF: MEGAPROMPT-NEXT-AGENT، TRANSFORMATION-REVENUE، CORTEX-CONNECT-ALL، PARALLEL-PROMPT، NEXT-AGENT×۲",
+   "verify_against": [
+    "07-HANDOFF/ (ls)"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "سقف یک megaprompt باز در هر زمان؛ بقیه فقط با بستن قبلی",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-188",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "۴۸۲ بررسی صفر-سفارش یعنی ساعت‌ها رصد بدون هیچ اقدام تولید تقاضا",
+   "reason": "owner-review: 482 consecutive zero-order checks",
+   "verify_against": [
+    "138:state/revenue-drive/owner-review.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "هر ۱۰۰ بررسی صفر-سفارش = یک اقدام اجباری تولید تقاضا (قاعدهٔ escalation)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-194",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "هیچ سند/قاعده‌ای برای تقسیم زمان بین کار درآمدی و متاکار وجود ندارد",
+   "reason": "هیچ فایل time-budget/policy در state یا 07-HANDOFF",
+   "verify_against": [
+    "07-HANDOFF",
+    "138:state"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "سیاست ۷۰/۳۰: ۷۰٪ اقدام درآمدی، ۳۰٪ ساخت‌وساز — با شمارش هفتگی",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-195",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "ORDER-LAW هیچ ابزار اجرایی ندارد (فقط سند)؛ نقض آن دوباره قابل تکرار است",
+   "reason": "سند ORDER-LAW در megaprompt؛ هیچ گیت کدی در state یافت نشد",
+   "verify_against": [
+    "09-LANES (season correction)",
+    "ls state"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "گیت را در scheduler پیاده کن (شرط: رسید تقاضای امروز قبل از صف متا)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-198",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "داشبورد جهت‌گیری (DASHBOARD.json) سه روز کهنه است؛ اعداد جهت‌گیری با واقعیت هم‌گام نیست",
+   "reason": "DASHBOARD.json generated_at=09-15T08:03Z در برابر امروز 09-18",
+   "verify_against": [
+    "138:state/deep-scan/DASHBOARD.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 3,
+   "rank_IxF": 9,
+   "owner_decision_needed": false,
+   "unblock_2liner": "تولید داشبورد را به همان تایمر چرخه ببند (هر ۶ ساعت)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-003",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "انتخاب SEND_YOURSELF توسط مالک در 09-16 ارسال ماشینی را به رأی دسته‌به‌دسته گره زده و کار را به مالک منتقل کرده",
+   "reason": "تصمیم SEC-I6-MONEY-BATCH-EXECUTE با approve_sending=false و customer_outbound=false ثبت شده",
+   "verify_against": [
+    "138:state/revenue-drive/owner-decisions.jsonl @09-16T02:52Z"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "پیش‌فرض کارت‌ها = ارسال ماشینی با دکمهٔ تأیید؛ self-send فقط برای دستهٔ حساس",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-011",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "meter چهار پاسخ شناسایی‌شده نشان می‌دهد ولی sent-log فقط یک reply_1 دارد — سرنوشت ۳ پاسخ نامعلوم است",
+   "reason": "season-meter replies_detected=4 در برابر sent-log که یک پاسخ ارسالی ثبت کرده",
+   "verify_against": [
+    "138:state/revenue-drive/season-meter.json",
+    "sent-log.jsonl"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E2",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-019",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "تبلیغ پولی و هر خرید ترافیک در مرز سرخ است؛ تولید تقاضا به ۶۸ ایمیل سرد محدود مانده",
+   "reason": "TRAFFIC-DECISION گزینه‌ها: بودجهٔ ads = RED، outreach مالک = RED",
+   "verify_against": [
+    "138:state/revenue-drive/owner-review.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "حداقل یک کانال تقاضای غیرپولی (محتوای ارگانیک/لینکدین/انجمن صنفی) را بدون مرز سرخ پیش ببر",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-S13",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "نجات زیرساخت (OOM/EROFS/SD/برق) ساعت‌های جلسه را بلعیده و کار درآمدی را عقب انداخته",
+   "reason": "EROFS incident + OOM-182 + swap drill + disk crisis همه در بازهٔ 09-12..09-18",
+   "verify_against": [
+    "06-EVIDENCE/A7-SWAP-DRILL-20260918",
+    "RES-05C",
+    "git log"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قاعدهٔ توقف خونریزی: هیچ rescue بیشتر از n ساعت بدون کارت مالک",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-236",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "صفر اعتبارسنجی بیرونی: هیچ پیشنهادی هرگز پذیرفته یا رد نشده (۰ برد، ۱ پاسخ)",
+   "reason": "sent-log: 1 reply؛ season-meter: verified_cash 0",
+   "verify_against": [
+    "138:season-meter.json",
+    "sent-log.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": false,
+   "unblock_2liner": "همهٔ مسیر بعدی باید حول اولین پاسخ/رد واقعی بچرخد (n=1 better than 35)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-043",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "مرز RED روی ارتباط عمومی، کانال‌های تقاضای ارزان را هم قفل می‌کند",
+   "reason": "قاعدهٔ GOV: public comms = RED؛ ارسال واقعی دومرحله‌ای",
+   "verify_against": [
+    "AGENTS.md",
+    "owner-review.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "طبقه‌بندی کانال‌ها: ارسال به سرنخ B2B موجود ≠ ارتباط عمومی؛ تفکیک را از مالک بگیر",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-080",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "هیچ کانال ورودی ترافیک به فروشگاه وصل نیست: تبلیغ ممنوع، SEO و شبکه‌های اجتماعی صفر",
+   "reason": "store LIVE با ۴۸۲ بررسی صفر-سفارش؛ هیچ فایل ads/seo/social در state نیست",
+   "verify_against": [
+    "138:state/revenue-drive/owner-review.json",
+    "ls state/"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک کانال ترافیک ارگانیک (محتوای قابل جستجو برای محصولات آتلیه) به‌عنوان حداقل",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-061",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "اقتصاد زیمن Placeholder است: قیمت واقعی/عکس ۲۰ واحد/بهای تمام‌شده باز است",
+   "reason": "F-028: PayID setup, real pricing+photography of 20 units, unit costs, competitor table — all open",
+   "verify_against": [
+    "03 - Projects/Ziman Galerry/TODO.md (F-028)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-090",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "کل دفتر رأی مالک در ۵ روز فقط ۱۷ ردیف است — نرخ تصمیم‌گیری انسانی (~۲.۶/روز) با سرعت ماشین هم‌تراز نیست",
+   "reason": "owner-decisions.jsonl: 17 ردیف از 09-13 تا 09-17",
+   "verify_against": [
+    "138:state/revenue-drive/owner-decisions.jsonl"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "تصمیم‌های کم‌ریسک را از دست مالک بردار (لیست سفید ازپیش‌تأییدشده) و فقط RED بماند",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-096",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "همهٔ مرزهای سرخ (خرید، ارتباط عمومی، فروش) روی یک نفر متمرکزند؛ هیچ تفویض/نماینده‌ای تعریف نشده",
+   "reason": "AGENTS.md §10 + owner-review options (ads=purchase/public comms=RED)",
+   "verify_against": [
+    "AGENTS.md",
+    "138:owner-review.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "تعریف تفویض محدود: مثلاً «خرید <$۵۰ در ماه از بودجهٔ مصوب بدون پرسش»",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-110",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "حجم کار مالک (۲۰ رأی معلق + اقدام‌های فیزیکی + خریدها) با ظرفیت واقعی او (چند دقیقه در روز) هم‌خوان نیست",
+   "reason": "ترکیب F-009 + F-016/F-018/F-026 + خرید DIDWW",
+   "verify_against": [
+    "F-009",
+    "F-016",
+    "F-018",
+    "F-026"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "صف مالک را به ۳ آیتم بحرانی هر هفته محدود کن؛ بقیه پارک با دلیل",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-S06",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "رجیستر ~۲۰ رأی معلق مالک در فصل‌های مختلف، بزرگ‌ترین صف انتظار سیستم است",
+   "reason": "F-009: owner-decision backlog register: ~20 votes pending (D-0..D-3, MP-V41, EX2, IGN-2, GAP-023, MEGA-PLAN, ADR-041)",
+   "verify_against": [
+    "09-LANES/MP-CAPABILITY-GAP-01-20260907/LANE-REPORT.md",
+    "F-009"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یک کارت «۲۰ رأی معلق» با پیش‌فرض پیشنهادی برای هر ردیف — یک نشست، کل صف بسته می‌شود",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-111",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "آزادسازی دومرحله‌ای برای هر دستهٔ ارسال، فرکانس ارسال را به فرکانس رأی مالک گره می‌زند",
+   "reason": "PROMPT-REVENUE-R1: sending is two-step release; owner vote per batch",
+   "verify_against": [
+    "09-LANES/OCTOPUS-REVENUE-R1-20260918/PROMPT-REVENUE-R1.md"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E2",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": true,
+   "unblock_2liner": "مجوز دوره‌ای (W-109) جایگزین رأی هر دسته شود",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-S08",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "نبود تصمیم تکرارشونده، یادگیری را صفر نگه داشته: تنها کلید تکرارشونده همان کلید متناقض است",
+   "reason": "LOO cycle1: n=141, changed=1, on=138/off=139 → MEMORY_HURTS؛ mixed_polarity_keys=[646d80a894ad3e8f]",
+   "verify_against": [
+    "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/LOO-cycle1.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": false,
+   "unblock_2liner": "هر تصمیم مالک را با decision_key پایدار دوبار سطح کن تا ردیف تکرارشوندهٔ غیرمتناقض ساخته شود",
+   "verified_this_session": true,
+   "seeded": true
+  },
+  {
+   "id": "W-147",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "runtime دقیقاً worktree را اجرا می‌کند نه commit را — commit رفتار را توصیف نمی‌کند",
+   "reason": "DC-03D: glass/imap/selfmodel ExecStart into /home/ari/ofn؛ 5 tracked dirty (+1222/-551)",
+   "verify_against": [
+    "09-LANES (DC-03D) 06-EVIDENCE/board138 dirty overlay"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 4,
+   "fixability_1_5": 2,
+   "rank_IxF": 8,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قاعدهٔ «deploy = commit + checkout» را روی ۱۳۸ اعمال کن (پایان اجرای dirty)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-004",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "گیت پول فقط طرح دارد و بستهٔ خرجِ قابل‌فراخوان وجود ندارد؛ هیچ اقدام پولی واقعی end-to-end اجرا نشده",
+   "reason": "F-069 (money gate: no callable spend package exists, design-only) و F-070 (B-1 پیشنهاد شد، اجرا نشد)",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/ERRATA-AND-UNBLOCK",
+    "F-069/F-070"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-007",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "سقف روزانهٔ ۱۰ ارسال با حساب ناسازگار رعایت شده (روزی ۱۱ ردیف) — اثبات بی‌قاعدگی در گیت سقف",
+   "reason": "sent-log 09-16 روز ۱۱ ردیف دارد در حالی که daily_cap=10 در channel-authorization.json است",
+   "verify_against": [
+    "138:state/revenue-drive/channel-authorization.json",
+    "sent-log"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "شمارش cap را به packet-state گره بزن نه به ردیف‌های لاگ",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-012",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "rate card وجود ندارد و همین RATE_CARD_MISSING را به گیت PRICE_VALIDATED می‌بندد",
+   "reason": "channel-authorization.json شرط اول: no price without a valid rate card",
+   "verify_against": [
+    "138:state/revenue-drive/channel-authorization.json",
+    "F-020"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک rate card مینیمال (۳ خدمت × نرخ پایه) بساز تا قیمت در quoteها فعال شود",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-018",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "capability-school-revenue با عنوان ترافیک درآمدی روزانه فقط یک بار در ۲۴ ساعت اجرا شده",
+   "reason": "last run 09-17T00:21 (24h ago), next 09-18T00:24",
+   "verify_against": [
+    "138: systemctl list-timers (capability-school-revenue.timer)"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "محتوای این سرویس را audit کن؛ اگر نقش ترافیک دارد، روزی یک بار برای تولید تقاضا ناکافی است",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-020",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "ثبت تأمین‌کنندهٔ buy.nsw با اقدام ۳۰ دقیقه‌ای مالک معلق است (آیتم قهرمان سیزن)",
+   "reason": "F-026: buy.nsw supplier registration: nightly-email path awaiting owner's 30-minute action",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-026)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-021",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "تم آتلیه پس از اجرای قیمت‌ها همچنان Draft است — ممکن است بخشی از ویترین منتشر نشده باشد",
+   "reason": "F-085: Atelier theme still Draft (unpublished after price ×1.5 exec)",
+   "verify_against": [
+    "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-085)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-024",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "۱۸ ردیف enrichment نقاشی verified:false مانده — اطلاعات تماس نیمه‌تأیید",
+   "reason": "F-030: 18 enrichment rows verified:false in painting leads (research pass never run)",
+   "verify_against": [
+    "09-LANES/BIZ-LEGS-TEACH-20260905/LANE-REPORT.md"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-032",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "دستهٔ ۱۰ quote در یک ثانیه (09-16T00:01:22Z) — الگوی blast که ریسک deliverability دارد",
+   "reason": "۱۰ ردیف quote با timestamp یکسان",
+   "verify_against": [
+    "138:state/revenue-drive/sent-log.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "ارسال با فاصلهٔ تصادفی ۲-۵ دقیقه و سقف ساعتی اضافه کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-201",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "restore_drill هرگز اجرا نشده — بزرگ‌ترین ریسک پنهان به تعبیر رجیستر خودِ GOV-V8",
+   "reason": "F-006: restore_drill NOT_RUN — unexecuted in three ruling docs",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-V8 (F-006)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک drill بازیابی واقعی روی یک نود غیرحیاتی (۱۸۰) — نیم‌روز",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-202",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "بررسی وضعیت دیسک (smartmontools) روی ۱۳۸ FAILED است — نودی که بحران دیسک را دیده بی‌پایش است",
+   "reason": "F-046: smartmontools.service FAILED on 138",
+   "verify_against": [
+    "138: systemctl list-units --state=failed (F-046)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-203",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "۱۳۸ هیچ بک‌اند snapshot ندارد (ext4 روی eMMC تک‌نقطه) — بازیابی فقط دستی است",
+   "reason": "DC-03E0: NO snapshot backend exists (ext4 on one eMMC; btrfs/LVM/ZFS absent)",
+   "verify_against": [
+    "09-LANES (DC-03E0)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قبل از هر تغییر بزرگ، export دلتا + pre-image (رویهٔ موجود) را اجباری کن",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-209",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "نود درآمد (۱۳۸) با load ۱.۰-۱.۵ مداوم کار می‌کند — سرِ ظرفیت، هر کار سنگین ریسک تأخیر دارد",
+   "reason": "heartbeat pulses: 138 load1=1.19/1.2/1.1/0.98 در دقیقه‌های متوالی",
+   "verify_against": [
+    "06-EVIDENCE/FLEET-HEARTBEAT-CANONICAL.md"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "کارهای سنگین را به نودهای بیکار (۱۷/۲۵/۱۸۰) منتقل کن",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-210",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "آینهٔ وضعیت پول (mirror 138→182) با کهنگی ~۹.۳ ساعت گزارش می‌شود",
+   "reason": "STTL cycle health: mirror_freshness FRESH seq=1 age=9.3h",
+   "verify_against": [
+    "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "فاصلهٔ push را به <۱ ساعت کاهش بده (شاهد تازه برای اعلام PASS لازم است)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-211",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "بازیابی کلاس B هرگز در production اجرا نشده — مسیر rollback در لحظهٔ واقعی آزموده نیست",
+   "reason": "F-022: Class B recovery armed but never executed in production (G2)",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-022)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک drill کلاس B روی نود کم‌ریسک با پیش‌تصویر",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-213",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "ارزیاب ۱۱۴ و ingestion ۱۶۰ با nohup اجرا می‌شوند و units آن‌ها نصب نشده — ریسک reboot",
+   "reason": "F-003: 114/160 reboot-orphans: staged systemd units never installed (OW-4)",
+   "verify_against": [
+    "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915 (F-003)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-214",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "تایمر heartbeat تا امروز هرگز اجرا نشده بود (LAST=-) — تازه نصب شده",
+   "reason": "systemctl list-timers: octopus-heartbeat.timer LAST=-",
+   "verify_against": [
+    "138: systemctl list-timers"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "اولین اجرا را تأیید کن و خروجی را در شاهد وال ببین",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-218",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "پرچم GITWRITE-FAILED در مسیر push ساعتی هرگز پاک نشد؛ push خودکار سبز نیست",
+   "reason": "F-078: HOURLY-PUSH GITWRITE-FAILED flag never deleted",
+   "verify_against": [
+    "06-EVIDENCE/HOURLY-PUSH-EMPTY-ERR-2026-08-18.md (F-078)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-219",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "مصرف‌کنندهٔ JetStream در ۰۹-۱۵ صفر بود (durability بدون مشتری) — الان vault-pulse وجود دارد ولی تاریخچهٔ سکوت جدی است",
+   "reason": "F-042 (consumers=0 at 09-15) در برابر heartbeat که durable=vault-pulse را نشان می‌دهد",
+   "verify_against": [
+    "06-EVIDENCE/FLEET-HEARTBEAT-CANONICAL.md",
+    "F-042"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "برای هر stream جدید، قاعدهٔ «بدون مصرف‌کننده = بدهی باز» را اعمال کن",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-S14",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "آرشیو ۳۶.۴ گیگابایتی روی S: آفلاین است و ۲۶۶ هزار فایل در دسترس نیست",
+   "reason": "disk crisis: S: went offline mid-op; deletions stopped",
+   "verify_against": [
+    "06-EVIDENCE",
+    "99-ARCHIVE state (F-047)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یک هدف آرشیو دوم (USB/دیسک محلی) وصل کن یا آرشیو را رسمی معلق اعلام کن",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-222",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "تنها کانال مشتری ایمیل است؛ هیچ کانال پیام‌رسان/وب برای پاسخ سریع وجود ندارد",
+   "reason": "کانال‌ها: email (customer)، Telegram (owner)",
+   "verify_against": [
+    "AGENTS.md",
+    "138:state/revenue-drive"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک شماره/واتس‌اپ کاری یا فرم وب در امضای پیام",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-224",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "پیشنهادها هیچ لینک پذیرش/رد یک‌کلیکی ندارند؛ پاسخ نیازمند نوشتن ایمیل است",
+   "reason": "QP packets بدون لینک accept/decline در sent-log",
+   "verify_against": [
+    "138:state/revenue-drive/sent-log.jsonl"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-225",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "هیچ auto-acknowledgement برای ورودی مشتری وجود ندارد؛ سکوت اولیه حس بی‌اعتمادی می‌سازد",
+   "reason": "no auto-reply file in revenue-drive",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-226",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "وضعیت reputation دامنهٔ ارسال (SPF/DKIM/DMARC) نامعلوم است — ریسک اسپم روی کل کانال",
+   "reason": "هیچ فایل dns/spf/dkim در قیف",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-227",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "هیچ مدیریت opt-out/unsubscribe وجود ندارد — ریسک انطباقی (AU Spam Act) روی ارسال سرد",
+   "reason": "هیچ فایل unsubscribe در قیف",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-228",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "هیچ مسیر رزرو/تقویم برای جلسه با مشتری وجود ندارد",
+   "reason": "no booking file",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-232",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "هدف اصلی در میانهٔ سیزن بازتعریف شد (GOAL_PRIMARY=REDEFINED) — ریسک churn معیار و توجه",
+   "reason": "owner-decisions: GOAL_PRIMARY=REDEFINED @09-16T08:38Z؛ CARD3 کتابچه CLOSED",
+   "verify_against": [
+    "138:state/revenue-drive/owner-decisions.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "معیار را قفل کن: VERIFIED_CASH تنها متر است (همین حالا هم سند می‌گوید)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-234",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "اندازهٔ بازار هدف (strata NSW) هیچ‌جا اندازه‌گیری نشده — حتی تخمین مرتبهٔ بزرگی نیست",
+   "reason": "هیچ فایل market-size در state یا plans",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-237",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "پیش‌نیازهای مجوز/بیمهٔ کار نقاشی (workers-comp + painter licence) در وال نیست — احتمال رد صلاحیت پیمانکاری",
+   "reason": "F-084: C-R0 identity: workers-comp + painter licence certificates still missing",
+   "verify_against": [
+    "09-LANES/A-R0-IDENTITY/LANE-REPORT.md (F-084)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-238",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "مسیر دریافت پرداخت (PayID/فاکتور رسمی) برای زیمن آماده نیست",
+   "reason": "F-028: PayID setup open در Ziman TODO",
+   "verify_against": [
+    "03 - Projects/Ziman Galerry/TODO.md (F-028)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-036",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "بانک سرنخ ۹۷تایی روی ۲ منبع متمرکز است؛ تنوع منبع تقاضا کم است",
+   "reason": "leads_total=97، emails_known=68، phone_only=29 — منبع: دو مسیر ثابت",
+   "verify_against": [
+    "138:season-meter.json",
+    "phone-only-queue.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک منبع سوم (انجمن صنفی/اتاق بازرگانی/لینکدین B2B) با ۲۰ سرنخ اول",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-038",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "پروفایل Google Business با لاگین مالک معلق است — کانال کشف محلی خاموش",
+   "reason": "F-031: GBP listing pending owner login (YP/TrueLocal captcha-blocked, Hotfrog email-verify)",
+   "verify_against": [
+    "00-SEASON/DIRECTORY-YP-SUBMITTED-20260906.json (F-031)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-041",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "خرید از کانال دولتی (buy.nsw) به اقدام مالک گره خورده و از ۰۸-۲۴ باز مانده",
+   "reason": "F-026 + season hero item",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-047",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "هیچ تعریف ICP/پرسونای خریدار وجود ندارد؛ لیست از خود فایل‌ها مشتق شده",
+   "reason": "owner-review: market derived from own files (B2B painting-services contracts NSW)",
+   "verify_against": [
+    "138:state/revenue-drive/owner-review.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک پرسونای مینیمال (نقش، درد، معیار خرید) برای هر دو سیگمنت بنویس و لیست را دوباره ببر",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-048",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "مسیر ارجاع/معرفی (referral) از مشتری موجود طراحی نشده — پایهٔ تقاضای B2B نادیده",
+   "reason": "هیچ فایل referral در revenue-drive نیست",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "پس از اولین پاسخ مثبت، یک درخواست ارجاع استاندارد به پیگیری اضافه کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-053",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "تقاضای محلی (Sydney/NSW) نیازمند حضور جغرافیایی و اثبات محلی است که هیچ‌کدام ثبت نشده",
+   "reason": "هیچ مدرک آدرس/ABN/licence در سند تقاضا؛ F-084: workers-comp + painter licence missing",
+   "verify_against": [
+    "09-LANES/A-R0-IDENTITY/LANE-REPORT.md (F-084)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-055",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "هیچ کانال پیام‌رسان/وب‌فرم برای پاسخ آسان مشتری وجود ندارد؛ پاسخ باید ایمیل بزند",
+   "reason": "کانال‌ها: email (customer), Telegram (owner)",
+   "verify_against": [
+    "AGENTS.md",
+    "revenue-drive"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "لینک وب‌فرم/واتس‌اپ در امضای quoteها برای کاهش اصطکاک پاسخ",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-057",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "تقاضای فصلی/زمانی مدل نشده — چه ماه‌هایی سفارش نقاشی/هدیه اوج دارد؟",
+   "reason": "هیچ سند فصل تقاضا در revenue-drive",
+   "verify_against": [
+    "138",
+    "00-SEASON (بدون فایل فصلی تقاضا)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-058",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "شبکهٔ توزیع زیمن (گالری/هدیه‌فروشی) هیچ اقدام توسعه‌ای ندارد",
+   "reason": "no distributor/wholesale files in revenue-drive",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-082",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "تقاضای آنلاین/بین‌المللی آتلیه (مارکت‌پلیس/اینستاگرام) هیچ کانالی ندارد",
+   "reason": "هیچ فایل marketplace/social در state یا کسب‌وکار",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-064",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "قیمت‌ها یک‌بار ×۱.۵ شد و هیچ آزمایش حساسیت قیمت نداشته",
+   "reason": "memory: prices ×1.5 executed 35 products; هیچ experiment قیمتی در قیف نیست",
+   "verify_against": [
+    "06-EVIDENCE (Atelier price exec)",
+    "offer-experiments.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک SKU را با دو قیمت متفاوت و معیار بازدید→افزودن به سبد بسنج",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-065",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "۸ بسته از ۹ بستهٔ آمادهٔ ارسال، تکراری/قدیمی (QP-20260917/18 در برابر QP-20260913) هستند — بسته‌های کهنه بازچرخه می‌شوند",
+   "reason": "رجیستر کارت‌ها: دسهٔ جدید QP-20260918 vs reply به QP-20260913-3991",
+   "verify_against": [
+    "138:state/revenue-drive/owner-ask-registry.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "بسته‌های >۴۸ ساعت را بازتولید کن تا ارسال تازه باشد",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-066",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "هیچ شرط/گارانتی/ترمز ریسک در پیشنهاد نیست که پاسخ را آسان کند",
+   "reason": "هیچ فایل terms/guarantee در قیف",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-067",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "مبلغ/محدودهٔ پروژه در quoteها روشن نیست (rate card غایب) — مشتری نمی‌داند چه می‌خرد",
+   "reason": "RATE_CARD_MISSING → PRICE_VALIDATED بسته",
+   "verify_against": [
+    "channel-authorization.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "سه رده قیمتی (کوچک/متوسط/بزرگ) با بازهٔ شفاف",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-068",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "هیچ مسیر رزرو/زمان‌بندی (booking) برای مشتری B2B وجود ندارد",
+   "reason": "هیچ فایل booking/scheduling",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-069",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "پیشنهاد زیمن/آتلیه و پیشنهاد نقاشی از هم بی‌خبرند؛ هیچ بستهٔ متقاطع (cross-sell) نیست",
+   "reason": "دو مسیر جدا، بدون ارجاع متقابل",
+   "verify_against": [
+    "05-BUSINESSES",
+    "revenue-drive"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-070",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "زمان پاسخ‌دهی تعهدشده (SLA) به مشتری اعلام نمی‌شود",
+   "reason": "هیچ SLA در متون پیشنهاد",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-075",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "هیچ محصول/خدمت «ورودی» ارزان برای اولین خرید وجود ندارد (همه‌چیز پروژه‌ای است)",
+   "reason": "قیمت‌نامهٔ خدمات نقاشی پروژه‌محور؛ آتلیه اقلام هدیه دارد ولی فانل ورودی ندارد",
+   "verify_against": [
+    "05-BUSINESSES",
+    "offer files"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-077",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "بستهٔ quote برای همه یکسان است (یک template) و بخش هزینه‌اش خالی می‌ماند",
+   "reason": "QP-20260913-* همه از یک قالب؛ rate card غایب",
+   "verify_against": [
+    "sent-log",
+    "channel-auth"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "template دو بخشی: خدمات استاندارد (قیمت ثابت) + پروژهٔ سفارشی (برآورد)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-079",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "بازار هدیه (زیمن) فصل‌بندی کریسمس/نوروز ندارد در حالی که تقویم درآمدی حیاتی است",
+   "reason": "هیچ فایل فصل‌بندی فروش",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-086",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "کلیدهای deploy روی ofn-node غیرفعال‌اند (G1) و شاخه‌های autonomy نمی‌توانند push کنند",
+   "reason": "F-021: deploy keys disabled on ofn-node (G1) — owner toggle pending",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-021)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-091",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "دو ردیف از چهار رأی آخر تست self-addressed بوده، نه تصمیم واقعی — کانال رأی با تست اشغال می‌شود",
+   "reason": "owner-decisions.jsonl: rows TEST-SELF-1/2 (09-17T23:26) و رجیستر: MONEY-BATCH-TEST2",
+   "verify_against": [
+    "138:state/revenue-drive/owner-decisions.jsonl",
+    "owner-ask-registry.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "تست‌ها با پرچم test از شمارش n-rate جدا شوند تا سیگنال یادگیری آلوده نشود",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-095",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "فارسی‌سازی کارت‌ها فقط از ۰۹-۱۷T23:29 فعال شده؛ همهٔ کارت‌های قبلی احتمالاً برای مالک سخت‌تر بوده‌اند",
+   "reason": "owner_ask.py.bak-fa-20260917T232901Z (نسخهٔ fa در 23:29 همان شب)",
+   "verify_against": [
+    "138:state/revenue-drive/owner_ask.py.bak-fa-20260917T232901Z"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "از این به بعد همهٔ کارت‌ها fa + دکمه؛ کارت‌های معلق قدیمی را با فرمت جدید بازفرست",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-098",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "شمارندهٔ OWNER_DECISIONS_PENDING در GOV-AUTONOMY-V3 تعریف شده ولی به هیچ داشبوردی وصل نیست",
+   "reason": "F-073: OWNER_DECISIONS_PENDING counter — never wired to any dashboard/card generator",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/GOV-AUTONOMY-V3 (F-073)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "همان شمارنده را در owner-review.json چاپ کن (کار لازم: یک خط aggregate)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-099",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "دو کارت MONEY-BATCH پشت سر هم (۰۹-۱۷ و ۰۹-۱۸) همان درخواست را تکرار می‌کنند — ریسک خستگی مالک",
+   "reason": "رجیستر: d3c0fdea و 2d90365e هر دو id=MONEY-BATCH با بستهٔ متفاوت",
+   "verify_against": [
+    "138:state/revenue-drive/owner-ask-registry.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قاعدهٔ ادغام: یک MONEY-BATCH باز بیشتر هم‌زمان ممنوع؛ بسته‌ها به همان کارت append شوند",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-100",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "تلگرام تنها کانال مالک است؛ قطع شدن آن یعنی صفر تصمیم (بدون کانال دوم)",
+   "reason": "AGENTS.md: outbound only via Telegram path؛ هیچ SMS/email-fallback در state",
+   "verify_against": [
+    "AGENTS.md",
+    "state/revenue-drive (فقط email برای مشتری)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یک کانال دوم فقط برای کارت‌های Critical (مثلاً ایمیل مالک با لینک تأیید)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-101",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "کارت TRAFFIC-DECISION سه گزینهٔ سنگین (بودجه ads / لیست outreach / انتخاب بازار) می‌دهد — هزینهٔ شناختی بالا = تأخیر",
+   "reason": "owner-review.items[0]: سه گزینه با تصمیم‌های راهبردی",
+   "verify_against": [
+    "138:state/revenue-drive/owner-review.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "کارت را به یک انتخاب دوگانهٔ ساده بشکن: «بازار A یا B» + پیش‌فرض آماده",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-102",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "رأی مالک در یک پیام دسته‌ای («همشو موافقم») نشان می‌دهد او batch-prefer است ولی کارت‌ها تکی فرستاده می‌شوند",
+   "reason": "owner-decisions: سه تصمیم CARD1/2/3 با verbatim «همشو موافقم» در یک لحظه (09-15T21:30)",
+   "verify_against": [
+    "138:state/revenue-drive/owner-decisions.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "کارت‌ها را در دستهٔ ۳تایی با «همه را تأیید کن» بفرست",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-103",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "پاسخ مالک با پارس متن exact (`go:<id>:<channel>`) است؛ یک غلط تایپی یعنی رأی گم می‌شود",
+   "reason": "owner-decisions: callback rows با متن go:deadbeef:email؛ پارسر در owner_reply.py",
+   "verify_against": [
+    "138:state/revenue-drive/owner_reply.py",
+    "owner-decisions.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "پارسر را تحمل‌پذیر کن (مترادف‌ها/فاصله/فینگلیش) و REPLY_UNPARSED را لاگ کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-104",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "مالک «director بدون جزئیات فنی» است ولی بعضی کارت‌ها همچنان متن فنی/طولانی دارند",
+   "reason": "حکم نقش مالک (senior-agent memory) + کارت TRAFFIC با متن سه‌گزینه‌ای طولانی",
+   "verify_against": [
+    "06-EVIDENCE (senior-agent rulings)",
+    "owner-review.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "استاندارد کارت: یک جملهٔ تصمیم + دو گزینه + پیامد هر کدام در یک خط",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-109",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "هر رأی مالک فقط یک‌بار مصرف می‌شود؛ هیچ pre-authorization دوره‌ای (مثلاً هفتگی) وجود ندارد",
+   "reason": "هیچ فایل standing-authorization در state/revenue-drive",
+   "verify_against": [
+    "138:state/revenue-drive/ (ls)"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "پیشنهاد «مجوز هفتگی: تا ۱۰ ارسال/روز بدون پرسش تا تاریخ X» را به مالک بده",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-113",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "کارهای کلاس B بدون شاهد اجرا نمی‌شوند و شاهد (۱۸۲) یک صف مشترک دارد — همهٔ deployها سریال می‌شوند",
+   "reason": "GOV-FREEDOM-V2: شاهد پیش از deploy کلاس B الزامی؛ F-006: restore_drill وابسته به شاهد",
+   "verify_against": [
+    "AGENTS.md (GOV-FREEDOM-V2)",
+    "F-006"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "برای تغییرات غیرحساس، کلاس A را پیش‌فرض کن و شاهد را فقط برای اثر عام مصرف کن",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-116",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "فاز ۲ آزادی (no-witness recovery، cross-node apply، push autonomy) هنوز باز است — ظرفیت ماشین کامل استفاده نمی‌شود",
+   "reason": "F-040: freedom-v2 phase 2 open",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-040)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یک کارت برای فاز ۲ با ریسک‌های مشخص — هر آیتم جدا",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-117",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "رجیستر PARKED: ۸ lane تا «verified_payment_count=1» قفل‌اند — اولین پرداخت هرگز نیامده، پس قفل خودتقویت‌شونده است",
+   "reason": "F-027: PARKED-LANES: 8 lanes locked until campaign verified_payment_count=1",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/PARKED-LANES (F-027)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قفل را به «اولین پاسخ مثبت مشتری» یا زمان (۱۴ روز) تغییر بده تا حلقهٔ بسته بشکند",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-118",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "پوشهٔ محرمانه‌زدایی نشده: ۷۶ فایل commit‌شده IP/نام‌های داخلی را لو می‌دهد و با status risk_accepted رها شده",
+   "reason": "F-008: 76 committed files leak IPs/board names + public repo posture",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-008)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-119",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "گیت G8-021 به‌صورت request کهنه خودزنده می‌ماند و هر tick بودجهٔ کامپوننت می‌سوزاند",
+   "reason": "F-001 (open, U5R4): G8-021 executed but never retired — request now self-stale",
+   "verify_against": [
+    "138:/home/ari/ofn/state/ops-agent/state (F-001)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-123",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "۲۴ verify FAIL از دورهٔ GAP/VBAA باز مانده؛ بدهی کیفیت روی مسیر تصمیم‌گیری سایه انداخته",
+   "reason": "F-086: 24 verify FAILs outstanding from 09-09 GAP/VBAA round",
+   "verify_against": [
+    "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-086)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-125",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "زنجیرهٔ پذیرش EX1 با NOT_PASSED و سه تناقض ثبت‌نشده رها شده",
+   "reason": "F-064: EX1 acceptance chain: NOT_PASSED, v3.1 unadopted, EX3 blocked, three C-contradictions",
+   "verify_against": [
+    "09-LANES/MP-EX1-CRITERION-20260907/LANE-REPORT.md (F-064)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-127",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "کارهای پارک‌شده به دلیل قاعدهٔ «blocked is a decision, not a defect» هیچ مرور دوره‌ای ندارند",
+   "reason": "AGENTS.md §4: Blocked is a decision, not a defect",
+   "verify_against": [
+    "AGENTS.md"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "مرور ماهانهٔ پارک‌شده‌ها: هر پارک باید تاریخ بازبینی داشته باشد",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-S15",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "هزینهٔ اصطکاک رسید/شاهد با کار درآمدی هم‌مقیاس شده؛ حجم رسید بر حجم اثر می‌چربد",
+   "reason": "receipts.jsonl=111KB در برابر ۳۹ ارسال ثبت‌شده در همان بازه",
+   "verify_against": [
+    "138:state/revenue-drive/receipts.jsonl (size)",
+    "sent-log.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "رسید ارسال‌ها را به یک قالب تک‌خطی و یک فایل واحد ببر؛ رسید فوق‌متن برای هر ارسال لازم نیست",
+   "verified_this_session": false,
+   "seeded": true
+  },
+  {
+   "id": "W-136",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "شرط تولید سیگنال (سطح‌کردن دوبارهٔ یک پیشنهاد با کلید مشترک) وابسته به رفتار مالک است، نه تولیدکننده — نرخ رشد سیگنال کند",
+   "reason": "next_single_action: surface the same proposal twice WITH decision_key",
+   "verify_against": [
+    "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "سه پیشنهاد تکرارشوندهٔ کنترل‌شده (n=3 هر هفته) جزو چرخه کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-137",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "حافظهٔ معنایی همیشه صفر نوت می‌سازد؛ یا by-design است یا یال شکسته — هنوز تعیین نشده",
+   "reason": "F-050: memory-consolidate always produces 0 semantic notes — never determined",
+   "verify_against": [
+    "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-050)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-144",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "ریسک روش‌شناسی: چرخهٔ یادگیری قبلاً fixture آموزشی را به‌عنوان holdout استفاده کرده بود",
+   "reason": "memory: never reuse training fixtures as holdout (learning falsified 09-17)",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "جداسازی صریح train/holdout در هر چرخه با ثبت hash مجموعه",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-148",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "۵ فایل tracked روی runtime آلوده است و self_model_producer سه بدنهٔ واگرا دارد",
+   "reason": "DC-03D: 5 tracked dirty؛ self_model has THREE divergent bodies (win/main/runtime)",
+   "verify_against": [
+    "09-LANES (DC-03D)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "سه بدنه را مقایسه و یکی را کانونیک کن؛ دو تای دیگر archive_",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-149",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "۵۱۸۴ فایل untracked (۱۰۷MB، ۹۸٪ state) روی runtime — سطح state از git جدا شده",
+   "reason": "DC-03D: untracked 5184 files/107.1MB, 98% state/",
+   "verify_against": [
+    "09-LANES (DC-03D)"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "سیاست صریح: state = دادهٔ ماشین، فقط snapshot دوره‌ای در git",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-150",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "پیش‌بینی‌ها/آمار trackers با runtime اختلاف دارند (PB-4 در سند NOT_RUN، زنده IMPROVED)",
+   "reason": "F-035: open-work trackers contradict live stat",
+   "verify_against": [
+    "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/CURRENT-STATE (F-035)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-151",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "یک سند مستندات به‌صراحت «دروغ» علامت خورده (COMMIT-GAP) و هرگز اصلاح نشد",
+   "reason": "F-077: 'cap30 restart verified' documented as false vs git — gap acknowledged, never remediated",
+   "verify_against": [
+    "06-EVIDENCE/COMMIT-GAP-2026-08-20.md (F-077)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-152",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "از ۵۰ سیم‌کشی گم‌شده فقط ۲ مورد خودکار رفع شد؛ ۴۸ سیم‌کشی هنوز غایب است",
+   "reason": "F-024: missing-wirings census: 50 gaps, only items 13/21 auto-fixed",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/MISSING-WIRING-50 (F-024)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-153",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "consolidation tick چهار‌بعدی ۱۱ روز مرده بود و پیوستگی خوراکش دوباره اثبات نشده",
+   "reason": "F-048: 4d consolidation tick was dead 11 days (08-23→09-03)",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/MISSING-WIRING-50 (F-048)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-156",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "آرتیفکت‌های N-ALIVE هرگز به ۱۳۸ کپی نشدند (find_channels.py + CATALOG.json)",
+   "reason": "F-087: N-ALIVE: find_channels.py + CATALOG.json never copied to 138 timer",
+   "verify_against": [
+    "09-LANES/N-ALIVE-RUNBOOK-20260905/LANE-REPORT.md (F-087)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-162",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "۴۷ فایل با status-word باز (pending/NOT_RUN) در رجیستر بدهی — وضعیت‌ها فقط کلمه‌اند نه ماشین‌خوان",
+   "reason": "findings: 47 OPEN_WORK items (V-SW-*) با status-word",
+   "verify_against": [
+    "138:state/deep-scan/findings-current.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "وضعیت‌ها را به enum ماشین‌خوان تبدیل کن تا شمارش خودکار شود",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-165",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "_ops با ۳۳۱۴ فایل هرگز اسکن نشده — مغز عملیاتی قدیم خارج از دید است",
+   "reason": "DEEP-SCAN-250 survey: _ops 3314 files, never scanned",
+   "verify_against": [
+    "09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/MEGAPROMPT-DEEP-SCAN-250.md"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-166",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "4D-Vault با ۳۰۵۵ فایل اسکن‌نشده رها مانده",
+   "reason": "DEEP-SCAN-250 survey: 4D-Vault 3055 files",
+   "verify_against": [
+    "09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/MEGAPROMPT-DEEP-SCAN-250.md"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-168",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "سرشماری DEEP-SCAN-250 که برای همین هدف (بدهی پنهان) سفارش شد، معلق مانده",
+   "reason": "memory + prompt: DEEP-SCAN-250 SUSPENDED by season-correction order-law",
+   "verify_against": [
+    "09-LANES/OCTOPUS-DEEP-SCAN-250-20260915/"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یا رسماً کنسل با دلیل یا در قالب سبک‌تر ادامه",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-170",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "آینهٔ germline روی CIFS لپ‌تاپ ۹۹٪ پر است (۵.۴GB آزاد) و پشتیبان‌گیری را محدود می‌کند",
+   "reason": "DC-03E0: germline remote = CIFS mount 99% full (5.4G free)",
+   "verify_against": [
+    "09-LANES (DC-03E0)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": true,
+   "unblock_2liner": "فضا آزاد کن یا هدف پشتیبان دوم تعریف کن",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-171",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "۱۲ ناهمخوانی وال↔runtime در سرشماری ثبت شده و الگو ادامه دارد (runtime جلوتر از سند)",
+   "reason": "FORGOTTEN-100: 12 vault↔runtime discrepancies",
+   "verify_against": [
+    "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915/FORGOTTEN-100.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "هر ناهمخوانی را به یک خط «runtime منبع است» ببند",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-183",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "موجود زندهٔ ارگانیسم نمی‌تواند وال را بخواند؛ آینهٔ وال به‌عنوان منبع اختیاری SKIPPED شده",
+   "reason": "deep-scan ledger note: vault mirror optional-source (SKIPPED_OPTIONAL_SOURCE_UNAVAILABLE)",
+   "verify_against": [
+    "138:state/deep-scan/ (vault-mirror)",
+    "09-LANES/OCTOPUS-DEEP-MEMORY-SCAN-20260915"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک پل فقط‌خواندنی وال→۱۳۸ برای فایل‌های دانش (نه کل وال)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-184",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "دو CURRENT-TRUTH و چند نقشهٔ کانونیک موازی، هزینهٔ انتخاب مسیر درست را در هر نشست تحمیل می‌کند",
+   "reason": "mtime تصمیم‌گیر است؛ هر دو فایل زنده‌اند (OCTOPUS/ + 06-EVIDENCE/)",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md",
+    "OCTOPUS/CURRENT-TRUTH"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یکی کانونیک، دیگری pointer؛ با تاریخ انقضا",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-185",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "در ۲۶۰ کامیت سیزن، نشانه‌های حاکمیتی (۱۴۸) بیش از نشانه‌های درآمدی (۸۳) است",
+   "reason": "git log since 09-07: governance-keyword commits=148، revenue=83، infra=76 (پروکسی هم‌پوشان)",
+   "verify_against": [
+    "git log (vault) — proxy analysis"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "نسبت را به meter تبدیل کن: تعداد کامیت درآمدی/کل را هر هفته چاپ کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-186",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "ریتم کامیت سیزن نایکنواخت است: ۵۳ و ۵۰ در دو روز اول، سپس ۷/۵/۲ در میانه — فروپاشی ظرفیت",
+   "reason": "commit counts: 09-09:7، 09-10:5، 09-12:2، 09-14:8",
+   "verify_against": [
+    "git log --date=format"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "علت روزهای کم‌کامیت را به رویداد آن روزها نسبت بده (نجات زیرساخت/ابهام)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-189",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "واحد پیشرفت (cycle record) فقط از ۰۹-۱۷ رسمی شد؛ قبل از آن پیشرفت غیرقابل شمارش بود",
+   "reason": "STTL-001 اولین cycle record رسمی است (09-17T18:21)",
+   "verify_against": [
+    "09-LANES/OCTOPUS-SELF-TEST-TRAIN-20260918/evidence/CYCLE-STTL-001.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "cycle record را به یک فایل روزانه تبدیل کن تا n چرخه/هفته قابل شمارش شود",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-190",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "۲۰+ تایمر فعال با فواصل دقیقه‌ای، سطح عملیاتی بزرگی می‌سازد که هر خرابی آن توجه می‌خواهد",
+   "reason": "systemctl list-timers: 25+ واحد فعال",
+   "verify_against": [
+    "138: systemctl list-timers"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "کنسولیدیشن: تایمرهای کم‌اثر را در یک cronicle روزانه ادغام کن",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-191",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "روز بحران دیسک (۰۹-۱۲) کل ظرفیت یک روز را خورد و آرشیو هنوز برنگشته",
+   "reason": "F-047 + disk crisis: F: 0.05→61.39GB، 36.42GB منتقل شد، S: وسط کار قطع شد",
+   "verify_against": [
+    "06-EVIDENCE",
+    "99-ARCHIVE state (F-047)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک runbook کوتاه برای بحران دیسک (تا دفعهٔ بعد یک روز کامل نخورد)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-193",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "عصر ۰۹-۱۷ صرف ساخت هاب NATS/فلیت شد؛ همان بازه صفر ارسال درآمدی ثبت شده",
+   "reason": "commits 09-17: 34؛ sent-log 09-17: 0",
+   "verify_against": [
+    "git log",
+    "138:sent-log.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E3",
+   "impact_1_5": 3,
+   "fixability_1_5": 2,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "قاعدهٔ تعادل: هر روز کاری باید حداقل یک اثر درآمدی ثبت کند (حتی یک ارسال)",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-196",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "مرور هفتگی با مالک فقط از ۰۹-۱۸ خودکار شده؛ شش هفتهٔ قبل آن بی‌مرور بود",
+   "reason": "W1 verdict automation 09-18 (one-shot timer + scheduled task)",
+   "verify_against": [
+    "09-LANES/OCTOPUS-FLEET-AUDIT-20260918",
+    "schtasks"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "مرور هفتگی را به یک کارت ثابت هفتگی تبدیل کن (با معیار عددی)",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-197",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "هیچ خلاصهٔ دوره‌ای (digest) برای مالک وجود ندارد؛ ارتباط فقط کارت تصمیم است",
+   "reason": "لیست تایمرها: هیچ digest timer؛ فقط owner-ask هر ۱۰ دقیقه",
+   "verify_against": [
+    "138: systemctl list-timers"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 3,
+   "rank_IxF": 6,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک digest هفتگی ۵خطی (صفر درآمد/ارسال/پاسخ/گلوگاه) به مالک",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-S01",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "کل تاریخ بدون حتی یک تومان درآمد تأییدشده",
+   "reason": "verified_cash=0.0 در meter فصل و revenue-state.verified_cash_aud",
+   "verify_against": [
+    "138:season-meter.json",
+    "revenue-state.json"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E3",
+   "impact_1_5": 5,
+   "fixability_1_5": 1,
+   "rank_IxF": 5,
+   "owner_decision_needed": false,
+   "unblock_2liner": "معیار واحد پول تأییدشده درست است؛ مسئله در نرخ تبدیل است نه معیار",
+   "verified_this_session": true,
+   "seeded": true
+  },
+  {
+   "id": "W-204",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "۴ برد هنوز بی‌استفاده‌اند و auth نودهای ۱۰۰/۱۶۰/۱۹۳/۱۱۴ معلق است",
+   "reason": "F-017: hardware build-out T1-T6 not started (4 boards idle, NPU unused, node auth PENDING)",
+   "verify_against": [
+    "09-LANES/OCTOPUS-HARDWARE-EXEC-20260915/LANE-REPORT.md (F-017)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-205",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "احراز هویت مش نودها (node_id) روی ۴ کارگر PENDING_AUTH است",
+   "reason": "F-097: mesh auth hardening: PASS but PENDING_AUTH on all 4 workers",
+   "verify_against": [
+    "00-SEASON/ziman-full-repair-20260910/fleet-brain/P4 (F-097)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-206",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "NPU (ظرفیت محاسباتی رایگان نودها) صفر مصرف دارد",
+   "reason": "F-056: NPU capacity unmeasured/unused; zero consumers; 138 row NOT_RUN",
+   "verify_against": [
+    "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915 (F-056)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-212",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "طرح rollback مهار (sandbox escape/fire drill) هرگز تمرین نشده",
+   "reason": "F-025: containment rollback plan never exercised",
+   "verify_against": [
+    "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-025)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-220",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "تیر state روی ۱۳۸ (۱۰۵MB) هرگز quiesce نشده؛ هیچ snapshot سازگار از state وجود ندارد",
+   "reason": "DC-03E0: the 105MB state tier needs quiesce; ~10 subsystems wrote 21 files in 10 min",
+   "verify_against": [
+    "09-LANES (DC-03E0)"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک اسکریپت snapshot با توقف کوتاه ۶۰ ثانیه‌ای سرویس‌های نویسنده",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-221",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "قواعد شکنندهٔ سخت‌افزاری (شروع نکردن مجدد برق، کارت ۳۲GB قبل از reboot) ریسک عملیاتی دائمی می‌سازند",
+   "reason": "hardware rules: never power-cycle 138؛ 32GB card must leave Plus before reboot",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-HARDWARE-ENROLLMENT-20260915",
+    "memory"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "هر قاعده را به یک چک قبل‌از‌عملیات در runbook نود تبدیل کن",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-233",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "سقف بودجهٔ ۱۰۰$/ماه عملاً خرید ترافیک پولی را محدود می‌کند (حتی اگر ads مجاز شود)",
+   "reason": "GOV-V8 ceiling USD100/mo؛ month_spent 0.89",
+   "verify_against": [
+    "AGENTS.md (GOV-V8)",
+    "api-budget"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یا سقف را برای خط تقاضا افزایش بده یا مدل تقاضای صفر-هزینه را بپذیر",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-235",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "اعتبارسنجی پرسونا با خریدار واقعی انجام نشده؛ پرسونا فرضی است",
+   "reason": "purchase-persona فرضی؛ هیچ مصاحبه/پاسخ بازار ثبت نشده",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-239",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "ورود به پلتفرم Airtasker ناموفق بود (تنها ایمیل رضایت Google آمد) و تکرار نشد",
+   "reason": "memory/audit: only Google consent mail؛ no alert ever arrived; our airtasker branch is live",
+   "verify_against": [
+    "06-EVIDENCE (airtasker diagnosis)"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک تلاش ورود دوباره با حساب درست + ثبت نتیجه",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-039",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "مسیرهای دایرکتوری (YP/TrueLocal/Hotfrog) به کپچا و ایمیل-ورایف خورده‌اند و نیمه‌کاره مانده‌اند",
+   "reason": "F-031: captcha-blocked + email-verify pending",
+   "verify_against": [
+    "00-SEASON/DIRECTORY-YP-SUBMITTED-20260906.json"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-056",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "نظارت بر تقاضا فقط از سمت ماست؛ هیچ سیگنال خرید/جستجو (Google/سایت) رصد نمی‌شود",
+   "reason": "هیچ فایل search-demand در state نیست",
+   "verify_against": [
+    "138:state/ (ls)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E3",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-072",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "هیچ قیمت‌گذاری مبتنی بر ارزش/نتیجه (نه ساعت کاری) طراحی نشده",
+   "reason": "بدون rate card/value pricing سند",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-073",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "آفر نقاشی روی یک بازار (strata) متمرکز است ولی منابع لیست از همان بازار هم محدود است",
+   "reason": "owner-review: market derived from own files (strata NSW)",
+   "verify_against": [
+    "owner-review.json"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E2",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "یک بازار دوم (پیمانکار ساختمانی/بیمه) با ۱۰ سرنخ بسنج",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-076",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "هیچ نشانی از بازخورد مشتریان قبلی (رضایت/رتبه) وجود ندارد",
+   "reason": "هیچ feedback/review file",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-078",
+   "territory": "T3-offer-product",
+   "territory_code": "T3",
+   "hypothesis": "زمان تحویل/ظرفیت اعلام نمی‌شود؛ B2B به تاریخ نیاز دارد",
+   "reason": "هیچ capacity/timeline فایل",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-087",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "زنجیرهٔ studio-consent با ۱۴/۱۴ بولت امضانشده، انتشار استودیو را قفل کرده",
+   "reason": "F-023: studio-consent chain 14/14 bullets unsigned (Saba+owner attestations)",
+   "verify_against": [
+    "00-SEASON/PROMPT-RUNS-20260908/studio-consent (F-023)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-105",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "تصمیم «هر دو کسب‌وکار هم‌زمان» توجه مالک را نصف می‌کند و هیچ‌کدام full-speed نیست",
+   "reason": "owner-decisions: PHASE4_FOOT_ORDER=BOTH_SIMULTANEOUS (09-16T09:52)",
+   "verify_against": [
+    "138:state/revenue-drive/owner-decisions.jsonl"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یک بازهٔ ۲هفته‌ای تک‌کسب‌وکار (A/B زمانی) پیشنهاد کن — تصمیم مالک",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-107",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "اقدام فیزیکی مالک (کارت SD/برق بردهای باقی‌مانده) از ۰۹-۱۵ معلق است",
+   "reason": "F-018: owner physical step pending: SD-card swap + power for remaining boards",
+   "verify_against": [
+    "09-LANES/OCTOPUS-HARDWARE-ENROLLMENT-20260915/LANE-REPORT.md (F-018)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-114",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "دو دروازهٔ بلاک‌شدهٔ دائمی (secret_rotation، OWNER_KEY) روی چند آیتم سایه انداخته‌اند",
+   "reason": "AGENTS.md §4: do not open blocked gates",
+   "verify_against": [
+    "AGENTS.md"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "آیتم‌های وابسته را صریح «منتظر دروازه» علامت بزن تا در شمارش باز نمانند",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-129",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "قفل‌های «secret_rotation» و «OWNER_KEY» به دلیل نبود مسیر اجرا، عملاً انتخاب‌های باز را فریز کرده‌اند",
+   "reason": "AGENTS.md: do not open blocked gates: secret_rotation, OWNER_KEY",
+   "verify_against": [
+    "AGENTS.md §4"
+   ],
+   "verdict": "CONFIRMED_BLOCKER",
+   "verdict_code": "C",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "یک کارت: «کدام قفل‌ها هنوز لازم‌اند؟» — حذف قفل مرده، آزادسازی مسیر",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-138",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "بازیابی معنایی هنوز extractive-v1 (keyword-only) است — آخرین بلاکر هوش باز مانده",
+   "reason": "F-049: semantic retrieval stage pending (extractive-v1 keyword-only)",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-049)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-139",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "PB-4 (حافظهٔ پاسخ‌دهی) با corpus جدید هرگز دوباره آزمون نشد",
+   "reason": "F-051: PB-4 retest owed with 371-fact corpus + held-out questions",
+   "verify_against": [
+    "09-LANES/OCTOPUS-FORENSIC-REORIENTATION-20260915/OPEN-WORK.json (OW-7)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-140",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "سیم‌کشی ظرفیت/تازگی (F2) به self-model فقط طراحی شده و هرگز وصل نشد",
+   "reason": "F-052: F2 capability/freshness wiring — shadow designed, never wired",
+   "verify_against": [
+    "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-ACTIONS (F-052)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-142",
+   "territory": "T6-learning",
+   "territory_code": "T6",
+   "hypothesis": "دو قابلیت کشف‌شده (fake_executor، external_witness SILENT_FLIP) بدون سیم‌کشی مانده‌اند",
+   "reason": "census 09-17: fake_executor/external_witness SILENT_FLIP unwired (grep-verified)",
+   "verify_against": [
+    "06-EVIDENCE (capability census 09-17)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-167",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "سیزده کپی .claude (۲۳GB) تکرار سیستم است و فضای مدیریتی می‌خورد",
+   "reason": "deep-scan 10-aspects: .claude 13 vault copies 23.1GB",
+   "verify_against": [
+    "09-LANES/OCTOPUS-DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT.md"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-176",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "۶۴٪ فراخوان‌های پولی بدون خروجی می‌سوزند (OP-8) و هیچ کاهشی اعمال نشده",
+   "reason": "F-057: OP-8: paid calls burn without output — measured open at 64%",
+   "verify_against": [
+    "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-057)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-178",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "قابلیت انتشار خارجی OFN هرگز ساخته نشد (RULE_NOT_IMPLEMENTED در ۳ کپی)",
+   "reason": "F-062: OFN real-publish returns RULE_NOT_IMPLEMENTED across 3 mirror copies",
+   "verify_against": [
+    "03 - Projects/OFN-Board/ofn/adapters/platforms/base.py:43 (F-062)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-180",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "زنجیرهٔ EDGE-1..14 در L191 هرگز تشخیص داده نشد و MODEL_RUNTIME_BLOCKED باز است",
+   "reason": "F-075: L191 findings: business chain EDGE-1..14 undiagnosed",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-L191-FINDINGS-2026-08-28.md (F-075)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-182",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "چرخهٔ عمر producer (restart/cursor-loss/rotation) و atomicity WAL ساخته نشده — ریسک از‌دست‌رفتن داده",
+   "reason": "F-010: G19 producer lifecycle unproven + G27 WAL-or-temp-file atomicity not built",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-010)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-192",
+   "territory": "T9-attention-priority",
+   "territory_code": "T9",
+   "hypothesis": "روزهای enrollment سخت‌افزار (۰۹-۱۴/۱۵) صرف بردها شد نه درآمد",
+   "reason": "commits 09-14: 8، mass hardware lane reports (ENROLLMENT/HARDWARE-EXEC)",
+   "verify_against": [
+    "09-LANES/OCTOPUS-HARDWARE-ENROLLMENT-20260915",
+    "git log"
+   ],
+   "verdict": "PARTIAL",
+   "verdict_code": "P",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 2,
+   "rank_IxF": 4,
+   "owner_decision_needed": true,
+   "unblock_2liner": "ظرفیت فلیت فعلی کافی است؛ enrollment بیشتر فقط با توجیه درآمدی",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-208",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "سرویس‌های unwired (effect-zero claim paths + http.server اعلام‌نشده) از ۰۸-۱۶ active مانده‌اند",
+   "reason": "F-076: unwired services: 'status: active' since 08-16",
+   "verify_against": [
+    "06-EVIDENCE/UNWIRED-* (F-076)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-229",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "مشتری هیچ سطح وضعیت/پیگیری (چه شد پرونده من؟) ندارد",
+   "reason": "no status page/file",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-230",
+   "territory": "T11-channels",
+   "territory_code": "T11",
+   "hypothesis": "کانال SMS/واتس‌اپ برای یادآوری/فالوآپ استفاده نمی‌شود",
+   "reason": "no sms/whatsapp artifacts",
+   "verify_against": [
+    "—"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E0",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-124",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "سه xfail در ۴ کپی مختلف ماژول VBAA باقی است — تناقض کیفیت در چند نسخه",
+   "reason": "F-063: vbaa xfail invariant trio unresolved in 4 copy locations",
+   "verify_against": [
+    "tests/contract/vbaa/ (F-063)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-126",
+   "territory": "T5-governance-friction",
+   "territory_code": "T5",
+   "hypothesis": "ستون verified_in_code در دفتر 02-DECISIONS هرگز پر نشده — ردیابی تصمیم→کد قطع است",
+   "reason": "F-089: 02-DECISIONS ledger verified_in_code column unfilled",
+   "verify_against": [
+    "02-DECISIONS/DECISIONS.md (F-089)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-154",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "ledger کانونیک GAP وجود ندارد (۰ ردیف در برابر ۶۴ ردیف نسخهٔ markdown) — L6 برای همیشه باز",
+   "reason": "F-053: GAP-LEDGER.jsonl canonical missing",
+   "verify_against": [
+    "09-LANES/L6/LANE-REPORT.md (F-053)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-155",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "مُهر QA فاز P6 استناد شده ولی فایل مستقیمش پیدا نمی‌شود",
+   "reason": "F-055: P6 QA seal cited but its direct file unlocatable",
+   "verify_against": [
+    "09-LANES/OCTOPUS-BODY-ADAPTATION-NEXT-20260915/NEXT-ACTIONS (F-055)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-157",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "فایل listener imap روی ۱۳۸ (۱۵۸۷۵B) هرگز تأیید نشد و نام‌گذاری lane-matrix تناقض دارد",
+   "reason": "F-045: B-PULSE-IMAP: the exact 15875B listener file never confirmed + naming clash",
+   "verify_against": [
+    "09-LANES/B-PULSE-IMAP/LANE-REPORT.md (F-045)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-158",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "سه ادعای متناقض درباره llama روی ۱۳۸/۱۸۰ وجود دارد و هیچ‌کدام بازconciliation نشده (resolution: null)",
+   "reason": "F-082: llama-8081 three claims, no reconciliation",
+   "verify_against": [
+    "09-LANES/OCTOPUS-138-WIRING-20260908/LANE-REPORT.md (F-082)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-159",
+   "territory": "T7-agent-architecture",
+   "territory_code": "T7",
+   "hypothesis": "تناقض سه‌مستأجری پورت ۸۷۹۱ با resolution: null رها شده و مسیر callback را مبهم می‌کند",
+   "reason": "F-081: 8791 three-tenant contradiction unresolved",
+   "verify_against": [
+    "09-LANES/D-S0-HUNT/LANE-REPORT.md (F-081)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-169",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "manifest اسکن ۱۰وجهی پس از دو اجرای ناتمام ناقص مانده",
+   "reason": "F-054: DEEP-SCAN-10ASPECTS sha manifest incomplete after two aborted runs",
+   "verify_against": [
+    "09-LANES/DEEP-SCAN-10ASPECTS-20260907/LANE-REPORT.md (F-054)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-174",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "سازندهٔ گراف 4d_system هرگز پیاده نشد و baselineها تأییدنشده ماند",
+   "reason": "F-059: 4d_system graph builder not implemented (deferred)",
+   "verify_against": [
+    "09-LANES/L8/LANE-REPORT.md (F-059)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-181",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "۲۸۰ ردیف فرمول N3V2-MATH با ۳۰ ردیف آزمون‌نشده و ۹ قرنطینه رها شده",
+   "reason": "F-094: N3V2-MATH: 30 formula rows untested, 9 quarantines, SIG_IV PENDING",
+   "verify_against": [
+    "09-LANES/N3V2-MATH-20260505T031103Z/LANE-REPORT.md (F-094)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 3,
+   "rank_IxF": 3,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-207",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "تونل‌ها/مسیرهای دسترسی خارجی غایب یا کهنه‌اند و hold_external فعال است",
+   "reason": "F-079: tunnels absent/stale + hold external",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-L191-FORENSIC-DEBUG-2026-08-28.md (F-079)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-216",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "کارت ۱۲۸GB روی ۱۸۲ در سه تلاش شناسایی نشد — کارت یا اسلات بدون تعیین‌تکلیف",
+   "reason": "F-096: 182 SD-slot: 128GB card undetected after 3 tries",
+   "verify_against": [
+    "09-LANES/OCTOPUS-HARDWARE-ENROLLMENT-20260915 (F-096)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-217",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "استراتژی MAC/DHCP برای تغییر رسانه (T4) طراحی/اثبات نشده",
+   "reason": "F-095: T4 media-change MAC/DHCP strategy design + proof outstanding",
+   "verify_against": [
+    "09-LANES/OCTOPUS-HARDWARE-EXEC-20260915 (F-095)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-240",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "باتری آزمون H9 تا ۰۹-۲۲ ادامه دارد و حکم analyzer معلق است — برنامهٔ تحقیق معلق",
+   "reason": "F-066: H9 test battery accrues to 2026-09-22; verdict PENDING_CONTINUE",
+   "verify_against": [
+    "09-LANES/H9-TESTBATTERY-20260909/LANE-REPORT.md (F-066)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-241",
+   "territory": "T12-buffer-external",
+   "territory_code": "T12",
+   "hypothesis": "برنامهٔ تعمیم QD (GEN-v4) مجاز نشده و پارک مانده",
+   "reason": "F-067: GEN-v4 lab candidates not authorized — generalization program parked",
+   "verify_against": [
+    "09-LANES/QD-LAB-GENERALIZATION-20260908/LANE-REPORT.md (F-067)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-050",
+   "territory": "T2-demand-market",
+   "territory_code": "T2",
+   "hypothesis": "تحقیق چشم‌انداز AI بازار (۸-PLANS) پذیرش‌نشده مانده — ورودی استراتژی تقاضا ناقص",
+   "reason": "F-092: 50 sources, 3 connectors acceptance unmet",
+   "verify_against": [
+    "08-PLANS/OCTOPUS-AI-LANDSCAPE-RESEARCH-MEGAPROMPT-2026-08-28 (F-092)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-085",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "امضای owner-key (B1 ED25519) از چت معلق مانده و hash کیس هرگز بازتولید نشده",
+   "reason": "F-038: owner-key chain: B1 formal signing pending chat approval; owner-key.enc hash never reproduced",
+   "verify_against": [
+    "06-EVIDENCE/OWNER-KEY-STATUS-2026-08-20.md (F-038)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 1,
+   "rank_IxF": 2,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-088",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "KYC استودیو (FeetFinder 0/9 + OnlyFans HOLD) صد درصد وابسته به اقدام مالک است",
+   "reason": "F-032: FeetFinder KYC 0/9 uploads + OnlyFans cookie/API rejects",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/CURRENT-TRUTH.md (F-032)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 2,
+   "fixability_1_5": 1,
+   "rank_IxF": 2,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-089",
+   "territory": "T4-owner-dependency",
+   "territory_code": "T4",
+   "hypothesis": "سه امضای pre-registration (K9، judge-bias phase2، four-arm ablation) هرگز زده نشده",
+   "reason": "F-090: three pre-registration signatures never cast",
+   "verify_against": [
+    "02-DECISIONS/PRE-REG-*.md (F-090)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-172",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "لیبل‌های ESP32 غایب است؛ جداول مالک رندر نمی‌شوند",
+   "reason": "F-088: ESP32 labels.json absent",
+   "verify_against": [
+    "09-LANES/Q-QUALITY-SWARM-20260908/LANE-REPORT.md (F-088)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-173",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "چک‌لیست PARALLEL-AGENTS از ۰۷-۱۸ با ۱۶ بولت باز مانده (ماه دوم)",
+   "reason": "F-093: PARALLEL-AGENTS-CONSOLIDATION checklist 16 unticked bullets",
+   "verify_against": [
+    "01 - Dashboard/PARALLEL-AGENTS-CONSOLIDATION-2026-07-18.md (F-093)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-177",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "خلبان AIE صادقانه fail شد و PYMDP v2 ثبت‌شده ولی هرگز اجرا نشد",
+   "reason": "F-058: AIE pilot failed honestly; PYMDP v2 registered, never run",
+   "verify_against": [
+    "01 - Dashboard/OCTOPUS-VITAL-DATA-2026-09-08.md (F-058)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-179",
+   "territory": "T8-knowledge-debt",
+   "territory_code": "T8",
+   "hypothesis": "حلقهٔ کسب‌وکار EDGE6 مسدود و remote انتشار GitHub نامکشوف مانده",
+   "reason": "F-074: EDGE6 business loop blocked + GitHub publication remote unlocated",
+   "verify_against": [
+    "06-EVIDENCE/OCTOPUS-TELEGRAM-WEBAPP-PHASE0-2026-08-29.md (F-074)"
+   ],
+   "verdict": "UNVERIFIED",
+   "verdict_code": "U",
+   "grade": "E1",
+   "impact_1_5": 1,
+   "fixability_1_5": 2,
+   "rank_IxF": 2,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-035",
+   "territory": "T1-money-path",
+   "territory_code": "T1",
+   "hypothesis": "بودجهٔ API ماهانه ۰.۹ دلار از ۱۰۰ دلار است — کمبود بودجه علت کندی نیست",
+   "reason": "api-budget: month_spent 0.8867/100، window 0.0337/10",
+   "verify_against": [
+    "138:state/api-budget (b.status())"
+   ],
+   "verdict": "REFUTED",
+   "verdict_code": "R",
+   "grade": "E3",
+   "impact_1_5": 0,
+   "fixability_1_5": 5,
+   "rank_IxF": 0,
+   "owner_decision_needed": true,
+   "unblock_2liner": "",
+   "verified_this_session": true,
+   "seeded": false
+  },
+  {
+   "id": "W-199",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "EROFS روی ۱۳۸ (که دو روز نوشتن را بسته بود) با RES-05C رفع شده — علتِ رفع‌شده",
+   "reason": "RES-05C verdict PASS_OWNER_NOTIFICATION_OBSERVED @03:19:07Z؛ EROFS gone",
+   "verify_against": [
+    "09-LANES/RES-05C (evidence)"
+   ],
+   "verdict": "REFUTED",
+   "verdict_code": "R",
+   "grade": "E1",
+   "impact_1_5": 0,
+   "fixability_1_5": 5,
+   "rank_IxF": 0,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-200",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "OOM روی ۱۸۲ با swapfile ۲G رفع شده و gap001 مربوط به قبل از swapfile بود",
+   "reason": "A7 swap drill PASSED + fleet audit: 182 failed units cleared (reset-failed)",
+   "verify_against": [
+    "06-EVIDENCE/A7-SWAP-DRILL-20260918",
+    "commit a7761e1"
+   ],
+   "verdict": "REFUTED",
+   "verdict_code": "R",
+   "grade": "E1",
+   "impact_1_5": 0,
+   "fixability_1_5": 5,
+   "rank_IxF": 0,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  },
+  {
+   "id": "W-215",
+   "territory": "T10-infra-fleet",
+   "territory_code": "T10",
+   "hypothesis": "کلید leaf ناتس ۱۳۸ در پالس‌ها None بود که در ۰۹-۱۷ اصلاح شد — علتِ رفع‌شده",
+   "reason": "commit a7761e1: 138 pulse key leaf->nats_leaf_active (verified leaf=True 23:47:29Z)",
+   "verify_against": [
+    "git log (a7761e1)"
+   ],
+   "verdict": "REFUTED",
+   "verdict_code": "R",
+   "grade": "E2",
+   "impact_1_5": 0,
+   "fixability_1_5": 5,
+   "rank_IxF": 0,
+   "owner_decision_needed": false,
+   "unblock_2liner": "",
+   "verified_this_session": false,
+   "seeded": false
+  }
+ ]
+}
