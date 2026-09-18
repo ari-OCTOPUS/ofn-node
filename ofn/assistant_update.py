@@ -6,6 +6,44 @@ from .adapters.remote_brain import RemoteBrain
 from .run import SYSTEM_PROMPT, arm_node_brain, build_node
 
 
+def _factory_brain(tier="standard", pin=None):
+    """BRAIN-FACTORY SWITCH (2026-09-18): prefer tools/brain_factory (whole
+    provider path: both env files, all dialects, verified endpoints). Falls
+    back to the legacy RemoteBrain path with a receipt if no provider is
+    routable, so behaviour can never regress silently."""
+    import sys as _sys
+    import pathlib as _pl
+    _root = _pl.Path(__file__).resolve().parent.parent
+    if str(_root / "tools") not in _sys.path:
+        _sys.path.insert(0, str(_root / "tools"))
+    try:
+        import brain_factory as _bf  # noqa: PLC0415
+        _b = _bf.build(tier=tier, pin=pin)
+        _rec = _root / "state" / "receipts"
+        try:
+            _rec.mkdir(parents=True, exist_ok=True)
+            with (_rec / "brainswitch.jsonl").open("a", encoding="utf-8") as _fh:
+                _fh.write(json.dumps({"at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                                      "file": __file__, "tier": tier,
+                                      "provider": (_b.get("decision") or {}).get("chosen"),
+                                      "model": _b.get("model"), "path": "factory"}) + chr(10))
+        except Exception:
+            pass
+        return _b["brain"]
+    except Exception as _exc:  # noqa: BLE001 - fallback is deliberate and recorded
+        try:
+            _rec = _root / "state" / "receipts"
+            _rec.mkdir(parents=True, exist_ok=True)
+            with (_rec / "brainswitch.jsonl").open("a", encoding="utf-8") as _fh:
+                _fh.write(json.dumps({"at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                                      "file": __file__, "tier": tier,
+                                      "path": "fallback", "why": type(_exc).__name__}) + chr(10))
+        except Exception:
+            pass
+        return None
+
+
+
 def _prompt(node, scope):
     ctx = node.assistant.search(scope.tenant.value, "عکاسی تولید محتوا امنیت قیمت", limit=6) if node.assistant else []
     mem = "\n\n".join(c["body"][:900] for c in ctx)
@@ -25,7 +63,7 @@ def main() -> int:
     scope = node.registry.scope(tenant)
     text = ""; brain = "local-fallback"
     if cfg.remote_api_key:
-        rb = RemoteBrain(api_key=cfg.remote_api_key, model="fugu-ultra",
+        rb = _factory_brain("standard", pin="deepseek") or RemoteBrain(api_key=cfg.remote_api_key, model="fugu-ultra",
                          base_url=cfg.remote_base_url, timeout_s=900,
                          reasoning_effort="high", max_output_tokens=1400,
                          system_prompt=SYSTEM_PROMPT)

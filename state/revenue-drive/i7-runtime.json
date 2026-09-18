@@ -1,0 +1,26 @@
+{
+ "FeetFinder": false,
+ "OF": false,
+ "at": "2026-09-16T05:20:37Z",
+ "customer_send": true,
+ "execute_sha256": "2eb56a4d15a225e64224bb1b022b69f9db2430f2090274b258491d4120006aaa",
+ "expiry": "2026-09-30T12:47:00+10:00",
+ "mode": "standing_authorized",
+ "no_auto_customer_send": false,
+ "note": "I7 auto_stage only; public/customer send stays RED until new I2/U1",
+ "schema": "octopus.i7-runtime.v1",
+ "task_id": "SEC-I7-REVENUE-DRIVE-APPLY",
+ "units": [
+  "octopus-revenue-drive.service",
+  "octopus-revenue-drive.timer"
+ ],
+ "standing_authorization": {
+  "granted_at": "2026-09-18T02:58:30Z",
+  "expires_at": "2026-10-02T02:58:30Z",
+  "daily_cap": 10,
+  "recipients": "existing leads only",
+  "ziman": "existing ziman emails only",
+  "source": "owner (ZCode session chat, 2026-09-18)",
+  "revoke": "write state/revenue-drive/AUTH-REVOKED or delete this file"
+ }
+}

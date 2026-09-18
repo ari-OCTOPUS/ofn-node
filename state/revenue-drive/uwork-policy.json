@@ -1,0 +1,20 @@
+{
+ "schema": "octopus.uwork-policy.v1",
+ "granted_at": "2026-09-18T03:15:49Z",
+ "granted_by": "owner (ZCode session chat 2026-09-18, 4-option answer: internal automatic)",
+ "rule": {
+  "internal_green": "auto-execute with preimage+receipt+rollback (Class A)",
+  "red_boundary_external_money_public_customer": "owner card required",
+  "unknown_action_type": "proposal -> NEW-CLASS card; never silently executed"
+ },
+ "never_auto": [
+  "purchase/payment",
+  "public comms / customer send (covered by the standing authorization scope only)",
+  "publish/launch",
+  "infra change on 182 witness",
+  "secret handling",
+  "data deletion",
+  "git history rewrite"
+ ],
+ "revoke": "delete this file or write state/revenue-drive/UWORK-REVOKED"
+}

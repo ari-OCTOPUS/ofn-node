@@ -1,0 +1,16 @@
+{
+ "schema": "octopus.standing-authorization.v1",
+ "granted_at": "2026-09-18T02:58:30Z",
+ "granted_by": "owner (ZCode session chat, 2026-09-18)",
+ "scope": {
+  "channel": "email",
+  "daily_cap": 10,
+  "days": 14,
+  "expires_at": "2026-10-02T02:58:30Z",
+  "templates_only": true,
+  "recipients": "existing leads only",
+  "ziman": "existing ziman emails only"
+ },
+ "revoke": "write state/revenue-drive/AUTH-REVOKED or delete this file",
+ "notes": "owner answered the 4-option question: 14 days, <=10/day, approved templates; revocable any time"
+}
