@@ -1,0 +1,140 @@
+{
+ "schema": "compute_cockpit.v1",
+ "at_utc": "2026-09-18T00:06:46Z",
+ "mode": "shadow",
+ "owner_pause": false,
+ "queue": {
+  "schema": "compute.v1",
+  "at_utc": "2026-09-18T00:06:46Z",
+  "by_state": {
+   "QUEUED": 1
+  },
+  "active": 0,
+  "events": 1
+ },
+ "nodes": [
+  {
+   "node_id": "138",
+   "admit": false,
+   "verdict": "DENIED",
+   "reasons": [
+    "NODE_NOT_ALLOWED"
+   ],
+   "score": -Infinity,
+   "cpu_pct": 18.6,
+   "load1": 2.3,
+   "hottest_c": 36.1,
+   "mem_used_pct": 16.2,
+   "disk_used_pct": "35%",
+   "telemetry_age_s": 34.6,
+   "ssh_rtt_s": 6.861,
+   "liveness_proven": true,
+   "boot_id": "f95a1893"
+  },
+  {
+   "node_id": "180",
+   "admit": false,
+   "verdict": "DENIED",
+   "reasons": [
+    "NODE_NOT_ALLOWED"
+   ],
+   "score": -Infinity,
+   "cpu_pct": 2.6,
+   "load1": 0.1,
+   "hottest_c": 28.7,
+   "mem_used_pct": 57.4,
+   "disk_used_pct": "22%",
+   "telemetry_age_s": 29.6,
+   "ssh_rtt_s": 5.175,
+   "liveness_proven": true,
+   "boot_id": "94c9f38e"
+  },
+  {
+   "node_id": "182",
+   "admit": false,
+   "verdict": "DENIED",
+   "reasons": [
+    "NODE_NOT_ALLOWED"
+   ],
+   "score": -Infinity,
+   "cpu_pct": 21.7,
+   "load1": 1.18,
+   "hottest_c": 35.2,
+   "mem_used_pct": 77.1,
+   "disk_used_pct": "46%",
+   "telemetry_age_s": 20.6,
+   "ssh_rtt_s": 8.349,
+   "liveness_proven": true,
+   "boot_id": "7a4e237a"
+  },
+  {
+   "node_id": "193",
+   "admit": true,
+   "verdict": "ADMIT",
+   "reasons": [],
+   "score": 206.287,
+   "cpu_pct": 0.4,
+   "load1": 0.05,
+   "hottest_c": 24.1,
+   "mem_used_pct": 6.8,
+   "disk_used_pct": "3%",
+   "telemetry_age_s": 16.6,
+   "ssh_rtt_s": 3.703,
+   "liveness_proven": true,
+   "boot_id": "92a8e9fd"
+  },
+  {
+   "node_id": "114",
+   "admit": true,
+   "verdict": "ADMIT",
+   "reasons": [],
+   "score": 209.034,
+   "cpu_pct": 0.2,
+   "load1": 0.17,
+   "hottest_c": 23.1,
+   "mem_used_pct": 6.9,
+   "disk_used_pct": "2%",
+   "telemetry_age_s": 13.6,
+   "ssh_rtt_s": 3.352,
+   "liveness_proven": true,
+   "boot_id": "b7a638d4"
+  },
+  {
+   "node_id": "100",
+   "admit": true,
+   "verdict": "ADMIT",
+   "reasons": [],
+   "score": 189.233,
+   "cpu_pct": 6.3,
+   "load1": 0.08,
+   "hottest_c": 27.8,
+   "mem_used_pct": 7.3,
+   "disk_used_pct": "13%",
+   "telemetry_age_s": 8.6,
+   "ssh_rtt_s": 5.197,
+   "liveness_proven": true,
+   "boot_id": "1d9d56a9"
+  },
+  {
+   "node_id": "160",
+   "admit": true,
+   "verdict": "ADMIT",
+   "reasons": [],
+   "score": 206.047,
+   "cpu_pct": 0.4,
+   "load1": 0.17,
+   "hottest_c": 24.1,
+   "mem_used_pct": 7.0,
+   "disk_used_pct": "5%",
+   "telemetry_age_s": 5.6,
+   "ssh_rtt_s": 2.738,
+   "liveness_proven": true,
+   "boot_id": "bacb05a6"
+  }
+ ],
+ "last_decision": {
+  "chosen_node": "114",
+  "reason": null,
+  "at_utc": "2026-09-18T00:06:46Z"
+ }
+}

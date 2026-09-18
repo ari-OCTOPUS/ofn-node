@@ -1,0 +1,7 @@
+{"at_utc": "2026-09-18T00:33:59Z", "dispatched": {"error": "no_receipt", "ok": false, "rc": 124}, "task_index": 1}
+{"at_utc": "2026-09-18T00:34:15Z", "dispatched": {"error": "no_receipt", "ok": false, "rc": 1}, "task_index": 2}
+{"at_utc": "2026-09-18T00:37:06Z", "dispatched": {"error": "no_receipt", "ok": false, "rc": 124}, "task_index": 3}
+{"at_utc": "2026-09-18T00:37:21Z", "dispatched": {"error": "no_receipt", "ok": false, "rc": 1}, "task_index": 4}
+{"at_utc": "2026-09-18T00:46:15Z", "dispatched": {"cgroup_envelope": "VERIFIED", "duplicate": false, "duration_s": 107.311, "ok": true, "output_digest": "9df7a630ec13cb56", "status": "SUCCEEDED"}, "task_index": 1}
+{"at_utc": "2026-09-18T00:48:15Z", "dispatched": {"cgroup_envelope": "VERIFIED", "duplicate": false, "duration_s": 107.323, "ok": true, "output_digest": "0c39a5f208f53dd2", "status": "SUCCEEDED"}, "task_index": 2}
+{"at_utc": "2026-09-18T00:50:14Z", "dispatched": {"cgroup_envelope": "VERIFIED", "duplicate": false, "duration_s": 107.275, "ok": true, "output_digest": "afbcab26e7fddb8a", "status": "SUCCEEDED"}, "task_index": 3}

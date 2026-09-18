@@ -1,0 +1,88 @@
+{
+ "decision": {
+  "schema": "compute_decision.v1",
+  "at_utc": "2026-09-18T00:19:21Z",
+  "mode": "shadow",
+  "owner_pause": false,
+  "reclaimed_leases": [],
+  "queued_task": null,
+  "profile": "cpu_bench",
+  "synthetic_arrival": {
+   "profile": "cpu_bench",
+   "params": {},
+   "input_digest": "446b3676ba98edb70667829947c8292f66e336ab3f53054d3d198c635308a13a",
+   "idempotency_key": "auto-cpu_bench-2026-09-18T00:19:13Z",
+   "enqueued": false
+  },
+  "chosen_node": "160",
+  "chosen_score": 205.747,
+  "reason": null,
+  "evaluated": [
+   {
+    "node_id": "114",
+    "admit": true,
+    "verdict": "ADMIT",
+    "reasons": [],
+    "score": 205.647,
+    "capable": true,
+    "headroom": {
+     "cores": 8,
+     "usable_cores": 7,
+     "load1": 0.07,
+     "cpu_pct": 1.0,
+     "hottest_millic": 24071,
+     "mem_avail_mb": 3644
+    }
+   },
+   {
+    "node_id": "160",
+    "admit": true,
+    "verdict": "ADMIT",
+    "reasons": [],
+    "score": 205.747,
+    "capable": false,
+    "headroom": {
+     "cores": 8,
+     "usable_cores": 7,
+     "load1": 0.27,
+     "cpu_pct": 0.5,
+     "hottest_millic": 24071,
+     "mem_avail_mb": 3637
+    }
+   },
+   {
+    "node_id": "100",
+    "admit": true,
+    "verdict": "ADMIT",
+    "reasons": [],
+    "score": 192.324,
+    "capable": false,
+    "headroom": {
+     "cores": 8,
+     "usable_cores": 7,
+     "load1": 0.1,
+     "cpu_pct": 0.4,
+     "hottest_millic": 28692,
+     "mem_avail_mb": 3629
+    }
+   },
+   {
+    "node_id": "193",
+    "admit": true,
+    "verdict": "ADMIT",
+    "reasons": [],
+    "score": 205.627,
+    "capable": false,
+    "headroom": {
+     "cores": 8,
+     "usable_cores": 7,
+     "load1": 0.38,
+     "cpu_pct": 0.4,
+     "hottest_millic": 24071,
+     "mem_avail_mb": 3645
+    }
+   }
+  ]
+ },
+ "dispatched": null
+}

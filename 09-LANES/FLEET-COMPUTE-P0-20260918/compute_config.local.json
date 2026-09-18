@@ -1,0 +1,66 @@
+{
+ "schema": "compute_config.v1",
+ "mode": "shadow",
+ "ssh_key": "id_ed25519",
+ "agent_path": "/usr/local/bin/compute_worker.py",
+ "work_root": "/var/lib/octopus-compute",
+ "nodes": [
+  {
+   "id": "138",
+   "ssh": "ari@192.168.0.138",
+   "ip": "192.168.0.138",
+   "user": "ari",
+   "key": "id_ed25519"
+  },
+  {
+   "id": "180",
+   "ssh": "root@192.168.0.180",
+   "ip": "192.168.0.180",
+   "user": "root",
+   "key": "id_ed25519"
+  },
+  {
+   "id": "182",
+   "ssh": "root@192.168.0.182",
+   "ip": "192.168.0.182",
+   "user": "root",
+   "key": "id_ed25519"
+  },
+  {
+   "id": "193",
+   "ssh": "root@192.168.0.193",
+   "ip": "192.168.0.193",
+   "user": "root",
+   "key": "id_ed25519"
+  },
+  {
+   "id": "114",
+   "ssh": "root@192.168.0.114",
+   "ip": "192.168.0.114",
+   "user": "root",
+   "key": "id_ed25519"
+  },
+  {
+   "id": "100",
+   "ssh": "root@192.168.0.100",
+   "ip": "192.168.0.100",
+   "user": "root",
+   "key": "piggybank_id_ed25519"
+  },
+  {
+   "id": "160",
+   "ssh": "root@192.168.0.160",
+   "ip": "192.168.0.160",
+   "user": "root",
+   "key": "piggybank_id_ed25519"
+  }
+ ],
+ "policy": {
+  "allowed_nodes": [
+   "114",
+   "160",
+   "100",
+   "193"
+  ]
+ }
+}

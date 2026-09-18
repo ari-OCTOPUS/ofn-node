@@ -1,0 +1,24 @@
+[Unit]
+Description=OCTOPUS fleet-compute scheduler cycle (Phase 1 SHADOW: decides, never dispatches)
+Documentation=file:///home/ari/ofn/state/fleet-compute/cockpit.json
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn/state/fleet-compute
+# Shadow mode writes control-plane state only. It reads node telemetry over SSH
+# and must never mutate a board: dispatch is gated inside the scheduler by mode.
+ExecStart=/usr/bin/python3 /home/ari/ofn/tools/compute_scheduler.py --config /home/ari/ofn/state/fleet-compute/compute_config.json --state /home/ari/ofn/state/fleet-compute --once --auto-enqueue
+TimeoutStartSec=240
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+# The control plane is advisory while in shadow: never let it compete with ofn.
+CPUWeight=50
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,38 @@
+{
+  "schema": "compute_config.v1",
+  "mode": "shadow",
+  "commander_node_id": "138",
+  "ssh_key": "octopus_mesh_ed25519",
+  "agent_path": "/usr/local/bin/compute_worker.py",
+  "work_root": "/var/lib/octopus-compute",
+  "nodes": [
+    { "id": "114", "ssh": "root@192.168.0.114" },
+    { "id": "160", "ssh": "root@192.168.0.160" },
+    { "id": "100", "ssh": "root@192.168.0.100" },
+    { "id": "193", "ssh": "root@192.168.0.193" }
+  ],
+  "policy": {
+    "max_telemetry_age_s": 240,
+    "temp_ceiling_millic": 70000,
+    "temp_admit_millic": 55000,
+    "mem_used_pct_ceiling": 80.0,
+    "mem_avail_min_mb": 400,
+    "load_per_core_ceiling": 1.2,
+    "cpu_pct_admit": 45.0,
+    "disk_used_pct_ceiling": 90.0,
+    "reserved_cores": 1,
+    "reserved_mem_mb": 512,
+    "lease_seconds": 120,
+    "owner_pause": false,
+    "allowed_nodes": null,
+    "max_failures_before_quarantine": 2
+  },
+  "cgroup": {
+    "CPUQuota": "50%",
+    "CPUWeight": "50",
+    "MemoryMax": "512M",
+    "MemoryHigh": "384M",
+    "IOWeight": "50"
+  },
+  "notes": "Phase 1 runs with mode=shadow and allowed_nodes=null so every node is evaluated and the decision log records where a task WOULD go. Phase 2 flips mode=canary and sets allowed_nodes=[\"114\"] (single canary, cgroup-limited). 182 is deliberately absent: it holds the witness/audit-latch role and must not gain execution authority."
+}
