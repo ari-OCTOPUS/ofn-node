@@ -1,0 +1,51 @@
+{
+  "agent": "09-LANES/THINK-POOLS-20260918/tools/laptop_worker.py",
+  "at": "2026-09-18T03:50:21+00:00",
+  "envelope_windows_equivalent": "affinity mask 6/12 cores (kernel-enforced, SetProcessAffinityMask) + BELOW_NORMAL priority; nats-server.exe (hub) never in the agent's set \u2014 its cores stay reserved",
+  "lease_model": "leased/<id>.json expiry 300s renewed every 60s; any death (lid/sleep/power) expires -> next start requeues (implemented + measured; lid itself is covered by this net, not a watchable event on Windows)",
+  "preemption_proof": {
+    "ledger_rows": [
+      {
+        "at": "2026-09-18T03:26:43+00:00",
+        "attempt": 1,
+        "event": "requeued",
+        "item": "shard-3-of-6",
+        "reason": "preempted:user_interaction idle_ms=0"
+      }
+    ],
+    "result": "agent yielded at the chunk boundary, shard-3 returned to pending with attempt+1, agent exited code 3",
+    "trigger": "real user input injected mid-work (SendInput mouse move -> GetLastInputInfo idle_ms=0)"
+  },
+  "real_work": {
+    "shard-3-of-6": {
+      "chunks": 5,
+      "collected": 9701,
+      "complete": true,
+      "errors": 3,
+      "failed": 59,
+      "passed": 1200,
+      "selected": 1617
+    },
+    "shard-4-of-6": {
+      "chunks": 5,
+      "collected": 9701,
+      "complete": true,
+      "errors": 4,
+      "failed": 55,
+      "passed": 1555,
+      "selected": 1617
+    },
+    "shard-5-of-6": {
+      "chunks": 5,
+      "collected": 9701,
+      "complete": true,
+      "errors": 2,
+      "failed": 56,
+      "passed": 1554,
+      "selected": 1616
+    }
+  },
+  "schema": "octopus.receipt.v1",
+  "suite_coverage_note": "laptop completed shards 3/4/5 -> combined with boards (0@100, 1@193, 2@160) all 6 shards of the 9,700-test suite are now covered",
+  "what": "RUN-TO-COMPLETION item 8 \u2014 laptop worker agent at 50% CPU with live preemption"
+}

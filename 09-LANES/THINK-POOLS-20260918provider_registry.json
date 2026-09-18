@@ -1,0 +1,62 @@
+{
+  "schema": "think_provider.v1",
+  "at_utc": "2026-09-18T01:35:00Z",
+  "source": "discovered 2026-09-18 by THINK-POOLS Phase A from: secrets.env key NAMES (138), state/api-budget/providers.py, state/api-budget/config/provider-health.jsonl",
+  "notes": "Key NAMES only - no credential value appears in this file, by rule. `paid` decides routing class: false = free/local, tried first for bulk work.",
+  "providers": {
+    "anthropic": {
+      "name": "anthropic",
+      "kind": "remote",
+      "paid": true,
+      "key_names": ["ANTHROPIC_API_KEY"],
+      "base_url_env": null,
+      "models_count": 11,
+      "owner_label": "Claude"
+    },
+    "openai": {
+      "name": "openai",
+      "kind": "remote",
+      "paid": true,
+      "key_names": ["OPENAI_API_KEY"],
+      "base_url_env": null,
+      "models_count": 130,
+      "owner_label": "OpenAI/GPT"
+    },
+    "gemini": {
+      "name": "gemini",
+      "kind": "remote",
+      "paid": true,
+      "key_names": ["GEMINI_API_KEY"],
+      "base_url_env": "GEMINI_BASE_URL",
+      "models_count": 50,
+      "owner_label": "Gemini"
+    },
+    "deepseek": {
+      "name": "deepseek",
+      "kind": "remote",
+      "paid": true,
+      "key_names": ["DEEPSEEK_API_KEY"],
+      "base_url_env": null,
+      "models_count": 2,
+      "owner_label": "DeepSeek"
+    },
+    "sakana-fugu": {
+      "name": "sakana-fugu",
+      "kind": "remote",
+      "paid": true,
+      "key_names": ["SAKANA_API_KEY"],
+      "base_url_env": "SAKANA_BASE_URL",
+      "models_count": 8,
+      "owner_label": "Sakana/Fugu (BRAIN_PROVIDER فعلی)"
+    },
+    "local-llamacpp-180": {
+      "name": "local-llamacpp-180",
+      "kind": "local",
+      "paid": false,
+      "key_names": [],
+      "base_url_env": "LOCAL_LLAMACPP_BASE_URL",
+      "models_count": null,
+      "owner_label": "مدل محلی روی برد ۱۸۰ (:8081) — رایگان"
+    }
+  }
+}

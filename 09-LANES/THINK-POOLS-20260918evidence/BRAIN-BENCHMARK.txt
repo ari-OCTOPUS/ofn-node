@@ -1,0 +1,6 @@
+=== 10-TASK BENCHMARK ACROSS ALL LIVE BRAINS ===
+local-llamacpp-180   4/10    qwen3-0.6b-q4_0        med=3.02s  {'cls': '3/3', 'sum': '0/3', 'reason': '1/2', 'code': '0/2'}
+deepseek             10/10   deepseek-flash         med=1.28s  {'cls': '3/3', 'sum': '3/3', 'reason': '2/2', 'code': '2/2'}
+openai               10/10   gpt-5.6-terra          med=1.22s  {'cls': '3/3', 'sum': '3/3', 'reason': '2/2', 'code': '2/2'}
+anthropic            10/10   claude-sonnet-5        med=1.53s  {'cls': '3/3', 'sum': '3/3', 'reason': '2/2', 'code': '2/2'}
+gemini               7/10    gemini-3.8-flash       med=1.71s  {'cls': '3/3', 'sum': '2/3', 'reason': '2/2', 'code': '0/2'}
