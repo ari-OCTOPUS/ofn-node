@@ -1496,7 +1496,7 @@
    "hypothesis": "فایل حافظهٔ ایجنت‌ها از سقف خودش بزرگ‌تر است (۵۴.۸KB در برابر سقف ۲۴.۴KB) — حافظه بریده می‌شود",
    "reason": "هشدار سیستم: MEMORY.md 54.8KB > 24.4KB limit — only part loaded",
    "verify_against": [
-    "C:/Users/Armin/.zcode/.../memory/MEMORY.md"
+    "C:/Users/Armin/.zcode/cli/memories/projects/backup-af03d0fc8a32ab4f/memory/MEMORY.md (54.8KB > 24.4KB limit, warning emitted by the client)"
    ],
    "verdict": "CONFIRMED_BLOCKER",
    "verdict_code": "C",
@@ -1508,7 +1508,7 @@
    "unblock_2liner": "نمایه را به یک خط <۲۰۰ کاراکتر خلاصه کن و جزئیات را به فایل‌های موضوعی ببر",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "resolvable"
   },
   {
    "id": "W-143",
@@ -5416,5 +5416,9 @@
   "file": 52,
   "labelled": 12,
   "memory-derived": 117
+ },
+ "anchor_stats_v3": {
+  "note": "W-141 resolved to its real memory path; 12 remain",
+  "fixed_at": "2026-09-18T12:55:00Z"
  }
 }
