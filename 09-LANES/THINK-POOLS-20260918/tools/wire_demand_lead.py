@@ -70,9 +70,6 @@ def main() -> int:
     # local model produced repetition garbage on exactly this task (2026-09-18).
     # Bulk/classification work stays tier=standard (free first).
     tier = "strong"
-    built = bf.build(tier=tier)
-    brain, model = built["brain"], built["model"]
-    provider = built["decision"]["chosen"]
 
     prompt = (
         "You are drafting a first reply to a potential painting-services customer. "
@@ -81,8 +78,10 @@ def main() -> int:
         f"{subject or 'general enquiry'}."
     )
     t0 = time.time()
-    reply = brain.answer("lead-reply-draft", prompt)
-    text = (getattr(reply, "text", "") or "").strip()
+    # Failover: an empty reply from one provider must not reach the customer.
+    res = bf.answer_with_failover("lead-reply-draft", prompt, tier=tier, max_tries=3)
+    text = res["text"]
+    provider, model = res["provider"], res["model"]
     latency = round(time.time() - t0, 2)
 
     out_tokens = max(1, len(text) // 4)  # rough; recorded as an estimate
@@ -103,6 +102,8 @@ def main() -> int:
         "cost_is_estimate": True,
         "latency_s": latency,
         "reply_head": text[:160],
+        "failover_tried": res["tried"],
+        "failures_before_success": res["failures_before_success"],
     }
     with DEMAND_LEDGER.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(row, ensure_ascii=False) + "\n")

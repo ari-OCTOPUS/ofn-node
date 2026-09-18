@@ -149,8 +149,10 @@ class GeminiBrain(_HttpBrain):
         return {"x-goog-api-key": self.api_key}
 
     def _body(self, prompt, max_tokens):
+        # Gemini reasoning models consume maxOutputTokens on internal thinking,
+        # so a small cap leaves a 5-character answer (measured 2026-09-18).
         return {"contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": max_tokens}}
+                "generationConfig": {"maxOutputTokens": max(max_tokens, 1024)}}
 
     def _extract(self, payload):
         cands = payload.get("candidates") or [{}]
@@ -206,6 +208,8 @@ class LocalLlamaBrain(_HttpBrain):
 # ---------------------------------------------------------------------------
 
 OPENAI_SUFFIX = "/chat/completions"
+# Below this, a reply is a truncated non-answer rather than an answer.
+MIN_USABLE_CHARS = 15
 
 
 def _registry():
@@ -291,6 +295,41 @@ def smoke(provider: str | None = None, tier: str = "standard") -> dict:
             "dialect": out["dialect"], "ok": bool(text),
             "reply_head": text, "latency_s": round(time.time() - t0, 2),
             "insufficient": bool(getattr(reply, "insufficient", False))}
+
+
+def answer_with_failover(task: str, prompt: str, tier: str = "strong",
+                         max_tries: int = 3) -> dict:
+    """Ask across live providers until one actually answers.
+
+    Added after a measured failure: at tier=strong the router picked
+    gemini/gemini-3.1-pro-preview and the call returned EMPTY in 0.8 s, so a
+    customer-facing draft got nothing while deepseek and openai -- both 10/10 in
+    the benchmark -- sat unused. An empty reply is a provider failure, not an
+    answer, so it now falls through to the next live provider for that tier.
+
+    Returns the first non-empty answer plus the list of what was tried, so a
+    caller can see the fallback from evidence rather than trusting it.
+    """
+    decision = pr.decide(pin=pr.env_pin(), tier=tier)
+    tried = []
+    for name in decision.get("order", [])[:max_tries]:
+        try:
+            built = build(tier=tier, pin=name)
+        except BrainBuildError as exc:
+            tried.append({"provider": name, "blocked": str(exc)[:70]})
+            continue
+        reply = built["brain"].answer(task, prompt)
+        text = (getattr(reply, "text", "") or "").strip()
+        tried.append({"provider": name, "model": built["model"], "chars": len(text)})
+        # A truncated reply is worse than an empty one: gemini returned
+        # "Could" (5 chars) at strong tier, which passed an emptiness check
+        # and would have reached a customer. Require a usable length.
+        if len(text) >= MIN_USABLE_CHARS:
+            return {"provider": name, "model": built["model"], "text": text,
+                    "dialect": built["dialect"], "tried": tried,
+                    "failures_before_success": len(tried) - 1}
+    return {"provider": None, "model": None, "text": "", "tried": tried,
+            "failures_before_success": len(tried)}
 
 
 if __name__ == "__main__":
