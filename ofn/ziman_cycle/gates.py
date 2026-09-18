@@ -14,7 +14,7 @@ class GateError(PermissionError):
 class GatePolicy:
     publish: bool = False
     external_send: Any = "none"
-    hold_external: bool = True
+    hold_external: bool = False  # A1: owner GO 2026-09-18 — Ziman hold released; real sends still go through the governed two-step release path, this legacy package stays fail-closed for direct sends
     use_llm: bool = False
     safe_to_claim: bool = False
 
