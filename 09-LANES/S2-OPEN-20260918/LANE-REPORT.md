@@ -36,5 +36,12 @@ Executed the 48-hour plan's measurable items from S2-OPENING-PROMPT-20260918.md 
 - Live sources: painting.sqlite, outbox.sqlite, products.sqlite, consent.sqlite,
   state/revenue-drive/{lead-emails,phone-only-queue,sent-log}.jsonl, docs/consent/SABA-RELEASE-STATUS.json
 
+## Addendum (17:35 AEST): owner ruling GOB3 executed
+Owner answered the 4-option question in chat with **«تأیید هر سه»**. Executed on 138 via the
+binder's own `mark_used`+`emit_decision` (no forged TG input): 3 cards consumed (ACK_SEEN ×2,
+ACK_BATCH), registry `857cd98d…` → `d34b6aea…` (6/6 consumed), 3 owner_decision rows citing
+ruling sha `13e87cdf…`. Ruling doc: 06-EVIDENCE/OCTOPUS-OWNER-BOARD-2026-08-24/OWNER-RULING-GOB3-2026-09-18.md
+(commit 3349c0a3). Item #2 blockage is now CLEARED — the runtime's send cycle owns the actual sends.
+
 ## Rollback
 - Delete the two files of this lane + `git reset HEAD~1`. No remote effects to undo.
