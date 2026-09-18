@@ -1,0 +1,52 @@
+# Enrichment lessons (narrative)
+# Statistics are NOT kept here - they are derived live from
+# painting_contact_evidence / painting_enrichment_state via
+#   python tools/enrich_contacts.py --lessons
+
+DATE: 2026-09-13T03:29:16+00:00
+SEGMENT: strata
+SOURCE: company_website_team_page
+PATTERN: Mid-size branded strata firms route everything through 1300/switchboard and publish no personal mobiles; boutique/surname firms with a real team page are where mobiles actually appear.
+RESULT: carried over from prior manual research rounds
+CONFIDENCE: observed repeatedly, not yet re-measured by this agent
+RECOMMENDATION: Prioritise team/people pages for small firms; expect P3-only for large branded ones and stop early rather than exhausting the source space.
+
+DATE: 2026-09-13T03:29:16+00:00
+SEGMENT: any
+SOURCE: meta_tags_and_form_placeholders
+PATTERN: Numbers/emails scraped from raw HTML attributes (og/twitter meta, input placeholder=) are developer credits and template filler, not contacts.
+RESULT: carried over from prior manual research rounds
+CONFIDENCE: observed repeatedly, not yet re-measured by this agent
+RECOMMENDATION: Extract from visible text only - already enforced in sources.clean_text.
+
+DATE: 2026-09-13T03:29:16+00:00
+SEGMENT: any
+SOURCE: search_engine_result_titles
+PATTERN: A search result title is SEO copy, not a business name, and listicle pages ('Top 20 X Companies') are not companies at all.
+RESULT: carried over from prior manual research rounds
+CONFIDENCE: observed repeatedly, not yet re-measured by this agent
+RECOMMENDATION: Never treat a search title as an identity; verify against the site.
+
+DATE: 2026-09-13T03:29:16+00:00
+SEGMENT: facility_management
+SOURCE: segment_confusion
+PATTERN: 'X facility management' queries surface the FM PROVIDER doing the work, not the property owner buying it - the opposite of strata queries.
+RESULT: carried over from prior manual research rounds
+CONFIDENCE: observed repeatedly, not yet re-measured by this agent
+RECOMMENDATION: Treat FM-provider hits as likely competitors, not prospects.
+
+DATE: 2026-09-13T04:07:03+00:00
+SEGMENT: strata/property_management
+SOURCE: company_website_service_pages
+PATTERN: First live run: /property-management yielded 3 attributed mobiles, while /team, /our-people, /contact and /about yielded 14 numbers between them and ZERO mobiles. Staff mobiles appear on the SERVICE page that lists the managers, not on the generic team page.
+RESULT: 3 of 3 P0 contacts this run came from a service page; 0 from a conventional team page
+CONFIDENCE: single run, 8 leads - suggestive, needs more runs before reordering the seed list
+RECOMMENDATION: Add service-style paths (/property-management, /strata-management, /residential) to CONTACT_PATH_CANDIDATES and re-measure before demoting /team.
+
+DATE: 2026-09-13T04:07:03+00:00
+SEGMENT: any
+SOURCE: lead website field
+PATTERN: A lead whose recorded website is a DIRECTORY domain yields dozens of numbers belonging to other businesses (61 in one run).
+RESULT: mitigated by MAX_NUMBERS_PER_SOURCE; the underlying bad lead remains
+CONFIDENCE: observed directly
+RECOMMENDATION: Audit painting_b2b_accounts for leads whose website is a directory rather than a company.

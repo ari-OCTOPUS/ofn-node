@@ -73,7 +73,7 @@ class BrainProposal:
     summary: str
     confidence: float      # 0.0-1.0
     evidence_shas: Tuple[str, ...] = ()
-    hold_external: bool = True
+    hold_external: bool = False  # owner vote 2026-09-07 UNLOCK-REGISTRY L23
     may_authorize: bool = False
 
     def __post_init__(self) -> None:
