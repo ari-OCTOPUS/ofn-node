@@ -1,0 +1,52 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "B2B-DISCOVERY-BASE-20260909",
+  "issued_utc": "2026-09-09T02:12:15Z",
+  "author": "cursor-cloud-agent",
+  "owner_ratified": false,
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "node_id": "bc-4011624c-b85c-42bd-816d-022dc989740a",
+  "asserted_ip": "unverified",
+  "branch": "feature/b2b-discovery-cleanup",
+  "pre_merge_head_full": "435611424476f8b4b7899868701f0c65827efe80",
+  "origin_main_full": "deb91decd5116ac5a7ad761d5d74ff8810b6d2ad",
+  "merge_head_full": "7a4c02db8ef9e7199e58fdd29fd6263f2973a6a8",
+  "file_lock_zone": [
+    "docs/octopus-surgery/architecture/2026-09-09/receipts/B2B-DISCOVERY-BASE-20260909.json"
+  ],
+  "not_rewritten": [
+    "ofn/agents/b2b_discovery.py blob 814f52967f87fdeea980c10b40aa17cdbf03dcbe MATCH pre-merge",
+    "tests/test_b2b_discovery.py blob 24a86f5dc077ac364c9e3f28e25684e55d6c1771 MATCH pre-merge"
+  ],
+  "not_written": [
+    "/workspace (designated cursor/taskenvelope-system-hardening-3c52 @435611424476f8b4b7899868701f0c65827efe80)",
+    "ofn/kernel/envelope.py",
+    "ofn/adapters/run_store.py",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "F-06 fresh-base merge of origin/main into existing #251. Isolated worktree /tmp/ofn-p1-b2b-fresh. Did not rewrite author files. Did not open a second b2b-discovery PR. Did not merge. Ready ≠ authorized.",
+  "verification": {
+    "merge": {
+      "command": "git merge origin/main --no-edit",
+      "ran_at_utc": "2026-09-09T02:11:10Z",
+      "exit_code": 0,
+      "behind_ahead_after": "0 behind / 5 ahead",
+      "contains_origin_main": true
+    },
+    "related_unittest": {
+      "command": "python3 -X utf8 -W ignore -m unittest tests.test_b2b_discovery tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_events -q",
+      "ran_at_utc": "2026-09-09T02:12:13Z",
+      "head_full_at_run": "7a4c02db8ef9e7199e58fdd29fd6263f2973a6a8",
+      "exit_code": 0,
+      "result": "265 passed, 0 failed, 0 skipped"
+    },
+    "pytest_module": "absent (ModuleNotFoundError)"
+  },
+  "ready_is_authorized": false,
+  "grants_send": false,
+  "claims_immutable": false,
+  "external_effects": 0
+}
