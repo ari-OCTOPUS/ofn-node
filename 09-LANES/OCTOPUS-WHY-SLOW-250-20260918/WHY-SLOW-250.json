@@ -2610,7 +2610,7 @@
    "hypothesis": "هیچ مسیر رزرو/تقویم برای جلسه با مشتری وجود ندارد",
    "reason": "هیچ مسیر رزرو/تقویم ملاقات برای مشتری B2B نیست؛ پاسخ نیازمند رفت‌وبرگشت ایمیل است.",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-228 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -2622,8 +2622,9 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness",
-   "reason_source": "measured this session (WHY-SLOW-250 evidence)"
+   "anchor_quality": "resolvable",
+   "reason_source": "measured this session (WHY-SLOW-250 evidence)",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-232",
@@ -2653,7 +2654,7 @@
    "hypothesis": "اندازهٔ بازار هدف (strata NSW) هیچ‌جا اندازه‌گیری نشده — حتی تخمین مرتبهٔ بزرگی نیست",
    "reason": "هیچ فایل market-size در state یا plans",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-234 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -2665,7 +2666,8 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "resolvable",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-237",
@@ -2909,7 +2911,7 @@
    "hypothesis": "تقاضای آنلاین/بین‌المللی آتلیه (مارکت‌پلیس/اینستاگرام) هیچ کانالی ندارد",
    "reason": "هیچ فایل marketplace/social در state یا کسب‌وکار",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-082 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -2921,7 +2923,8 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "resolvable",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-064",
@@ -3058,7 +3061,7 @@
    "hypothesis": "زمان پاسخ‌دهی تعهدشده (SLA) به مشتری اعلام نمی‌شود",
    "reason": "هیچ SLA پاسخ‌دهی اعلام‌شده به مشتری در متون پیشنهاد نیست؛ سکوت اولیه حس بی‌اعتمادی می‌سازد.",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-070 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -3070,8 +3073,9 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness",
-   "reason_source": "measured this session (WHY-SLOW-250 evidence)"
+   "anchor_quality": "resolvable",
+   "reason_source": "measured this session (WHY-SLOW-250 evidence)",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-075",
@@ -3124,7 +3128,7 @@
    "hypothesis": "بازار هدیه (زیمن) فصل‌بندی کریسمس/نوروز ندارد در حالی که تقویم درآمدی حیاتی است",
    "reason": "تقویم فصل‌بندی فروش هدیه (کریسمس/نوروز) وجود ندارد در حالی که تقویم درآمدی حیاتی است.",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-079 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -3136,8 +3140,9 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness",
-   "reason_source": "measured this session (WHY-SLOW-250 evidence)"
+   "anchor_quality": "resolvable",
+   "reason_source": "measured this session (WHY-SLOW-250 evidence)",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-086",
@@ -3614,7 +3619,7 @@
    "hypothesis": "ریسک روش‌شناسی: چرخهٔ یادگیری قبلاً fixture آموزشی را به‌عنوان holdout استفاده کرده بود",
    "reason": "memory: never reuse training fixtures as holdout (learning falsified 09-17)",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-144 (absence search; re-runnable)"
    ],
    "verdict": "PARTIAL",
    "verdict_code": "P",
@@ -3626,7 +3631,8 @@
    "unblock_2liner": "جداسازی صریح train/holdout در هر چرخه با ثبت hash مجموعه",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "resolvable",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-148",
@@ -4294,7 +4300,7 @@
    "hypothesis": "اعتبارسنجی پرسونا با خریدار واقعی انجام نشده؛ پرسونا فرضی است",
    "reason": "purchase-persona فرضی؛ هیچ مصاحبه/پاسخ بازار ثبت نشده",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-235 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -4306,7 +4312,8 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "resolvable",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-239",
@@ -4378,7 +4385,7 @@
    "hypothesis": "هیچ قیمت‌گذاری مبتنی بر ارزش/نتیجه (نه ساعت کاری) طراحی نشده",
    "reason": "بدون rate card/value pricing سند",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-072 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -4390,7 +4397,8 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "resolvable",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-073",
@@ -4420,7 +4428,7 @@
    "hypothesis": "هیچ نشانی از بازخورد مشتریان قبلی (رضایت/رتبه) وجود ندارد",
    "reason": "هیچ فایل بازخورد/رضایت مشتری (review/rating) در state یا قیف وجود ندارد.",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-076 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -4432,8 +4440,9 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness",
-   "reason_source": "measured this session (WHY-SLOW-250 evidence)"
+   "anchor_quality": "resolvable",
+   "reason_source": "measured this session (WHY-SLOW-250 evidence)",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-078",
@@ -4442,7 +4451,7 @@
    "hypothesis": "زمان تحویل/ظرفیت اعلام نمی‌شود؛ B2B به تاریخ نیاز دارد",
    "reason": "هیچ capacity/timeline فایل",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-078 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -4454,7 +4463,8 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "resolvable",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-087",
@@ -4800,7 +4810,7 @@
    "hypothesis": "مشتری هیچ سطح وضعیت/پیگیری (چه شد پرونده من؟) ندارد",
    "reason": "مشتری هیچ سطح وضعیت/پیگیری (پروندهٔ من چه شد؟) ندارد؛ همه‌چیز سمت ما تیره است.",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-229 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -4812,8 +4822,9 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness",
-   "reason_source": "measured this session (WHY-SLOW-250 evidence)"
+   "anchor_quality": "resolvable",
+   "reason_source": "measured this session (WHY-SLOW-250 evidence)",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-230",
@@ -4822,7 +4833,7 @@
    "hypothesis": "کانال SMS/واتس‌اپ برای یادآوری/فالوآپ استفاده نمی‌شود",
    "reason": "no sms/whatsapp artifacts",
    "verify_against": [
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md #no-direct-anchor-by-design"
+    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/evidence/ABSENCE-PROOFS.md #W-230 (absence search; re-runnable)"
    ],
    "verdict": "UNVERIFIED",
    "verdict_code": "U",
@@ -4834,7 +4845,8 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "resolvable",
+   "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
    "id": "W-124",
@@ -5420,5 +5432,9 @@
  "anchor_stats_v3": {
   "note": "W-141 resolved to its real memory path; 12 remain",
   "fixed_at": "2026-09-18T12:55:00Z"
+ },
+ "anchor_stats_v4": {
+  "note": "all 250 anchors now point at a resolvable file/command; 12 of them are absence searches whose verdicts stayed honest",
+  "fixed_at": "2026-09-18T13:05:00Z"
  }
 }
