@@ -1,0 +1,14 @@
+[Unit]
+StartLimitIntervalSec=0
+Description=OCTOPUS event consumer: leads (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+Environment=OCTOPUS_GATE_TRIGGER=nats:lead_found
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+ExecStart=/home/ari/ofn/tools/octopus_event_gate.sh leads /home/ari/ofn/state/events/inbox/lead_found -- /bin/bash -c "python3 /home/ari/ofn/state/revenue-drive/lead_enrich.py; python3 /home/ari/ofn/state/revenue-drive/phone_list_notify.py; python3 /home/ari/ofn/state/revenue-drive/money_executor.py"
+TimeoutStartSec=900
+Nice=5

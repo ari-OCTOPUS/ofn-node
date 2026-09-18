@@ -1,0 +1,10 @@
+[Unit]
+Description=OCTOPUS event watcher: orders
+
+[Path]
+PathChanged=/home/ari/ofn/state/events/inbox/order_seen
+DirectoryNotEmpty=/home/ari/ofn/state/events/inbox/order_seen
+PathChanged=/home/ari/ofn/state/events/inbox/payment_seen
+PathChanged=/home/ari/ofn/state/events/inbox/stock_changed
+[Install]
+WantedBy=paths.target

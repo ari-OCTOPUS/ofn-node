@@ -1,0 +1,9 @@
+[Unit]
+Description=OCTOPUS event watcher: send
+
+[Path]
+PathChanged=/home/ari/ofn/state/events/inbox/draft_ready
+DirectoryNotEmpty=/home/ari/ofn/state/events/inbox/draft_ready
+PathChanged=/home/ari/ofn/state/events/inbox/lead_enriched
+[Install]
+WantedBy=paths.target
