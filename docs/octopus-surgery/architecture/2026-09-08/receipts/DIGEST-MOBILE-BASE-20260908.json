@@ -1,0 +1,49 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "DIGEST-MOBILE-BASE-20260908",
+  "issued_utc": "2026-09-08T17:02:13Z",
+  "author": "cursor-cloud owner-absent automation (ci_check_suite require-fresh-base on #242)",
+  "owner_ratified": false,
+  "scope_measured": "isolated worktree /tmp/ofn-242-fresh on existing feature/digest-mobile-priority (PR #242). Merged origin/main @2affbd7ad63e0901d6abb9c17bca2a20b236fba1. Did not rewrite tools/owner_digest.py mobile helpers. /workspace stayed on cursor/taskenvelope-system-hardening-81ee @e8c299e91f13bd37114ad1cb9aa41c39aa5dd92a and was not written.",
+  "scope_not_measured": [
+    "full-suite CI after push",
+    "filesystem immutability of any archive",
+    "board 138 ledger / outbound effects",
+    "open PR rollup (gh pr list not used this-run; git ls-remote used)"
+  ],
+  "action": "F-06 require-fresh-base follow-up on existing #242. Isolated merge of origin/main (ort, no conflicts). Contains origin/main (git merge-base --is-ancestor YES). 3 ahead / 0 behind. Mobile-priority helpers still present after merge. Not a second digest-mobile PR. Did not rewrite cube_class (other lock-zone). Ready ≠ authorized.",
+  "delivered": {
+    "merge": "origin/main @2affbd7 into feature/digest-mobile-priority; post-merge HEAD 5f8c0962567029c56bf19a7fa56981b75bcdd9be before this receipt commit"
+  },
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_units tests.test_incidents_log_policy tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_events tests.test_campaign_bind tests.test_send_fence -q",
+    "ran_at_utc": "2026-09-08T17:02:13Z",
+    "merge_head_full": "5f8c0962567029c56bf19a7fa56981b75bcdd9be",
+    "exit_code": 0,
+    "result": "251 passed / 0 failed / 0 skipped (unittest 'Ran 251 tests in 0.913s' / OK). Mobile helpers _has_mobile / _extract_mobiles / _MOBILE_RE still present (python3 assert).",
+    "runner": "stdlib unittest (pytest ModuleNotFoundError on this host)",
+    "ancestor_check": "git merge-base --is-ancestor origin/main HEAD → YES @ 2026-09-08T17:02:13Z",
+    "ahead_behind": "origin/main...HEAD = 0 behind / 3 ahead",
+    "worktree": "/tmp/ofn-242-fresh",
+    "file_lock_zone": [
+      "docs/octopus-surgery/architecture/2026-09-08/receipts/DIGEST-MOBILE-BASE-20260908.json",
+      "09-LANES/DIGEST-MOBILE/LANE-REPORT.md"
+    ],
+    "filesystem_immutability": "NOT claimed",
+    "d27_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B (this-host file hash)"
+    },
+    "d28_pointer": {
+      "path": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B (this-host file hash)"
+    }
+  },
+  "boundary": "no gate opened, no flag flipped, no network send, no secrets, no admin bypass, no CODEOWNERS/branch-protection edit, campaign_envelope_ready structurally ≠ send_authorized, no send re-arm after later hold",
+  "evidence_level": "B (this-host unittest + git merge-base)",
+  "not_duplicated": "existing #242 only (do not open a second digest-mobile PR); cube-cubic is a different lock-zone"
+}
