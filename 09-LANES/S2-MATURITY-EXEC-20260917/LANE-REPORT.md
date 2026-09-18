@@ -76,3 +76,13 @@ Worktree: `F:/wt-s2-maturity-20260917` branch `s2-maturity-20260917` (base 31a39
   138 disk 35% (37G free), 182 disk 46%; journal 3,088,523 lines (+9.6k/9h ≈ measured rate, nominal);
   failed units: 138={smartmontools(+2)}, 182={pre-existing informational}.
 - Soak observer 358 samples/0 errors; W1 102 samples frozen; sensorium NRestarts=0 overnight.
+
+## W1 witness verdict — FAIL (collected 2026-09-18T09:20:05ZZ, node 182)
+<!-- written by octopus-w1-verdict on 138; collected read-only from 182 -->
+
+- planned window: 2026-09-17T09:11:20Z → 2026-09-18T09:11:20Z (300s interval)
+- `observations`: 288 samples, 2026-09-17T09:11:20.809357+00:00 → 2026-09-18T09:06:20.642114+00:00, max gap 300s, coverage_to_end=False
+- `frozen_window`: 288 samples, 2026-09-17T08:28:19+00:00 → 2026-09-18T08:24:02+00:00, max gap 301s, coverage_to_end=False
+- live apply_signed_inbound processes at collection: 0
+- **FIRST VIOLATION:** `null`
+- Consequence: **S1-GAP-02A reverts to FAIL-OPEN-DEBUG** per charter. No partial credit.

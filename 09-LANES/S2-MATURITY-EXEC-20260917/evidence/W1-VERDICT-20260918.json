@@ -1,0 +1,50 @@
+{
+ "checks": {
+  "coverage_incomplete": [
+   "observations",
+   "frozen_window"
+  ],
+  "gap_violations": [],
+  "max_gap_limit_s": 900,
+  "unreadable": [],
+  "violations": []
+ },
+ "collected_at": "2026-09-18T09:20:05Z",
+ "consequence_on_fail": "S1-GAP-02A reverts to FAIL-OPEN-DEBUG per the S1-MATURITY charter",
+ "first_violation": null,
+ "lane": "S2-MATURITY-EXEC-20260917",
+ "live_apply_signed_inbound_procs": [],
+ "node_witnessed": "182",
+ "notes": [],
+ "schema": "octopus.w1-witness-verdict.v1",
+ "sources": {
+  "frozen_window": {
+   "covers_planned_end": false,
+   "first_ts": "2026-09-17T08:28:19+00:00",
+   "first_violation": null,
+   "last_ts": "2026-09-18T08:24:02+00:00",
+   "malformed_lines": 0,
+   "max_gap_seconds": 301,
+   "path": "/var/lib/octopus/state/s1pa-attack/w1-frozen-window.jsonl",
+   "samples": 288,
+   "status": "read"
+  },
+  "observations": {
+   "covers_planned_end": false,
+   "first_ts": "2026-09-17T09:11:20.809357+00:00",
+   "first_violation": null,
+   "last_ts": "2026-09-18T09:06:20.642114+00:00",
+   "malformed_lines": 0,
+   "max_gap_seconds": 300,
+   "path": "/root/s1-maturity-w1-20260917/observations.jsonl",
+   "samples": 288,
+   "status": "read"
+  }
+ },
+ "verdict": "FAIL",
+ "window": {
+  "planned_end": "2026-09-18T09:11:20Z",
+  "planned_start": "2026-09-17T09:11:20Z",
+  "sampling_interval_s": 300
+ }
+}
