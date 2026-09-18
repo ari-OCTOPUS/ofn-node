@@ -230,9 +230,17 @@ def finish(root: Path, item: dict, result: dict, ledger: Ledger, reason: str) ->
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default="F:/octo-exec/LAPTOP-WORKER-20260918")
-    ap.add_argument("--seed", action="store_true", help="seed shards 3/4/5 of 6 (the boards took 0/1/2)")
+    ap.add_argument("--seed", action="store_true", help="seed shards 3/4/5 of 6 (the boards take 0/1/2)")
     ap.add_argument("--once", action="store_true", help="process one item then exit")
+    ap.add_argument("--until", help="nightly window end, local HH:MM (stop leasing new items after this)")
     args = ap.parse_args()
+
+    def past_window() -> bool:
+        if not args.until:
+            return False
+        hh, mm = (int(x) for x in args.until.split(":"))
+        now = datetime.now()
+        return (now.hour, now.minute) >= (hh, mm)
 
     root = Path(args.root)
     ledger = Ledger(root / "ledger.jsonl")
@@ -253,6 +261,10 @@ def main() -> int:
 
     processed = 0
     while True:
+        if past_window():
+            print("[agent] nightly window over — leaving the queue for the next night", flush=True)
+            ledger.write("window_closed", processed=processed)
+            return 0
         item = lease_next(root)
         if item is None:
             print("[agent] queue empty", flush=True)
