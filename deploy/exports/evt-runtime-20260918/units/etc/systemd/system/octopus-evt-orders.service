@@ -1,0 +1,14 @@
+[Unit]
+StartLimitIntervalSec=0
+Description=OCTOPUS event consumer: orders (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+Environment=OCTOPUS_GATE_TRIGGER=events:orders
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+ExecStart=/home/ari/ofn/tools/octopus_event_gate.sh orders /home/ari/ofn/state/events/inbox/order_seen,/home/ari/ofn/state/events/inbox/payment_seen,/home/ari/ofn/state/events/inbox/stock_changed -- /bin/bash -c "python3 /home/ari/ofn/state/revenue-drive/revenue_state.py"
+TimeoutStartSec=900
+Nice=5

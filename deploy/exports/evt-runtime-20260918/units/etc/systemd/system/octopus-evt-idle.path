@@ -1,0 +1,8 @@
+[Unit]
+Description=OCTOPUS event watcher: idle
+
+[Path]
+PathChanged=/home/ari/ofn/state/events/inbox/idle
+DirectoryNotEmpty=/home/ari/ofn/state/events/inbox/idle
+[Install]
+WantedBy=paths.target

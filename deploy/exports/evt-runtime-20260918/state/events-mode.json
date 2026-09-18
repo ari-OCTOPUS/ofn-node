@@ -1,0 +1,15 @@
+{
+ "default": "shadow",
+ "note": "EVENT-DRIVEN-OCTOPUS 2026-09-18: shadow-first; flipped live after shadow receipts",
+ "mail": "live",
+ "owner": "live",
+ "inbound": "live",
+ "cards": "live",
+ "orders": "live",
+ "flipped_at": "2026-09-18T09:02Z",
+ "leads": "live",
+ "idle": "live",
+ "send": "live",
+ "flipped_live_at": "2026-09-18T09:06Z",
+ "send_live_at": "2026-09-18T09:08Z"
+}

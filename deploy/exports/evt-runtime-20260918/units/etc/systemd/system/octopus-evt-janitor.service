@@ -1,0 +1,7 @@
+[Unit]
+Description=OCTOPUS event inbox janitor - archive stale files of kinds with no consumer (DEEPSCAN-7D D1)
+
+[Service]
+Type=oneshot
+User=ari
+ExecStart=/usr/bin/python3 /home/ari/ofn/tools/octopus_evt_janitor.py --max-age-h 24

@@ -1,0 +1,14 @@
+[Unit]
+StartLimitIntervalSec=0
+Description=OCTOPUS event consumer: owner (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+Environment=OCTOPUS_GATE_TRIGGER=file:tg-inbox+go_b3_spool
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+ExecStart=/home/ari/ofn/tools/octopus_event_gate.sh owner - -- /bin/bash -c "python3 /home/ari/ofn/state/revenue-drive/owner_reply.py; python3 /home/ari/ofn/state/revenue-drive/event_notify.py; cd /home/ari/ofn/ofn/agents && python3 glass_runner.py; cd /home/ari/ofn/ofn/agents && python3 go_b3_owner_bind.py poll"
+TimeoutStartSec=900
+Nice=5
