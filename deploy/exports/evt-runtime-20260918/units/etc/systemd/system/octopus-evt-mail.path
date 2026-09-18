@@ -1,0 +1,8 @@
+[Unit]
+Description=OCTOPUS event watcher: mail
+
+[Path]
+PathChanged=/home/ari/ofn/state/events/inbox/mail_seen
+DirectoryNotEmpty=/home/ari/ofn/state/events/inbox/mail_seen
+[Install]
+WantedBy=paths.target

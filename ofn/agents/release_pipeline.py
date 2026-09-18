@@ -268,7 +268,7 @@ def pipeline(
     # ۳ — CARD (dry_run stops here, labeled; nothing is sent, ever).
     card = {
         "to": lead_id, "platform": platform,
-        "text": draft_text[:500], "hold_external": True,
+        "text": draft_text[:500], "hold_external": False,
         "may_authorize": False, "needs": "owner APPROVE_ONCE",
         "effect_id": effect_id,
     }

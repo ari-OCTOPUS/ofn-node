@@ -11,6 +11,7 @@ from ..kernel.painting_math import b2b_account_score, lead_priority, source_qual
 
 MAX_TEXT = 1200
 MAX_PAGE = 100
+MAX_ACCOUNTS_PAGE = 1000  # accounts() needs to return all B2B leads for digest/enrichment, not cap at 100
 
 # Contact permission is evidence, not a property inferred from a phone number or
 # a public email address.  Values are deliberately explicit and normalized at
@@ -1738,7 +1739,7 @@ class LeadStore:
     def accounts(self, tenant: str, limit: int = 50) -> list[dict]:
         rows = self._conn.execute(
             "SELECT * FROM painting_b2b_accounts WHERE tenant_id = ? ORDER BY score DESC, updated_at DESC LIMIT ?",
-            (tenant, max(1, min(MAX_PAGE, int(limit or 50)))),
+            (tenant, max(1, min(MAX_ACCOUNTS_PAGE, int(limit or 50)))),
         ).fetchall()
         out = []
         for r in rows:

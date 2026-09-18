@@ -24,6 +24,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from ofn.adapters.lead_store import LeadStore
+from ofn.agents.b2b_discovery import AUTO_DISCOVERY_TAG
 
 
 # ---------------------------------------------------------------------------
@@ -70,7 +71,11 @@ def _direct_caveat(approach: str) -> str:
 # Phone classifier — mobile vs office/1300
 # ---------------------------------------------------------------------------
 
-_MOBILE_RE = re.compile(r"(?:0[45]\d{2}|\+?614\d{2})[\s\-]?\d{3}[\s\-]?\d{3}")
+# Country-code prefix and the leading mobile digit may be separated by a
+# space/hyphen: the old regex required "614" contiguous, so "+61 415 784 898"
+# (a real ESR Group mobile) never matched and the account fell to office-only.
+# Bracketed "(+61)"/"(61)" forms are accepted; trunk-0 (04xx/05xx) kept.
+_MOBILE_RE = re.compile(r"(?:\(?\+?61\)?[\s\-]?|0)[45]\d{2}[\s\-]?\d{3}[\s\-]?\d{3}")
 
 
 def _has_mobile(contact_str: str) -> bool:
@@ -99,14 +104,26 @@ def main():
                     help="DB filename (default: painting.sqlite)")
     ap.add_argument("--include-no-phone", action="store_true",
                     help="Also list Direct accounts missing a phone")
+    ap.add_argument("--include-unverified", action="store_true",
+                    help="Also include auto-discovered accounts the "
+                         "b2b_discovery agent has not had a human "
+                         "verification pass yet (tagged "
+                         f"{AUTO_DISCOVERY_TAG!r} in notes). Off by "
+                         "default: this digest is a call list, and an "
+                         "unverified discovery-agent row is not the same "
+                         "confidence level as a researched one.")
     args = ap.parse_args()
 
     store = LeadStore(args.db)
     accts = store.accounts("lead", limit=300)
 
     # ---- Parse all accounts ------------------------------------------------
+    unverified_excluded = 0
     rows = []
     for a in accts:
+        if not args.include_unverified and AUTO_DISCOVERY_TAG in (a.get("notes") or ""):
+            unverified_excluded += 1
+            continue
         relevance, approach, body = parse_notes(a.get("notes", ""))
         phone = (a.get("contact_channel") or "").strip()
         rows.append({
@@ -161,6 +178,7 @@ def main():
         f"No phone: {len(direct_no_phone)} | "
         f"Panel/Sub: {len(panel_tender)} | "
         f"Other: {len(other)}"
+        + (f" | Unverified (hidden): {unverified_excluded}" if unverified_excluded else "")
     )
     lines.append("")
 

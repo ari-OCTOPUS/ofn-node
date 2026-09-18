@@ -31,6 +31,7 @@ def test_verify_refuses_without_two_step(tmp_path, monkeypatch) -> None:
     only when every OTHER policy gate is green (two-step is then expected).
     With a real consent refusal present, the consent rule must block."""
     monkeypatch.setattr(rp, "RECEIPTS", tmp_path / "r.jsonl")
+    monkeypatch.setattr(rp, "_config_gates_open", lambda: (True, True))
     monkeypatch.setattr(rp, "_consent_ok",
                         lambda lead: (False, "consent:missing"))
     res = rp.pipeline(
