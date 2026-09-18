@@ -55,6 +55,23 @@ out["notable_events"] = pub
 open_leases = [dict(r) for r in s.db.execute(
     "SELECT task_id, COUNT(*) c FROM leases WHERE released_utc IS NULL GROUP BY task_id HAVING c > 1")]
 out["double_open_leases"] = open_leases
+# Snapshot-race guard (2026-09-18 live false-positive): a task mid-flight with
+# a valid open lease is healthy operation. "Outlives its lease" means the open
+# lease EXPIRED while the task still claims to run — or it runs with no open
+# lease at all. The old point-in-time check failed on any active dispatch.
+import datetime as _dt
+_now = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+stuck = []
+for t in rows:
+    if t.get("state") not in ("LEASED", "RUNNING"):
+        continue
+    m = s.db.execute(
+        "SELECT MAX(expiry_utc) FROM leases WHERE task_id=? AND released_utc IS NULL",
+        (t["task_id"],)).fetchone()[0]
+    if not m or str(m) < _now:
+        stuck.append({"task_id": t["task_id"], "state": t["state"],
+                      "open_lease_expiry": m})
+out["overdue_in_flight"] = stuck
 # Exactly-once: one settlement per task, no task with two terminal successes.
 multi = [dict(r) for r in s.db.execute(
     "SELECT task_id, COUNT(*) c FROM events WHERE kind='SUCCEEDED' GROUP BY task_id HAVING c > 1")]
@@ -246,14 +263,15 @@ def main() -> int:
         f"in_window={verdicts_map} ({dispatches} dispatches) all_time={all_time}",
     ))
 
-    stuck = [t for t in audit.get("tasks", [])
-             if t.get("state") in ("LEASED", "RUNNING")]
+    stuck = audit.get("overdue_in_flight") or []
+    in_flight = [t for t in audit.get("tasks", [])
+                 if t.get("state") in ("LEASED", "RUNNING")]
     stale_scopes = int(node.get("open_scopes") or 0)
     verdicts.append((
         "no work outlives its lease",
         "PASS" if not stuck and stale_scopes == 0 and int(node.get("stray_workers") or 0) == 0 else "FAIL",
-        f"tasks_in_flight={len(stuck)} open_scopes={stale_scopes} "
-        f"stray_worker_procs={node.get('stray_workers')}",
+        f"overdue={len(stuck)} (healthy in_flight_with_valid_lease={len(in_flight)}) "
+        f"open_scopes={stale_scopes} stray_worker_procs={node.get('stray_workers')}",
     ))
 
     boots = thermal.get("boot_ids") or []
