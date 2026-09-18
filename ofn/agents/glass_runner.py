@@ -195,6 +195,46 @@ def process_updates(updates: list[dict], token: str) -> dict:
     stats = {"answered": 0, "ignored": 0, "failed": 0}
     from ofn.adapters import telegram_glass as tg
     for u in updates:
+        # OWNER ORDER 2026-09-18 («تایید بگیره و بفرسته در تلگرام»): an inline
+        # button tap is an owner decision with identity (decision id) + channel
+        # in its payload. Spool it to the MONEY lane exactly like a text reply
+        # so the single consumer (owner_reply.py) sees it; never drop it.
+        cb = u.get("callback_query") or {}
+        if cb:
+            _cq_chat = str(((cb.get("message") or {}).get("chat") or {}).get("id", ""))
+            _cq_data = str(cb.get("data") or "").strip()
+            try:
+                if _cq_chat in allowed and _cq_data:
+                    import time as _ct, json as _cj
+                    _sp = _LANES["MONEY"]
+                    _sp.parent.mkdir(parents=True, exist_ok=True)
+                    with _sp.open("a", encoding="utf-8") as _cf:
+                        _cf.write(_cj.dumps(
+                            {"chat": _cq_chat, "text": _cq_data,
+                             "at": _ct.strftime("%Y-%m-%dT%H:%M:%SZ", _ct.gmtime()),
+                             "lane": "MONEY", "route_reason": "callback_query",
+                             "kind": "callback"}, ensure_ascii=False) + chr(10))
+            except Exception as _cexc:
+                stats["failed"] += 1
+                try:
+                    opslib.append_jsonl(
+                        opslib.STATE_DIR / "legs" / "lead-inbox" / "events.jsonl",
+                        {"event_type": "glass.callback_spool_error",
+                         "occurred_at": opslib.now_iso(),
+                         "payload": {"error": type(_cexc).__name__,
+                                     "detail": str(_cexc)[:120]}})
+                except Exception:
+                    pass
+            else:
+                try:  # cosmetic ack; must never fail the spool contract
+                    from ofn.adapters import telegram_glass as _tgm
+                    _tgm._tg(token, "answerCallbackQuery",
+                             {"callback_query_id": str(cb.get("id") or ""),
+                              "text": "دریافت شد"})
+                except Exception:
+                    pass
+            continue
+    for u in updates:
         msg = u.get("message") or {}
         chat_id = str((msg.get("chat") or {}).get("id", ""))
         text = (msg.get("text") or "").strip()
