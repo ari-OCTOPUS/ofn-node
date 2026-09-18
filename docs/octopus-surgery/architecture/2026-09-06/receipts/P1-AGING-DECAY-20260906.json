@@ -1,0 +1,99 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-AGING-DECAY-20260906",
+  "issued_utc": "2026-09-06T17:24:22Z",
+  "author": "cursor-cloud-agent bc-dfed61ad-db35-4507-b180-364d6a05a012",
+  "owner_ratified": false,
+  "body": "bc-dfed61ad-db35-4507-b180-364d6a05a012",
+  "branch": "feat/p1-aging-decay-20260906",
+  "parent_head_full": "1b53773a47b6af71b8b643df61cfa13454cd1340",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/aging_class.py",
+    "ofn/kernel/decay_pin.py",
+    "tests/test_aging_class.py",
+    "tests/test_decay_pin.py",
+    "tests/test_chaos_aging_decay.py",
+    "09-LANES/P1-AGING-DECAY/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-06/receipts/P1-AGING-DECAY-20260906.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-b941 @1b53773a47b6af71b8b643df61cfa13454cd1340 — #180 SHA; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/kernel/seq.py",
+    "ofn/kernel/token_ceiling.py",
+    "ofn/kernel/campaign_bind.py",
+    "ofn/kernel/send_fence.py",
+    "ofn/kernel/stale_class.py",
+    "ofn/kernel/fresh_pin.py",
+    "ofn/kernel/lease_class.py",
+    "ofn/kernel/renew_pin.py",
+    "ofn/kernel/deadline_window.py",
+    "ofn/kernel/compact_class.py",
+    "ofn/kernel/retain_pin.py",
+    "ofn/kernel/ttl_class.py",
+    "ofn/kernel/expire_pin.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py"
+  ],
+  "action": "Complementary P1 on a new branch from this-host origin/main: kernel-pure aging_class + decay_pin. classify_family names fresh / due / decayed from a non-negative age_ticks vs a positive decay_after. This is age-vs-threshold, not observed-vs-expected freshness (stale/fresh), not a lease expire window (lease/renew), not retain-vs-total (compact/retain), and not remaining TTL (ttl/expire). decay is a START and is refused under HALT; classify / observe / inspect continue. Missing age or decay_after is UNKNOWN (None), not FALSE and not 0. Timeout forces UNKNOWN and does not prove concurrent writing. Sealed send/ready names refuse (fail closed). campaign_envelope_ready structurally ≠ send_authorized. pin_decay records (slot → age:decay_after:family) at most once per distinct triple; same triple is already_pinned; disagreement is decay_collision. peek never writes. pin_allows_decay only for decay+due or decay+decayed; pin_allows_send structurally False. grants_send / halt_blocks_classify / halt_blocks_observe / halt_blocks_inspect / halt_blocks_pin / age_is_zero / fresh_is_authorized / due_is_send / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent_write / proposal_is_execution / promotes_ready_to_send / mints_run_id / wires_into_run_store / consumes_nonce / peek_writes structurally False. halt_blocks_decay and later_disarm_supersedes structurally True. Not wired into run_store.py. Distinct from envelope.py, envelope_class/store_class (#148), typed_event/receipt_bind (#143), receipts (#87), dedup (#88), seq.py, campaign_bind/send_fence (#145), stale_class/fresh_pin (#186), lease_class/renew_pin (#216), unpublished compact_class/retain_pin, unpublished ttl_class/expire_pin, unpublished keepalive/idle, unpublished heartbeat/miss. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -W ignore -m unittest tests.test_aging_class tests.test_decay_pin tests.test_chaos_aging_decay tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_later_hold tests.test_scoped_authz tests.test_campaign_bind tests.test_send_fence tests.test_dedup tests.test_settlement tests.test_events -q",
+    "ran_at_utc": "2026-09-06T17:24:22Z",
+    "head_full_at_run": "1b53773a47b6af71b8b643df61cfa13454cd1340",
+    "exit_code": 0,
+    "result": "412 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_aging_class.py": "46 passed, exit 0 (recount 2026-09-06T17:24:16Z, same parent)",
+      "tests/test_decay_pin.py": "18 passed, exit 0 (recount 2026-09-06T17:24:16Z, same parent)",
+      "tests/test_chaos_aging_decay.py": "7 passed, exit 0 (recount 2026-09-06T17:24:16Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-06T17:24:16Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_aging_class tests.test_decay_pin tests.test_chaos_aging_decay tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-06T17:24:02Z",
+      "exit_code": 0,
+      "result": "81 passed, 0 failed, 0 skipped (aging 46 / decay 18 / chaos 7 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on this-host origin/main @1b53773a47b6af71b8b643df61cfa13454cd1340 — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout (ends session qq) and on incidents branch origin/docs/octopus-os-incidents-20260902 @7a331ab31e6c78079f4f917849742cb6a7ed9f82 (session aaa this-clone). Next append is session jjj.",
+    "CONTRIBUTING.md": "absent on this-host origin/main @1b53773 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B"
+    }
+  },
+  "origin_main_collision": {
+    "value_a_this_host": "1b53773a47b6af71b8b643df61cfa13454cd1340 (#180 lineage; git fetch deny_egress this-run)",
+    "value_b_prior_memory": "2fc995a2067b192700f58cb2b160ee6caece30f9 (#192; compact-retain parent 2026-09-06T16:20:16Z)",
+    "resolution": null,
+    "status": "open"
+  },
+  "external_effects": "ZERO",
+  "ready_equals_authorized": false,
+  "filesystem_immutability_claimed": false
+}
