@@ -7,7 +7,7 @@ octopus-mesh-send (تایمر ساعتی موجود) آن را به مغز ۱۸�
 ۱۳۸ کارت — حلقهٔ سه‌بردی بالاخره با رویداد واقعی چرخید.
 
 قواعد:
-  · hold_external=true همیشه — مغز فقط «فکر» می‌کند، ارسال دست مالک
+  · hold_external=false از 2026-09-07 رأی مالک (UNLOCK-REGISTRY L23) — اثر بیرونی فقط با رسید (GOV-V7 ALLOW_WITH_RECEIPT)
   · may_authorize=false — پیشنهاد، نه اجازه
   · wake_sha256 — اثر انگشت محتوا برای ۱۸۲ (verify بدون دانلود)
   · dedup با wake_id (هر batch یک بار)
@@ -67,7 +67,7 @@ def build_wake(events: list[dict], now: datetime | None = None) -> dict:
         ],
         "state_refs": [str(EVENTS)],
         "deadline": (now + timedelta(hours=4)).isoformat(),
-        "hold_external": True,
+        "hold_external": False,
         "may_authorize": False,
     }
     payload["wake_sha256"] = hashlib.sha256(
