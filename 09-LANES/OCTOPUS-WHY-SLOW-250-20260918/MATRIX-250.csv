@@ -65,7 +65,7 @@ W-128,T5-governance-friction,CONFIRMED_BLOCKER,E1,3,3,9,False,True,False,resolva
 W-131,T6-learning,PARTIAL,E3,3,3,9,False,True,False,resolvable,از ۱۸۷ ردیف واقعی فقط ۱۴۱ ردیف learnable است؛ ۲۵٪ دادهٔ تصمیم بی‌کلید می‌ماند
 W-132,T6-learning,CONFIRMED_BLOCKER,E3,3,3,9,False,True,False,resolvable,تنها کلید چندردیفی، متناقض است (هم accept هم reject روی یک پیشنهاد) — حافظه روی آن اجباراً برای یک ردیف غلط می‌شود
 W-135,T6-learning,PARTIAL,E2,3,3,9,False,True,False,resolvable,recorder تصمیم فقط از ۰۹-۱۷ کلید می‌نویسد؛ همهٔ ردیف‌های قبل بی‌کلیدند و قابل یادگیری نیستند
-W-141,T6-learning,CONFIRMED_BLOCKER,E3,3,3,9,False,True,False,carries-labelled-weakness,فایل حافظهٔ ایجنت‌ها از سقف خودش بزرگ‌تر است (۵۴.۸KB در برابر سقف ۲۴.۴KB) — حافظه بریده می‌شود
+W-141,T6-learning,CONFIRMED_BLOCKER,E3,3,3,9,False,True,False,resolvable,فایل حافظهٔ ایجنت‌ها از سقف خودش بزرگ‌تر است (۵۴.۸KB در برابر سقف ۲۴.۴KB) — حافظه بریده می‌شود
 W-143,T6-learning,CONFIRMED_BLOCKER,E3,3,3,9,False,True,False,resolvable,حکم یادگیری در دو چرخه هیچ تغییری نکرده (delta 0/0/0) — گرادیان صفر
 W-146,T7-agent-architecture,CONFIRMED_BLOCKER,E1,3,3,9,False,True,False,resolvable,entry-point پروژه به سند ۰۹-۰۴ اشاره می‌کند در حالی که ۰۹-۰۶/۰۹-۰۷ هم وجود دارند و هیچ‌کدام لِین‌های جدید را نمی‌بینند
 W-160,T7-agent-architecture,PARTIAL,E1,3,3,9,False,False,False,resolvable,خود deep-scan باید سرویس شود وگرنه به همان فراموشی‌ای که فهرست کرده برمی‌گردد
@@ -81,7 +81,7 @@ W-198,T9-attention-priority,CONFIRMED_BLOCKER,E3,3,3,9,False,True,False,resolvab
 W-003,T1-money-path,PARTIAL,E2,4,2,8,True,True,False,resolvable,انتخاب SEND_YOURSELF توسط مالک در 09-16 ارسال ماشینی را به رأی دسته‌به‌دسته گره زده و کار را به مالک منتقل کرده
 W-011,T1-money-path,UNVERIFIED,E2,4,2,8,False,True,False,resolvable,meter چهار پاسخ شناسایی‌شده نشان می‌دهد ولی sent-log فقط یک reply_1 دارد — سرنوشت ۳ پاسخ نامعلوم است
 W-019,T1-money-path,CONFIRMED_BLOCKER,E1,4,2,8,True,False,False,resolvable,تبلیغ پولی و هر خرید ترافیک در مرز سرخ است؛ تولید تقاضا به ۶۸ ایمیل سرد محدود مانده
-W-S13,T10-infra-fleet,PARTIAL,E1,4,2,8,False,False,True,resolvable,نجات زیرساخت (OOM/EROFS/SD/برق) ساعت‌های جلسه را بلعیده و کار درآمدی را عقب انداخته
+W-S13,T10-infra-fleet,PARTIAL,E1,4,2,8,False,False,True,carries-labelled-weakness,نجات زیرساخت (OOM/EROFS/SD/برق) ساعت‌های جلسه را بلعیده و کار درآمدی را عقب انداخته
 W-236,T12-buffer-external,CONFIRMED_BLOCKER,E3,4,2,8,False,True,False,resolvable,صفر اعتبارسنجی بیرونی: هیچ پیشنهادی هرگز پذیرفته یا رد نشده (۰ برد، ۱ پاسخ)
 W-043,T2-demand-market,PARTIAL,E1,4,2,8,True,False,False,resolvable,مرز RED روی ارتباط عمومی، کانال‌های تقاضای ارزان را هم قفل می‌کند
 W-080,T2-demand-market,CONFIRMED_BLOCKER,E2,4,2,8,False,True,False,resolvable,هیچ کانال ورودی ترافیک به فروشگاه وصل نیست: تبلیغ ممنوع، SEO و شبکه‌های اجتماعی صفر
@@ -117,9 +117,9 @@ W-224,T11-channels,UNVERIFIED,E2,2,3,6,False,True,False,resolvable,پیشنها�
 W-225,T11-channels,UNVERIFIED,E3,2,3,6,False,False,False,resolvable,هیچ auto-acknowledgement برای ورودی مشتری وجود ندارد؛ سکوت اولیه حس بی‌اعتمادی می‌سازد
 W-226,T11-channels,UNVERIFIED,E0,3,2,6,True,False,False,resolvable,وضعیت reputation دامنهٔ ارسال (SPF/DKIM/DMARC) نامعلوم است — ریسک اسپم روی کل کانال
 W-227,T11-channels,UNVERIFIED,E0,2,3,6,False,False,False,resolvable,هیچ مدیریت opt-out/unsubscribe وجود ندارد — ریسک انطباقی (AU Spam Act) روی ارسال سرد
-W-228,T11-channels,UNVERIFIED,E0,2,3,6,False,True,False,carries-labelled-weakness,هیچ مسیر رزرو/تقویم برای جلسه با مشتری وجود ندارد
+W-228,T11-channels,UNVERIFIED,E0,2,3,6,False,True,False,resolvable,هیچ مسیر رزرو/تقویم برای جلسه با مشتری وجود ندارد
 W-232,T12-buffer-external,PARTIAL,E2,2,3,6,False,True,False,resolvable,هدف اصلی در میانهٔ سیزن بازتعریف شد (GOAL_PRIMARY=REDEFINED) — ریسک churn معیار و توجه
-W-234,T12-buffer-external,UNVERIFIED,E0,3,2,6,False,False,False,carries-labelled-weakness,اندازهٔ بازار هدف (strata NSW) هیچ‌جا اندازه‌گیری نشده — حتی تخمین مرتبهٔ بزرگی نیست
+W-234,T12-buffer-external,UNVERIFIED,E0,3,2,6,False,False,False,resolvable,اندازهٔ بازار هدف (strata NSW) هیچ‌جا اندازه‌گیری نشده — حتی تخمین مرتبهٔ بزرگی نیست
 W-237,T12-buffer-external,UNVERIFIED,E1,3,2,6,True,False,False,resolvable,پیش‌نیازهای مجوز/بیمهٔ کار نقاشی (workers-comp + painter licence) در وال نیست — احتمال رد صلاحیت پیمانکاری
 W-238,T12-buffer-external,UNVERIFIED,E1,3,2,6,True,False,False,resolvable,مسیر دریافت پرداخت (PayID/فاکتور رسمی) برای زیمن آماده نیست
 W-036,T2-demand-market,PARTIAL,E2,3,2,6,False,True,False,resolvable,بانک سرنخ ۹۷تایی روی ۲ منبع متمرکز است؛ تنوع منبع تقاضا کم است
@@ -131,17 +131,17 @@ W-053,T2-demand-market,UNVERIFIED,E1,3,2,6,True,False,False,resolvable,تقاض�
 W-055,T2-demand-market,PARTIAL,E1,2,3,6,False,False,False,resolvable,هیچ کانال پیام‌رسان/وب‌فرم برای پاسخ آسان مشتری وجود ندارد؛ پاسخ باید ایمیل بزند
 W-057,T2-demand-market,UNVERIFIED,E0,2,3,6,False,False,False,resolvable,تقاضای فصلی/زمانی مدل نشده — چه ماه‌هایی سفارش نقاشی/هدیه اوج دارد؟
 W-058,T2-demand-market,UNVERIFIED,E3,2,3,6,False,False,False,resolvable,شبکهٔ توزیع زیمن (گالری/هدیه‌فروشی) هیچ اقدام توسعه‌ای ندارد
-W-082,T2-demand-market,UNVERIFIED,E0,2,3,6,False,True,False,carries-labelled-weakness,تقاضای آنلاین/بین‌المللی آتلیه (مارکت‌پلیس/اینستاگرام) هیچ کانالی ندارد
+W-082,T2-demand-market,UNVERIFIED,E0,2,3,6,False,True,False,resolvable,تقاضای آنلاین/بین‌المللی آتلیه (مارکت‌پلیس/اینستاگرام) هیچ کانالی ندارد
 W-064,T3-offer-product,PARTIAL,E1,2,3,6,False,False,False,resolvable,قیمت‌ها یک‌بار ×۱.۵ شد و هیچ آزمایش حساسیت قیمت نداشته
 W-065,T3-offer-product,PARTIAL,E2,2,3,6,False,True,False,resolvable,۸ بسته از ۹ بستهٔ آمادهٔ ارسال، تکراری/قدیمی (QP-20260917/18 در برابر QP-20260913) هستند — بسته‌های کهنه بازچرخه می‌شوند
 W-066,T3-offer-product,UNVERIFIED,E3,2,3,6,False,True,False,resolvable,هیچ شرط/گارانتی/ترمز ریسک در پیشنهاد نیست که پاسخ را آسان کند
 W-067,T3-offer-product,PARTIAL,E2,3,2,6,False,True,False,resolvable,مبلغ/محدودهٔ پروژه در quoteها روشن نیست (rate card غایب) — مشتری نمی‌داند چه می‌خرد
 W-068,T3-offer-product,UNVERIFIED,E3,2,3,6,False,False,False,resolvable,هیچ مسیر رزرو/زمان‌بندی (booking) برای مشتری B2B وجود ندارد
 W-069,T3-offer-product,UNVERIFIED,E1,2,3,6,False,False,False,resolvable,پیشنهاد زیمن/آتلیه و پیشنهاد نقاشی از هم بی‌خبرند؛ هیچ بستهٔ متقاطع (cross-sell) نیست
-W-070,T3-offer-product,UNVERIFIED,E0,2,3,6,False,False,False,carries-labelled-weakness,زمان پاسخ‌دهی تعهدشده (SLA) به مشتری اعلام نمی‌شود
+W-070,T3-offer-product,UNVERIFIED,E0,2,3,6,False,False,False,resolvable,زمان پاسخ‌دهی تعهدشده (SLA) به مشتری اعلام نمی‌شود
 W-075,T3-offer-product,UNVERIFIED,E1,2,3,6,False,True,False,resolvable,هیچ محصول/خدمت «ورودی» ارزان برای اولین خرید وجود ندارد (همه‌چیز پروژه‌ای است)
 W-077,T3-offer-product,PARTIAL,E2,3,2,6,False,True,False,resolvable,بستهٔ quote برای همه یکسان است (یک template) و بخش هزینه‌اش خالی می‌ماند
-W-079,T3-offer-product,UNVERIFIED,E0,2,3,6,False,True,False,carries-labelled-weakness,بازار هدیه (زیمن) فصل‌بندی کریسمس/نوروز ندارد در حالی که تقویم درآمدی حیاتی است
+W-079,T3-offer-product,UNVERIFIED,E0,2,3,6,False,True,False,resolvable,بازار هدیه (زیمن) فصل‌بندی کریسمس/نوروز ندارد در حالی که تقویم درآمدی حیاتی است
 W-086,T4-owner-dependency,UNVERIFIED,E1,3,2,6,True,False,False,resolvable,کلیدهای deploy روی ofn-node غیرفعال‌اند (G1) و شاخه‌های autonomy نمی‌توانند push کنند
 W-091,T4-owner-dependency,PARTIAL,E3,2,3,6,False,True,False,resolvable,دو ردیف از چهار رأی آخر تست self-addressed بوده، نه تصمیم واقعی — کانال رأی با تست اشغال می‌شود
 W-095,T4-owner-dependency,PARTIAL,E2,2,3,6,False,True,False,resolvable,فارسی‌سازی کارت‌ها فقط از ۰۹-۱۷T23:29 فعال شده؛ همهٔ کارت‌های قبلی احتمالاً برای مالک سخت‌تر بوده‌اند
@@ -164,7 +164,7 @@ W-127,T5-governance-friction,PARTIAL,E1,3,2,6,False,True,False,resolvable,"کا�
 W-S15,T5-governance-friction,PARTIAL,E2,3,2,6,False,False,True,resolvable,هزینهٔ اصطکاک رسید/شاهد با کار درآمدی هم‌مقیاس شده؛ حجم رسید بر حجم اثر می‌چربد
 W-136,T6-learning,PARTIAL,E3,3,2,6,False,True,False,resolvable,شرط تولید سیگنال (سطح‌کردن دوبارهٔ یک پیشنهاد با کلید مشترک) وابسته به رفتار مالک است، نه تولیدکننده — نرخ رشد سیگنال کند
 W-137,T6-learning,UNVERIFIED,E1,2,3,6,False,False,False,resolvable,حافظهٔ معنایی همیشه صفر نوت می‌سازد؛ یا by-design است یا یال شکسته — هنوز تعیین نشده
-W-144,T6-learning,PARTIAL,E1,2,3,6,False,False,False,carries-labelled-weakness,ریسک روش‌شناسی: چرخهٔ یادگیری قبلاً fixture آموزشی را به‌عنوان holdout استفاده کرده بود
+W-144,T6-learning,PARTIAL,E1,2,3,6,False,False,False,resolvable,ریسک روش‌شناسی: چرخهٔ یادگیری قبلاً fixture آموزشی را به‌عنوان holdout استفاده کرده بود
 W-148,T7-agent-architecture,CONFIRMED_BLOCKER,E1,3,2,6,False,False,False,resolvable,۵ فایل tracked روی runtime آلوده است و self_model_producer سه بدنهٔ واگرا دارد
 W-149,T7-agent-architecture,PARTIAL,E1,2,3,6,False,False,False,resolvable,۵۱۸۴ فایل untracked (۱۰۷MB، ۹۸٪ state) روی runtime — سطح state از git جدا شده
 W-150,T7-agent-architecture,UNVERIFIED,E1,2,3,6,False,False,False,resolvable,پیش‌بینی‌ها/آمار trackers با runtime اختلاف دارند (PB-4 در سند NOT_RUN، زنده IMPROVED)
@@ -196,14 +196,14 @@ W-212,T10-infra-fleet,UNVERIFIED,E1,2,2,4,False,False,False,resolvable,طرح ro
 W-220,T10-infra-fleet,CONFIRMED_BLOCKER,E1,2,2,4,False,False,False,resolvable,تیر state روی ۱۳۸ (۱۰۵MB) هرگز quiesce نشده؛ هیچ snapshot سازگار از state وجود ندارد
 W-221,T10-infra-fleet,PARTIAL,E1,2,2,4,True,False,False,resolvable,قواعد شکنندهٔ سخت‌افزاری (شروع نکردن مجدد برق، کارت ۳۲GB قبل از reboot) ریسک عملیاتی دائمی می‌سازند
 W-233,T12-buffer-external,PARTIAL,E1,2,2,4,True,False,False,resolvable,سقف بودجهٔ ۱۰۰$/ماه عملاً خرید ترافیک پولی را محدود می‌کند (حتی اگر ads مجاز شود)
-W-235,T12-buffer-external,UNVERIFIED,E0,2,2,4,False,True,False,carries-labelled-weakness,اعتبارسنجی پرسونا با خریدار واقعی انجام نشده؛ پرسونا فرضی است
+W-235,T12-buffer-external,UNVERIFIED,E0,2,2,4,False,True,False,resolvable,اعتبارسنجی پرسونا با خریدار واقعی انجام نشده؛ پرسونا فرضی است
 W-239,T12-buffer-external,PARTIAL,E1,2,2,4,False,False,False,resolvable,ورود به پلتفرم Airtasker ناموفق بود (تنها ایمیل رضایت Google آمد) و تکرار نشد
 W-039,T2-demand-market,UNVERIFIED,E1,2,2,4,False,False,False,resolvable,مسیرهای دایرکتوری (YP/TrueLocal/Hotfrog) به کپچا و ایمیل-ورایف خورده‌اند و نیمه‌کاره مانده‌اند
 W-056,T2-demand-market,UNVERIFIED,E3,2,2,4,False,False,False,resolvable,نظارت بر تقاضا فقط از سمت ماست؛ هیچ سیگنال خرید/جستجو (Google/سایت) رصد نمی‌شود
-W-072,T3-offer-product,UNVERIFIED,E0,2,2,4,False,True,False,carries-labelled-weakness,هیچ قیمت‌گذاری مبتنی بر ارزش/نتیجه (نه ساعت کاری) طراحی نشده
+W-072,T3-offer-product,UNVERIFIED,E0,2,2,4,False,True,False,resolvable,هیچ قیمت‌گذاری مبتنی بر ارزش/نتیجه (نه ساعت کاری) طراحی نشده
 W-073,T3-offer-product,PARTIAL,E2,2,2,4,False,True,False,resolvable,آفر نقاشی روی یک بازار (strata) متمرکز است ولی منابع لیست از همان بازار هم محدود است
-W-076,T3-offer-product,UNVERIFIED,E0,2,2,4,False,False,False,carries-labelled-weakness,هیچ نشانی از بازخورد مشتریان قبلی (رضایت/رتبه) وجود ندارد
-W-078,T3-offer-product,UNVERIFIED,E0,2,2,4,False,True,False,carries-labelled-weakness,زمان تحویل/ظرفیت اعلام نمی‌شود؛ B2B به تاریخ نیاز دارد
+W-076,T3-offer-product,UNVERIFIED,E0,2,2,4,False,False,False,resolvable,هیچ نشانی از بازخورد مشتریان قبلی (رضایت/رتبه) وجود ندارد
+W-078,T3-offer-product,UNVERIFIED,E0,2,2,4,False,True,False,resolvable,زمان تحویل/ظرفیت اعلام نمی‌شود؛ B2B به تاریخ نیاز دارد
 W-087,T4-owner-dependency,UNVERIFIED,E1,2,2,4,True,False,False,resolvable,زنجیرهٔ studio-consent با ۱۴/۱۴ بولت امضانشده، انتشار استودیو را قفل کرده
 W-105,T4-owner-dependency,PARTIAL,E1,2,2,4,True,False,False,resolvable,تصمیم «هر دو کسب‌وکار هم‌زمان» توجه مالک را نصف می‌کند و هیچ‌کدام full-speed نیست
 W-107,T4-owner-dependency,UNVERIFIED,E1,2,2,4,True,False,False,resolvable,اقدام فیزیکی مالک (کارت SD/برق بردهای باقی‌مانده) از ۰۹-۱۵ معلق است
@@ -220,8 +220,8 @@ W-180,T8-knowledge-debt,UNVERIFIED,E1,2,2,4,False,False,False,resolvable,زنج�
 W-182,T8-knowledge-debt,UNVERIFIED,E1,2,2,4,False,False,False,resolvable,چرخهٔ عمر producer (restart/cursor-loss/rotation) و atomicity WAL ساخته نشده — ریسک از‌دست‌رفتن داده
 W-192,T9-attention-priority,PARTIAL,E1,2,2,4,True,False,False,resolvable,روزهای enrollment سخت‌افزار (۰۹-۱۴/۱۵) صرف بردها شد نه درآمد
 W-208,T10-infra-fleet,UNVERIFIED,E1,1,3,3,False,False,False,resolvable,سرویس‌های unwired (effect-zero claim paths + http.server اعلام‌نشده) از ۰۸-۱۶ active مانده‌اند
-W-229,T11-channels,UNVERIFIED,E0,1,3,3,False,False,False,carries-labelled-weakness,مشتری هیچ سطح وضعیت/پیگیری (چه شد پرونده من؟) ندارد
-W-230,T11-channels,UNVERIFIED,E0,1,3,3,False,True,False,carries-labelled-weakness,کانال SMS/واتس‌اپ برای یادآوری/فالوآپ استفاده نمی‌شود
+W-229,T11-channels,UNVERIFIED,E0,1,3,3,False,False,False,resolvable,مشتری هیچ سطح وضعیت/پیگیری (چه شد پرونده من؟) ندارد
+W-230,T11-channels,UNVERIFIED,E0,1,3,3,False,True,False,resolvable,کانال SMS/واتس‌اپ برای یادآوری/فالوآپ استفاده نمی‌شود
 W-124,T5-governance-friction,UNVERIFIED,E1,1,3,3,False,False,False,resolvable,سه xfail در ۴ کپی مختلف ماژول VBAA باقی است — تناقض کیفیت در چند نسخه
 W-126,T5-governance-friction,UNVERIFIED,E1,1,3,3,False,False,False,resolvable,ستون verified_in_code در دفتر 02-DECISIONS هرگز پر نشده — ردیابی تصمیم→کد قطع است
 W-154,T7-agent-architecture,UNVERIFIED,E1,1,3,3,False,False,False,resolvable,ledger کانونیک GAP وجود ندارد (۰ ردیف در برابر ۶۴ ردیف نسخهٔ markdown) — L6 برای همیشه باز
@@ -246,6 +246,6 @@ W-173,T8-knowledge-debt,UNVERIFIED,E1,1,2,2,False,False,False,resolvable,چک‌
 W-177,T8-knowledge-debt,UNVERIFIED,E1,1,2,2,False,False,False,resolvable,خلبان AIE صادقانه fail شد و PYMDP v2 ثبت‌شده ولی هرگز اجرا نشد
 W-179,T8-knowledge-debt,UNVERIFIED,E1,1,2,2,False,False,False,resolvable,حلقهٔ کسب‌وکار EDGE6 مسدود و remote انتشار GitHub نامکشوف مانده
 W-035,T1-money-path,REFUTED,E3,0,5,0,True,True,False,resolvable,بودجهٔ API ماهانه ۰.۹ دلار از ۱۰۰ دلار است — کمبود بودجه علت کندی نیست
-W-199,T10-infra-fleet,REFUTED,E1,0,5,0,False,False,False,resolvable,EROFS روی ۱۳۸ (که دو روز نوشتن را بسته بود) با RES-05C رفع شده — علتِ رفع‌شده
+W-199,T10-infra-fleet,REFUTED,E1,0,5,0,False,False,False,carries-labelled-weakness,EROFS روی ۱۳۸ (که دو روز نوشتن را بسته بود) با RES-05C رفع شده — علتِ رفع‌شده
 W-200,T10-infra-fleet,REFUTED,E1,0,5,0,False,False,False,resolvable,OOM روی ۱۸۲ با swapfile ۲G رفع شده و gap001 مربوط به قبل از swapfile بود
 W-215,T10-infra-fleet,REFUTED,E2,0,5,0,False,False,False,resolvable,کلید leaf ناتس ۱۳۸ در پالس‌ها None بود که در ۰۹-۱۷ اصلاح شد — علتِ رفع‌شده
