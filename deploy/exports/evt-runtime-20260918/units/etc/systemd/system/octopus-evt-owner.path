@@ -1,0 +1,10 @@
+[Unit]
+Description=OCTOPUS event watcher: owner
+
+[Path]
+PathChanged=/home/ari/ofn/state/revenue-drive/tg-inbox.jsonl
+PathModified=/home/ari/ofn/state/revenue-drive/tg-inbox.jsonl
+PathChanged=/home/ari/ofn/state/owner_dialogue/go_b3_tg_spool.jsonl
+PathModified=/home/ari/ofn/state/owner_dialogue/go_b3_tg_spool.jsonl
+[Install]
+WantedBy=paths.target

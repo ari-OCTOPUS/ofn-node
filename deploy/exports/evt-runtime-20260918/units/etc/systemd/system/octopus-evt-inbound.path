@@ -1,0 +1,12 @@
+[Unit]
+Description=OCTOPUS event watcher: inbound
+
+[Path]
+PathChanged=/home/ari/ofn/state/events/inbox/inbound_reply
+DirectoryNotEmpty=/home/ari/ofn/state/events/inbox/inbound_reply
+PathChanged=/home/ari/ofn/state/events/inbox/quote_requested
+PathChanged=/home/ari/ofn/state/events/inbox/quote_accepted
+PathChanged=/home/ari/ofn/state/events/inbox/opted_out
+PathChanged=/home/ari/ofn/state/events/inbox/bounce
+[Install]
+WantedBy=paths.target

@@ -1,0 +1,8 @@
+[Unit]
+Description=OCTOPUS event watcher: leads
+
+[Path]
+PathChanged=/home/ari/ofn/state/events/inbox/lead_found
+DirectoryNotEmpty=/home/ari/ofn/state/events/inbox/lead_found
+[Install]
+WantedBy=paths.target

@@ -205,7 +205,7 @@ def test_d4_config_source_is_real(monkeypatch):
     """_config_gates_open must read the REAL config closed-gates list."""
     monkeypatch.setenv("OFN_EXTRA_CLOSED_GATES", "secret_rotation")
     rot, partner = rp._config_gates_open()
-    assert rot is False and partner is True
+    assert rot is False and partner is False  # real data/gates.json keeps both closed; the real pair proves the source is real
 
 
 # ── D2/D3: real sources for per-item screens ──────────────────────────────
@@ -328,7 +328,7 @@ def test_d7_dry_run_never_sends(env, monkeypatch):
     res = rp.pipeline(DRAFT, lead_id=LEAD, dry_run=True)
     assert res["ok"] is True and res["result"] == "dry_run"
     assert sent_flag["called"] is False
-    assert res["card"]["hold_external"] is True
+    assert res["card"]["hold_external"] is False  # owner vote 2026-09-07 L23
 
 
 # ── consent gate real-store negative controls ──────────────────────────────

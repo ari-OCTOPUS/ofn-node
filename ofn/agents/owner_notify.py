@@ -36,6 +36,22 @@ def _secrets() -> dict:
     return d
 
 
+def _urlopen_retry(req, timeout: int = 15, attempts: int = 2):
+    """R1 fix (2026-09-18): 44 notify.failed URLErrors in 2 days were transient
+    network hiccups (getMe 200 before and after). One retry turns a blip into a
+    delivered notification; persistent failure still records notify.failed."""
+    import time as _t
+    last = None
+    for i in range(attempts):
+        try:
+            return urllib.request.urlopen(req, timeout=timeout)
+        except Exception as exc:  # noqa: BLE001
+            last = exc
+            if i + 1 < attempts:
+                _t.sleep(5)
+    raise last
+
+
 def send(text: str, chat_id: str | None = None) -> dict:
     s = _secrets()
     token = s.get("OFN_BOT_TOKEN_OWNER") or ""
@@ -59,7 +75,7 @@ def send(text: str, chat_id: str | None = None) -> dict:
             req = urllib.request.Request(
                 f"https://api.telegram.org/bot{token}/sendMessage",
                 data=body, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=15) as r:
+            with _urlopen_retry(req, 15) as r:
                 ok_any = ok_any or r.status == 200
         except Exception as e:  # noqa: BLE001
             errs.append(f"{type(e).__name__}")

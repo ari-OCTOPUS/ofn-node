@@ -1,0 +1,23 @@
+{
+ "at": "2026-09-13T05:21:07Z",
+ "channel": "email",
+ "conditions": [
+  "no price without a valid rate card (RATE_CARD_MISSING blocks PRICE_VALIDATED)",
+  "every send carries payload hash + recipient + receipt",
+  "owner can revoke by setting state/revenue-drive/CHANNEL-REVOKED"
+ ],
+ "envelope": {
+  "daily_send_cap": 60,
+  "expiry_days": 30,
+  "kill_switch": "state/autonomy/STOP-AUTONOMY or /etc/octopus-ops-halt",
+  "per_message_manifest_required": true,
+  "receipt_per_send": true,
+  "rollback": "stop queue; no unsend (email)",
+  "cap_note": "raised from 10 per owner answer 2026-09-18"
+ },
+ "granted_by": "OWNER (telegram/chat answer 2026-09-13)",
+ "quote": "کل قیف رنگ‌وبازسازی",
+ "red4_compliance": "machine-readable authorization present; send only within envelope",
+ "schema": "octopus.channel-authorization.v1",
+ "scope": "painting/renovation lead funnel (73 accounts, tools/leads_master.json)"
+}
