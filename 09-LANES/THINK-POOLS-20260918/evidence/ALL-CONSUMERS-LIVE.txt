@@ -1,0 +1,35 @@
+=== ALL CONSUMERS, LIVE ===
+{
+ "consumers": 3,
+ "ok": 2,
+ "paid_rows": 2,
+ "rows": [
+  {
+   "consumer": "lead_reply_draft",
+   "provider": "gemini",
+   "model": "gemini-3.1-pro-preview",
+   "ok": true,
+   "reply_chars": 98,
+   "est_cost_usd": 1e-05,
+   "latency_s": 7.35
+  },
+  {
+   "consumer": "customer_reply_draft",
+   "provider": "gemini",
+   "model": "gemini-3.1-pro-preview",
+   "ok": true,
+   "reply_chars": 246,
+   "est_cost_usd": 2.4e-05,
+   "latency_s": 6.07
+  },
+  {
+   "consumer": "lead_classify",
+   "provider": null,
+   "model": null,
+   "ok": null,
+   "reply_chars": null,
+   "est_cost_usd": null,
+   "latency_s": null
+  }
+ ]
+}
