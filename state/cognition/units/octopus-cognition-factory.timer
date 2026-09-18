@@ -1,0 +1,10 @@
+[Unit]
+Description=Drive the cognition factory every 30 minutes (offset from the reaper)
+
+[Timer]
+OnCalendar=*:5/30
+Persistent=true
+Unit=octopus-cognition-factory.service
+
+[Install]
+WantedBy=timers.target

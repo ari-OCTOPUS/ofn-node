@@ -1,0 +1,10 @@
+[Unit]
+Description=Drive the durability reaper every 30 minutes
+
+[Timer]
+OnCalendar=*:0/30
+Persistent=true
+Unit=octopus-durability-reaper.service
+
+[Install]
+WantedBy=timers.target

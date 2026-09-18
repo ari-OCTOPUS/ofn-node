@@ -1,0 +1,24 @@
+{
+  "at": "2026-09-18T03:19:02+00:00",
+  "cognition": {
+    "broker_180": "http://192.168.0.180:8081/health -> 200 ok",
+    "driver": "octopus-cognition-factory.timer OnCalendar=*:5/30 Persistent; tick.log + receipts.jsonl as evidence",
+    "manual_run": "cog-manual-1 scope (CPUQuota=100% MemoryMax=512M): queue empty, exit 0",
+    "producer": "coding_worker.cognition_request -> state/ops-agent/state/canary-requests (schema octopus.cognition-request.v1)"
+  },
+  "corrections_of_prior_analysis": [
+    "cognition_factory main() is queue-driven (one task per invocation) -> a timer IS the missing caller; prior no timer by design was wrong",
+    "durable_jobs.py HAS main() (reaper over fleet-jobs bus, --apply writes transitions ledger) -> prior library without main, superseded was wrong; bus measured ALIVE (fleet_jobs.jsonl written minutes before check)"
+  ],
+  "durability": {
+    "driver": "octopus-durability-reaper.timer OnCalendar=*:0/30 Persistent",
+    "manual_run": "durable_jobs.py --apply: 3 transitions applied (2x UNKNOWN->FAILED UNKNOWN_DISPOSITION_REQUIRED, 1x LEASED->QUEUED LEASE_EXPIRED_RECLAIMED)",
+    "own_test": "test_durable_jobs.py OK"
+  },
+  "schema": "octopus.receipt.v1",
+  "units": [
+    "state/cognition/units/",
+    "state/durability/units/ (cgroup-bounded: cognition 100%/512M, reaper 50%/256M)"
+  ],
+  "what": "RUN-TO-COMPLETION item 7 \u2014 drivers for cognition + durability (both timered, both with live proof)"
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=OCTOPUS durability reaper — lease reclaim + terminal sweep over the fleet-jobs bus (RUN-TO-COMPLETION item 7)
+Documentation=file:///home/ari/ofn/state/fleet-jobs/transitions.jsonl
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn/state/durability
+ExecStart=/usr/bin/python3 /home/ari/ofn/state/durability/durable_jobs.py --apply
+TimeoutStartSec=120
+CPUQuota=50%
+MemoryMax=256M

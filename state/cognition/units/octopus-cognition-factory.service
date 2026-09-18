@@ -1,0 +1,15 @@
+[Unit]
+Description=OCTOPUS cognition factory driver — process one queued reflection request per tick (RUN-TO-COMPLETION item 7)
+Documentation=file:///home/ari/ofn/state/cognition/receipts.jsonl
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn/state/cognition
+ExecStart=/bin/bash -c "/usr/bin/python3 /home/ari/ofn/state/cognition/cognition_factory.py 2>&1 | tee -a /home/ari/ofn/state/cognition/tick.log; rc=${PIPESTATUS[0]}; exit $rc"
+TimeoutStartSec=400
+CPUQuota=100%
+MemoryMax=512M

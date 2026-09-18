@@ -1,0 +1,3 @@
+{"at_utc": "2026-09-18T03:17:59Z", "job_id": "job-585af3d63dcc427f", "from": "UNKNOWN", "to": "FAILED", "why": "UNKNOWN_DISPOSITION_REQUIRED", "idempotency_key": "p2-test-unknown-1", "attempt": 2}
+{"at_utc": "2026-09-18T03:17:59Z", "job_id": "job-180764285cee40ed", "from": "LEASED", "to": "QUEUED", "why": "LEASE_EXPIRED_RECLAIMED", "idempotency_key": "p4-lease-ok-100-1789443899", "attempt": 2}
+{"at_utc": "2026-09-18T03:17:59Z", "job_id": "job-63726f44cc2f49af", "from": "UNKNOWN", "to": "FAILED", "why": "UNKNOWN_DISPOSITION_REQUIRED", "idempotency_key": "pb2-crash-100-1789445024", "attempt": 2}
