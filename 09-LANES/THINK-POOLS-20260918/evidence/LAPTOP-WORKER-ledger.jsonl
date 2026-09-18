@@ -1,0 +1,13 @@
+{"at": "2026-09-18T03:25:17+00:00", "envelope": "affinity-failed-err=0", "event": "start", "pid": 20924}
+{"at": "2026-09-18T03:25:17+00:00", "event": "seeded", "item": "shard-3-of-6"}
+{"at": "2026-09-18T03:25:17+00:00", "event": "seeded", "item": "shard-4-of-6"}
+{"at": "2026-09-18T03:25:17+00:00", "event": "seeded", "item": "shard-5-of-6"}
+{"at": "2026-09-18T03:25:17+00:00", "attempt": 0, "event": "leased", "item": "shard-3-of-6"}
+{"at": "2026-09-18T03:26:43+00:00", "attempt": 1, "event": "requeued", "item": "shard-3-of-6", "reason": "preempted:user_interaction idle_ms=0"}
+{"at": "2026-09-18T03:28:15+00:00", "envelope": "affinity_mask=000000111111 (6/12 cores) priority=below_normal", "event": "start", "pid": 25856}
+{"at": "2026-09-18T03:28:15+00:00", "attempt": 0, "event": "leased", "item": "shard-4-of-6"}
+{"at": "2026-09-18T03:30:59+00:00", "errors": 4, "event": "done", "failed": 55, "item": "shard-4-of-6", "passed": 1555, "selected": 1617}
+{"at": "2026-09-18T03:30:59+00:00", "attempt": 0, "event": "leased", "item": "shard-5-of-6"}
+{"at": "2026-09-18T03:32:47+00:00", "errors": 2, "event": "done", "failed": 56, "item": "shard-5-of-6", "passed": 1554, "selected": 1616}
+{"at": "2026-09-18T03:32:47+00:00", "attempt": 1, "event": "leased", "item": "shard-3-of-6"}
+{"at": "2026-09-18T03:34:12+00:00", "errors": 3, "event": "done", "failed": 59, "item": "shard-3-of-6", "passed": 1200, "selected": 1617}
