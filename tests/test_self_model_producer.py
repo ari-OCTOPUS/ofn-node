@@ -23,6 +23,8 @@ from ofn.adapters.cockpit_self_model import SelfModelSection
 from ofn.kernel import self_model
 
 ROOT = Path(__file__).resolve().parents[1]
+# DECLARED!=WIRED: wiring evidence is injectable; all-wired map for healthy-path tests
+ALL_WIRED = {name: True for name, _mod, _sym in producer.CAPABILITIES}
 FAKE_HEAD = "ab12" * 10
 FAKE_LOG_EPOCH = 1770000000
 
@@ -69,7 +71,7 @@ class ProducerEnvelope(unittest.TestCase):
                 clock=lambda: 1000.0,
                 repo_root=ROOT,
                 git_runner=fake_git,
-                unit_prober=fake_prober_ok,
+                unit_prober=fake_prober_ok, runtime_wired=ALL_WIRED,
             )
         self.assertEqual(envelope["schema"], producer.SCHEMA_ID)
         self.assertEqual(envelope["status"], "ok")
@@ -99,6 +101,24 @@ class ProducerEnvelope(unittest.TestCase):
                    if item["sensor_id"] == "process_supervisor")
         self.assertEqual(row["status"], "absent")
         self.assertIn("process_supervisor_absent", envelope["warnings"])
+
+    def test_revenue_timer_is_a_measured_member(self):
+        self.assertEqual(
+            producer.MEMBER_UNITS["revenue_timer"],
+            "capability-school-revenue.timer",
+        )
+        envelope = producer.produce(
+            clock=lambda: 1000.0,
+            repo_root=ROOT,
+            git_runner=fake_git,
+            unit_prober=fake_prober_ok,
+        )
+        row = next(
+            item for item in envelope["data"]["processes"]
+            if item["sensor_id"] == "process_revenue_timer"
+        )
+        self.assertEqual(row["status"], "healthy")
+        self.assertEqual(row["source"], "unit:capability-school-revenue.timer")
 
     def test_scenario_3_several_producers_absent(self):
         units = producer.MEMBER_UNITS
@@ -246,7 +266,7 @@ class RealProducersIntegration(unittest.TestCase):
     def test_real_capabilities_all_present_in_this_checkout(self):
         envelope = producer.produce(
             repo_root=ROOT, clock=lambda: 1000.0, git_runner=fake_git,
-            unit_prober=fake_prober_ok)
+            unit_prober=fake_prober_ok, runtime_wired=ALL_WIRED)
         for row in envelope["data"]["capabilities"]:
             self.assertEqual(row["status"], "healthy", row["sensor_id"])
 
@@ -319,7 +339,7 @@ class CockpitSection(unittest.TestCase):
         with mock.patch.object(
                 producer, "_collect_brain_probe",
                 lambda root, now: fresh_probe_evidence(now)):
-            section = SelfModelSection(self._producer())
+            section = SelfModelSection(self._producer(runtime_wired=ALL_WIRED))
             envelope = section.read()
         self.assertEqual(envelope["section"], "self_model")
         self.assertEqual(envelope["status"], "ok")

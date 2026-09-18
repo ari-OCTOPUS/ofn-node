@@ -12,7 +12,8 @@ Real producers wired here:
 * member process liveness — loopback TCP connects to the Day-7 board ports;
   on a dev host these are measured ABSENT (they live on the board, not here),
   which is a verified negative, not a fault
-* capabilities — an AST scan of the registry below (file + symbol present)
+* capabilities — AST scan for code_present; runtime_wired is a separate
+  proof. AST alone is PRESENT_UNWIRED and never healthy (C7 correction 3)
 * brain-probe run evidence — dated receipt files; absent here means the
   verdict fails closed to unknown, never healthy
 
@@ -48,12 +49,14 @@ SCHEMA_ID = "octopus.self-model.v3"
 # never existed on board138 — the old map read permanently absent).
 # The timer-driven oneshots (heartbeat/imap/quote) are deliberately not listed:
 # "inactive" is their normal between-runs state, so is-active would misreport;
-# their health surfaces via the heartbeat pulse and imap events.
+# their health surfaces via the heartbeat pulse and imap events. The revenue
+# timer itself stays active while waiting, so it is a measurable member.
 MEMBER_UNITS: dict[str, str] = {
     "bridge": "octopus-bridge.service",
     "control_router": "octopus-control-router.service",
     "cycle_settler": "octopus-cycle-settler.service",
     "router": "octopus-router.service",
+    "revenue_timer": "capability-school-revenue.timer",
     "supervisor": "octopus-supervisor.service",
     "verify_dispatcher": "octopus-verify-dispatcher.service",
 }
@@ -89,6 +92,32 @@ CAPABILITIES: tuple[tuple[str, str, str | None], ...] = (
     ("sender_dryrun", "ofn/adapters/sender_dryrun.py", None),
     ("self_model", "ofn/kernel/self_model.py", "build_model"),
 )
+
+PRESENT_UNWIRED = "PRESENT_UNWIRED"
+RUNTIME_WIRED = "RUNTIME_WIRED"
+CAPABILITY_STATUS_UNKNOWN = "UNKNOWN"
+
+
+def classify_capability_status(
+    *,
+    code_present: bool | None,
+    runtime_wired: bool,
+) -> str:
+    """Keep this body identical to capability_status.classify_capability_status."""
+    if code_present is None:
+        return CAPABILITY_STATUS_UNKNOWN
+    if bool(code_present) and bool(runtime_wired):
+        return RUNTIME_WIRED
+    if bool(code_present) and not bool(runtime_wired):
+        return PRESENT_UNWIRED
+    return CAPABILITY_STATUS_UNKNOWN
+
+
+def reading_status_for_capability(capability_status: str) -> str:
+    if capability_status == RUNTIME_WIRED:
+        return self_model.HEALTHY
+    return self_model.UNKNOWN
+
 
 AUTHORITY = {
     "may_propose": True,
@@ -282,17 +311,68 @@ def _collect_processes(
     return readings
 
 
-def _collect_capabilities(repo_root: Path) -> list[Reading]:
+def _collect_capabilities(
+    repo_root: Path,
+    runtime_wired: Mapping[str, bool] | None = None,
+) -> list[Reading]:
+    wired = runtime_wired or {}
     readings = []
     for name, module_path, symbol in CAPABILITIES:
         present = check_capability(repo_root, module_path, symbol)
+        is_wired = bool(wired.get(name, False))
+        cap_status = classify_capability_status(
+            code_present=present, runtime_wired=is_wired)
+        implementation = module_path + (f"::{symbol}" if symbol else "")
+        # Do not use the kernel present-implies-healthy helper. AST is
+        # never healthy (OWNER-RULING-C7 correction 3).
+        if present is False:
+            readings.append(
+                Reading(
+                    sensor_id=f"capability_{name}",
+                    implementation=implementation,
+                    status=self_model.ABSENT,
+                    value={
+                        "capability_code_present": False,
+                        "capability_runtime_wired": False,
+                        "capability_status": cap_status,
+                    },
+                    source=f"ast:{module_path}",
+                    observed_epoch=None,
+                    detail=cap_status,
+                )
+            )
+            continue
+        if present is None:
+            readings.append(
+                Reading(
+                    sensor_id=f"capability_{name}",
+                    implementation=implementation,
+                    status=self_model.UNKNOWN,
+                    value={
+                        "capability_code_present": None,
+                        "capability_runtime_wired": is_wired,
+                        "capability_status": CAPABILITY_STATUS_UNKNOWN,
+                    },
+                    source=f"ast:{module_path}",
+                    observed_epoch=None,
+                    detail=CAPABILITY_STATUS_UNKNOWN,
+                )
+            )
+            continue
+        source = f"runtime:{module_path}" if is_wired else f"ast:{module_path}"
         readings.append(
-            self_model.capability_reading(
+            Reading(
                 sensor_id=f"capability_{name}",
-                implementation=module_path + (
-                    f"::{symbol}" if symbol else ""),
-                present=present,
-                source=f"ast:{module_path}",
+                implementation=implementation,
+                status=reading_status_for_capability(cap_status),
+                value={
+                    "capability_code_present": True,
+                    "capability_runtime_wired": is_wired,
+                    "capability_status": cap_status,
+                },
+                source=source,
+                observed_epoch=None,
+                detail=cap_status,
             )
         )
     return readings
@@ -353,6 +433,7 @@ def produce(
     units: Mapping[str, str] | None = None,
     git_runner: GitRunner | None = None,
     unit_prober: UnitProber | None = None,
+    runtime_wired: Mapping[str, bool] | None = None,
 ) -> dict[str, Any]:
     """Generate the self-model envelope from real (or injected) producers."""
     now_epoch = (clock or default_clock)()
@@ -369,7 +450,7 @@ def produce(
     identity, identity_reading = _collect_code_identity(
         repo_root, git_runner, now_epoch)
     processes = _collect_processes(units, now_epoch, unit_prober)
-    capabilities = _collect_capabilities(repo_root)
+    capabilities = _collect_capabilities(repo_root, runtime_wired)
     events = _collect_events(repo_root, git_runner, EVENT_LIMIT)
     brain_probe = _collect_brain_probe(repo_root, now_epoch)
 
@@ -505,14 +586,32 @@ def main(argv: Sequence[str] | None = None) -> int:
         envelope["warnings"] = sorted(set(envelope["warnings"] + ["organism_shadow_persistence_failed"]))
     envelope["producer_invocation"] = {"pid": os.getpid(), "generated_at": envelope["generated_at"],
         "scope": "this producer invocation, not other long-running processes"}
+    unknown_count = envelope["data"].get("counts", {}).get("unknown")
+    completion = "success"
+    if (envelope["organism_shadow_persistence"]["state"] != "COMMITTED_ADVISORY"
+            or "runtime_code_witness_unverified" in envelope["warnings"]
+            or envelope.get("status") == "unverifiable"):
+        # handoff-contract v2 semantics (owner phase-2 task 3): the artifact was
+        # produced; verification gaps are recorded unknowns, not process failure.
+        completion = "completed_with_unknowns"
+        envelope["completion"] = {
+            "state": completion,
+            "unknown_capabilities": unknown_count,
+            "persistence_state": envelope["organism_shadow_persistence"]["state"],
+            "unverified_reasons": sorted(w for w in envelope.get("warnings", [])
+                                         if w in ("organism_shadow_unavailable",
+                                                  "runtime_code_witness_unverified",
+                                                  "organism_shadow_persistence_failed")),
+        }
     path, digest = write_artifact(envelope, output)
     print(summary_line(envelope))
+    print(f"completion={completion} unknowns={unknown_count} "
+          f"persistence={envelope['organism_shadow_persistence']['state']}")
     print(f"artifact={path}")
     print(f"sha256={digest}")
     print(f"semantic_digest={semantic_digest(envelope)}")
     print(f"generated_at={envelope['generated_at']}")
-    return 0 if (envelope["organism_shadow_persistence"]["state"] == "COMMITTED_ADVISORY"
-                 and "runtime_code_witness_unverified" not in envelope["warnings"]) else 1
+    return 0
 
 
 if __name__ == "__main__":
