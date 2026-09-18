@@ -1838,9 +1838,7 @@
    "hypothesis": "نجات زیرساخت (OOM/EROFS/SD/برق) ساعت‌های جلسه را بلعیده و کار درآمدی را عقب انداخته",
    "reason": "EROFS incident + OOM-182 + swap drill + disk crisis همه در بازهٔ 09-12..09-18",
    "verify_against": [
-    "06-EVIDENCE/A7-SWAP-DRILL-20260918",
-    "RES-05C",
-    "09-LANES/OCTOPUS-WHY-SLOW-250-20260918/BASELINE-GROWTH-CURVE.md"
+    "RES-05C (session-memory label; source doc not located)"
    ],
    "verdict": "PARTIAL",
    "verdict_code": "P",
@@ -1852,7 +1850,8 @@
    "unblock_2liner": "قاعدهٔ توقف خونریزی: هیچ rescue بیشتر از n ساعت بدون کارت مالک",
    "verified_this_session": false,
    "seeded": true,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "carries-labelled-weakness",
+   "anchor_note": "bare lane label from session memory; source document NOT located in the vault (searched: git log --grep=RES-05, 09-LANES/*RECOVERY*, 09-LANES/*RECON*, 06-EVIDENCE) -> anchor honestly retained as-is instead of a fabricated path"
   },
   {
    "id": "W-236",
@@ -5359,7 +5358,7 @@
    "hypothesis": "EROFS روی ۱۳۸ (که دو روز نوشتن را بسته بود) با RES-05C رفع شده — علتِ رفع‌شده",
    "reason": "RES-05C verdict PASS_OWNER_NOTIFICATION_OBSERVED @03:19:07Z؛ EROFS gone",
    "verify_against": [
-    "09-LANES/RES-05C (evidence)"
+    "RES-05C (session-memory label; source doc not located)"
    ],
    "verdict": "REFUTED",
    "verdict_code": "R",
@@ -5371,7 +5370,8 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "carries-labelled-weakness"
+   "anchor_quality": "carries-labelled-weakness",
+   "anchor_note": "bare lane label from session memory; source document NOT located in the vault (searched: git log --grep=RES-05, 09-LANES/*RECOVERY*, 09-LANES/*RECON*, 06-EVIDENCE) -> anchor honestly retained as-is instead of a fabricated path"
   },
   {
    "id": "W-200",
@@ -5459,5 +5459,15 @@
   "resolvable": 248,
   "labelled_weak": 2,
   "at": "2026-09-18T13:40:00Z"
+ },
+ "anchor_stats_v9": {
+  "resolvable": 248,
+  "labelled_weak": 2,
+  "labelled_ids": [
+   "W-S13",
+   "W-199"
+  ],
+  "note": "the only two anchors that could not be resolved to a real document; kept as explicit labels",
+  "at": "2026-09-18T13:50:00Z"
  }
 }
