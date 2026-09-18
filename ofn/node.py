@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable, Mapping, Sequence
 
+from . import offer_v0_3
 from .adapters.boot import BootReport, closed_gates_for
 from .adapters.facts import FactStore
 from .adapters.ledger import Ledger
@@ -31,6 +32,7 @@ from .adapters.products import (ProductError, ProductStore, money_view,
                                 net_margin_aud, piece_slug, verdicts)
 from .adapters.studio_store import EARLIEST_PLAUSIBLE_EPOCH_S, StudioError
 from .adapters.cycle_parsing import json_dumps_safe, parse_candidates
+from .agents import j_draft
 from .kernel.audience import ownership_ratio, revenue_mix
 from .kernel.consent import may_publish, subjects_needing_attention
 from .kernel.outreach import drafts_for as outreach_drafts
@@ -4172,6 +4174,30 @@ class Node:
             self.painting.update_lead(scope.tenant.value, lead_id,
                                       {"status": "quoted"}, now_iso=now)
         return {"ok": True, "queued": queued}
+
+    def draft_lead_email(self, lead_id: str, *, actor: str = "partner") -> dict:
+        """Generate a fact-only email draft for a lead and queue it (pending).
+
+        Mirrors send_lead_reply's fail-closed shape, but the body is generated
+        by j_draft from Offer v0.3, not supplied by a human. Nothing is sent —
+        the draft ends at outbox 'pending' for owner approval. Enqueue goes
+        through _gate_enqueue so a killed node queues nothing.
+        """
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        lead = self.painting.get(scope.tenant.value, lead_id)
+        if not lead:
+            return {"ok": False, "error": "لید پیدا نشد"}
+        offer = offer_v0_3.load_offer()
+        now = self.now_iso()
+        try:
+            return j_draft.enqueue_draft(
+                self._gate_enqueue, scope, lead, offer, now)
+        except j_draft.FabricatedClaimError as exc:
+            return {"ok": False, "error": f"پیش‌نویس رد شد: {exc}"}
 
     def upsert_painting_channel(self, body: Mapping[str, object]) -> dict:
         if self.painting is None:
