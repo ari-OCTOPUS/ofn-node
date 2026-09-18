@@ -228,7 +228,7 @@
    "unblock_2liner": "همان آلارم F-019 را بساز؛ تایمر imap هر ۱۵ دقیقه موجود است، فقط مصرف‌کننده ندارد",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-016",
@@ -398,7 +398,7 @@
    "unblock_2liner": "۵ سرنخ را دستی اعتبارسنجی کن (تماس/ایمیل تأیید) قبل از ارسال دسته‌ای بعدی",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-S02",
@@ -442,7 +442,7 @@
    "unblock_2liner": "offer را به یک چرخهٔ ۲هفته‌ای با معیار پاسخ ببند (نسخهٔ B اجباری)",
    "verified_this_session": false,
    "seeded": true,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-133",
@@ -528,7 +528,7 @@
    "unblock_2liner": "قانون را به یک گیت ماشینی تبدیل کن: بدون رسید روزانهٔ تقاضا، کار متا در صف نمی‌آید",
    "verified_this_session": false,
    "seeded": true,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-001",
@@ -572,7 +572,7 @@
    "unblock_2liner": "ریشه در نرخ تبدیل و نبود کانال است؛ ۸ روز سکوت = گلوگاه ساختاری",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-013",
@@ -806,7 +806,7 @@
    "unblock_2liner": "DIDWW $20 یا شمارهٔ موجود مالک به‌عنوان شمارهٔ کاری",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-231",
@@ -1102,7 +1102,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-083",
@@ -1188,7 +1188,7 @@
    "unblock_2liner": "سیاست غیبت: وقتی مالک >۴۸h نیست، فقط اقدام‌های internal-green با log اجرا شوند",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-094",
@@ -1316,7 +1316,7 @@
    "unblock_2liner": "یک ابزار خودکار receipt_for_send بساز که سربار را به یک فراخوان تابع کاهش دهد",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-115",
@@ -1359,7 +1359,7 @@
    "unblock_2liner": "root-cause-3 (mv از منبع readonly) را رفع و cycle را تأیید کن تا کلید قانونی بسته شود",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-121",
@@ -1550,7 +1550,7 @@
    "unblock_2liner": "AGENTS.md را به یک entry-point زنده وصل کن (نه تاریخ‌دار)",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-160",
@@ -1637,7 +1637,7 @@
    "unblock_2liner": "یکی را کانونیک اعلام و دیگری را pointer تک‌خطی کن",
    "verified_this_session": true,
    "seeded": true,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-S11",
@@ -1658,7 +1658,7 @@
    "unblock_2liner": "قلمروهای پرحاصل را به نقشهٔ دانش وصل کن (index + links) نه اسکن تازه",
    "verified_this_session": false,
    "seeded": true,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-187",
@@ -1744,7 +1744,7 @@
    "unblock_2liner": "گیت را در scheduler پیاده کن (شرط: رسید تقاضای امروز قبل از صف متا)",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-198",
@@ -1852,7 +1852,7 @@
    "unblock_2liner": "قاعدهٔ توقف خونریزی: هیچ rescue بیشتر از n ساعت بدون کارت مالک",
    "verified_this_session": false,
    "seeded": true,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-236",
@@ -1918,7 +1918,7 @@
    "unblock_2liner": "یک کانال ترافیک ارگانیک (محتوای قابل جستجو برای محصولات آتلیه) به‌عنوان حداقل",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-061",
@@ -2113,7 +2113,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-007",
@@ -2283,7 +2283,7 @@
    "unblock_2liner": "یک drill بازیابی واقعی روی یک نود غیرحیاتی (۱۸۰) — نیم‌روز",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-202",
@@ -2325,7 +2325,7 @@
    "unblock_2liner": "قبل از هر تغییر بزرگ، export دلتا + pre-image (رویهٔ موجود) را اجباری کن",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-209",
@@ -2495,7 +2495,7 @@
    "unblock_2liner": "یک هدف آرشیو دوم (USB/دیسک محلی) وصل کن یا آرشیو را رسمی معلق اعلام کن",
    "verified_this_session": false,
    "seeded": true,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-222",
@@ -2622,7 +2622,7 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "reason_source": "measured this session (WHY-SLOW-250 evidence)",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
@@ -2666,7 +2666,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
@@ -2859,7 +2859,7 @@
    "unblock_2liner": "لینک وب‌فرم/واتس‌اپ در امضای quoteها برای کاهش اصطکاک پاسخ",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-057",
@@ -2881,7 +2881,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-058",
@@ -2923,7 +2923,7 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
@@ -2946,7 +2946,7 @@
    "unblock_2liner": "یک SKU را با دو قیمت متفاوت و معیار بازدید→افزودن به سبد بسنج",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-065",
@@ -3052,7 +3052,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-070",
@@ -3073,7 +3073,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "reason_source": "measured this session (WHY-SLOW-250 evidence)",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
@@ -3097,7 +3097,7 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-077",
@@ -3119,7 +3119,7 @@
    "unblock_2liner": "template دو بخشی: خدمات استاندارد (قیمت ثابت) + پروژهٔ سفارشی (برآورد)",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-079",
@@ -3140,7 +3140,7 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "reason_source": "measured this session (WHY-SLOW-250 evidence)",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
@@ -3227,7 +3227,7 @@
    "unblock_2liner": "همان شمارنده را در owner-review.json چاپ کن (کار لازم: یک خط aggregate)",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-099",
@@ -3356,7 +3356,7 @@
    "unblock_2liner": "استاندارد کارت: یک جملهٔ تصمیم + دو گزینه + پیامد هر کدام در یک خط",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-109",
@@ -3399,7 +3399,7 @@
    "unblock_2liner": "برای تغییرات غیرحساس، کلاس A را پیش‌فرض کن و شاهد را فقط برای اثر عام مصرف کن",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-116",
@@ -3441,7 +3441,7 @@
    "unblock_2liner": "قفل را به «اولین پاسخ مثبت مشتری» یا زمان (۱۴ روز) تغییر بده تا حلقهٔ بسته بشکند",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-118",
@@ -3631,7 +3631,7 @@
    "unblock_2liner": "جداسازی صریح train/holdout در هر چرخه با ثبت hash مجموعه",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
@@ -3653,7 +3653,7 @@
    "unblock_2liner": "سه بدنه را مقایسه و یکی را کانونیک کن؛ دو تای دیگر archive_",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-149",
@@ -3674,7 +3674,7 @@
    "unblock_2liner": "سیاست صریح: state = دادهٔ ماشین، فقط snapshot دوره‌ای در git",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-150",
@@ -3695,7 +3695,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-151",
@@ -3737,7 +3737,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-153",
@@ -3758,7 +3758,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-156",
@@ -3884,7 +3884,7 @@
    "unblock_2liner": "فضا آزاد کن یا هدف پشتیبان دوم تعریف کن",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-171",
@@ -3949,7 +3949,7 @@
    "unblock_2liner": "یکی کانونیک، دیگری pointer؛ با تاریخ انقضا",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-185",
@@ -4055,7 +4055,7 @@
    "unblock_2liner": "یک runbook کوتاه برای بحران دیسک (تا دفعهٔ بعد یک روز کامل نخورد)",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-193",
@@ -4099,7 +4099,7 @@
    "unblock_2liner": "مرور هفتگی را به یک کارت ثابت هفتگی تبدیل کن (با معیار عددی)",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-197",
@@ -4184,7 +4184,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-206",
@@ -4247,7 +4247,7 @@
    "unblock_2liner": "یک اسکریپت snapshot با توقف کوتاه ۶۰ ثانیه‌ای سرویس‌های نویسنده",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-221",
@@ -4269,7 +4269,7 @@
    "unblock_2liner": "هر قاعده را به یک چک قبل‌از‌عملیات در runbook نود تبدیل کن",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-233",
@@ -4291,7 +4291,7 @@
    "unblock_2liner": "یا سقف را برای خط تقاضا افزایش بده یا مدل تقاضای صفر-هزینه را بپذیر",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-235",
@@ -4312,7 +4312,7 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
@@ -4334,7 +4334,7 @@
    "unblock_2liner": "یک تلاش ورود دوباره با حساب درست + ثبت نتیجه",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-039",
@@ -4397,7 +4397,7 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
@@ -4440,7 +4440,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "reason_source": "measured this session (WHY-SLOW-250 evidence)",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
@@ -4463,7 +4463,7 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
@@ -4569,7 +4569,7 @@
    "unblock_2liner": "یک کارت: «کدام قفل‌ها هنوز لازم‌اند؟» — حذف قفل مرده، آزادسازی مسیر",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-138",
@@ -4632,7 +4632,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-142",
@@ -4653,7 +4653,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-167",
@@ -4674,7 +4674,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-176",
@@ -4716,7 +4716,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-180",
@@ -4801,7 +4801,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-229",
@@ -4822,7 +4822,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "reason_source": "measured this session (WHY-SLOW-250 evidence)",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
@@ -4845,7 +4845,7 @@
    "unblock_2liner": "",
    "verified_this_session": true,
    "seeded": false,
-   "anchor_quality": "resolvable",
+   "anchor_quality": "carries-labelled-weakness",
    "absence_search": "raw-hits recorded in ABSENCE-PROOFS.md; verdict unchanged"
   },
   {
@@ -4930,7 +4930,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-157",
@@ -5056,7 +5056,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-207",
@@ -5182,7 +5182,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-085",
@@ -5245,7 +5245,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-172",
@@ -5371,7 +5371,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-200",
@@ -5393,7 +5393,7 @@
    "unblock_2liner": "",
    "verified_this_session": false,
    "seeded": false,
-   "anchor_quality": "resolvable"
+   "anchor_quality": "carries-labelled-weakness"
   },
   {
    "id": "W-215",
@@ -5436,5 +5436,11 @@
  "anchor_stats_v4": {
   "note": "all 250 anchors now point at a resolvable file/command; 12 of them are absence searches whose verdicts stayed honest",
   "fixed_at": "2026-09-18T13:05:00Z"
+ },
+ "anchor_stats_v5": {
+  "resolvable": 182,
+  "labelled_weak": 68,
+  "note": "strict re-check: bare shorthand tokens are NOT counted as resolvable",
+  "at": "2026-09-18T13:10:00Z"
  }
 }
