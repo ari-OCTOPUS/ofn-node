@@ -1,0 +1,43 @@
+{
+ "schema": "octopus.closed-noop.v1",
+ "lane": "OCTOPUS-WHY-SLOW-250-20260918",
+ "items": [
+  {
+   "id": "W-035",
+   "title": "بودجهٔ API ماهانه ۰.۹ دلار از ۱۰۰ دلار است — کمبود بودجه علت کندی نیست",
+   "state": "closed_noop",
+   "reason": "api-budget: month_spent 0.8867/100، window 0.0337/10",
+   "evidence": [
+    "138:state/api-budget (b.status())"
+   ]
+  },
+  {
+   "id": "W-199",
+   "title": "EROFS روی ۱۳۸ (که دو روز نوشتن را بسته بود) با RES-05C رفع شده — علتِ رفع‌شده",
+   "state": "closed_noop",
+   "reason": "RES-05C verdict PASS_OWNER_NOTIFICATION_OBSERVED @03:19:07Z؛ EROFS gone",
+   "evidence": [
+    "09-LANES/RES-05C (evidence)"
+   ]
+  },
+  {
+   "id": "W-200",
+   "title": "OOM روی ۱۸۲ با swapfile ۲G رفع شده و gap001 مربوط به قبل از swapfile بود",
+   "state": "closed_noop",
+   "reason": "A7 swap drill PASSED + fleet audit: 182 failed units cleared (reset-failed)",
+   "evidence": [
+    "06-EVIDENCE/A7-SWAP-DRILL-20260918",
+    "commit a7761e1"
+   ]
+  },
+  {
+   "id": "W-215",
+   "title": "کلید leaf ناتس ۱۳۸ در پالس‌ها None بود که در ۰۹-۱۷ اصلاح شد — علتِ رفع‌شده",
+   "state": "closed_noop",
+   "reason": "commit a7761e1: 138 pulse key leaf->nats_leaf_active (verified leaf=True 23:47:29Z)",
+   "evidence": [
+    "git log (a7761e1)"
+   ]
+  }
+ ]
+}
