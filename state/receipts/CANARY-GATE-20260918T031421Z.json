@@ -1,0 +1,68 @@
+{
+  "action": "none (waiting; nothing touched)",
+  "at": "2026-09-18T03:14:21Z",
+  "node": {
+    "boot_id": "b7a638d4-adb7-4f15-a1d6-01986fa65c69",
+    "cooling": "0,0,0,0,0,",
+    "failed_units": "0",
+    "open_scopes": "0",
+    "restarts": "0",
+    "stray_workers": "0"
+  },
+  "overall": "NOT-PASS",
+  "schema": "octopus.receipt.v1",
+  "stats": {
+    "CANCELLED": 3,
+    "FAILED_FINAL": 3,
+    "PARKED": 1,
+    "SUCCEEDED": 28
+  },
+  "thermal": {
+    "hot_max_millic": 25923,
+    "samples": 40
+  },
+  "verdicts": [
+    {
+      "criterion": "no watchdog/service restart",
+      "detail": "NRestarts=0",
+      "verdict": "PASS"
+    },
+    {
+      "criterion": "no thermal throttling",
+      "detail": "cooling=[0, 0, 0, 0, 0] hot_max_millic=25923 samples=40",
+      "verdict": "PASS"
+    },
+    {
+      "criterion": "no queue corruption",
+      "detail": "double_open_leases=[]",
+      "verdict": "PASS"
+    },
+    {
+      "criterion": "exactly-once settlement",
+      "detail": "multiple_successes=[]",
+      "verdict": "PASS"
+    },
+    {
+      "criterion": "cgroup envelope proven for every dispatch in window",
+      "detail": "in_window={'VERIFIED': 19} (19 dispatches)",
+      "verdict": "PASS"
+    },
+    {
+      "criterion": "no work outlives its lease",
+      "detail": "overdue=[] healthy_in_flight=0 open_scopes=0 stray_workers=0",
+      "verdict": "PASS"
+    },
+    {
+      "criterion": "canary node stayed up for the window",
+      "detail": "distinct_boot_ids=['b7a638d4-adb7-4f15-a1d6-01986fa65c69']",
+      "verdict": "PASS"
+    },
+    {
+      "criterion": "24 h window actually elapsed",
+      "detail": "elapsed_h=2.2",
+      "verdict": "INCOMPLETE"
+    }
+  ],
+  "what": "RUN-TO-COMPLETION item 6 \u2014 canary gate (unattended evaluation)",
+  "window_start": "2026-09-18T01:00:00Z"
+}

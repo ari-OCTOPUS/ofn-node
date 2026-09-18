@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the canary gate at the 24h window end (with one fallback retry)
+
+[Timer]
+OnCalendar=2026-09-19 01:05:00
+OnCalendar=2026-09-20 01:05:00
+Persistent=true
+Unit=octopus-canary-gate.service
+
+[Install]
+WantedBy=timers.target

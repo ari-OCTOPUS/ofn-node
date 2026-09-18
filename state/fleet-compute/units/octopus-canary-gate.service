@@ -1,0 +1,11 @@
+[Unit]
+Description=OCTOPUS canary gate — 24h acceptance + PASS-gated allowed_nodes expansion (RUN-TO-COMPLETION item 6)
+Documentation=file:///home/ari/ofn/state/fleet-compute/cockpit.json
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+ExecStart=/usr/bin/python3 /home/ari/ofn/tools/canary_gate.py
+TimeoutStartSec=300
