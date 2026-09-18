@@ -1,0 +1,96 @@
+{
+  "schema": "octopus.receipt.v1",
+  "receipt_id": "P1-FORMAT-PARSE-20260904",
+  "issued_utc": "2026-09-04T23:23:03Z",
+  "author": "cursor-cloud-agent bc-ab40b0aa-2b73-4705-9145-6a6bf3e6aaa6",
+  "owner_ratified": false,
+  "body": "bc-ab40b0aa-2b73-4705-9145-6a6bf3e6aaa6",
+  "branch": "feat/p1-format-parse-20260904",
+  "parent_head_full": "7510c991a07088cc0a0c2097370eb0ba5d976e3a",
+  "vantage": "this_host_only",
+  "scope": "this_host_only",
+  "claim_type": "measurement",
+  "file_lock_zone": [
+    "ofn/kernel/format_class.py",
+    "ofn/kernel/parse_pin.py",
+    "tests/test_format_class.py",
+    "tests/test_parse_pin.py",
+    "tests/test_chaos_format_parse.py",
+    "09-LANES/P1-FORMAT-PARSE/LANE-REPORT.md",
+    "docs/octopus-surgery/architecture/2026-09-04/receipts/P1-FORMAT-PARSE-20260904.json"
+  ],
+  "not_written": [
+    "/workspace (trigger checkout cursor/taskenvelope-system-hardening-32e6 @7510c991a07088cc0a0c2097370eb0ba5d976e3a — origin/main #189; not written)",
+    "ofn/kernel/envelope.py",
+    "ofn/kernel/events.py",
+    "ofn/adapters/run_store.py",
+    "ofn/kernel/event_id.py",
+    "ofn/kernel/receipts.py",
+    "ofn/kernel/receipt_bind.py",
+    "ofn/kernel/typed_event.py",
+    "ofn/kernel/envelope_class.py",
+    "ofn/kernel/store_class.py",
+    "ofn/kernel/dedup.py",
+    "ofn/kernel/settlement.py",
+    "ofn/agents/campaign_envelope.py",
+    "docs/octopus-os/07-INCIDENTS.md (owned by docs/octopus-os-incidents-20260902 / #187; appended separately)",
+    ".github/CODEOWNERS",
+    "ofn/config.py",
+    "unpublished prefix_class/stem_pin",
+    "unpublished hex_class/width_pin",
+    "unpublished normalize_class/canon_pin",
+    "unpublished utf8_class/decode_pin",
+    "unpublished atomic_class/rename_pin",
+    "unpublished index_class/lookup_pin",
+    "kernel/codec_class.py / encode_pin.py (#198)"
+  ],
+  "action": "Complementary P1 on a new branch from origin/main: kernel-pure format_class + parse_pin. classify_format / admit_format classify run_id, event_id, and digest shapes without minting. classify is a START and is refused under HALT; inspect continues. Malformed or missing is UNKNOWN, not FALSE. pin_parse records a FIRST stem+body split of a FORMAT_FIT string. parse is a START. peek continues. prior_parsed=True refuses as already_parsed. Timeout forces UNKNOWN and does not prove concurrent writing and is not already_parsed. Sealed send/ready names refuse (sealed_effect). campaign_envelope_ready structurally ≠ send_authorized. grants_send / halt_blocks_inspect / halt_blocks_peek / mints_run_id / ready_is_authorized / claims_immutable / unknown_is_false / timeout_proves_concurrent / proposal_is_execution / promotes_ready_to_send / wires_into_run_store / already_parsed_is_first structurally False. Not wired into run_store.py. Does not claim filesystem immutability. Ready ≠ authorized.",
+  "verification": {
+    "command": "python3 -X utf8 -m unittest tests.test_format_class tests.test_parse_pin tests.test_chaos_format_parse tests.test_kernel_purity tests.test_envelope tests.test_run_store tests.test_token_ceiling tests.test_run_gate tests.test_chaos_owner_absent tests.test_tmpdir tests.test_envelope_class tests.test_store_class tests.test_receipt_bind tests.test_typed_event tests.test_event_id tests.test_receipts tests.test_dedup tests.test_settlement -q",
+    "ran_at_utc": "2026-09-04T23:23:03Z",
+    "head_full_at_run": "7510c991a07088cc0a0c2097370eb0ba5d976e3a",
+    "exit_code": 0,
+    "result": "492 passed, 0 failed, 0 skipped (stdlib unittest; pytest absent this host)",
+    "pytest_version": "absent — ModuleNotFoundError; stdlib unittest used",
+    "per_file": {
+      "tests/test_format_class.py": "35 passed, exit 0 (recount 2026-09-04T23:23:00Z, same parent)",
+      "tests/test_parse_pin.py": "31 passed, exit 0 (recount 2026-09-04T23:23:00Z, same parent)",
+      "tests/test_chaos_format_parse.py": "10 passed, exit 0 (recount 2026-09-04T23:23:00Z, same parent)",
+      "tests/test_kernel_purity.py": "10 passed, exit 0 (recount 2026-09-04T23:23:00Z, same parent)"
+    },
+    "new_module_precheck": {
+      "command": "python3 -X utf8 -m unittest tests.test_format_class tests.test_parse_pin tests.test_chaos_format_parse tests.test_kernel_purity -q",
+      "ran_at_utc": "2026-09-04T23:22:00Z",
+      "exit_code": 0,
+      "result": "86 passed, 0 failed, 0 skipped (format 35 / parse 31 / chaos 10 / purity 10)"
+    },
+    "tree_state": "dirty — this session's lock-zone files only"
+  },
+  "docs_first_read": {
+    "MASTER-BLUEPRINT.md": "absent on origin/main @7510c991a07088cc0a0c2097370eb0ba5d976e3a — UNKNOWN, not FALSE",
+    "07-INCIDENTS.md": "present on this-host /workspace checkout (stale vs #187) and on incidents branch origin/docs/octopus-os-incidents-20260902 @e4967a349e2e76f29d1069e5066a3a47a9d35474 (session i) this-run. Next append is session m.",
+    "CONTRIBUTING.md": "absent on origin/main @7510c991 — UNKNOWN, not FALSE",
+    "D-27": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-27-UNLOCK-DIRECTIVE.md",
+      "branch": "origin/main",
+      "sha256": "c55f90852fe2753a8a1650662d256a6b7a20549c67de578a32ddfd7d07041ea9",
+      "bytes": 5469,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    },
+    "D-28": {
+      "pointer": "docs/octopus-surgery/stage-01-lineage-scan/2026-09-01/sources/D-28-EDGE-RUNBOOK.md",
+      "branch": "this-host file on origin/main checkout",
+      "sha256": "c79f0e7467c70c639132e0d75ef0a98de5e733d5f0e49176a1eedd35dc73f28a",
+      "bytes": 16212,
+      "evidence_level": "B",
+      "filesystem_immutability": "UNKNOWN",
+      "match_vs_prior_memory": "MATCH"
+    }
+  },
+  "external_effects": "ZERO",
+  "ready_is_authorized": false,
+  "filesystem_immutability_claimed": false,
+  "wires_into_run_store": false
+}
