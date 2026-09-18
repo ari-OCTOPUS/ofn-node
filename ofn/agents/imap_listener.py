@@ -126,6 +126,16 @@ def classify(msg: email.message.Message, sender: str, known: dict) -> tuple:
         if any(w in low for w in QUOTE_WORDS):
             return "reply", "quote_request", body[:120]
         return "reply", "general", body[:120]
+    # AIRTASKER-WIRE 2026-09-08 (owner GO «وصلش کن»): ایمیلِ هشدارِ Airtasker =
+    # ایمیل ماشین، نه ایمیل شخصی مالک. شاخهٔ افزودنی — هر فرستندهٔ ناشناسِ
+    # دیگر دقیقاً مثل قبل noise می‌ماند (نه \Seen، نه حذف). پارسر غایب/خراب
+    # ⇒ همان رفتار قبلی (fail-closed به noisy-safety).
+    try:
+        from airtasker_alert_parser import is_airtasker_sender
+        if is_airtasker_sender(sender):
+            return "alert", "airtasker", subj[:60]
+    except Exception:  # noqa: BLE001
+        pass
     return "noise", "", ""
 
 
@@ -165,6 +175,16 @@ def _act(kind: str, intent: str, sender: str, lead_id: str,
     import sqlite3
     now = opslib.now_iso()
     result = {"kind": kind, "intent": intent, "from": sender[:40]}
+    # AIRTASKER-WIRE 2026-09-08: طبقهٔ alert — پارس/درج/کارت (dry محترم،
+    # هرگز raise). شاخهٔ افزودنی؛ مسیرهای reply/bounce موجود دست‌نخورده.
+    if kind == "alert":
+        try:
+            import airtasker_intake
+            result.update(airtasker_intake.handle_airtasker_alert(
+                msg, dry=dry, sender=sender))
+        except Exception as exc:  # noqa: BLE001
+            result["alert_error"] = f"{type(exc).__name__}"[:60]
+        return result
     if dry:
         result["dry"] = True
         return result

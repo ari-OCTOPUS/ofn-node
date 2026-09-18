@@ -1,0 +1,8 @@
+[Unit]
+Description=OCTOPUS event watcher: cards
+
+[Path]
+PathChanged=/home/ari/ofn/state/events/inbox/card_resolved
+DirectoryNotEmpty=/home/ari/ofn/state/events/inbox/card_resolved
+[Install]
+WantedBy=paths.target

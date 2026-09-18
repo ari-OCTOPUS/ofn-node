@@ -1,0 +1,14 @@
+[Unit]
+StartLimitIntervalSec=0
+Description=OCTOPUS event consumer: mail (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+Environment=OCTOPUS_GATE_TRIGGER=nats:mail_seen
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+ExecStart=/home/ari/ofn/tools/octopus_event_gate.sh mail /home/ari/ofn/state/events/inbox/mail_seen -- /bin/bash -c "python3 /home/ari/ofn/state/revenue-drive/reply_alert.py; python3 /home/ari/ofn/ofn/agents/imap_listener.py"
+TimeoutStartSec=900
+Nice=5
