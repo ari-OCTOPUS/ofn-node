@@ -1,0 +1,17 @@
+[Unit]
+Description=OCTOPUS ziman store sensor — beat-driven, order/payment/stock events (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target nats-leaf.service
+Wants=nats-leaf.service
+
+[Service]
+Type=simple
+User=ari
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+ExecStart=/usr/bin/python3 /home/ari/ofn/tools/ziman_watch.py
+Restart=always
+RestartSec=15
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

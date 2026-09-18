@@ -1,0 +1,14 @@
+[Unit]
+StartLimitIntervalSec=0
+Description=OCTOPUS event consumer: idle (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ari
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+Environment=OCTOPUS_GATE_TRIGGER=nats:idle
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+ExecStart=/home/ari/ofn/tools/octopus_event_gate.sh idle /home/ari/ofn/state/events/inbox/idle -- /bin/bash -c "python3 /home/ari/ofn/state/revenue-drive/money_executor.py; python3 /home/ari/ofn/state/revenue-drive/send_queue.py; python3 /home/ari/ofn/state/revenue-drive/revenue_state.py; python3 /home/ari/ofn/state/revenue-drive/revenue_drive.py; python3 /home/ari/ofn/state/revenue-drive/discovery_runner.py"
+TimeoutStartSec=1800
+Nice=5

@@ -1,0 +1,15 @@
+[Unit]
+Description=OCTOPUS IMAP IDLE push — mail_seen events (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target
+
+[Service]
+Type=simple
+User=ari
+EnvironmentFile=/home/ari/.config/ofn/secrets.env
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+ExecStart=/usr/bin/python3 /home/ari/ofn/tools/imap_idle.py
+Restart=always
+RestartSec=20
+
+[Install]
+WantedBy=multi-user.target

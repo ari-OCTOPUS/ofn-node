@@ -1,0 +1,16 @@
+[Unit]
+Description=OCTOPUS beat pulse — beat consumer: idle events + retry sweeper (EVENT-DRIVEN-OCTOPUS 2026-09-18)
+After=network-online.target nats-leaf.service
+Wants=nats-leaf.service
+
+[Service]
+Type=simple
+User=ari
+Environment=OCTOPUS_EVENTS_ROOT=/home/ari/ofn/state/events
+ExecStart=/usr/bin/python3 /home/ari/ofn/tools/beat_pulse.py
+Restart=always
+RestartSec=10
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

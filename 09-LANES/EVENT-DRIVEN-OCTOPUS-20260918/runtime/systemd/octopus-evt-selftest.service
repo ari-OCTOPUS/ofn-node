@@ -1,0 +1,5 @@
+[Unit]
+Description=OCTOPUS event-chain selftest consumer (scratch; removed after proof)
+[Service]
+Type=oneshot
+ExecStart=/home/ari/ofn/tools/octopus_event_gate.sh selftest /home/ari/ofn/state/events/inbox/selftest -- /home/ari/ofn/tools/selftest_run.sh

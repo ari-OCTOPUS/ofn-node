@@ -1,0 +1,7 @@
+[Unit]
+Description=OCTOPUS event-chain selftest watcher (scratch; removed after proof)
+[Path]
+PathChanged=/home/ari/ofn/state/events/inbox/selftest
+DirectoryNotEmpty=/home/ari/ofn/state/events/inbox/selftest
+[Install]
+WantedBy=paths.target
