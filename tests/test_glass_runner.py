@@ -82,7 +82,12 @@ def test_doctor_snapshot_reads_report(tmp_path, monkeypatch) -> None:
 
 def test_runner_has_no_external_send_or_write_paths() -> None:
     src = (AGENTS / "glass_runner.py").read_text(encoding="utf-8")
-    for banned in ("edited_message", "reply_markup", "parse_mode",
+    # 2026-09-18 (DEEPSCAN-7D): 'edited_message' از فهرست حذف شد — در glass_runner فقط
+    # به‌صورت u.get("edited_message") خوانده می‌شود (فیلد ورودیِ آپدیت مالک)، نه API
+    # خروجی. به‌جایش فعل‌های خروجیِ واقعی بن شدند تا گارد قوی‌تر شود، نه ضعیف‌تر:
+    # sendMessage مجاز است (پاسخ متنی ساده به مالک — طراحیِ خودِ runner).
+    for banned in ("editMessageText", "sendPhoto", "sendDocument", "deleteMessage",
+                   "reply_markup", "parse_mode",
                    "os.replace", "write_text(str(offset)" and None):
         if banned is None:
             continue

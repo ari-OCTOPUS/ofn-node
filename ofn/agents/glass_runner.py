@@ -227,26 +227,49 @@ def process_updates(updates: list[dict], token: str) -> dict:
                     pass
             else:
                 try:  # cosmetic ack; must never fail the spool contract
-                    from ofn.adapters import telegram_glass as _tgm
-                    _tgm._tg(token, "answerCallbackQuery",
-                             {"callback_query_id": str(cb.get("id") or ""),
-                              "text": "دریافت شد"})
+                    # PR fix: _tg lives in THIS module (telegram_glass has no
+                    # HTTP client); the runtime patch called a name that never
+                    # existed, so the ack silently never fired on the board.
+                    _tg(token, "answerCallbackQuery",
+                        {"callback_query_id": str(cb.get("id") or ""),
+                         "text": "دریافت شد"})
                 except Exception:
                     pass
             continue
     for u in updates:
-        msg = u.get("message") or {}
+        msg = u.get("message") or u.get("edited_message") or {}
         chat_id = str((msg.get("chat") or {}).get("id", ""))
+        # OWNER-LINK v5: identity = the SENDER. The owner may type from a chat
+        # (e.g. a group) whose id is not allow-listed; dropping his words there
+        # read to him as "it does not understand me" (2026-09-18).
+        sender_id = str((msg.get("from") or {}).get("id", ""))
+        from_chat = chat_id
+        if chat_id not in allowed and sender_id in allowed and sender_id:
+            chat_id = sender_id
         text = (msg.get("text") or "").strip()
         try:  # owner order 2026-09-13: never drop owner messages; G8 lane routing
             if chat_id in allowed and text:
                 import time as _t, json as _j
                 _dec = _route_owner_message(text)
+                # OWNER-LINK v2 (2026-09-18): ALWAYS mirror to the MONEY spool so
+                # no owner message can be lost by lane routing; B3-routed ones are
+                # flagged so the money consumer never binds them to a money card.
+                try:
+                    _mir = _j.dumps({"chat": str(chat_id), "text": text[:600],
+                                     "at": _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime()),
+                                     "lane": "MONEY",
+                                     "route_reason": "mirror:" + str(_dec["reason"]),
+                                     "mirrored_from": _dec["route"],
+                                     "kind": "message"}, ensure_ascii=False)
+                    with _LANES["MONEY"].open("a", encoding="utf-8") as _mf:
+                        _mf.write(_mir + chr(10))
+                except Exception:
+                    pass
                 _sp = _LANES.get(_dec["route"])
                 if _sp is not None:
                     _sp.parent.mkdir(parents=True, exist_ok=True)
                     with _sp.open("a", encoding="utf-8") as _f:
-                        _f.write(_j.dumps({"chat": str(chat_id), "text": text[:600],
+                        _f.write(_j.dumps({"chat": str(chat_id), "from_chat": from_chat, "text": text[:600],
                                            "at": _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime()),
                                            "lane": _dec["route"],
                                            "route_reason": _dec["reason"],
@@ -269,6 +292,24 @@ def process_updates(updates: list[dict], token: str) -> dict:
             except Exception:
                 pass
         if chat_id not in allowed or not text.startswith(tuple(tg.COMMANDS)):
+            # OWNER-LINK v4: a dropped update must never be invisible.
+            try:
+                import json as _dj, time as _dt
+                with (pathlib.Path("/home/ari/ofn/state/revenue-drive")
+                      / "glass-seen.jsonl").open("a", encoding="utf-8") as _df:
+                    _df.write(_dj.dumps({
+                        "at": _dt.strftime("%Y-%m-%dT%H:%M:%SZ", _dt.gmtime()),
+                        "update_id": u.get("update_id"),
+                        "type": ("callback" if u.get("callback_query") else
+                                 "edited_message" if u.get("edited_message") else "message"),
+                        "chat": chat_id, "sender": sender_id,
+                        "sender_allowed": sender_id in allowed,
+                        "chat_allowed": chat_id in allowed,
+                        "text": text[:120], "verdict": ("not_a_command"
+                            if chat_id in allowed else "chat_not_allowed")},
+                        ensure_ascii=False) + chr(10))
+            except Exception:
+                pass
             stats["ignored"] += 1
             continue
         snap = build_snapshot(text.split()[0].lower())
