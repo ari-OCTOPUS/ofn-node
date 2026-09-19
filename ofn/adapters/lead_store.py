@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Mapping
 
 from .sqlite_base import Pool, add_column_if_absent, apply_schema
@@ -12,6 +12,66 @@ from ..kernel.painting_math import b2b_account_score, lead_priority, source_qual
 MAX_TEXT = 1200
 MAX_PAGE = 100
 MAX_ACCOUNTS_PAGE = 1000  # accounts() needs to return all B2B leads for digest/enrichment, not cap at 100
+
+# J4 — the follow-up date rule. Two constants and one pure function, kept at
+# module level rather than on `LeadStore` so that the board reader can call
+# exactly this rule when it lands, instead of growing a second, drifting
+# definition of "overdue" beside it.
+#
+# `N` (nobody answered) and `M` (voicemail) are the only outcomes that imply a
+# retry on their own: they mean we did not get through, not that anything was
+# decided. Every other code, left without a date, is itself a decision — Ari
+# chose not to schedule one — and a queue that invents a date for it would be
+# inventing intent. `J` sits here deliberately: an interested account has
+# moved on to a meeting or quote, and showing it in a cold-call queue would
+# read as "ring them again", which is the confusion this reader exists to end.
+FOLLOWUP_IMPLIED_DAYS = {"N": 3, "M": 2}
+
+
+def _iso_date(value: object) -> str:
+    """The date part of an ISO value, or '' when it is not a readable date.
+
+    Returning '' rather than guessing is the point: a timestamp nobody can
+    parse must drop out of the queue, not enter it on an invented day.
+    """
+    text = str(value or "").strip()[:10]
+    if not text:
+        return ""
+    try:
+        return date.fromisoformat(text).isoformat()
+    except ValueError:
+        return ""
+
+
+def followup_due_for_outcome(outcome_code: object, called_at: object,
+                             next_action_at: object = "") -> tuple[str, str] | None:
+    """When a call's follow-up falls due, and whether a human said so.
+
+    Returns `(due_at, source)` where source is `recorded` — a date a person
+    typed into the call log — or `implied`, a date derived here at read time
+    and never written back. Returns `None` when no follow-up is owed.
+
+    A stored date wins for *every* outcome, with no exception for the closed
+    ones. Read literally, "rejected outcomes get no follow-up" would discard a
+    date a human had typed onto a rejected row, and a written date is a
+    decision: an outcome code is not allowed to overrule a person. The rule
+    only ever fills a gap the person left empty.
+
+    Pure by construction — no clock, no connection — so the board can reuse it
+    and a test can pin every branch.
+    """
+    recorded = _iso_date(next_action_at)
+    if recorded:
+        return (recorded, "recorded")
+    days = FOLLOWUP_IMPLIED_DAYS.get(str(outcome_code or "").strip().upper())
+    if days is None:
+        return None
+    base = _iso_date(called_at)
+    if not base:
+        return None
+    return ((date.fromisoformat(base) + timedelta(days=days)).isoformat(),
+            "implied")
+
 
 # Contact permission is evidence, not a property inferred from a phone number or
 # a public email address.  Values are deliberately explicit and normalized at
@@ -1748,6 +1808,111 @@ class LeadStore:
             except Exception: d["score_detail"] = {}
             out.append(d)
         return out
+
+    def _has_call_log(self) -> bool:
+        """Whether this file carries the call log at all.
+
+        `painting_call_log` and `v_account_last_call` arrive by a migration
+        that is not in this adapter's SCHEMA and that no Python path applies,
+        so a fresh file does not have them and neither does a node the
+        migration has not reached. Asking first is the difference between a
+        reader that says "no call history yet" and a panel that dies on a
+        missing table.
+        """
+        row = self._conn.execute(
+            "SELECT COUNT(*) AS n FROM sqlite_master "
+            "WHERE name IN ('painting_call_log', 'v_account_last_call')"
+        ).fetchone()
+        return int(row["n"]) >= 2
+
+    def call_followups_due(self, tenant: str, today: str, *,
+                           limit: int = MAX_PAGE) -> dict:
+        """Accounts whose follow-up has come due, from the call log. Read only.
+
+        Seven of Ari's first ten calls went unanswered and not one carries a
+        `next_action_at`, so nothing held them and nothing reminded him. The
+        data was already there; only this reader was missing.
+
+        Nothing here writes. `next_action_at` means "a human decided this",
+        and the moment a derived date is stored in that column Ari's
+        commitment and the system's inference stop being distinguishable —
+        `v_account_last_call` would then serve the guess to the digest as
+        fact. So the derived date is computed here, per read, and carried
+        beside the stored one: `due_at` with `source`, while `next_action_at`
+        passes through exactly as the database holds it.
+
+        `today` is a parameter rather than a call to the clock so the overdue
+        boundary is a fixed fact in a test and two reads in one request cannot
+        straddle midnight. Due *today* counts as due.
+        """
+        if not self._has_call_log():
+            return {"available": False, "today": today, "due": []}
+        boundary = _iso_date(today)
+        if not boundary:
+            return {"available": True, "today": today, "due": []}
+        cutoff = date.fromisoformat(boundary)
+
+        # The dialled number and the person's name stay in the SELECT's
+        # blind spot on purpose: this is a queue, not a contact card, and the
+        # board's row (which carries a raw mobile) is not the shape to copy.
+        rows = self._conn.execute(
+            "SELECT a.account_id, a.business_name,"
+            "       COALESCE(v.last_called_at, '') AS last_called_at,"
+            "       COALESCE(v.last_outcome, '')   AS last_outcome,"
+            "       COALESCE(v.next_action, '')    AS next_action,"
+            "       COALESCE(v.next_action_at, '') AS next_action_at,"
+            "       COALESCE(v.recall_after, '')   AS recall_after,"
+            "       COALESCE(v.attempts, 0)        AS attempts "
+            "  FROM painting_b2b_accounts a "
+            "  JOIN v_account_last_call v"
+            "         ON v.account_id = a.account_id"
+            "        AND v.tenant_id  = a.tenant_id "
+            " WHERE a.tenant_id = ?",
+            (tenant,),
+        ).fetchall()
+
+        due: list[dict] = []
+        for r in rows:
+            base = {
+                "account_id": r["account_id"],
+                "business_name": r["business_name"],
+                "last_outcome": r["last_outcome"],
+                "last_called_at": r["last_called_at"],
+                # Ari's own instruction to himself. It is free text and it is
+                # the only reason the row is actionable, so it passes through
+                # verbatim rather than being trimmed into uselessness.
+                "next_action": r["next_action"],
+                # The stored column, untouched — empty stays empty, so an
+                # implied date can never be mistaken for a recorded one.
+                "next_action_at": r["next_action_at"],
+                "attempt_no": int(r["attempts"] or 0),
+            }
+            # A follow-up and a long-horizon recall are different promises, so
+            # they stay different rows rather than one overwriting the other.
+            candidates = []
+            verdict = followup_due_for_outcome(
+                r["last_outcome"], r["last_called_at"], r["next_action_at"])
+            if verdict:
+                candidates.append(("followup", verdict[0], verdict[1]))
+            recall = _iso_date(r["recall_after"])
+            if recall:
+                candidates.append(("recall", recall, "recorded"))
+
+            for kind, due_at, source in candidates:
+                if due_at > boundary:
+                    continue
+                due.append({**base, "kind": kind, "due_at": due_at,
+                            "source": source,
+                            "days_overdue": (cutoff - date.fromisoformat(due_at)).days})
+
+        # Most overdue first: the oldest neglect is the closest to being lost.
+        due.sort(key=lambda d: (-d["days_overdue"], d["business_name"],
+                                d["kind"]))
+        return {
+            "available": True,
+            "today": today,
+            "due": due[:max(1, min(MAX_ACCOUNTS_PAGE, int(limit or MAX_PAGE)))],
+        }
 
     def create_tender(self, tenant: str, data: Mapping[str, object], *, now_iso: str) -> dict:
         title = _clean(data.get("title"), 220)
